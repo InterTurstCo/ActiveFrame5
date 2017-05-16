@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,11 +24,15 @@ public class ValidateActionHandler extends ConfigExtensionsGuiActionBase {
         if(context.getRootObjectId()!=null){
             List<DomainObject> toolingDos = getToolingDos(context.getRootObjectId());
             if(toolingDos.size()>0) {
-                try {
-                    configurationControlService.validateDrafts(toolingDos);
+                final Collection<ConfigurationException> configurationExceptions = configurationControlService.validateDrafts(toolingDos);
+                if (configurationExceptions.isEmpty()) {
                     aData.setOnSuccessMessage("Объект успешно проверен.");
-                } catch(ConfigurationException e){
-                    throw new GuiException(e.getMessage());
+                } else {
+                    StringBuilder resultMessage = new StringBuilder();
+                    for (ConfigurationException configurationException : configurationExceptions) {
+                        resultMessage.append(configurationException.getMessage()).append("\n");
+                    }
+                    throw new GuiException(resultMessage.toString());
                 }
             } else {
                 aData.setOnFailureMessage("Для данного обьекта нет шаблона");

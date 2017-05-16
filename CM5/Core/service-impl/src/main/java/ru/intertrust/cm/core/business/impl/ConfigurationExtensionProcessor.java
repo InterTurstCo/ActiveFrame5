@@ -65,10 +65,11 @@ public class ConfigurationExtensionProcessor {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void applyConfigurationExtensionCleaningOutInvalid() {
         synchronized (GLOBAL_LOCK) {
-            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
+            final ExtensionsInfo extensions = getExtensionsInformation();
+            cleanOutInvalid(extensions);
             createNewInactiveDistributiveExtensions();
             try {
-                applyNewExplorer(getNewExplorer(activeExtensions));
+                applyNewExplorer(getNewExplorer(extensions.getValidActiveExtensions()));
             } catch (Throwable e) {
                 Throwable cause = null;
                 if (e instanceof ConfigurationException) {
@@ -81,15 +82,15 @@ public class ConfigurationExtensionProcessor {
                     logger.error(((ConfigurationException) cause).getMessage());
                 }
                 logger.error("All extensions are deactivated", e);
-                deactivateExtensions(activeExtensions);
+                deactivateExtensions(extensions.getValidActiveExtensions());
             }
         }
     }
 
     public Set<ConfigChange> applyConfigurationExtension() {
         synchronized (GLOBAL_LOCK) {
-            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(false);
-            return applyNewExplorer(getNewExplorer(activeExtensions));
+            final ExtensionsInfo extensions = getExtensionsInformation();
+            return applyNewExplorer(getNewExplorer(extensions.getValidActiveExtensions()));
         }
     }
 
@@ -100,33 +101,79 @@ public class ConfigurationExtensionProcessor {
     }
 
     public Set<ConfigChange> activateDrafts(List<DomainObject> toolingDOs) {
-        return validateAndActivateDrafts(toolingDOs, false);
+        return validateAndActivateDrafts(toolingDOs);
     }
 
-    public Set<ConfigChange> validateAndActivateDrafts(List<DomainObject> toolingDOs, boolean validateOnly) {
+    public Set<ConfigChange> validateAndActivateDrafts(List<DomainObject> toolingDOs) {
+        synchronized (GLOBAL_LOCK) {
+            copyDraftsToExtensions(toolingDOs);
+            final ExtensionsInfo extensions = getExtensionsInformation();
+            cleanOutInvalid(extensions);
+            final ConfigurationExplorer newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
+            return applyNewExplorer(newExplorer);
+        }
+    }
+
+    public Collection<ConfigurationException> validateDrafts(List<DomainObject> toolingDOs) {
+        final ArrayList<ConfigurationException> result = new ArrayList<>();
+        synchronized (GLOBAL_LOCK) {
+            copyDraftsToExtensions(toolingDOs);
+            final ExtensionsInfo extensions = getExtensionsInformation();
+            if (!extensions.isValid()) {
+                result.addAll(extensions.getDeactivationReasons());
+                result.addAll(extensions.getDeactivationAndClearXMLReasons());
+                result.addAll(extensions.getDeleteReasons());
+            }
+            try {
+                final ConfigurationExplorer newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
+            } catch (ConfigurationException e) {
+                result.add(e);
+            }
+            return result;
+        }
+    }
+
+    public void copyDraftsToExtensions(List<DomainObject> toolingDOs) {
+        for (DomainObject toolingDO : toolingDOs) {
+            final Id extensionId = toolingDO.getReference("configuration_extension");
+            DomainObject extensionDO;
+            if (extensionId == null) {
+                extensionDO = new GenericDomainObject("configuration_extension");
+                TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
+                extensionDO.setString("type", getTagType(draftConfig.getClass()));
+                extensionDO.setString("name", draftConfig.getName());
+            } else{
+                extensionDO = domainObjectDao.find(extensionId, accessToken);
+            }
+            extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
+            extensionDO.setBoolean("active", true);
+            extensionDO = domainObjectDao.save(extensionDO, accessToken);
+            if (extensionId == null) {
+                toolingDO.setReference("configuration_extension", extensionDO.getId());
+                domainObjectDao.save(toolingDO, accessToken);
+            }
+        }
+    }
+
+    public void saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
         synchronized (GLOBAL_LOCK) {
             for (DomainObject toolingDO : toolingDOs) {
                 final Id extensionId = toolingDO.getReference("configuration_extension");
-                DomainObject extensionDO;
-                if (extensionId == null) {
-                    extensionDO = new GenericDomainObject("configuration_extension");
+                if (toolingDO.isNew()) {
+                    if (extensionId != null) {
+                        throw new ConfigurationException("New draft should not reference extension");
+                    }
                     TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
+                    DomainObject extensionDO = new GenericDomainObject("configuration_extension");
                     extensionDO.setString("type", getTagType(draftConfig.getClass()));
                     extensionDO.setString("name", draftConfig.getName());
-                } else{
-                    extensionDO = domainObjectDao.find(extensionId, accessToken);
-                }
-                extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
-                extensionDO.setBoolean("active", true);
-                extensionDO = domainObjectDao.save(extensionDO, accessToken);
-                if (extensionId == null) {
+                    extensionDO.setString("current_xml", null);
+                    extensionDO.setBoolean("active", false);
+                    extensionDO = domainObjectDao.save(extensionDO, accessToken);
                     toolingDO.setReference("configuration_extension", extensionDO.getId());
-                    domainObjectDao.save(toolingDO, accessToken);
                 }
+                domainObjectDao.save(toolingDO, accessToken);
             }
-            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
-            final ConfigurationExplorer newExplorer = getNewExplorer(activeExtensions);
-            return validateOnly ? null : applyNewExplorer(newExplorer);
         }
     }
 
@@ -155,18 +202,17 @@ public class ConfigurationExtensionProcessor {
                 extensionDO.setBoolean("active", true);
                 domainObjectDao.save(extensionDO, accessToken);
             }
-            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
-            return applyNewExplorer(getNewExplorer(activeExtensions));
+            final ExtensionsInfo extensions = getExtensionsInformation();
+            cleanOutInvalid(extensions);
+            return applyNewExplorer(getNewExplorer(extensions.getValidActiveExtensions()));
         }
     }
 
-    private ArrayList<TagInfo> getActiveExtensionsCleaningOutInvalid(boolean cleanOutInvalid) {
+    private ExtensionsInfo getExtensionsInformation() {
         final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
         final Map<String, ConfigurationExtensionHelper.TagTypeInfo> tagTypeByTagName = configurationExtensionHelper.getTagClassMapping();
-        ArrayList<DomainObject> toDeactivate = new ArrayList<>();
-        ArrayList<DomainObject> toDeactivateAndClearXML = new ArrayList<>();
-        ArrayList<Id> toDelete = new ArrayList<>();
-        ArrayList<TagInfo> activeExtensions = new ArrayList<>();
+
+        ExtensionsInfo extensionsInfo = new ExtensionsInfo();
 
         // get replaced and remove if they are not replaceable anymore
         // get "new" (not replaced) and remove if it's not allowed to create new anymore
@@ -175,20 +221,17 @@ public class ConfigurationExtensionProcessor {
             final String tagName = extensionDO.getString("name");
             final ConfigurationExtensionHelper.TagTypeInfo tagTypeInfo = tagTypeByTagName.get(tagType);
             if (tagTypeInfo == null) {
-                logger.warn(getTagDefString(tagType, tagName) + " deleted - tag unknown");
-                toDelete.add(extensionDO.getId());
+                extensionsInfo.addToDelete(extensionDO, new ConfigurationException(getTagDefString(extensionDO) + " deleted - tag unknown"));
                 continue;
             }
-            final TopLevelConfig distrConfig = configurationExtensionHelper.getDistributiveConfig(tagTypeInfo.clazz, tagName);
+            final TopLevelConfig distrConfig = configurationExtensionHelper.getDistributiveConfig(tagTypeInfo.getTopLevelConfigClass(), tagName);
             if (distrConfig != null) {
                 if (distrConfig.getReplacementPolicy() != TopLevelConfig.ExtensionPolicy.Runtime) {
-                    logger.warn(getTagDefString(tagType, tagName) + " deleted - tag is not replaceable");
-                    toDelete.add(extensionDO.getId());
+                    extensionsInfo.addToDelete(extensionDO, new ConfigurationException(getTagDefString(extensionDO) + " deleted - tag is not replaceable"));
                     continue;
                 }
-            } else if (tagTypeInfo.creationPolicy != TopLevelConfig.ExtensionPolicy.Runtime) {
-                logger.warn(getTagDefString(tagType, tagName) + " deleted - new tags of this type are not allowed");
-                toDelete.add(extensionDO.getId());
+            } else if (tagTypeInfo.getCreationPolicy() != TopLevelConfig.ExtensionPolicy.Runtime) {
+                extensionsInfo.addToDelete(extensionDO, new ConfigurationException(getTagDefString(extensionDO) + " deleted - new tags of this type are not allowed"));
             }
 
             final boolean active = extensionDO.getBoolean("active");
@@ -199,42 +242,50 @@ public class ConfigurationExtensionProcessor {
             TopLevelConfig extensionConfig = null;
             try {
                 extensionConfig = parseXML(overriddenXml);
-                if (!extensionConfig.getClass().equals(tagTypeInfo.clazz)) {
-                    throw new DeactivationWithCleaningException("XML doesn't match the tag");
-                }
-                if (!extensionConfig.getName().equals(tagName)) {
-                    throw new DeactivationException("XML doesn't match name");
+                if (!extensionConfig.getClass().equals(tagTypeInfo.getTopLevelConfigClass())) {
+                    extensionsInfo.addToDeactivateAndClearXML(extensionDO, new ConfigurationException("XML doesn't match the tag: " + overriddenXml));
+                } else if (!extensionConfig.getName().equals(tagName)) {
+                    extensionsInfo.addToDeactivate(extensionDO, new ConfigurationException("XML doesn't match name: " + overriddenXml));
+                } else {
+                    extensionsInfo.addValid(new TagInfo(extensionConfig, extensionDO));
                 }
             } catch (DeactivationException e) {
-                toDeactivate.add(extensionDO);
-                logger.warn(getTagDefString(tagType, tagName) + " deactivated. " + e.getMessage(), e);
+                extensionsInfo.addToDeactivate(extensionDO, (ConfigurationException) e.getCause());
                 continue;
             } catch (DeactivationWithCleaningException e) {
-                logger.warn(getTagDefString(tagType, tagName) + " deactivated and XML cleared. " + e.getMessage(), e);
-                toDeactivateAndClearXML.add(extensionDO);
+                extensionsInfo.addToDeactivateAndClearXML(extensionDO, (ConfigurationException) e.getCause());
                 continue;
             }
-
-            activeExtensions.add(new TagInfo(extensionConfig, extensionDO));
         }
+        return extensionsInfo;
+    }
 
-        if (!cleanOutInvalid) {
-            return activeExtensions;
-        }
-
-        for (DomainObject domainObject : toDeactivate) {
+    private void cleanOutInvalid(ExtensionsInfo extensionsInfo) {
+        ArrayList<DomainObject> toDeactivate = extensionsInfo.getToDeactivate();
+        for (int i = 0; i < toDeactivate.size(); i++) {
+            DomainObject domainObject = toDeactivate.get(i);
             domainObject.setBoolean("active", false);
+            logger.warn(getTagDefString(domainObject) + " deactivated. " + extensionsInfo.getDeactivationReasons().get(i).getMessage());
         }
-        for (DomainObject domainObject : toDeactivateAndClearXML) {
+        ArrayList<DomainObject> toDeactivateAndClearXML = extensionsInfo.getToDeactivateAndClearXML();
+        for (int i = 0; i < toDeactivateAndClearXML.size(); i++) {
+            DomainObject domainObject = toDeactivateAndClearXML.get(i);
             domainObject.setBoolean("active", false);
             domainObject.setString("current_xml", null);
+            logger.warn(getTagDefString(domainObject) + " deactivated and XML cleared. " + extensionsInfo.getDeactivationAndClearXMLReasons().get(i).getMessage());
         }
         final AccessToken systemAccessToken = accessToken;
-        domainObjectDao.save(toDeactivate, systemAccessToken);
-        domainObjectDao.save(toDeactivateAndClearXML, systemAccessToken);
-        domainObjectDao.delete(toDelete, systemAccessToken);
+        domainObjectDao.save(extensionsInfo.getToDeactivate(), systemAccessToken);
+        domainObjectDao.save(extensionsInfo.getToDeactivateAndClearXML(), systemAccessToken);
+        ArrayList<Id> toDelete = extensionsInfo.getToDelete();
+        for (int i = 0; i < toDelete.size(); i++) {
+            Id id = toDelete.get(i);
+            final List<Id> linkedDomainObjects = domainObjectDao.findLinkedDomainObjectsIds(id, "config_extension_tooling", "configuration_extension", systemAccessToken);
+            domainObjectDao.delete(linkedDomainObjects, systemAccessToken);
+            logger.warn(getTagDefString(extensionsInfo.getToDeleteDomainObjects().get(i)) + " deactivated and XML cleared. " + extensionsInfo.getDeleteReasons().get(i).getMessage());
+        }
+        domainObjectDao.delete(extensionsInfo.getToDelete(), systemAccessToken);
 
-        return activeExtensions;
     }
 
     private TopLevelConfig parseXML(String overriddenXml) {
@@ -322,7 +373,9 @@ public class ConfigurationExtensionProcessor {
         return domainObjectDao.findAll("configuration_extension", accessToken);
     }
 
-    private String getTagDefString(String tagType, String tagName) {
+    private String getTagDefString(DomainObject extensionDO) {
+        final String tagType = extensionDO.getString("type");
+        final String tagName = extensionDO.getString("name");
         return "Extension tag <" + tagType + " name=\"" + tagName + "\">";
     }
 
@@ -376,6 +429,73 @@ public class ConfigurationExtensionProcessor {
         @Override
         public int hashCode() {
             return name.hashCode();
+        }
+    }
+
+    private static class ExtensionsInfo {
+        private ArrayList<TagInfo> validActiveExtensions = new ArrayList<>();
+        private ArrayList<DomainObject> toDeactivate = new ArrayList<>();
+        private ArrayList<DomainObject> toDeactivateAndClearXML = new ArrayList<>();
+        private ArrayList<Id> toDelete = new ArrayList<>();
+        private ArrayList<DomainObject> toDeleteDomainObjects = new ArrayList<>();
+        private ArrayList<ConfigurationException> deactivationReasons = new ArrayList<>();
+        private ArrayList<ConfigurationException> deactivationAndClearXMLReasons = new ArrayList<>();
+        private ArrayList<ConfigurationException> deleteReasons = new ArrayList<>();
+
+        public void addValid(TagInfo tagInfo) {
+            validActiveExtensions.add(tagInfo);
+        }
+
+        public void addToDeactivate(DomainObject extension, ConfigurationException reason) {
+            toDeactivate.add(extension);
+            deactivationReasons.add(reason);
+        }
+
+        public void addToDeactivateAndClearXML(DomainObject extension, ConfigurationException reason) {
+            toDeactivateAndClearXML.add(extension);
+            deactivationAndClearXMLReasons.add(reason);
+        }
+
+        public void addToDelete(DomainObject extension, ConfigurationException reason) {
+            toDeleteDomainObjects.add(extension);
+            toDelete.add(extension.getId());
+            deleteReasons.add(reason);
+        }
+
+        public ArrayList<TagInfo> getValidActiveExtensions() {
+            return validActiveExtensions;
+        }
+
+        public ArrayList<DomainObject> getToDeactivate() {
+            return toDeactivate;
+        }
+
+        public ArrayList<DomainObject> getToDeactivateAndClearXML() {
+            return toDeactivateAndClearXML;
+        }
+
+        public ArrayList<Id> getToDelete() {
+            return toDelete;
+        }
+
+        public ArrayList<DomainObject> getToDeleteDomainObjects() {
+            return toDeleteDomainObjects;
+        }
+
+        public ArrayList<ConfigurationException> getDeactivationReasons() {
+            return deactivationReasons;
+        }
+
+        public ArrayList<ConfigurationException> getDeactivationAndClearXMLReasons() {
+            return deactivationAndClearXMLReasons;
+        }
+
+        public ArrayList<ConfigurationException> getDeleteReasons() {
+            return deleteReasons;
+        }
+
+        public boolean isValid() {
+            return toDeactivate.isEmpty() && toDelete.isEmpty() && toDeactivateAndClearXML.isEmpty();
         }
     }
 

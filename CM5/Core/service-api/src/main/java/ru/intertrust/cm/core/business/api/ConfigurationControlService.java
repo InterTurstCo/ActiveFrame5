@@ -58,8 +58,16 @@ public interface ConfigurationControlService {
      * Производит проверку конфигурационных расширений из черновиков
      * @param toolingDOs доменные объекты черновиков, которые необходимо проверить
      * @throws ConfigurationException
+     * @return список проблем (исключений), возникающих при попытке слияния черновиков. Пустая коллекция, если всё в порядке
      */
-    void validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
+    Collection<ConfigurationException> validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
+
+    /**
+     * Сохраняет черновики конфигурационных расширений
+     * @param toolingDOs доменные объекты черновиков, которые необходимо проверить
+     * @throws ConfigurationException
+     */
+    void saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
 
     /**
      * Производит активацию конфигурационных расширений из всех черновиков, применяет локально и уведомляет узлы кластера

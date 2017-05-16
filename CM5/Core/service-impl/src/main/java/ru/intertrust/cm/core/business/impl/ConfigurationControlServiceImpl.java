@@ -157,9 +157,15 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
-        extensionProcessor().validateAndActivateDrafts(toolingDOs, true);
+    public Collection<ConfigurationException> validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+        final Collection<ConfigurationException> validationResult = extensionProcessor().validateDrafts(toolingDOs);
         ejbContext.setRollbackOnly();
+        return validationResult;
+    }
+
+    @Override
+    public void saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+        extensionProcessor().saveDrafts(toolingDOs);
     }
 
     /**
@@ -182,7 +188,11 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     @Override
     public TopLevelConfig getDistributiveConfig(String tagType, String tagName) {
-        final Class<? extends ConfigurationExtensionHelper.TagTypeInfo> clazz = configurationExtensionHelper.getTagClassMapping().get(tagType).getClass();
+        final ConfigurationExtensionHelper.TagTypeInfo tagTypeInfo = configurationExtensionHelper.getTagClassMapping().get(tagType);
+        if (tagTypeInfo == null) {
+            return null;
+        }
+        final Class<? extends TopLevelConfig> clazz = tagTypeInfo.getTopLevelConfigClass();
         if (clazz == null) {
             return null;
         }

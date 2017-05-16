@@ -66,8 +66,8 @@ public class ConfigurationExtensionHelper {
     }
 
     public static class TagTypeInfo {
-        public final Class<? extends TopLevelConfig> clazz;
-        public TopLevelConfig.ExtensionPolicy creationPolicy;
+        private final Class<? extends TopLevelConfig> clazz;
+        private TopLevelConfig.ExtensionPolicy creationPolicy;
 
         public TagTypeInfo(Class<? extends TopLevelConfig> clazz) {
             this.clazz = clazz;
@@ -78,6 +78,14 @@ public class ConfigurationExtensionHelper {
                 logger.error("Can't instantiate class: " + clazz, e);
                 creationPolicy = TopLevelConfig.ExtensionPolicy.None;
             }
+        }
+
+        public Class<? extends TopLevelConfig> getTopLevelConfigClass() {
+            return clazz;
+        }
+
+        public TopLevelConfig.ExtensionPolicy getCreationPolicy() {
+            return creationPolicy;
         }
     }
 }
