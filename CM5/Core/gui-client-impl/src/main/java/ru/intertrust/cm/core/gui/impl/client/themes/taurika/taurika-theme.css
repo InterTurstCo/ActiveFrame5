@@ -1260,6 +1260,21 @@ div.gwt-Good-Label[class] {
     border-top: 2px solid #3464a6;
 }
 
+/*style for table*/
+
+tr[class\*="dataGridSelectedRow"] {
+    background: #f5f5f5 !important;
+    outline: 1px solid #cccccc;
+    box-shadow: none !important;
+}
+.dataGridHeaderRow th {
+    border-top: 1px solid #cccccc !important;
+    border-bottom: 1px solid #cccccc !important;
+    font-weight: bold !important;
+    background-color: rgb(52, 100, 166) !important;
+    color: #fff !important;
+}
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 

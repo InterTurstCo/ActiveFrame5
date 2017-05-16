@@ -66,7 +66,7 @@ public class ConfigurationExtensionProcessor {
             final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
             createNewInactiveDistributiveExtensions();
             try {
-                activateExtensions(activeExtensions);
+                applyNewExplorer(getNewExplorer(activeExtensions));
             } catch (Throwable e) {
                 Throwable cause = null;
                 if (e instanceof ConfigurationException) {
@@ -88,7 +88,7 @@ public class ConfigurationExtensionProcessor {
     public Set<ConfigChange> applyConfigurationExtension() {
         synchronized (GLOBAL_LOCK) {
             final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(false);
-            return activateExtensions(activeExtensions);
+            return applyNewExplorer(getNewExplorer(activeExtensions));
         }
     }
 
@@ -101,6 +101,10 @@ public class ConfigurationExtensionProcessor {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<ConfigChange> activateDrafts(List<DomainObject> toolingDOs) {
+        return validateAndActivateDrafts(toolingDOs, false);
+    }
+
+    public Set<ConfigChange> validateAndActivateDrafts(List<DomainObject> toolingDOs, boolean validateOnly) {
         synchronized (GLOBAL_LOCK) {
             for (DomainObject toolingDO : toolingDOs) {
                 final Id extensionId = toolingDO.getReference("configuration_extension");
@@ -122,7 +126,8 @@ public class ConfigurationExtensionProcessor {
                 }
             }
             final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
-            return activateExtensions(activeExtensions);
+            final ConfigurationExplorer newExplorer = getNewExplorer(activeExtensions);
+            return validateOnly ? null : applyNewExplorer(newExplorer);
         }
     }
 
@@ -154,7 +159,7 @@ public class ConfigurationExtensionProcessor {
                 domainObjectDao.save(extensionDO, accessToken);
             }
             final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
-            return activateExtensions(activeExtensions);
+            return applyNewExplorer(getNewExplorer(activeExtensions));
         }
     }
 
@@ -278,7 +283,7 @@ public class ConfigurationExtensionProcessor {
         domainObjectDao.save(newExtensibleTags, accessToken);
     }
 
-    private Set<ConfigChange> activateExtensions(Collection<TagInfo> activeExtensions) {
+    private ConfigurationExplorer getNewExplorer(Collection<TagInfo> activeExtensions) {
         HashMap<TagInfo, TagInfo> extensionsMap = new HashMap<>(activeExtensions.size() * 2);
         for (TagInfo activeExtension : activeExtensions) {
             extensionsMap.put(activeExtension, activeExtension);
@@ -300,8 +305,11 @@ public class ConfigurationExtensionProcessor {
         Configuration configuration = new Configuration();
         configuration.setConfigurationList(configurationList);
 
-        ConfigurationExplorer newExplorer = new ConfigurationExplorerImpl(configuration, context, false);
-        return ((ConfigurationExplorerImpl) configurationExplorer).copyFrom(((ConfigurationExplorerImpl) newExplorer));
+        return new ConfigurationExplorerImpl(configuration, context, false);
+    }
+
+    private Set<ConfigChange> applyNewExplorer(ConfigurationExplorer newExplorer) {
+        return ((ConfigurationExplorerImpl) configurationExplorer).copyFrom((ConfigurationExplorerImpl) newExplorer);
     }
 
     private void deactivateExtensions(Collection<TagInfo> activeExtensions) {
