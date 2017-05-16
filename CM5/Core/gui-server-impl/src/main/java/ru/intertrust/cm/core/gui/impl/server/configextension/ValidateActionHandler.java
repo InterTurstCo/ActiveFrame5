@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.extension;
+package ru.intertrust.cm.core.gui.impl.server.configextension;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -12,8 +12,10 @@ import java.util.List;
 /**
  * Created by Ravil on 16.05.2017.
  */
-@ComponentName("apply.action.handler")
-public class ApplyActionHandler extends GuiExtensionsActionBase {
+@ComponentName("validate.action.handler")
+public class ValidateActionHandler extends ConfigExtensionsGuiActionBase {
+
+
 
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {
@@ -22,8 +24,8 @@ public class ApplyActionHandler extends GuiExtensionsActionBase {
             List<DomainObject> toolingDos = getToolingDos(context.getRootObjectId());
             if(toolingDos.size()>0) {
                 try {
-                    configurationControlService.activateDrafts(toolingDos);
-                    aData.setOnSuccessMessage("Объект успешно активирован.");
+                    configurationControlService.validateDrafts(toolingDos);
+                    aData.setOnSuccessMessage("Объект успешно проверен.");
                 } catch(ConfigurationException e){
                     throw new GuiException(e.getMessage());
                 }

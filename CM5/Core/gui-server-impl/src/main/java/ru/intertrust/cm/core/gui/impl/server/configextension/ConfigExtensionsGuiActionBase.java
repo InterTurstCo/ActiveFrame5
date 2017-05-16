@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.extension;
+package ru.intertrust.cm.core.gui.impl.server.configextension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by Ravil on 16.05.2017.
  */
-public abstract class GuiExtensionsActionBase extends ActionHandler<SimpleActionContext, SimpleActionData> {
+public abstract class ConfigExtensionsGuiActionBase extends ActionHandler<SimpleActionContext, SimpleActionData> {
     @Autowired
     protected ConfigurationControlService configurationControlService;
 

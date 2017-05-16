@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.extension;
+package ru.intertrust.cm.core.gui.impl.server.configextension;
 
 import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityChecker;
 import ru.intertrust.cm.core.gui.api.server.action.ActionVisibilityContext;

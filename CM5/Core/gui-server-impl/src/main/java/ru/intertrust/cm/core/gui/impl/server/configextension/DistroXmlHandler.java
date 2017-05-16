@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.server.extension;
+package ru.intertrust.cm.core.gui.impl.server.configextension;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;

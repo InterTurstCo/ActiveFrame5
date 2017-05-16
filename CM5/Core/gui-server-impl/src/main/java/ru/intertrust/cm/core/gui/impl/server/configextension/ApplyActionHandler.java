@@ -1,12 +1,7 @@
-package ru.intertrust.cm.core.gui.impl.server.extension;
+package ru.intertrust.cm.core.gui.impl.server.configextension;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.ConfigurationControlService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
@@ -17,10 +12,8 @@ import java.util.List;
 /**
  * Created by Ravil on 16.05.2017.
  */
-@ComponentName("validate.action.handler")
-public class ValidateActionHandler extends GuiExtensionsActionBase {
-
-
+@ComponentName("apply.action.handler")
+public class ApplyActionHandler extends ConfigExtensionsGuiActionBase {
 
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {
@@ -29,8 +22,8 @@ public class ValidateActionHandler extends GuiExtensionsActionBase {
             List<DomainObject> toolingDos = getToolingDos(context.getRootObjectId());
             if(toolingDos.size()>0) {
                 try {
-                    configurationControlService.validateDrafts(toolingDos);
-                    aData.setOnSuccessMessage("Объект успешно проверен.");
+                    configurationControlService.activateDrafts(toolingDos);
+                    aData.setOnSuccessMessage("Объект успешно активирован.");
                 } catch(ConfigurationException e){
                     throw new GuiException(e.getMessage());
                 }
