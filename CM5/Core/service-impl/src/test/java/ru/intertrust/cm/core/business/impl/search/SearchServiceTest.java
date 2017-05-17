@@ -407,12 +407,14 @@ public class SearchServiceTest {
         SolrDocument a8Doc = docMock("doc8", 1f);
         SolrDocumentList aPartialList = new SolrDocumentList();
         aPartialList.addAll(Arrays.asList(a1Doc, a2Doc, a3Doc));
-        aPartialList.setMaxScore(3f);
+        aPartialList.setNumFound(8);
+        aPartialList.setMaxScore(10f);
         QueryResponse aPartialResponse = mock(QueryResponse.class);
         when(aPartialResponse.getResults()).thenReturn(aPartialList);
         SolrDocumentList aFullList = new SolrDocumentList();
         aFullList.addAll(Arrays.asList(a1Doc, a2Doc, a3Doc, a4Doc, a5Doc, a6Doc, a7Doc, a8Doc));
-        aFullList.setMaxScore(3f);
+        aFullList.setNumFound(8);
+        aFullList.setMaxScore(10f);
         QueryResponse aFullResponse = mock(QueryResponse.class);
         when(aFullResponse.getResults()).thenReturn(aFullList);
 
@@ -422,11 +424,13 @@ public class SearchServiceTest {
         SolrDocument b4Doc = docMock("docB", 1f);
         SolrDocumentList bPartialList = new SolrDocumentList();
         bPartialList.addAll(Arrays.asList(b1Doc, b2Doc, b3Doc));
+        bPartialList.setNumFound(4);
         bPartialList.setMaxScore(8f);
         QueryResponse bPartialResponse = mock(QueryResponse.class);
         when(bPartialResponse.getResults()).thenReturn(bPartialList);
         SolrDocumentList bFullList = new SolrDocumentList();
         bFullList.addAll(Arrays.asList(b1Doc, b2Doc, b3Doc, b4Doc));
+        bFullList.setNumFound(4);
         bFullList.setMaxScore(8f);
         QueryResponse bFullResponse = mock(QueryResponse.class);
         when(bFullResponse.getResults()).thenReturn(bFullList);

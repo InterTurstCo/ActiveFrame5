@@ -172,12 +172,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
         private CombiningFilter.Op combineOperation = CombiningFilter.AND;
 
+        private HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
+
         @SuppressWarnings("unchecked")
         public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
             for (SearchFilter filter : filters) {
                 if (filter instanceof CombiningFilter) {
                     CombiningFilter combiningFilter = (CombiningFilter) filter;
-                    if (combiningFilter.getOperation() == combineOperation) {
+                    if (combiningFilter.getFilters().size() == 1 || combiningFilter.getOperation() == combineOperation) {
                         addFilters(combiningFilter.getFilters(), query);
                     } else {
                         ComplexQuery nestedQuery = new ComplexQuery();
@@ -240,6 +242,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 int rows = Math.round(fetchLimit / clippingFactor);
                 ArrayList<SolrDocumentList> foundParts = new ArrayList<>(filterStrings.size());
                 for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+                    SolrDocumentList cached = foundCache.get(entry.getKey());
+                    if (cached != null && (cached.size() >= cached.getNumFound() || cached.size() >= rows)) {
+                        foundParts.add(cached);
+                        continue;
+                    }
+
                     SolrQuery solrQuery = new SolrQuery()
                             .setQuery(entry.getValue().toString())
                             .addFilterQuery(SolrFields.AREA + ":" + areas)
@@ -255,6 +263,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     }
                     QueryResponse response = executeSolrQuery(solrQuery);
                     foundParts.add(response.getResults());
+                    foundCache.put(entry.getKey(), response.getResults());
                     clipped = clipped || rows > 0 && response.getResults().size() == rows;
                 }
                 for (ComplexQuery nested : nestedQueries) {
