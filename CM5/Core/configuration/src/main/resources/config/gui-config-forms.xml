@@ -8,9 +8,9 @@
                             rendered="(not toggle-edit and not preview)  or (toggle-edit and preview)"/>
             <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false"/>
             <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
-            <act:action-ref name-ref="aSave" merged="true" rendered="not preview"/>
             <act:simple-action componentName="validate.action" action-handler="validate.action.handler" text="Проверить" merged="false" dirtySensitivity="true"/>
             <act:simple-action componentName="apply.action" action-handler="apply.action.handler" text="Применить" merged="false" dirtySensitivity="true"/>
+            <act:action componentName="save.config.action.handler" text="Сохранить" merged="false" dirtySensitivity="false"/>
         </act:tool-bar>
           <markup>
             <header>
