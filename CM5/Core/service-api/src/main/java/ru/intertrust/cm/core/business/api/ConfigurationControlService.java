@@ -67,7 +67,7 @@ public interface ConfigurationControlService {
      * @param toolingDOs доменные объекты черновиков, которые необходимо проверить
      * @throws ConfigurationException
      */
-    void saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
+    List<DomainObject> saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
 
     /**
      * Производит активацию конфигурационных расширений из всех черновиков, применяет локально и уведомляет узлы кластера

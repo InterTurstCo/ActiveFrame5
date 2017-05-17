@@ -154,8 +154,9 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
-    public void saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+    public ArrayList<DomainObject> saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
         synchronized (GLOBAL_LOCK) {
+            ArrayList<DomainObject> savedDOs = new ArrayList<>(toolingDOs.size());
             for (DomainObject toolingDO : toolingDOs) {
                 final Id extensionId = toolingDO.getReference("configuration_extension");
                 if (toolingDO.isNew()) {
@@ -171,8 +172,9 @@ public class ConfigurationExtensionProcessor {
                     extensionDO = domainObjectDao.save(extensionDO, accessToken);
                     toolingDO.setReference("configuration_extension", extensionDO.getId());
                 }
-                domainObjectDao.save(toolingDO, accessToken);
+                savedDOs.add(domainObjectDao.save(toolingDO, accessToken));
             }
+            return savedDOs;
         }
     }
 

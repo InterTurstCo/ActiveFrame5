@@ -163,8 +163,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     @Override
-    public void saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
-        extensionProcessor().saveDrafts(toolingDOs);
+    public List<DomainObject> saveDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+        return extensionProcessor().saveDrafts(toolingDOs);
     }
 
     /**
