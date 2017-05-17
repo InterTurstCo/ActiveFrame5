@@ -46,16 +46,16 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 
 /**
  * Компонент, осуществляющий индексацию доменных объектов при их изменении.
- * Устанавливается как обработчик точки расширения после сохранения доменного объекта
- * ({@link AfterSaveExtensionHandler}).
+ * Устанавливается как обработчик точки расширения после сохранения, а также удаления доменного объекта
+ * ({@link AfterSaveAfterCommitExtensionHandler}, {@link AfterDeleteAfterCommitExtensionHandler}).
  * <p>Компонент определяет все области поиска, в которых должен проиндексироваться изменённый объект,
  * формирует поисковые запросы с использованием Solrj, но не выполняет обращение к серверу Solr.
  * Вместо этого запросы добавляются в очередь, обслуживаемую экземпляром класса {@link SolrUpdateRequestQueue},
@@ -64,7 +64,7 @@ import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
  * @author apirozhkov
  */
 @ExtensionPoint
-public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterDeleteExtensionHandler {
+public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHandler, AfterDeleteAfterCommitExtensionHandler {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
 
