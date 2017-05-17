@@ -44,16 +44,16 @@ public interface ConfigurationControlService {
     /**
      * Производит активацию конфигурационных расширений из черновиков, применяет локально и уведомляет узлы кластера
      * @param toolingIds идентификаторы черновиков, которые необходимо активировать
-     * @throws ConfigurationException
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
      */
-    void activateDraftsById(List<Id> toolingIds) throws ConfigurationException;
+    void activateDraftsById(List<Id> toolingIds) throws SummaryConfigurationException;
 
     /**
      * Производит активацию конфигурационных расширений из черновиков, применяет локально и уведомляет узлы кластера
      * @param toolingDOs доменные объекты черновиков, которые необходимо активировать
-     * @throws ConfigurationException
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
      */
-    void activateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
+    void activateDrafts(List<DomainObject> toolingDOs) throws SummaryConfigurationException;
 
     /**
      * Производит проверку конфигурационных расширений из черновиков
@@ -73,14 +73,36 @@ public interface ConfigurationControlService {
      * Производит активацию конфигурационных расширений из всех черновиков, применяет локально и уведомляет узлы кластера
      * @throws ConfigurationException
      */
-    void activateDrafts() throws ConfigurationException;
+    void activateDrafts() throws SummaryConfigurationException;
+
+    /**
+     * Производит активацию неактивных конфигурационных расширений, применяет локально и уведомляет узлы кластера. Активные расширения игнорируются.
+     * @param files файлы конфигураций
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
+     */
+    void activateFromFiles(Collection<File> files) throws SummaryConfigurationException;
 
     /**
      * Производит активацию конфигурационных расширений из набора файлов, применяет локально и уведомляет узлы кластера
-     * @param files файлы конфигураций
-     * @throws ConfigurationException
+     * @param extensionIds список идентификаторов расширений
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
      */
-    void activateFromFiles(Collection<File> files) throws ConfigurationException;
+    void activateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException;
+
+    /**
+     * Производит деактивацию конфигурационных расширений из набора файлов, применяет локально и уведомляет узлы кластера
+     * @param extensionIds список идентификаторов расширений
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке деактивации расширений
+     */
+    void deactivateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException;
+
+    /**
+     * Производит удаление конфигурационных расширений из набора файлов, применяет локально и уведомляет узлы кластера
+     * @param extensionIds список идентификаторов расширений
+     * @throws ConfigurationException, возникающих при попытке удаления расширений дистрибутива
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке удаления расширений
+     */
+    void deleteNewExtensions(List<Id> extensionIds) throws ConfigurationException, SummaryConfigurationException;
 
     /**
      * Возвращает TopLevelConfig из дистрибутива конфигурации
@@ -89,4 +111,18 @@ public interface ConfigurationControlService {
      * @return TopLevelConfig дистрибутива конфигурации
      */
     TopLevelConfig getDistributiveConfig(String tagType, String tagName);
+
+    /**
+     * Производит проверку неактивных конфигурационных расширений аналогичную тому, которая происходит при попытке их активации. Активные расширения игнорируются.
+     * @param extensionIds список идентификаторов расширений, которые необходимо проверить
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
+     */
+    void validateInactiveExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException;
+
+    /**
+     * Экспортирует активные расширения в файл
+     * @param file файл для экспорта
+     * @throws ConfigurationException если экспорт неудачен
+     */
+    void exportActiveExtensions(File file) throws ConfigurationException;
 }

@@ -141,7 +141,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
      * {@inheritDoc}
      */
     @Override
-    public void activateDraftsById(List<Id> toolingIds) throws ConfigurationException {
+    public void activateDraftsById(List<Id> toolingIds) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDraftsById(toolingIds);
         notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
     }
@@ -150,7 +150,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
      * {@inheritDoc}
      */
     @Override
-    public void activateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+    public void activateDrafts(List<DomainObject> toolingDOs) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts(toolingDOs);
         notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
     }
@@ -171,7 +171,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
      * {@inheritDoc}
      */
     @Override
-    public void activateDrafts() throws ConfigurationException {
+    public void activateDrafts() throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts();
         notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
     }
@@ -180,22 +180,61 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
      * {@inheritDoc}
      */
     @Override
-    public void activateFromFiles(Collection<File> files) throws ConfigurationException {
+    public void activateFromFiles(Collection<File> files) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateFromFiles(files);
         notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param extensionIds
+     */
+    @Override
+    public void activateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().activateExtensions(extensionIds);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param extensionIds
+     */
+    @Override
+    public void deactivateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().deactivateExtensions(extensionIds);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteNewExtensions(List<Id> extensionIds) throws ConfigurationException, SummaryConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().deleteNewExtensions(extensionIds);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TopLevelConfig getDistributiveConfig(String tagType, String tagName) {
-        final ConfigurationExtensionHelper.TagTypeInfo tagTypeInfo = configurationExtensionHelper.getTagClassMapping().get(tagType);
-        if (tagTypeInfo == null) {
-            return null;
-        }
-        final Class<? extends TopLevelConfig> clazz = tagTypeInfo.getTopLevelConfigClass();
-        if (clazz == null) {
-            return null;
-        }
-        return configurationExtensionHelper.getDistributiveConfig(clazz, tagName);
+        return configurationExtensionHelper.getDistributiveConfig(tagType, tagName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void validateInactiveExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
+        extensionProcessor().validateExtensionsById(extensionIds, true);
+        ejbContext.setRollbackOnly();
+    }
+
+    @Override
+    public void exportActiveExtensions(File file) throws ConfigurationException {
+        extensionProcessor().exportActiveExtensions(file);
     }
 
     private ConfigurationExtensionProcessor extensionProcessor() {
