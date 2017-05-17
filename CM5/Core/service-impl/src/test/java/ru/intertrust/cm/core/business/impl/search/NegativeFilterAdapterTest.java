@@ -44,7 +44,7 @@ public class NegativeFilterAdapterTest {
         when(searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass())).thenReturn(nestedAdapter);
         when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("(cm_fielda:value OR cm_fieldb:12)");
         String result = adapter.getFilterString(filter, query);
-        assertEquals("NOT (cm_fielda:value OR cm_fieldb:12)", result);
+        assertEquals("-(cm_fielda:value OR cm_fieldb:12)", result);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class NegativeFilterAdapterTest {
     public void testNegativeInside() {
         when(filter.getBaseFilter()).thenReturn(nestedFilter);
         when(searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass())).thenReturn(nestedAdapter);
-        when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("NOT (some_field:some condition)");
+        when(nestedAdapter.getFilterString(nestedFilter, query)).thenReturn("-(some_field:some condition)");
         String result = adapter.getFilterString(filter, query);
         assertEquals("(some_field:some condition)", result);
     }

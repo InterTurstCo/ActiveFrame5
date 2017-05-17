@@ -132,19 +132,19 @@
                     
     <jee:local-slsb id="interserverLockingService"
                     jndi-name="java:module/InterserverLockingServiceImpl!ru.intertrust.cm.core.business.api.InterserverLockingService"
-                    business-interface="ru.intertrust.cm.core.business.api.InterserverLockingService"/>                    
+                    business-interface="ru.intertrust.cm.core.business.api.InterserverLockingService"/>
 
     <jee:local-slsb id="asyncPluginExecutor"
                     jndi-name="java:module/AsyncPluginExecutor!ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor"
-                    business-interface="ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor"/>                    
+                    business-interface="ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor"/>
 
     <jee:local-slsb id="pluginService"
                     jndi-name="java:module/PluginService!ru.intertrust.cm.core.business.api.plugin.PluginService"
-                    business-interface="ru.intertrust.cm.core.business.api.plugin.PluginService"/>                    
+                    business-interface="ru.intertrust.cm.core.business.api.plugin.PluginService"/>
 
     <jee:local-slsb id="clusterManager"
                     jndi-name="java:module/ClusterManager!ru.intertrust.cm.core.business.api.ClusterManager"
-                    business-interface="ru.intertrust.cm.core.business.api.ClusterManager"/>                    
+                    business-interface="ru.intertrust.cm.core.business.api.ClusterManager"/>
 
 
     <bean id="transactionalCrudService"
@@ -222,7 +222,7 @@
                 <entry key="ru.intertrust.cm.core.business.api.dto.EmptyValueFilter"
                        value="ru.intertrust.cm.core.business.impl.search.EmptyValueFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.BooleanSearchFilter"
-                       value="ru.intertrust.cm.core.business.impl.search.BooleanValueFilterAdapter"/>       
+                       value="ru.intertrust.cm.core.business.impl.search.BooleanValueFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.NegativeFilter"
                        value="ru.intertrust.cm.core.business.impl.search.NegativeFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.CombiningFilter"
@@ -244,7 +244,7 @@
           class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorImpl"/>
           
     <bean id="notificationServiceController"
-          class="ru.intertrust.cm.core.business.impl.notification.NotificationServiceControllerImpl"/>          
+          class="ru.intertrust.cm.core.business.impl.notification.NotificationServiceControllerImpl"/>
 
     <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
 
@@ -283,9 +283,9 @@
 
     <bean id="threadContext" class="ru.intertrust.cm.core.business.impl.ThreadContextImpl" />
     
-    <bean id="pluginStorage" class="ru.intertrust.cm.core.business.impl.plugin.PluginStorageImpl" />    
+    <bean id="pluginStorage" class="ru.intertrust.cm.core.business.impl.plugin.PluginStorageImpl" />
 
-    <bean id="resourceService" class="ru.intertrust.cm.core.business.impl.ResourceServiceImpl" />    
+    <bean id="resourceService" class="ru.intertrust.cm.core.business.impl.ResourceServiceImpl" />
     
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters">
@@ -301,12 +301,12 @@
         </property>
         <property name="requestFactory">
             <!-- bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory"-->
-            <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory">            
+            <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory">
                 <property name="readTimeout" value="${report.server.read.timeout:600000}" />
                 <property name="connectTimeout" value="${report.server.connect.timeout:60000}" />
-            </bean>        
+            </bean>
         </property>
-    </bean>    
+    </bean>
     
     <bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
         <constructor-arg ref="customObjectMapper"/>

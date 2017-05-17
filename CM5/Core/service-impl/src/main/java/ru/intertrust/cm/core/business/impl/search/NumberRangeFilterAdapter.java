@@ -53,6 +53,11 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
         return null;
     }
 
+    @Override
+    public boolean isCompositeFilter(NumberRangeFilter filter) {
+        return false;
+    }
+
     private static String makeSolrFieldFilter(NumberRangeFilter filter, SearchFieldType type) {
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)

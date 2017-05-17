@@ -45,6 +45,11 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
         return null;
     }
 
+    @Override
+    public boolean isCompositeFilter(OneOfListFilter filter) {
+        return false;
+    }
+
     private static String makeSolrFieldFilter(String name, SearchFieldType type, List<ReferenceValue> values) {
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)

@@ -167,17 +167,30 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
     }
 
-    private class ComplexQuery {
+    class ComplexQuery {
         private HashMap<String, StringBuilder> filterStrings = new HashMap<>();
         private ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
-        private CombiningFilter.Op combineOperation = CombiningFilter.AND;
+        CombiningFilter.Op combineOperation = CombiningFilter.AND;
+        boolean negateResult = false;
 
         private HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
 
-        @SuppressWarnings("unchecked")
-        public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
+        public ComplexQuery newNestedQuery() {
+            ComplexQuery nestedQuery = new ComplexQuery();
+            nestedQueries.add(nestedQuery);
+            return nestedQuery;
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
             for (SearchFilter filter : filters) {
-                if (filter instanceof CombiningFilter) {
+                FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
+
+                if (adapter.isCompositeFilter(filter)) {
+                    ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
+                    continue;
+                }
+                /*if (filter instanceof CombiningFilter) {
                     CombiningFilter combiningFilter = (CombiningFilter) filter;
                     if (combiningFilter.getFilters().size() == 1 || combiningFilter.getOperation() == combineOperation) {
                         addFilters(combiningFilter.getFilters(), query);
@@ -189,9 +202,21 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     }
                     continue;
                 }
+                if (filter instanceof NegativeFilter
+                        && ((NegativeFilter) filter).getBaseFilter() instanceof CombiningFilter) {
+                    CombiningFilter combiningFilter = (CombiningFilter) ((NegativeFilter) filter).getBaseFilter();
+                    if (combiningFilter.getFilters().size() == 1) {
+                        addFilters(Collections.<SearchFilter>singleton(
+                                new NegativeFilter(combiningFilter.getFilters().get(0))), query);
+                    } else {
+                        ComplexQuery nestedQuery = new ComplexQuery();
+                        nestedQuery.combineOperation = combiningFilter.getOperation();
+                        nestedQuery.negate = true;
+                        nestedQuery.addFilters(combiningFilter.getFilters(), query);
+                        nestedQueries.add(nestedQuery);
+                    }
+                }*/
 
-                @SuppressWarnings("rawtypes")
-                FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
                 String filterValue = adapter.getFilterString(filter, query);
                 if (filterValue == null || filterValue.isEmpty()) {
                     continue;
@@ -222,6 +247,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
 
         public SolrDocumentList execute(int fetchLimit, SearchQuery query) {
+            if (negateResult) {
+                for (StringBuilder str : filterStrings.values()) {
+                    str.insert(0, "-(").append(")");
+                }
+            }
+
             StringBuilder areas = new StringBuilder();
             for (String areaName : query.getAreas()) {
                 areas.append(areas.length() == 0 ? "(" : " OR ")
@@ -274,6 +305,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (foundParts.size() == 1) {
                     result = foundParts.get(0);
                 } else {
+                    // TODO special processing for negateResult==true needed
                     result = combineResults(foundParts, combineOperation == CombiningFilter.AND
                             ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
                 }

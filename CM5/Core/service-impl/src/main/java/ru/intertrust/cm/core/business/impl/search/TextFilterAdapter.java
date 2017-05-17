@@ -89,6 +89,11 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         return fields;
     }
 
+    @Override
+    public boolean isCompositeFilter(TextSearchFilter filter) {
+        return false;
+    }
+
     private static String makeSolrFieldName(String field, String langId, SearchFieldType type) {
         StringBuilder result = new StringBuilder(SolrFields.FIELD_PREFIX);
         if (langId == null || langId.isEmpty()) {

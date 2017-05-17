@@ -46,4 +46,9 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
         time.set(Calendar.MILLISECOND, start ? 0 : 999);
         return ThreadSafeDateFormat.format(time.getTime(), DATE_PATTERN);
     }
+
+    @Override
+    public boolean isCompositeFilter(DatePeriodFilter filter) {
+        return false;
+    }
 }

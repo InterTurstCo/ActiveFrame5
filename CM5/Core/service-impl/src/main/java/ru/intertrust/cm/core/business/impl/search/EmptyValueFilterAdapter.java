@@ -61,4 +61,9 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         return result.toString();
     }
 
+    @Override
+    public boolean isCompositeFilter(EmptyValueFilter filter) {
+        return false;
+    }
+
 }

@@ -28,4 +28,9 @@ public class BooleanValueFilterAdapter implements FilterAdapter<BooleanSearchFil
         return null;
     }
 
+    @Override
+    public boolean isCompositeFilter(BooleanSearchFilter filter) {
+        return false;
+    }
+
 }

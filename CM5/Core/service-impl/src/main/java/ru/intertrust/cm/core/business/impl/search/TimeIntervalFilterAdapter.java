@@ -47,6 +47,11 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         return null;
     }
 
+    @Override
+    public boolean isCompositeFilter(TimeIntervalFilter filter) {
+        return false;
+    }
+
     private static String makeSolrFieldFilter(TimeIntervalFilter filter, SearchFieldType type) {
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)

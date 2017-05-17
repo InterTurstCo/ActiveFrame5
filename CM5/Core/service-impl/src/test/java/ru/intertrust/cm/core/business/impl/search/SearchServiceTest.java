@@ -12,6 +12,7 @@ import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -34,8 +35,11 @@ import org.mockito.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.NegativeFilter;
 import ru.intertrust.cm.core.business.api.dto.NumberRangeFilter;
 import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -57,6 +61,9 @@ public class SearchServiceTest {
     @Mock private QueryCollectionRetriever queryCollectionRetriever;
 
     @InjectMocks private SearchServiceImpl service = new SearchServiceImpl();
+
+    @InjectMocks private NegativeFilterAdapter negAdapter = new NegativeFilterAdapter();
+    @InjectMocks private CombiningFilterAdapter combAdapter = new CombiningFilterAdapter();
 
     //@Captor private ArgumentCaptor<List<Filter>> filters;
 
@@ -457,6 +464,88 @@ public class SearchServiceTest {
         }
     }
 
+    @Test    // CMFIVE-9635 test
+    public void testExtendedSearch_CompositeFilters() throws Exception {
+        // Подготовка данных
+        SearchQuery query = new SearchQuery();
+        query.addAreas(Arrays.asList("TestArea"));
+        query.setTargetObjectType("TargetType");
+        Id idAMock = mock(Id.class);
+        when(idAMock.toStringRepresentation()).thenReturn("id_A");
+        Id idBMock = mock(Id.class);
+        when(idBMock.toStringRepresentation()).thenReturn("id_B");
+        Calendar dateEnd = Calendar.getInstance();
+        dateEnd.set(2017, 4, 5, 10, 30);
+        query.addFilter(new TextSearchFilter("StringField", "text search"));
+        query.addFilter(new NegativeFilter(new CombiningFilter(CombiningFilter.Op.OR,
+                new OneOfListFilter("ReferenceField", Arrays.asList(new ReferenceValue(idAMock), new ReferenceValue(idBMock))),
+                new TimeIntervalFilter("DateField", null, dateEnd.getTime()))));
+
+        FilterAdapter<SearchFilter> adapterMock = mock(FilterAdapter.class);
+        when((FilterAdapter<SearchFilter>)searchFilterImplementorFactory
+                .createImplementorFor(TextSearchFilter.class)).thenReturn(adapterMock);
+        when((FilterAdapter<SearchFilter>)searchFilterImplementorFactory
+                .createImplementorFor(OneOfListFilter.class)).thenReturn(adapterMock);
+        when((FilterAdapter<SearchFilter>)searchFilterImplementorFactory
+                .createImplementorFor(TimeIntervalFilter.class)).thenReturn(adapterMock);
+        when(adapterMock.getFilterString(argThat(isA(TextSearchFilter.class)), any(SearchQuery.class)))
+                .thenReturn("<text filter>");
+        when(adapterMock.getFilterString(argThat(isA(OneOfListFilter.class)), any(SearchQuery.class)))
+                .thenReturn("<reference filter>");
+        when(adapterMock.getFilterString(argThat(isA(TimeIntervalFilter.class)), any(SearchQuery.class)))
+                .thenReturn("<date filter>");
+        // Поскольку адаптеры композитных фильтров работают в тесном взаимодействии с классом SearchServiceImpl,
+        // для этих фильтров используются реальные адаптеры
+        when((FilterAdapter<NegativeFilter>)searchFilterImplementorFactory
+                .createImplementorFor(NegativeFilter.class)).thenReturn(negAdapter);
+        when((FilterAdapter<CombiningFilter>)searchFilterImplementorFactory
+                .createImplementorFor(CombiningFilter.class)).thenReturn(combAdapter);
+
+        IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
+        when(configMock.getType()).thenReturn("TargetType");
+
+        when(configHelper.findApplicableTypes("DateField", Arrays.asList("TestArea"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("TestArea"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+
+        // Возвращаются пустые наборы документов, т.к. нужно проверить только правильность запросов к Solr
+        QueryResponse response = mock(QueryResponse.class);
+        when(solrServer.query(any(SolrParams.class))).thenReturn(response);
+        SolrDocumentList docList = new SolrDocumentList();
+        when(response.getResults()).thenReturn(docList);
+
+        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+
+        // Вызов проверяемого метода
+        service.search(query, "TestCollection", 20);
+
+        // Проверка правильности запросов к Solr
+        ArgumentCaptor<SolrQuery> params = ArgumentCaptor.forClass(SolrQuery.class);
+        verify(solrServer, times(2)).query(params.capture());
+        String simpleQuery = null;
+        String compositeQuery = null;
+        for (SolrQuery q : params.getAllValues()) {
+            if (q.getQuery().startsWith("-(")) {
+                compositeQuery = q.getQuery();
+            } else {
+                simpleQuery = q.getQuery();
+            }
+            assertThat(q.getFilterQueries(), allOf(
+                    hasItemInArray("cm_area:(\"TestArea\")"),
+                    hasItemInArray("cm_type:\"TargetType\""),
+                    hasItemInArray("cm_item:\"TargetType\"")
+                    ));
+            assertEquals("cm_main,score", q.getFields());
+            assertEquals(20, q.getRows().intValue());
+        }
+        assertEquals("<text filter>", simpleQuery);
+        assertTrue(compositeQuery.matches("^-\\(<.+> OR <.+>\\)$"));
+        assertTrue(compositeQuery.contains("<reference filter>"));
+        assertTrue(compositeQuery.contains("<date filter>"));
+    }
 /*
     @Test
     public void tempTestCombine() {
