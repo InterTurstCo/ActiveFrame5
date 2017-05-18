@@ -48,6 +48,18 @@ public class ConfigurationExtensionHelper {
         return typeConfigsByName.get(name);
     }
 
+    public TopLevelConfig getDistributiveConfig(String tagType, String tagName) {
+        final ConfigurationExtensionHelper.TagTypeInfo tagTypeInfo = getTagClassMapping().get(tagType);
+        if (tagTypeInfo == null) {
+            return null;
+        }
+        final Class<? extends TopLevelConfig> clazz = tagTypeInfo.getTopLevelConfigClass();
+        if (clazz == null) {
+            return null;
+        }
+        return getDistributiveConfig(clazz, tagName);
+    }
+
     public Map<String, TagTypeInfo> getTagClassMapping() {
         final Set<Class<?>> topLevelConfigClasses = configurationExplorer.getTopLevelConfigClasses();
         HashMap<String, TagTypeInfo> mapping = new HashMap<>(topLevelConfigClasses.size() * 3 / 2);

@@ -18,6 +18,9 @@ import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.*;
 
 /**
@@ -79,7 +82,7 @@ public class ConfigurationExtensionProcessor {
                     logger.error(((ConfigurationException) cause).getMessage());
                 }
                 logger.error("All extensions are deactivated", e);
-                deactivateExtensions(extensions.getValidActiveExtensions());
+                deactivateAllExtensions();
             }
         }
     }
@@ -91,6 +94,13 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
+    public ConfigurationExplorer validateDrafts(List<DomainObject> toolingDOs) {
+        synchronized (GLOBAL_LOCK) {
+            copyDraftsToExtensions(toolingDOs);
+            return validateAndBuildNewConfigurationExplorer();
+        }
+    }
+
     public Set<ConfigChange> activateDraftsById(List<Id> toolingIds) {
         synchronized (GLOBAL_LOCK) {
             return activateDrafts(domainObjectDao.find(new ArrayList<>(toolingIds), accessToken));
@@ -98,59 +108,14 @@ public class ConfigurationExtensionProcessor {
     }
 
     public Set<ConfigChange> activateDrafts(List<DomainObject> toolingDOs) {
-        return validateAndActivateDrafts(toolingDOs);
-    }
-
-    public Set<ConfigChange> validateAndActivateDrafts(List<DomainObject> toolingDOs) {
         synchronized (GLOBAL_LOCK) {
-            copyDraftsToExtensions(toolingDOs);
-            final ExtensionsInfo extensions = getExtensionsInformation();
-            if (!extensions.isValid()) {
-                throw new SummaryConfigurationException(extensions.getAllProblems());
-            }
-            final ConfigurationExplorer newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
-            return applyNewExplorer(newExplorer);
+            return applyNewExplorer(validateDrafts(toolingDOs));
         }
     }
 
-    public void validateDrafts(List<DomainObject> toolingDOs) {
-        final ArrayList<ConfigurationException> result = new ArrayList<>();
+    public Set<ConfigChange> activateDrafts() {
         synchronized (GLOBAL_LOCK) {
-            copyDraftsToExtensions(toolingDOs);
-            final ExtensionsInfo extensions = getExtensionsInformation();
-            if (!extensions.isValid()) {
-                result.addAll(extensions.getAllProblems());
-            }
-            try {
-                final ConfigurationExplorer newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
-            } catch (ConfigurationException e) {
-                result.add(e);
-            }
-            if (!result.isEmpty()) {
-                throw new SummaryConfigurationException(result);
-            }
-        }
-    }
-
-    public void copyDraftsToExtensions(List<DomainObject> toolingDOs) {
-        for (DomainObject toolingDO : toolingDOs) {
-            final Id extensionId = toolingDO.getReference("configuration_extension");
-            DomainObject extensionDO;
-            if (extensionId == null) {
-                extensionDO = new GenericDomainObject("configuration_extension");
-                TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
-                extensionDO.setString("type", getTagType(draftConfig.getClass()));
-                extensionDO.setString("name", draftConfig.getName());
-            } else{
-                extensionDO = domainObjectDao.find(extensionId, accessToken);
-            }
-            extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
-            extensionDO.setBoolean("active", true);
-            extensionDO = domainObjectDao.save(extensionDO, accessToken);
-            if (extensionId == null) {
-                toolingDO.setReference("configuration_extension", extensionDO.getId());
-                domainObjectDao.save(toolingDO, accessToken);
-            }
+            return activateDrafts(domainObjectDao.findAll("config_extension_tooling", accessToken));
         }
     }
 
@@ -178,12 +143,6 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
-    public Set<ConfigChange> activateDrafts() {
-        synchronized (GLOBAL_LOCK) {
-            return activateDrafts(domainObjectDao.findAll("config_extension_tooling", accessToken));
-        }
-    }
-
     public Set<ConfigChange> activateFromFiles(Collection<File> files) {
         synchronized (GLOBAL_LOCK) {
             final Configuration configuration = configurationSerializer.deserializeConfiguration(files);
@@ -203,10 +162,127 @@ public class ConfigurationExtensionProcessor {
                 extensionDO.setBoolean("active", true);
                 domainObjectDao.save(extensionDO, accessToken);
             }
-            final ExtensionsInfo extensions = getExtensionsInformation();
-            cleanOutInvalid(extensions);
-            return applyNewExplorer(getNewExplorer(extensions.getValidActiveExtensions()));
+            return applyNewExplorer(validateAndBuildNewConfigurationExplorer());
         }
+    }
+
+    public Set<ConfigChange> activateExtensions(List<Id> extensionIds) {
+        synchronized (GLOBAL_LOCK) {
+            if (extensionIds == null || extensionIds.isEmpty()) {
+                return Collections.emptySet();
+            }
+            return applyNewExplorer(validateExtensionsById(extensionIds, true));
+        }
+    }
+
+    public Set<ConfigChange> deactivateExtensions(List<Id> extensionIds) {
+        synchronized (GLOBAL_LOCK) {
+            if (extensionIds == null || extensionIds.isEmpty()) {
+                return Collections.emptySet();
+            }
+            return applyNewExplorer(validateExtensionsById(extensionIds, false));
+        }
+    }
+
+    public Set<ConfigChange> deleteNewExtensions(List<Id> extensionIds) {
+        synchronized (GLOBAL_LOCK) {
+            if (extensionIds == null || extensionIds.isEmpty()) {
+                return Collections.emptySet();
+            }
+            final List<DomainObject> domainObjects = domainObjectDao.find(extensionIds, accessToken);
+            for (DomainObject domainObject : domainObjects) {
+                TopLevelConfig distributiveConfig = configurationExtensionHelper.getDistributiveConfig(domainObject.getString("type"), domainObject.getString("name"));
+                if (distributiveConfig != null) {
+                    throw new ConfigurationException("Deletion of distributive configurations is not allowed");
+                }
+            }
+            final ConfigurationExplorer newExplorer = validateExtensionsById(extensionIds, false);
+            deleteExtensions(extensionIds);
+            return applyNewExplorer(newExplorer);
+        }
+    }
+
+    public ConfigurationExplorer validateExtensionsById(List<Id> extensionIds, boolean asActive) {
+        synchronized (GLOBAL_LOCK) {
+            if (extensionIds == null || extensionIds.isEmpty()) {
+                return null;
+            }
+            setExtensionsActive(extensionIds, asActive);
+            return validateAndBuildNewConfigurationExplorer();
+        }
+    }
+
+    public void exportActiveExtensions(File file) throws ConfigurationException {
+        synchronized (GLOBAL_LOCK) {
+            final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
+            final ArrayList<String> lines = new ArrayList<>(extensionDOs.size() + 2);
+            lines.add(CONFIGURATION_START);
+            for (DomainObject extensionDO : extensionDOs) {
+                if (!extensionDO.getBoolean("active")) {
+                    continue;
+                }
+                final String currentXml = extensionDO.getString("current_xml");
+                if (currentXml == null || currentXml.isEmpty()) {
+                    logger.warn(getTagDefString(extensionDO) + " with empty XML...");
+                    continue;
+                }
+                lines.add(currentXml);
+            }
+            lines.add(CONFIGURATION_END);
+            try {
+                Files.write(file.toPath(), lines, Charset.forName("UTF-8"));
+            } catch (IOException e) {
+                throw new ConfigurationException(e);
+            }
+        }
+    }
+
+    private void copyDraftsToExtensions(List<DomainObject> toolingDOs) {
+        for (DomainObject toolingDO : toolingDOs) {
+            final Id extensionId = toolingDO.getReference("configuration_extension");
+            DomainObject extensionDO;
+            if (extensionId == null) {
+                extensionDO = new GenericDomainObject("configuration_extension");
+                TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
+                extensionDO.setString("type", getTagType(draftConfig.getClass()));
+                extensionDO.setString("name", draftConfig.getName());
+            } else{
+                extensionDO = domainObjectDao.find(extensionId, accessToken);
+            }
+            extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
+            extensionDO.setBoolean("active", true);
+            extensionDO = domainObjectDao.save(extensionDO, accessToken);
+            if (extensionId == null) {
+                toolingDO.setReference("configuration_extension", extensionDO.getId());
+                domainObjectDao.save(toolingDO, accessToken);
+            }
+        }
+    }
+
+    private void setExtensionsActive(List<Id> extensionIds, boolean active) {
+        final List<DomainObject> domainObjects = domainObjectDao.find(extensionIds, accessToken);
+        for (DomainObject domainObject : domainObjects) {
+            domainObject.setBoolean("active", active);
+        }
+        domainObjectDao.save(domainObjects, accessToken);
+    }
+
+    private ConfigurationExplorer validateAndBuildNewConfigurationExplorer() {
+        final ArrayList<ConfigurationException> result = new ArrayList<>();
+        final ExtensionsInfo extensions = getExtensionsInformation();
+        if (!extensions.isValid()) {
+            result.addAll(extensions.getAllProblems());
+        }
+        ConfigurationExplorer newExplorer = null;
+        try {
+            newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
+        } catch (ConfigurationException e) {
+            result.add(e);
+        }
+        if (!result.isEmpty()) {
+            throw new SummaryConfigurationException(result);
+        }
+        return newExplorer; // should never be null in fact
     }
 
     private ExtensionsInfo getExtensionsInformation() {
@@ -275,18 +351,22 @@ public class ConfigurationExtensionProcessor {
             domainObject.setString("current_xml", null);
             logger.warn(getTagDefString(domainObject) + " deactivated and XML cleared. " + extensionsInfo.getDeactivationAndClearXMLReasons().get(i).getMessage());
         }
-        final AccessToken systemAccessToken = accessToken;
-        domainObjectDao.save(extensionsInfo.getToDeactivate(), systemAccessToken);
-        domainObjectDao.save(extensionsInfo.getToDeactivateAndClearXML(), systemAccessToken);
+        domainObjectDao.save(extensionsInfo.getToDeactivate(), accessToken);
+        domainObjectDao.save(extensionsInfo.getToDeactivateAndClearXML(), accessToken);
         ArrayList<Id> toDelete = extensionsInfo.getToDelete();
         for (int i = 0; i < toDelete.size(); i++) {
             Id id = toDelete.get(i);
-            final List<Id> linkedDomainObjects = domainObjectDao.findLinkedDomainObjectsIds(id, "config_extension_tooling", "configuration_extension", systemAccessToken);
-            domainObjectDao.delete(linkedDomainObjects, systemAccessToken);
             logger.warn(getTagDefString(extensionsInfo.getToDeleteDomainObjects().get(i)) + " deactivated and XML cleared. " + extensionsInfo.getDeleteReasons().get(i).getMessage());
         }
-        domainObjectDao.delete(extensionsInfo.getToDelete(), systemAccessToken);
+        deleteExtensions(toDelete);
+    }
 
+    private void deleteExtensions(List<Id> extensionIds) {
+        for (Id extensionId : extensionIds) {
+            final List<Id> linkedDomainObjects = domainObjectDao.findLinkedDomainObjectsIds(extensionId, "config_extension_tooling", "configuration_extension", accessToken);
+            domainObjectDao.delete(linkedDomainObjects, accessToken);
+        }
+        domainObjectDao.delete(extensionIds, accessToken);
     }
 
     private TopLevelConfig parseXML(String overriddenXml) {
@@ -361,13 +441,13 @@ public class ConfigurationExtensionProcessor {
         return ((ConfigurationExplorerImpl) configurationExplorer).copyFrom((ConfigurationExplorerImpl) newExplorer);
     }
 
-    private void deactivateExtensions(Collection<TagInfo> activeExtensions) {
-        ArrayList<DomainObject> toDeactivate = new ArrayList<>(activeExtensions.size());
-        for (TagInfo extension : activeExtensions) {
-            extension.extDomainObject.setBoolean("active", false);
-            toDeactivate.add(extension.extDomainObject);
-            domainObjectDao.save(toDeactivate, accessToken);
+    private void deactivateAllExtensions() {
+        final List<DomainObject> allExtensions = getAllConfigExtensionDomainObjects();
+        final List<Id> extensionIds = new ArrayList<>(allExtensions.size());
+        for (DomainObject extension : allExtensions) {
+            extensionIds.add(extension.getId());
         }
+        setExtensionsActive(extensionIds, false);
     }
 
     private List<DomainObject> getAllConfigExtensionDomainObjects() {
