@@ -480,6 +480,8 @@ public class CollectionsDaoImplTest {
         HashMap<String, Object> expected = new HashMap<>();
         expected.put("byParent_0", 1L);
         expected.put("byParent_0_type", 1L);
+        expected.put("byParent_0_0", asList(1L));
+        expected.put("byParent_0_0_type", 1L);
         verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
                 eq(expected), any(CollectionRowMapper.class));
     }
@@ -497,6 +499,8 @@ public class CollectionsDaoImplTest {
         HashMap<String, Object> expected = new HashMap<>();
         expected.put("byParent_0_0", asList(1L));
         expected.put("byParent_0_0_type", 1L);
+        expected.put("byParent_0", 1L);
+        expected.put("byParent_0_type", 1L);
         verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
                 eq(expected), any(CollectionRowMapper.class));
     }
@@ -545,6 +549,8 @@ public class CollectionsDaoImplTest {
         HashMap<String, Object> expected = new HashMap<>();
         expected.put("byParent_0_0", asList(1L));
         expected.put("byParent_0_0_type", 1L);
+        expected.put("byParent_0", 1L);
+        expected.put("byParent_0_type", 1L);
         verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
                 eq(expected), any(CollectionRowMapper.class));
     }
@@ -625,8 +631,12 @@ public class CollectionsDaoImplTest {
         HashMap<String, Object> expected = new HashMap<>();
         expected.put("PARAM0", 1L);
         expected.put("PARAM0_type", 1L);
+        expected.put("PARAM0_0", asList(1L));
+        expected.put("PARAM0_0_type", 1L);
         expected.put("PARAM1", 2L);
         expected.put("PARAM1_type", 1L);
+        expected.put("PARAM1_0", asList(2L));
+        expected.put("PARAM1_0_type", 1L);
         collectionsDaoImpl.findCollectionByQuery(COLLECTION_NOT_EQUALS_REFERENCE, params, 0, 0, accessToken);
 
         verify(jdbcTemplate).query(eq(COLLECTION_NOT_EQUALS_REFERENCE_RESULT),
@@ -649,6 +659,8 @@ public class CollectionsDaoImplTest {
         HashMap<String, Object> expected = new HashMap<>();
         expected.put("byParent_0", 1L);
         expected.put("byParent_0_type", 1L);
+        expected.put("byParent_0_0", asList(1L));
+        expected.put("byParent_0_0_type", 1L);
 
         verify(jdbcTemplate).queryForObject("SELECT count(*) FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)",
                 expected, Integer.class);

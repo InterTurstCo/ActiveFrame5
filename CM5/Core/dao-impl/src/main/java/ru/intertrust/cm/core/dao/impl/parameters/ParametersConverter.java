@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.parameters;
 
+import static java.util.Collections.singletonList;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,10 +56,13 @@ public class ParametersConverter {
     }
 
     private void processValue(Map<String, Object> referenceParameters, QueryModifierPrompt prompt, String baseParamName, Value<?> value) {
-        if (value instanceof ReferenceValue) {
-            RdbmsId id = (RdbmsId) ((ReferenceValue) value).get();
+        ReferenceValue singleReferenceValue = getSingleReferenceValue(value);
+        if (singleReferenceValue != null) {
+            RdbmsId id = (RdbmsId) singleReferenceValue.get();
             referenceParameters.put(baseParamName, id.getId());
             referenceParameters.put(baseParamName + DomainObjectDao.REFERENCE_TYPE_POSTFIX, (long) id.getTypeId());
+            referenceParameters.put(baseParamName + "_0", singletonList(id.getId()));
+            referenceParameters.put(baseParamName + "_0" + DomainObjectDao.REFERENCE_TYPE_POSTFIX, (long) id.getTypeId());
             prompt.appendIdParamsPrompt(baseParamName, 1);
         } else if (value instanceof ListValue && containsOnlyReferenceValues((ListValue) value)) {
             ListValue listValue = (ListValue) value;
@@ -83,6 +88,19 @@ public class ParametersConverter {
             }
             prompt.appendIdParamsPrompt(baseParamName, idsByType.size());
         }
+    }
+
+    private ReferenceValue getSingleReferenceValue(Value<?> value) {
+        if (value instanceof ReferenceValue) {
+            return (ReferenceValue) value;
+        } else if (value instanceof ListValue) {
+            ListValue listValue = (ListValue) value;
+            List<Value<?>> values = listValue.getUnmodifiableValuesList();
+            if (values.size() == 1 && values.get(0) instanceof ReferenceValue) {
+                return (ReferenceValue) values.get(0);
+            }
+        }
+        return null;
     }
 
     private boolean containsOnlyReferenceValues(ListValue value) {

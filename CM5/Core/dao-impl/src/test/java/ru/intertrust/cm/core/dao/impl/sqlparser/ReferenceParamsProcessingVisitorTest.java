@@ -40,6 +40,8 @@ public class ReferenceParamsProcessingVisitorTest {
         HashMap<String, Object> expectedParameters = new HashMap<>();
         expectedParameters.put("PARAM0", 1L);
         expectedParameters.put("PARAM0_type", 1L);
+        expectedParameters.put("PARAM0_0", asList(1L));
+        expectedParameters.put("PARAM0_0_type", 1L);
         assertEquals(singletonMap("parent = " + parameterStub(0), "parent = :PARAM0 AND parent_type = :PARAM0_type"),
                 visitor.getReplaceExpressions());
         assertEquals(expectedParameters, pair.getFirst());
@@ -58,6 +60,8 @@ public class ReferenceParamsProcessingVisitorTest {
         HashMap<String, Object> expectedParameters = new HashMap<>();
         expectedParameters.put("PARAM0", 1L);
         expectedParameters.put("PARAM0_type", 1L);
+        expectedParameters.put("PARAM0_0", asList(1L));
+        expectedParameters.put("PARAM0_0_type", 1L);
         assertEquals(singletonMap("parent = " + parameterStub(0), "parent = :PARAM0 AND parent_type = :PARAM0_type"),
                 visitor.getReplaceExpressions());
         assertEquals(expectedParameters, pair.getFirst());

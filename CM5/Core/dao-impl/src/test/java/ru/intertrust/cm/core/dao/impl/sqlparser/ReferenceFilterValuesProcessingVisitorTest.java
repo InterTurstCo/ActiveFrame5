@@ -68,6 +68,8 @@ public class ReferenceFilterValuesProcessingVisitorTest {
         HashMap<String, Object> expectedParameters = new HashMap<>();
         expectedParameters.put("parent_0", 1L);
         expectedParameters.put("parent_0_type", 1L);
+        expectedParameters.put("parent_0_0", singletonList(1L));
+        expectedParameters.put("parent_0_0_type", 1L);
         assertEquals(singletonMap("parent = " + parameterStub("parent", 0), "parent = :parent_0 AND parent_type = :parent_0_type"),
                 visitor.getReplaceExpressions());
         assertEquals(expectedParameters, pair.getFirst());

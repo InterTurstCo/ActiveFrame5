@@ -55,6 +55,8 @@ public class ParametersConverterTest {
         HashMap<String, Object> expectedParams = new HashMap<String, Object>();
         expectedParams.put("parent_0_0", singletonList(1L));
         expectedParams.put("parent_0_0_type", 1L);
+        expectedParams.put("parent_0", 1L);
+        expectedParams.put("parent_0_type", 1L);
         Pair<HashMap<String, Object>, QueryModifierPrompt> expected = new Pair<>(expectedParams,
                 (new QueryModifierPrompt()).appendIdParamsPrompt("parent_0", 1));
         assertEquals(expected, converter.convertReferenceValuesInFilters(singletonList(filter("parent", idsList(new RdbmsId(1, 1))))));
@@ -109,6 +111,8 @@ public class ParametersConverterTest {
         HashMap<String, Object> expectedParams = new HashMap<String, Object>();
         expectedParams.put("parent_0", 1L);
         expectedParams.put("parent_0_type", 1L);
+        expectedParams.put("parent_0_0", asList(1L));
+        expectedParams.put("parent_0_0_type", 1L);
         Pair<HashMap<String, Object>, QueryModifierPrompt> expected = new Pair<>(expectedParams,
                 (new QueryModifierPrompt()).appendIdParamsPrompt("parent_0", 1));
         assertEquals(expected, converter.convertReferenceValuesInFilters(singletonList(filter("parent", new ReferenceValue(new RdbmsId(1, 1))))));
@@ -121,6 +125,10 @@ public class ParametersConverterTest {
         expectedParams.put("parent_0_type", 1L);
         expectedParams.put("parent_1", 1L);
         expectedParams.put("parent_1_type", 1L);
+        expectedParams.put("parent_0_0", asList(1L));
+        expectedParams.put("parent_0_0_type", 1L);
+        expectedParams.put("parent_1_0", asList(1L));
+        expectedParams.put("parent_1_0_type", 1L);
         Pair<HashMap<String, Object>, QueryModifierPrompt> expected = new Pair<>(expectedParams,
                 (new QueryModifierPrompt()).appendIdParamsPrompt("parent_0", 1).appendIdParamsPrompt("parent_1", 1));
         assertEquals(expected, converter.convertReferenceValuesInFilters(singletonList(filter(
@@ -153,6 +161,8 @@ public class ParametersConverterTest {
         HashMap<String, Object> expectedParams = new HashMap<String, Object>();
         expectedParams.put("PARAM0_0", singletonList(1L));
         expectedParams.put("PARAM0_0_type", 1L);
+        expectedParams.put("PARAM0", 1L);
+        expectedParams.put("PARAM0_type", 1L);
         Pair<HashMap<String, Object>, QueryModifierPrompt> expected = new Pair<>(expectedParams,
                 (new QueryModifierPrompt()).appendIdParamsPrompt("PARAM0", 1));
         List<? extends Value<?>> values = asList((Value<?>) idsList(new RdbmsId(1, 1)));
@@ -217,6 +227,8 @@ public class ParametersConverterTest {
         HashMap<String, Object> expectedParams = new HashMap<String, Object>();
         expectedParams.put("PARAM0", 1L);
         expectedParams.put("PARAM0_type", 1L);
+        expectedParams.put("PARAM0_0", asList(1L));
+        expectedParams.put("PARAM0_0_type", 1L);
         Pair<HashMap<String, Object>, QueryModifierPrompt> expected = new Pair<>(expectedParams,
                 (new QueryModifierPrompt()).appendIdParamsPrompt("PARAM0", 1));
         List<? extends Value<?>> values = asList((Value<?>) new ReferenceValue(new RdbmsId(1, 1)));
