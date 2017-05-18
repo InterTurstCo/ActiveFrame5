@@ -29,7 +29,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     protected Boolean persist;
 
     //TODO: "questionlist","solutionslist" should be removed after hierarchywidget implementation		
-    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer", "coordination", "questionlist", "solutionslist", "hierarchywidget", "cases-widget","webrtc-video"})
+    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer", "coordination", "questionlist", "solutionslist", "hierarchywidget", "cases-widget","list-cell"})
     @Element(name = "field-path", required = false)
     protected FieldPathConfig fieldPathConfig;
 

@@ -214,9 +214,30 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="тест виджета">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td width="200px">
+                                        <widget id="listcell"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
+            <list-cell renderFactoryComponentName="fake.component"
+                       renderTypeName="fake.type"
+                       id="listcell"
+                       headerValue="Тестовый виджет">
+                <collection-ref name="test-collection"/>
+                <collection-view-ref name="test-collection_view"/>
+            </list-cell>
+
             <label id="b_name1_label">
                 <field-path/>
                 <text>B. Name 1:</text>
