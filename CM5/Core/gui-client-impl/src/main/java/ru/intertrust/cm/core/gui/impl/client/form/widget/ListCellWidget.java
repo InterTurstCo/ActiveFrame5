@@ -89,7 +89,13 @@ public class ListCellWidget extends BaseWidget {
         FlowPanel rootPanel = new FlowPanel();
         FlowPanel buttonPanel = new FlowPanel();
         final FlowPanel listPanel = new FlowPanel();
-        buttonPanel.add(new Label(currentState.getHeaderValue() + ((currentState.getCounterRequired()) ? currentState.getItems().size() : "")));
+
+       
+        rootPanel.addStyleName("rootPanelListCellWidget");
+        buttonPanel.addStyleName("btnPanelListCellWidget");
+        listPanel.addStyleName("listPanelListCellWidget");
+        buttonPanel.add(new Label(currentState.getHeaderValue()+((currentState.getCounterRequired())?currentState.getItems().size():"")));
+
 
         final ToggleButton openCloseBtn = new ToggleButton(">", "<");
         openCloseBtn.addClickHandler(new ClickHandler() {

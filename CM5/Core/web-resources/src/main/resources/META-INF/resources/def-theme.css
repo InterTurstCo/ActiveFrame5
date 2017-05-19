@@ -3571,3 +3571,51 @@ a:active .icon.back {
     border: none;
     color: #000;
 }
+
+/*widget ListCellWidget*/
+
+.btnPanelListCellWidget {
+    padding: 10px 13px;
+    border: 1px solid #ccc;
+    display: flex;
+}
+
+.btnPanelListCellWidget .gwt-Label {
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 2px 0;
+}
+
+.btnPanelListCellWidget .gwt-ToggleButton {
+    border: none;
+    width: 19px;
+    height: 18px;
+    background: url(images/arrow-down-rossviaz.png);
+    -webkit-background-size: cover;
+    background-size: cover;
+    margin-left: auto;
+}
+
+.btnPanelListCellWidget .gwt-ToggleButton-down-hovering {
+    background: url(images/arrow-down-rossviaz.png);
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+.btnPanelListCellWidget .gwt-ToggleButton-down {
+    background: url(images/arrow-down-rossviaz.png);
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+.btnPanelListCellWidget .gwt-ToggleButton-up-hovering {
+    background: url(images/arrow-up-rossviaz.png);
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+.btnPanelListCellWidget .gwt-ToggleButton-up {
+    background: url(images/arrow-up-rossviaz.png);
+    -webkit-background-size: cover;
+    background-size: cover;
+}
