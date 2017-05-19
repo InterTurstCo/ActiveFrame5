@@ -219,7 +219,7 @@
                         <tab-group>
                             <table>
                                 <tr>
-                                    <td width="200px">
+                                    <td width="500px">
                                         <widget id="listcell"/>
                                     </td>
                                 </tr>
