@@ -233,7 +233,7 @@
             <list-cell renderFactoryComponentName="fake.component"
                        renderTypeName="fake.type"
                        id="listcell"
-                       headerValue="Тестовый виджет">
+                       headerValue="Тестовый виджет" counterRequired="true">
                 <collection-ref name="test-collection"/>
                 <collection-view-ref name="test-collection_view"/>
             </list-cell>
