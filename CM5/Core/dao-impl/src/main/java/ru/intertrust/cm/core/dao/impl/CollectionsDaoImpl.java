@@ -182,9 +182,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         long start = System.nanoTime();
 
-        filterValues = processIdsFilters(filterValues);
-        checkFilterValues(filterValues);
-
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
@@ -200,6 +197,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
             String collectionGeneratorComponent = collectionConfig.getGenerator().getClassName();
             return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
         }
+
+        filterValues = processIdsFilters(filterValues);
+        checkFilterValues(filterValues);
 
         final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, filterValues, sortOrder, offset, limit,
                 accessToken);
@@ -675,10 +675,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         long start = System.nanoTime();
 
-        filterValues = processIdsFilters(filterValues);
-
-        checkFilterValues(filterValues);
-
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
         if (collectionConfig.getGenerator() != null) {
@@ -691,6 +687,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (fromGlobalCache != -1) {
             return validateCountCache(collectionConfig, collectionName, filterValues, accessToken, start, fromGlobalCache);
         }
+
+        filterValues = processIdsFilters(filterValues);
+
+        checkFilterValues(filterValues);
 
         final Pair<Integer, Long> dbResultAndStart = findCollectionCountInDB(start, collectionConfig, collectionName, filterValues, accessToken);
         final Integer count = dbResultAndStart.getFirst();

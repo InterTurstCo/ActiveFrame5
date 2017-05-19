@@ -32,6 +32,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
@@ -52,6 +53,7 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.config.base.CollectionGeneratorConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -60,6 +62,8 @@ import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.dao.api.ServerComponentService;
+import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 /**
@@ -195,6 +199,9 @@ public class CollectionsDaoImplTest {
     @Mock
     private GlobalCacheManager globalCacheManager;
 
+    @Mock
+    private ServerComponentService serverComponentService;
+
     private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
 
     private ConfigurationExplorerImpl configurationExplorer;
@@ -207,6 +214,22 @@ public class CollectionsDaoImplTest {
     @Before
     public void setUp() throws Exception {
         initConfigurationExplorer();
+        when(serverComponentService.getServerComponent("generator")).thenReturn(new CollectionDataGenerator() {
+
+            @Override
+            public int findCollectionCount(List<? extends Filter> filterValues) {
+                ReferenceValue v = (ReferenceValue) (filterValues.get(0).getCriterion(0));
+                assert (v != null);
+                return 0;
+            }
+
+            @Override
+            public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
+                ReferenceValue v = (ReferenceValue) (filters.get(0).getCriterion(0));
+                assert (v != null);
+                return null;
+            }
+        });
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
         collectionsDaoImpl.setCollectionQueryCache(collectionQueryCache);
 
@@ -260,6 +283,10 @@ public class CollectionsDaoImplTest {
                         null,
                         filterConfig("byParent", null, where("parent = {0}"))
                 ),
+                createCollectionConfig(
+                        "generated",
+                        "generator"
+                ),
                 collectionConfig,
                 complexCollectionConfig,
                 personsCollectionConfig
@@ -276,6 +303,16 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
         collectionQueryCache.setConfigurationExplorer(configurationExplorer);
 
+    }
+
+    private CollectionConfig createCollectionConfig(String name, String generator) {
+        CollectionConfig result = new CollectionConfig();
+        result.setName(name);
+        CollectionGeneratorConfig gen = new CollectionGeneratorConfig();
+        gen.setClassName(generator);
+        result.setGenerator(gen);
+        result.setIdField("id");
+        return result;
     }
 
     private DomainObjectTypeConfig typeConfig(String name, List<FieldConfig> fieldConfigs, List<UniqueKeyConfig> uniqueKeys) {
@@ -664,6 +701,13 @@ public class CollectionsDaoImplTest {
 
         verify(jdbcTemplate).queryForObject("SELECT count(*) FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)",
                 expected, Integer.class);
+    }
+
+    @Test
+    public void testGeneratorAccessesIdsBasedFilters() {
+        Filter filter = new IdsIncludedFilter(new ReferenceValue(new RdbmsId(1, 1)));
+        collectionsDaoImpl.findCollection("generated", asList(filter), new SortOrder(), 0, 0, createMockSystemAccessToken());
+        collectionsDaoImpl.findCollectionCount("generated", asList(filter), createMockSystemAccessToken());
     }
 
     private String refineQuery(String actualQuery) {
