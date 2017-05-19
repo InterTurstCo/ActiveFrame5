@@ -37,7 +37,7 @@ public class OneOfListFilterAdapterTest {
         when(id.toStringRepresentation()).thenReturn("id001");
         OneOfListFilter filter = new OneOfListFilter("TestField", Arrays.asList(new ReferenceValue(id)));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
-                .thenReturn(Collections.singleton(SearchFieldType.REF));
+                .thenReturn(Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF)));
         SearchQuery query = mock(SearchQuery.class);
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_r_testfield:(id001)", result);
@@ -54,7 +54,7 @@ public class OneOfListFilterAdapterTest {
         OneOfListFilter filter = new OneOfListFilter("TestField",
                 Arrays.asList(new ReferenceValue(id1), new ReferenceValue(id2), new ReferenceValue(id3)));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
-                .thenReturn(Collections.singleton(SearchFieldType.REF));
+                .thenReturn(Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF)));
         SearchQuery query = mock(SearchQuery.class);
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_r_testfield:(id001 OR id002 OR id003)", result);

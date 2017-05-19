@@ -19,6 +19,7 @@
             <date-time name="DateTime_A"/>
             <dateTimeWithTimeZone name="DateTimeZone_A"/>
             <timelessDate name="Date_A"/>
+            <string name="DiffType" length="99"/>
         </fields>
         <attachment-types>
             <attachment-type name="Attach_A"/>
@@ -40,6 +41,7 @@
             <dateTimeWithTimeZone name="DateTimeZone_B"/>
             <timelessDate name="Date_B"/>
             <reference name="Reference_B_A" type="Type_A"/>
+            <date-time name="DiffType"/>
         </fields>
     </domain-object-type>
 
@@ -48,6 +50,7 @@
             <string name="String_C" length="25"/>
             <long name="Long_C"/>
             <date-time name="DateTime_C"/>
+            <reference name="DiffType" type="*"/>
         </fields>
         <attachment-types>
             <attachment-type name="Attach_C"/>
@@ -96,6 +99,7 @@
             <indexed-field name="DateTime_A"/>
             <indexed-field name="DateTimeZone_A"/>
             <indexed-field name="Date_A"/>
+            <indexed-field name="DiffType"/>
             <indexed-content type="Attach_A"/>
             <linked-domain-object type="Type_B">
                 <indexed-field name="String_B"/>
@@ -160,12 +164,15 @@
                 <doel>Reference_B_A.Date_A</doel>
             </indexed-field>
             <indexed-field name="Reference_B_A"/>
+            <indexed-field name="DiffType"/>
         </target-domain-object>
     </search-area>
     
     <search-area name="Area_C">
         <target-domain-object type="Type_B">
             <indexed-field name="String_B"/>
+            <indexed-field name="String_Bc" search-by="substring"/>
+            <indexed-field name="String_Bd" solr-prefix="spec"/>
             <indexed-field name="String_Calculated">
                 <script>ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')</script>
             </indexed-field>

@@ -34,6 +34,9 @@ public class IndexedFieldConfig implements Serializable {
     //@Attribute(name = "search-by", required = false) - declared in getter/setter
     private SearchBy searchBy;
 
+    @Attribute(name = "solr-prefix", required = false)
+    private String solrPrefix;
+
     @Element(required = false)
     private String doel;
 
@@ -70,12 +73,17 @@ public class IndexedFieldConfig implements Serializable {
         this.searchBy = SearchBy.fromXmlValue(searchBy);
     }
 
+    public String getSolrPrefix() {
+        return solrPrefix;
+    }
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
         hash = hash * 31 ^ (language != null ? language.hashCode() : 0);
         hash = hash * 31 ^ (doel != null ? doel.hashCode() : 0);
         hash = hash * 31 ^ (script != null ? script.hashCode() : 0);
+        hash = hash * 31 ^ (solrPrefix != null ? solrPrefix.hashCode() : 0);
         return hash;
     }
 
@@ -89,8 +97,9 @@ public class IndexedFieldConfig implements Serializable {
         }
         IndexedFieldConfig other = (IndexedFieldConfig) obj;
         return name.equals(other.name)
-                && (language == null ? other.language == null : other.language.equals(language))
+                && (language == null ? other.language == null : language.equals(other.language))
                 && (doel == null ? other.doel == null : doel.equals(other.doel))
-                && (script == null ? other.script == null : script.equals(other.script));
+                && (script == null ? other.script == null : script.equals(other.script))
+                && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix));
     }
 }

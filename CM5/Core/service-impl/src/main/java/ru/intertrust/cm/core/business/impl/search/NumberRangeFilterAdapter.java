@@ -22,53 +22,32 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
             log.warn("Empty number search filter for " + filter.getFieldName() + " ignored");
             return null;
         }
-
-        ArrayList<String> strings = new ArrayList<>();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(filter.getFieldName(), query.getAreas());
-        for (SearchFieldType type : new SearchFieldType[]
-                { SearchFieldType.LONG, SearchFieldType.LONG_MULTI,
-                  SearchFieldType.DOUBLE, SearchFieldType.DOUBLE_MULTI }) {
-            if (types.contains(type)) {
-                strings.add(makeSolrFieldFilter(filter, type));
-            }
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        if (types.size() == 0) {
+            return null;
         }
-        if (strings.size() == 0 && types.contains(null)) {
-            strings.add(makeSolrFieldFilter(filter, SearchFieldType.LONG));
-        }
-        if (strings.size() == 1) {
-            return strings.get(0);
-        }
-        if (strings.size() > 1) {
-            StringBuilder result = new StringBuilder();
-            for (String string : strings) {
-                if (result.length() > 0) {
-                    result.append(" OR ");
+        ArrayList<String> fields = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    fields.add(new StringBuilder()
+                            .append(field)
+                            .append(":[")
+                            .append(numberToString(filter.getMin()))
+                            .append(" TO ")
+                            .append(numberToString(filter.getMax()))
+                            .append("]")
+                            .toString());
                 }
-                result.append(string);
             }
-            result.insert(0, "(").append(")");
-            return result.toString();
         }
-        log.warn("Configured fields for field " + filter.getFieldName() + " not found in areas " + query.getAreas());
-        return null;
+        return SolrUtils.joinStrings("OR", fields);
     }
 
     @Override
     public boolean isCompositeFilter(NumberRangeFilter filter) {
         return false;
-    }
-
-    private static String makeSolrFieldFilter(NumberRangeFilter filter, SearchFieldType type) {
-        StringBuilder str = new StringBuilder()
-                .append(SolrFields.FIELD_PREFIX)
-                .append(type.infix)
-                .append(filter.getFieldName().toLowerCase())
-                .append(":[")
-                .append(numberToString(filter.getMin()))
-                .append(" TO ")
-                .append(numberToString(filter.getMax()))
-                .append("]");
-        return str.toString();
     }
 
     private static String numberToString(Number number) {

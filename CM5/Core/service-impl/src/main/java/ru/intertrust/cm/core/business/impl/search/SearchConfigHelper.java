@@ -4,6 +4,8 @@ import java.util.*;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -32,6 +34,8 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  * @author apirozhkov
  */
 public class SearchConfigHelper {
+
+    private static final Logger logger = LoggerFactory.getLogger(SearchConfigHelper.class);
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -178,7 +182,7 @@ public class SearchConfigHelper {
      * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов
      */
-    private Set<String> findAllObjectTypes(List<String> areaNames, String targetObjectType) {
+    protected Set<String> findAllObjectTypes(List<String> areaNames, String targetObjectType) {
         return findObjectTypesContainingField(null, areaNames, targetObjectType);
     }
 
@@ -531,34 +535,42 @@ public class SearchConfigHelper {
             return result;
         }
 
-        if (config.getDoel() != null) {
+        if (config.getSolrPrefix() != null) {
+            result = new CustomSearchFieldType(config.getSolrPrefix());
+        } else if (config.getDoel() != null) {
             DoelExpression expr = DoelExpression.parse(config.getDoel());
             DoelValidator.DoelTypes analyzed = DoelValidator.validateTypes(expr, objectType);
             if (!analyzed.isCorrect()) {
-                //TODO Report error message
+                logger.warn("DOEL expression for indexed field " + config.getName() + " in object " + objectType
+                        + " [" + config.getDoel() + "] is invalid");
                 return null;
             }
             Set<FieldType> types = analyzed.getResultTypes();
-            if (config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING || types.size() != 1) {
-                result = analyzed.isSingleResult() ? SearchFieldType.TEXT_SUBSTRING : SearchFieldType.TEXT_MULTI_SUBSTRING;
+            SimpleSearchFieldType.Type dataType = null;
+            if (types.size() == 1) {
+                dataType = SimpleSearchFieldType.byFieldType(types.iterator().next());
+            }
+            if (dataType != null) {
+                result = new SimpleSearchFieldType(dataType, !analyzed.isSingleResult());
             } else {
-                result = SearchFieldType.getFieldType(types.iterator().next(), !analyzed.isSingleResult());
+                result = new TextSearchFieldType(getSupportedLanguages(config), !analyzed.isSingleResult(),
+                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
             }
         } else if (config.getScript() != null) {
-            //result = null;
-            result = config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING ?
-                    SearchFieldType.TEXT_SUBSTRING : SearchFieldType.TEXT;
+            result = new TextSearchFieldType(getSupportedLanguages(), false,
+                    config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType.toLowerCase(),
                     config.getName().toLowerCase());
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
             }
-            if (fieldConfig.getFieldType().getValueClass() == StringValue.class
-                    && config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING) {
-                result = SearchFieldType.TEXT_SUBSTRING;
+            SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(fieldConfig.getFieldType());
+            if (dataType != null) {
+                result = new SimpleSearchFieldType(dataType, false);
             } else {
-                result = SearchFieldType.getFieldType(fieldConfig.getFieldType(), false);
+                result = new TextSearchFieldType(getSupportedLanguages(config), false,
+                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
             }
         }
 
@@ -567,10 +579,11 @@ public class SearchConfigHelper {
     }
 
     /**
-     * Возвращает набор типов, использ
-     * @param name
-     * @param areas
-     * @return
+     * Возвращает набор типов, используемых при индексации поля с заданным именем в заданных областях поиска.
+     * 
+     * @param name имя индексируемого поля
+     * @param areas набор областей поиска
+     * @return набор типов индексируемых полей
      */
     public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {
         Pair<String, Collection<String>> key = new Pair<>(name, areas);
@@ -693,6 +706,24 @@ public class SearchConfigHelper {
         }
 
         return supportedLanguages;
+    }
+
+    private List<String> getSupportedLanguages(IndexedFieldConfig config) {
+        String lang = config.getLanguage();
+        if (lang == null) {
+            return getSupportedLanguages();
+        }
+        HashSet<String> langIds = new HashSet<>();
+        String[] langs = lang.split("[\\s,:;]+");
+        if (langs.length == 1 && langs[0].trim().length() == 0) {
+            return Collections.singletonList("");
+        }
+        for (String langId : langs) {
+            if (langId.trim().length() > 0) {
+                langIds.add(langId.trim());
+            }
+        }
+        return new ArrayList<>(langIds);
     }
 
     /**

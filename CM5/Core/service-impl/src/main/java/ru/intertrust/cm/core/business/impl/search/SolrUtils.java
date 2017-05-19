@@ -1,10 +1,14 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.Collection;
+
 import ru.intertrust.cm.core.model.SearchException;
 
 public class SolrUtils {
 
+    public static final String ID_FIELD = "id";
     public static final String SCORE_FIELD = "score";
+    public static final String PARAM_FIELD_PREFIX = "literal.";
 
     private enum State {
         PLAIN,
@@ -65,5 +69,22 @@ public class SolrUtils {
         }
         throw new RuntimeException("Unreachable code!");
         //return text.replaceAll("[\\(\\)\\{\\}\\[\\]:\"\\\\]", "\\\\$0");
+    }
+
+    public static String joinStrings(String operation, Collection<String> strings) {
+        if (strings.size() == 0) {
+            return null;
+        }
+        StringBuilder result = new StringBuilder();
+        for (String str : strings) {
+            if (result.length() > 0) {
+                result.append(" ").append(operation).append(" ");
+            }
+            result.append(str);
+        }
+        if (strings.size() > 1) {
+            result.insert(0, "(").append(")");
+        }
+        return result.toString();
     }
 }

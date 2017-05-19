@@ -28,7 +28,7 @@ public class NumberRangeFilterAdapterTest {
     public void testOpenRange() {
         NumberRangeFilter filter = new NumberRangeFilter("TestField", 15, null);
         when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
-                Collections.singleton(SearchFieldType.LONG));
+                Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG)));
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
 
@@ -40,8 +40,9 @@ public class NumberRangeFilterAdapterTest {
     @SuppressWarnings("unchecked")
     public void testMultipleTypes() {
         NumberRangeFilter filter = new NumberRangeFilter("TestField", -50, 1000);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
-                Sets.newSet(SearchFieldType.LONG_MULTI, SearchFieldType.DOUBLE));
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(Sets.<SearchFieldType>newSet(
+                new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, true),
+                new SimpleSearchFieldType(SimpleSearchFieldType.Type.DOUBLE)));
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
 

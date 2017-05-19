@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
@@ -12,6 +15,8 @@ import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 @Deprecated
 public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> {
+
+    @Autowired private SearchConfigHelper configHelper;
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
     protected Logger log = LoggerFactory.getLogger(getClass());
@@ -22,16 +27,28 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
             log.warn("Empty date search filter for " + filter.getFieldName() + " ignored");
             return null;
         }
-        StringBuilder str = new StringBuilder()
-                .append(SolrFields.FIELD_PREFIX)
-                .append(SearchFieldType.DATE.infix)
-                .append(filter.getFieldName().toLowerCase())
-                .append(":[")
-                .append(dateToString(filter.getStartDate(), true))
-                .append(" TO ")
-                .append(dateToString(filter.getEndDate(), false))
-                .append("]");
-        return str.toString();
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        if (types.size() == 0) {
+            return null;
+        }
+        ArrayList<String> fields = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    fields.add(new StringBuilder()
+                            .append(field)
+                            .append(":")
+                            .append(":[")
+                            .append(dateToString(filter.getStartDate(), true))
+                            .append(" TO ")
+                            .append(dateToString(filter.getEndDate(), false))
+                            .append("]")
+                            .toString());
+                }
+            }
+        }
+        return SolrUtils.joinStrings("OR", fields);
     }
 
     private static String dateToString(TimelessDate date, boolean start) {

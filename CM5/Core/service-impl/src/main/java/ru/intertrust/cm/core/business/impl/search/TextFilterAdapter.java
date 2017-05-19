@@ -1,92 +1,68 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 
 public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
 
-    @Autowired
-    private SearchConfigHelper configHelper;
+    @Autowired private SearchConfigHelper configHelper;
 
     @Override
     public String getFilterString(TextSearchFilter filter, SearchQuery query) {
         if (filter.getText() == null || filter.getText().trim().isEmpty()) {
             return null;
         }
-
-        StringBuilder value = new StringBuilder();
-        boolean multiple = false;
-        for (Pair<String, Boolean> solrField : enumSolrFields(filter.getFieldName(), query.getAreas())) {
-            multiple = value.length() > 0;
-            // solrField.first (String) - имя поля Solr
-            // solrField.second (Boolean) - true = поиск по подстроке
-            String searchString = filter.getText();
-            if (solrField.getSecond() && searchString.length() > 2
-                    && searchString.startsWith("\"") && searchString.endsWith("\"")) {
-                searchString = searchString.substring(1, searchString.length() - 1);
-            }
-            value.append(multiple ? " OR " : "")
-                 .append(solrField.getFirst())
-                 .append(":(")
-                 .append(solrField.getSecond() ? '"' : "")
-                 .append(SolrUtils.protectSearchString(searchString, solrField.getSecond()))
-                 .append(solrField.getSecond() ? '"' : "")
-                 .append(")");
-        }
-        if (multiple) {
-            value.insert(0, "(").append(")");
-        }
-        return value.toString();
-    }
-
-    private Iterable<Pair<String, Boolean>> enumSolrFields(final String name, List<String> areaNames) {
-        String baseField = null;
-        if (SearchFilter.EVERYWHERE.equals(name)) {
-            baseField = SolrFields.EVERYTHING;
-        } else if (SearchFilter.CONTENT.equals(name)) {
-            baseField = SolrFields.CONTENT;
-        }
-        if (baseField != null) {
-            List<String> langIds = configHelper.getSupportedLanguages();
-            ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size() + 1);
-            for (String langId : langIds) {
-                fields.add(new Pair<>(makeSolrSpecialFieldName(baseField, langId), false));
-            }
-            //CMFIVE-7260: to search by those fields which were indexed without configured languages
-            fields.add(new Pair<>(baseField, false));
-            return fields;
-        }
-        final HashSet<String> langIds = new HashSet<>();
-        for (String area : areaNames) {
-            langIds.addAll(configHelper.getSupportedLanguages(name, area));
-        }
-        langIds.add("");
-        Set<SearchFieldType> types = configHelper.getFieldTypes(name, areaNames);
-        ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size());
-        for (String langId : langIds) {
-            if (types.contains(SearchFieldType.TEXT) || types.contains(null)) {
-                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT), false));
-            }
-            if (types.contains(SearchFieldType.TEXT_MULTI)) {
-                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT_MULTI), false));
-            }
-            if (types.contains(SearchFieldType.TEXT_SUBSTRING)) {
-                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT_SUBSTRING), true));
-            }
-            if (types.contains(SearchFieldType.TEXT_MULTI_SUBSTRING)) {
-                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT_MULTI_SUBSTRING), true));
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types;
+        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+            types = Collections.<SearchFieldType>singleton(
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+        } else if (SearchFilter.CONTENT.equals(fieldName)) {
+            types = Collections.<SearchFieldType>singleton(
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+        } else {
+            types = configHelper.getFieldTypes(fieldName, query.getAreas());
+            if (types.size() == 0) {
+                return null;
             }
         }
-        return fields;
+        ArrayList<String> fields = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                String searchString = filter.getText();
+                if (type instanceof TextSearchFieldType) {
+                    ((TextSearchFieldType) type).addLanguage("");
+                }
+                if (type instanceof TextSearchFieldType && ((TextSearchFieldType) type).isSearchBySubstring()) {
+                    if (searchString.length() >=2 && searchString.startsWith("\"") && searchString.endsWith("\"")) {
+                        searchString = searchString.substring(1, searchString.length() - 1);
+                    }
+                    searchString = new StringBuilder()
+                            .append("\"")
+                            .append(SolrUtils.protectSearchString(searchString, true))
+                            .append("\"")
+                            .toString();
+                } else {
+                    searchString = SolrUtils.protectSearchString(searchString);
+                }
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    fields.add(new StringBuilder()
+                            .append(field)
+                            .append(":(")
+                            .append(searchString)
+                            .append(")")
+                            .toString());
+                }
+            }
+        }
+        return SolrUtils.joinStrings("OR", fields);
     }
 
     @Override
@@ -94,26 +70,4 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         return false;
     }
 
-    private static String makeSolrFieldName(String field, String langId, SearchFieldType type) {
-        StringBuilder result = new StringBuilder(SolrFields.FIELD_PREFIX);
-        if (langId == null || langId.isEmpty()) {
-            result.append(type.infix);
-        } else {
-            result.append(langId);
-            if (type == SearchFieldType.TEXT_MULTI || type == SearchFieldType.TEXT_MULTI_SUBSTRING) {
-                result.append("s");
-            }
-            result.append("_");
-        }
-        result.append(field.toLowerCase());
-        return result.toString();
-    }
-
-    private static String makeSolrSpecialFieldName(String field, String langId) {
-        StringBuilder result = new StringBuilder(field);
-        if (langId != null && !langId.isEmpty()) {
-            result.append("_").append(langId);
-        }
-        return result.toString();
-    }
 }

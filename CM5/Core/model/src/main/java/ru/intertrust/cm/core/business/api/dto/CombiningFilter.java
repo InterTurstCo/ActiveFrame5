@@ -132,6 +132,9 @@ public class CombiningFilter implements SearchFilter {
 
     @Override
     public String getFieldName() {
+        if (filters.size() == 1) {
+            return filters.get(0).getFieldName();
+        }
         return new StringBuilder("comb$").append(Integer.toHexString(hashCode())).toString();
     }
 

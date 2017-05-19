@@ -3222,6 +3222,7 @@
                           xmlns:con="https://cm5.intertrust.ru/config">
                 <xs:attribute type="xs:string" name="name"
                               use="required"/>
+    			<xs:attribute name="solr-prefix" type="xs:string" use="optional"></xs:attribute>
                 <xs:attribute type="xs:string" name="language"
                               use="optional"/>
                 <xs:attribute name="search-by" use="optional">

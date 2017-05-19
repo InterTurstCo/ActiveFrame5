@@ -29,7 +29,6 @@ import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
@@ -137,28 +136,13 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
             doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             doc.addField(SolrFields.MODIFIED, object.getModifiedDate());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                SearchFieldType type =
-                        configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
+                SearchFieldType type = configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
                 Object value = calculateField(object, fieldConfig);
                 if (type == null) {
                     type = getTypeByValue(value);
                 }
-                if (isTextField(type)) {
-                    List<String> languages =
-                            configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
-                    /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
-                        doc.addField(name, value);
-                    }*/
-                    boolean multiValued = type == SearchFieldType.TEXT_MULTI;
-                    for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(), multiValued)) {
-                        doc.addField(name, value);
-                    }
-                } else {
-                    StringBuilder fieldName = new StringBuilder()
-                        .append(SolrFields.FIELD_PREFIX)
-                        .append(type.infix)
-                        .append(fieldConfig.getName().toLowerCase());
-                    doc.addField(fieldName.toString(), value);
+                for (String fieldName : type.getSolrFieldNames(fieldConfig.getName(), true)) {
+                    doc.addField(fieldName, value);
                 }
             }
             doc.addField("id", createUniqueId(object, config));
@@ -209,17 +193,20 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
         for (Id mainId : mainIds) {
             ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
             request.addContentStream(new SolrAttachmentFeeder(object));
-            request.setParam("literal." + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
-            request.setParam("literal." + SolrFields.AREA, config.getAreaName());
-            request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
-            request.setParam("literal." + SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
-            request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-            request.setParam("literal." + SolrFields.MODIFIED,
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.AREA, config.getAreaName());
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.TARGET_TYPE, config.getTargetObjectType());
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
                     ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
-            addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
-            addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION, SearchFieldType.TEXT);
-            addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
-            request.setParam("literal.id", createUniqueId(object, config));
+            addFieldToContentRequest(request, object, BaseAttachmentService.NAME,
+                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+            addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION,
+                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+            addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH,
+                    new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
+            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(object, config));
             request.setParam("uprefix", "cm_c_");
             request.setParam("fmap.content", SolrFields.CONTENT);
             //request.setParam("extractOnly", "true");
@@ -235,12 +222,9 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
             DomainObject object, String fieldName, SearchFieldType fieldType) {
         Object value = convertValue(object.getValue(fieldName));
         if (value != null) {
-            StringBuilder paramName = new StringBuilder()
-                    .append("literal.")
-                    .append(SolrFields.FIELD_PREFIX)
-                    .append(fieldType.infix)
-                    .append(fieldName.toLowerCase());
-            request.setParam(paramName.toString(), value.toString());
+            for (String solrField : fieldType.getSolrFieldNames(fieldName, true)) {
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + solrField, value.toString());
+            }
         }
     }
 
@@ -350,41 +334,35 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
         return buf.toString();
     }
 
-    private boolean isTextField(SearchFieldType type) {
-        return type == SearchFieldType.TEXT || type == SearchFieldType.TEXT_MULTI
-                || type == SearchFieldType.TEXT_SUBSTRING || type == SearchFieldType.TEXT_MULTI_SUBSTRING;
-    }
-
     private SearchFieldType getTypeByValue(Object value) {
-        if (value == null) {
-            return SearchFieldType.TEXT;
-        }
         if (value.getClass().isArray()) {
-            return SearchFieldType.getFieldType(getFieldType(((Object[]) value)[0]), true);
+            Object[] array = (Object[]) value;
+            return getTypeByValue(array.length == 0 ? null : array[0], true);
         }
         if (value instanceof Collection<?>) {
-            return SearchFieldType.getFieldType(getFieldType(((Collection<?>) value).iterator().next()), true);
+            Collection<?> coll = (Collection<?>) value;
+            return getTypeByValue(coll.size() == 0 ? null : coll.iterator().next(), true);
         }
-        return SearchFieldType.getFieldType(getFieldType(value), false);
+        return getTypeByValue(value, false);
     }
 
-    private FieldType getFieldType(Object value) {
+    private SearchFieldType getTypeByValue(Object value, boolean multiple) {
         if (value == null || value instanceof String) {
-            return FieldType.STRING;
+            return new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false);
         }
         if (value instanceof Long || value instanceof Integer || value instanceof Byte) {
-            return FieldType.LONG;
+            return new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, multiple);
         }
         if (value instanceof Date || value instanceof Calendar) {
-            return FieldType.DATETIME;
+            return new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, multiple);
         }
         if (value instanceof Float || value instanceof Double || value instanceof BigDecimal) {
-            return FieldType.DECIMAL;
+            return new SimpleSearchFieldType(SimpleSearchFieldType.Type.DOUBLE, multiple);
         }
         if (value instanceof Boolean) {
-            return FieldType.BOOLEAN;
+            return new SimpleSearchFieldType(SimpleSearchFieldType.Type.BOOL, multiple);
         }
-        return FieldType.STRING;    //*****
+        return new TextSearchFieldType(configHelper.getSupportedLanguages(), multiple, false);    //*****
     }
 
     public class SolrAttachmentFeeder implements ContentStream {

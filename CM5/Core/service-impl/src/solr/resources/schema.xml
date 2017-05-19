@@ -149,6 +149,9 @@
 
     <dynamicField name="cm_c_*" type="ignored" multiValued="true"/>
 
+    <dynamicField name="cm_s_*" type="lowercase" indexed="true" stored="true"/>
+    <dynamicField name="cm_ss_*" type="lowercase" indexed="true" stored="true" multiValued="true"/>
+
     <!-- Dynamic field definitions allow using convention over configuration
        for fields via the specification of patterns to match field names. 
        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -24,44 +25,37 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
             log.warn("Empty list search filter for " + filter.getFieldName() + " ignored");
             return null;
         }
-
-        Set<SearchFieldType> types = configHelper.getFieldTypes(filter.getFieldName(), query.getAreas());
-        if (types.contains(null)) {
-            types.add(SearchFieldType.REF);
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        if (types.size() == 0) {
+            return null;
         }
-        if (types.contains(SearchFieldType.REF)) {
-            String single = makeSolrFieldFilter(filter.getFieldName(), SearchFieldType.REF, values);
-            if (!types.contains(SearchFieldType.REF_MULTI)) {
-                return single;
+        StringBuilder searchString = new StringBuilder();
+        for (ReferenceValue value : values) {
+            if (searchString.length() > 0)  {
+                searchString.append(" OR ");
             }
-            String multi = makeSolrFieldFilter(filter.getFieldName(), SearchFieldType.REF_MULTI, values);
-            return new StringBuilder()
-                    .append("(").append(single).append(" OR ").append(multi).append(")")
-                    .toString();
-        } else if (types.contains(SearchFieldType.REF_MULTI)) {
-            return makeSolrFieldFilter(filter.getFieldName(), SearchFieldType.REF_MULTI, values);
+            searchString.append(value.get().toStringRepresentation());
         }
-        log.warn("Configured fields for field " + filter.getFieldName() + " not found in areas " + query.getAreas());
-        return null;
+        searchString.insert(0, "(").append(")");
+
+        ArrayList<String> fields = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    fields.add(new StringBuilder()
+                            .append(field)
+                            .append(":")
+                            .append(searchString.toString())
+                            .toString());
+                }
+            }
+        }
+        return SolrUtils.joinStrings("OR", fields);
     }
 
     @Override
     public boolean isCompositeFilter(OneOfListFilter filter) {
         return false;
-    }
-
-    private static String makeSolrFieldFilter(String name, SearchFieldType type, List<ReferenceValue> values) {
-        StringBuilder str = new StringBuilder()
-                .append(SolrFields.FIELD_PREFIX)
-                .append(type.infix)
-                .append(name.toLowerCase())
-                .append(":");
-        boolean firstValue = true;
-        for (ReferenceValue value : values) {
-            str.append(firstValue ? "(" : " OR ")
-               .append(value.get().toStringRepresentation());
-            firstValue = false;
-        }
-        return str.append(")").toString();
     }
 }

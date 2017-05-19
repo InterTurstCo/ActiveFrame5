@@ -27,8 +27,8 @@ public class EmptyValueFilterAdapterTest {
     @SuppressWarnings("unchecked")
     public void testStringField() {
         //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.STRING);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection()))
-                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Collections.<String>emptySet(), false, false)));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
@@ -43,7 +43,7 @@ public class EmptyValueFilterAdapterTest {
     public void testLongField() {
         //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.LONG);
         when(configHelper.getFieldTypes(eq("TestField"), anyCollection()))
-                .thenReturn(Collections.singleton(SearchFieldType.LONG));
+                .thenReturn(Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG)));
         SearchQuery query = mock(SearchQuery.class);
 
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
@@ -59,20 +59,23 @@ public class EmptyValueFilterAdapterTest {
         //SearchConfigHelper.FieldDataType typeText = new SearchConfigHelper.FieldDataType(FieldType.TEXT);
         //SearchConfigHelper.FieldDataType typeMText = new SearchConfigHelper.FieldDataType(FieldType.TEXT, true);
         when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
-                new LinkedHashSet<>(Arrays.asList(SearchFieldType.REF, SearchFieldType.DATE_MULTI,
-                        SearchFieldType.TEXT, SearchFieldType.TEXT_MULTI)));
-        when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaA"))).thenReturn(Arrays.asList(""));
+                new LinkedHashSet<>(Arrays.asList(
+                        new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF),
+                        new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true),
+                        new TextSearchFieldType(Arrays.asList("ru", "en"), false, false),
+                        new TextSearchFieldType(Arrays.asList("ru", "fr"), true, false))));
+        /*when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaA"))).thenReturn(Arrays.asList(""));
         when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaB"))).thenReturn(
-                Arrays.asList("ru", "en"), Arrays.asList("ru", "fr"));
+                Arrays.asList("ru", "en"), Arrays.asList("ru", "fr"));*/
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("AreaA", "AreaB"));
 
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
         String result = adapter.getFilterString(filter, query);
-        assertTrue("Поисковый запрос должен иметь вид NOT (zzzz OR zzzz ...),"
+        assertTrue("Поисковый запрос должен иметь вид -(zzzz OR zzzz ...),"
                 + " где каждый zzzz - выражение вида cm_xx_testfield:[* TO *] или cm_t_testfield:[\"\" TO *]",
-                result.matches("-\\((cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\] OR ){7}"
-                + "cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\]\\)"));
+                result.matches("^-\\((cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\] OR ){7}"
+                + "cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\]\\)$"));
         assertTrue(result.contains("cm_r_testfield:"));
         assertTrue(result.contains("cm_dts_testfield:"));
         assertTrue(result.contains("cm_t_testfield:"));

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
 import java.util.TimeZone;
@@ -26,43 +27,32 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
             log.warn("Empty date search filter for " + filter.getFieldName() + " ignored");
             return null;
         }
-
-        Set<SearchFieldType> types = configHelper.getFieldTypes(filter.getFieldName(), query.getAreas());
-        if (types.contains(null)) {
-            types.add(SearchFieldType.DATE);
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        if (types.size() == 0) {
+            return null;
         }
-        if (types.contains(SearchFieldType.DATE)) {
-            String single = makeSolrFieldFilter(filter, SearchFieldType.DATE);
-            if (!types.contains(SearchFieldType.DATE_MULTI)) {
-                return single;
+        ArrayList<String> fields = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    fields.add(new StringBuilder()
+                            .append(field)
+                            .append(":[")
+                            .append(dateToString(filter.getStartTime()))
+                            .append(" TO ")
+                            .append(dateToString(filter.getEndTime()))
+                            .append("]")
+                            .toString());
+                }
             }
-            String multi = makeSolrFieldFilter(filter, SearchFieldType.DATE_MULTI);
-            return new StringBuilder()
-                    .append("(").append(single).append(" OR ").append(multi).append(")")
-                    .toString();
-        } else if (types.contains(SearchFieldType.DATE_MULTI)) {
-            return makeSolrFieldFilter(filter, SearchFieldType.DATE_MULTI);
         }
-        log.warn("Configured fields for field " + filter.getFieldName() + " not found in areas " + query.getAreas());
-        return null;
+        return SolrUtils.joinStrings("OR", fields);
     }
 
     @Override
     public boolean isCompositeFilter(TimeIntervalFilter filter) {
         return false;
-    }
-
-    private static String makeSolrFieldFilter(TimeIntervalFilter filter, SearchFieldType type) {
-        StringBuilder str = new StringBuilder()
-                .append(SolrFields.FIELD_PREFIX)
-                .append(type.infix)
-                .append(filter.getFieldName().toLowerCase())
-                .append(":[")
-                .append(dateToString(filter.getStartTime()))
-                .append(" TO ")
-                .append(dateToString(filter.getEndTime()))
-                .append("]");
-        return str.toString();
     }
 
     private static String dateToString(Date time) {
