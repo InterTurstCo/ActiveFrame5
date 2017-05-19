@@ -44,8 +44,6 @@ public class ListCellConfig extends WidgetConfig {
     @Element(name = "collection-extra-filters", required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
 
-    @Element(name = "initial-filters", required = false)
-    private InitialFiltersConfig initialFiltersConfig;
 
     public String getRenderFactoryComponentName() {
         return renderFactoryComponentName;
@@ -111,13 +109,7 @@ public class ListCellConfig extends WidgetConfig {
         this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
 
-    public InitialFiltersConfig getInitialFiltersConfig() {
-        return initialFiltersConfig;
-    }
 
-    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
-        this.initialFiltersConfig = initialFiltersConfig;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -132,9 +124,6 @@ public class ListCellConfig extends WidgetConfig {
         }
         ListCellConfig that = (ListCellConfig) o;
 
-        if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
-            return false;
-        }
         if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) : that.
                 collectionExtraFiltersConfig != null) {
             return false;
@@ -161,7 +150,6 @@ public class ListCellConfig extends WidgetConfig {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);

@@ -13,6 +13,8 @@ public class ListCellState extends WidgetState implements Dto {
     private List<CollectionRowItem> items;
     private String headerValue;
     private Boolean counterRequired;
+    private String renderComponentName;
+    private String renderComponentType;
 
     public List<CollectionRowItem> getItems() {
         return items;
@@ -40,5 +42,21 @@ public class ListCellState extends WidgetState implements Dto {
 
     public void setCounterRequired(Boolean counterRequired) {
         this.counterRequired = counterRequired;
+    }
+
+    public String getRenderComponentName() {
+        return renderComponentName;
+    }
+
+    public void setRenderComponentName(String renderComponentName) {
+        this.renderComponentName = renderComponentName;
+    }
+
+    public String getRenderComponentType() {
+        return renderComponentType;
+    }
+
+    public void setRenderComponentType(String renderComponentType) {
+        this.renderComponentType = renderComponentType;
     }
 }

@@ -230,12 +230,12 @@
             </body>
         </markup>
         <widget-config>
-            <list-cell renderFactoryComponentName="fake.component"
-                       renderTypeName="fake.type"
+            <list-cell renderFactoryComponentName="render.factory"
+                       renderTypeName="ItemRowType"
                        id="listcell"
                        headerValue="Тестовый виджет" counterRequired="true">
-                <collection-ref name="test-collection"/>
-                <collection-view-ref name="test-collection_view"/>
+                <collection-ref name="a1_collection"/>
+                <collection-view-ref name="a1_collection_default_view"/>
             </list-cell>
 
             <label id="b_name1_label">
