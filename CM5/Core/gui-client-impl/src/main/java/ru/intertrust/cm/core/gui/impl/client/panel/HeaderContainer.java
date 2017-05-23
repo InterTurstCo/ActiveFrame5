@@ -255,7 +255,7 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
 
     private void setInfoPage(final String pagePath) {
 
-        final String currentPath = pagePath.contains("http://") ? pagePath : GWT.getHostPageBaseURL() + pagePath;
+        final String currentPath = (pagePath.contains("http://")||pagePath.contains("https://")) ? pagePath : GWT.getHostPageBaseURL() + pagePath;
         Label help = new Label(LocalizeUtil.get(INFO_KEY, INFO));
         infoPanel.add(help);
 
