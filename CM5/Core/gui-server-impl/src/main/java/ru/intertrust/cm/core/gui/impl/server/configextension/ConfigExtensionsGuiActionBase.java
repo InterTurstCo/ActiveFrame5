@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,5 +24,14 @@ public abstract class ConfigExtensionsGuiActionBase extends ActionHandler<Simple
 
     protected List<DomainObject> getToolingDos(Id configurationDO){
         return crudService.findLinkedDomainObjects(configurationDO,"config_extension_tooling","configuration_extension");
+    }
+
+    protected List<DomainObject> getMultipleToolingDos(List<Id> configurationDO){
+        List<DomainObject> objects = new ArrayList<>();
+        for(Id i : configurationDO){
+            objects.addAll(crudService.findLinkedDomainObjects(i,
+                    "config_extension_tooling","configuration_extension"));
+        }
+        return objects;
     }
 }
