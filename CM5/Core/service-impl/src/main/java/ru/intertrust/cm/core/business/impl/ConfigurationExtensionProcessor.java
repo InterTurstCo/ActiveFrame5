@@ -327,10 +327,10 @@ public class ConfigurationExtensionProcessor {
                     extensionsInfo.addValid(new TagInfo(extensionConfig, extensionDO));
                 }
             } catch (DeactivationException e) {
-                extensionsInfo.addToDeactivate(extensionDO, (ConfigurationException) e.getCause());
+                extensionsInfo.addToDeactivate(extensionDO, e.getCause() == null ? e : (ConfigurationException) e.getCause());
                 continue;
             } catch (DeactivationWithCleaningException e) {
-                extensionsInfo.addToDeactivateAndClearXML(extensionDO, (ConfigurationException) e.getCause());
+                extensionsInfo.addToDeactivateAndClearXML(extensionDO, e.getCause() == null ? e : (ConfigurationException) e.getCause());
                 continue;
             }
         }
