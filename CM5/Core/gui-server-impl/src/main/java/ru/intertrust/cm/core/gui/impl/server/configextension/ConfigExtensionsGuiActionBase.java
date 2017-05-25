@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
@@ -33,5 +34,10 @@ public abstract class ConfigExtensionsGuiActionBase extends ActionHandler<Simple
                     "config_extension_tooling","configuration_extension"));
         }
         return objects;
+    }
+
+    @Override
+    public SimpleActionContext getActionContext(ActionConfig actionConfig) {
+        return new SimpleActionContext(actionConfig);
     }
 }

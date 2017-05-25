@@ -1,13 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.action.configextension;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.action.SimpleServerAction;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
+import ru.intertrust.cm.core.gui.model.action.*;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 
 import java.util.*;
@@ -42,5 +44,12 @@ public class ApplyDraftsAction extends SimpleServerAction {
     @Override
     public Component createNew() {
         return new ApplyDraftsAction();
+    }
+
+    @Override
+    protected void onSuccess(ActionData result) {
+        if (plugin.getLocalEventBus() != null) {
+            plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(((SimpleActionData)result).getSavedMainObjectId()));
+        }
     }
 }

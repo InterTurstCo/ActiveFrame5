@@ -1632,7 +1632,9 @@
                                 <act:tool-bar useDefault="false">
                                     <act:action-ref name-ref="aRefresh" rendered="true"/>
                                     <act:action componentName="apply.action.handler" text="Применить черновики" name="aplAction"/>
-                                    <act:action componentName="validate.extensions.action.handler" text="Проверить" name="aplAction"/>
+                                    <act:action componentName="validate.extensions.action.handler" text="Проверить" name="validateAction"/>
+                                    <act:action componentName="activate.extensions.action.handler" text="Активировать" name="activateAction"/>
+                                    <act:action componentName="deactivate.extensions.action.handler" text="Деактивировать" name="deactivateAction"/>
                                 </act:tool-bar>
                                 <collection-ref name="gui_tag_collection"/>
                                 <rows-selection default-state="empty" multi-selection="true"/>

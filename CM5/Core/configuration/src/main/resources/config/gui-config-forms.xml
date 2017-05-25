@@ -13,53 +13,26 @@
                         rendered="(not toggle-edit and not preview)  or (toggle-edit and preview)"/>
         </act:tool-bar>
           <markup>
-            <header>
-                <table>
-                    <tr>
-                        <td h-align="right">
-                            <widget id="NameLabel"/>
-                        </td>
-                        <td h-align="left">
-                            <widget id="NameValue"/>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td h-align="right">
-                            <widget id="TypeLabel"/>
-                        </td>
-                        <td h-align="left">
-                            <widget id="TypeValue"/>
-                        </td>
-                    </tr>
-                </table>
-            </header>
-            <body display-single-tab="true">
+           <header/>
+            <body display-single-tab="false">
                 <tab name="Конфигурация элемента">
                     <single-entry-group>
                         <tab-group>
                             <table>
                                 <tr>
                                     <td>
-                                        <widget id="distroXML"/>
+                                        <widget id="NameLabel"/>
                                     </td>
-                                    <td colspan="2">
-                                        <widget id="distroXMLArea" height="100px" width="100%"/>
+                                    <td>
+                                        <widget id="NameValue"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <widget id="currentXML"/>
+                                        <widget id="TypeLabel"/>
                                     </td>
-                                    <td colspan="2">
-                                        <widget id="currentXMLArea" height="100px" width="100%"/>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td>
-                                        <widget id="draftXML"/>
-                                    </td>
-                                    <td colspan="2">
-                                        <widget id="draftXMLArea" height="100px" width="100%"/>
+                                        <widget id="TypeValue"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -68,6 +41,45 @@
                                     </td>
                                     <td>
                                         <widget id="isActiveCB"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="XML дистрибутива">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="distroXMLArea" width="100%" height="100%"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Текущий XML">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="currentXMLArea" width="100%" height="100%"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Черновик">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="draftXMLArea" width="100%" height="100%"/>
                                     </td>
                                 </tr>
                             </table>
@@ -90,21 +102,15 @@
                 <field-path value="type"/>
             </text-box>
 
-            <label id="distroXML">
-                <text>XML дистрибутива</text>
-            </label>
+
             <text-area id="distroXMLArea" read-only="true" handler="distro.xml.handler">
                 <field-path value="fake"/>
             </text-area>
-            <label id="currentXML">
-                <text>Текущий XML</text>
-            </label>
+
             <text-area id="currentXMLArea" read-only="true">
                 <field-path value="current_xml"/>
             </text-area>
-            <label id="draftXML">
-                <text>Черновик</text>
-            </label>
+
             <text-area id="draftXMLArea">
                 <field-path value="config_extension_tooling|configuration_extension.draft_xml"/>
             </text-area>
