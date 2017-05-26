@@ -1636,6 +1636,7 @@
                                     <act:action componentName="activate.extensions.action.handler" text="Активировать" name="activateAction"/>
                                     <act:action componentName="deactivate.extensions.action.handler" text="Деактивировать" name="deactivateAction"/>
                                     <act:action componentName="download.config.action.handler" text="Выгрузить в файл" name="downloadAction"/>
+                                    <act:action componentName="upload.action.handler" text="Загрузить из файла" name="uploadAction"/>
                                 </act:tool-bar>
                                 <collection-ref name="gui_tag_collection"/>
                                 <rows-selection default-state="empty" multi-selection="true"/>
