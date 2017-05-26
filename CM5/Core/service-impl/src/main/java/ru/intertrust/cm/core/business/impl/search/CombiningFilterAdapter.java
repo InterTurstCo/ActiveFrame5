@@ -13,7 +13,6 @@ public class CombiningFilterAdapter implements CompositeFilterAdapter<CombiningF
     private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
 
     @Override
-    @SuppressWarnings("unchecked")
     public String getFilterString(CombiningFilter filter, SearchQuery query) {
         if (filter.getFilters().size() > 1) {
             throw new IllegalArgumentException("This method must not be called for composite filters");
@@ -23,6 +22,7 @@ public class CombiningFilterAdapter implements CompositeFilterAdapter<CombiningF
             return null;
         }
         SearchFilter nestedFilter = filter.getFilters().get(0);
+        @SuppressWarnings("unchecked")
         FilterAdapter<SearchFilter> adapter = (FilterAdapter<SearchFilter>)
                 searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass());
         return adapter.getFilterString(nestedFilter, query);
@@ -30,7 +30,15 @@ public class CombiningFilterAdapter implements CompositeFilterAdapter<CombiningF
 
     @Override
     public boolean isCompositeFilter(CombiningFilter filter) {
-        return filter.getFilters().size() > 1;
+        if (filter.getFilters().size() == 1) {
+            SearchFilter nestedFilter = filter.getFilters().get(0);
+            @SuppressWarnings("unchecked")
+            FilterAdapter<SearchFilter> adapter = (FilterAdapter<SearchFilter>)
+                    searchFilterImplementorFactory.createImplementorFor(nestedFilter.getClass());
+            return adapter.isCompositeFilter(nestedFilter);
+        } else {
+            return filter.getFilters().size() > 1;
+        }
     }
 
     @Override
