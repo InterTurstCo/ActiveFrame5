@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-        >
+               xmlns:act="https://cm5.intertrust.ru/config/action">
     <!-- Test 2 - back references 1:1 -->
     <domain-object-type name="a2">
         <fields>
@@ -51,6 +51,9 @@
     </domain-object-type>
 
     <form name="a2_form" domain-object-type="a2" is-default="true">
+        <act:tool-bar useDefault="true">
+            <act:action-ref name-ref="aRefresh" rendered="true"/>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
