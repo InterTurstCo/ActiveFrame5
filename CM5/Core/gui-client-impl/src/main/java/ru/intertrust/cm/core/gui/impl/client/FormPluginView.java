@@ -33,9 +33,11 @@ import java.util.Map;
  */
 public class FormPluginView extends PluginView implements FormSavedEventHandler {
 
+
     private FormPanel formPanel;
     // локальная шина событий
     protected EventBus eventBus;
+
 
     // установка локальной шины событий плагину
     public void setEventBus(EventBus eventBus) {
@@ -60,6 +62,7 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
         eventBus.addHandler(FormSavedEvent.TYPE, this);
+
     }
 
     @Override
@@ -116,6 +119,7 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
     public void updateViewFromHistory() {
         formPanel.updateViewFromHistory();
     }
+
 
     @Override
     public void afterFormSaved(FormSavedEvent event) {

@@ -26,7 +26,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     // поле для локальной шины событий
     protected EventBus eventBus;
     private FormPluginState initialVisualState;
-
+    private FormState initialState;
 
     // установка локальной шины событий плагину
     public void setLocalEventBus(EventBus eventBus) {
@@ -85,11 +85,11 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         newPlugin.setConfig(formPluginConfig);
         getOwner().open(newPlugin);
         newPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
-            @Override
-            public void onViewCreation(PluginViewCreatedEvent source) {
-                eventBus.fireEvent(new PluginPanelSizeChangedEvent());
-            }
-        }
+                                             @Override
+                                             public void onViewCreation(PluginViewCreatedEvent source) {
+                                                 eventBus.fireEvent(new PluginPanelSizeChangedEvent());
+                                             }
+                                         }
         );
     }
 
@@ -147,6 +147,12 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
     }
 
     @Override
+    public void refresh() {
+        FormState fState = this.<FormPluginData>getInitialData().getFormDisplayData().getFormState();
+        ((FormPluginView)getView()).update(fState);
+    }
+
+    @Override
     public boolean isDirty() {
         final FormPluginView view = (FormPluginView) getView();
         return view == null ? false : view.isDirty();
@@ -154,6 +160,6 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     @Override
     public FormViewerConfig getFormViewerConfig() {
-        return ((FormPluginConfig)this.getConfig()).getFormViewerConfig();
+        return ((FormPluginConfig) this.getConfig()).getFormViewerConfig();
     }
 }
