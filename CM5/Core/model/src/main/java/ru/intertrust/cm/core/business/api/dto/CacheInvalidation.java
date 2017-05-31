@@ -64,7 +64,7 @@ public class CacheInvalidation implements Dto {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CacheInvalidation{");
-        sb.append("nodeId=").append(senderId);
+        sb.append("senderId=").append(senderId);
         sb.append(", fromThisNode=").append(fromThisNode());
         sb.append(", idsToInvalidate=").append(idsToInvalidate);
         sb.append(", clearFullAccessLog=").append(clearFullAccessLog);

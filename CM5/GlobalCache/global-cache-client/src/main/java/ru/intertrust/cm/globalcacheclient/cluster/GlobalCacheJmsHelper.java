@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.globalcache.api.util.Size;
 
 import javax.jms.*;
 import javax.naming.InitialContext;
@@ -27,10 +28,16 @@ public class GlobalCacheJmsHelper {
 
     public static void sendClusterNotification(CacheInvalidation message) {
         send(message, true, CLUSTER_NOTIFICATION_CONNECTION_FACTORY, NOTIFICATION_TOPIC);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") sent message to cluster: " + message);
+        }
     }
 
     public static void addToDelayQueue(CacheInvalidation message) {
         send(message, true, DELAY_QUEUE_CONNECTION_FACTORY, DELAY_QUEUE);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") added message to own delay queue: " + message);
+        }
     }
 
     public static List<CacheInvalidation> readFromDelayQueue(int messages) {
@@ -53,16 +60,44 @@ public class GlobalCacheJmsHelper {
                 if (message == null) {
                     break;
                 }
-                final BytesMessage bytesMessage = (BytesMessage) message;
-                final long nodeId = bytesMessage.readLong();
-                if (nodeId != CacheInvalidation.NODE_ID) {
-                    logger.error("Received message from another Node's Delay Queue!");
-                    continue;
+                boolean stopProcessingBatch = false;
+                byte[] bytes = null;
+                try {
+                    final BytesMessage bytesMessage = (BytesMessage) message;
+                    final long nodeId = bytesMessage.readLong();
+                    if (nodeId != CacheInvalidation.NODE_ID) {
+                        logger.error("Received message from another Node's Delay Queue!");
+                        continue;
+                    }
+                    final int messageLength = bytesMessage.readInt();
+                    if (messageLength <= 0) {
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Erroneous message received from Delay Queue of size " + messageLength);
+                        }
+                        continue;
+                    }
+                    if (messageLength > 256 * Size.BYTES_IN_MEGABYTE) {
+                        logger.warn("Huge message received  from Delay Queue of length: " + messageLength / 1024 / 1024 + " GB. Other messages will wait in the queue");
+                        stopProcessingBatch = true;
+                    }
+                    bytes = new byte[messageLength];
+                    bytesMessage.readBytes(bytes);
+                    final CacheInvalidation invalidation = ObjectCloner.getInstance().fromBytes(bytes);
+                    result.add(invalidation);
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") read message from own delay queue: " + invalidation);
+                    }
+                } catch (Throwable throwable) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Erroneous message received from Delay Queue. Unable to deserialize: " + throwable.getMessage());
+                    }
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Error debug info: ", throwable);
+                    }
                 }
-                final byte[] bytes = new byte[(int) bytesMessage.getBodyLength() - 4]; // node id is always first
-                bytesMessage.readBytes(bytes);
-                final CacheInvalidation invalidation = ObjectCloner.getInstance().fromBytes(bytes);
-                result.add(invalidation);
+                if (stopProcessingBatch) {
+                    break;
+                }
             }
             return result;
         } catch (NamingException | JMSException e) {
@@ -90,7 +125,9 @@ public class GlobalCacheJmsHelper {
             if (appendNodeId) {
                 bm.writeLong(CacheInvalidation.NODE_ID);
             }
-            bm.writeBytes(ObjectCloner.getInstance().toBytesWithClassInfo(message));
+            final byte[] messageBytes = ObjectCloner.getInstance().toBytesWithClassInfo(message);
+            bm.writeInt(messageBytes.length);
+            bm.writeBytes(messageBytes);
             publisher.send(bm);
         } catch (NamingException | JMSException e) {
             throw new UnexpectedException(e);

@@ -1,9 +1,8 @@
 package ru.intertrust.cm.globalcacheclient.cluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.globalcache.api.util.Size;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -21,24 +20,46 @@ import javax.jms.MessageListener;
         @ActivationConfigProperty(propertyName="destination", propertyValue= GlobalCacheJmsHelper.NOTIFICATION_TOPIC),
 })
 public class ClusterNotificationReceiver implements MessageListener {
-    final static Logger logger = LoggerFactory.getLogger(ClusterNotificationReceiver.class);
-
     @Override
     public void onMessage(Message message) {
         try {
             final BytesMessage bytesMessage = (BytesMessage) message;
             final long nodeId = bytesMessage.readLong();
             if (nodeId == CacheInvalidation.NODE_ID) {
+                if (GlobalCacheJmsHelper.logger.isTraceEnabled()) {
+                    GlobalCacheJmsHelper.logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") received its own message. Ignoring it. ");
+                }
                 return;
             }
-            final byte[] bytes = new byte[(int) bytesMessage.getBodyLength() - 4]; // node id is always first
+            if (GlobalCacheJmsHelper.logger.isTraceEnabled()) {
+                GlobalCacheJmsHelper.logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") received message from cluster.");
+            }
+            final int messageLength = bytesMessage.readInt();
+            if (messageLength <= 0) {
+                if (GlobalCacheJmsHelper.logger.isWarnEnabled()) {
+                    GlobalCacheJmsHelper.logger.warn("Erroneous message received from cluster of size " + messageLength + ". Ignored.");
+                }
+                return;
+            }
+            if (messageLength > 256 * Size.BYTES_IN_MEGABYTE) {
+                GlobalCacheJmsHelper.logger.warn("Huge message received from cluster of length: " + messageLength / 1024 / 1024 + " GB. Other messages will wait in the queue");
+            }
+            final byte[] bytes = new byte[messageLength];
             bytesMessage.readBytes(bytes);
             final CacheInvalidation invalidation = ObjectCloner.getInstance().fromBytes(bytes);
+            if (GlobalCacheJmsHelper.logger.isDebugEnabled()) {
+                GlobalCacheJmsHelper.logger.debug("Node " + CacheInvalidation.NODE_ID + " (\"this\") parsed message from cluster: " + invalidation);
+            }
             invalidation.setReceiveTime(System.currentTimeMillis());
             GlobalCacheJmsHelper.addToDelayQueue(invalidation);
-        } catch (Exception e) {
-            logger.error("Unexpected exception caught in onMessage", e);
-            throw new RuntimeException("Error in Notification Receiver", e);
+        } catch (Throwable throwable) {
+            if (GlobalCacheJmsHelper.logger.isErrorEnabled()) {
+                GlobalCacheJmsHelper.logger.error("Exception caught when processing message from cluster in ClusterNotificationReceiver.onMessage: " + throwable.getMessage() + ". Ignoring message");
+            }
+            if (GlobalCacheJmsHelper.logger.isDebugEnabled()) {
+                GlobalCacheJmsHelper.logger.debug("Exception detail: " + throwable);
+            }
+
         }
     }
 
