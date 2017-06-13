@@ -23,8 +23,8 @@
 
     <domain-object-type name="Attachment" template="true">
         <fields>
-            <string name="Name" length="128"/>
-            <string name="Path" length="128"/>
+            <string name="Name" length="512"/>
+            <string name="Path" length="512"/>
             <string name="MimeType" length="128"/>
             <string name="Description" length="128"/>
             <long name="ContentLength"/>
