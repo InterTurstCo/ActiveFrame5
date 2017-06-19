@@ -16,6 +16,7 @@ public interface ImportDataService {
     public static final String DELETE_OTHER = "DELETE_OTHER";
     public static final String ATTACHMENT_FIELD_NAME = "_ATTACHMENT_";
     public static final String DEFAULT_ENCODING = "ANSI-1251";
+    public static final String SERVICE_FIELDS = "SERVICE_FIELDS";
     
     
     /**

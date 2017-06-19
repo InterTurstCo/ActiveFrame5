@@ -1,0 +1,4 @@
+TYPE_NAME=test_type_9;KEYS=description;SERVICE_FIELDS=$UNID
+description;test_type_8;$UNID
+test1;"description=""test1""";3123456789
+test2;"description=""test1""";3221564987

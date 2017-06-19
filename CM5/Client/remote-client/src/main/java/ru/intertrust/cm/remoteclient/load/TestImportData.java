@@ -41,6 +41,7 @@ public class TestImportData extends ClientBase {
             importDataService.importData(readFile(new File("import-test_type_7.csv")), null, true);
             importDataService.importData(readFile(new File("import-test_type_8.csv")), null, true);
             importDataService.importData(readFile(new File("import-test_type_9.csv")), null, true);
+            importDataService.importData(readFile(new File("import-test_type_9_sys_fields.csv")), null, true);            
 
             log("Test OK");
         } finally {

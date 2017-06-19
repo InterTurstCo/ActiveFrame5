@@ -75,6 +75,7 @@ public class ImportData {
     private boolean systemPermission;
     private String attachmentBasePath;
     private boolean inTransaction;
+    private Set<String> serviceFields;
 
     /**
      * Конструктор. Инициалитзирует класс флагом с какими правами должен
@@ -121,6 +122,9 @@ public class ImportData {
             deleteOther = false;
             //Список импортированных записей
             importedIds = new LinkedHashSet<>();
+            //Служебные поля, которые не надо проверять на наличие данного поля в конфигурации. Инерпритировать как строки
+            serviceFields = new HashSet<String>();
+            
 
             logger.info("Import data from csv by " + rowsInOneTransaction + " rows in transactions.");
             //итератор по строкам
@@ -154,7 +158,13 @@ public class ImportData {
                                 emptyStringSymbol = metaItem[1];
                             } else if (metaItem[0].equalsIgnoreCase(ImportDataService.DELETE_OTHER)) {
                                 deleteOther = Boolean.parseBoolean(metaItem[1]);
+                            } else if (metaItem[0].equalsIgnoreCase(ImportDataService.SERVICE_FIELDS)) {
+                                String[] serviceFieldArr = metaItem[1].split(",");
+                                for (String serviceField : serviceFieldArr) {
+                                    serviceFields.add(serviceField);
+                                }
                             }
+                            
                         }
                     } else if (lineNum == 1) {
                         //Имена полей
@@ -471,7 +481,12 @@ public class ImportData {
                 }
             }
         } else {
-            throw new FatalException("Field " + fieldName + " not found in type " + typeName);
+            //В случае со служебным полем формируем строковое значение, иначе выбрасываем исключение
+            if (serviceFields.contains(fieldName)){
+                newValue = new StringValue(fieldValue);
+            }else{
+                throw new FatalException("Field " + fieldName + " not found in type " + typeName);
+            }
         }
 
         return newValue;
