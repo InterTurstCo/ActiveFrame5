@@ -1,36 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.sf.jsqlparser.statement.select.Select;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdBasedFilter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
-import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
@@ -41,21 +19,19 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
-import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
-import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
-import ru.intertrust.cm.core.dao.api.ServerComponentService;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
 import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 
 /**
  * @author vmatsukevich Date: 7/1/13 Time: 6:58 PM
@@ -198,23 +174,23 @@ public class CollectionsDaoImpl implements CollectionsDao {
             return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
         }
 
-        filterValues = processIdsFilters(filterValues);
-        checkFilterValues(filterValues);
+        List<Filter> processedFilterValues = processIdsFilters(filterValues);
+        checkFilterValues(processedFilterValues);
 
-        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, filterValues, sortOrder, offset, limit,
+        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, processedFilterValues, sortOrder, offset, limit,
                 accessToken);
         if (fromGlobalCache != null) {
-            return validateCache(collectionName, filterValues, sortOrder, offset, limit, accessToken, start, fromGlobalCache);
+            return validateCache(collectionName, processedFilterValues, sortOrder, offset, limit, accessToken, start, fromGlobalCache);
         }
 
-        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit,
+        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, processedFilterValues, sortOrder, offset, limit,
                 accessToken);
         final IdentifiableObjectCollection collection = dbResultAndStart.getFirst();
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
-            collectionsCacheService.putCollectionToCache(collection, collectionName, filterValues, sortOrder, offset, limit);
+            collectionsCacheService.putCollectionToCache(collection, collectionName, processedFilterValues, sortOrder, offset, limit);
         }
-        globalCacheClient.notifyCollectionRead(collectionName, filterValues, sortOrder, offset, limit, collection, dbResultAndStart.getSecond(), accessToken);
+        globalCacheClient.notifyCollectionRead(collectionName, processedFilterValues, sortOrder, offset, limit, collection, dbResultAndStart.getSecond(), accessToken);
         return collection;
     }
 
@@ -402,8 +378,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
             processedFilters.add(filter);
         }
 
-        List<IdsIncludedFilter> idsIncludedFilters = new ArrayList<>(1);
-        List<IdsExcludedFilter> idsExcludedFilters = new ArrayList<>(1);
+        List<IdsIncludedFilter> idsIncludedFilters = new ArrayList<>();
+        List<IdsExcludedFilter> idsExcludedFilters = new ArrayList<>();
 
         for (Filter filter : filterValues) {
             if (filter instanceof IdsIncludedFilter) {
@@ -417,6 +393,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         int index = 0;
         for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
+            if (idsIncludedFilter.getParameterMap().isEmpty()) {
+                continue;
+            }
             Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
             clonedFilter.addCriterion(0, mergeCriterions(idsIncludedFilter));
@@ -426,6 +405,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         index = 0;
         for (IdsExcludedFilter idsExcludedFilter : idsExcludedFilters) {
+            if (idsExcludedFilter.getParameterMap().isEmpty()) {
+                continue;
+            }
             Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_EXCLUDED_FILTER_PREFIX + index);
             clonedFilter.addCriterion(0, mergeCriterions(idsExcludedFilter));
@@ -683,19 +665,17 @@ public class CollectionsDaoImpl implements CollectionsDao {
             return collectionDataGenerator.findCollectionCount(filterValues);
         }
 
-        final int fromGlobalCache = globalCacheClient.getCollectionCount(collectionName, filterValues, accessToken);
+        List<Filter> processedFilterValues = processIdsFilters(filterValues);
+        checkFilterValues(processedFilterValues);
+        final int fromGlobalCache = globalCacheClient.getCollectionCount(collectionName, processedFilterValues, accessToken);
         if (fromGlobalCache != -1) {
-            return validateCountCache(collectionConfig, collectionName, filterValues, accessToken, start, fromGlobalCache);
+            return validateCountCache(collectionConfig, collectionName, processedFilterValues, accessToken, start, fromGlobalCache);
         }
 
-        filterValues = processIdsFilters(filterValues);
-
-        checkFilterValues(filterValues);
-
-        final Pair<Integer, Long> dbResultAndStart = findCollectionCountInDB(start, collectionConfig, collectionName, filterValues, accessToken);
+        final Pair<Integer, Long> dbResultAndStart = findCollectionCountInDB(start, collectionConfig, collectionName, processedFilterValues, accessToken);
         final Integer count = dbResultAndStart.getFirst();
 
-        globalCacheClient.notifyCollectionCountRead(collectionName, filterValues, count, dbResultAndStart.getSecond(), accessToken);
+        globalCacheClient.notifyCollectionCountRead(collectionName, processedFilterValues, count, dbResultAndStart.getSecond(), accessToken);
         return count;
     }
 
