@@ -136,6 +136,11 @@ public class ConfigurationExtensionProcessor {
                     extensionDO.setBoolean("active", false);
                     extensionDO = domainObjectDao.save(extensionDO, accessToken);
                     toolingDO.setReference("configuration_extension", extensionDO.getId());
+
+                    final ExtensionsInfo extensionsInformation = getExtensionsInformation();
+                    if (!extensionsInformation.getToDelete().isEmpty() || !extensionsInformation.getToDeactivateAndClearXML().isEmpty()) {
+                        throw new SummaryConfigurationException(extensionsInformation.leaveDeletedAndXMLClearedOnly().getAllProblems());
+                    }
                 }
                 savedDOs.add(domainObjectDao.save(toolingDO, accessToken));
             }
@@ -522,6 +527,15 @@ public class ConfigurationExtensionProcessor {
         private ArrayList<ConfigurationException> deactivationReasons = new ArrayList<>();
         private ArrayList<ConfigurationException> deactivationAndClearXMLReasons = new ArrayList<>();
         private ArrayList<ConfigurationException> deleteReasons = new ArrayList<>();
+
+        public ExtensionsInfo leaveDeletedAndXMLClearedOnly() {
+            final ExtensionsInfo result = new ExtensionsInfo();
+            result.toDeactivateAndClearXML = toDeactivateAndClearXML;
+            result.toDelete = toDelete;
+            result.deactivationAndClearXMLReasons = deactivationAndClearXMLReasons;
+            result.deleteReasons = deleteReasons;
+            return result;
+        }
 
         public void addValid(TagInfo tagInfo) {
             validActiveExtensions.add(tagInfo);

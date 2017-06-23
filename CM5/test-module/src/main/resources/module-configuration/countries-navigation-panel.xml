@@ -1627,7 +1627,7 @@
 
                 <link name="GuiExtensions" display-text="Управление элементами GUI">
                     <plugin>
-                        <domain-object-surfer domain-object-type-to-create="config_extension_tooling">
+                        <domain-object-surfer domain-object-type-to-create="configuration_extension">
                             <collection-viewer>
                                 <act:tool-bar useDefault="false">
                                     <act:action-ref name-ref="aRefresh" rendered="true"/>
