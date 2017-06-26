@@ -393,9 +393,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         int index = 0;
         for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
-            if (idsIncludedFilter.getParameterMap().isEmpty()) {
-                continue;
-            }
             Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
             clonedFilter.addCriterion(0, mergeCriterions(idsIncludedFilter));
