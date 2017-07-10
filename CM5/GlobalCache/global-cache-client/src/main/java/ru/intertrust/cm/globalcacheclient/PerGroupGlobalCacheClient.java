@@ -313,6 +313,16 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     }
 
     @Override
+    public void notifyPersonGroupChanged(Id person) {
+        // nothing to do as cache is "per group"
+    }
+
+    @Override
+    public void notifyGroupHierarchyChanged() {
+        getAccessChanges().setGroupsHierarchyChanged(true);
+    }
+
+    @Override
     public void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted) {
         getAccessChanges().aclCreated(contextObj, domainObjectTypeIdCache.getName(contextObj), recordsInserted);
     }

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
 import ru.intertrust.cm.globalcache.api.AccessChanges;
 import ru.intertrust.cm.globalcache.api.CollectionSubKey;
@@ -88,7 +89,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void clearAccessLog() {
+    public void clearAccessLog() {
         writeLock.lock();
         try {
             super.clearAccessLog();
@@ -160,6 +161,11 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
     public void invalidate(CacheInvalidation cacheInvalidation) { // do NOT sync - it's synchronized inside
         super.invalidate(cacheInvalidation);
+    }
+
+    @Override
+    public void invalidateUserAccess(UserSubject subject) {
+        super.invalidateUserAccess(subject);
     }
 
     @Override

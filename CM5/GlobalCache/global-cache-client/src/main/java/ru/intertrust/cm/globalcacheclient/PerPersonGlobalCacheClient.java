@@ -1,7 +1,10 @@
 package ru.intertrust.cm.globalcacheclient;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
@@ -18,6 +21,11 @@ public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
     private GlobalCacheSettings settings;
 
     @Override
+    public void notifyUpdate(DomainObject obj, AccessToken accessToken) {
+        super.notifyUpdate(obj, accessToken);
+    }
+
+    @Override
     public void notifyCommit(DomainObjectsModification modification) {
         String transactionId = modification.getTransactionId();
         GroupAccessChanges groupAccessChanges = createAccessChangesIfAbsent(transactionId);
@@ -31,6 +39,16 @@ public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
         if (settings.isInCluster()) {
             clusterSynchronizer.notifyCommit(modification, groupAccessChanges);
         }
+    }
+
+    @Override
+    public void notifyPersonGroupChanged(Id person) {
+        getAccessChanges().personGroupChanged(person);
+    }
+
+    @Override
+    public void notifyGroupHierarchyChanged() {
+        super.notifyGroupHierarchyChanged();
     }
 
     private PersonAccessChanges getPersonAccessChanges(GroupAccessChanges groupAccessChanges) {

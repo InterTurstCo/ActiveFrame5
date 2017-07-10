@@ -143,6 +143,16 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void notifyPersonGroupChanged(Id person) {
+        impl.notifyPersonGroupChanged(person);
+    }
+
+    @Override
+    public void notifyGroupHierarchyChanged() {
+        impl.notifyGroupHierarchyChanged();
+    }
+
+    @Override
     public void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted) {
         impl.notifyAclCreated(contextObj, recordsInserted);
     }

@@ -146,12 +146,20 @@ public class UserObjectAccess implements Sizeable {
             // synchronized (user.getName().intern()) { // todo - correct lock impl for async cache
                 userAccess = accessByUser.get(user);
                 if (userAccess == null) {
-                    userAccess = new SizeableConcurrentHashMap<>(INITIAL_OBJECTS_CAPACITY_PER_USER, DEFAULT_LOAD_FACTOR, 16, null, true, true);
+                    userAccess = newUserAccessMap();
                     accessByUser.put(user, userAccess);
                 }
             // }
         }
         return userAccess;
+    }
+
+    public void clearAccess(UserSubject user) {
+        accessByUser.put(user, newUserAccessMap());
+    }
+
+    private SizeableConcurrentHashMap<Record, Record> newUserAccessMap() {
+        return new SizeableConcurrentHashMap<>(INITIAL_OBJECTS_CAPACITY_PER_USER, DEFAULT_LOAD_FACTOR, 16, null, true, true);
     }
 
     @Override

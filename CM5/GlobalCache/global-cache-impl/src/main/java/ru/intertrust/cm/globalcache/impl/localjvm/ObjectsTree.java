@@ -1,6 +1,7 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
 import ru.intertrust.cm.globalcache.api.util.Sizeable;
@@ -38,6 +39,18 @@ public class ObjectsTree implements Sizeable {
 
     public ObjectNode deleteDomainObjectNode(Id id) {
         return domainObjects.remove(id);
+    }
+
+    public void clearUserLinkedObjects(UserSubject user) {
+        for (ObjectNode objectNode : domainObjects.values()) {
+            objectNode.clearUserLinkedObjects(user);
+        }
+    }
+
+    public void clearAllUsersLinkedObjects() {
+        for (ObjectNode objectNode : domainObjects.values()) {
+            objectNode.clearAllUsersLinkedObjects();
+        }
     }
 
     @Override

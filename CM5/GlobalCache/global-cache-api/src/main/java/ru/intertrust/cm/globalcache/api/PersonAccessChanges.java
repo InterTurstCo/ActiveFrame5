@@ -17,6 +17,8 @@ public class PersonAccessChanges implements AccessChanges {
 
     private HashMap<Id, HashMap<Id, Boolean>> personAccessByObject;
     private HashSet<String> objectTypesAccessChanged = new HashSet<>();
+    private HashSet<Id> personsWhosGroupsChanged = new HashSet<>();
+    private boolean groupsHierarchyChanged;
 
     public PersonAccessChanges() {
         personAccessByObject = new HashMap<>();
@@ -36,12 +38,12 @@ public class PersonAccessChanges implements AccessChanges {
 
     @Override
     public boolean clearFullAccessLog() {
-        return personAccessByObject == null;
+        return personAccessByObject == null || groupsHierarchyChanged;
     }
 
     @Override
     public int getObjectsQty() {
-        return personAccessByObject == null ? -1 : personAccessByObject.size();
+        return clearFullAccessLog() ? -1 : personAccessByObject.size();
     }
 
     @Override
@@ -65,6 +67,22 @@ public class PersonAccessChanges implements AccessChanges {
 
     public HashMap<Id, HashMap<Id, Boolean>> getPersonAccessByObject() {
         return personAccessByObject;
+    }
+
+    public HashSet<Id> getPersonsWhosGroupsChanged() {
+        return personsWhosGroupsChanged;
+    }
+
+    public void setPersonsWhosGroupsChanged(HashSet<Id> personsWhosGroupsChanged) {
+        this.personsWhosGroupsChanged = personsWhosGroupsChanged;
+    }
+
+    public boolean isGroupsHierarchyChanged() {
+        return groupsHierarchyChanged;
+    }
+
+    public void setGroupsHierarchyChanged(boolean groupsHierarchyChanged) {
+        this.groupsHierarchyChanged = groupsHierarchyChanged;
     }
 
     private void markForFullAccessClearing() {

@@ -31,10 +31,10 @@ public class ClusterNotificationReceiver implements MessageListener {
                 }
                 return;
             }
-            if (GlobalCacheJmsHelper.logger.isTraceEnabled()) {
-                GlobalCacheJmsHelper.logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") received message from cluster.");
-            }
             final int messageLength = bytesMessage.readInt();
+            if (GlobalCacheJmsHelper.logger.isTraceEnabled()) {
+                GlobalCacheJmsHelper.logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") received message from cluster node: " + nodeId + ". Message length: " + messageLength + " bytes.");
+            }
             if (messageLength <= 0) {
                 if (GlobalCacheJmsHelper.logger.isWarnEnabled()) {
                     GlobalCacheJmsHelper.logger.warn("Erroneous message received from cluster of size " + messageLength + ". Ignored.");

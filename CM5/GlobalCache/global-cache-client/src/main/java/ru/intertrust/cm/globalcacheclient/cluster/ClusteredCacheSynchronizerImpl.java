@@ -31,6 +31,7 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void notifyCommit(DomainObjectsModification modification, GroupAccessChanges groupAccessChanges) {
         final boolean clearFullAccessLog = groupAccessChanges.clearFullAccessLog();
+        final HashSet<Id> personsWhosGroupsChanged = clearFullAccessLog ? null : groupAccessChanges.getPersonsWhosGroupsChanged();
         final HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
         final Set<Id> changedAccessIds = groupAccessByObject == null ? null : groupAccessByObject.keySet();
         final List<Id> createdIds = modification.getCreatedIds();
@@ -44,7 +45,7 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
         ids.addAll(deletedIds);
         ids.addAll(modifiedAutoDomainObjectIds);
 
-        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog));
+        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog, personsWhosGroupsChanged));
     }
 
     @Override

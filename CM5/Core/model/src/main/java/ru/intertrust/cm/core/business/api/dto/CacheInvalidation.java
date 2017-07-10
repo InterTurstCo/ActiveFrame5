@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ public class CacheInvalidation implements Dto {
     private boolean clearFullAccessLog;
     private boolean clearCache;
     private long receiveTime;
+    private Set<Id> usersAccessToInvalidate;
 
     public CacheInvalidation() {
     }
@@ -29,12 +31,25 @@ public class CacheInvalidation implements Dto {
         this.clearFullAccessLog = clearFullAccessLog;
     }
 
+    public CacheInvalidation(HashSet<Id> idsToInvalidate, boolean clearFullAccessLog, HashSet<Id> personsWhosGroupsChanged) {
+        this(idsToInvalidate, clearFullAccessLog);
+        this.usersAccessToInvalidate = personsWhosGroupsChanged;
+    }
+
     public long getSenderId() {
         return senderId;
     }
 
     public long setSenderId() {
         return senderId = NODE_ID;
+    }
+
+    public Set<Id> getUsersAccessToInvalidate() {
+        return usersAccessToInvalidate;
+    }
+
+    public void setUsersAccessToInvalidate(Set<Id> usersAccessToInvalidate) {
+        this.usersAccessToInvalidate = usersAccessToInvalidate;
     }
 
     public Set<Id> getIdsToInvalidate() {

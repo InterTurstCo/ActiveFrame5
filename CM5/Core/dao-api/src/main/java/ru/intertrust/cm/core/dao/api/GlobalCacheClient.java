@@ -65,6 +65,10 @@ public interface GlobalCacheClient {
 
     void notifyRollback(String transactionId);
 
+    void notifyPersonGroupChanged(Id person);
+
+    void notifyGroupHierarchyChanged();
+
     void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted);
 
     void notifyAclDeleted(Id contextObj, Collection<AclInfo> recordsDeleted);

@@ -58,6 +58,8 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
                     return personAccessChanges;
                 }
             }
+            personAccessChanges.setGroupsHierarchyChanged(groupAccessChanges.isGroupsHierarchyChanged());
+            personAccessChanges.setPersonsWhosGroupsChanged(groupAccessChanges.getPersonsWhosGroupsChanged());
             return personAccessChanges;
         } catch (Throwable e) {
             e.printStackTrace();
