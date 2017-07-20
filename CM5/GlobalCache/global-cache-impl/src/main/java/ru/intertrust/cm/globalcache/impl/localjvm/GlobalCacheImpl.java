@@ -430,8 +430,15 @@ public class GlobalCacheImpl implements GlobalCache {
             cleaner.deleteObjectAndItsAccessEntires(automaticObjectId, typeName, null, false);
         }
         final PersonAccessChanges personAccessChanges = (PersonAccessChanges) accessChanges;
-        if (personAccessChanges.getObjectsQty() == 0 && personAccessChanges.getPersonsWhosGroupsChanged().isEmpty()) {
+        if (!personAccessChanges.accessChangesExist()) {
             return;
+        }
+        if (personAccessChanges.clearFullAccessLog()) {
+            clearAccessLog();
+            return;
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("On commit invalidate user access: " + personAccessChanges.getPersonsWhosAccessRightsChanged().size() + " users");
         }
         final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
         for (String type : objectTypesAccessChanged) {
@@ -441,12 +448,8 @@ public class GlobalCacheImpl implements GlobalCache {
                 clearUsersFullRetrieval(typeAffected);
             }
         }
-        for (Id personId : personAccessChanges.getPersonsWhosGroupsChanged()) {
+        for (Id personId : personAccessChanges.getPersonsWhosAccessRightsChanged()) {
             invalidateUserAccess(new UserSubject((int) ((RdbmsId) personId).getId()));
-        }
-        if (personAccessChanges.clearFullAccessLog()) {
-            clearAccessLog();
-            return;
         }
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
         int count = 0;
@@ -483,17 +486,19 @@ public class GlobalCacheImpl implements GlobalCache {
 
     @Override
     public void invalidateUserAccess(UserSubject user) {
-        objectsTree.clearUserLinkedObjects(user);
-        userObjectAccess.clearAccess(user);
         userAccessChangeTime.setLastRightsChangeTime(user, System.currentTimeMillis());
+        objectsTree.clearUserLinkedObjects(user); // todo: think about speed up... support cluster
+        clearUsersFullRetrieval(user);
+        userObjectAccess.clearAccess(user);
     }
 
     @Override
     public void clearAccessLog() {
+        userAccessChangeTime.setLastRightsChangeTimeForEveryone(System.currentTimeMillis());
         objectsTree.clearAllUsersLinkedObjects();
+        domainObjectTypeFullRetrieval.clearAllUsersFullRetrievalInfo();
         userObjectAccess.getSize().detachFromTotal();
         userObjectAccess = new UserObjectAccess(16, size);
-        userAccessChangeTime.setLastRightsChangeTimeForEveryone(System.currentTimeMillis());
     }
 
     protected void deleteObjectAndCorrespondingEntries(Id id) {
@@ -711,16 +716,15 @@ public class GlobalCacheImpl implements GlobalCache {
             return null;
         }
         final long timeRetrieved = collectionNode.getTimeRetrieved();
+        if (subKey.subject != null && userAccessChangedAfterOrSameTime(subKey.subject, timeRetrieved)) {
+            baseNode.removeCollectionNode(subKey);
+            return null;
+        }
         final Set<String> collectionTypes = baseNode.getCollectionTypes();
         if (collectionTypes != null) {
             for (String type : collectionTypes) {
                 // in case of user access, rights changes should be taken into account
-                final boolean invalidNode;
-                if (subKey.subject == null) {
-                    invalidNode = typeSavedAfterOrSameTime(type, timeRetrieved);
-                } else {
-                    invalidNode = typeChangedAfterOrSameTime(type, timeRetrieved) || userAccessChangedAfterOrSameTime(subKey.subject, timeRetrieved);
-                }
+                final boolean invalidNode = subKey.subject == null ? typeSavedAfterOrSameTime(type, timeRetrieved) : typeChangedAfterOrSameTime(type, timeRetrieved);
                 if (invalidNode) {
                     baseNode.removeCollectionNode(subKey);
                     return null;
@@ -848,6 +852,10 @@ public class GlobalCacheImpl implements GlobalCache {
                 domainObjectTypeFullRetrieval.clearUsersTypeStatus(type, false);
             }
         }
+    }
+
+    private void clearUsersFullRetrieval(UserSubject userSubject) {
+        domainObjectTypeFullRetrieval.clearAllTypesForUser(userSubject);
     }
 
     private void clearFullRetrieval(String type, UserSubject userSubject) {

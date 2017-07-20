@@ -83,6 +83,7 @@ public class CacheInvalidation implements Dto {
         sb.append(", fromThisNode=").append(fromThisNode());
         sb.append(", idsToInvalidate=").append(idsToInvalidate);
         sb.append(", clearFullAccessLog=").append(clearFullAccessLog);
+        sb.append(", usersAccessToInvalidate=").append(usersAccessToInvalidate);
         sb.append('}');
         return sb.toString();
     }

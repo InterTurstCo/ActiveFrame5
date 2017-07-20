@@ -148,8 +148,8 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void notifyGroupHierarchyChanged() {
-        impl.notifyGroupHierarchyChanged();
+    public void notifyGroupBranchChanged(Id groupId) {
+        impl.notifyGroupBranchChanged(groupId);
     }
 
     @Override

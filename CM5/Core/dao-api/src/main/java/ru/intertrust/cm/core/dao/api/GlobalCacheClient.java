@@ -67,7 +67,7 @@ public interface GlobalCacheClient {
 
     void notifyPersonGroupChanged(Id person);
 
-    void notifyGroupHierarchyChanged();
+    void notifyGroupBranchChanged(Id groupId);
 
     void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted);
 

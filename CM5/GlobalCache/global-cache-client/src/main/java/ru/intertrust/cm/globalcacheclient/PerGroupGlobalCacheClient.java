@@ -318,8 +318,8 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     }
 
     @Override
-    public void notifyGroupHierarchyChanged() {
-        getAccessChanges().setGroupsHierarchyChanged(true);
+    public void notifyGroupBranchChanged(Id groupId) {
+        getAccessChanges().groupBranchChanged(groupId);
     }
 
     @Override

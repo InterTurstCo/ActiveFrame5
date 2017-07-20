@@ -132,6 +132,9 @@ public class ObjectNode implements Sizeable {
     }
 
     public void clearUserLinkedObjects(UserSubject user) {
+        if (userLinkedObjects == null) {
+            return;
+        }
         for (SizeableConcurrentHashMap<UserSubject, LinkedObjectsNode> userNodes : userLinkedObjects.values()) {
             userNodes.remove(user);
         }

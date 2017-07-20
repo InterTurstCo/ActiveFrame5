@@ -39,7 +39,7 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     private final MethodStatistics NOTIFY_COMMIT = new MethodStatistics("Notify Commit");
     private final MethodStatistics NOTIFY_ROLLBACK = new MethodStatistics("Notify Rollback");
     private final MethodStatistics NOTIFY_PERSON_GROUP_CHANGED = new MethodStatistics("Notify Person Group Changed");
-    private final MethodStatistics NOTIFY_GROUP_HIERARCHY_CHANGED = new MethodStatistics("Notify Group Hierarchy Changed");
+    private final MethodStatistics NOTIFY_GROUP_BRANCH_CHANGED = new MethodStatistics("Notify Group Branch Changed");
     private final MethodStatistics NOTIFY_ACL_CREATED = new MethodStatistics("Notify ACL Created");
     private final MethodStatistics NOTIFY_ACL_DELETED = new MethodStatistics("Notify ACL Deleted");
     private final MethodStatistics GET_DOMAIN_OBJECT = new MethodStatistics("Get Domain Object", true);
@@ -253,11 +253,11 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     }
 
     @Override
-    public void notifyGroupHierarchyChanged() {
+    public void notifyGroupBranchChanged(Id groupId) {
         final long t1 = System.nanoTime();
-        delegate.notifyGroupHierarchyChanged();
+        delegate.notifyGroupBranchChanged(groupId);
         final long executionTime = System.nanoTime() - t1;
-        NOTIFY_GROUP_HIERARCHY_CHANGED.log(executionTime, false);
+        NOTIFY_GROUP_BRANCH_CHANGED.log(executionTime, false);
     }
 
     @Override

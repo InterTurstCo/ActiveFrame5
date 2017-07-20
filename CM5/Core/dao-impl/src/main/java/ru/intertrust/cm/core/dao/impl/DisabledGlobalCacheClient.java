@@ -116,7 +116,7 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void notifyGroupHierarchyChanged() {
+    public void notifyGroupBranchChanged(Id groupId) {
     }
 
     @Override

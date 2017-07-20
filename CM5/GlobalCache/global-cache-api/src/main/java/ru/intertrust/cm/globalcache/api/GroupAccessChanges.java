@@ -22,6 +22,7 @@ public class GroupAccessChanges implements AccessChanges {
     private HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = new HashMap<>();
     private HashSet<String> objectTypesAccessChanged = new HashSet<>();
     private HashSet<Id> personsWhosGroupsChanged = new HashSet<>();
+    private HashSet<Id> groupsWithChangedBranching = new HashSet<>();
     private boolean groupsHierarchyChanged;
 
     public void aclCreated(Id contextObj, String type, Collection<AclInfo> recordsInserted) {
@@ -32,6 +33,14 @@ public class GroupAccessChanges implements AccessChanges {
     public void aclDeleted(Id contextObj, String type, Collection<AclInfo> recordsInserted) {
         aclInsertedOrDeleted(contextObj, recordsInserted, Boolean.FALSE);
         objectTypesAccessChanged.add(type);
+    }
+
+    public void groupBranchChanged(Id groupId) {
+        groupsWithChangedBranching.add(groupId);
+    }
+
+    public HashSet<Id> getGroupsWithChangedBranching() {
+        return groupsWithChangedBranching;
     }
 
     public void personGroupChanged(Id personId) {
@@ -55,11 +64,11 @@ public class GroupAccessChanges implements AccessChanges {
     }
 
     public boolean clearFullAccessLog() {
-        return groupAccessByObject == null || groupsHierarchyChanged;
+        return groupAccessByObject == null;
     }
 
     public boolean accessChangesExist() {
-        return groupAccessByObject == null || groupAccessByObject.size() > 0;
+        return groupAccessByObject == null || groupAccessByObject.size() > 0 || !this.personsWhosGroupsChanged.isEmpty() || !this.groupsWithChangedBranching.isEmpty();
     }
 
     public int getObjectsQty() {

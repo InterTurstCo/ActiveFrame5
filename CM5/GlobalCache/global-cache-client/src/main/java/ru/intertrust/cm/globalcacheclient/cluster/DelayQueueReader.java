@@ -107,15 +107,16 @@ public class DelayQueueReader {
             }
             if (clearCache) {
                 cacheClient.clearCurrentNode();
+            } else {
+                invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
             }
-            invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
         } finally {
             processing = false;
         }
     }
 
     private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> toInvalidate, boolean clearFullAccessLog, HashSet<Id> usersToInvalideAccess) {
-        if (toInvalidate.isEmpty() && !clearFullAccessLog) {
+        if (toInvalidate.isEmpty() && !clearFullAccessLog && usersToInvalideAccess.isEmpty()) {
             return;
         }
         cacheClient.invalidateCurrentNode(new CacheInvalidation(toInvalidate, clearFullAccessLog, usersToInvalideAccess));

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.personmanager;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.extension.*;
@@ -38,21 +39,22 @@ public class OnChangeGroupGroupExtensionPointHandler implements BeforeSaveExtens
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
-        if (groupHierarchyChanged(changedFields)) {
-            notifyGlobalCache();
+        if (groupBranchChanged(changedFields)) {
+            // exact group is taken into account. Inheritors should be changed as well automatically in group_group denormalized table
+            notifyGlobalCache(domainObject.getReference("child_group_id"));
         }
     }
 
     @Override
     public void onAfterDelete(DomainObject deletedDomainObject) {
-        notifyGlobalCache();
+        notifyGlobalCache(deletedDomainObject.getReference("child_group_id"));
     }
 
-    private void notifyGlobalCache() {
-        globalCacheClient.notifyGroupHierarchyChanged();
+    private void notifyGlobalCache(Id groupId) {
+        globalCacheClient.notifyGroupBranchChanged(groupId);
     }
 
-    private boolean groupHierarchyChanged(List<FieldModification> changedFields) {
+    private boolean groupBranchChanged(List<FieldModification> changedFields) {
         if (changedFields != null) {
             for (FieldModification fieldModification : changedFields) {
                 final String name = fieldModification.getName();
