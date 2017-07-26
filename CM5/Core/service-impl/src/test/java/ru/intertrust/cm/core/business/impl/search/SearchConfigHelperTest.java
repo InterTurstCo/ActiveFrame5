@@ -197,6 +197,15 @@ public class SearchConfigHelperTest {
     }
 
     @Test
+    public void testGetFieldType_DoelChildType() {
+        IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        when(config.getName()).thenReturn("String_Ca");
+        when(config.getDoel()).thenReturn("String_Ca");
+        SearchFieldType type = testee.getFieldType(config, "Type_C");
+        assertEquals(type, new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+    }
+
+    @Test
     public void testGetFieldType_Calculated() {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("Calculated");

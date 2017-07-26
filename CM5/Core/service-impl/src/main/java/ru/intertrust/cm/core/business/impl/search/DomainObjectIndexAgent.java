@@ -136,7 +136,7 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
             doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             doc.addField(SolrFields.MODIFIED, object.getModifiedDate());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                SearchFieldType type = configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
+                SearchFieldType type = configHelper.getFieldType(fieldConfig, object.getTypeName());
                 if (type == null) {
                     continue;
                 }

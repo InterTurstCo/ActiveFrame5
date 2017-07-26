@@ -667,6 +667,59 @@ public class DomainObjectIndexAgentTest {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
+    public void testSaveGenericDocument_TypeInheritance() {
+        // Модель конфигурации области поиска
+        IndexedFieldConfig childTypeField = mock(IndexedFieldConfig.class);
+        when(childTypeField.getName()).thenReturn("ChildTypeField");
+        TargetDomainObjectConfig objectConfig = mock(TargetDomainObjectConfig.class);
+        when(objectConfig.getType()).thenReturn("ParentType");
+        when(objectConfig.getFields()).thenReturn(Arrays.asList(childTypeField));
+        SearchConfigHelper.SearchAreaDetailsConfig areaConfig = mock(SearchConfigHelper.SearchAreaDetailsConfig.class);
+        when(areaConfig.getAreaName()).thenReturn("TestArea");
+        when(areaConfig.getTargetObjectType()).thenReturn("ParentType");
+        when(areaConfig.getObjectConfig()).thenReturn(objectConfig);
+        when(areaConfig.getObjectConfigChain()).thenReturn(new IndexedDomainObjectConfig[] { objectConfig });
+
+        when(configHelper.findEffectiveConfigs(Mockito.anyString()))
+                .thenReturn(Arrays.asList(areaConfig));
+        when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
+        when(configHelper.isSuitableType("ParentType", "ChildType")).thenReturn(true);
+        when(configHelper.getFieldType(same(childTypeField), eq("ChildType"))).thenReturn(
+                new TextSearchFieldType(Arrays.asList(""), false, false));
+        when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList(""));
+
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
+
+        // Модель сохраняемого объекта и его изменений
+        DomainObject object = mock(DomainObject.class);
+        Id id = idMock("TestId");
+        when(object.getId()).thenReturn(id);
+        when(object.getTypeName()).thenReturn("ChildType");
+        when(object.getValue("ChildTypeField")).thenReturn(new StringValue("Test string"));
+        FieldModification modMock = mock(FieldModification.class);
+        when(modMock.getName()).thenReturn("ChildTypeField");
+
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+
+        // Вызов тестируемого метода
+        testee.onAfterSave(object, Arrays.asList(modMock));
+
+        // Проверка правильности сформированного запроса к Solr
+        ArgumentCaptor<Collection> documents = ArgumentCaptor.forClass(Collection.class);
+        verify(requestQueue).addDocuments(documents.capture());
+        assertEquals(1, documents.getValue().size());
+        SolrInputDocument doc = (SolrInputDocument) documents.getValue().iterator().next();
+        assertThat(doc, hasEntry(equalTo("cm_id"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_area"), hasProperty("value", equalTo("TestArea"))));
+        assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("ParentType"))));
+        assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_childtypefield"), hasProperty("value", equalTo("Test string"))));
+
+        verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
+    }
+
     /*@Test
     public void testSaveGenericDocument_HavingLinked() {
         // Модель конфигурации области поиска
