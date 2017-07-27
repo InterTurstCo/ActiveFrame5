@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
@@ -45,7 +46,7 @@ public class CacheInvalidation implements Dto {
     }
 
     public Set<Id> getUsersAccessToInvalidate() {
-        return usersAccessToInvalidate;
+        return usersAccessToInvalidate == null ? Collections.<Id>emptySet() : usersAccessToInvalidate;
     }
 
     public void setUsersAccessToInvalidate(Set<Id> usersAccessToInvalidate) {
@@ -53,7 +54,7 @@ public class CacheInvalidation implements Dto {
     }
 
     public Set<Id> getIdsToInvalidate() {
-        return idsToInvalidate;
+        return idsToInvalidate == null ? Collections.<Id>emptySet() : idsToInvalidate;
     }
 
     public boolean isClearCache() {
