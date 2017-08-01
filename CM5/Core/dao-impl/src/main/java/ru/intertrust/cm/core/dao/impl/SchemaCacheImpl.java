@@ -229,6 +229,8 @@ public class SchemaCacheImpl implements SchemaCache {
             return null;
         }
 
+        // todo: wrong algorithm ?
+        // loop through all indexes and if we don't find our column in an expression index, it's an error
         for (IndexInfo indexInfo : domainObjectTypeIndexes.values()) {
             if (indexInfo.getColumnNames() == null || indexConfig.getIndexFieldConfigs() == null ||
                     indexInfo.getColumnNames().size() != getIndexFieldsNumber(indexConfig)) {
@@ -242,7 +244,7 @@ public class SchemaCacheImpl implements SchemaCache {
                 }
 
                 IndexFieldConfig fieldConfig = (IndexFieldConfig) baseIndexExpressionConfig;
-
+                // todo index info column names are empty
                 if (!indexInfo.getColumnNames().contains(getSqlName(fieldConfig.getName()))) {
                     fieldsMatch = false;
                     break;

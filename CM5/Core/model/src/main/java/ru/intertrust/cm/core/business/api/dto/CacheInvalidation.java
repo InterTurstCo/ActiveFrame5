@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
@@ -16,6 +18,7 @@ public class CacheInvalidation implements Dto {
     private boolean clearFullAccessLog;
     private boolean clearCache;
     private long receiveTime;
+    private Set<Id> usersAccessToInvalidate;
 
     public CacheInvalidation() {
     }
@@ -29,6 +32,11 @@ public class CacheInvalidation implements Dto {
         this.clearFullAccessLog = clearFullAccessLog;
     }
 
+    public CacheInvalidation(HashSet<Id> idsToInvalidate, boolean clearFullAccessLog, HashSet<Id> personsWhosGroupsChanged) {
+        this(idsToInvalidate, clearFullAccessLog);
+        this.usersAccessToInvalidate = personsWhosGroupsChanged;
+    }
+
     public long getSenderId() {
         return senderId;
     }
@@ -37,8 +45,16 @@ public class CacheInvalidation implements Dto {
         return senderId = NODE_ID;
     }
 
+    public Set<Id> getUsersAccessToInvalidate() {
+        return usersAccessToInvalidate == null ? Collections.<Id>emptySet() : usersAccessToInvalidate;
+    }
+
+    public void setUsersAccessToInvalidate(Set<Id> usersAccessToInvalidate) {
+        this.usersAccessToInvalidate = usersAccessToInvalidate;
+    }
+
     public Set<Id> getIdsToInvalidate() {
-        return idsToInvalidate;
+        return idsToInvalidate == null ? Collections.<Id>emptySet() : idsToInvalidate;
     }
 
     public boolean isClearCache() {
@@ -68,6 +84,7 @@ public class CacheInvalidation implements Dto {
         sb.append(", fromThisNode=").append(fromThisNode());
         sb.append(", idsToInvalidate=").append(idsToInvalidate);
         sb.append(", clearFullAccessLog=").append(clearFullAccessLog);
+        sb.append(", usersAccessToInvalidate=").append(usersAccessToInvalidate);
         sb.append('}');
         return sb.toString();
     }

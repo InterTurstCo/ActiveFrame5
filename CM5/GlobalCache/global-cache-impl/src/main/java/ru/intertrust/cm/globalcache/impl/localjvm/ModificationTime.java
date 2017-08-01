@@ -13,6 +13,7 @@ public class ModificationTime {
     public ModificationTime(long saveTime, long objectModifiedTime, long rightsChangedTime) {
         this.saveTime = saveTime;
         this.objectModifiedTime = objectModifiedTime;
+        this.rightsChangedTime = rightsChangedTime;
     }
 
     public synchronized void updateSaveTime(long saveTime, long objectModifiedTime) {

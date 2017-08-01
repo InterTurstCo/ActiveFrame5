@@ -136,11 +136,14 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
             doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             doc.addField(SolrFields.MODIFIED, object.getModifiedDate());
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                SearchFieldType type = configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
-                Object value = calculateField(object, fieldConfig);
+                SearchFieldType type = configHelper.getFieldType(fieldConfig, object.getTypeName());
                 if (type == null) {
-                    type = getTypeByValue(value);
+                    continue;
                 }
+                Object value = calculateField(object, fieldConfig);
+                /*if (type == null) {
+                    type = getTypeByValue(value);
+                }*/
                 for (String fieldName : type.getSolrFieldNames(fieldConfig.getName(), true)) {
                     doc.addField(fieldName, value);
                 }
@@ -335,7 +338,7 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
     }
 
     private SearchFieldType getTypeByValue(Object value) {
-        if (value.getClass().isArray()) {
+        if (value != null && value.getClass().isArray()) {
             Object[] array = (Object[]) value;
             return getTypeByValue(array.length == 0 ? null : array[0], true);
         }

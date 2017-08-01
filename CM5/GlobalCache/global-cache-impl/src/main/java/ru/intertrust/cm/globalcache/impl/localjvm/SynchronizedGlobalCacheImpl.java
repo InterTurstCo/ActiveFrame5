@@ -4,11 +4,13 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
 import ru.intertrust.cm.globalcache.api.AccessChanges;
 import ru.intertrust.cm.globalcache.api.CollectionSubKey;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -24,7 +26,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void activate() {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.activate();
         } finally {
@@ -34,7 +36,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void deactivate() {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.deactivate();
         } finally {
@@ -44,7 +46,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void clear() {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.clear();
         } finally {
@@ -69,7 +71,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyRead(String transactionId, Id id, DomainObject obj, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyRead(transactionId, id, obj, accessToken);
         } finally {
@@ -79,7 +83,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyRead(String transactionId, Collection<DomainObject> objects, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyRead(transactionId, objects, accessToken);
         } finally {
@@ -88,8 +94,8 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void clearAccessLog() {
-        writeLock.lock();
+    public void clearAccessLog() {
+        forceWriteLock();
         try {
             super.clearAccessLog();
         } finally {
@@ -99,7 +105,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     protected void deleteObjectAndCorrespondingEntries(Id id) {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.deleteObjectAndCorrespondingEntries(id);
         } finally {
@@ -109,7 +115,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyReadByUniqueKey(String transactionId, String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyReadByUniqueKey(transactionId, type, uniqueKey, obj, time, accessToken);
         } finally {
@@ -119,7 +127,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyReadPossiblyNullObjects(String transactionId, Collection<Pair<Id, DomainObject>> idsAndObjects, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyReadPossiblyNullObjects(transactionId, idsAndObjects, accessToken);
         } finally {
@@ -129,7 +139,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public DomainObject getDomainObject(String transactionId, String type, Map<String, Value> uniqueKey, AccessToken accessToken) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getDomainObject(transactionId, type, uniqueKey, accessToken);
         } finally {
@@ -139,7 +151,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyLinkedObjectsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyLinkedObjectsRead(transactionId, id, linkedType, linkedField, exactType, linkedObjects, time, accessToken);
         } finally {
@@ -149,7 +163,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyLinkedObjectsIdsRead(transactionId, id, linkedType, linkedField, exactType, linkedObjectsIds, time, accessToken);
         } finally {
@@ -163,8 +179,13 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
+    public void invalidateUserAccess(UserSubject subject) {
+        super.invalidateUserAccess(subject);
+    }
+
+    @Override
     public void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges) {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.notifyCommit(modification, accessChanges);
         } finally {
@@ -174,7 +195,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getDomainObject(transactionId, id, accessToken);
         } finally {
@@ -184,7 +207,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public ArrayList<DomainObject> getDomainObjects(String transactionId, Collection<Id> ids, AccessToken accessToken) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getDomainObjects(transactionId, ids, accessToken);
         } finally {
@@ -194,7 +219,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public List<DomainObject> getLinkedDomainObjects(String transactionId, Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getLinkedDomainObjects(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
         } finally {
@@ -204,7 +231,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyCollectionCountRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyCollectionCountRead(transactionId, name, domainObjectTypes, filterNames, filterValues, count, time, accessToken);
         } finally {
@@ -226,7 +255,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, int count, long time) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, count, time);
         } finally {
@@ -248,7 +279,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return -1;
+        }
         try {
             return super.getCollectionCount(key, subKey);
         } finally {
@@ -258,7 +291,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getCollection(key, subKey);
         } finally {
@@ -273,7 +308,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void setSizeLimitBytes(long bytes) {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.setSizeLimitBytes(bytes);
         } finally {
@@ -298,7 +333,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyReadAll(String transactionId, String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
-        writeLock.lock();
+        if (!tryWriteLock()) {
+            return;
+        }
         try {
             super.notifyReadAll(transactionId, type, exactType, objects, accessToken);
         } finally {
@@ -308,7 +345,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public List<DomainObject> getAllDomainObjects(String transactionId, String type, boolean exactType, AccessToken accessToken) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getAllDomainObjects(transactionId, type, exactType, accessToken);
         } finally {
@@ -318,7 +357,9 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public List<Id> getLinkedDomainObjectsIds(String transactionId, Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
-        readLock.lock();
+        if (!tryReadLock()) {
+            return null;
+        }
         try {
             return super.getLinkedDomainObjectsIds(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
         } finally {
@@ -353,7 +394,7 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     protected void deleteEldestEntry() {
-        writeLock.lock();
+        forceWriteLock();
         try {
             super.deleteEldestEntry();
         } finally {
@@ -369,5 +410,25 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
     public DecimalCounter getCacheCleanFreedSpaceCounter() { // do NOT sync
         return super.getCacheCleanFreedSpaceCounter();
+    }
+
+    private void forceWriteLock() {
+        writeLock.lock();
+    }
+
+    private boolean tryWriteLock() {
+        try {
+            return writeLock.tryLock(1, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    private boolean tryReadLock() {
+        try {
+            return readLock.tryLock(1, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            return false;
+        }
     }
 }

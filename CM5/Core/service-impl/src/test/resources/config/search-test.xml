@@ -129,6 +129,9 @@
                 <indexed-field name="String_C" language=""/>
                 <indexed-field name="Long_C"/>
                 <indexed-field name="DateTime_C"/>
+                <indexed-field name="String_Ca">
+                    <doel>String_Ca</doel>
+                </indexed-field>
                 <indexed-content type="Attach_C"/>
                 <parent-link>
                     <doel>Type_D^Reference_D_C</doel>

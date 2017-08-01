@@ -128,8 +128,11 @@ public class DomainObjectIndexAgentTest {
         IndexedFieldConfig customField = mock(IndexedFieldConfig.class);
         when(customField.getName()).thenReturn("CustomField");
         when(customField.getSolrPrefix()).thenReturn("custom");
+        IndexedFieldConfig scriptField = mock(IndexedFieldConfig.class);
+        when(scriptField.getName()).thenReturn("ScriptField");
+        when(scriptField.getScript()).thenReturn("evaluate");
         // Поля поисковой области, вычисляемые скриптами
-        IndexedFieldConfig scriptStringField = mock(IndexedFieldConfig.class);
+        /*IndexedFieldConfig scriptStringField = mock(IndexedFieldConfig.class);
         when(scriptStringField.getName()).thenReturn("ScriptStringField");
         when(scriptStringField.getScript()).thenReturn("return String");
         IndexedFieldConfig scriptLongField = mock(IndexedFieldConfig.class);
@@ -143,14 +146,15 @@ public class DomainObjectIndexAgentTest {
         when(scriptBoolField.getScript()).thenReturn("return Boolean");
         IndexedFieldConfig scriptFloatArrayField = mock(IndexedFieldConfig.class);
         when(scriptFloatArrayField.getName()).thenReturn("ScriptFloatArrayField");
-        when(scriptFloatArrayField.getScript()).thenReturn("return Array of Floats");
+        when(scriptFloatArrayField.getScript()).thenReturn("return Array of Floats");*/
 
         TargetDomainObjectConfig objectConfig = mock(TargetDomainObjectConfig.class);
         when(objectConfig.getType()).thenReturn("TestType");
         when(objectConfig.getFields()).thenReturn(Arrays.asList(
                 stringField, ruStringField, ruEnGeTextField,
                 longField, decimalField, dateField, referenceField, doelField, customField,
-                scriptStringField, scriptLongField, scriptDateField, scriptBoolField, scriptFloatArrayField));
+                scriptField));
+                //scriptStringField, scriptLongField, scriptDateField, scriptBoolField, scriptFloatArrayField));
         SearchConfigHelper.SearchAreaDetailsConfig areaConfig = mock(SearchConfigHelper.SearchAreaDetailsConfig.class);
         when(areaConfig.getAreaName()).thenReturn("TestArea");
         when(areaConfig.getTargetObjectType()).thenReturn("TestType");
@@ -177,6 +181,8 @@ public class DomainObjectIndexAgentTest {
                 new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF));
         when(configHelper.getFieldType(same(doelField), anyString())).thenReturn(
                 new TextSearchFieldType(Arrays.asList(""), true, false));
+        when(configHelper.getFieldType(same(scriptField), anyString())).thenReturn(
+                new TextSearchFieldType(Arrays.asList(""), false, false));
         when(configHelper.getFieldType(same(customField), anyString())).thenReturn(
                 new CustomSearchFieldType("custom_"));
         /*when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
@@ -207,14 +213,15 @@ public class DomainObjectIndexAgentTest {
                         (Value) new StringValue("String 1"), new StringValue("String 2"), new StringValue("String 3")));
         when(object.getValue("CustomField")).thenReturn(new StringValue("Custom indexed string"));
 
-        @SuppressWarnings("deprecation")
+        /*@SuppressWarnings("deprecation")
         Date calculatedDate = new Date(Date.parse("Thu, 9 Jul 2015 10:15:25 GMT+0300"));
         when(scriptService.eval(eq("return String"), any(ScriptContext.class))).thenReturn("Calculated");
         when(scriptService.eval(eq("return Long"), any(ScriptContext.class))).thenReturn(555L);
         when(scriptService.eval(eq("return Date"), any(ScriptContext.class))).thenReturn(calculatedDate);
         when(scriptService.eval(eq("return Boolean"), any(ScriptContext.class))).thenReturn(true);
         when(scriptService.eval(eq("return Array of Floats"), any(ScriptContext.class)))
-                .thenReturn(new Float[] { 2.81f, 3.14f } );
+                .thenReturn(new Float[] { 2.81f, 3.14f } );*/
+        when(scriptService.eval(eq("evaluate"), any(ScriptContext.class))).thenReturn("Calculated");
 
         when(domainObjectDao.find(id, mockToken)).thenReturn(object);
 
@@ -245,11 +252,12 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_ts_doelfield"), hasProperty("value",
                         containsInAnyOrder("String 1", "String 2", "String 3"))));
         assertThat(doc, hasEntry(equalTo("custom_customfield"), hasProperty("value", equalTo("Custom indexed string"))));
-        assertThat(doc, hasEntry(equalTo("cm_t_scriptstringfield"), hasProperty("value", equalTo("Calculated"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_scriptfield"), hasProperty("value", equalTo("Calculated"))));
+        /*assertThat(doc, hasEntry(equalTo("cm_t_scriptstringfield"), hasProperty("value", equalTo("Calculated"))));
         assertThat(doc, hasEntry(equalTo("cm_l_scriptlongfield"), hasProperty("value", equalTo(555L))));
         assertThat(doc, hasEntry(equalTo("cm_dt_scriptdatefield"), hasProperty("value", equalTo(calculatedDate))));
         assertThat(doc, hasEntry(equalTo("cm_b_scriptboolfield"), hasProperty("value", equalTo(true))));
-        assertThat(doc, hasEntry(equalTo("cm_ds_scriptfloatarrayfield"), hasProperty("value")));   //*****
+        assertThat(doc, hasEntry(equalTo("cm_ds_scriptfloatarrayfield"), hasProperty("value")));   //*****/
 
         verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
     }
@@ -657,6 +665,59 @@ public class DomainObjectIndexAgentTest {
                 assertThat(doc, hasEntry(equalTo("cm_t_fieldd"), hasProperty("value", equalTo("String D"))));
             }
         }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
+    public void testSaveGenericDocument_TypeInheritance() {
+        // Модель конфигурации области поиска
+        IndexedFieldConfig childTypeField = mock(IndexedFieldConfig.class);
+        when(childTypeField.getName()).thenReturn("ChildTypeField");
+        TargetDomainObjectConfig objectConfig = mock(TargetDomainObjectConfig.class);
+        when(objectConfig.getType()).thenReturn("ParentType");
+        when(objectConfig.getFields()).thenReturn(Arrays.asList(childTypeField));
+        SearchConfigHelper.SearchAreaDetailsConfig areaConfig = mock(SearchConfigHelper.SearchAreaDetailsConfig.class);
+        when(areaConfig.getAreaName()).thenReturn("TestArea");
+        when(areaConfig.getTargetObjectType()).thenReturn("ParentType");
+        when(areaConfig.getObjectConfig()).thenReturn(objectConfig);
+        when(areaConfig.getObjectConfigChain()).thenReturn(new IndexedDomainObjectConfig[] { objectConfig });
+
+        when(configHelper.findEffectiveConfigs(Mockito.anyString()))
+                .thenReturn(Arrays.asList(areaConfig));
+        when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
+        when(configHelper.isSuitableType("ParentType", "ChildType")).thenReturn(true);
+        when(configHelper.getFieldType(same(childTypeField), eq("ChildType"))).thenReturn(
+                new TextSearchFieldType(Arrays.asList(""), false, false));
+        when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList(""));
+
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
+
+        // Модель сохраняемого объекта и его изменений
+        DomainObject object = mock(DomainObject.class);
+        Id id = idMock("TestId");
+        when(object.getId()).thenReturn(id);
+        when(object.getTypeName()).thenReturn("ChildType");
+        when(object.getValue("ChildTypeField")).thenReturn(new StringValue("Test string"));
+        FieldModification modMock = mock(FieldModification.class);
+        when(modMock.getName()).thenReturn("ChildTypeField");
+
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+
+        // Вызов тестируемого метода
+        testee.onAfterSave(object, Arrays.asList(modMock));
+
+        // Проверка правильности сформированного запроса к Solr
+        ArgumentCaptor<Collection> documents = ArgumentCaptor.forClass(Collection.class);
+        verify(requestQueue).addDocuments(documents.capture());
+        assertEquals(1, documents.getValue().size());
+        SolrInputDocument doc = (SolrInputDocument) documents.getValue().iterator().next();
+        assertThat(doc, hasEntry(equalTo("cm_id"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_area"), hasProperty("value", equalTo("TestArea"))));
+        assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("ParentType"))));
+        assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_childtypefield"), hasProperty("value", equalTo("Test string"))));
+
+        verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
     }
 
     /*@Test

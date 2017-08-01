@@ -16,6 +16,10 @@ public class NamedCollectionTypesKey implements CollectionTypesKey {
         this.filterNames = filterNames;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

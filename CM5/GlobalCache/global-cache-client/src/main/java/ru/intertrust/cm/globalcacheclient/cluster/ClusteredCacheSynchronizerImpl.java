@@ -6,7 +6,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
+import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
@@ -29,10 +29,12 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void notifyCommit(DomainObjectsModification modification, GroupAccessChanges groupAccessChanges) {
-        final boolean clearFullAccessLog = groupAccessChanges.clearFullAccessLog();
-        final HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
-        final Set<Id> changedAccessIds = groupAccessByObject == null ? null : groupAccessByObject.keySet();
+    public void notifyCommit(DomainObjectsModification modification, PersonAccessChanges personAccessChanges) {
+        final boolean clearFullAccessLog = personAccessChanges.clearFullAccessLog();
+        final Set<Id> personsWhosAccessRightsChanged = personAccessChanges.getPersonsWhosAccessRightsChanged();
+        final HashSet<Id> personsWhosGroupsChanged = clearFullAccessLog ? null : (personsWhosAccessRightsChanged instanceof HashSet ? ((HashSet) personsWhosAccessRightsChanged) : new HashSet<>(personsWhosAccessRightsChanged));
+        final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
+        final Set<Id> changedAccessIds = personAccessByObject == null ? null : personAccessByObject.keySet();
         final List<Id> createdIds = modification.getCreatedIds();
         final Set<Id> savedAndChangedStatusIds = modification.getSavedAndChangedStatusIds();
         final Set<Id> deletedIds = modification.getDeletedIds();
@@ -44,7 +46,7 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
         ids.addAll(deletedIds);
         ids.addAll(modifiedAutoDomainObjectIds);
 
-        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog));
+        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog, personsWhosGroupsChanged));
     }
 
     @Override

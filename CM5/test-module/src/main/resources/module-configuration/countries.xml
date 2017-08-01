@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
+    <domain-object-type name="SO_Beard">
+
+        <fields>
+
+            <string name="MigrationId" length="48" />
+            <boolean name="MigrationIsAbsent" not-null="true" />
+            <string name="OrgName" length="253" />
+            <reference name="HierParent" type="SO_Beard" />
+            <boolean name="IsActive" not-null="true" />
+            <boolean name="IsNotVacancy" />
+            <string name="CmjUnid" not-null="true" length="48" />
+
+            <long name="Orig_Type" not-null="true" />
+            <string name="Orig_ShortName" not-null="true" length="253" />
+            <string name="Orig_PostName" length="253" />
+            <string name="Orig_DepartmentName" length="253" />
+
+            <long name="Eff_Type" />
+            <string name="Eff_ShortName" length="253" />
+            <string name="Eff_PostName" length="253" />
+            <string name="Eff_DepartmentName" length="253" />
+
+        </fields>
+
+        <uniqueKey>
+            <field name="MigrationId" />
+        </uniqueKey>
+
+        <uniqueKey>
+            <field name="CmjUnid" />
+        </uniqueKey>
+
+        <indices>
+
+            <index>
+                <expr value="(coalesce(&apos;&lt;id&gt;&apos;|| substring(cmjunid, 33, 48)||&apos;:&apos;|| substring(cmjunid, 1, 32)||&apos;&lt;/&gt;&lt;shortName&gt;&apos;||orig_shortname||&apos;&lt;/&gt;&apos;,&apos;&lt;id&gt;&lt;/&gt;&lt;shortName&gt;&lt;/&gt;&apos;))" />
+            </index>
+
+            <index>
+                <expr value="(coalesce(&apos;&lt;id&gt;&lt;/&gt;&lt;shortName&gt;&apos;||orig_shortname||&apos;&lt;/&gt;&apos;,&apos;&lt;id&gt;&lt;/&gt;&lt;shortName&gt;&amp;lt;&#1053;&#1077; &#1091;&#1082;&#1072;&#1079;&#1072;&#1085;&amp;gt;&lt;/&gt;&apos;))" />
+            </index>
+
+            <index>
+                <expr value="(coalesce(&apos;&lt;id&gt;&lt;/&gt;&lt;shortName&gt;&apos;||orig_shortname||&apos;&lt;/&gt;&apos;,&apos;&lt;id&gt;&lt;/&gt;&lt;shortName&gt;&amp;lt;&#1053;&#1077; &#1091;&#1082;&#1072;&#1079;&#1072;&#1085;&#1086;&amp;gt;&lt;/&gt;&apos;))" />
+            </index>
+
+            <index>
+                <field name="orig_shortname" />
+            </index>
+
+            <index>
+                <expr value="(coalesce(orig_shortname, &apos;Не указано&apos;))" />
+            </index>
+
+            <index>
+                <field name="IsActive"/>
+            </index>
+
+        </indices>
+
+    </domain-object-type>
+
     <domain-object-type name="country" initial-status="Active">
         <fields>
             <string name="name" length="128"/>
@@ -23,6 +85,11 @@
         <uniqueKey>
             <field name="name"/>
         </uniqueKey>
+        <indices>
+            <index type="btree">
+                <field name="short_name"/>
+            </index>
+        </indices>
         <attachment-types>
             <attachment-type name="country_attachment"/>
             <attachment-type name="country_flag"/>

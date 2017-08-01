@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserSubject;
 
 import java.util.*;
 
@@ -52,6 +53,10 @@ public interface GlobalCache {
                               IdentifiableObjectCollection collection, long time, AccessToken accessToken);
 
     void invalidate(CacheInvalidation cacheInvalidation);
+
+    void invalidateUserAccess(UserSubject subject);
+
+    void clearAccessLog();
 
     void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges);
 

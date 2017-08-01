@@ -58,6 +58,7 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
                     return personAccessChanges;
                 }
             }
+            setPersonsWhosGroupsChanged(personAccessChanges, groupAccessChanges);
             return personAccessChanges;
         } catch (Throwable e) {
             e.printStackTrace();
@@ -65,6 +66,14 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
         } finally {
             ejbContext.setRollbackOnly();
         }
+    }
+
+    private void setPersonsWhosGroupsChanged(PersonAccessChanges personAccessChanges, GroupAccessChanges groupAccessChanges) {
+        final HashSet<Id> personsWhosGroupsChanged = groupAccessChanges.getPersonsWhosGroupsChanged();
+        for (Id groupId : groupAccessChanges.getGroupsWithChangedBranching()) {
+            personsWhosGroupsChanged.addAll(getIds(personManagementDao.getPersonsInGroup(groupId)));
+        }
+        personAccessChanges.setPersonsWhosAccessRightsChanged(personsWhosGroupsChanged);
     }
 
     private HashMap<Id, Boolean> toPersonAccess(HashMap<Id, Boolean> groupAccess) {

@@ -131,6 +131,27 @@ public class ObjectNode implements Sizeable {
         }
     }
 
+    public void clearUserLinkedObjects(UserSubject user) {
+        if (userLinkedObjects == null) {
+            return;
+        }
+        for (SizeableConcurrentHashMap<UserSubject, LinkedObjectsNode> userNodes : userLinkedObjects.values()) {
+            userNodes.remove(user);
+        }
+    }
+
+    public void clearAllUsersLinkedObjects() {
+        if (userLinkedObjects == null) {
+            return;
+        }
+        synchronized (this) {
+            if (userLinkedObjects == null) {
+                userLinkedObjects = new SizeableConcurrentHashMap<>(size);
+            }
+        }
+        userLinkedObjects.getSize().detachFromTotal();
+    }
+
     public LinkedObjectsNode getLinkedObjectsNode(LinkedObjectsKey key, UserSubject user) {
         if (user == null) {
             return systemLinkedObjects == null ? null : systemLinkedObjects.get(key);

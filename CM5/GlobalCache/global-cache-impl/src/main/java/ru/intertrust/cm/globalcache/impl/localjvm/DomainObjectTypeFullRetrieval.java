@@ -78,6 +78,11 @@ public class DomainObjectTypeFullRetrieval implements Sizeable {
         return result == null ? Boolean.FALSE : result;
     }
 
+    public void clearAllUsersFullRetrievalInfo() {
+        userTypeFullRetrieval.getSize().detachFromTotal();
+        userTypeFullRetrieval = new SizeableConcurrentHashMap<>(userTypeFullRetrieval.size(), 0.75f, 16, size, true, true);
+    }
+
     public void clearTypeStatus(String type, boolean exact) {
         Key key = new Key(type, exact);
         systemTypeFullRetrieval.remove(key);
@@ -108,6 +113,12 @@ public class DomainObjectTypeFullRetrieval implements Sizeable {
             return;
         }
         byUser.remove(subject);
+    }
+
+    public void clearAllTypesForUser(UserSubject subject) {
+        for (SizeableConcurrentHashMap<UserSubject, Boolean> byUser : userTypeFullRetrieval.values()) {
+            byUser.remove(subject);
+        }
     }
 
     public void clearTypeStatusForUser(UserSubject subject, String type) {

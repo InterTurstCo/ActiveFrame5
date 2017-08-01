@@ -71,6 +71,7 @@ public class GlobalCacheImpl implements GlobalCache {
     private UserObjectAccess userObjectAccess;
     private ObjectAccessDelegation objectAccessDelegation;
     private DomainObjectTypeChangeTime doTypeLastChangeTime;
+    private UserAccessChangeTime userAccessChangeTime;
     private DomainObjectTypeFullRetrieval domainObjectTypeFullRetrieval;
     private IdsByType idsByType;
     private CollectionsTree collectionsTree;
@@ -109,6 +110,7 @@ public class GlobalCacheImpl implements GlobalCache {
         accessSorter = null;
         objectAccessDelegation = null;
         doTypeLastChangeTime = null;
+        userAccessChangeTime = null;
         domainObjectTypeFullRetrieval = null;
         idsByType = null;
         collectionsTree = null;
@@ -132,6 +134,7 @@ public class GlobalCacheImpl implements GlobalCache {
         objectAccessDelegation = new ObjectAccessDelegation(16, size);
         final int typesQty = explorer.getConfigs(DomainObjectTypeConfig.class).size();
         doTypeLastChangeTime = new DomainObjectTypeChangeTime(typesQty);
+        userAccessChangeTime = new UserAccessChangeTime(1000);
         domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty, size);
         idsByType = new IdsByType(16, typesQty * 2, size);
         collectionsTree = new CollectionsTree(10000, 16, size);
@@ -381,6 +384,10 @@ public class GlobalCacheImpl implements GlobalCache {
         }
         if (cacheInvalidation.isClearFullAccessLog()) {
             clearAccessLog();
+        } else { // no need to clear per user as we've just cleared everything from access log
+            for (Id userId : cacheInvalidation.getUsersAccessToInvalidate()) {
+                invalidateUserAccess(new UserSubject((int) ((RdbmsId) userId).getId()));
+            }
         }
     }
 
@@ -423,8 +430,15 @@ public class GlobalCacheImpl implements GlobalCache {
             cleaner.deleteObjectAndItsAccessEntires(automaticObjectId, typeName, null, false);
         }
         final PersonAccessChanges personAccessChanges = (PersonAccessChanges) accessChanges;
-        if (personAccessChanges.getObjectsQty() == 0) {
+        if (!personAccessChanges.accessChangesExist()) {
             return;
+        }
+        if (personAccessChanges.clearFullAccessLog()) {
+            clearAccessLog();
+            return;
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("On commit invalidate user access: " + personAccessChanges.getPersonsWhosAccessRightsChanged().size() + " users");
         }
         final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
         for (String type : objectTypesAccessChanged) {
@@ -434,9 +448,8 @@ public class GlobalCacheImpl implements GlobalCache {
                 clearUsersFullRetrieval(typeAffected);
             }
         }
-        if (personAccessChanges.clearFullAccessLog()) {
-            clearAccessLog();
-            return;
+        for (Id personId : personAccessChanges.getPersonsWhosAccessRightsChanged()) {
+            invalidateUserAccess(new UserSubject((int) ((RdbmsId) personId).getId()));
         }
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
         int count = 0;
@@ -471,7 +484,19 @@ public class GlobalCacheImpl implements GlobalCache {
         }
     }
 
-    protected void clearAccessLog() {
+    @Override
+    public void invalidateUserAccess(UserSubject user) {
+        userAccessChangeTime.setLastRightsChangeTime(user, System.currentTimeMillis());
+        objectsTree.clearUserLinkedObjects(user); // todo: think about speed up... support cluster
+        clearUsersFullRetrieval(user);
+        userObjectAccess.clearAccess(user);
+    }
+
+    @Override
+    public void clearAccessLog() {
+        userAccessChangeTime.setLastRightsChangeTimeForEveryone(System.currentTimeMillis());
+        objectsTree.clearAllUsersLinkedObjects();
+        domainObjectTypeFullRetrieval.clearAllUsersFullRetrievalInfo();
         userObjectAccess.getSize().detachFromTotal();
         userObjectAccess = new UserObjectAccess(16, size);
     }
@@ -691,6 +716,10 @@ public class GlobalCacheImpl implements GlobalCache {
             return null;
         }
         final long timeRetrieved = collectionNode.getTimeRetrieved();
+        if (subKey.subject != null && userAccessChangedAfterOrSameTime(subKey.subject, timeRetrieved)) {
+            baseNode.removeCollectionNode(subKey);
+            return null;
+        }
         final Set<String> collectionTypes = baseNode.getCollectionTypes();
         if (collectionTypes != null) {
             for (String type : collectionTypes) {
@@ -823,6 +852,10 @@ public class GlobalCacheImpl implements GlobalCache {
                 domainObjectTypeFullRetrieval.clearUsersTypeStatus(type, false);
             }
         }
+    }
+
+    private void clearUsersFullRetrieval(UserSubject userSubject) {
+        domainObjectTypeFullRetrieval.clearAllTypesForUser(userSubject);
     }
 
     private void clearFullRetrieval(String type, UserSubject userSubject) {
@@ -1171,6 +1204,11 @@ public class GlobalCacheImpl implements GlobalCache {
 
     private boolean typeChangedAfterOrSameTime(String type, long time) {
         final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
+        return lastModificationTime != null && lastModificationTime.lastChangeAfterOrEqual(time);
+    }
+
+    private boolean userAccessChangedAfterOrSameTime(UserSubject user, long time) {
+        final ModificationTime lastModificationTime = userAccessChangeTime.getLastAccessModificationTime(user);
         return lastModificationTime != null && lastModificationTime.lastChangeAfterOrEqual(time);
     }
 

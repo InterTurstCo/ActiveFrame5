@@ -112,6 +112,14 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void notifyPersonGroupChanged(Id person) {
+    }
+
+    @Override
+    public void notifyGroupBranchChanged(Id groupId) {
+    }
+
+    @Override
     public void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted) {
     }
 

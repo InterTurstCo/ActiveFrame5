@@ -64,6 +64,7 @@ public class DelayQueueReader {
         try {
             final long start = System.currentTimeMillis();
             HashSet<Id> toInvalidate = new HashSet<>(128);
+            HashSet<Id> usersToInvalideAccess = new HashSet<>();
             boolean clearFullAccessLog = false;
             boolean clearCache = false;
 
@@ -90,10 +91,12 @@ public class DelayQueueReader {
                         clearFullAccessLog = true;
                     }
                     toInvalidate.addAll(message.getIdsToInvalidate());
+                    usersToInvalideAccess.addAll(message.getUsersAccessToInvalidate());
                 }
                 if (toInvalidate.size() > ID_INVALIDATION_BATCH_SIZE) {
-                    invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog);
+                    invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
                     toInvalidate.clear();
+                    usersToInvalideAccess.clear();
                     clearFullAccessLog = false;
                 }
 
@@ -104,17 +107,18 @@ public class DelayQueueReader {
             }
             if (clearCache) {
                 cacheClient.clearCurrentNode();
+            } else {
+                invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
             }
-            invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog);
         } finally {
             processing = false;
         }
     }
 
-    private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> toInvalidate, boolean clearFullAccessLog) {
-        if (toInvalidate.isEmpty() && !clearFullAccessLog) {
+    private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> toInvalidate, boolean clearFullAccessLog, HashSet<Id> usersToInvalideAccess) {
+        if (toInvalidate.isEmpty() && !clearFullAccessLog && usersToInvalideAccess.isEmpty()) {
             return;
         }
-        cacheClient.invalidateCurrentNode(new CacheInvalidation(toInvalidate, clearFullAccessLog));
+        cacheClient.invalidateCurrentNode(new CacheInvalidation(toInvalidate, clearFullAccessLog, usersToInvalideAccess));
     }
 }

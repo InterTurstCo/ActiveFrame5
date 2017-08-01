@@ -21,6 +21,9 @@ public class GroupAccessChanges implements AccessChanges {
     // key is Domain Object ID, key of inner map - ID of a group
     private HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = new HashMap<>();
     private HashSet<String> objectTypesAccessChanged = new HashSet<>();
+    private HashSet<Id> personsWhosGroupsChanged = new HashSet<>();
+    private HashSet<Id> groupsWithChangedBranching = new HashSet<>();
+    private boolean groupsHierarchyChanged;
 
     public void aclCreated(Id contextObj, String type, Collection<AclInfo> recordsInserted) {
         aclInsertedOrDeleted(contextObj, recordsInserted, Boolean.TRUE);
@@ -32,12 +35,40 @@ public class GroupAccessChanges implements AccessChanges {
         objectTypesAccessChanged.add(type);
     }
 
+    public void groupBranchChanged(Id groupId) {
+        groupsWithChangedBranching.add(groupId);
+    }
+
+    public HashSet<Id> getGroupsWithChangedBranching() {
+        return groupsWithChangedBranching;
+    }
+
+    public void personGroupChanged(Id personId) {
+        personsWhosGroupsChanged.add(personId);
+    }
+
+    public HashSet<Id> getPersonsWhosGroupsChanged() {
+        return personsWhosGroupsChanged;
+    }
+
+    public void setPersonsWhosGroupsChanged(HashSet<Id> personsWhosGroupsChanged) {
+        this.personsWhosGroupsChanged = personsWhosGroupsChanged;
+    }
+
+    public boolean isGroupsHierarchyChanged() {
+        return groupsHierarchyChanged;
+    }
+
+    public void setGroupsHierarchyChanged(boolean groupsHierarchyChanged) {
+        this.groupsHierarchyChanged = groupsHierarchyChanged;
+    }
+
     public boolean clearFullAccessLog() {
         return groupAccessByObject == null;
     }
 
     public boolean accessChangesExist() {
-        return groupAccessByObject == null || groupAccessByObject.size() > 0;
+        return groupAccessByObject == null || groupAccessByObject.size() > 0 || !this.personsWhosGroupsChanged.isEmpty() || !this.groupsWithChangedBranching.isEmpty();
     }
 
     public int getObjectsQty() {
