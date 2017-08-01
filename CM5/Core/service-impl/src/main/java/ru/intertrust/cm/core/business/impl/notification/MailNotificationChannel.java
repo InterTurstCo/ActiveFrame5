@@ -15,6 +15,9 @@ import org.apache.log4j.Logger;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.MimeMessageHelper;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -26,11 +29,7 @@ import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.MailNotificationException;
-import ru.intertrust.cm.core.model.NotificationException;
 import ru.intertrust.cm.core.model.ReportServiceException;
-
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 /**
  * 
@@ -91,7 +90,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             NotificationContext context) throws MessagingException, UnsupportedEncodingException {
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(MAIL_NOTIFICATION_CHANNEL);
         InternetAddress sender = new InternetAddress();
-        if (senderId != null) {
+        if (senderId != null && !mailSenderWrapper.isAlwaysUseDefaultSender()) {
             GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
             sender.setAddress(senderDO.getString(EMAIL_FIELD));
             String personal = "";

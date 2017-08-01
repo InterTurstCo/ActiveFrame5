@@ -17,6 +17,7 @@ public class MailSenderWrapper extends JavaMailSenderImpl {
     private String defaultSender;
     private String defaultSenderName;
     private String encryptionType;
+    private boolean alwaysUseDefaultSender;
 
     @Value("${mail.server.host}")
     @Override
@@ -79,4 +80,17 @@ public class MailSenderWrapper extends JavaMailSenderImpl {
     public String getDefaultSenderName() {
         return defaultSenderName;        
     }    
+
+    @Value("${mail.always.use.default.sender:false}")
+    public void setAlwaysUseDefaultSender(boolean alwaysUseDefaultSender) {
+        this.alwaysUseDefaultSender = alwaysUseDefaultSender;        
+    }
+    /**
+     * Флаг того, что надо использовать отправителя по умолчанию всегда
+     * @return
+     */
+    public boolean isAlwaysUseDefaultSender() {
+        return alwaysUseDefaultSender;        
+    }    
+
 }
