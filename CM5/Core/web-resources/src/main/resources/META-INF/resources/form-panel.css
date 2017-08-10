@@ -58,7 +58,7 @@
 .form-footer-long {
     -webkit-transition: background 0.7s;
     transition: background 0.7s;
-    background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;
+    /*background: url(images/form/form-footer-bg_long.jpg) repeat-y scroll 0 0;*/
     border-radius: 5px;
     position: absolute;
     top: 75px;
@@ -71,7 +71,7 @@
 .form-footer-short {
     -webkit-transition: background 0.7s;
     transition: background 0.7s;
-    background: url(images/form/form-footer-bg_short.jpg) repeat-y scroll 0 0;
+    /*background: url(images/form/form-footer-bg_short.jpg) repeat-y scroll 0 0;*/
     border-radius: 5px;
     position: absolute;
     top: 75px;
@@ -82,7 +82,7 @@
 }
 
 .form-footer-blank {
-    background: #ffffff;
+    /*background: #ffffff;*/
     border-radius: 5px;
     position: absolute;
     top: 75px;
@@ -307,6 +307,15 @@
     box-shadow: 0 3px 10px #aaa;
     height: 40px;
     z-index: 11;
+}
+
+.action-bar>div>table>tbody>tr {
+    display: flex;
+}
+
+.action-bar>div>table>tbody>tr>td {
+    display: flex;
+    /* white-space: nowrap; */
 }
 
 .decorated-action-link {
