@@ -66,13 +66,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     private volatile long reActivationTime = 0; // cache won't be used for 1 minute after reactivation
 
     public void activate(boolean isInitialActivation) {
-        GlobalCache globalCache;
-        if (globalCacheSettings.getMode().isBlocking()) {
-            globalCache = (GlobalCache) context.getBean("blockingGlobalCache");
-        } else {
-            globalCache = (GlobalCache) context.getBean("globalCache");
-        }
+        GlobalCache globalCache = (GlobalCache) context.getBean(globalCacheSettings.getMode().getBeanName());
         globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
+        globalCache.setWaitLockMillies(globalCacheSettings.getWaitLockMillies());
         globalCache.activate();
 
         this.globalCache = globalCache;
@@ -89,9 +85,11 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     public void applySettings(Map<String, Serializable> newSettings) {
         final String newModeStr = (String) newSettings.get("global.cache.mode");
         final Long maxSize = (Long) newSettings.get("global.cache.max.size");
+        final Integer waitLockMillies = (Integer) newSettings.get("global.cache.wait.lock.millies");
         final GlobalCacheSettings.Mode prevMode = globalCacheSettings.getMode();
         final GlobalCacheSettings.Mode newMode = GlobalCacheSettings.Mode.getMode(newModeStr);
         globalCacheSettings.setSizeLimitBytes(maxSize);
+        globalCacheSettings.setWaitLockMillies(waitLockMillies);
         if (prevMode != newMode) {
             globalCacheSettings.setMode(newMode);
             final GlobalCache prevCache = this.globalCache;
@@ -99,6 +97,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             prevCache.deactivate();
         } else {
             this.globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
+            this.globalCache.setWaitLockMillies(globalCacheSettings.getWaitLockMillies());
         }
     }
 
@@ -108,6 +107,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         settings.put("global.cache.mode", globalCacheSettings.getMode().toString());
         settings.put("global.cache.max.size", globalCacheSettings.getSizeLimitBytes());
         settings.put("global.cache.cluster.mode", globalCacheSettings.isInCluster());
+        settings.put("global.cache.wait.lock.millies", globalCacheSettings.getWaitLockMillies());
         return settings;
     }
 

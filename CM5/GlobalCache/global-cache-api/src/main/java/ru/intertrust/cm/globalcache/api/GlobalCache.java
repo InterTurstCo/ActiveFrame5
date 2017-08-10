@@ -94,4 +94,8 @@ public interface GlobalCache {
     LongCounter getCacheCleanTimeCounter();
 
     DecimalCounter getCacheCleanFreedSpaceCounter();
+
+    void setWaitLockMillies(int waitLockMillies);
+
+    int getWaitLockMillies();
 }

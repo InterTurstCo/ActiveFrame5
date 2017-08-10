@@ -8,5 +8,6 @@
 
     <bean id="globalCache" class="ru.intertrust.cm.globalcache.impl.localjvm.GlobalCacheImpl"/>
     <bean id="blockingGlobalCache" class="ru.intertrust.cm.globalcache.impl.localjvm.SynchronizedGlobalCacheImpl"/>
+    <bean id="strictlyBlockingGlobalCache" class="ru.intertrust.cm.globalcache.impl.localjvm.StrictlySynchronizedGlobalCacheImpl"/>
 
 </beans>

@@ -32,6 +32,7 @@ public class GlobalCacheControlUtils {
     public static final String LBL_SHORT_STAT_SIZE = "Размер: ";
     public static final String LBL_SHORT_STAT_FREE = "Свободно: ";
     public static final String LBL_SHORT_STAT_HITS = "Попадания: ";
+    public static final String WAIT_LOCK = "Ожидание блокировки, мс: ";
     public static final String MSG_SETTINGS_APPLYED = "Настройки применены";
     public static final String MSG_CONTROL_WARNING = "Включать кэш или менять режим его работы рекомендуется настройкой server.properties и перезагрузкой сервера. При смене этих параметров \"на лету\", во избежание попадания некорретных данных в кэш, его реальное включение производится в течение 1 минуты, однако 100% гарантию это не даёт, и рекомендуется к использованию исключительно в целях разработки.";
 

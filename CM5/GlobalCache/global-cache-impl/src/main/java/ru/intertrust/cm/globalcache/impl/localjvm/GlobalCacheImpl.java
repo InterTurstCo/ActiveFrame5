@@ -54,6 +54,7 @@ public class GlobalCacheImpl implements GlobalCache {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private volatile long sizeLimit = 10 * 1024 * 1024;
+    protected volatile int waitLockMillies = 1;
     private CacheEntriesAccessSorter accessSorter;
     private Cleaner cleaner;
     private ScheduledExecutorService backgroundCleaner;
@@ -151,6 +152,16 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public long getSizeLimitBytes() {
         return sizeLimit;
+    }
+
+    @Override
+    public void setWaitLockMillies(int waitLockMillies) {
+        this.waitLockMillies = waitLockMillies < 0 ? waitLockMillies = 0 : waitLockMillies;
+    }
+
+    @Override
+    public int getWaitLockMillies() {
+        return waitLockMillies;
     }
 
     @Override

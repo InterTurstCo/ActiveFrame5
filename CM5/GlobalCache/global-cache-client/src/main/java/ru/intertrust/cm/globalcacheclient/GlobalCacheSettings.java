@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class GlobalCacheSettings implements Dto {
     private static final Logger logger = LoggerFactory.getLogger(GlobalCacheSettings.class);
     public static final long DEFAULT_SIZE_LIMIT = 10L * 1024 * 1024;
+    public static final int DEFAULT_WAIT_LOCK_MILLIES = 1;
 
     public enum Mode {
         NonBlocking {
@@ -25,6 +26,10 @@ public class GlobalCacheSettings implements Dto {
             public String toString() {
                 return "non-blocking";
             }
+
+            public String getBeanName() {
+                return "globalCache";
+            }
         },
         Blocking {
             @Override
@@ -36,12 +41,42 @@ public class GlobalCacheSettings implements Dto {
             public String toString() {
                 return "blocking";
             }
+
+            public String getBeanName() {
+                return "blockingGlobalCache";
+            }
+        },
+        StrictlyBlocking {
+            @Override
+            public boolean isBlocking() {
+                return true;
+            }
+
+            @Override
+            public String toString() {
+                return "strictly-blocking";
+            }
+
+            public String getBeanName() {
+                return "strictlyBlockingGlobalCache";
+            }
         };
 
         public abstract boolean isBlocking();
 
+        public abstract String getBeanName();
+
         public static Mode getMode(String mode) {
-            return mode != null && mode.equalsIgnoreCase("non-blocking") ? Mode.NonBlocking : Mode.Blocking;
+            if (mode == null) {
+                return Mode.Blocking;
+            }
+            if (mode.equalsIgnoreCase(Mode.NonBlocking.toString())) {
+                return Mode.NonBlocking;
+            } if (mode.equalsIgnoreCase(Mode.Blocking.toString())) {
+                return Mode.Blocking;
+            } else {
+                return Mode.StrictlyBlocking;
+            }
         }
     }
 
@@ -51,6 +86,9 @@ public class GlobalCacheSettings implements Dto {
     @Value("${global.cache.max.size:#{null}}")
     private volatile String sizeLimit;
 
+    @Value("${global.cache.wait.lock.millies:#{1}}")
+    private volatile String waitLockMilliesStr;
+
     @Value("${global.cache.cluster.synchronization.seconds:#{0}}")
     private volatile long clusterSynchronizationSeconds;
 
@@ -58,9 +96,10 @@ public class GlobalCacheSettings implements Dto {
     private volatile boolean inCluster;
 
     private volatile Long sizeLimitBytes = null;
+    private volatile Integer waitLockMillies = null;
 
     public Mode getMode() {
-        return mode != null && mode.equalsIgnoreCase(Mode.NonBlocking.toString()) ? Mode.NonBlocking : Mode.Blocking;
+        return Mode.getMode(mode);
     }
 
     public void setMode(Mode mode) {
@@ -131,5 +170,25 @@ public class GlobalCacheSettings implements Dto {
                 logger.error("Wrong global cache size format: " + limitStr + "; set to default: 10 Megabytes");
         }
         return sizeLimitBytes;
+    }
+
+    public Integer getWaitLockMillies() {
+        if (waitLockMillies != null) {
+            return waitLockMillies;
+        }
+        if (waitLockMilliesStr == null) {
+            waitLockMillies = DEFAULT_WAIT_LOCK_MILLIES;
+            return waitLockMillies;
+        }
+        try {
+            waitLockMillies = Integer.valueOf(waitLockMilliesStr);
+        } catch (NumberFormatException e) {
+            waitLockMillies = DEFAULT_WAIT_LOCK_MILLIES;
+        }
+        return waitLockMillies;
+    }
+
+    public void setWaitLockMillies(int waitLockMillies) {
+        this.waitLockMillies = waitLockMillies;
     }
 }

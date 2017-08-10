@@ -48,6 +48,7 @@ public class GlobalCacheControlView extends PluginView {
     private CheckBox debugModeCB;
     private ListBox modeListBox;
     private TextBox maxSizeTB;
+    private TextBox waitLockMillies;
     private ListBox uomListBox;
 
     /**
@@ -376,6 +377,7 @@ public class GlobalCacheControlView extends PluginView {
         controlGrid.setWidget(0, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_CACHE_ACTIVE));
         controlGrid.setWidget(1, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_EXPANDED_STAT));
         controlGrid.setWidget(2, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_DEBUG_MODE));
+        controlGrid.setWidget(3, 0, new Label(GlobalCacheControlUtils.WAIT_LOCK));
 
         // чекбокс Включить кэш
         cacheActiveCB = new CheckBox();
@@ -419,6 +421,9 @@ public class GlobalCacheControlView extends PluginView {
 
         maxSizePanel.add(uomListBox);
         controlGrid.setWidget(1, 3, maxSizePanel);
+
+        waitLockMillies = new TextBox();
+        waitLockMillies.setValue(Integer.toString(globalCachePluginData.getControlPanelModel().getWaitLockMillies()));
         /**
          * Если не админ то только просмотр
          */
@@ -428,6 +433,7 @@ public class GlobalCacheControlView extends PluginView {
             debugModeCB.setEnabled(false);
             modeListBox.setEnabled(false);
             maxSizeTB.setEnabled(false);
+            waitLockMillies.setEnabled(false);
             uomListBox.setEnabled(false);
         }
         controlPanel.add(controlAlert);
@@ -536,8 +542,8 @@ public class GlobalCacheControlView extends PluginView {
                 debugModeCB.getValue().equals(Boolean.TRUE)) {
             Window.alert("Внимание, режим отладки приведёт к снижению производительности приложения.");
         }
-        if(modeListBox.getSelectedValue().equals(GlobalCacheControlPanel.VALUE_MODE_NON_BLOCKING) &&
-                globalCachePluginData.getControlPanelModel().getMode().equals(GlobalCacheControlPanel.VALUE_MODE_BLOCKING)){
+        if(modeListBox.getSelectedValue().equals(GlobalCacheControlPanel.NON_BLOCKING_MODE_VALUE) &&
+                !globalCachePluginData.getControlPanelModel().getMode().equals(GlobalCacheControlPanel.NON_BLOCKING_MODE_VALUE)){
             Window.alert("Внимание, асинхронный режим работы кэша является тестовым и категорически не рекомендуется при реальной эксплуатации");
         }
 
@@ -545,6 +551,7 @@ public class GlobalCacheControlView extends PluginView {
         globalCachePluginData.getControlPanelModel().setDebugMode(debugModeCB.getValue());
         globalCachePluginData.getControlPanelModel().setExpandedStatistics(expandedStatisticsCB.getValue());
         globalCachePluginData.getControlPanelModel().setMaxSize(Long.valueOf(maxSizeTB.getValue()));
+        globalCachePluginData.getControlPanelModel().setWaitLockMillies(Integer.valueOf(waitLockMillies.getValue()));
         globalCachePluginData.getControlPanelModel().setMode(modeListBox.getSelectedValue());
         globalCachePluginData.getControlPanelModel().setSizeUom(uomListBox.getSelectedValue());
     }

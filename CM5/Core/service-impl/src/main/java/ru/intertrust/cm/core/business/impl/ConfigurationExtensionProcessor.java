@@ -507,14 +507,14 @@ public class ConfigurationExtensionProcessor {
             TagInfo tagInfo = (TagInfo) o;
 
             if (!tagType.equals(tagInfo.tagType)) return false;
-            if (!name.equals(tagInfo.name)) return false;
+            if (name != null ? !name.equals(tagInfo.name) : tagInfo.name != null) return false;
 
             return true;
         }
 
         @Override
         public int hashCode() {
-            return name.hashCode();
+            return name != null ? name.hashCode() : 0;
         }
     }
 

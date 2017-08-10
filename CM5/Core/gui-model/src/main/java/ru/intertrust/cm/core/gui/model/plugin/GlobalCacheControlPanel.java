@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -11,12 +11,14 @@ import java.util.Map;
  * @since 27.10.2015
  */
 public class GlobalCacheControlPanel implements Dto {
-    public static final String VALUE_MODES_SYNC = "Синхронный";
-    public static final String VALUE_MODES_ASYNC = "Асинхронный";
+    public static final String BLOCKING_MODE_TEXT = "Синхронный";
+    public static final String STRICTLY_MODE_TEXT = "Строго-синхронный";
+    public static final String NON_BLOCKING_MODE_TEXT = "Асинхронный";
     public static final String VALUE_UOM_MB = "Мб";
     public static final String VALUE_UOM_GB = "Гб";
-    public static final String VALUE_MODE_BLOCKING = "blocking";
-    public static final String VALUE_MODE_NON_BLOCKING = "non-blocking";
+    public static final String BLOCKING_MODE_VALUE = "blocking";
+    public static final String STRICTLY_BLOCKING_MODE_VALUE = "strictly-blocking";
+    public static final String NON_BLOCKING_MODE_VALUE = "non-blocking";
     public static final String VALUE_UOM_MEGABYTE = "M";
     public static final String VALUE_UOM_GIGABYTE = "G";
 
@@ -52,6 +54,11 @@ public class GlobalCacheControlPanel implements Dto {
      * Единицы измерения максимального размера
      */
     private Map<String, String> uoms;
+
+    /**
+     * Ожидание, чтобы прочитать, мс
+     */
+    private int waitLockMillies;
 
     public String getSizeUom() {
         return sizeUom;
@@ -121,11 +128,12 @@ public class GlobalCacheControlPanel implements Dto {
     }
 
     public GlobalCacheControlPanel() {
-        modes = new HashMap<>();
-        modes.put("blocking", VALUE_MODES_SYNC);
-        modes.put("non-blocking", VALUE_MODES_ASYNC);
+        modes = new LinkedHashMap<>();
+        modes.put(BLOCKING_MODE_VALUE, BLOCKING_MODE_TEXT);
+        modes.put(STRICTLY_BLOCKING_MODE_VALUE, STRICTLY_MODE_TEXT);
+        modes.put(NON_BLOCKING_MODE_VALUE, NON_BLOCKING_MODE_TEXT);
 
-        uoms = new HashMap<>();
+        uoms = new LinkedHashMap<>();
         uoms.put(VALUE_UOM_MEGABYTE, VALUE_UOM_MB);
         uoms.put(VALUE_UOM_GIGABYTE, VALUE_UOM_GB);
 
@@ -133,17 +141,27 @@ public class GlobalCacheControlPanel implements Dto {
     }
 
     public int getModeIndex(){
-       if(getMode().equals(VALUE_MODE_BLOCKING))
-           return 0;
-       else
-           return 1;
+        if (getMode().equals(BLOCKING_MODE_VALUE)) {
+            return 0;
+        } else if (getMode().equals(STRICTLY_BLOCKING_MODE_VALUE)) {
+            return 1;
+        } else {
+            return 2;
+        }
     }
 
     public int getUomIndex(){
         if(getSizeUom().equals(VALUE_UOM_MEGABYTE))
-            return 1;
-        else
             return 0;
+        else
+            return 1;
     }
 
+    public int getWaitLockMillies() {
+        return waitLockMillies;
+    }
+
+    public void setWaitLockMillies(int waitLockMillies) {
+        this.waitLockMillies = waitLockMillies;
+    }
 }
