@@ -66,14 +66,14 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             // В случае если в конфигурации не указан host то канал отключаем
             if (mailSenderWrapper.getHost() != null) {
                 message = createMailMesssage(notificationType, senderId, addresseeId, context);
-                //Адресаты для более понятной ошибки
-                Address[] addresses = message.getRecipients(MimeMessage.RecipientType.TO);
-                if (addresses != null && addresses.length > 0){
-                    resipients = addresses[0].toString();
-                }
                 // Почтовое сообщение могло быть не сформировано, например из за
                 // отсутствия адресата
                 if (message != null) {
+                    //Адресаты для более понятной ошибки
+                    Address[] addresses = message.getRecipients(MimeMessage.RecipientType.TO);
+                    if (addresses != null && addresses.length > 0) {
+                        resipients = addresses[0].toString();
+                    }
                     mailSenderWrapper.send(message);
                     logger.debug("Notification sent by MailNotificationChannel notificationType=" + notificationType
                             + "; senderId="
@@ -132,9 +132,9 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         boolean html = notificationTextFormer.contains(notificationType, BODY_HTML_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL);
 
         String subject = notificationTextFormer.format(notificationType, SUBJECT_MAIL_PART, addresseeId, locale,
-                        MAIL_NOTIFICATION_CHANNEL, context);
+                MAIL_NOTIFICATION_CHANNEL, context);
         String body = notificationTextFormer.format(notificationType, html ? BODY_HTML_MAIL_PART : BODY_MAIL_PART, addresseeId, locale,
-                        MAIL_NOTIFICATION_CHANNEL, context);
+                MAIL_NOTIFICATION_CHANNEL, context);
 
         MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();
         MimeMessageHelper message = null;
