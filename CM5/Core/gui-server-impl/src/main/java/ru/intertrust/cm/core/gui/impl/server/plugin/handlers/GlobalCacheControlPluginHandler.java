@@ -149,7 +149,7 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
             settings.put("global.cache.max.size",maxSize);
         }
         settings.put("global.cache.mode",globalCachePluginData.getControlPanelModel().getMode());
-        settings.put("global.cache.wait.lock.millies", globalCachePluginData.getControlPanelModel().getMode());
+        settings.put("global.cache.wait.lock.millies", globalCachePluginData.getControlPanelModel().getWaitLockMillies());
         globalCacheManager.applySettings(settings);
 
         globalCachePluginData.getControlPanelModel().setCacheEnabled(globalCacheManager.isEnabled());

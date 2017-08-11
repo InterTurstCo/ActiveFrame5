@@ -60,7 +60,7 @@ public class GlobalCacheControlView extends PluginView {
         super(plugin);
         this.statisticsOnly = statisticsOnly;
         this.eventBus = eventBus;
-        controlGrid = new Grid(3, 4);
+        controlGrid = new Grid(4, 4);
         statPanelRoot = new AbsolutePanel();
         shortStatPanel = new AbsolutePanel();
         extendedStatPanel = new AbsolutePanel();
@@ -377,7 +377,6 @@ public class GlobalCacheControlView extends PluginView {
         controlGrid.setWidget(0, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_CACHE_ACTIVE));
         controlGrid.setWidget(1, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_EXPANDED_STAT));
         controlGrid.setWidget(2, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_DEBUG_MODE));
-        controlGrid.setWidget(3, 0, new Label(GlobalCacheControlUtils.WAIT_LOCK));
 
         // чекбокс Включить кэш
         cacheActiveCB = new CheckBox();
@@ -424,6 +423,8 @@ public class GlobalCacheControlView extends PluginView {
 
         waitLockMillies = new TextBox();
         waitLockMillies.setValue(Integer.toString(globalCachePluginData.getControlPanelModel().getWaitLockMillies()));
+        controlGrid.setWidget(2, 2, new Label(GlobalCacheControlUtils.WAIT_LOCK));
+        controlGrid.setWidget(2, 3, waitLockMillies);
         /**
          * Если не админ то только просмотр
          */
