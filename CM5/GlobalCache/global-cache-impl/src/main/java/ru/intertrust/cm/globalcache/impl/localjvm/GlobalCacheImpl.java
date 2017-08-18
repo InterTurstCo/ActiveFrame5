@@ -1323,6 +1323,13 @@ public class GlobalCacheImpl implements GlobalCache {
                 }
                 if (typeName == null) {
                     typeName = domainObject != null ? domainObject.getTypeName() : domainObjectTypeIdCache.getName(id);
+                    if (typeName == null) {
+                        if (domainObject != null) {
+                            logger.warn("Domain Object type name NULL: " + domainObject.getTypeName() + ", Id: " + domainObject.getId());
+                        } else {
+                            logger.warn("ID Type NULL: : " + id);
+                        }
+                    }
                 }
             }
             // if object is a delegate access rights for all dependent objects are cleared

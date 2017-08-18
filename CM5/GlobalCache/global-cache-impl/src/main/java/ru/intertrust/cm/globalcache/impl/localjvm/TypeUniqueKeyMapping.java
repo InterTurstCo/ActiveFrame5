@@ -24,7 +24,7 @@ public class TypeUniqueKeyMapping implements Sizeable {
     }
 
     public UniqueKeyIdMapping getUniqueKeyIdMapping(String type) {
-        return uniqueKeyMappingByType.get(type.toLowerCase());
+        return type == null ? null : uniqueKeyMappingByType.get(type.toLowerCase());
     }
 
     public UniqueKeyIdMapping getOrCreateUniqueKeyIdMapping(String type) {
