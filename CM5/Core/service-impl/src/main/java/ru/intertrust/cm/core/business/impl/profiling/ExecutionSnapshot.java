@@ -20,6 +20,7 @@ public class ExecutionSnapshot {
     private String[] blackListPaths;
     private HeapState heapState;
     private int totalThreadsCount;
+    private long cpuSpeed;
 
     private ExecutionSnapshot() {
     }
@@ -33,7 +34,7 @@ public class ExecutionSnapshot {
         for (Map.Entry<Thread, StackTraceElement[]> threadStackTrace : allStackTraces.entrySet()) {
             final Thread thread = threadStackTrace.getKey();
             final Thread.State state = thread.getState();
-            if (state != Thread.State.BLOCKED && state != Thread.State.RUNNABLE || Thread.currentThread().equals(thread)) {
+            if (Thread.currentThread().equals(thread)) {
                 continue;
             }
             ++totalThreadsCount;
@@ -44,6 +45,7 @@ public class ExecutionSnapshot {
         }
         this.stackTracesByThread = Collections.unmodifiableMap(stackTracesByThread);
         this.initialStackTracesByThread = stackTracesByThread;
+        this.cpuSpeed = getCurrentCpuSpeed();
     }
 
     public Map<ThreadId, StackTrace> getStackTracesByThread() {
@@ -64,6 +66,10 @@ public class ExecutionSnapshot {
 
     public int getSystemThreadsCount() {
         return stackTracesByThread.size();
+    }
+
+    public long getCpuSpeed() {
+        return cpuSpeed;
     }
 
     public HeapState getHeapState() {
@@ -100,6 +106,22 @@ public class ExecutionSnapshot {
 
     public boolean isEmpty() {
         return this.stackTracesByThread.isEmpty();
+    }
+
+    public static final int DURATION = 10;
+    public static final int MICROSECONDS_IN_DURATION_UNIT = 1000;
+    public static long incL = 1; // нарочно static - для подавления оптимизаций
+    private static long getCurrentCpuSpeed() {
+        long opsCount = 0;
+        final long t1 = System.currentTimeMillis();
+        final long t2 = t1 + DURATION;
+        long curTime = 0;
+        do {
+            for (int i = 0; i < 10000; ++i) {
+                opsCount += incL;
+            }
+        } while ((curTime = System.currentTimeMillis()) < t2);
+        return opsCount / (MICROSECONDS_IN_DURATION_UNIT * (curTime - t1));
     }
 
     private Pair<ThreadId, ArrayList<StackTraceElement>> parseStackTrace(Thread thread, StackTraceElement[] stackTrace) {

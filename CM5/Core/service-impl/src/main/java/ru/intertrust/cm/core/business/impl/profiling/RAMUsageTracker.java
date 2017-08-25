@@ -29,7 +29,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
     @Value("${long.running.method.analysis.system.paths:ru.intertrust}")
     private String[] basePaths;
 
-    @Value("${long.running.method.analysis.black.list.paths:org.springframework.web.client.RestTemplate,org.apache.http.impl.client.AbstractHttpClient.execute}")
+    @Value("${long.running.method.analysis.black.list.paths:}")
     private String[] blackListPaths;
 
     @Value("${suspicious.heap.delta.deviations:3}")
@@ -75,7 +75,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
 
     public void printHead() {
         if (isEnabled(level1)) {
-            level1.debug("\tdUsed" + "\tdUsed_avg" + "\tdUsed_warn" + "\tUsed" + "\tdTotal" + "\tdTotal_avg" + "\tdTotal_warn" + "\tTotal" + "\tThreads" + "\tSystem Threads" + "\tSuspects");
+            level1.debug("\tdUsed" + "\tdUsed_avg" + "\tdUsed_warn" + "\tUsed" + "\tdTotal" + "\tdTotal_avg" + "\tdTotal_warn" + "\tTotal" + "\tCPU Speed" + "\tThreads" + "\tSystem Threads" + "\tSuspects");
         }
     }
 
@@ -127,6 +127,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
                         "\t" + format(delta.total) +
                         "\t" + getHeapStatDesc(heapStat.getTotal()) +
                         "\t" + format(heapState.total) +
+                        "\t" + snapshot.getCpuSpeed() +
                         "\t" + snapshot.getThreadsCount() +
                         "\t" + snapshot.getSystemThreadsCount();
 
@@ -136,7 +137,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
     private String shortSuspectsSummary() {
         final Suspects suspects = this.suspects.get(MAIN);
         if (suspects.isEmpty()) {
-            return "---";
+            return "0\t";
         }
         sb.setLength(0);
         sb.append(suspects.getStackTraces().size()).append("\t");

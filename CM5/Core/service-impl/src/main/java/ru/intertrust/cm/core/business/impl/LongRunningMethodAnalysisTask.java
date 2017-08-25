@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
     private static final Logger logger = LoggerFactory.getLogger(LongRunningMethodAnalysisTask.class);
 
-    @org.springframework.beans.factory.annotation.Value("${ram.usage.tracker.frequency:1}")
+    @org.springframework.beans.factory.annotation.Value("${ram.usage.tracker.frequency:5}")
     private int frequency;
 
     @Autowired
