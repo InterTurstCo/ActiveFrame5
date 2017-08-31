@@ -27,14 +27,24 @@ public class GlobalCacheJmsHelper {
     public static final String DELAY_QUEUE = "queue/ClusterNotificationDelayQueue";
 
     public static void sendClusterNotification(CacheInvalidation message) {
-        send(message, true, CLUSTER_NOTIFICATION_CONNECTION_FACTORY, NOTIFICATION_TOPIC);
+        try {
+            send(message, true, CLUSTER_NOTIFICATION_CONNECTION_FACTORY, NOTIFICATION_TOPIC);
+        } catch (Throwable t) {
+            logger.error("Exception while sending cluster notification: " + message, t);
+            throw t;
+        }
         if (logger.isTraceEnabled()) {
             logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") sent message to cluster: " + message);
         }
     }
 
     public static void addToDelayQueue(CacheInvalidation message) {
-        send(message, true, DELAY_QUEUE_CONNECTION_FACTORY, DELAY_QUEUE);
+        try {
+            send(message, true, DELAY_QUEUE_CONNECTION_FACTORY, DELAY_QUEUE);
+        } catch (Throwable t) {
+            logger.error("Exception while adding to delay queue: " + message, t);
+            throw t;
+        }
         if (logger.isTraceEnabled()) {
             logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") added message to own delay queue: " + message);
         }

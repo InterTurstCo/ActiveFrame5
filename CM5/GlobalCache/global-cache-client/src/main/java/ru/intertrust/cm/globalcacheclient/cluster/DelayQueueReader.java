@@ -110,6 +110,9 @@ public class DelayQueueReader {
             } else {
                 invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
             }
+        } catch(Throwable t) {
+            logger.error("Exception while processing delay queue", t);
+            throw t;
         } finally {
             processing = false;
         }
