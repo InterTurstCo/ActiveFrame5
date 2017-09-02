@@ -99,10 +99,20 @@ public class StrictlySynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void deleteObjectAndCorrespondingEntries(Id id) {
+    protected void evictObjectAndCorrespondingEntries(Id id) {
         writeLock.lock();
         try {
-            super.deleteObjectAndCorrespondingEntries(id);
+            super.evictObjectAndCorrespondingEntries(id);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
+        writeLock.lock();
+        try {
+            super.evictObjectAndCorrespondingEntries(domainObject);
         } finally {
             writeLock.unlock();
         }

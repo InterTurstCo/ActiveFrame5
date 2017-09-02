@@ -1,14 +1,26 @@
 package ru.intertrust.cm.globalcacheclient.cluster;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.globalcache.api.util.Size;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
 import javax.jms.BytesMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -19,7 +31,18 @@ import javax.jms.MessageListener;
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Topic"),
         @ActivationConfigProperty(propertyName="destination", propertyValue= GlobalCacheJmsHelper.NOTIFICATION_TOPIC),
 })
+@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ClusterNotificationReceiver implements MessageListener {
+    @Autowired
+    private GlobalCacheClient globalCacheClient;
+
+    @Autowired
+    private DomainObjectDao domainObjectDao;
+
+    @Autowired
+    private AccessControlService accessControlService;
+
     @Override
     public void onMessage(Message message) {
         try {
@@ -51,7 +74,11 @@ public class ClusterNotificationReceiver implements MessageListener {
                 GlobalCacheJmsHelper.logger.debug("Node " + CacheInvalidation.NODE_ID + " (\"this\") parsed message from cluster: " + invalidation);
             }
             invalidation.setReceiveTime(System.currentTimeMillis());
-            GlobalCacheJmsHelper.addToDelayQueue(invalidation);
+
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            final List<DomainObject> domainObjects = domainObjectDao.find(new ArrayList<>(invalidation.getCreatedIdsToInvalidate()), accessToken);
+            invalidation.setCreatedDomainObjectsToInvalidate(domainObjects);
+            globalCacheClient.invalidateCurrentNode(invalidation);
         } catch (Throwable throwable) {
             if (GlobalCacheJmsHelper.logger.isErrorEnabled()) {
                 GlobalCacheJmsHelper.logger.error("Exception caught when processing message from cluster in ClusterNotificationReceiver.onMessage: " + throwable.getMessage() + ". Ignoring message");

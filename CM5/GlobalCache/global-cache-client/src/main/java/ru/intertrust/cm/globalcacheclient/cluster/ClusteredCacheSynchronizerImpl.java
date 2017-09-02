@@ -39,14 +39,14 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
         final Set<Id> savedAndChangedStatusIds = modification.getSavedAndChangedStatusIds();
         final Set<Id> deletedIds = modification.getDeletedIds();
         final List<Id> modifiedAutoDomainObjectIds = modification.getModifiedAutoDomainObjectIds();
+        final HashSet<Id> createdIdsSet = new HashSet<>(createdIds);
         final HashSet<Id> ids = new HashSet<>((int) (1.5 * (createdIds.size() + changedAccessIds.size() + savedAndChangedStatusIds.size() + deletedIds.size() + modifiedAutoDomainObjectIds.size())));
-        ids.addAll(createdIds);
         ids.addAll(changedAccessIds);
         ids.addAll(savedAndChangedStatusIds);
         ids.addAll(deletedIds);
         ids.addAll(modifiedAutoDomainObjectIds);
 
-        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog, personsWhosGroupsChanged));
+        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(createdIdsSet, ids, clearFullAccessLog, personsWhosGroupsChanged));
     }
 
     @Override

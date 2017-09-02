@@ -71,31 +71,47 @@ public class GlobalCacheJmsHelper {
                     break;
                 }
                 boolean stopProcessingBatch = false;
-                byte[] bytes = null;
                 try {
                     final BytesMessage bytesMessage = (BytesMessage) message;
                     final long nodeId = bytesMessage.readLong();
                     if (nodeId != CacheInvalidation.NODE_ID) {
-                        logger.error("Received message from another Node's Delay Queue!");
-                        continue;
+                        if (logger.isErrorEnabled()) {
+                            logger.error("Received message with incorrect Node ID: " + nodeId + ". Should be: " + CacheInvalidation.NODE_ID + ". Trying to parse message body...");
+                        }
                     }
                     final int messageLength = bytesMessage.readInt();
                     if (messageLength <= 0) {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("Erroneous message received from Delay Queue of size " + messageLength);
+                        if (logger.isErrorEnabled()) {
+                            logger.error("Erroneous message received from Delay Queue of size " + messageLength);
                         }
                         continue;
                     }
                     if (messageLength > 256 * Size.BYTES_IN_MEGABYTE) {
-                        logger.warn("Huge message received  from Delay Queue of length: " + messageLength / 1024 / 1024 + " GB. Other messages will wait in the queue");
+                        if (logger.isWarnEnabled()) {
+                            logger.warn("Huge message received  from Delay Queue of length: " + messageLength / 1024 / 1024 + " GB. Other messages will wait in the queue");
+                        }
                         stopProcessingBatch = true;
                     }
-                    bytes = new byte[messageLength];
-                    bytesMessage.readBytes(bytes);
-                    final CacheInvalidation invalidation = ObjectCloner.getInstance().fromBytes(bytes);
-                    result.add(invalidation);
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") read message from own delay queue: " + invalidation);
+                    final CacheInvalidation invalidation;
+                    try {
+                        byte[] bytes = new byte[messageLength];
+                        bytesMessage.readBytes(bytes);
+                        invalidation = ObjectCloner.getInstance().fromBytes(bytes);
+                    } catch (Throwable t) {
+                        if (logger.isErrorEnabled()) {
+                            logger.error("Failed to deserialize message from delay queue");
+                        }
+                        continue;
+                    }
+                    if (nodeId != CacheInvalidation.NODE_ID) {
+                        if (logger.isErrorEnabled()) {
+                            logger.error("Node " + CacheInvalidation.NODE_ID + " (\"this\") got message from NEIGHBOUR's delay queue: " + invalidation);
+                        }
+                    } else {
+                        result.add(invalidation);
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") read message from own delay queue: " + invalidation);
+                        }
                     }
                 } catch (Throwable throwable) {
                     if (logger.isWarnEnabled()) {

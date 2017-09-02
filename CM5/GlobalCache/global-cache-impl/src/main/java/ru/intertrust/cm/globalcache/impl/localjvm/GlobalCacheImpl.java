@@ -385,9 +385,17 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void invalidate(CacheInvalidation cacheInvalidation) {
         HashSet<String> typesAffected = new HashSet<>();
+        String typeName;
+        for (DomainObject domainObject : cacheInvalidation.getCreatedDomainObjectsToInvalidate()) {
+            evictObjectAndCorrespondingEntries(domainObject);
+            typesAffected.add(domainObject.getTypeName());
+        }
         for (Id id : cacheInvalidation.getIdsToInvalidate()) {
-            deleteObjectAndCorrespondingEntries(id);
-            typesAffected.add(domainObjectTypeIdCache.getName(id));
+            evictObjectAndCorrespondingEntries(id);
+            typeName = domainObjectTypeIdCache.getName(id);
+            if (typeName != null) {
+                typesAffected.add(typeName);
+            }
         }
         final long time = System.currentTimeMillis();
         for (String type : typesAffected) {
@@ -433,12 +441,12 @@ public class GlobalCacheImpl implements GlobalCache {
         for (DomainObject deleted : modification.getDeletedDomainObjects()) {
             final String typeName = deleted.getTypeName();
             doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
-            cleaner.deleteObjectAndItsAccessEntires(deleted.getId(), typeName, deleted, false);
+            cleaner.updateObjectAndItsAccessEntiresOnDelete(deleted);
         }
         for (Id automaticObjectId : modification.getModifiedAutoDomainObjectIds()) {
             final String typeName = domainObjectTypeIdCache.getName(automaticObjectId);
             doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
-            cleaner.deleteObjectAndItsAccessEntires(automaticObjectId, typeName, null, false);
+            cleaner.evictObjectAndItsAccessEntiresById(automaticObjectId);
         }
         final PersonAccessChanges personAccessChanges = (PersonAccessChanges) accessChanges;
         if (!personAccessChanges.accessChangesExist()) {
@@ -512,8 +520,12 @@ public class GlobalCacheImpl implements GlobalCache {
         userObjectAccess = new UserObjectAccess(16, size);
     }
 
-    protected void deleteObjectAndCorrespondingEntries(Id id) {
-        cleaner.deleteDomainObject(id);
+    protected void evictObjectAndCorrespondingEntries(Id id) {
+        cleaner.evictDomainObjectById(id);
+    }
+
+    protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
+        cleaner.evictDomainObject(domainObject);
     }
 
     private static int __count;
@@ -905,6 +917,10 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
 
+        clearParentsLinkedObjects(object, linkedObjects);
+    }
+
+    private void clearParentsLinkedObjects(DomainObject object, ObjectNode.LinkedObjects linkedObjects) {
         final String objectType = object.getTypeName();
         final Set<ReferenceFieldConfig> referenceFieldConfigs = explorer.getReferenceFieldConfigs(objectType);
         for (ReferenceFieldConfig referenceFieldConfig : referenceFieldConfigs) {
@@ -1286,7 +1302,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 return;
             }
             if (eldest instanceof Id) {
-                deleteDomainObject((Id) eldest);
+                evictDomainObjectById((Id) eldest);
             } else if (eldest instanceof CollectionAccessKey) {
                 deleteCollection((CollectionAccessKey) eldest);
             } else {
@@ -1294,8 +1310,12 @@ public class GlobalCacheImpl implements GlobalCache {
             }
         }
 
-        public void deleteDomainObject(Id id) {
-            deleteObjectAndItsAccessEntires(id, null, null, true);
+        public void evictDomainObjectById(Id id) {
+            evictObjectAndItsAccessEntiresById(id);
+        }
+
+        public void evictDomainObject(DomainObject domainObject) {
+            evictObjectAndItsAccessEntires(domainObject);
         }
 
         private void deleteCollection(CollectionAccessKey collectionAccessKey) {
@@ -1309,28 +1329,32 @@ public class GlobalCacheImpl implements GlobalCache {
             accessSorter.remove(collectionAccessKey);
         }
 
+        private void updateObjectAndItsAccessEntiresOnDelete(DomainObject domainObject) {
+            final Id id = domainObject.getId();
+            final ObjectNode cachedNode = objectsTree.deleteDomainObjectNode(id);
+            final String typeName = domainObject.getTypeName();
+            // if object is a delegate access rights for all dependent objects are cleared
+            userObjectAccess.clearAccess(objectAccessDelegation.getObjectsByDelegate(id));
+            // access is cleared for object itself, NOT for access object, as access object clearing would remove access for all objects referencing it
+            userObjectAccess.clearAccess(id); // todo: this can be done in a separate thread
+            objectAccessDelegation.removeId(id);
+            deleteUniqueKeys(typeName, id);
+            updateLinkedObjectsOfParents(domainObject, null);
+            idsByType.removeId(id, typeName);
+            accessSorter.remove(id);
+        }
+
         /**
          * Deletes cache entries related to specific object
          * @param id ID of the object to remove
          * @param typeName Object Type Name, optional; if empty - resolved automatically
          * @param domainObject optional parameter, it's possible that domain object is absent (unknown)
          */
-        private void deleteObjectAndItsAccessEntires(Id id, String typeName, DomainObject domainObject, boolean isCacheCleaning) {
+        private void evictObjectAndItsAccessEntiresById(Id id) {
             final ObjectNode cachedNode = objectsTree.deleteDomainObjectNode(id);
-            if (typeName == null || domainObject == null) {
-                if (cachedNode != null) {
-                    domainObject = cachedNode.getRealDomainObjectOrNothing();
-                }
-                if (typeName == null) {
-                    typeName = domainObject != null ? domainObject.getTypeName() : domainObjectTypeIdCache.getName(id);
-                    if (typeName == null) {
-                        if (domainObject != null) {
-                            logger.warn("Domain Object type name NULL: " + domainObject.getTypeName() + ", Id: " + domainObject.getId());
-                        } else {
-                            logger.warn("ID Type NULL: : " + id);
-                        }
-                    }
-                }
+            String typeName = domainObjectTypeIdCache.getName(id);
+            if (typeName == null) {
+                return;
             }
             // if object is a delegate access rights for all dependent objects are cleared
             userObjectAccess.clearAccess(objectAccessDelegation.getObjectsByDelegate(id));
@@ -1338,16 +1362,24 @@ public class GlobalCacheImpl implements GlobalCache {
             userObjectAccess.clearAccess(id); // todo: this can be done in a separate thread
             objectAccessDelegation.removeId(id);
             deleteUniqueKeys(typeName, id);
-            if (domainObject != null) {
-                if (isCacheCleaning) {
-                    clearParentsLinkedObjects(id, ObjectNode.LinkedObjects.All);
-                } else {
-                    updateLinkedObjectsOfParents(domainObject, null);
-                }
-            }
-            if (isCacheCleaning) {
-                clearFullRetrieval(typeName, null);
-            }
+            clearParentsLinkedObjects(id, ObjectNode.LinkedObjects.All);
+            clearFullRetrieval(typeName, null);
+            idsByType.removeId(id, typeName);
+            accessSorter.remove(id);
+        }
+
+        private void evictObjectAndItsAccessEntires(DomainObject domainObject) {
+            final Id id = domainObject.getId();
+            final ObjectNode cachedNode = objectsTree.deleteDomainObjectNode(id);
+            String typeName = domainObject.getTypeName();
+            // if object is a delegate access rights for all dependent objects are cleared
+            userObjectAccess.clearAccess(objectAccessDelegation.getObjectsByDelegate(id));
+            // access is cleared for object itself, NOT for access object, as access object clearing would remove access for all objects referencing it
+            userObjectAccess.clearAccess(id); // todo: this can be done in a separate thread
+            objectAccessDelegation.removeId(id);
+            deleteUniqueKeys(typeName, id);
+            clearParentsLinkedObjects(domainObject, ObjectNode.LinkedObjects.All);
+            clearFullRetrieval(typeName, null);
             idsByType.removeId(id, typeName);
             accessSorter.remove(id);
         }

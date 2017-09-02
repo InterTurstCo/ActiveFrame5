@@ -4,18 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.globalcacheclient.GlobalCacheSettings;
 
-import javax.annotation.PostConstruct;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
@@ -25,9 +23,9 @@ import java.util.concurrent.atomic.AtomicLong;
  *         Date: 22.04.2016
  *         Time: 16:38
  */
-@Singleton(name = "GlobalCacheDelayQueueReader")
-@Interceptors(SpringBeanAutowiringInterceptor.class)
-@TransactionManagement(TransactionManagementType.BEAN)
+//@Singleton(name = "GlobalCacheDelayQueueReader") TODO: Bean is temporarily disabled
+//@Interceptors(SpringBeanAutowiringInterceptor.class)
+//@TransactionManagement(TransactionManagementType.BEAN)
 public class DelayQueueReader {
     final static Logger logger = LoggerFactory.getLogger(DelayQueueReader.class);
     public static final int MESSAGES_PROCESS_BATCH_SIZE = 100;
@@ -44,12 +42,12 @@ public class DelayQueueReader {
 
     private volatile boolean processing;
 
-    @PostConstruct
+    //@PostConstruct
     private void init() {
         nextRun = new AtomicLong(System.currentTimeMillis() + settings.getClusterSynchronizationMillies());
     }
 
-    @Schedule(hour = "*", minute = "*", second = "*/1", persistent = false)
+    //@Schedule(hour = "*", minute = "*", second = "*/1", persistent = false)
     public void schedule() {
         if (!settings.isInCluster() || processing || System.currentTimeMillis() < nextRun.get()) {
             return;
@@ -63,7 +61,8 @@ public class DelayQueueReader {
         GlobalCacheClient cacheClient = (GlobalCacheClient) context.getBean("globalCacheClient");
         try {
             final long start = System.currentTimeMillis();
-            HashSet<Id> toInvalidate = new HashSet<>(128);
+            HashSet<Id> createdIdsToInvalidate = new HashSet<>();
+            HashSet<Id> toInvalidate = new HashSet<>();
             HashSet<Id> usersToInvalideAccess = new HashSet<>();
             boolean clearFullAccessLog = false;
             boolean clearCache = false;
@@ -90,11 +89,13 @@ public class DelayQueueReader {
                     if (message.isClearFullAccessLog()) {
                         clearFullAccessLog = true;
                     }
+                    createdIdsToInvalidate.addAll(message.getCreatedIdsToInvalidate());
                     toInvalidate.addAll(message.getIdsToInvalidate());
                     usersToInvalideAccess.addAll(message.getUsersAccessToInvalidate());
                 }
-                if (toInvalidate.size() > ID_INVALIDATION_BATCH_SIZE) {
-                    invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
+                if (toInvalidate.size() + createdIdsToInvalidate.size() > ID_INVALIDATION_BATCH_SIZE) {
+                    invalidateCacheEntries(cacheClient, createdIdsToInvalidate, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
+                    createdIdsToInvalidate.clear();
                     toInvalidate.clear();
                     usersToInvalideAccess.clear();
                     clearFullAccessLog = false;
@@ -108,7 +109,7 @@ public class DelayQueueReader {
             if (clearCache) {
                 cacheClient.clearCurrentNode();
             } else {
-                invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
+                invalidateCacheEntries(cacheClient, createdIdsToInvalidate, toInvalidate, clearFullAccessLog, usersToInvalideAccess);
             }
         } catch(Throwable t) {
             logger.error("Exception while processing delay queue", t);
@@ -118,10 +119,13 @@ public class DelayQueueReader {
         }
     }
 
-    private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> toInvalidate, boolean clearFullAccessLog, HashSet<Id> usersToInvalideAccess) {
-        if (toInvalidate.isEmpty() && !clearFullAccessLog && usersToInvalideAccess.isEmpty()) {
+    private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> createdIdsToInvalidate, HashSet<Id> toInvalidate, boolean clearFullAccessLog, HashSet<Id> usersToInvalideAccess) {
+        if (createdIdsToInvalidate.isEmpty() && toInvalidate.isEmpty() && !clearFullAccessLog && usersToInvalideAccess.isEmpty()) {
             return;
         }
-        cacheClient.invalidateCurrentNode(new CacheInvalidation(toInvalidate, clearFullAccessLog, usersToInvalideAccess));
+        DomainObjectDao dao = (DomainObjectDao) context.getBean("domainObjectDao");
+        AccessToken accessToken = ((AccessControlService) context.getBean("accessControlService")).createSystemAccessToken(this.getClass().getName());
+        final List<DomainObject> domainObjects = dao.find(new ArrayList<>(createdIdsToInvalidate), accessToken);
+        cacheClient.invalidateCurrentNode(new CacheInvalidation(domainObjects, toInvalidate, clearFullAccessLog, usersToInvalideAccess));
     }
 }

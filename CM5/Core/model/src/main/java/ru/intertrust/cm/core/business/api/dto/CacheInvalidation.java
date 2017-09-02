@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -12,8 +9,11 @@ import java.util.Set;
  */
 public class CacheInvalidation implements Dto {
     public static final long NODE_ID = new Random().nextLong();
+    private static final StringBuilder NULL_STR = new StringBuilder("null");
 
     private long senderId;
+    private List<DomainObject> createdDomainObjectsToInvalidate;
+    private Set<Id> createdIdsToInvalidate;
     private Set<Id> idsToInvalidate;
     private boolean clearFullAccessLog;
     private boolean clearCache;
@@ -32,9 +32,19 @@ public class CacheInvalidation implements Dto {
         this.clearFullAccessLog = clearFullAccessLog;
     }
 
-    public CacheInvalidation(HashSet<Id> idsToInvalidate, boolean clearFullAccessLog, HashSet<Id> personsWhosGroupsChanged) {
+    public CacheInvalidation(Set<Id> idsToInvalidate, boolean clearFullAccessLog, Set<Id> personsWhosGroupsChanged) {
         this(idsToInvalidate, clearFullAccessLog);
         this.usersAccessToInvalidate = personsWhosGroupsChanged;
+    }
+
+    public CacheInvalidation(Set<Id> createdIds, HashSet<Id> idsToInvalidate, boolean clearFullAccessLog, HashSet<Id> personsWhosGroupsChanged) {
+        this(idsToInvalidate, clearFullAccessLog, personsWhosGroupsChanged);
+        this.createdIdsToInvalidate = createdIds;
+    }
+
+    public CacheInvalidation(List<DomainObject> createdDomainObjects, HashSet<Id> idsToInvalidate, boolean clearFullAccessLog, HashSet<Id> personsWhosGroupsChanged) {
+        this(idsToInvalidate, clearFullAccessLog, personsWhosGroupsChanged);
+        this.createdDomainObjectsToInvalidate = createdDomainObjects;
     }
 
     public long getSenderId() {
@@ -51,6 +61,18 @@ public class CacheInvalidation implements Dto {
 
     public void setUsersAccessToInvalidate(Set<Id> usersAccessToInvalidate) {
         this.usersAccessToInvalidate = usersAccessToInvalidate;
+    }
+
+    public List<DomainObject> getCreatedDomainObjectsToInvalidate() {
+        return createdDomainObjectsToInvalidate == null ? Collections.<DomainObject>emptyList() : createdDomainObjectsToInvalidate;
+    }
+
+    public void setCreatedDomainObjectsToInvalidate(List<DomainObject> createdDomainObjectsToInvalidate) {
+        this.createdDomainObjectsToInvalidate = createdDomainObjectsToInvalidate;
+    }
+
+    public Set<Id> getCreatedIdsToInvalidate() {
+        return createdIdsToInvalidate == null ? Collections.<Id>emptySet() : idsToInvalidate;
     }
 
     public Set<Id> getIdsToInvalidate() {
@@ -82,10 +104,28 @@ public class CacheInvalidation implements Dto {
         final StringBuilder sb = new StringBuilder("CacheInvalidation{");
         sb.append("senderId=").append(senderId);
         sb.append(", fromThisNode=").append(fromThisNode());
-        sb.append(", idsToInvalidate=").append(idsToInvalidate);
+        sb.append(", createdIdsToInvalidate=").append(asString(createdIdsToInvalidate));
+        sb.append(", idsToInvalidate=").append(asString(idsToInvalidate));
         sb.append(", clearFullAccessLog=").append(clearFullAccessLog);
         sb.append(", usersAccessToInvalidate=").append(usersAccessToInvalidate);
         sb.append('}');
         return sb.toString();
+    }
+
+    private static StringBuilder asString(Collection<Id> ids) {
+        if (ids == null) {
+            ids = Collections.emptyList();
+        }
+        StringBuilder result = new StringBuilder(ids.size() * 18 + 2);
+        result.append('{');
+        int i = 0;
+        for (Id id : ids) {
+            if (i++ != 0) {
+                result.append(", ");
+            }
+            result.append(id.toStringRepresentation());
+        }
+        result.append('}');
+        return result;
     }
 }
