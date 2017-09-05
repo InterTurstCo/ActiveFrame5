@@ -15,9 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -58,7 +56,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -384,6 +381,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             if (event.isRefreshRequired()) {
                 refresh();
             }
+            refreshSelection();
         }
 
     }
@@ -391,6 +389,25 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private void refresh() {
         CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
         coPlugin.refresh();
+    }
+
+    /**
+     * Обновляет Id выделенного элемента.<br/>
+     * В настоящий момент необходимо для установления правильного Id после удаления элемента из списка<br/>
+     * и последующей автоматической смены выделенного элемента.
+     */
+    private void refreshSelection() {
+        CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+        CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
+
+        List<Id> selectedIdsList = cpView.getSelectedIds();
+
+        if (selectedIdsList.size() > 0) {
+            selectedId = selectedIdsList.get(0);
+        } else {
+            selectedId = null;
+        }
+        toolbar.setSelectedId(selectedId);
     }
 
     @Override
