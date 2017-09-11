@@ -189,7 +189,7 @@ public class TableViewerToobar {
         this.selectedId = id;
 //        activateSingleRowAction();
         if (selectedId == null) {
-            fooMenu.clearItems();
+            initMenu();
             activateSingleRowAction(false, false);
         } else {
             getActionsById(selectedId);
