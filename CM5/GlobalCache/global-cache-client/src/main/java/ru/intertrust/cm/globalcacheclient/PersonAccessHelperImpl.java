@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
-import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.util.*;
@@ -24,14 +23,8 @@ import java.util.*;
 @Local(PersonAccessHelper.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PersonAccessHelperImpl implements PersonAccessHelper {
-    @Resource
-    private EJBContext ejbContext;
-
     @Autowired
     private PersonManagementServiceDao personManagementDao;
-
-    @EJB
-    private PersonAccessHelper newTransantionService;
 
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
