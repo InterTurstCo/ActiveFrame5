@@ -11,5 +11,8 @@
      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
     <bean id="hash" class="ru.intertrust.testmodule.url.TestHashFormer" />
+    <bean id="testSignatureDataService" class="ru.intertrust.cm.test.crypto.TestSignatureDataService" />
+    
+    
 
 </beans>

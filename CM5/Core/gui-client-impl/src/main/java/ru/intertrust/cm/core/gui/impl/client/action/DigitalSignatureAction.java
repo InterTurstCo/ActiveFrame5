@@ -1,5 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.google.gwt.core.client.Callback;
+import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -83,23 +88,7 @@ public class DigitalSignatureAction extends Action {
                         @Override
                         public void onInit() {
                             try {
-                                int progressValue = 0;
-                                for (GuiSignedDataItem signedData : result.getSignedDataItems()) {
-                                    progress.setMessage("Подпись: " + signedData.getName());
-                                    String signature = component.sign(signedData.getContent());
-                                    SignedResultItem signResultItem = new SignedResultItem();
-                                    signResultItem.setId(signedData.getId());
-                                    signResultItem.setSignature(signature);
-                                    signResult.getSignedResultItems().add(signResultItem);
-                                    progress.setValue(progressValue++);
-                                    if (progress.isCancel()) {
-                                        break;
-                                    }
-                                }
-
-                                if (!progress.isCancel()) {
-                                    saveSignResults(signResult);
-                                }
+                                signData(component, result.getSignedDataItems(), signResult, 0);
                             } catch (Exception ex) {
                                 progress.hide();
                                 //TODO Сюда попадаем когда пользователь отменил ввод пароля, непонятно как при этом скрыть сообщение об ошибке
@@ -125,6 +114,38 @@ public class DigitalSignatureAction extends Action {
         });
     }
 
+    private void signData(final DigitalSignatureClientComponent component, final List<GuiSignedDataItem> signedDatas, final SignedResult signResult, final int number){
+        final GuiSignedDataItem signedData = signedDatas.get(number);
+        
+        progress.setMessage("Подпись: " + signedData.getName());
+        component.sign(signedData.getContent(), new Callback<String, String>(){
+
+            @Override
+            public void onFailure(String reason) {
+                progress.hide();
+                ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + reason);                                            
+            }
+
+            @Override
+            public void onSuccess(String signature) {
+                SignedResultItem signResultItem = new SignedResultItem();
+                signResultItem.setId(signedData.getId());
+                signResultItem.setSignature(signature);
+                signResult.getSignedResultItems().add(signResultItem);
+                progress.setValue(number);
+                
+                if (!progress.isCancel() ) {
+                    if (signedDatas.size() > number + 1) {
+                        signData(component, signedDatas, signResult, number + 1);
+                    }else{
+                        saveSignResults(signResult);
+                    }
+                }
+            }
+            
+        });      
+    }
+    
     private void saveSignResults(SignedResult signResult) {
         final Command command = new Command("saveSignResult", "digital.signature", signResult);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

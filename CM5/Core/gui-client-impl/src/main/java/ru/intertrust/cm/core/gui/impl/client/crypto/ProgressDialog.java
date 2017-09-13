@@ -111,6 +111,6 @@ public class ProgressDialog extends DialogBox {
                 ProgressDialog.this.hide();
             }
         };
-        closeTimer.scheduleRepeating(2000);        
+        closeTimer.schedule(2000);        
     }    
 }

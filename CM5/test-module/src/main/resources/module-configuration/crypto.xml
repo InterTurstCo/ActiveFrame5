@@ -38,4 +38,16 @@
         </signature-storage-bean-settings>
     </type-crypto-settings>
 
+
+    <type-crypto-settings name="ex1"
+        get-content-bean-name="testSignatureDataService"
+        signature-storage-bean-name="domainObjectStoreSignatureService">
+        <signature-storage-bean-settings>
+            <domain-object-store-signature
+                signature-store-type-name="digital_signature" 
+                signed-attachment-field-name="signed_object" 
+                signature-field-name="signature"/>
+        </signature-storage-bean-settings>
+    </type-crypto-settings>
+
 </configuration>
