@@ -70,7 +70,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
         OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler,
-        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement, FiltersRemoteManagement {
+        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement, FiltersRemoteManagement, UpdateCollectionEventHandler {
 
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
@@ -116,7 +116,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         return initView();
-
     }
 
     private CollectionPlugin getCollectionPlugin() {
@@ -151,12 +150,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, this);
         localEventBus.addHandler(CustomDeleteEvent.TYPE, this);
         localEventBus.addHandler(CustomEditEvent.TYPE, this);
-        localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
-            @Override
-            public void updateCollection(UpdateCollectionEvent event) {
+        localEventBus.addHandler(UpdateCollectionEvent.TYPE, this);
 
-            }
-        });
         WidgetsContainer wc = getContainer();
         if (wc.getPlugin() instanceof FormPlugin) {
             editableState = ((FormPlugin) wc.getPlugin()).getInitialVisualState().isEditable();
@@ -323,7 +318,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             selectedId = event.getId();
             toolbar.setSelectedId(selectedId);
         }
-
     }
 
     @Override
@@ -383,7 +377,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             }
             refreshSelection();
         }
-
     }
 
     private void refresh() {
@@ -429,6 +422,13 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         cpView.setSelectedRow(objectId);
     }
 
+    @Override
+    public void updateCollection(UpdateCollectionEvent event) {
+        if (config.isRefreshAllOnAction()) {
+            refresh();
+            refreshSelection();
+        }
+    }
 
     class OpenFormClickHandler implements ClickHandler {
         private String domainObjectType;

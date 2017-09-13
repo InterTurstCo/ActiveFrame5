@@ -23,14 +23,23 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  */
 @Root(name = "table-viewer")
 public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMappings {
-    @Attribute(name = "delete-component",required = false)
+
+    @Attribute(name = "delete-component", required = false)
     private String deleteComponent;
 
-    @Attribute(name = "edit-component",required = false)
+    @Attribute(name = "edit-component", required = false)
     private String editComponent;
 
-    @Attribute(name = "show-workflow-menu",required = false)
+    @Attribute(name = "show-workflow-menu", required = false)
     private Boolean showWorkflowMenu;
+
+    /**
+     * Аттрибут определяет нужно ли обновлять всю коллекцию при каждом действии.<br/>
+     * Необходимо для случаев когда действие над одним элементом меняет другие тоже,<br/>
+     * например перемещение элемента со сменой порядковых номеров и тп.
+     */
+    @Attribute(name = "refresh-all-on-action", required = false)
+    private Boolean refreshAllOnAction;
 
     @Deprecated
     @Element(name = "collection-view-ref", required = false)
@@ -57,14 +66,87 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     @Element(name = "linked-form-mapping", required = false)
     private LinkedFormMappingConfig linkedFormMappingConfig;
 
-    @Element(name = "collection-viewer",required = false)
+    @Element(name = "collection-viewer", required = false)
     private CollectionViewerConfig collectionViewerConfig;
 
-    @Element(name = "ignore-form-read-only-state",required = false)
+    @Element(name = "ignore-form-read-only-state", required = false)
     private IgnoreFormReadOnlyStateConfig ignoreFormReadOnlyStateConfig;
 
-    @Element(name = "created-objects",required = false)
+    @Element(name = "created-objects", required = false)
     private CreatedObjectsConfig createdObjectsConfig;
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
+    }
+
+    @Override
+    public String getComponentName() {
+        return "table-viewer";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        TableViewerConfig that = (TableViewerConfig) o;
+
+        if (deleteComponent != null ? !deleteComponent.equals(that.deleteComponent) : that.deleteComponent != null)
+            return false;
+        if (editComponent != null ? !editComponent.equals(that.editComponent) : that.editComponent != null)
+            return false;
+        if (showWorkflowMenu != null ? !showWorkflowMenu.equals(that.showWorkflowMenu) : that.showWorkflowMenu != null)
+            return false;
+        if (refreshAllOnAction != null ? !refreshAllOnAction.equals(that.refreshAllOnAction) : that.refreshAllOnAction != null)
+            return false;
+        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.collectionViewRefConfig) : that.collectionViewRefConfig != null)
+            return false;
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) : that.collectionRefConfig != null)
+            return false;
+        if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) return false;
+        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) : that.defaultSortCriteriaConfig != null)
+            return false;
+        if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) : that.collectionExtraFiltersConfig != null)
+            return false;
+        if (collectionTableButtonsConfig != null ? !collectionTableButtonsConfig.equals(that.collectionTableButtonsConfig) : that.collectionTableButtonsConfig != null)
+            return false;
+        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig) : that.linkedFormMappingConfig != null)
+            return false;
+        if (collectionViewerConfig != null ? !collectionViewerConfig.equals(that.collectionViewerConfig) : that.collectionViewerConfig != null)
+            return false;
+        if (ignoreFormReadOnlyStateConfig != null ? !ignoreFormReadOnlyStateConfig.equals(that.ignoreFormReadOnlyStateConfig) : that.ignoreFormReadOnlyStateConfig != null)
+            return false;
+        if (createdObjectsConfig != null ? !createdObjectsConfig.equals(that.createdObjectsConfig) : that.createdObjectsConfig != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+
+        result = 31 * result + (deleteComponent != null ? deleteComponent.hashCode() : 0);
+        result = 31 * result + (editComponent != null ? editComponent.hashCode() : 0);
+        result = 31 * result + (showWorkflowMenu != null ? showWorkflowMenu.hashCode() : 0);
+        result = 31 * result + (refreshAllOnAction != null ? refreshAllOnAction.hashCode() : 0);
+        result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
+        result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
+        result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
+        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
+        result = 31 * result + (collectionTableButtonsConfig != null ? collectionTableButtonsConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
+        result = 31 * result + (collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 0);
+        result = 31 * result + (ignoreFormReadOnlyStateConfig != null ? ignoreFormReadOnlyStateConfig.hashCode() : 0);
+        result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
+
+        return result;
+    }
 
     @Deprecated
     public CollectionViewRefConfig getCollectionViewRefConfig() {
@@ -176,7 +258,7 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     }
 
     public Boolean isShowWorkflowMenu() {
-        if(showWorkflowMenu ==null)
+        if (showWorkflowMenu == null)
             return true;
         else
             return showWorkflowMenu;
@@ -186,85 +268,15 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
         this.showWorkflowMenu = showWorkflowMenu;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    public Boolean isRefreshAllOnAction() {
+        if (refreshAllOnAction != null) {
+            return refreshAllOnAction;
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TableViewerConfig that = (TableViewerConfig) o;
-
-        if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig)
-                : that.collectionExtraFiltersConfig != null) {
-            return false;
-        }
-        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig)
-                : that.collectionRefConfig != null) {
-            return false;
-        }
-        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.collectionViewRefConfig)
-                : that.collectionViewRefConfig != null) {
-            return false;
-        }
-        if (collectionViewerConfig != null ? !collectionViewerConfig.equals(that.collectionViewerConfig)
-                : that.collectionViewerConfig != null) {
-            return false;
-        }
-        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig)
-                : that.defaultSortCriteriaConfig != null) {
-            return false;
-        }
-        if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
-            return false;
-        }
-        if (collectionTableButtonsConfig != null ? !collectionTableButtonsConfig.equals(that.collectionTableButtonsConfig)
-                : that.collectionTableButtonsConfig != null) {
-            return false;
-        }
-        if (ignoreFormReadOnlyStateConfig != null ? !ignoreFormReadOnlyStateConfig.equals(that.ignoreFormReadOnlyStateConfig)
-                : that.ignoreFormReadOnlyStateConfig != null) {
-            return false;
-        }
-        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig)
-                : that.linkedFormMappingConfig != null) {
-            return false;
-        }
-        if (createdObjectsConfig != null ? !createdObjectsConfig.equals(that.createdObjectsConfig)
-                : that.createdObjectsConfig != null) {
-            return false;
-        }
-        if (editComponent != null ? !editComponent.equals(that.editComponent)
-                : that.editComponent != null) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
-    @Override
-    public int hashCode() {
-        int result = collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0;
-        result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
-        result = 31 * result + (collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 0);
-        result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
-        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
-        result = 31 * result + (ignoreFormReadOnlyStateConfig != null ? ignoreFormReadOnlyStateConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
-        result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
-        result = 31 * result + (editComponent != null ? editComponent.hashCode() : 0);
-        return result;
+    public void setRefreshAllOnAction(Boolean refreshAllOnAction) {
+        this.refreshAllOnAction = refreshAllOnAction;
     }
 
-    @Override
-    public boolean isReadOnly() {
-        return true;
-    }
-
-    @Override
-    public String getComponentName() {
-        return "table-viewer";
-    }
 }
