@@ -34,7 +34,7 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
     private PersonAccessHelper newTransantionService;
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public PersonAccessChanges getPersonAccessChanges(GroupAccessChanges groupAccessChanges) {
         final HashSet<String> objectTypesAccessChanged = groupAccessChanges.getObjectTypesAccessChanged();
         if (groupAccessChanges.clearFullAccessLog()) {
@@ -43,11 +43,11 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
         if (!groupAccessChanges.accessChangesExist()) {
             return new PersonAccessChanges(0, objectTypesAccessChanged);
         }
-        return newTransantionService.getPersonAccessChanges(groupAccessChanges, objectTypesAccessChanged);
+        return getPersonAccessChanges(groupAccessChanges, objectTypesAccessChanged);
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public PersonAccessChanges getPersonAccessChanges(GroupAccessChanges groupAccessChanges, HashSet<String> objectTypesAccessChanged) {
         HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
         PersonAccessChanges personAccessChanges = new PersonAccessChanges(groupAccessChanges.getObjectsQty(), objectTypesAccessChanged);
@@ -63,8 +63,6 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
         } catch (Throwable e) {
             e.printStackTrace();
             throw new FatalException(e);
-        } finally {
-            ejbContext.setRollbackOnly();
         }
     }
 
