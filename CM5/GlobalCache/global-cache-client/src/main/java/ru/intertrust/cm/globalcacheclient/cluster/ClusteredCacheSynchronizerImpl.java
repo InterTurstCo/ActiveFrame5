@@ -28,7 +28,7 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
     final static Logger logger = LoggerFactory.getLogger(ClusteredCacheSynchronizerImpl.class);
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void notifyCommit(DomainObjectsModification modification, PersonAccessChanges personAccessChanges) {
         final boolean clearFullAccessLog = personAccessChanges.clearFullAccessLog();
         final Set<Id> personsWhosAccessRightsChanged = personAccessChanges.getPersonsWhosAccessRightsChanged();
@@ -50,7 +50,7 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void notifyClear() {
         GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(true));
     }
