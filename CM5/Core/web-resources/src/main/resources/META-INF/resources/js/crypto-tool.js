@@ -68,37 +68,43 @@
 		init: function (tsAddress, hashOnServer, collback) {
 			this.tsAddress = tsAddress;
 			this.hashOnServer = hashOnServer;
-			
-			try{
-				cadesplugin.set_log_level(cadesplugin.LOG_LEVEL_DEBUG);
-				var canPromise = !!window.Promise;
-				if(canPromise) {						
-					cadesplugin.then(function () {								
-							cryptoTool.checkForPlugIn(function(){cryptoTool.pluginInstalled=true;collback(true);}, function(err){cryptoTool.pluginInstalled=false;collback(false, err)});								
+
+			if (cryptoTool.pluginInstalled){
+				return collback(true);
+			}else{
+				try{
+					cadesplugin.set_log_level(cadesplugin.LOG_LEVEL_DEBUG);
+					var canPromise = !!window.Promise;
+					if(canPromise) {						
+						cadesplugin.then(function () {								
+								cryptoTool.checkForPlugIn(function(){cryptoTool.pluginInstalled=true;collback(true);}, function(err){cryptoTool.pluginInstalled=false;collback(false, err)});								
+							},
+							function(error) {
+								cryptoTool.pluginInstalled=false;
+								collback(false, error);
+							}
+					   );
+					} else {
+						window.addEventListener("message", function (event){
+							if (event.data == "cadesplugin_loaded") {
+								var oAbout = cadesplugin.CreateObject("CAdESCOM.About");
+								var version = oAbout.Version;
+								if (!cryptoTool.pluginInstalled){
+									cryptoTool.pluginInstalled=true;
+									collback(true);
+								}
+							} else if(event.data == "cadesplugin_load_error") {
+								cryptoTool.pluginInstalled=false;
+								collback(false);
+							}
 						},
-						function(error) {
-							cryptoTool.pluginInstalled=false;
-							collback(false, error);
-						}
-				   );
-				} else {
-					window.addEventListener("message", function (event){
-						if (event.data == "cadesplugin_loaded") {
-							var oAbout = cadesplugin.CreateObject("CAdESCOM.About");
-							var version = oAbout.Version;
-							cryptoTool.pluginInstalled=true;
-							collback(true);
-						} else if(event.data == "cadesplugin_load_error") {
-							cryptoTool.pluginInstalled=false;
-							collback(false);
-						}
-					},
-					false);
-					window.postMessage("cadesplugin_echo_request", "*");
-				}
-			}catch(err){
-				this.pluginInstalled = false;
-			}            
+						false);
+						window.postMessage("cadesplugin_echo_request", "*");
+					}
+				}catch(err){
+					this.pluginInstalled = false;
+				}     
+			}			
 		},
 		
 		getCertificates: function (callback) {
@@ -160,7 +166,7 @@
 					}
 					callcack(sSignedMessage, null);
 				} catch (err) {
-					callcack(null, new Error("Failed to create signature. Error: " + err));
+					callcack(null, "Failed to create signature. Error: " + err.message);
 				}
 			}
 		}
