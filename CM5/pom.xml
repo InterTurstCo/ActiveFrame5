@@ -496,6 +496,12 @@
                 <version>2.0.37985</version>
             </dependency>
             
+            <dependency>
+                <groupId>ru.cryptopro</groupId>
+                <artifactId>jcp</artifactId>
+                <version>2.0.37985</version>
+            </dependency>
+                        
             <!-- JSON-->
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>

@@ -39,5 +39,9 @@
             <groupId>ru.cryptopro</groupId>
             <artifactId>cades</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ru.cryptopro</groupId>
+            <artifactId>jcp</artifactId>
+        </dependency>        
     </dependencies>
 </project>
