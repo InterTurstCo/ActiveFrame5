@@ -173,7 +173,10 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private CollectionViewerConfig initCollectionConfig(TableViewerState state) {
         selectedId = null;
         config = state.getTableViewerConfig();
-        toolbar.setWorkflowMenuVisible(config.isShowWorkflowMenu());
+
+        toolbar.setProcessesMenuVisible(config.isShowWorkflowMenu());
+        toolbar.setActionsMenuVisible(config.isShowActionsMenu());
+
         TableBrowserParams tableBrowserParams = createTableBrowserParams(config);
 
         if ((config.getCollectionViewerConfig() != null &&

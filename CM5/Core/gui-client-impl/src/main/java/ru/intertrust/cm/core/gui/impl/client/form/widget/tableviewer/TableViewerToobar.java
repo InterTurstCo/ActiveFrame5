@@ -25,7 +25,6 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
-import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -39,17 +38,18 @@ import java.util.List;
  * To change this template use File | Settings | File and Code Templates.
  */
 public class TableViewerToobar {
+
     private HorizontalPanel toolbarPanel;
     private ToggleButton editButton;
     private ToggleButton deleteButton;
     private Button addButton;
     // меню для списка activiti
-    private MenuBar actionsMenu;
-    private MenuBar fooMenu;
+    private MenuBar processesMenu;
+    private MenuBar processesMenuContainer;
 
     // меню для обычных действий из toolbar
-    private MenuBar toolbarActionsMenu;
-    private MenuBar toolbarFooMenu;
+    private MenuBar actionsMenu;
+    private MenuBar actionsMenuContainer;
 
     private Id selectedId;
     private EventBus eventBus;
@@ -117,28 +117,28 @@ public class TableViewerToobar {
         toolbarPanel.add(deleteButton);
         toolbarPanel.add(addButton);
 
+        processesMenu = new MenuBar();
+        processesMenuContainer = new MenuBar(true);
+        processesMenu.setStyleName("button-table-viewer");
+        processesMenuContainer.setStyleName("wrapApproval");
+        processesMenu.setTitle("Процессы");
+        processesMenu.addItem("", processesMenuContainer);
 
         actionsMenu = new MenuBar();
-        fooMenu = new MenuBar(true);
-        actionsMenu.setStyleName("button-table-viewer");
-        fooMenu.setStyleName("wrapApproval");
-        actionsMenu.setTitle("Процессы");
-        actionsMenu.addItem("", fooMenu);
-
-        toolbarActionsMenu = new MenuBar();
-        toolbarFooMenu = new MenuBar(true);
-        toolbarActionsMenu.setStyleName("button-actions-viewer");
-        toolbarFooMenu.setStyleName("wrapActions");
-        toolbarActionsMenu.setTitle("Действия");
-        toolbarActionsMenu.addItem("", toolbarFooMenu);
+        actionsMenuContainer = new MenuBar(true);
+        actionsMenu.setStyleName("button-actions-viewer");
+        actionsMenuContainer.setStyleName("wrapActions");
+        actionsMenu.setTitle("Действия");
+        actionsMenu.addItem("", actionsMenuContainer);
 
         initMenu();
         initActionsMenu();
 
+        toolbarPanel.add(processesMenu);
         toolbarPanel.add(actionsMenu);
-        toolbarPanel.add(toolbarActionsMenu);
+
+        processesMenu.setVisible(true);
         actionsMenu.setVisible(true);
-        toolbarActionsMenu.setVisible(true);
     }
 
     public HorizontalPanel getToolbarPanel() {
@@ -173,12 +173,12 @@ public class TableViewerToobar {
         this.addButton = addButton;
     }
 
-    public MenuBar getActionsMenu() {
-        return actionsMenu;
+    public MenuBar getProcessesMenu() {
+        return processesMenu;
     }
 
-    public void setActionsMenu(MenuBar actionsMenu) {
-        this.actionsMenu = actionsMenu;
+    public void setProcessesMenu(MenuBar processesMenu) {
+        this.processesMenu = processesMenu;
     }
 
     public Id getSelectedId() {
@@ -195,7 +195,6 @@ public class TableViewerToobar {
             getActionsById(selectedId);
         }
     }
-
 
     private MenuItem buildActionButton(final ActionContext context) {
         SimpleActionContext simpleActionContext = (SimpleActionContext) context;
@@ -324,7 +323,6 @@ public class TableViewerToobar {
         return menuItemCommand;
     }
 
-
     public void getActionsById(final Id id) {
         Command command = new Command("getActionsById", "table-viewer", id);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -337,7 +335,7 @@ public class TableViewerToobar {
             @Override
             public void onSuccess(Dto result) {
                 TableViewerData data = (TableViewerData) result;
-                fooMenu.clearItems();
+                processesMenuContainer.clearItems();
 
                 activateSingleRowAction(true, data.getHasDeleteAccess());
 
@@ -345,7 +343,7 @@ public class TableViewerToobar {
                     initMenu();
                 } else {
                     for (ActionContext actionContext : data.getAvailableActions()) {
-                        fooMenu.addItem(buildActionButton(actionContext));
+                        processesMenuContainer.addItem(buildActionButton(actionContext));
                     }
                 }
             }
@@ -375,10 +373,10 @@ public class TableViewerToobar {
             @Override
             public void onSuccess(Dto result) {
                 actionsData = (TableViewerData) result;
-                fooMenu.clearItems();
+                processesMenuContainer.clearItems();
                 if (actionsData.getIdsActions().size() > 0) {
                     for (String menuName : actionsData.getIdsActions().keySet()) {
-                        fooMenu.addItem(addMultiItem(menuName));
+                        processesMenuContainer.addItem(addMultiItem(menuName));
                     }
                 } else {
                     initMenu();
@@ -388,30 +386,30 @@ public class TableViewerToobar {
     }
 
     private void initMenu() {
-        fooMenu.clearItems();
+        processesMenuContainer.clearItems();
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-        fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+        processesMenuContainer.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
     }
 
     private void initActionsMenu() {
-        toolbarFooMenu.clearItems();
+        actionsMenuContainer.clearItems();
 
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
         if (config == null || config.getCollectionViewerConfig() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig().getActions() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig().getActions().size() == 0) {
-            toolbarFooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+            actionsMenuContainer.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
         } else {
             for (AbstractActionConfig aConfig : config.getCollectionViewerConfig().getToolBarConfig().getActions()) {
                 if (aConfig instanceof SimpleActionConfig) {
                     SimpleActionContext aContext = new SimpleActionContext();
                     aContext.setActionConfig(aConfig);
-                    toolbarFooMenu.addItem(buildToolbarActionButton(aContext, true));
+                    actionsMenuContainer.addItem(buildToolbarActionButton(aContext, true));
                 } else {
                     ActionContext aContext = new ActionContext();
                     aContext.setActionConfig(aConfig);
-                    toolbarFooMenu.addItem(buildToolbarActionButton(aContext, false));
+                    actionsMenuContainer.addItem(buildToolbarActionButton(aContext, false));
                 }
             }
         }
@@ -433,18 +431,18 @@ public class TableViewerToobar {
     }
 
     public void activateSingleRowAction(boolean hasEdit, boolean hasDelete) {
-        if(hasEdit){
+        if (hasEdit) {
             editButton.addStyleName("edit-btn-table-viewer");
             editButton.removeStyleName("edit-btn-table-viewer-disable");
-        }else{
+        } else {
             editButton.addStyleName("edit-btn-table-viewer-disable");
             editButton.removeStyleName("edit-btn-table-viewer");
         }
 
-        if(hasDelete){
+        if (hasDelete) {
             deleteButton.addStyleName("delete-btn-table-viewer");
             deleteButton.removeStyleName("delete-btn-table-viewer-disable");
-        }else{
+        } else {
             deleteButton.addStyleName("delete-btn-table-viewer-disable");
             deleteButton.removeStyleName("delete-btn-table-viewer");
         }
@@ -455,7 +453,12 @@ public class TableViewerToobar {
         initActionsMenu();
     }
 
-    public void setWorkflowMenuVisible(boolean isVisible){
+    public void setProcessesMenuVisible(boolean isVisible) {
+        processesMenu.setVisible(isVisible);
+    }
+
+    public void setActionsMenuVisible(boolean isVisible) {
         actionsMenu.setVisible(isVisible);
     }
+
 }

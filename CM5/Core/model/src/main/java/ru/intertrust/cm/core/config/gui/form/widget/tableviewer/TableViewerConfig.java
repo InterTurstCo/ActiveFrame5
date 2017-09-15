@@ -33,6 +33,9 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     @Attribute(name = "show-workflow-menu", required = false)
     private Boolean showWorkflowMenu;
 
+    @Attribute(name = "show-actions-menu", required = false)
+    private Boolean showActionsMenu;
+
     /**
      * Аттрибут определяет нужно ли обновлять всю коллекцию при каждом действии.<br/>
      * Необходимо для случаев когда действие над одним элементом меняет другие тоже,<br/>
@@ -100,6 +103,8 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
             return false;
         if (showWorkflowMenu != null ? !showWorkflowMenu.equals(that.showWorkflowMenu) : that.showWorkflowMenu != null)
             return false;
+        if (showActionsMenu != null ? !showActionsMenu.equals(that.showActionsMenu) : that.showActionsMenu != null)
+            return false;
         if (refreshAllOnAction != null ? !refreshAllOnAction.equals(that.refreshAllOnAction) : that.refreshAllOnAction != null)
             return false;
         if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.collectionViewRefConfig) : that.collectionViewRefConfig != null)
@@ -133,6 +138,7 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
         result = 31 * result + (deleteComponent != null ? deleteComponent.hashCode() : 0);
         result = 31 * result + (editComponent != null ? editComponent.hashCode() : 0);
         result = 31 * result + (showWorkflowMenu != null ? showWorkflowMenu.hashCode() : 0);
+        result = 31 * result + (showActionsMenu != null ? showActionsMenu.hashCode() : 0);
         result = 31 * result + (refreshAllOnAction != null ? refreshAllOnAction.hashCode() : 0);
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
@@ -266,6 +272,17 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
 
     public void setShowWorkflowMenu(Boolean showWorkflowMenu) {
         this.showWorkflowMenu = showWorkflowMenu;
+    }
+
+    public Boolean isShowActionsMenu() {
+        if (showActionsMenu != null) {
+            return showActionsMenu;
+        }
+        return true;
+    }
+
+    public void setShowActionsMenu(Boolean showActionsMenu) {
+        this.showActionsMenu = showActionsMenu;
     }
 
     public Boolean isRefreshAllOnAction() {
