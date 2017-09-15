@@ -14,7 +14,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>client</artifactId>
-        <version>0.6.1-20-SNAPSHOT</version>
+        <version>0.6.1-20</version>
     </parent>
 
     <dependencies>
