@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.crypto;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.google.gwt.core.client.Callback;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.*;
 
 import ru.intertrust.cm.core.config.crypto.CAdESCryptoSettingsConfig;
@@ -18,6 +20,10 @@ import ru.intertrust.cm.core.gui.model.crypto.DigitalSignatureConfig;
 
 @ComponentName("cryptopro.browser.plugin.client.component")
 public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClientComponent {
+    private static final String CERTIFICATE_ID_COOKIE_NAME = "CryptoProBrowserPluginClientComponent.CERTIFICATE_ID";
+    //Время хранения выбранного сертификата - год
+    private static final long EXPIRE_PERIOD = 1000 * 60 * 60 * 24 * 365;
+    
     private DigitalSignatureConfig config;
     private CAdESCryptoSettingsConfig extendedConfig;
     private JavaScriptObject cryptoTool;
@@ -54,6 +60,17 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
 
                                 @Override
                                 public void onSuccess(JsArrayString allCerts) {
+                                    //Проверка сохраненного сертификата
+                                    String certificateId = Cookies.getCookie(CERTIFICATE_ID_COOKIE_NAME);
+                                    if (certificateId != null){
+                                        int certificateNum = nativeFindCertificateById(certificateId);
+                                        if (certificateNum > -1){
+                                            nativeSetCertificateIndex(certificateNum);
+                                            handler.onInit();
+                                            return;
+                                        }
+                                    }
+                                    
                                     if (allCerts.length() > 1){
                                         ArrayList<String> validCertificates = new ArrayList<String>();
                                         for (int i=0; i<allCerts.length(); i++) {
@@ -66,7 +83,10 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
                                             @Override
                                             public void onClose(CloseEvent<PopupPanel> event) {
                                                 if (dialog.getResult() > -1){
-                                                    nativeSetCertificateIndex(dialog.getResult());
+                                                    nativeSetCertificateIndex(dialog.getResult() + 1);
+                                                    String cerId = nativeGetCertificateId(dialog.getResult() + 1);
+                                                    Date expire = new Date(System.currentTimeMillis() + EXPIRE_PERIOD);
+                                                    Cookies.setCookie(CERTIFICATE_ID_COOKIE_NAME, cerId, expire);
                                                     handler.onInit();
                                                 }else{
                                                     handler.onCancel();
@@ -91,11 +111,26 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
 
     }
 
+    private native int nativeFindCertificateById(String certificateId) 
+    /*-{
+    return $wnd.cryptoTool.findCertificateById(certificateId);
+    }-*/;    
+    
+    private native String nativeGetCertificateId(int certNo)
+    /*-{
+    return $wnd.cryptoTool.getCertificateId(certNo);
+    }-*/;
+    
     private native void nativeSetCertificateIndex(int certNo)
     /*-{
-        $wnd.cryptoTool.setCertificate(certNo+1);
+        $wnd.cryptoTool.setCertificate(certNo);
     }-*/;
 
+    private native int nativeGetCertificateIndex()
+    /*-{
+        return $wnd.cryptoTool.getCertificate();
+    }-*/;    
+    
     private native boolean nativeCheckInstall()
     /*-{
         return $wnd.cryptoTool.checkInstall();

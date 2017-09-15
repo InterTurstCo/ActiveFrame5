@@ -14,17 +14,32 @@
 		async_promise: null,
 		async_resolve: null,
 		hashOnServer: false,
+		certificateNumbers: {},
+		certificateIds: {},
+		
 		
 		checkInstall: function(){
 			return this.pluginInstalled;
 		},
 
 		setCertificate: function(cerNo){
-			certificateNo = cerNo;
+			this.certificateNo = cerNo;
+		},
+		
+		findCertificateById: function(certificateId){
+			var result = this.certificateNumbers[certificateId];
+			if (result != null){
+				return result;
+			}
+			return -1;
 		},
 
 		getCertificate: function(){
-			return certificateNo;
+			return this.certificateNo;
+		},
+
+		getCertificateId: function(certNo){
+			return this.certificateIds[certNo];
 		},
 		
 		checkForPlugIn: function (plugin_loaded, plugin_loaded_error) {
@@ -77,7 +92,13 @@
 					var canPromise = !!window.Promise;
 					if(canPromise) {						
 						cadesplugin.then(function () {								
-								cryptoTool.checkForPlugIn(function(){cryptoTool.pluginInstalled=true;collback(true);}, function(err){cryptoTool.pluginInstalled=false;collback(false, err)});								
+								cryptoTool.checkForPlugIn(function(){
+									cryptoTool.pluginInstalled=true;
+									collback(true);
+									}, function(err){
+										cryptoTool.pluginInstalled=false;
+										collback(false, err)
+										});								
 							},
 							function(error) {
 								cryptoTool.pluginInstalled=false;
@@ -132,6 +153,8 @@
 				var result = [];
 				for (var i=0; i<this.oCertificates.Count; i++){
 					result.push(this.oCertificates.Item(i+1).SubjectName + " действителен до " + this.oCertificates.Item(i+1).ValidToDate);
+					this.certificateNumbers[this.oCertificates.Item(i+1).SerialNumber]=i+1;
+					this.certificateIds[i+1]=this.oCertificates.Item(i+1).SerialNumber;
 				}
 				callback(result);
 			}            
@@ -146,6 +169,7 @@
 				var oSigner = cadesplugin.CreateObject("CAdESCOM.CPSigner");
 				oSigner.Certificate = this.oCertificate;
 				oSigner.TSAAddress = this.tsAddress;
+				//oSigner.KeyPin = "111111";
 		
 				try {
 					var oSignedData = cadesplugin.CreateObject("CAdESCOM.CadesSignedData");
@@ -155,7 +179,7 @@
 
 						// Инициализируем объект заранее вычисленным хэш-значением
 						// Алгоритм хэширования нужно указать до того, как будет передано хэш-значение
-						oHashedData.Algorithm = cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411;
+						oHashedData.Algorithm = cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256;
 						oHashedData.SetHashValue(base64Content);
 
 						var sSignedMessage = oSignedData.SignHash(oHashedData, oSigner, cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1);

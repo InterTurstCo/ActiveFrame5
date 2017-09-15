@@ -1,19 +1,21 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.Callback;
-import com.google.gwt.core.client.JsArrayString;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.crypto.SignedResult;
 import ru.intertrust.cm.core.config.crypto.SignedResultItem;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.DigitalSignatureClientComponent;
 import ru.intertrust.cm.core.gui.api.client.DigitalSignatureComponentInitHandler;
+import ru.intertrust.cm.core.gui.api.client.event.CreateCryptoSignature;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.crypto.ProgressDialog;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -27,7 +29,6 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 @ComponentName("digital.signature.action")
 public class DigitalSignatureAction extends Action {
-    //private DigitalSignatureServiceAsync digitalSignatureService;
     private ProgressDialog progress;
 
     @Override
@@ -53,6 +54,7 @@ public class DigitalSignatureAction extends Action {
             @Override
             public void onFailure(Throwable caught) {
                 progress.hide();
+                sendErrorMessage("Ошибка при выполнении действия: " + caught.getMessage());
                 ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + caught.getMessage());
             }
         });
@@ -73,6 +75,7 @@ public class DigitalSignatureAction extends Action {
             @Override
             public void onFailure(Throwable caught) {
                 progress.hide();
+                sendErrorMessage("Ошибка при выполнении действия: " + caught.getMessage());
                 ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + caught.getMessage());
             }
 
@@ -92,6 +95,7 @@ public class DigitalSignatureAction extends Action {
                             } catch (Exception ex) {
                                 progress.hide();
                                 //TODO Сюда попадаем когда пользователь отменил ввод пароля, непонятно как при этом скрыть сообщение об ошибке
+                                sendErrorMessage("Ошибка при выполнении действия: " + ex.getMessage());
                                 ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + ex.getMessage());
                             }
                         }
@@ -103,11 +107,13 @@ public class DigitalSignatureAction extends Action {
 
                         @Override
                         public void onError(String message) {
+                            sendErrorMessage("Ошибка при выполнении действия: " + message);
                             ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + message);
                         }
                     });
                 } catch (Throwable ex) {
                     progress.hide();
+                    sendErrorMessage("Ошибка при выполнении действия: " + ex.getMessage());
                     ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + ex.getMessage());
                 }
             }
@@ -123,6 +129,7 @@ public class DigitalSignatureAction extends Action {
             @Override
             public void onFailure(String reason) {
                 progress.hide();
+                sendErrorMessage("Ошибка при выполнении действия: " + reason);
                 ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + reason);                                            
             }
 
@@ -140,27 +147,36 @@ public class DigitalSignatureAction extends Action {
                     }else{
                         saveSignResults(signResult);
                     }
+                }else{
+                    sendErrorMessage("Создание подписи отменено пользователем");
                 }
             }
             
         });      
     }
     
-    private void saveSignResults(SignedResult signResult) {
+    private void saveSignResults(final SignedResult signResult) {
         final Command command = new Command("saveSignResult", "digital.signature", signResult);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 progress.hide();
+                sendErrorMessage("Ошибка при выполнении действия: " + caught.getMessage());
                 ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + caught.getMessage());
             }
 
             @Override
             public void onSuccess(Dto result) {
+                EventBus eBus = Application.getInstance().getEventBus();
+                eBus.fireEvent(new CreateCryptoSignature(signResult));
                 progress.showSuccess();
             }
         });
-
+    }
+    
+    private void sendErrorMessage(String message){
+        EventBus eBus = Application.getInstance().getEventBus();
+        eBus.fireEvent(new CreateCryptoSignature(message));
     }
 
 }

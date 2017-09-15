@@ -42,8 +42,11 @@
 						var certificate = yield cryptoTool.oCertificates.Item(i+1);
 						var subject = yield certificate.SubjectName;
 						var toDate = yield certificate.ValidToDate;
+						var serialNumber = yield certificate.SerialNumber;
 						var certInfo = subject + " действителен до " + toDate; 
 						result.push(certInfo);
+						cryptoTool.certificateNumbers[serialNumber]=i+1;
+						cryptoTool.certificateIds[i+1]=serialNumber;
 					}
 					args[0](result);
 
@@ -61,6 +64,8 @@
 					var oSigner = yield cadesplugin.CreateObjectAsync("CAdESCOM.CPSigner");
 					yield oSigner.propset_Certificate(cryptoTool.oCertificate);
 					yield oSigner.propset_TSAAddress(cryptoTool.tsAddress);
+					//yield oSigner.propset_KeyPin("111111");
+					
 		
 					var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
 					if (cryptoTool.hashOnServer){
@@ -69,7 +74,8 @@
 
 						// Инициализируем объект заранее вычисленным хэш-значением
 						// Алгоритм хэширования нужно указать до того, как будет передано хэш-значение
-						yield oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411);
+						yield oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256);
+						
 						yield oHashedData.SetHashValue(args[1]);
 
 						var sSignedMessage = yield oSignedData.SignHash(oHashedData, oSigner, cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1);

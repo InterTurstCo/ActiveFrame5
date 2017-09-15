@@ -58,7 +58,7 @@ public class CryptoProCryptoBean implements CryptoBean {
             }
             return result;
 
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             throw new FatalException("Error on verify signature", ex);
         }
     }
@@ -175,7 +175,7 @@ public class CryptoProCryptoBean implements CryptoBean {
     public byte[] hash(InputStream document) {
         try {
             // создание объекта хеширования данных
-            final MessageDigest digest = MessageDigest.getInstance(DIGEST_ALG_2001);
+            final MessageDigest digest = MessageDigest.getInstance("GOST3411_2012_256" /*DIGEST_ALG_2001*/);
 
             // обработка хешируемых данных
             final DigestInputStream digestStream = new DigestInputStream(document, digest);
