@@ -171,7 +171,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private CollectionViewerConfig initCollectionConfig(TableViewerState state) {
-        selectedId = null;
+        resetSelection();
         config = state.getTableViewerConfig();
 
         toolbar.setProcessesMenuVisible(config.isShowWorkflowMenu());
@@ -404,6 +404,17 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             selectedId = null;
         }
         toolbar.setSelectedId(selectedId);
+    }
+
+    /**
+     * Сбрасывает все локальные переменные выделенных элементов.<br/>
+     * Необходимо когда на UI сбрасывается состояние со снятием всех чекбоксов/выделенных строк и тп.
+     */
+    private void resetSelection() {
+        selectedId = null;
+        toolbar.setSelectedId(selectedId);
+
+        selectedIds.clear();
     }
 
     @Override
