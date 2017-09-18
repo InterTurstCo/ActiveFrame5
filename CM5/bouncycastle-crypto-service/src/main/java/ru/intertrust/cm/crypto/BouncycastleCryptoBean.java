@@ -94,6 +94,8 @@ public class BouncycastleCryptoBean implements CryptoBean {
             signerInfo.setCertificateValidFrom(cer.getNotBefore());
             signerInfo.setCertificateValidTo(cer.getNotAfter());
             signerInfo.setValid(true);
+            signerInfo.setSubject(cer.getSubjectDN().getName());
+            signerInfo.setIssuer(cer.getIssuerDN().getName());            
             TimeStampToken tst = signer.getSignatureTimestampToken();
             signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
         } catch (Exception ex) {

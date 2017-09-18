@@ -13,6 +13,8 @@ public class SignerInfo implements Dto{
     private Date certificateValidTo;
     private String error;
     private Date signDate;
+    private String subject;
+    private String issuer;
 
     public String getName() {
         return name;
@@ -55,5 +57,17 @@ public class SignerInfo implements Dto{
     }
     public void setSignDate(Date signDate) {
         this.signDate = signDate;
+    }
+    public String getSubject() {
+        return subject;
+    }
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+    public String getIssuer() {
+        return issuer;
+    }
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
     }
 }
