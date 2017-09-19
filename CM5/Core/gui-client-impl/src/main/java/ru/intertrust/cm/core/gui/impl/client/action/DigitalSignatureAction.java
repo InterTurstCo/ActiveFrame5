@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 @ComponentName("digital.signature.action")
 public class DigitalSignatureAction extends Action {
     private ProgressDialog progress;
+    private Id rootId;
 
     @Override
     public Component createNew() {
@@ -43,6 +44,11 @@ public class DigitalSignatureAction extends Action {
         progress.setModal(true);
         progress.show();
 
+        //Получаем ID ДО
+        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        final FormState formState = editor.getFormState();
+        rootId = formState.getObjects().getRootNode().getDomainObject().getId();        
+        
         final Command command = new Command("getConfig", "digital.signature", null);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -64,13 +70,8 @@ public class DigitalSignatureAction extends Action {
         final DigitalSignatureClientComponent component =
                 ComponentRegistry.instance.get(digitalSignatureConfig.getCryptoSettingsConfig().getGuiComponentName());
 
-        //Получаем ID ДО
-        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
-        final FormState formState = editor.getFormState();
-        Id id = formState.getObjects().getRootNode().getDomainObject().getId();
-
         progress.setMessage("Получение подписываемого контента");
-        final Command command = new Command("getSignedData", "digital.signature", id);
+        final Command command = new Command("getSignedData", "digital.signature", rootId);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -176,7 +177,7 @@ public class DigitalSignatureAction extends Action {
     
     private void sendErrorMessage(String message){
         EventBus eBus = Application.getInstance().getEventBus();
-        eBus.fireEvent(new CreateCryptoSignature(message));
+        eBus.fireEvent(new CreateCryptoSignature(rootId, message));
     }
 
 }

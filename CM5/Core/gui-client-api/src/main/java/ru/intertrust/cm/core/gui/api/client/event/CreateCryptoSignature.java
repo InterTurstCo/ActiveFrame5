@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.crypto.SignedResult;
 
 public class CreateCryptoSignature extends GwtEvent<CreateCryptoSignatureHandler> {
@@ -9,13 +10,15 @@ public class CreateCryptoSignature extends GwtEvent<CreateCryptoSignatureHandler
 
     private SignedResult signResult;
     private String errorMessage;
+    private Id rootId;
 
     public CreateCryptoSignature(SignedResult signResult) {
         this.signResult = signResult;
     }
 
-    public CreateCryptoSignature(String errorMessage) {
+    public CreateCryptoSignature(Id rootId, String errorMessage) {
         this.errorMessage = errorMessage;
+        this.rootId = rootId;
     }    
     
     @Override
@@ -28,7 +31,7 @@ public class CreateCryptoSignature extends GwtEvent<CreateCryptoSignatureHandler
         if (signResult != null){
             handler.onCreateCryptoSignature(signResult);
         }else{
-            handler.onErrorCreateCryptoSignature(errorMessage);
+            handler.onErrorCreateCryptoSignature(rootId, errorMessage);
         }
     }
 }
