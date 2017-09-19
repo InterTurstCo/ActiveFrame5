@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.business.impl.profiling;
 
 import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.impl.LongRunningMethodAnalysisTask;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -13,8 +11,9 @@ import java.util.Map;
  *         Time: 18:47
  */
 public class ExecutionSnapshot {
-    private Map<ThreadId, StackTrace> stackTracesByThread;
-    private Map<ThreadId, StackTrace> initialStackTracesByThread;
+    private Map<ThreadInfo, StackTrace> stackTracesByThread;
+    private Map<ThreadInfo, StackTrace> initialStackTracesByThread;
+    private Map<ThreadInfo, StackTrace> fullThreadDump;
 
     private String[] basePaths;
     private String[] blackListPaths;
@@ -28,36 +27,43 @@ public class ExecutionSnapshot {
     public ExecutionSnapshot(String[] basePaths, String[] blackListPaths) {
         this.basePaths = basePaths;
         this.blackListPaths = blackListPaths;
-        this.stackTracesByThread = new HashMap<>();
+        this.stackTracesByThread = new TreeMap<>();
         this.heapState = new HeapState();
         final Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
+        this.fullThreadDump = new TreeMap<>();
         for (Map.Entry<Thread, StackTraceElement[]> threadStackTrace : allStackTraces.entrySet()) {
             final Thread thread = threadStackTrace.getKey();
-            final Thread.State state = thread.getState();
-            if (Thread.currentThread().equals(thread)) {
+            final String name = thread.getName();
+            final StackTrace stackTrace = StackTrace.get(thread, threadStackTrace.getValue(), basePaths, blackListPaths);
+            ++totalThreadsCount;
+            if (LongRunningMethodAnalysisTask.AF5_DB_CHECK_DAEMON.equals(name) || LongRunningMethodAnalysisTask.AF5_MONITORING_DAEMON.equals(name) || Thread.currentThread().equals(thread)) {
                 continue;
             }
-            ++totalThreadsCount;
-            final StackTrace stackTrace = StackTrace.get(thread, threadStackTrace.getValue(), basePaths, blackListPaths);
-            if (!stackTrace.ignore()) {
-                stackTracesByThread.put(stackTrace.getThreadId(), stackTrace);
+            fullThreadDump.put(stackTrace.getThreadInfo(), stackTrace);
+            if (!stackTrace.isInBlackList() && stackTrace.belongsToBasePath()) {
+                stackTracesByThread.put(stackTrace.getThreadInfo(), stackTrace);
             }
         }
         this.stackTracesByThread = Collections.unmodifiableMap(stackTracesByThread);
+        this.fullThreadDump = Collections.unmodifiableMap(fullThreadDump);
         this.initialStackTracesByThread = stackTracesByThread;
         this.cpuSpeed = getCurrentCpuSpeed();
     }
 
-    public Map<ThreadId, StackTrace> getStackTracesByThread() {
+    public Map<ThreadInfo, StackTrace> getFullThreadDump() {
+        return fullThreadDump;
+    }
+
+    public Map<ThreadInfo, StackTrace> getStackTracesByThread() {
         return stackTracesByThread;
     }
 
-    public StackTrace getStackTrace(ThreadId threadId) {
-        return stackTracesByThread.get(threadId);
+    public StackTrace getStackTrace(ThreadInfo threadInfo) {
+        return stackTracesByThread.get(threadInfo);
     }
 
-    public StackTrace getInitialStackTrace(ThreadId threadId) {
-        return stackTracesByThread.get(threadId);
+    public StackTrace getInitialStackTrace(ThreadInfo threadInfo) {
+        return stackTracesByThread.get(threadInfo);
     }
 
     public int getThreadsCount() {
@@ -77,9 +83,9 @@ public class ExecutionSnapshot {
     }
 
     public ExecutionSnapshot getIntersection(ExecutionSnapshot another) {
-        HashMap<ThreadId, StackTrace> stackTraces = new HashMap<>();
-        HashMap<ThreadId, StackTrace> initialStackTraces = new HashMap<>();
-        for (Map.Entry<ThreadId, StackTrace> entry : stackTracesByThread.entrySet()) {
+        HashMap<ThreadInfo, StackTrace> stackTraces = new HashMap<>();
+        HashMap<ThreadInfo, StackTrace> initialStackTraces = new HashMap<>();
+        for (Map.Entry<ThreadInfo, StackTrace> entry : stackTracesByThread.entrySet()) {
             final StackTrace thisStackTrace = entry.getValue();
             final StackTrace anotherStackTrace = another.getStackTrace(entry.getKey());
             if (anotherStackTrace != null && thisStackTrace.approximatelyEquals(anotherStackTrace)) {
@@ -92,8 +98,8 @@ public class ExecutionSnapshot {
                     initial = thisStackTrace;
                     current = anotherStackTrace;
                 }
-                stackTraces.put(current.getThreadId(), current);
-                initialStackTraces.put(initial.getThreadId(), initial);
+                stackTraces.put(current.getThreadInfo(), current);
+                initialStackTraces.put(initial.getThreadInfo(), initial);
             }
         }
         ExecutionSnapshot intersection = new ExecutionSnapshot();
@@ -109,7 +115,8 @@ public class ExecutionSnapshot {
     }
 
     public static final int DURATION = 10;
-    public static final int MICROSECONDS_IN_DURATION_UNIT = 1000;
+    public static final int DURATION_UNITS_IN_SECOND = 1000;
+    public static final int MEGA = 1000000;
     public static long incL = 1; // нарочно static - для подавления оптимизаций
     private static long getCurrentCpuSpeed() {
         long opsCount = 0;
@@ -121,10 +128,10 @@ public class ExecutionSnapshot {
                 opsCount += incL;
             }
         } while ((curTime = System.currentTimeMillis()) < t2);
-        return opsCount / (MICROSECONDS_IN_DURATION_UNIT * (curTime - t1));
+        return opsCount * DURATION_UNITS_IN_SECOND / (MEGA * (curTime - t1)); // to megaherz
     }
 
-    private Pair<ThreadId, ArrayList<StackTraceElement>> parseStackTrace(Thread thread, StackTraceElement[] stackTrace) {
+    private Pair<ThreadInfo, ArrayList<StackTraceElement>> parseStackTrace(Thread thread, StackTraceElement[] stackTrace) {
         ArrayList<StackTraceElement> basePackageStackTrace = null;
         for (StackTraceElement stackTraceElement : stackTrace) {
             if (containsLoggedPackages(stackTraceElement)) {
@@ -134,7 +141,7 @@ public class ExecutionSnapshot {
                 basePackageStackTrace.add(stackTraceElement);
             }
         }
-        return basePackageStackTrace == null ? null : new Pair<>(new ThreadId(thread), basePackageStackTrace);
+        return basePackageStackTrace == null ? null : new Pair<>(new ThreadInfo(thread), basePackageStackTrace);
     }
 
     private boolean containsLoggedPackages(StackTraceElement stackTraceElement) {

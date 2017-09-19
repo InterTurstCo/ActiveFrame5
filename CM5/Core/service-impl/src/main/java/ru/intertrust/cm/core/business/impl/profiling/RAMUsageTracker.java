@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.profiling;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import ru.intertrust.cm.core.business.impl.LongRunningMethodAnalysisTask;
 import ru.intertrust.cm.core.dao.api.component.ServerComponent;
 import ru.intertrust.cm.core.dao.api.component.ServerComponentHandler;
 
@@ -22,9 +23,12 @@ import static ru.intertrust.cm.core.business.impl.profiling.SizeUnit.Megabyte;
  */
 @ServerComponent(name="RAMUsageTracker")
 public class RAMUsageTracker implements ServerComponentHandler {
+    public static final String LONG_LINE = "----------------------------------------------------------------------------";
     private Logger level1 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_1");
     private Logger level2 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_2");
     private Logger level3 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_3");
+    private Logger level4 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_4");
+    private Logger level5 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_5");
 
     @Value("${long.running.method.analysis.system.paths:ru.intertrust}")
     private String[] basePaths;
@@ -41,6 +45,15 @@ public class RAMUsageTracker implements ServerComponentHandler {
     @Value("${suspicious.total.heap.delta.bytes.per.minute:536870912}") // 500 MB per minute is suspicious
     private long suspiciousTotalHeapDeltaBytesPerMinute;
 
+    @Value("${suspicious.system.threads:100}")
+    private int suspiciousSystemThreads;
+
+    @Value("${suspicious.connection.retrieval.time.millies:100}") // 100 ms
+    private long suspiciousConnectionRetrievalTime;
+
+    @Value("${suspicious.query.time:100}") // 100 ms
+    private long suspiciousQueryTime;
+
     private SizeUnit sizeUnit = Megabyte;
 
     private ExecutionSnapshot prevSnapshot;
@@ -49,6 +62,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
     private DecimalFormat numberFormat = new DecimalFormat("#.#");
     private SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private StringBuilder sb = new StringBuilder(10000);
+    private LongRunningMethodAnalysisTask.DBCheck dbCheck;
 
     public void setSuspiciousTotalHeapDeltaBytesPerMinute(long suspiciousTotalHeapDeltaBytesPerMinute) {
         this.suspiciousTotalHeapDeltaBytesPerMinute = suspiciousTotalHeapDeltaBytesPerMinute;
@@ -64,6 +78,12 @@ public class RAMUsageTracker implements ServerComponentHandler {
         if (loggers.length > 2) {
             this.level3 = loggers[2];
         }
+        if (loggers.length > 3) {
+            this.level4 = loggers[3];
+        }
+        if (loggers.length > 4) {
+            this.level5 = loggers[4];
+        }
     }
 
     @PostConstruct
@@ -75,14 +95,15 @@ public class RAMUsageTracker implements ServerComponentHandler {
 
     public void printHead() {
         if (isEnabled(level1)) {
-            level1.debug("\tdUsed" + "\tdUsed_avg" + "\tdUsed_warn" + "\tUsed" + "\tdTotal" + "\tdTotal_avg" + "\tdTotal_warn" + "\tTotal" + "\tCPU Speed" + "\tThreads" + "\tSystem Threads" + "\tSuspects");
+            level1.debug("\tdUsed" + "\tdUsed_avg" + "\tdUsed_warn" + "\tUsed" + "\tdTotal" + "\tdTotal_avg" + "\tdTotal_warn" + "\tTotal" + "\tCPU Speed"+ "\tGet Conn From Pool Time"+ "\tQuery Time" + "\tThreads" + "\tSystem Threads" + "\tSnapshot Time" + "\tSuspects");
         }
     }
 
-    public void track() {
+    public void track(LongRunningMethodAnalysisTask.DBCheck dbCheck) {
         if (!logEnabled()) {
             return;
         }
+        this.dbCheck = dbCheck;
         long t1 = System.currentTimeMillis();
         final ExecutionSnapshot snapshot = makeSnapshot();
         suspects.retainFrom(snapshot);
@@ -102,16 +123,24 @@ public class RAMUsageTracker implements ServerComponentHandler {
         if (isEnabled(level1)) {
             level1.debug(summary);
         }
+        if (dbCheck != null && shouldPrintFullDump(snapshot)) { // dbCheck is null wh
+            if (isEnabled(level4)) { // print only threads with base packages, and with base packages stack entries
+                printStackTraces(level4, true, snapshot.getStackTracesByThread().values(), LONG_LINE);
+            }
+            if (isEnabled(level5)) { // full dump: todo: NOT WORKING. instead of 233 threads, just 2?
+                printStackTraces(level5, false, snapshot.getFullThreadDump().values(), LONG_LINE);
+            }
+        }
         if (!isAnythingToLog()) {
             return;
         }
         if (isEnabled(level2)) {
-            level2.debug("----------------------------------------------------------------------------");
+            level2.debug(LONG_LINE);
             level2.debug(summary);
             logTraces(level2, suspiciousActivity, true);
         }
         if (isEnabled(level3)) {
-            level3.debug("----------------------------------------------------------------------------");
+            level3.debug(LONG_LINE);
             level3.debug(summary);
             logTraces(level3, suspiciousActivity, false);
         }
@@ -120,6 +149,8 @@ public class RAMUsageTracker implements ServerComponentHandler {
     private String getSummaryMessage(ExecutionSnapshot snapshot, long time) {
         final HeapState heapState = snapshot.getHeapState();
         final HeapState delta = heapState.getDelta(prevSnapshot.getHeapState());
+        final String connTime = dbCheck == null ? "" : dbCheck.getGetConnectionTime() == null ? "?" : dbCheck.getGetConnectionTime().toString();
+        final String queryTime = dbCheck == null ? "" : dbCheck.getQueryTime() == null ? "?" : dbCheck.getQueryTime().toString();
         final String heapDesc =
                 "\t" + format(delta.used) +
                         "\t" + getHeapStatDesc(heapStat.getUsed()) +
@@ -128,10 +159,12 @@ public class RAMUsageTracker implements ServerComponentHandler {
                         "\t" + getHeapStatDesc(heapStat.getTotal()) +
                         "\t" + format(heapState.total) +
                         "\t" + snapshot.getCpuSpeed() +
+                        "\t" + connTime +
+                        "\t" + queryTime +
                         "\t" + snapshot.getThreadsCount() +
                         "\t" + snapshot.getSystemThreadsCount();
 
-        return heapDesc + "\t" + shortSuspectsSummary() + "\t" + time;
+        return heapDesc + "\t" + time + "\t" + shortSuspectsSummary();
     }
 
     private String shortSuspectsSummary() {
@@ -153,8 +186,8 @@ public class RAMUsageTracker implements ServerComponentHandler {
 
     public void logTraces(Logger logger, boolean suspiciousActivity, boolean onlyBasePackages) {
         sb.setLength(0);
-        final Map<ThreadId, Long> oldThreads = suspects.get(MAIN).getOldThreads();
-        final TreeMap<ThreadId, StackTrace> stackTraces = suspects.get(MAIN).getStackTraces();
+        final Map<ThreadInfo, Long> oldThreads = suspects.get(MAIN).getOldThreads();
+        final TreeMap<ThreadInfo, StackTrace> stackTraces = suspects.get(MAIN).getStackTraces();
         if (suspiciousActivity) {
             sb.append("SUSPICIOUS RAM ACTIVITY IS GOING ON\n");
         } else {
@@ -162,32 +195,45 @@ public class RAMUsageTracker implements ServerComponentHandler {
         }
         if (!oldThreads.isEmpty()) {
             sb.append("Previously logged and still running threads information:\n");
-            for (Map.Entry<ThreadId, Long> entry : oldThreads.entrySet()) {
-                final ThreadId threadId = entry.getKey();
-                final StackTrace stackTrace = stackTraces.get(threadId);
+            for (Map.Entry<ThreadInfo, Long> entry : oldThreads.entrySet()) {
+                final ThreadInfo threadInfo = entry.getKey();
+                final StackTrace stackTrace = stackTraces.get(threadInfo);
                 final String dateStr = dateTimeFormat.format(new Date(entry.getValue()));
                 final String baseStackFirstLine = stackTrace.getBasePathsStackTrace().get(0).toString();
                 final String stackFirstLine = stackTrace.getStackTrace().get(0).toString();
-                sb.append("\t\t").append(threadId).append(": ").append(dateStr).append("\t-->\t").append(baseStackFirstLine).append("\t").append(stackFirstLine).append("\n");
+                sb.append("\t\t").append(threadInfo).append(": ").append(dateStr).append("\t-->\t").append(baseStackFirstLine).append("\t").append(stackFirstLine).append("\n");
             }
         }
         logger.debug(sb.toString());
 
-        sb.setLength(0);
         final Collection<StackTrace> newSuspectStackTraces = suspects.get(MAIN).getRecentThreads().values();
         if (!newSuspectStackTraces.isEmpty()) {
-            logger.debug("New suspects information");
-            for (StackTrace stackTrace : newSuspectStackTraces) {
-                final ThreadId threadId = stackTrace.getThreadId();
-                sb.append("\n").append(threadId).append("\n");
-                final List<StackTraceElement> stackTraceElements = onlyBasePackages ? stackTrace.getBasePathsStackTrace() : stackTrace.getStackTrace();
-                for (StackTraceElement elt : stackTraceElements) {
-                    sb.append("\t").append(elt.toString()).append("\n");
-                }
-                sb.append("\n");
-                logger.debug(sb.toString());
-                sb.setLength(0);
+            printStackTraces(logger, onlyBasePackages, newSuspectStackTraces, "------ New suspects information -----");
+        }
+    }
+
+    private void printStackTraces(Logger logger, boolean onlyBasePackages, Collection<StackTrace> stackTraces, String prefix) {
+        sb.setLength(0);
+        sb.append(prefix);
+        for (StackTrace stackTrace : stackTraces) {
+            final List<StackTraceElement> stackTraceElements = onlyBasePackages ? stackTrace.getBasePathsStackTrace() : stackTrace.getStackTrace();
+            if (stackTraceElements.isEmpty()) {
+                continue;
             }
+            final ThreadInfo threadInfo = stackTrace.getThreadInfo();
+            sb.append("\n").append(threadInfo).append("\n");
+            for (StackTraceElement elt : stackTraceElements) {
+                sb.append("\t").append(elt.toString()).append("\n");
+            }
+            sb.append("\n");
+        }
+        logger.debug(sb.toString());
+        sb.setLength(0);
+        if (sb.capacity() > 20000000) {
+            if (level2.isWarnEnabled()) {
+                level2.warn("Builder size is too large: " + sb.capacity() + ". Clearing it");
+            }
+            sb = new StringBuilder();
         }
     }
 
@@ -223,12 +269,27 @@ public class RAMUsageTracker implements ServerComponentHandler {
         return false;
     }
 
+    private boolean shouldPrintFullDump(ExecutionSnapshot executionSnapshot) {
+        if (dbCheck != null) {
+            if (suspiciousConnectionRetrievalTime >= 0 && (dbCheck.getGetConnectionTime() == null || dbCheck.getGetConnectionTime() > suspiciousConnectionRetrievalTime)) {
+                return true;
+            }
+            if (suspiciousQueryTime >= 0 && (dbCheck.getQueryTime() == null || dbCheck.getQueryTime() > suspiciousQueryTime)) {
+                return true;
+            }
+        }
+        if (suspiciousSystemThreads >= 0 && executionSnapshot.getSystemThreadsCount() > suspiciousSystemThreads) {
+            return true;
+        }
+        return false;
+    }
+
     private ExecutionSnapshot makeSnapshot() {
         return new ExecutionSnapshot(basePaths, blackListPaths);
     }
 
     private boolean logEnabled() {
-        return isEnabled(level1) || isEnabled(level2) || isEnabled(level3);
+        return isEnabled(level1) || isEnabled(level2) || isEnabled(level3) || isEnabled(level4) || isEnabled(level5);
     }
 
     private static boolean isEnabled(Logger logger) {
@@ -267,31 +328,31 @@ public class RAMUsageTracker implements ServerComponentHandler {
     }
 
     private static class Suspects {
-        private TreeMap<ThreadId, StackTrace> stackTraces = new TreeMap<>();
-        private HashMap<ThreadId, Long> times = new HashMap<>();
+        private TreeMap<ThreadInfo, StackTrace> stackTraces = new TreeMap<>();
+        private HashMap<ThreadInfo, Long> times = new HashMap<>();
         private Long recentSnapshotTime;
 
         public void addAllFrom(ExecutionSnapshot snapshot) {
             recentSnapshotTime = snapshot.getHeapState().time;
-            final Map<ThreadId, StackTrace> stackTracesByThread = snapshot.getStackTracesByThread();
+            final Map<ThreadInfo, StackTrace> stackTracesByThread = snapshot.getStackTracesByThread();
             stackTraces.putAll(stackTracesByThread);
             for (StackTrace stackTrace : stackTracesByThread.values()) {
-                if (!times.containsKey(stackTrace.getThreadId())) {
-                    times.put(stackTrace.getThreadId(), recentSnapshotTime);
+                if (!times.containsKey(stackTrace.getThreadInfo())) {
+                    times.put(stackTrace.getThreadInfo(), recentSnapshotTime);
                 }
             }
         }
 
         public void retainFrom(ExecutionSnapshot snapshot) {
             recentSnapshotTime = snapshot.getHeapState().time;
-            final Map<ThreadId, StackTrace> executionsToStay = snapshot.getStackTracesByThread();
-            final Set<ThreadId> threadsToStay = executionsToStay.keySet();
+            final Map<ThreadInfo, StackTrace> executionsToStay = snapshot.getStackTracesByThread();
+            final Set<ThreadInfo> threadsToStay = executionsToStay.keySet();
             stackTraces.keySet().retainAll(threadsToStay);
             times.keySet().retainAll(threadsToStay);
 
             // there can stay threads with same ID, but with different exeuction stack - drop them
-            ArrayList<ThreadId> notSameStack = new ArrayList<>(stackTraces.size());
-            for (Map.Entry<ThreadId, StackTrace> entry : stackTraces.entrySet()) {
+            ArrayList<ThreadInfo> notSameStack = new ArrayList<>(stackTraces.size());
+            for (Map.Entry<ThreadInfo, StackTrace> entry : stackTraces.entrySet()) {
                 if (!executionsToStay.get(entry.getKey()).approximatelyEquals(entry.getValue())) {
                     notSameStack.add(entry.getKey());
                 }
@@ -304,28 +365,28 @@ public class RAMUsageTracker implements ServerComponentHandler {
             return stackTraces.isEmpty();
         }
 
-        public TreeMap<ThreadId, StackTrace> getStackTraces() {
+        public TreeMap<ThreadInfo, StackTrace> getStackTraces() {
             return stackTraces;
         }
 
-        public StackTrace getStackTrace(ThreadId threadId) {
-            return stackTraces.get(threadId);
+        public StackTrace getStackTrace(ThreadInfo threadInfo) {
+            return stackTraces.get(threadInfo);
         }
 
-        public TreeMap<ThreadId, StackTrace> getRecentThreads() {
-            TreeMap<ThreadId, StackTrace> recentThreads = new TreeMap<>();
-            for (Map.Entry<ThreadId, Long> entry : times.entrySet()) {
+        public TreeMap<ThreadInfo, StackTrace> getRecentThreads() {
+            TreeMap<ThreadInfo, StackTrace> recentThreads = new TreeMap<>();
+            for (Map.Entry<ThreadInfo, Long> entry : times.entrySet()) {
                 if (entry.getValue().equals(recentSnapshotTime)) {
-                    final ThreadId threadId = entry.getKey();
-                    recentThreads.put(threadId, getStackTrace(threadId));
+                    final ThreadInfo threadInfo = entry.getKey();
+                    recentThreads.put(threadInfo, getStackTrace(threadInfo));
                 }
             }
             return recentThreads;
         }
 
-        public Map<ThreadId, Long> getOldThreads() {
-            Map<ThreadId, Long> oldThreads = new TreeMap<>();
-            for (Map.Entry<ThreadId, Long> entry : times.entrySet()) {
+        public Map<ThreadInfo, Long> getOldThreads() {
+            Map<ThreadInfo, Long> oldThreads = new TreeMap<>();
+            for (Map.Entry<ThreadInfo, Long> entry : times.entrySet()) {
                 if (!entry.getValue().equals(recentSnapshotTime)) {
                     oldThreads.put(entry.getKey(), entry.getValue());
                 }

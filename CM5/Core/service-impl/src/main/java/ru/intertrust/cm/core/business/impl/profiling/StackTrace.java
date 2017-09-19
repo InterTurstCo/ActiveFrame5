@@ -9,46 +9,57 @@ import java.util.*;
  */
 public class StackTrace {
     public static final StackTrace IGNORED = new StackTrace();
-    private ThreadId threadId;
+    private ThreadInfo threadInfo;
     private List<StackTraceElement> stackTrace;
     private List<StackTraceElement> basePathsStackTrace;
     private String[] basePaths;
     private String[] blackListPaths;
+    private boolean isInBlackList;
+    private boolean belongsToBasePath;
 
     private StackTrace() {
     }
 
-    public StackTrace(ThreadId threadId, List<StackTraceElement> stackTrace, List<StackTraceElement> basePathsStackTrace, String[] basePaths, String[] blackListPaths) {
-        this.threadId = threadId;
+    public StackTrace(ThreadInfo threadInfo, List<StackTraceElement> stackTrace, List<StackTraceElement> basePathsStackTrace, String[] basePaths, boolean belongsToBasePath, String[] blackListPaths, boolean isInBlackList) {
+        this.threadInfo = threadInfo;
         this.stackTrace = stackTrace;
         this.basePathsStackTrace = basePathsStackTrace;
         this.basePaths = basePaths;
         this.blackListPaths = blackListPaths;
+        this.belongsToBasePath = belongsToBasePath;
+        this.isInBlackList = isInBlackList;
     }
 
     public static StackTrace get(Thread thread, StackTraceElement[] stackTrace, String[] basePaths, String[] blackListPaths) {
         boolean checkBlackList = blackListPaths != null && blackListPaths.length > 0;
         ArrayList<StackTraceElement> basePathStackTrace = null;
+        boolean isInBlackList = false;
+        boolean belongsToBasePath = false;
         for (StackTraceElement stackTraceElement : stackTrace) {
             if (checkBlackList && belongsToOnePathAtLeast(stackTraceElement, blackListPaths)) {
-                return IGNORED;
+                isInBlackList = true;
             }
             if (belongsToOnePathAtLeast(stackTraceElement, basePaths)) {
                 if (basePathStackTrace == null) {
                     basePathStackTrace = new ArrayList<>();
                 }
                 basePathStackTrace.add(stackTraceElement);
+                belongsToBasePath = true;
             }
         }
-        return basePathStackTrace == null ? IGNORED : new StackTrace(new ThreadId(thread), Arrays.asList(stackTrace), basePathStackTrace, basePaths, blackListPaths);
+        return new StackTrace(new ThreadInfo(thread), Arrays.asList(stackTrace), basePathStackTrace, basePaths, belongsToBasePath, blackListPaths, isInBlackList);
     }
 
-    public boolean ignore() {
-        return this == IGNORED;
+    public boolean isInBlackList() {
+        return isInBlackList;
     }
 
-    public ThreadId getThreadId() {
-        return threadId;
+    public boolean belongsToBasePath() {
+        return belongsToBasePath;
+    }
+
+    public ThreadInfo getThreadInfo() {
+        return threadInfo;
     }
 
     public List<StackTraceElement> getStackTrace() {
@@ -108,6 +119,6 @@ public class StackTrace {
     }
 
     public String oneLineBasePackageDescription() {
-        return threadId.id + "->" + basePathsStackTrace.get(0);
+        return threadInfo.id + "->" + basePathsStackTrace.get(0);
     }
 }

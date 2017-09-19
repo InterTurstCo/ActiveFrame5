@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.dao.api.DatabaseInfo;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 
@@ -17,8 +18,8 @@ public class DatabaseInfoImpl implements DatabaseInfo {
     private DataSource dataSource;
 
     public Vendor getDatabaseVendor() {
-        try {
-            DatabaseMetaData metaData = dataSource.getConnection().getMetaData();
+        try (final Connection connection = dataSource.getConnection()){
+            DatabaseMetaData metaData = connection.getMetaData();
             String dbProductName = metaData.getDatabaseProductName().toLowerCase();
 
             if (dbProductName.contains("oracle")) {
