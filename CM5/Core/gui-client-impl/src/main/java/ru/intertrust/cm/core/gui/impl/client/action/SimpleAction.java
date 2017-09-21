@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -21,6 +24,17 @@ public class SimpleAction extends SimpleServerAction {
     protected ActionContext appendCurrentContext(ActionContext initialContext) {
         final SimpleActionContext context = (SimpleActionContext) initialContext;
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
+        if(editor instanceof DomainObjectSurferPlugin){
+            CollectionPlugin cPlugin = ((DomainObjectSurferPlugin)editor).getCollectionPlugin();
+            if(cPlugin.getChangedRowsState()!=null){
+                context.getObjectsIds().clear();
+                for(Id id : cPlugin.getChangedRowsState().keySet()){
+                    if(cPlugin.getChangedRowsState().get(id)){
+                        context.getObjectsIds().add(id);
+                    }
+                }
+            }
+        }
         context.setRootObjectId(editor.getRootDomainObject().getId());
         context.setMainFormState(editor.getFormState());
         context.setPluginState(editor.getFormPluginState());

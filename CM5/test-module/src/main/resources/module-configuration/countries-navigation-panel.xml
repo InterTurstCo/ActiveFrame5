@@ -225,7 +225,7 @@
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
-                                <rows-selection default-state="empty"/>
+                                <rows-selection default-state="empty" multi-selection="true"/>
                                 <user-settings save="true"/>
                             </collection-viewer>
                             <!--form-viewer form-mapping-component="custom.mapping.component"/-->
@@ -547,6 +547,7 @@
                                         </act:after-execution>
                                     </act:simple-action>
                                 </act:tool-bar>
+                                <rows-selection default-state="empty" multi-selection="true"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>
