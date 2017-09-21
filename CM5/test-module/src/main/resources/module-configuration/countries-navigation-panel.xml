@@ -546,6 +546,10 @@
                                             <act:on-success-message text="Задача будет запущена в течение минуты"/>
                                         </act:after-execution>
                                     </act:simple-action>
+                                    <act:simple-action componentName="simple.action"
+                                                       action-handler="open-test-url"
+                                                       text="Открыть ссылку" permissions="Write">
+                                    </act:simple-action>
                                 </act:tool-bar>
                                 <rows-selection default-state="empty" multi-selection="true"/>
                             </collection-viewer>

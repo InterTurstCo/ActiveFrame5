@@ -12,6 +12,7 @@ public class SimpleActionData extends ActionData {
     private FormPluginData pluginData;
     private boolean contextSaved;
     private Id savedMainObjectId;
+    private String urlToOpen;
 
     public FormPluginData getPluginData() {
         return pluginData;
@@ -35,5 +36,13 @@ public class SimpleActionData extends ActionData {
 
     public void setSavedMainObjectId(Id savedMainObjectId) {
         this.savedMainObjectId = savedMainObjectId;
+    }
+
+    public String getUrlToOpen() {
+        return urlToOpen;
+    }
+
+    public void setUrlToOpen(String urlToOpen) {
+        this.urlToOpen = urlToOpen;
     }
 }

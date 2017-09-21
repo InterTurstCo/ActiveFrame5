@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
@@ -51,10 +52,18 @@ public class SimpleAction extends SimpleServerAction {
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(
                     formPluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject()));
         }
+        if(((SimpleActionData) result).getUrlToOpen()!=null){
+            getURL(((SimpleActionData) result).getUrlToOpen());
+        }
     }
 
     @Override
     public Component createNew() {
         return new SimpleAction();
     }
+
+    public static native String getURL(String url)/*-{
+        return $wnd.open(url,
+            'target=_blank')
+    }-*/;
 }
