@@ -40,13 +40,9 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
     @Autowired
     AccessControlService accessControlService;
 
-    private String stringPparameterValue;
-    private Boolean booleanPparameterValue;
-    private Long longPparameterValue;
-
     @Override
     public String getString(String name) {
-
+        String stringPparameterValue = null;
         List<Value> qParams = new ArrayList<>();
         qParams.add(new StringValue(name));
 
@@ -65,12 +61,13 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
 
     @Override
     public String getString(String name, String defaultValue) {
-        stringPparameterValue = getString(name);
+        String stringPparameterValue = getString(name);
         return (stringPparameterValue == null) ? defaultValue : stringPparameterValue;
     }
 
     @Override
     public Boolean getBoolean(String name) {
+        Boolean booleanPparameterValue = null;
         List<Value> qParams = new ArrayList<>();
         qParams.add(new StringValue(name));
         IdentifiableObjectCollection bParams = collectionsDao.findCollectionByQuery(QUERY_BOOLEAN, qParams, 0, 0, getAccessToken());
@@ -88,12 +85,13 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
 
     @Override
     public Boolean getBoolean(String name, Boolean defaultValue) {
-        booleanPparameterValue = getBoolean(name);
+        Boolean booleanPparameterValue = getBoolean(name);
         return (booleanPparameterValue == null) ? defaultValue : booleanPparameterValue;
     }
 
     @Override
     public Long getLong(String name) {
+        Long longPparameterValue = null;
         List<Value> qParams = new ArrayList<>();
         qParams.add(new StringValue(name));
         IdentifiableObjectCollection lParams = collectionsDao.findCollectionByQuery(QUERY_LONG, qParams, 0, 0, getAccessToken());
@@ -111,7 +109,7 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
 
     @Override
     public Long getLong(String name, Long defaultValue) {
-        longPparameterValue = getLong(name);
+        Long longPparameterValue = getLong(name);
         return (longPparameterValue == null) ? defaultValue : longPparameterValue;
     }
 

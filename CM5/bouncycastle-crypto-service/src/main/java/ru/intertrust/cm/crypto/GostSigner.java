@@ -2,24 +2,32 @@ package ru.intertrust.cm.crypto;
 
 import java.math.BigInteger;
 
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DSA;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Signer;
 import org.bouncycastle.crypto.digests.GOST3411Digest;
+import org.bouncycastle.crypto.digests.GOST3411_2012_256Digest;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
 import org.bouncycastle.crypto.signers.ECGOST3410Signer;
+
+import ru.intertrust.cm.core.model.FatalException;
 
 public class GostSigner implements Signer {
     private final Digest digest;
     private final DSA dsaSigner;
     private boolean forSigning;
 
-    public GostSigner()
+    public GostSigner(AlgorithmIdentifier digAlg)
     {
-        this.digest = new GOST3411Digest();
-        this.dsaSigner = new ECGOST3410Signer();
+        try{
+            this.digest = BcUtil.createDigest(digAlg);
+            this.dsaSigner = new ECGOST3410Signer();
+        }catch(Exception ex){
+            throw new FatalException("Error create GostSigner", ex);
+        }
     }
 
     public void init(

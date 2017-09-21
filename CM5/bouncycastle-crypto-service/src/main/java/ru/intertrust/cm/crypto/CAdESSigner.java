@@ -1,33 +1,39 @@
 package ru.intertrust.cm.crypto;
 
 import java.io.IOException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
+import java.text.ParseException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bouncycastle.asn1.DEREncodable;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1GeneralizedTime;
+import org.bouncycastle.asn1.ASN1UTCTime;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.cms.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.x509.X509CertificateStructure;
+import org.bouncycastle.asn1.x509.Time;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.cms.DefaultCMSSignatureAlgorithmNameGenerator;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.jce.provider.X509CertificateObject;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.tsp.TSPException;
 import org.bouncycastle.tsp.TimeStampToken;
-import org.bouncycastle.tsp.TimeStampTokenInfo;
 import org.bouncycastle.util.Store;
+
+import ru.intertrust.cm.core.model.FatalException;
 
 public class CAdESSigner {
 
@@ -43,6 +49,7 @@ public class CAdESSigner {
     private TimeStampToken signatureTimestampToken;
     private TimeStampToken cadESCTimestampToken;
     private CertificateVerifier certificateVerifier = new CertificateVerifier();
+    private Date signatureDate;
 
     public CAdESSigner(Store store, SignerInformation signer) throws CertificateParsingException, CertificateEncodingException {
         this.store = store;
@@ -69,10 +76,11 @@ public class CAdESSigner {
                         .get(PKCSObjectIdentifiers.id_aa_ets_certValues).getAttrValues().getObjectAt(0);
 
                 for (int i = 0; i < seq.size(); i++) {
-                    X509CertificateStructure cs = X509CertificateStructure.getInstance(seq.getObjectAt(i));
-                    X509Certificate certificate = new X509CertificateObject(cs);
+                    org.bouncycastle.asn1.x509.Certificate cs = org.bouncycastle.asn1.x509.Certificate.getInstance(seq.getObjectAt(i));
+                    X509CertificateHolder certificate = new X509CertificateHolder(cs);
                     if (signer.getSID().match(certificate)) {
-                        result = certificate;
+                        result = new X509CertificateObject(cs);
+                        ;
                         break;
                     }
                 }
@@ -93,13 +101,37 @@ public class CAdESSigner {
                         .getEncoded()));
 
         SignerInformationVerifier signerInformationVerifier =
-                new SignerInformationVerifier(contentVerifierProvider, new CAdESDigestCalculatorProvider());
+                new SignerInformationVerifier(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
+                        contentVerifierProvider, new CAdESDigestCalculatorProvider());
 
         if (!signer.verify(signerInformationVerifier)) {
             throw new CMSException("Signature is invalid");
         }
 
+        signatureDate = getSignatureDateFromPkcsAttribute();
+
         verifyTimeStamp();
+    }
+
+    private Date getSignatureDateFromPkcsAttribute() {
+        Date result = null;
+        if (signer.getSignedAttributes().get(PKCSObjectIdentifiers.pkcs_9_at_signingTime) != null) {
+            Attribute signingTime = signer.getSignedAttributes().get(PKCSObjectIdentifiers.pkcs_9_at_signingTime);
+            ASN1Encodable attrValue = signingTime.getAttrValues().getObjectAt(0);
+
+            try {
+                if (attrValue instanceof ASN1UTCTime) {
+                    result = ((ASN1UTCTime) attrValue).getDate();
+                } else if (attrValue instanceof Time) {
+                    result = ((Time) attrValue).getDate();
+                } else if (attrValue instanceof ASN1GeneralizedTime) {
+                    result = ((ASN1GeneralizedTime) attrValue).getDate();
+                }
+            } catch (ParseException ex) {
+                throw new FatalException("Error get signature time", ex);
+            }
+        }
+        return result;
     }
 
     private Set<X509Certificate> getAllCertificates(Store store, SignerInformation signer) throws CertificateParsingException {
@@ -118,7 +150,7 @@ public class CAdESSigner {
                     .get(PKCSObjectIdentifiers.id_aa_ets_certValues).getAttrValues().getObjectAt(0);
 
             for (int i = 0; i < seq.size(); i++) {
-                X509CertificateStructure cs = X509CertificateStructure.getInstance(seq.getObjectAt(i));
+                org.bouncycastle.asn1.x509.Certificate cs = org.bouncycastle.asn1.x509.Certificate.getInstance(seq.getObjectAt(i));
                 X509Certificate certificate = new X509CertificateObject(cs);
                 if (signer.getSID().match(certificate)) {
                     result.add(certificate);
@@ -131,16 +163,18 @@ public class CAdESSigner {
 
     private void verifyTimeStamp() throws CMSException, IOException, TSPException, CertificateEncodingException, OperatorCreationException,
             CertificateParsingException {
-        signatureTimestampToken = verifyTimeStampAttr(signer.getUnsignedAttributes().get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken));
-        cadESCTimestampToken = verifyTimeStampAttr(signer.getUnsignedAttributes().get(PKCSObjectIdentifiers.id_aa_ets_escTimeStamp));
+        if (signer.getUnsignedAttributes() != null) {
+            signatureTimestampToken = verifyTimeStampAttr(signer.getUnsignedAttributes().get(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken));
+            cadESCTimestampToken = verifyTimeStampAttr(signer.getUnsignedAttributes().get(PKCSObjectIdentifiers.id_aa_ets_escTimeStamp));
+        }
     }
 
     private TimeStampToken verifyTimeStampAttr(Attribute timeStampAttr) throws CMSException, IOException, TSPException, CertificateEncodingException,
             OperatorCreationException, CertificateParsingException {
         TimeStampToken result = null;
         if (timeStampAttr != null) {
-            DEREncodable dob = timeStampAttr.getAttrValues().getObjectAt(0);
-            CMSSignedData signedData = new CMSSignedData(dob.getDERObject().getEncoded());
+            ASN1Encodable dob = timeStampAttr.getAttrValues().getObjectAt(0);
+            CMSSignedData signedData = new CMSSignedData(dob.toASN1Primitive().getEncoded());
             result = new TimeStampToken(signedData);
             //TimeStampTokenInfo tstInfo = result.getTimeStampInfo();
 
@@ -148,14 +182,14 @@ public class CAdESSigner {
                 SignerInformation signer = (SignerInformation) signerObj;
                 X509Certificate cer = findCertificate(signedData.getCertificates(), signer);
 
-                
                 certificateVerifier.verifyCertificate(cer, getAllCertificates(store, signer));
                 ContentVerifierProvider contentVerifierProvider =
                         new GostContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder()).build(new X509CertificateHolder(cer
                                 .getEncoded()));
 
                 SignerInformationVerifier signerInformationVerifier =
-                        new SignerInformationVerifier(contentVerifierProvider, new CAdESDigestCalculatorProvider());
+                        new SignerInformationVerifier(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
+                                contentVerifierProvider, new CAdESDigestCalculatorProvider());
 
                 result.validate(signerInformationVerifier);
             }
@@ -175,8 +209,11 @@ public class CAdESSigner {
         return cadESCTimestampToken;
     }
 
-    public Integer getCAdESSignatureType(SignerInformation signerinformation)
-    {
+    public Date getSignatureDate() {
+        return signatureDate;
+    }
+    
+    public Integer getCAdESSignatureType(SignerInformation signerinformation) {
         Object certificateRefsArrt;
         Attribute signingCertificateAttribute;
         if ((certificateRefsArrt = signerinformation.getSignedAttributes()) == null)

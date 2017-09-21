@@ -16,6 +16,14 @@ import ru.intertrust.cm.core.config.crypto.SignedResultItem;
  *
  */
 public interface CryptoService{
+    public static final String TIME_STAMP_SERVER = "TIME_STAMP_SERVER"; 
+    public static final String HASH_ALGORITHM = "HASH_ALGORITHM"; 
+    public static final String SIGNATURE_TYPE = "SIGNATURE_TYPE"; 
+    public static final String HASH_ON_SERVER = "HASH_ON_SERVER";   
+    
+    public static final String HASH_ALGORITHM_GOST_3411 = "GOST_3411";   
+    public static final String HASH_ALGORITHM_GOST_3411_2012_256 = "GOST_3411_2012_256";   
+    public static final String HASH_ALGORITHM_GOST_3411_2012_512 = "GOST_3411_2012_512";  
     
     public interface Remote extends CryptoService {
     }

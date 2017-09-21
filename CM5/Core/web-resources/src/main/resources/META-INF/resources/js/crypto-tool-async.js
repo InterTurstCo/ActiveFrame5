@@ -63,9 +63,21 @@
 				
 					var oSigner = yield cadesplugin.CreateObjectAsync("CAdESCOM.CPSigner");
 					yield oSigner.propset_Certificate(cryptoTool.oCertificate);
-					yield oSigner.propset_TSAAddress(cryptoTool.tsAddress);
+					
+					if (cryptoTool.tsAddress != null){
+						yield oSigner.propset_TSAAddress(cryptoTool.tsAddress);
+					}
 					//yield oSigner.propset_KeyPin("111111");
 					
+					var signType = null;
+					if (cryptoTool.signatureType == "CAdES-X"){
+						signType = cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1;
+					}else if(cryptoTool.signatureType == "CAdES-BES"){
+						signType = cadesplugin.CADESCOM_CADES_BES;
+					}else{
+						callcack(null, "Signature type " + cryptoTool.signatureType + " is not supported");
+						return;
+					}					
 		
 					var oSignedData = yield cadesplugin.CreateObjectAsync("CAdESCOM.CadesSignedData");
 					if (cryptoTool.hashOnServer){
@@ -74,15 +86,24 @@
 
 						// Инициализируем объект заранее вычисленным хэш-значением
 						// Алгоритм хэширования нужно указать до того, как будет передано хэш-значение
-						yield oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256);
+						if (cryptoTool.hashAlgorithm == "GOST_3411"){
+							yield oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411);
+						}else if(cryptoTool.hashAlgorithm == "GOST_3411_2012_256"){
+							yield oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256);
+						}else if(cryptoTool.hashAlgorithm == "GOST_3411_2012_512"){
+							yield oHashedData.propset_Algorithm(cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_512);
+						}else{
+							callcack(null, "Algorithm " + cryptoTool.hashAlgorithm + " is not supported");
+							return;
+						}						
 						
 						yield oHashedData.SetHashValue(args[1]);
 
-						var sSignedMessage = yield oSignedData.SignHash(oHashedData, oSigner, cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1);
+						var sSignedMessage = yield oSignedData.SignHash(oHashedData, oSigner, signType);
 					}else{
 						yield oSignedData.propset_ContentEncoding(cadesplugin.CADESCOM_BASE64_TO_BINARY);
 						yield oSignedData.propset_Content(args[1]);
-						var sSignedMessage = yield oSignedData.SignCades(oSigner, cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1, true);
+						var sSignedMessage = yield oSignedData.SignCades(oSigner, signType, true);
 					}
 					args[2](sSignedMessage, null);
 				} catch (err) {
