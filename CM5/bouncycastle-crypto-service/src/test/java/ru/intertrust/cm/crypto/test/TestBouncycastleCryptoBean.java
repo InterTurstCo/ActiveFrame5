@@ -18,18 +18,18 @@ import ru.intertrust.cm.crypto.BouncycastleCryptoBean;
 public class TestBouncycastleCryptoBean {
 
     @Test
-    @Ignore
+    //@Ignore
     public void testVerifySignature() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
-        try (InputStream document = getClass().getClassLoader().getResourceAsStream("74cdd5d3-2b53-4a72-bbb6-4e9b0fc1614c.zip")) {
-            VerifyResult result = bean.verify(document, readResource("signature.key"));
+        try (InputStream document = getClass().getClassLoader().getResourceAsStream("TC_pdf.pdf")) {
+            VerifyResult result = bean.verify(document, readResource("ddcb5fe4-b07f-425f-847b-9bf2a2db9bfa.sig"));
             System.out.println(result);
             assertTrue(result.getSignerInfos().get(0).isValid());
         }
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testVerifyInvalidSignature() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
         try (InputStream document = getClass().getClassLoader().getResourceAsStream("invalid-document.png");) {
@@ -40,12 +40,16 @@ public class TestBouncycastleCryptoBean {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testHash() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
         try (InputStream document = getClass().getClassLoader().getResourceAsStream("document.png");) {
+            //Сейчас алгоритм хэширования забит в код
             byte[] hash = bean.hash(document);
-            assertEquals(Base64.encodeBase64String(hash), "xu15NuPCbh5q4p77Kzlp6/1SpGLdsrlSGiKT/69Ro30=");
+            //3411
+            //assertEquals(Base64.encodeBase64String(hash), "xu15NuPCbh5q4p77Kzlp6/1SpGLdsrlSGiKT/69Ro30=");
+            //3411-2012-256
+            assertEquals(Base64.encodeBase64String(hash), "KZeAILku4iKfMvKmAhU5gLctrdNZ0MgVkIcpBzLgeWM=");
         }
     }
     
@@ -68,7 +72,9 @@ public class TestBouncycastleCryptoBean {
 
             return Base64.decodeBase64(out.toByteArray());
         } finally {
-            input.close();
+            if (input != null){
+                input.close();
+            }
         }
     }
 }

@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.intertrust.cm.core.business.api.crypto.CryptoBean;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.crypto.SignerInfo;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 import ru.intertrust.cm.core.model.FatalException;
@@ -159,6 +158,7 @@ public class BouncycastleCryptoBean implements CryptoBean {
     public byte[] hash(InputStream document) {
         try {
             // создание объекта хеширования данных
+            //final Digest digest = new GOST3411Digest();
             final Digest digest = new GOST3411_2012_256Digest();
 
             // обработка хешируемых данных
