@@ -10,8 +10,10 @@ import javax.servlet.annotation.WebServlet;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.crypto.CryptoService;
+import ru.intertrust.cm.core.business.api.crypto.CryptoServiceConfig;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.config.crypto.SignedData;
@@ -30,12 +32,14 @@ public class DigitalSignatureServiceImpl extends BaseService implements DigitalS
 
     @EJB
     private CryptoService cryptoService;
-
+    @Autowired
+    private CryptoServiceConfig cryptoServiceConfig;
+    
     @Override
     public DigitalSignatureConfig getConfig() {
         DigitalSignatureConfig config = new DigitalSignatureConfig();
         config.setCanSigned(true);
-        config.setCryptoSettingsConfig(cryptoService.getCryptoSettingsConfig());
+        config.setCryptoSettingsConfig(cryptoServiceConfig.getCryptoSettingsConfig());
         return config;
     }
 
@@ -56,7 +60,7 @@ public class DigitalSignatureServiceImpl extends BaseService implements DigitalS
                 contentStream = signedDataItem.getContent();
                 //В случае хеширования на сервере формируем хаш в base16 кодировке
                 //В случае хеширования на клиенте формируем вложение в виде base64 строки
-                if (cryptoService.getCryptoSettingsConfig().getHashOnServer()) {
+                if (cryptoServiceConfig.getCryptoSettingsConfig().getHashOnServer()) {
                     byte[] hash = cryptoService.hash(contentStream);
                     content = Hex.encodeHexString(hash);
                 } else {

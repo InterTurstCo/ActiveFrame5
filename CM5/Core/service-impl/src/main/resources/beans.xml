@@ -315,6 +315,8 @@
     <bean id="customObjectMapper" class="ru.intertrust.cm.core.tools.CustomObjectMapper"/>    
     <bean id="repPostProcPagination" class="ru.intertrust.cm.core.business.impl.reportpostprocessors.PaginationReportPostProcessor"/>
     <bean id="repPostFooterPageNumbering" class="ru.intertrust.cm.core.business.impl.reportpostprocessors.FooterPageNumberingReportPostProcessor"/>
+    <bean id="cryptoServiceConfig" class="ru.intertrust.cm.core.business.impl.CryptoServiceConfigImpl"/>
+    
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>
     </beans>

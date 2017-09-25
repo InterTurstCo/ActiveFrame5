@@ -6,7 +6,6 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
-import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
 import ru.intertrust.cm.core.config.crypto.SignedDataItem;
 import ru.intertrust.cm.core.config.crypto.SignedResultItem;
 
@@ -20,6 +19,7 @@ public interface CryptoService{
     public static final String HASH_ALGORITHM = "HASH_ALGORITHM"; 
     public static final String SIGNATURE_TYPE = "SIGNATURE_TYPE"; 
     public static final String HASH_ON_SERVER = "HASH_ON_SERVER";   
+    public static final String SERVER_COMPONENT = "SERVER_COMPONENT";
     
     public static final String HASH_ALGORITHM_GOST_3411 = "GOST_3411";   
     public static final String HASH_ALGORITHM_GOST_3411_2012_256 = "GOST_3411_2012_256";   
@@ -58,12 +58,6 @@ public interface CryptoService{
      * @return
      */
     byte[] hash(InputStream document);
-    
-    /**
-     * Получение конфигураций из глобальных настроек крипто модуля
-     * @return
-     */
-    CryptoSettingsConfig getCryptoSettingsConfig();
     
     /**
      * Получение контента для ЭП по идентификатору

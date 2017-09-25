@@ -21,8 +21,8 @@ public class TestBouncycastleCryptoBean {
     //@Ignore
     public void testVerifySignature() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
-        try (InputStream document = getClass().getClassLoader().getResourceAsStream("TC_pdf.pdf")) {
-            VerifyResult result = bean.verify(document, readResource("ddcb5fe4-b07f-425f-847b-9bf2a2db9bfa.sig"));
+        try (InputStream document = getClass().getClassLoader().getResourceAsStream("b26e4669-612e-492d-8266-bca2528e2c00.pdf")) {
+            VerifyResult result = bean.verify(document, readResource("8def016d-8728-45dd-99be-67299b7619c5.sig"));
             System.out.println(result);
             assertTrue(result.getSignerInfos().get(0).isValid());
         }
@@ -40,7 +40,7 @@ public class TestBouncycastleCryptoBean {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testHash() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
         try (InputStream document = getClass().getClassLoader().getResourceAsStream("document.png");) {

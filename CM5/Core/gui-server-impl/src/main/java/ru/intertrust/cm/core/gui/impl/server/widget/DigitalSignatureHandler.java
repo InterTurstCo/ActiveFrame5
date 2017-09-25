@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.crypto.CryptoService;
+import ru.intertrust.cm.core.business.api.crypto.CryptoServiceConfig;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.crypto.SignedDataItem;
@@ -33,11 +34,13 @@ public class DigitalSignatureHandler implements ComponentHandler {
 
     @Autowired
     private CryptoService cryptoService;
-
+    @Autowired
+    private CryptoServiceConfig cryptoServiceConfig;
+    
     public DigitalSignatureConfig getConfig(Dto dummy) {
         DigitalSignatureConfig config = new DigitalSignatureConfig();
         config.setCanSigned(true);
-        config.setCryptoSettingsConfig(cryptoService.getCryptoSettingsConfig());
+        config.setCryptoSettingsConfig(cryptoServiceConfig.getCryptoSettingsConfig());
         return config;
     }
 
@@ -58,7 +61,7 @@ public class DigitalSignatureHandler implements ComponentHandler {
                 contentStream = signedDataItem.getContent();
                 //В случае хеширования на сервере формируем хаш в base16 кодировке
                 //В случае хеширования на клиенте формируем вложение в виде base64 строки
-                if (cryptoService.getCryptoSettingsConfig().getHashOnServer()) {
+                if (cryptoServiceConfig.getCryptoSettingsConfig().getHashOnServer()) {
                     byte[] hash = cryptoService.hash(contentStream);
                     content = Hex.encodeHexString(hash);
                 } else {

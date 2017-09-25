@@ -10,18 +10,26 @@ import java.util.Map;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.GOST3411Digest;
 import org.bouncycastle.crypto.digests.GOST3411_2012_256Digest;
+import org.bouncycastle.crypto.digests.GOST3411_2012_512Digest;
 import org.bouncycastle.crypto.io.DigestInputStream;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.crypto.CryptoBean;
+import ru.intertrust.cm.core.business.api.crypto.CryptoService;
+import ru.intertrust.cm.core.business.api.crypto.CryptoServiceConfig;
 import ru.intertrust.cm.core.business.api.dto.crypto.SignerInfo;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
+import ru.intertrust.cm.core.config.crypto.CAdESCryptoSettingsConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
 public class BouncycastleCryptoBean implements CryptoBean {
     private static final Logger logger = LoggerFactory.getLogger(BouncycastleCryptoBean.class);
+
+    @Autowired
+    private CryptoServiceConfig cryptoServiceConfig;
 
     @Override
     public VerifyResult verify(InputStream document) {
@@ -95,11 +103,11 @@ public class BouncycastleCryptoBean implements CryptoBean {
             signerInfo.setCertificateValidTo(cer.getNotAfter());
             signerInfo.setValid(true);
             signerInfo.setSubject(cer.getSubjectDN().getName());
-            signerInfo.setIssuer(cer.getIssuerDN().getName());            
+            signerInfo.setIssuer(cer.getIssuerDN().getName());
             TimeStampToken tst = signer.getSignatureTimestampToken();
-            if (tst != null){
+            if (tst != null) {
                 signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
-            }else{
+            } else {
                 signerInfo.setSignDate(signer.getSignatureDate());
             }
         } catch (Exception ex) {
@@ -122,8 +130,8 @@ public class BouncycastleCryptoBean implements CryptoBean {
             if (cdsCTimestamp == null) {
                 throw new FatalException("CAdES-C timestamp is null");
             } // if
-        }else{
-            
+        } else {
+
         }
     }
 
@@ -158,8 +166,17 @@ public class BouncycastleCryptoBean implements CryptoBean {
     public byte[] hash(InputStream document) {
         try {
             // создание объекта хеширования данных
-            //final Digest digest = new GOST3411Digest();
-            final Digest digest = new GOST3411_2012_256Digest();
+            final Digest digest;
+            CAdESCryptoSettingsConfig cadesConfig = (CAdESCryptoSettingsConfig) cryptoServiceConfig.getCryptoSettingsConfig().getSettings();
+            if (cadesConfig.getHashAlgorithm().equals(CryptoService.HASH_ALGORITHM_GOST_3411)) {
+                digest = new GOST3411Digest();
+            } else if (cadesConfig.getHashAlgorithm().equals(CryptoService.HASH_ALGORITHM_GOST_3411_2012_256)) {
+                digest = new GOST3411_2012_256Digest();
+            } else if (cadesConfig.getHashAlgorithm().equals(CryptoService.HASH_ALGORITHM_GOST_3411_2012_512)) {
+                digest = new GOST3411_2012_512Digest();
+            } else {
+                throw new FatalException("Algorithm " + cadesConfig.getHashAlgorithm() + " is not supported");
+            }
 
             // обработка хешируемых данных
             final DigestInputStream digestStream = new DigestInputStream(document, digest);
@@ -168,13 +185,13 @@ public class BouncycastleCryptoBean implements CryptoBean {
             }
 
             // вычисление значения хеша
-            byte[]  resBuf = new byte[digest.getDigestSize()];
+            byte[] resBuf = new byte[digest.getDigestSize()];
             digest.doFinal(resBuf, 0);
             return resBuf;
         } catch (Exception ex) {
             throw new FatalException("Error claculate document hash", ex);
         }
-        
+
     }
 
 }
