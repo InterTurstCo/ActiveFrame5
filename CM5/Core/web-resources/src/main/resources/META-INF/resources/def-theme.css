@@ -8,6 +8,7 @@
     border-collapse: separate;
 }
 
+
 table.debug tr td {
     border: 1px dotted #ff9900;
 }
@@ -2587,10 +2588,8 @@ a:active .icon.back {
     left: 0;
     right: 0;
     bottom: 0;
-    opacity: 0.0;
     z-index: 99999;
-    display: block;
-    background: transparent;
+    background: rgba(0,0,0,.3);
 }
 
 .loading {
@@ -2682,7 +2681,10 @@ a:active .icon.back {
 }
 
 .PopupPanelPreloader {
-    background: none;
+    width: 48px;
+    height: 48px;
+    background: url(css/images/bar_circle.gif);
+    background-size: cover;
     border: none;
     padding: 3px;
     position: absolute;
