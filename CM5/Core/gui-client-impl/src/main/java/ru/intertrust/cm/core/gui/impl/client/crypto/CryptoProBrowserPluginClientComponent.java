@@ -37,8 +37,9 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
     public void init(DigitalSignatureConfig config, final DigitalSignatureComponentInitHandler handler) {
         this.config = config;
         this.extendedConfig = (CAdESCryptoSettingsConfig) config.getCryptoSettingsConfig().getSettings();
-        nativeInit(this.extendedConfig.getTsAddress(),
+        nativeInit(this.extendedConfig.getTsAddress(), 
                 (this.config.getCryptoSettingsConfig().getHashOnServer() != null && this.config.getCryptoSettingsConfig().getHashOnServer()),
+                this.extendedConfig.getSignatureType(), this.extendedConfig.getHashAlgorithm(),                 
                 new Callback<String, String>() {
 
                     @Override
@@ -136,9 +137,9 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
         return $wnd.cryptoTool.checkInstall();
     }-*/;
 
-    private native void nativeInit(String tsAddress, boolean hashOnServer, Callback<String, String> callback)
+    private native void nativeInit(String tsAddress, boolean hashOnServer, String signatureType, String hashAlgorithm, Callback<String, String> callback)
     /*-{
-         $wnd.cryptoTool.init(tsAddress, hashOnServer, function(isInit, error){
+         $wnd.cryptoTool.init(tsAddress, hashOnServer, signatureType, hashAlgorithm, function(isInit, error){
             try{
                 if (isInit){
                     callback.@com.google.gwt.core.client.Callback::onSuccess(Ljava/lang/Object;)("");

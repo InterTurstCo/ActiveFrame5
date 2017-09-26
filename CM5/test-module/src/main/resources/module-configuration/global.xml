@@ -35,7 +35,7 @@
        <!--<application-help source="http://ya.ru"/>-->
        <!--<application-help source="help/index.html"/>-->
         <crypto-settings gui-component-name="cryptopro.browser.plugin.client.component" 
-            server-component-name="cryptoProCryptoBean"
+            server-component-name="bouncycastleCryptoBean"
             hash-on-server="true">
             <provider-settings>
                 <!-- cades-crypto-settings-config ts-address="http://cryptopro.ru/tsp/" /-->

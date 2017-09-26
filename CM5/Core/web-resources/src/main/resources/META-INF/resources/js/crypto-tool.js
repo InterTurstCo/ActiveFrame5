@@ -14,6 +14,8 @@
 		async_promise: null,
 		async_resolve: null,
 		hashOnServer: false,
+		signatureType: null,
+		hashAlgorithm: null,
 		certificateNumbers: {},
 		certificateIds: {},
 		
@@ -80,9 +82,11 @@
 			}
 		},
 
-		init: function (tsAddress, hashOnServer, collback) {
+		init: function (tsAddress, hashOnServer, signatureType, hashAlgorithm, collback) {
 			this.tsAddress = tsAddress;
 			this.hashOnServer = hashOnServer;
+			this.signatureType = signatureType;
+			this.hashAlgorithm = hashAlgorithm;
 
 			if (cryptoTool.pluginInstalled){
 				return collback(true);
@@ -168,25 +172,47 @@
 				this.oCertificate = this.oCertificates(certNo);
 				var oSigner = cadesplugin.CreateObject("CAdESCOM.CPSigner");
 				oSigner.Certificate = this.oCertificate;
-				oSigner.TSAAddress = this.tsAddress;
+				if (this.tsAddress != null){
+					oSigner.TSAAddress = this.tsAddress;
+				}
 				//oSigner.KeyPin = "111111";
 		
 				try {
 					var oSignedData = cadesplugin.CreateObject("CAdESCOM.CadesSignedData");
+					
+					var signType = null;
+					if (this.signatureType == "CAdES-X"){
+						signType = cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1;
+					}else if(this.signatureType == "CAdES-BES"){
+						signType = cadesplugin.CADESCOM_CADES_BES;
+					}else{
+						callcack(null, "Signature type " + this.signatureType + " is not supported");
+						return;
+					}					
+					
 					if (this.hashOnServer){
 						// Создаем объект CAdESCOM.HashedData
 						var oHashedData = cadesplugin.CreateObject("CAdESCOM.HashedData");
 
 						// Инициализируем объект заранее вычисленным хэш-значением
 						// Алгоритм хэширования нужно указать до того, как будет передано хэш-значение
-						oHashedData.Algorithm = cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256;
+						if (this.hashAlgorithm == "GOST_3411"){
+							oHashedData.Algorithm = cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411;
+						}else if(this.hashAlgorithm == "GOST_3411_2012_256"){
+							oHashedData.Algorithm = cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_256;
+						}else if(this.hashAlgorithm == "GOST_3411_2012_512"){
+							oHashedData.Algorithm = cadesplugin.CADESCOM_HASH_ALGORITHM_CP_GOST_3411_2012_512;
+						}else{
+							callcack(null, "Algorithm " + this.hashAlgorithm + " is not supported");
+							return;
+						}
 						oHashedData.SetHashValue(base64Content);
-
-						var sSignedMessage = oSignedData.SignHash(oHashedData, oSigner, cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1);
+						
+						var sSignedMessage = oSignedData.SignHash(oHashedData, oSigner, signType);
 					}else{
 						oSignedData.ContentEncoding = cadesplugin.CADESCOM_BASE64_TO_BINARY;
 						oSignedData.Content = base64Content;
-						var sSignedMessage = oSignedData.SignCades(oSigner, cadesplugin.CADESCOM_CADES_X_LONG_TYPE_1, true);
+						var sSignedMessage = oSignedData.SignCades(oSigner, signType, true);
 					}
 					callcack(sSignedMessage, null);
 				} catch (err) {

@@ -20,6 +20,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.crypto.CryptoBean;
 import ru.intertrust.cm.core.business.api.crypto.CryptoService;
 import ru.intertrust.cm.core.business.api.crypto.SignatureDataService;
@@ -28,7 +29,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.crypto.CAdESCryptoSettingsConfig;
 import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
 import ru.intertrust.cm.core.config.crypto.SignedDataItem;
 import ru.intertrust.cm.core.config.crypto.SignedResultItem;
@@ -52,9 +55,9 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
-    private AttachmentService attachmentService;
-    @Autowired
     private CrudService crudService;
+    @Autowired
+    private GlobalServerSettingsService globalServerSettingsService;
 
     private CryptoBean cryptoBean;
     private Map<String, TypeCryptoSettingsConfig> typeCryptoConfigs = new Hashtable<String, TypeCryptoSettingsConfig>();
@@ -162,7 +165,51 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     @Override
     public CryptoSettingsConfig getCryptoSettingsConfig() {
         try {
-            return configurationExplorer.getGlobalSettings().getCryptoSettingsConfig();
+            //Получаем глобальные настройки
+            CryptoSettingsConfig globalCryptoSettingsConfig = configurationExplorer.getGlobalSettings().getCryptoSettingsConfig();
+            
+            if (globalCryptoSettingsConfig == null){
+                throw new FatalException("Crypto Settings not configured in global config");
+            }
+            
+            CryptoSettingsConfig result = ObjectCloner.getInstance().cloneObject(globalCryptoSettingsConfig);
+            //Заменяем параметры из глобальных настроек.
+            
+            //Место хэширования, поддерживаются true и false
+            Boolean hashOnServer = globalServerSettingsService.getBoolean(CryptoService.HASH_ON_SERVER);
+            if (hashOnServer != null){
+                result.setHashOnServer(hashOnServer);
+            }
+            
+            if (result.getSettings() instanceof CAdESCryptoSettingsConfig){
+                CAdESCryptoSettingsConfig providerConfig = (CAdESCryptoSettingsConfig)result.getSettings();
+                
+                //Тип подписи. Поддерживаются CAdES-X b CAdES-BES
+                String signatureType = globalServerSettingsService.getString(CryptoService.SIGNATURE_TYPE);
+                if (signatureType != null){
+                    providerConfig.setSignatureType(signatureType);
+                } 
+                if (providerConfig.getSignatureType() == null){
+                    providerConfig.setSignatureType(CAdESCryptoSettingsConfig.CADES_BES_SIGNATURE_TYPE);
+                }
+             
+                //Алгоритм хэшировапния
+                String hashAlgorithm = globalServerSettingsService.getString(CryptoService.HASH_ALGORITHM);
+                if (hashAlgorithm != null){
+                    providerConfig.setHashAlgorithm(hashAlgorithm);
+                } 
+                if (providerConfig.getHashAlgorithm() == null){
+                    providerConfig.setHashAlgorithm(HASH_ALGORITHM_GOST_3411_2012_256);
+                }                
+                
+                //Сервер штампов времени
+                String timeStampServer = globalServerSettingsService.getString(CryptoService.TIME_STAMP_SERVER);
+                if (timeStampServer != null){
+                    providerConfig.setTsAddress(timeStampServer);;
+                } 
+            }
+
+            return result;
         } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {

@@ -4,9 +4,12 @@ import org.bouncycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
 import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.rosstandart.RosstandartObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.GOST3411Digest;
+import org.bouncycastle.crypto.digests.GOST3411_2012_256Digest;
+import org.bouncycastle.crypto.digests.GOST3411_2012_512Digest;
 import org.bouncycastle.crypto.digests.MD4Digest;
 import org.bouncycastle.crypto.digests.MD5Digest;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -54,9 +57,15 @@ public class BcUtil
         {
             dig = new GOST3411Digest();
         }
+        else if (digAlg.getAlgorithm().equals(RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256)){
+            dig = new GOST3411_2012_256Digest();
+        }
+        else if (digAlg.getAlgorithm().equals(RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512)){
+            dig = new GOST3411_2012_512Digest();
+        }
         else
         {
-            throw new OperatorCreationException("cannot recognise digest");
+            throw new OperatorCreationException("cannot recognise digest " + digAlg.getAlgorithm());
         }
 
         return dig;

@@ -7,7 +7,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.6.1-22-SNAPSHOT</version>
+        <version>0.6.1-24-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -28,11 +28,11 @@
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcmail-jdk16</artifactId>
+            <artifactId>bcmail-jdk15on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bctsp-jdk16</artifactId>
+            <artifactId>bctsp-jdk15on</artifactId>
         </dependency>
 		<!-- Библиотеки CryptoPro -->
         <dependency>

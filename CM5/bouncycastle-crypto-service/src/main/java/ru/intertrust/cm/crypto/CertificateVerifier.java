@@ -35,8 +35,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.DERIA5String;
-import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x509.CRLDistPoint;
 import org.bouncycastle.asn1.x509.DistributionPoint;
@@ -46,9 +46,11 @@ import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.cert.CertException;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.DefaultCMSSignatureAlgorithmNameGenerator;
 import org.bouncycastle.cms.SignerInformationVerifier;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.OperatorCreationException;
 
 import ru.intertrust.cm.core.model.FatalException;
@@ -220,7 +222,7 @@ public class CertificateVerifier {
                         .getEncoded()));
 
         SignerInformationVerifier signerInformationVerifier =
-                new SignerInformationVerifier(contentVerifierProvider, new CAdESDigestCalculatorProvider());
+                new SignerInformationVerifier(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(), contentVerifierProvider, new CAdESDigestCalculatorProvider());
         
         X509CertificateHolder cerHolder = new X509CertificateHolder(cert.getEncoded());
         cerHolder.isSignatureValid(contentVerifierProvider);
@@ -375,12 +377,12 @@ public class CertificateVerifier {
         }
         ASN1InputStream oAsnInStream = new ASN1InputStream(
                 new ByteArrayInputStream(crldpExt));
-        DERObject derObjCrlDP = oAsnInStream.readObject();
+        ASN1Primitive derObjCrlDP = oAsnInStream.readObject();
         DEROctetString dosCrlDP = (DEROctetString) derObjCrlDP;
         byte[] crldpExtOctets = dosCrlDP.getOctets();
         ASN1InputStream oAsnInStream2 = new ASN1InputStream(
                 new ByteArrayInputStream(crldpExtOctets));
-        DERObject derObj2 = oAsnInStream2.readObject();
+        ASN1Primitive derObj2 = oAsnInStream2.readObject();
         CRLDistPoint distPoint = CRLDistPoint.getInstance(derObj2);
         List<String> crlUrls = new ArrayList<String>();
         for (DistributionPoint dp : distPoint.getDistributionPoints()) {

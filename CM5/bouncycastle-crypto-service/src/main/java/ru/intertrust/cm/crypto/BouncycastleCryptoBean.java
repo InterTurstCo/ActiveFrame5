@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.digests.GOST3411Digest;
+import org.bouncycastle.crypto.digests.GOST3411_2012_256Digest;
 import org.bouncycastle.crypto.io.DigestInputStream;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.slf4j.Logger;
@@ -97,7 +98,11 @@ public class BouncycastleCryptoBean implements CryptoBean {
             signerInfo.setSubject(cer.getSubjectDN().getName());
             signerInfo.setIssuer(cer.getIssuerDN().getName());            
             TimeStampToken tst = signer.getSignatureTimestampToken();
-            signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
+            if (tst != null){
+                signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
+            }else{
+                signerInfo.setSignDate(signer.getSignatureDate());
+            }
         } catch (Exception ex) {
             signerInfo.setValid(false);
             signerInfo.setError(ex.toString());
@@ -118,6 +123,8 @@ public class BouncycastleCryptoBean implements CryptoBean {
             if (cdsCTimestamp == null) {
                 throw new FatalException("CAdES-C timestamp is null");
             } // if
+        }else{
+            
         }
     }
 
@@ -152,7 +159,7 @@ public class BouncycastleCryptoBean implements CryptoBean {
     public byte[] hash(InputStream document) {
         try {
             // создание объекта хеширования данных
-            final Digest digest = new GOST3411Digest();
+            final Digest digest = new GOST3411_2012_256Digest();
 
             // обработка хешируемых данных
             final DigestInputStream digestStream = new DigestInputStream(document, digest);
