@@ -8,6 +8,7 @@
             <date-time name="actual_end_period"/>
             <long name="priority"/>
             <string name="receiver_status" length="20"/>
+            <string name="category" length="500"/>
         </fields>
     </domain-object-type>
     <domain-object-type name="letter_creator" initial-status="Active">
@@ -280,6 +281,19 @@
                                     <!-- label (Сама информация) -->
                                     <td colspan="3" h-align="left">
                                         <widget id="recursive"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="EditableTableBrowserDemo">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="l_editabletablebrowser"/>
                                     </td>
                                 </tr>
                             </table>
@@ -613,6 +627,22 @@
                 </collection-extra-filters>-->
                  <!--collection-table-buttons display-all-possible="true"/-->
             </table-browser>
+
+
+            <editable-table-browser id="l_editabletablebrowser" resizable="true">
+                <field-path value="category"/>
+
+                <collection-ref name="Organizations"/>
+                <collection-view-ref name="organizations_default_view"/>
+                <page-size>30</page-size>
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <default-sort-criteria column-field="name" order="desc"/>
+                <dialog-window resizable="true" height="400px" width="700px"/>
+                <display-values-as-links value="true" modal-window="false"/>
+                <select-button image="..." text="Выбрать"/>
+                <default-button text="По умолч."/>
+            </editable-table-browser>
 
             <linked-domain-object-hyperlink id="l_hyperlink" modal-window="true">
                 <field-path

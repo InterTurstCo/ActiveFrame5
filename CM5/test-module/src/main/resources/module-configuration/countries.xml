@@ -67,6 +67,7 @@
         <fields>
             <string name="name" length="128"/>
             <string name="short_name" length="128"/>
+            <string name="story" length="512"/>
             <date-time name="independence_day"/>
             <long name="population"/>
             <boolean name="is_country_rich"/>
@@ -228,7 +229,7 @@
     </act:simple-action>
 
     <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
-        <act:tool-bar useDefault="false">
+        <act:tool-bar useDefault="true">
             <!--
             <act:action-ref name-ref="aCreate" text="Создать город">
                 <act:action-params>
@@ -516,6 +517,23 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="Editable Table Browser">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="etab" width="1200px"/>
+
+                                    </td>
+                                    <!--<td>
+                                        <widget id="bad_label" width="200px"/>
+                                    </td>-->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -766,7 +784,20 @@
                 <field-path value="country_pdf_attachment^country"/>
             </attachment-viewer>
 
+            <editable-table-browser id="etab" resizable="true">
+                <field-path value="story"/>
 
+                <collection-ref name="Organizations"/>
+                <collection-view-ref name="organizations_default_view"/>
+                <page-size>30</page-size>
+                <display-chosen-values value="false"/>
+                <selection-style name="inline"/>
+                <default-sort-criteria column-field="name" order="desc"/>
+                <dialog-window resizable="true" height="400px" width="700px"/>
+                <display-values-as-links value="true" modal-window="false"/>
+                <select-button image="..." text="Выбрать"/>
+                <default-button text="По умолч."/>
+            </editable-table-browser>
             <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
                  <field-path value="city^country"/>
                  &lt;!&ndash; редактирует названи&ndash;&gt;
