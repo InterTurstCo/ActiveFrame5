@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.editabletablebrowser;
 
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
@@ -12,6 +18,9 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.EditableTableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+
+
+
 
 /**
  * Created by Ravil on 26.09.2017.
@@ -26,14 +35,15 @@ public class EditableTableBrowserWidget extends BaseWidget {
     protected CollectionViewerConfig initialCollectionViewerConfig;
     protected EditableTableBrowserState currentState;
     private FlowPanel rootFlowPanel;
-    private TextArea textArea;
+    private StretchyTextArea textArea;
     private ConfiguredButton addButton;
     private ConfiguredButton addDefaultButton;
 
     public EditableTableBrowserWidget(){
         rootFlowPanel = new FlowPanel();
-        textArea = new TextArea();
+        textArea = new StretchyTextArea();
         rootFlowPanel.add(textArea);
+
     }
 
     @Override
