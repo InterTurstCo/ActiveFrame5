@@ -89,3 +89,17 @@
     width: 100%;
 
 }
+
+/*editable-table-browser*/
+
+.root-editable-tablebrowser-widget {
+    width: 100% !important;
+    display: flex;
+    align-items: start;
+}
+
+textarea.gwt-TextArea.textarea-editable-tablebrowser-widget {
+    resize: none;
+    flex-grow: 1;
+}
+

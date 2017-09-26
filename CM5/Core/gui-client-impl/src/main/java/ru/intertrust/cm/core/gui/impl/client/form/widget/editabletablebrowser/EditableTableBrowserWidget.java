@@ -43,7 +43,8 @@ public class EditableTableBrowserWidget extends BaseWidget {
         rootFlowPanel = new FlowPanel();
         textArea = new StretchyTextArea();
         rootFlowPanel.add(textArea);
-
+        rootFlowPanel.addStyleName("root-editable-tablebrowser-widget");
+        textArea.addStyleName("textarea-editable-tablebrowser-widget");
     }
 
     @Override

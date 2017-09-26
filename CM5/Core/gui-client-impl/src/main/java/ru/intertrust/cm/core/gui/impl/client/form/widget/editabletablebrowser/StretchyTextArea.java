@@ -43,7 +43,7 @@ public class StretchyTextArea extends TextArea {
     //
     // StretchyTextArea will assume you never want less than THRESHOLD visible
     // lines (THRESHOLD+1 in Firefox).
-    private static final int THRESHOLD = 3;
+    private static final int THRESHOLD = 1;
 
     // manually derived using 13px monospace font
     private final double PX_PER_CHAR = 7.8;
