@@ -47,4 +47,12 @@ public class EditableTableBrowserState extends TooltipWidgetState<EditableTableB
     public void setEditableTableBrowserConfig(EditableTableBrowserConfig editableTableBrowserConfig) {
         this.editableTableBrowserConfig = editableTableBrowserConfig;
     }
+
+    public DomainObject getRootObject() {
+        return rootObject;
+    }
+
+    public void setRootObject(DomainObject rootObject) {
+        this.rootObject = rootObject;
+    }
 }

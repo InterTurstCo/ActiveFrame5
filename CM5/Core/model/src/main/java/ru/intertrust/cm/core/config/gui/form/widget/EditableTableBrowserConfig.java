@@ -27,6 +27,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     @Attribute(name = "default-btn-enabled", required = false)
     private boolean defaultBtnEnabled = true;
 
+    @Attribute(name = "enter-key-allowed", required = false)
+    private boolean enterKeyAllowed = false;
+
     @Attribute(name = "default-component-name", required = false)
     private String defaultComponentName;
 
@@ -241,6 +244,14 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         this.defaultComponentName = defaultComponentName;
     }
 
+    public boolean isEnterKeyAllowed() {
+        return enterKeyAllowed;
+    }
+
+    public void setEnterKeyAllowed(boolean enterKeyAllowed) {
+        this.enterKeyAllowed = enterKeyAllowed;
+    }
+
     public SelectButtonConfig getSelectButtonConfig() {
         return selectButtonConfig;
     }
@@ -342,13 +353,16 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         if (resizable != that.resizable) {
             return false;
         }
+        if (enterKeyAllowed != that.enterKeyAllowed) {
+            return false;
+        }
         if (selectBtnEnabled != that.selectBtnEnabled) {
             return false;
         }
         if (defaultBtnEnabled != that.defaultBtnEnabled) {
             return false;
         }
-        if (defaultComponentName!=that.defaultComponentName) {
+        if (defaultComponentName != null ? !defaultComponentName.equals(that.defaultComponentName) : that.defaultComponentName != null) {
             return false;
         }
         if (collectionTableButtonsConfig != null ? !collectionTableButtonsConfig.equals(that.collectionTableButtonsConfig)
@@ -378,6 +392,7 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (selectButtonConfig != null ? selectButtonConfig.hashCode() : 0);
         result = 31 * result + (defaultButtonConfig != null ? defaultButtonConfig.hashCode() : 0);
         result = 31 * result + (resizable ? 1 : 0);
+        result = 31 * result + (enterKeyAllowed ? 1 : 0);
         result = 31 * result + (defaultBtnEnabled ? 1 : 0);
         result = 31 * result + (selectBtnEnabled ? 1 : 0);
         return result;

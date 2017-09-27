@@ -47,7 +47,7 @@ public class StretchyTextArea extends TextArea {
 
     // manually derived using 13px monospace font
     private final double PX_PER_CHAR = 7.8;
-
+    private boolean singleLineMode = true;
     private static final int TEXTBOX_VALUECHANGE_EVENTS = Event.ONKEYUP | Event.ONCHANGE | Event.ONPASTE;
 
     private int minVisibleLines;
@@ -239,5 +239,13 @@ public class StretchyTextArea extends TextArea {
         public boolean isVisible() {
             return visible;
         }
+    }
+
+    public boolean isSingleLineMode() {
+        return singleLineMode;
+    }
+
+    public void setSingleLineMode(boolean singleLineMode) {
+        this.singleLineMode = singleLineMode;
     }
 }
