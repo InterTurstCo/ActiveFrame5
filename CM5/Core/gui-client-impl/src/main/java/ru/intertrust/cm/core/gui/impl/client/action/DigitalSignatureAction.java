@@ -47,13 +47,13 @@ public class DigitalSignatureAction extends Action {
         //Получаем ID ДО
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final FormState formState = editor.getFormState();
-        rootId = formState.getObjects().getRootNode().getDomainObject().getId();        
-        
+        rootId = formState.getObjects().getRootNode().getDomainObject().getId();
+
         final Command command = new Command("getConfig", "digital.signature", null);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                DigitalSignatureConfig digitalSignatureConfig = (DigitalSignatureConfig)result;
+                DigitalSignatureConfig digitalSignatureConfig = (DigitalSignatureConfig) result;
                 signData(digitalSignatureConfig);
             }
 
@@ -82,7 +82,7 @@ public class DigitalSignatureAction extends Action {
 
             @Override
             public void onSuccess(Dto guiSignedData) {
-                final GuiSignedData result = (GuiSignedData)guiSignedData;
+                final GuiSignedData result = (GuiSignedData) guiSignedData;
                 try {
                     final SignedResult signResult = new SignedResult();
                     signResult.setRootId(result.getRootId());
@@ -95,7 +95,6 @@ public class DigitalSignatureAction extends Action {
                                 signData(component, result.getSignedDataItems(), signResult, 0);
                             } catch (Exception ex) {
                                 progress.hide();
-                                //TODO Сюда попадаем когда пользователь отменил ввод пароля, непонятно как при этом скрыть сообщение об ошибке
                                 sendErrorMessage("Ошибка при выполнении действия: " + ex.getMessage());
                                 ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + ex.getMessage());
                             }
@@ -121,17 +120,25 @@ public class DigitalSignatureAction extends Action {
         });
     }
 
-    private void signData(final DigitalSignatureClientComponent component, final List<GuiSignedDataItem> signedDatas, final SignedResult signResult, final int number){
+    private void signData(final DigitalSignatureClientComponent component, final List<GuiSignedDataItem> signedDatas, final SignedResult signResult,
+            final int number) {
         final GuiSignedDataItem signedData = signedDatas.get(number);
-        
+
         progress.setMessage("Подпись: " + signedData.getName());
-        component.sign(signedData.getContent(), new Callback<String, String>(){
+        component.sign(signedData.getContent(), new Callback<String, String>() {
 
             @Override
             public void onFailure(String reason) {
                 progress.hide();
-                sendErrorMessage("Ошибка при выполнении действия: " + reason);
-                ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + reason);                                            
+                //Сюда попадаем в том числе когда пользователь отменил ввод пароля, при этом можно ориентироваться только на текст сообщения
+                if (reason.contains("0x8010006E") &&
+                        (reason.contains("The action was cancelled by the user")
+                                || reason.contains("Действие было отменено пользователем"))) {
+                    //Пока не делается ничего
+                }else{
+                    sendErrorMessage("Ошибка при выполнении действия: " + reason);
+                    ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + reason);
+                }
             }
 
             @Override
@@ -141,21 +148,21 @@ public class DigitalSignatureAction extends Action {
                 signResultItem.setSignature(signature);
                 signResult.getSignedResultItems().add(signResultItem);
                 progress.setValue(number);
-                
-                if (!progress.isCancel() ) {
+
+                if (!progress.isCancel()) {
                     if (signedDatas.size() > number + 1) {
                         signData(component, signedDatas, signResult, number + 1);
-                    }else{
+                    } else {
                         saveSignResults(signResult);
                     }
-                }else{
+                } else {
                     sendErrorMessage("Создание подписи отменено пользователем");
                 }
             }
-            
-        });      
+
+        });
     }
-    
+
     private void saveSignResults(final SignedResult signResult) {
         final Command command = new Command("saveSignResult", "digital.signature", signResult);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -174,8 +181,8 @@ public class DigitalSignatureAction extends Action {
             }
         });
     }
-    
-    private void sendErrorMessage(String message){
+
+    private void sendErrorMessage(String message) {
         EventBus eBus = Application.getInstance().getEventBus();
         eBus.fireEvent(new CreateCryptoSignature(rootId, message));
     }
