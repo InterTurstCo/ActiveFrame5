@@ -41,6 +41,14 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
+    @NotNullLogicalValidation
+    @Element(name = "selection-pattern", required = false)
+    private SelectionPatternConfig selectionPatternConfig;
+
+    @NotNullLogicalValidation
+    @Element(name = "input-text-filter", required = false)
+    private InputTextFilterConfig inputTextFilterConfig;
+
     @Element(name = "page-size", required = false)
     private Integer pageSize;
 
@@ -116,7 +124,7 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
 
     @Override
     public SelectionPatternConfig getSelectionPatternConfig() {
-        return null;
+        return selectionPatternConfig;
     }
 
     @Override
@@ -170,6 +178,18 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
 
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
         this.collectionRefConfig = collectionRefConfig;
+    }
+
+    public InputTextFilterConfig getInputTextFilterConfig() {
+        return inputTextFilterConfig;
+    }
+
+    public void setInputTextFilterConfig(InputTextFilterConfig inputTextFilterConfig) {
+        this.inputTextFilterConfig = inputTextFilterConfig;
+    }
+
+    public void setSelectionPatternConfig(SelectionPatternConfig selectionPatternConfig) {
+        this.selectionPatternConfig = selectionPatternConfig;
     }
 
     public void setPageSize(Integer pageSize) {
@@ -319,9 +339,16 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
                 that.dialogWindowConfig != null) {
             return false;
         }
-
+        if (inputTextFilterConfig != null ? !inputTextFilterConfig.equals(that.inputTextFilterConfig) :
+                that.inputTextFilterConfig != null) {
+            return false;
+        }
         if (displayValuesAsLinksConfig != null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) :
                 that.displayValuesAsLinksConfig != null) {
+            return false;
+        }
+        if (selectionPatternConfig != null ? !selectionPatternConfig.equals(that.selectionPatternConfig) :
+                that.selectionPatternConfig != null) {
             return false;
         }
         if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
@@ -385,9 +412,11 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
+        result = 31 * result + (selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectButtonConfig != null ? selectButtonConfig.hashCode() : 0);
         result = 31 * result + (defaultButtonConfig != null ? defaultButtonConfig.hashCode() : 0);

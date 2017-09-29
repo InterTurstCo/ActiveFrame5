@@ -2130,7 +2130,10 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionViewRefType" name="collection-view-ref"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
-
+                    <xs:element type="con:patternType" name="selection-pattern"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:selectionFilterReferenceType" name="input-text-filter"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="xs:integer" name="page-size" nillable="false"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:displayChosenValuesType" name="display-chosen-values"

@@ -3,8 +3,10 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.EditableTableBrowserConfig;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
 
@@ -16,6 +18,13 @@ public class EditableTableBrowserState extends TooltipWidgetState<EditableTableB
     private EditableTableBrowserConfig editableTableBrowserConfig;
     private DomainObject rootObject;
     private String text;
+    private Set<Id> selectedIds;
+    private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
+    private boolean isTemporaryState;
+
+    public EditableTableBrowserState(){
+        selectedIds = new HashSet<>();
+    }
 
     @Override
     public EditableTableBrowserConfig getWidgetConfig() {
@@ -24,12 +33,12 @@ public class EditableTableBrowserState extends TooltipWidgetState<EditableTableB
 
     @Override
     public ArrayList<Id> getIds() {
-        return null;
+        return selectedIds == null ? new ArrayList<Id>(0) : new ArrayList<>(selectedIds);
     }
 
     @Override
     public Set<Id> getSelectedIds() {
-        return null;
+        return selectedIds;
     }
 
     public String getText() {
@@ -54,5 +63,53 @@ public class EditableTableBrowserState extends TooltipWidgetState<EditableTableB
 
     public void setRootObject(DomainObject rootObject) {
         this.rootObject = rootObject;
+    }
+
+    public void setSelectedIds(Set<Id> selectedIds) {
+        this.selectedIds = selectedIds;
+    }
+
+    public ArrayList<Id> getTemporarySelectedIds() {
+        return temporarySelectedIds;
+    }
+
+    public void setTemporaryState(boolean isTemporaryState) {
+        this.isTemporaryState = isTemporaryState;
+    }
+
+    public void setTemporarySelectedIds(ArrayList<Id> temporarySelectedIds) {
+        this.temporarySelectedIds = temporarySelectedIds;
+    }
+
+    public void addToTemporaryState(Id id){
+        temporarySelectedIds.add(id);
+    }
+
+    public void removeFromTemporaryState(Id id){
+        temporarySelectedIds.remove(id);
+    }
+
+    public void resetTemporaryState(){
+        temporarySelectedIds.clear();
+        setTemporaryState(false);
+    }
+
+    public void applyChanges(){
+        if(isSingleChoice()) {
+            selectedIds = new HashSet<>(temporarySelectedIds);
+        }else  {
+            selectedIds.addAll(temporarySelectedIds);
+        }
+        resetTemporaryState();
+    }
+    public boolean isTableView(){
+        return WidgetUtil.drawAsTable(getWidgetConfig().getSelectionStyleConfig());
+    }
+
+    public void clearState(){
+        selectedIds.clear();
+        temporarySelectedIds.clear();
+        getListValues().clear();
+
     }
 }
