@@ -64,7 +64,7 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
         for (Id groupId : groupAccessChanges.getGroupsWithChangedBranching()) {
             personsWhosGroupsChanged.addAll(getIds(personManagementDao.getPersonsInGroup(groupId)));
         }
-        personAccessChanges.setPersonsWhosAccessRightsChanged(personsWhosGroupsChanged);
+        personAccessChanges.setPersonsWhosAccessRightsRulesChanged(personsWhosGroupsChanged);
     }
 
     private HashMap<Id, Boolean> toPersonAccess(HashMap<Id, Boolean> groupAccess) {

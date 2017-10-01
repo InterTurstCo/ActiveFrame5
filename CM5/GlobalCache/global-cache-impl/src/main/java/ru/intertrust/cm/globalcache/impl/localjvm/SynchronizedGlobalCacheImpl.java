@@ -1,5 +1,8 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
@@ -8,10 +11,9 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
 import ru.intertrust.cm.globalcache.api.AccessChanges;
 import ru.intertrust.cm.globalcache.api.CollectionSubKey;
+import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @author Denis Mitavskiy
@@ -19,37 +21,38 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *         Time: 13:33
  */
 public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
-    private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock(true);
-    private final Lock readLock = readWriteLock.readLock();
-    private final Lock writeLock = readWriteLock.writeLock();
+    private static final Logger logger = LoggerFactory.getLogger(SynchronizedGlobalCacheImpl.class);
+
+    @Autowired
+    private LockManager lockManager;
 
     @Override
     public void activate() {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock globalLock = lockManager.globalWriteLock();
         try {
             super.activate();
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(globalLock);
         }
     }
 
     @Override
     public void deactivate() {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock globalLock = lockManager.globalWriteLock();
         try {
             super.deactivate();
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(globalLock);
         }
     }
 
     @Override
     public void clear() {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock globalLock = lockManager.globalWriteLock();
         try {
             super.clear();
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(globalLock);
         }
     }
 
@@ -70,101 +73,101 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyRead(String transactionId, Id id, DomainObject obj, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(id, obj, getUserSubject(accessToken));
         try {
             super.notifyRead(transactionId, id, obj, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void notifyRead(String transactionId, Collection<DomainObject> objects, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(objects, getUserSubject(accessToken));
         try {
             super.notifyRead(transactionId, objects, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void clearAccessLog() {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.globalAccessWriteLock();
         try {
             super.clearAccessLog();
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     protected void evictObjectAndCorrespondingEntries(Id id) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(id, (DomainObject) null, null);
         try {
             super.evictObjectAndCorrespondingEntries(id);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(domainObject.getId(), domainObject, null);
         try {
             super.evictObjectAndCorrespondingEntries(domainObject);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void notifyReadByUniqueKey(String transactionId, String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(type, getUserSubject(accessToken));
         try {
             super.notifyReadByUniqueKey(transactionId, type, uniqueKey, obj, time, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void notifyReadPossiblyNullObjects(String transactionId, Collection<Pair<Id, DomainObject>> idsAndObjects, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLockForPossiblyNullObjects(idsAndObjects, getUserSubject(accessToken));
         try {
             super.notifyReadPossiblyNullObjects(transactionId, idsAndObjects, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public DomainObject getDomainObject(String transactionId, String type, Map<String, Value> uniqueKey, AccessToken accessToken) {
-        readLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.readLock(type, getUserSubject(accessToken));
         try {
             return super.getDomainObject(transactionId, type, uniqueKey, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void notifyLinkedObjectsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(id, linkedType, getUserSubject(accessToken));
         try {
             super.notifyLinkedObjectsRead(transactionId, id, linkedType, linkedField, exactType, linkedObjects, time, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(id, linkedType, getUserSubject(accessToken));
         try {
             super.notifyLinkedObjectsIdsRead(transactionId, id, linkedType, linkedField, exactType, linkedObjectsIds, time, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
@@ -175,56 +178,66 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void invalidateUserAccess(UserSubject subject) {
-        super.invalidateUserAccess(subject);
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(subject);
+        try {
+            super.invalidateUserAccess(subject);
+        } finally {
+            lockManager.unlock(lock);
+        }
     }
 
     @Override
     public void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(modification, accessChanges);
         try {
+            final PersonAccessChanges personAccessChanges = (PersonAccessChanges) accessChanges;
+            if (personAccessChanges.accessChangesExist()) {
+                super.clearAccessLog();
+                lockManager.unlockGlobalAccessWriteLock(lock);
+            }
             super.notifyCommit(modification, accessChanges);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
-        readLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.readLock(id, (DomainObject) null, getUserSubject(accessToken));
         try {
             return super.getDomainObject(transactionId, id, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public ArrayList<DomainObject> getDomainObjects(String transactionId, Collection<Id> ids, AccessToken accessToken) {
-        readLock.lock(); // TODO: NOT NULL!!! List of NULLS - check other methods too!
+        final LockManager.GlobalCacheLock lock = lockManager.readLockIds(ids, getUserSubject(accessToken));
         try {
             return super.getDomainObjects(transactionId, ids, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public List<DomainObject> getLinkedDomainObjects(String transactionId, Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
-        readLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.readLock(domainObjectId, linkedType, getUserSubject(accessToken));
         try {
             return super.getLinkedDomainObjects(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public void notifyCollectionCountRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLockTypes(domainObjectTypes, getUserSubject(accessToken));
         try {
             super.notifyCollectionCountRead(transactionId, name, domainObjectTypes, filterNames, filterValues, count, time, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
@@ -241,44 +254,44 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, int count, long time) {
-        writeLock.lock();
+    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, int count, long time, AccessToken accessToken) {
+        final LockManager.GlobalCacheLock lock = lockManager.writeLockTypes(domainObjectTypes, getUserSubject(accessToken));
         try {
-            super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, count, time);
+            super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, count, time, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     // NOT synchronized
     @Override
-    public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        return super.getCollection(transactionId, name, filterValues, sortOrder, offset, limit, accessToken);
+    public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues, Set<String> domainObjectTypes, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        return super.getCollection(transactionId, name, filterValues, domainObjectTypes, sortOrder, offset, limit, accessToken);
     }
 
     // NOT synchronized
     @Override
-    public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
-        return super.getCollection(transactionId, query, paramValues, offset, limit, accessToken);
+    public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, Set<String> domainObjectTypes, int offset, int limit, AccessToken accessToken) {
+        return super.getCollection(transactionId, query, paramValues, domainObjectTypes, offset, limit, accessToken);
     }
 
     @Override
-    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
-        readLock.lock();
+    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, AccessToken accessToken) {
+        final LockManager.GlobalCacheLock lock = lockManager.readLockTypes(domainObjectTypes, getUserSubject(accessToken));
         try {
-            return super.getCollectionCount(key, subKey);
+            return super.getCollectionCount(key, subKey, domainObjectTypes, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
-    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
-        readLock.lock();
+    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, AccessToken accessToken) {
+        final LockManager.GlobalCacheLock lock = lockManager.readLockTypes(domainObjectTypes, getUserSubject(accessToken));
         try {
-            return super.getCollection(key, subKey);
+            return super.getCollection(key, subKey, domainObjectTypes, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
@@ -289,21 +302,21 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void setSizeLimitBytes(long bytes) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock globalLock = lockManager.globalWriteLock();
         try {
             super.setSizeLimitBytes(bytes);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(globalLock);
         }
     }
 
     @Override
     public long getSizeLimitBytes() {
-        readLock.lock();
+        final LockManager.GlobalCacheLock globalLock = lockManager.globalReadLock();
         try {
             return super.getSizeLimitBytes();
         } finally {
-            readLock.unlock();
+            lockManager.unlock(globalLock);
         }
     }
 
@@ -314,31 +327,31 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void notifyReadAll(String transactionId, String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
-        writeLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(type, getUserSubject(accessToken));
         try {
             super.notifyReadAll(transactionId, type, exactType, objects, accessToken);
         } finally {
-            writeLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public List<DomainObject> getAllDomainObjects(String transactionId, String type, boolean exactType, AccessToken accessToken) {
-        readLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.readLock(type, getUserSubject(accessToken));
         try {
             return super.getAllDomainObjects(transactionId, type, exactType, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
     @Override
     public List<Id> getLinkedDomainObjectsIds(String transactionId, Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
-        readLock.lock();
+        final LockManager.GlobalCacheLock lock = lockManager.writeLock(domainObjectId, linkedType, getUserSubject(accessToken));
         try {
             return super.getLinkedDomainObjectsIds(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
         } finally {
-            readLock.unlock();
+            lockManager.unlock(lock);
         }
     }
 
@@ -368,13 +381,8 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void deleteEldestEntry() {
-        writeLock.lock();
-        try {
-            super.deleteEldestEntry();
-        } finally {
-            writeLock.unlock();
-        }
+    protected void deleteEldestEntry() { // no sync, method called from background thread
+        super.deleteEldestEntry();
     }
 
     @Override

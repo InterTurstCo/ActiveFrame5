@@ -419,7 +419,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         if (isAtLeastOneTypeSaved(doTypes)) {
             return -1;
         }
-        return logHit(globalCache.getCollectionCount(null, name, filterValues, accessToken));
+        return logHit(globalCache.getCollectionCount(null, name, filterValues, doTypes, accessToken));
     }
 
     @Override
@@ -432,7 +432,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         if (isAtLeastOneTypeSaved(doTypes)) {
             return null;
         }
-        return logHit(globalCache.getCollection(null, name, filterValues, sortOrder, offset, limit, accessToken));
+        return logHit(globalCache.getCollection(null, name, filterValues, doTypes, sortOrder, offset, limit, accessToken));
     }
 
     @Override
@@ -445,7 +445,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         if (isAtLeastOneTypeSaved(doTypes)) {
             return null;
         }
-        return logHit(globalCache.getCollection(null, query, paramValues, offset, limit, accessToken));
+        return logHit(globalCache.getCollection(null, query, paramValues, doTypes, offset, limit, accessToken));
     }
 
     @Override

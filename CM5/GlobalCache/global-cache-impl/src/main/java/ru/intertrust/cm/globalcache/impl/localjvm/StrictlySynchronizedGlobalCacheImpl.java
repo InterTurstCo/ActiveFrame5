@@ -175,7 +175,12 @@ public class StrictlySynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void invalidateUserAccess(UserSubject subject) {
-        super.invalidateUserAccess(subject);
+        writeLock.lock();
+        try {
+            super.invalidateUserAccess(subject);
+        } finally {
+            writeLock.unlock();
+        }
     }
 
     @Override
@@ -241,10 +246,10 @@ public class StrictlySynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, int count, long time) {
+    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, int count, long time, AccessToken accessToken) {
         writeLock.lock();
         try {
-            super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, count, time);
+            super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, count, time, accessToken);
         } finally {
             writeLock.unlock();
         }
@@ -252,31 +257,31 @@ public class StrictlySynchronizedGlobalCacheImpl extends GlobalCacheImpl {
 
     // NOT synchronized
     @Override
-    public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        return super.getCollection(transactionId, name, filterValues, sortOrder, offset, limit, accessToken);
+    public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues, Set<String> domainObjectTypes, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        return super.getCollection(transactionId, name, filterValues, domainObjectTypes, sortOrder, offset, limit, accessToken);
     }
 
     // NOT synchronized
     @Override
-    public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
-        return super.getCollection(transactionId, query, paramValues, offset, limit, accessToken);
+    public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, Set<String> domainObjectTypes, int offset, int limit, AccessToken accessToken) {
+        return super.getCollection(transactionId, query, paramValues, domainObjectTypes, offset, limit, accessToken);
     }
 
     @Override
-    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
+    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, AccessToken accessToken) {
         readLock.lock();
         try {
-            return super.getCollectionCount(key, subKey);
+            return super.getCollectionCount(key, subKey, domainObjectTypes, accessToken);
         } finally {
             readLock.unlock();
         }
     }
 
     @Override
-    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
+    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, AccessToken accessToken) {
         readLock.lock();
         try {
-            return super.getCollection(key, subKey);
+            return super.getCollection(key, subKey, domainObjectTypes, accessToken);
         } finally {
             readLock.unlock();
         }

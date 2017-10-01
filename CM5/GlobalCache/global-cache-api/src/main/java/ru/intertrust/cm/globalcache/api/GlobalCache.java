@@ -74,12 +74,12 @@ public interface GlobalCache {
 
     List<DomainObject> getAllDomainObjects(String transactionId, String type, boolean exactType, AccessToken accessToken);
 
-    int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, AccessToken accessToken);
+    int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, Set<String> domainObjectTypes, AccessToken accessToken);
 
-    IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues, SortOrder sortOrder,
+    IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues, Set<String> domainObjectTypes, SortOrder sortOrder,
                                                int offset, int limit, AccessToken accessToken);
 
-    IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
+    IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, Set<String> domainObjectTypes, int offset, int limit, AccessToken accessToken);
 
     long getSizeBytes();
 

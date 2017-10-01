@@ -2,10 +2,7 @@ package ru.intertrust.cm.globalcache.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -20,7 +17,8 @@ public class PersonAccessChanges implements AccessChanges {
 
     private HashMap<Id, HashMap<Id, Boolean>> personAccessByObject;
     private HashSet<String> objectTypesAccessChanged = new HashSet<>();
-    private Set<Id> personsWhosAccessRightsChanged = Collections.emptySet();
+    private Set<Id> personsWhosAccessRightsRulesChanged = Collections.emptySet();
+    private Set<Id> personsWhosAccessChanged = new HashSet<>();
 
     public PersonAccessChanges() {
         personAccessByObject = new HashMap<>();
@@ -40,7 +38,7 @@ public class PersonAccessChanges implements AccessChanges {
 
     @Override
     public boolean clearFullAccessLog() {
-        return personAccessByObject == null || personsWhosAccessRightsChanged.size() > personsToClearFullAccessThreashold;
+        return personAccessByObject == null || personsWhosAccessRightsRulesChanged.size() > personsToClearFullAccessThreashold;
     }
 
     @Override
@@ -57,10 +55,28 @@ public class PersonAccessChanges implements AccessChanges {
         if (clearFullAccessLog()) {
             return;
         }
-        HashMap<Id, Boolean> previous = personAccessByObject.put(id, personAccess);
-        totalRecordsQty += personAccess.size();
-        if (previous != null) {
-            totalRecordsQty -= previous.size();
+        personsWhosAccessChanged.addAll(personAccess.keySet());
+        HashMap<Id, Boolean> currentPersonAccess = personAccessByObject.get(id);
+        if (currentPersonAccess == null) {
+            personAccessByObject.put(id, personAccess);
+            totalRecordsQty += personAccess.size();
+        } else {
+            for (Map.Entry<Id, Boolean> newPersonAccessEntry : personAccess.entrySet()) {
+                final Id personId = newPersonAccessEntry.getKey();
+                final Boolean accessGranted = newPersonAccessEntry.getValue();
+                if (currentPersonAccess.containsKey(personId)) {
+                    final Boolean currentAccess = currentPersonAccess.get(personId);
+                    if (currentAccess == Boolean.TRUE) { // person has access, nothing to change
+                        continue;
+                    }
+                    if (personAccess.get(personId) == Boolean.TRUE) {
+                        currentPersonAccess.put(personId, Boolean.TRUE);
+                    }
+                } else {
+                    currentPersonAccess.put(personId, accessGranted);
+                    ++totalRecordsQty;
+                }
+            }
         }
         if (getObjectsQty() > objectsQtyThreashold || totalRecordsQty > totalRecordsThreashold) {
             markForFullAccessClearing();
@@ -71,16 +87,20 @@ public class PersonAccessChanges implements AccessChanges {
         return personAccessByObject;
     }
 
-    public Set<Id> getPersonsWhosAccessRightsChanged() {
-        return personsWhosAccessRightsChanged;
+    public Set<Id> getPersonsWhosAccessChanged() {
+        return personsWhosAccessChanged;
     }
 
-    public void setPersonsWhosAccessRightsChanged(HashSet<Id> personsWhosAccessRightsChanged) {
-        this.personsWhosAccessRightsChanged = personsWhosAccessRightsChanged;
+    public Set<Id> getPersonsWhosAccessRightsRulesChanged() {
+        return personsWhosAccessRightsRulesChanged;
+    }
+
+    public void setPersonsWhosAccessRightsRulesChanged(HashSet<Id> personsWhosAccessRightsRulesChanged) {
+        this.personsWhosAccessRightsRulesChanged = personsWhosAccessRightsRulesChanged;
     }
 
     public boolean accessChangesExist() {
-        return getObjectsQty() != 0 || !personsWhosAccessRightsChanged.isEmpty() || personAccessByObject == null || !personAccessByObject.isEmpty();
+        return getObjectsQty() != 0 || !personsWhosAccessRightsRulesChanged.isEmpty() || personAccessByObject == null || !personAccessByObject.isEmpty();
     }
 
     private void markForFullAccessClearing() {

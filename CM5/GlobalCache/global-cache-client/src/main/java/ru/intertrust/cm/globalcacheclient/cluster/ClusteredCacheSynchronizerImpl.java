@@ -31,8 +31,8 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void notifyCommit(DomainObjectsModification modification, PersonAccessChanges personAccessChanges) {
         final boolean clearFullAccessLog = personAccessChanges.clearFullAccessLog();
-        final Set<Id> personsWhosAccessRightsChanged = personAccessChanges.getPersonsWhosAccessRightsChanged();
-        final HashSet<Id> personsWhosGroupsChanged = clearFullAccessLog ? null : (personsWhosAccessRightsChanged instanceof HashSet ? ((HashSet) personsWhosAccessRightsChanged) : new HashSet<>(personsWhosAccessRightsChanged));
+        final Set<Id> personsWhosAccessRightsRulesChanged = personAccessChanges.getPersonsWhosAccessRightsRulesChanged();
+        final HashSet<Id> personsWhosGroupsChanged = clearFullAccessLog ? null : (personsWhosAccessRightsRulesChanged instanceof HashSet ? ((HashSet) personsWhosAccessRightsRulesChanged) : new HashSet<>(personsWhosAccessRightsRulesChanged));
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
         final Set<Id> changedAccessIds = personAccessByObject == null ? null : personAccessByObject.keySet();
         final List<Id> createdIds = modification.getCreatedIds();

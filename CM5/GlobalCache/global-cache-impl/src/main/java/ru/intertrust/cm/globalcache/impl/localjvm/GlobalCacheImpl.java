@@ -34,7 +34,7 @@ import java.util.concurrent.*;
  *         Time: 14:48
  */
 public class GlobalCacheImpl implements GlobalCache {
-    private static final Logger logger = LoggerFactory.getLogger(GlobalCacheImpl.class);
+    static final Logger logger = LoggerFactory.getLogger(GlobalCacheImpl.class);
     private final Object READ_EXOTIC_VS_COMMIT_LOCK = new Object();
     public static final int COLLECTION_MAX_ROWS = 2000;
     public static final int COLLECTION_SUSPICIOUS_ROWS = 1000;
@@ -200,16 +200,14 @@ public class GlobalCacheImpl implements GlobalCache {
         final UniqueKey key = new UniqueKey(uniqueKey);
         final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getOrCreateUniqueKeyIdMapping(type);
         accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
-        synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // this lock doesn't allow to process 2 keys simultaneously
-            if (obj == null) {
-                if (!retrievedAfterLastCommitOfMatchingTypes(type, true, time)) {
-                    return;
-                }
-                processNullUniqueKeyRetrieval(key, uniqueKeyIdMapping, subject);
+        if (obj == null) {
+            if (!retrievedAfterLastCommitOfMatchingTypes(type, true, time)) {
                 return;
-            } else {
-                processUniqueKeyRetrieval(key, uniqueKeyIdMapping, obj, subject);
             }
+            processNullUniqueKeyRetrieval(key, uniqueKeyIdMapping, subject);
+            return;
+        } else {
+            processUniqueKeyRetrieval(key, uniqueKeyIdMapping, obj, subject);
         }
 
         createOrUpdateDomainObjectEntries(obj.getId(), obj, subject);
@@ -288,62 +286,56 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyLinkedObjectsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType,
                                         List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        //String lock = linkedType.toLowerCase().intern(); // todo:
-        synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // todo: this lock doesn't allow to process 2 retrievals simultaneously.
-            if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
-                return; // don't put anything as list has been retrieved before the last commit occured
-            }
-            final UserSubject userSubject = getUserSubject(accessToken);
-            // todo: do something if node already exists?
+        if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
+            return; // don't put anything as list has been retrieved before the last commit occured
+        }
+        final UserSubject userSubject = getUserSubject(accessToken);
+        // todo: do something if node already exists?
 
-            boolean setLinkedObjects = true;
-            if (tooLargeToCache("Linked objects", linkedObjects.size(), COLLECTION_MAX_ROWS * 3, COLLECTION_SUSPICIOUS_ROWS)) {
+        boolean setLinkedObjects = true;
+        if (tooLargeToCache("Linked objects", linkedObjects.size(), COLLECTION_MAX_ROWS * 3, COLLECTION_SUSPICIOUS_ROWS)) {
+            setLinkedObjects = false;
+        }
+        for (DomainObject linkedObject : linkedObjects) {
+            final Id linkedObjectId = linkedObject.getId();
+            final Action action = createOrUpdateDomainObjectEntries(linkedObjectId, linkedObject, userSubject);
+            if (action.clearDomainObject()) {
                 setLinkedObjects = false;
             }
-            for (DomainObject linkedObject : linkedObjects) {
-                final Id linkedObjectId = linkedObject.getId();
-                final Action action = createOrUpdateDomainObjectEntries(linkedObjectId, linkedObject, userSubject);
-                if (action.clearDomainObject()) {
-                    setLinkedObjects = false;
-                }
-            }
-            if (!setLinkedObjects) {
-                return;
-            }
-            final LinkedHashSet<Id> ids = new LinkedHashSet<>((int) (linkedObjects.size() / 0.75f + 1));
-            for (DomainObject linkedObject : linkedObjects) {
-                final Id linkedObjectId = linkedObject.getId();
-                ids.add(linkedObjectId);
-            }
+        }
+        if (!setLinkedObjects) {
+            return;
+        }
+        final LinkedHashSet<Id> ids = new LinkedHashSet<>((int) (linkedObjects.size() / 0.75f + 1));
+        for (DomainObject linkedObject : linkedObjects) {
+            final Id linkedObjectId = linkedObject.getId();
+            ids.add(linkedObjectId);
+        }
 
-            ObjectNode node = getOrCreateDomainObjectNode(id);
-            final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
-            LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(ids);
-            if (userSubject == null) {
-                node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
-            } else {
-                node.setUserLinkedObjectsNode(key, linkedObjectsNode, userSubject);
-            }
+        ObjectNode node = getOrCreateDomainObjectNode(id);
+        final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
+        LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(ids);
+        if (userSubject == null) {
+            node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
+        } else {
+            node.setUserLinkedObjectsNode(key, linkedObjectsNode, userSubject);
         }
         assureCacheSizeLimit();
     }
 
     @Override
     public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        //String lock = linkedType.toLowerCase().intern(); // todo:
-        synchronized (READ_EXOTIC_VS_COMMIT_LOCK) {
-            final UserSubject userSubject = getUserSubject(accessToken);
-            if (userSubject != null) { // cache only System Access
-                return;
-            }
-            if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
-                return;
-            }
-            ObjectNode node = getOrCreateDomainObjectNode(id);
-            final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
-            LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(new LinkedHashSet<>(linkedObjectsIds));
-            node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
+        final UserSubject userSubject = getUserSubject(accessToken);
+        if (userSubject != null) { // cache only System Access
+            return;
         }
+        if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
+            return;
+        }
+        ObjectNode node = getOrCreateDomainObjectNode(id);
+        final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
+        LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(new LinkedHashSet<>(linkedObjectsIds));
+        node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
         assureCacheSizeLimit();
     }
 
@@ -361,7 +353,7 @@ public class GlobalCacheImpl implements GlobalCache {
         notifyCollectionRead(
                 new NamedCollectionTypesKey(name, filterNames),
                 new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, null, 0, 0),
-                domainObjectTypes, null, count, time);
+                domainObjectTypes, null, count, time, accessToken);
     }
 
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
@@ -370,7 +362,7 @@ public class GlobalCacheImpl implements GlobalCache {
         notifyCollectionRead(
                 new NamedCollectionTypesKey(name, filterNames),
                 new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, sortOrder, offset, limit),
-                domainObjectTypes, collection, -1, time);
+                domainObjectTypes, collection, -1, time, accessToken);
     }
 
     @Override
@@ -379,19 +371,20 @@ public class GlobalCacheImpl implements GlobalCache {
         notifyCollectionRead(
                 new QueryCollectionTypesKey(query),
                 new QueryCollectionSubKey(getUserSubject(accessToken), paramValues, offset, limit),
-                domainObjectTypes, collection, -1, time);
+                domainObjectTypes, collection, -1, time, accessToken);
     }
 
     @Override
     public void invalidate(CacheInvalidation cacheInvalidation) {
+        // this method is not syncronized, and is calling synchronous methods
         HashSet<String> typesAffected = new HashSet<>();
         String typeName;
         for (DomainObject domainObject : cacheInvalidation.getCreatedDomainObjectsToInvalidate()) {
-            evictObjectAndCorrespondingEntries(domainObject);
+            evictObjectAndCorrespondingEntries(domainObject); // is synced
             typesAffected.add(domainObject.getTypeName());
         }
         for (Id id : cacheInvalidation.getIdsToInvalidate()) {
-            evictObjectAndCorrespondingEntries(id);
+            evictObjectAndCorrespondingEntries(id); // is synced
             typeName = domainObjectTypeIdCache.getName(id);
             if (typeName != null) {
                 typesAffected.add(typeName);
@@ -402,23 +395,16 @@ public class GlobalCacheImpl implements GlobalCache {
             doTypeLastChangeTime.setLastModificationTime(type, time, time);
         }
         if (cacheInvalidation.isClearFullAccessLog()) {
-            clearAccessLog();
+            clearAccessLog(); // is synced
         } else { // no need to clear per user as we've just cleared everything from access log
             for (Id userId : cacheInvalidation.getUsersAccessToInvalidate()) {
-                invalidateUserAccess(new UserSubject((int) ((RdbmsId) userId).getId()));
+                invalidateUserAccess(new UserSubject((int) ((RdbmsId) userId).getId())); // is synced
             }
         }
     }
 
     @Override
     public void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges) {
-        synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // for new objects there's a chance that they may not get to linked objects list
-            for (DomainObject created : modification.getCreatedDomainObjects()) {
-                doTypeLastChangeTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
-                // todo? clearUsersFullRetrieval(String type)
-            }
-        }
-
         for (DomainObject created : modification.getCreatedDomainObjects()) {
             doTypeLastChangeTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
             final Id id = created.getId();
@@ -453,11 +439,11 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         if (personAccessChanges.clearFullAccessLog()) {
-            clearAccessLog();
+            doClearAccessLog();
             return;
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("On commit invalidate user access: " + personAccessChanges.getPersonsWhosAccessRightsChanged().size() + " users");
+            logger.debug("On commit invalidate user access: " + personAccessChanges.getPersonsWhosAccessRightsRulesChanged().size() + " users");
         }
         final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
         for (String type : objectTypesAccessChanged) {
@@ -467,8 +453,8 @@ public class GlobalCacheImpl implements GlobalCache {
                 clearUsersFullRetrieval(typeAffected);
             }
         }
-        for (Id personId : personAccessChanges.getPersonsWhosAccessRightsChanged()) {
-            invalidateUserAccess(new UserSubject((int) ((RdbmsId) personId).getId()));
+        for (Id personId : personAccessChanges.getPersonsWhosAccessRightsRulesChanged()) {
+            doInvalidateUserAccess(new UserSubject((int) ((RdbmsId) personId).getId())); // not synced method
         }
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
         int count = 0;
@@ -503,16 +489,25 @@ public class GlobalCacheImpl implements GlobalCache {
         }
     }
 
+
     @Override
     public void invalidateUserAccess(UserSubject user) {
+        doInvalidateUserAccess(user);
+    }
+
+    protected void doInvalidateUserAccess(UserSubject user) {
         userAccessChangeTime.setLastRightsChangeTime(user, System.currentTimeMillis());
-        objectsTree.clearUserLinkedObjects(user); // todo: think about speed up... support cluster
+        objectsTree.clearUserLinkedObjects(user); // todo: think about speed up...
         clearUsersFullRetrieval(user);
         userObjectAccess.clearAccess(user);
     }
 
     @Override
     public void clearAccessLog() {
+        doClearAccessLog();
+    }
+
+    protected void doClearAccessLog() {
         userAccessChangeTime.setLastRightsChangeTimeForEveryone(System.currentTimeMillis());
         objectsTree.clearAllUsersLinkedObjects();
         domainObjectTypeFullRetrieval.clearAllUsersFullRetrievalInfo();
@@ -521,11 +516,11 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     protected void evictObjectAndCorrespondingEntries(Id id) {
-        cleaner.evictDomainObjectById(id);
+        cleaner.evictObjectAndItsAccessEntiresById(id);
     }
 
     protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
-        cleaner.evictDomainObject(domainObject);
+        cleaner.evictObjectAndItsAccessEntires(domainObject);
     }
 
     private static int __count;
@@ -602,7 +597,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public List<DomainObject> getLinkedDomainObjects(String transactionId, Id domainObjectId, String linkedType,
                                                           String linkedField, boolean exactType, AccessToken accessToken) {
-        final List<Id> ids = getLinkedDomainObjectsIds(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
+        final List<Id> ids = doGetLinkedDomainObjectsIds(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
         if (ids == null || ids.isEmpty()) {
             return (List) ids;
         }
@@ -624,6 +619,11 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     public List<Id> getLinkedDomainObjectsIds(String transactionId, Id domainObjectId, String linkedType,
+                                                     String linkedField, boolean exactType, AccessToken accessToken) {
+        return doGetLinkedDomainObjectsIds(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
+    }
+
+    protected List<Id> doGetLinkedDomainObjectsIds(String transactionId, Id domainObjectId, String linkedType,
                                                      String linkedField, boolean exactType, AccessToken accessToken) {
         final ObjectNode node = objectsTree.getDomainObjectNode(domainObjectId);
         if (node == null) {
@@ -681,13 +681,15 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     @Override
-    public int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, AccessToken accessToken) {
+    public int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, Set<String> domainObjectTypes, AccessToken accessToken) {
         return getCollectionCount(
                 new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues)),
-                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, null, 0, 0));
+                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, null, 0, 0),
+                domainObjectTypes,
+                accessToken);
     }
 
-    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
+    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, AccessToken accessToken) {
         if (collectionKeyTooLarge(subKey)) {
             return -1;
         }
@@ -702,21 +704,25 @@ public class GlobalCacheImpl implements GlobalCache {
 
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues,
-                                                      SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+                                                      Set<String> domainObjectTypes, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         return getCollection(
                 new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues)),
-                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, sortOrder, offset, limit));
+                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, sortOrder, offset, limit),
+                domainObjectTypes,
+                accessToken);
     }
 
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues,
-                                                      int offset, int limit, AccessToken accessToken) {
+                                                      Set<String> domainObjectTypes, int offset, int limit, AccessToken accessToken) {
         return getCollection(
                 new QueryCollectionTypesKey(query),
-                new QueryCollectionSubKey(getUserSubject(accessToken), paramValues, offset, limit));
+                new QueryCollectionSubKey(getUserSubject(accessToken), paramValues, offset, limit),
+                domainObjectTypes,
+                accessToken);
     }
 
-    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
+    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, AccessToken accessToken) {
         if (collectionKeyTooLarge(subKey)) {
             return null;
         }
@@ -847,7 +853,7 @@ public class GlobalCacheImpl implements GlobalCache {
      * Only this operation is dangerous during cache cleaning. It's moved to a separate method on purpose - in order to be able to
      * synchronize this operation only, without locking the whole cache for the time of cleaning operation
      */
-    protected void deleteEldestEntry() {
+    protected void deleteEldestEntry() { // TODO ATTENTION. SYNCED! called by background thread only
         cleaner.deleteEldest();
     }
 
@@ -1052,43 +1058,41 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private Action createOrUpdateDomainObjectEntries(Id id, DomainObject obj, UserSubject subject) {
-        synchronized (id) { // todo fix
-            accessSorter.logAccess(id);
-            final ObjectNode cachedNode = objectsTree.getDomainObjectNode(id);
-            final Action action = Action.getAction(cachedNode, obj, subject);
+        accessSorter.logAccess(id);
+        final ObjectNode cachedNode = objectsTree.getDomainObjectNode(id);
+        final Action action = Action.getAction(cachedNode, obj, subject);
 
-            // todo: ugly code - rework
-            if (action.isNodeInitializedWithRealObject()) {
-                final Id accessObjectId = getAccessObjectId(id, action.domainObject);
-                objectAccessDelegation.setDelegation(id, accessObjectId);
-                if (!accessObjectId.equals(id)) {
-                    accessSorter.logAccess(accessObjectId);
-                }
+        // todo: ugly code - rework
+        if (action.isNodeInitializedWithRealObject()) {
+            final Id accessObjectId = getAccessObjectId(id, action.domainObject);
+            objectAccessDelegation.setDelegation(id, accessObjectId);
+            if (!accessObjectId.equals(id)) {
+                accessSorter.logAccess(accessObjectId);
             }
-            if (action instanceof CreateEntry) {
-                final ObjectNode node = objectsTree.addDomainObjectNode(id, createDomainObjectNode(id, action.domainObject));
-                if (action.rights() == CreateEntry.Rights.Set) {
-                    setAccess(id, action.getObjectToFindAccessObjectBy(), subject, action.userRights);
-                }
-                assureCacheSizeLimit();
-                return action;
-            }
-
-            final UpdateEntry.NodeDomainObject updateAction = ((UpdateEntry) action).shouldUpdateDomainObject();
-            if (updateAction == UpdateEntry.NodeDomainObject.Set) {
-                updateDomainObjectNode(id, action.domainObject, cachedNode);
-            } else if (updateAction == UpdateEntry.NodeDomainObject.Clear) {
-                clearDomainObjectNode(id, cachedNode);
-            }
-            final Action.Rights rightsAction = action.rights();
-            if (rightsAction == UpdateEntry.Rights.Set) {
+        }
+        if (action instanceof CreateEntry) {
+            final ObjectNode node = objectsTree.addDomainObjectNode(id, createDomainObjectNode(id, action.domainObject));
+            if (action.rights() == CreateEntry.Rights.Set) {
                 setAccess(id, action.getObjectToFindAccessObjectBy(), subject, action.userRights);
-            } else if (rightsAction == UpdateEntry.Rights.Clear) {
-                clearAccess(id, action.getObjectToFindAccessObjectBy(), subject);
             }
             assureCacheSizeLimit();
             return action;
         }
+
+        final UpdateEntry.NodeDomainObject updateAction = ((UpdateEntry) action).shouldUpdateDomainObject();
+        if (updateAction == UpdateEntry.NodeDomainObject.Set) {
+            updateDomainObjectNode(id, action.domainObject, cachedNode);
+        } else if (updateAction == UpdateEntry.NodeDomainObject.Clear) {
+            clearDomainObjectNode(id, cachedNode);
+        }
+        final Action.Rights rightsAction = action.rights();
+        if (rightsAction == UpdateEntry.Rights.Set) {
+            setAccess(id, action.getObjectToFindAccessObjectBy(), subject, action.userRights);
+        } else if (rightsAction == UpdateEntry.Rights.Clear) {
+            clearAccess(id, action.getObjectToFindAccessObjectBy(), subject);
+        }
+        assureCacheSizeLimit();
+        return action;
     }
 
     private DomainObject registerAndCloneDomainObject(Id id, DomainObject domainObject) {
@@ -1150,7 +1154,7 @@ public class GlobalCacheImpl implements GlobalCache {
         clearFullRetrieval(domainObjectTypeIdCache.getName(id), subject);
     }
 
-    private UserSubject getUserSubject(AccessToken accessToken) {
+    protected UserSubject getUserSubject(AccessToken accessToken) {
         UserSubject subject;
         if (accessToken.getAccessLimitationType() == AccessToken.AccessLimitationType.UNLIMITED) {
             subject = null;
@@ -1181,7 +1185,7 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
-                                     IdentifiableObjectCollection collection, int count, long time) {
+                                        IdentifiableObjectCollection collection, int count, long time, AccessToken accessToken) {
         if (collectionKeyTooLarge(subKey)) {
             return;
         }
@@ -1191,16 +1195,14 @@ public class GlobalCacheImpl implements GlobalCache {
             baseNode = collectionsTree.addBaseNode(key, baseNode);
         }
         CollectionSubKey subKeyClone;
-        synchronized (subKey) { // todo fix
-            if (collection != null && collectionTooLarge(collection)) {
-                baseNode.removeCollectionNode(subKey);
-                return;
-            }
-
-            subKeyClone = subKey.getCopy(domainEntitiesCloner);
-            CollectionNode collectionNode = count == -1 ? new CollectionNode(domainEntitiesCloner.fastCloneCollection(collection), time) : new CollectionNode(count, time);
-            baseNode.setCollectionNode(subKeyClone, collectionNode);
+        if (collection != null && collectionTooLarge(collection)) {
+            baseNode.removeCollectionNode(subKey);
+            return;
         }
+
+        subKeyClone = subKey.getCopy(domainEntitiesCloner);
+        CollectionNode collectionNode = count == -1 ? new CollectionNode(domainEntitiesCloner.fastCloneCollection(collection), time) : new CollectionNode(count, time);
+        baseNode.setCollectionNode(subKeyClone, collectionNode);
         accessSorter.logAccess(new CollectionAccessKey(key, subKeyClone));
         assureCacheSizeLimit();
     }
@@ -1294,7 +1296,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 }
             }
         }
-
+        // background -> cleaner.deleteEldest
         public void deleteEldest() {
             final Object eldest = accessSorter.getEldest();
             if (eldest == null) {
@@ -1302,20 +1304,12 @@ public class GlobalCacheImpl implements GlobalCache {
                 return;
             }
             if (eldest instanceof Id) {
-                evictDomainObjectById((Id) eldest);
+                evictObjectAndItsAccessEntiresById((Id) eldest);
             } else if (eldest instanceof CollectionAccessKey) {
                 deleteCollection((CollectionAccessKey) eldest);
             } else {
                 deleteUniqueKey(((UniqueKeyAccessKey) eldest));
             }
-        }
-
-        public void evictDomainObjectById(Id id) {
-            evictObjectAndItsAccessEntiresById(id);
-        }
-
-        public void evictDomainObject(DomainObject domainObject) {
-            evictObjectAndItsAccessEntires(domainObject);
         }
 
         private void deleteCollection(CollectionAccessKey collectionAccessKey) {
