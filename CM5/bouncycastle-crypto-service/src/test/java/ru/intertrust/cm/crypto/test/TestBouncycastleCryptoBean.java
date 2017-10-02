@@ -18,7 +18,7 @@ import ru.intertrust.cm.crypto.BouncycastleCryptoBean;
 public class TestBouncycastleCryptoBean {
 
     @Test
-    //@Ignore
+    @Ignore
     public void testVerifySignature() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
         try (InputStream document = getClass().getClassLoader().getResourceAsStream("b26e4669-612e-492d-8266-bca2528e2c00.pdf")) {
@@ -29,7 +29,7 @@ public class TestBouncycastleCryptoBean {
     }
 
     @Test
-    //@Ignore
+    @Ignore
     public void testVerifyInvalidSignature() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
         try (InputStream document = getClass().getClassLoader().getResourceAsStream("invalid-document.png");) {
