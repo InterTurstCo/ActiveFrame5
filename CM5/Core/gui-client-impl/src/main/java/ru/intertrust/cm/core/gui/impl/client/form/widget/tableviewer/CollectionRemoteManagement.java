@@ -18,5 +18,5 @@ public interface CollectionRemoteManagement {
      * @param objectId
      * @return false - если строка не найдена иначе true
      */
-    void SelectRowById(Id objectId);
+    void selectRowById(Id objectId);
 }
