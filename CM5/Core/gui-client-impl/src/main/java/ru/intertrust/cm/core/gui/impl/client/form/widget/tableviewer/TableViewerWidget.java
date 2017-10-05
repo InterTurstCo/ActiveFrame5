@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
@@ -56,6 +57,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -159,7 +161,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         return pluginWrapper;
     }
 
-
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
         return asEditableWidget(state);
@@ -252,7 +253,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         if (config.getEditComponent() != null) {
             CustomEdit editComponent = ComponentRegistry.instance.get(config.getEditComponent());
             if (editComponent != null) {
-                editComponent.edit(event.getId(),this,localEventBus);
+                editComponent.edit(event.getId(), this, localEventBus);
             } else {
                 Window.alert("Не найден компонент для редактирования: " + config.getEditComponent());
             }
@@ -301,7 +302,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         CollectionPlugin coPlugin = getCollectionPlugin();
         CollectionPluginView copV = (CollectionPluginView) coPlugin.getView();
         copV.setFiltersMap(filtersMap);
-        ((CollectionPluginView) coPlugin.getView()).getEventBus().fireEvent(new FilterEvent(false,true));
+        ((CollectionPluginView) coPlugin.getView()).getEventBus().fireEvent(new FilterEvent(false, true));
     }
 
     @Override
@@ -313,7 +314,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     public LinkedFormConfig getLinkedFormConfig() {
         return null;
     }
-
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
@@ -339,7 +339,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 return button.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        if(state.getRootObject()!=null && state.getRootObject().getId()!=null) {
+                        if (state.getRootObject() != null && state.getRootObject().getId() != null) {
                             SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
                             selectDomainObjectTypePopup.show();
                         } else {
@@ -372,7 +372,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         if (event.getStatus().equals(DeleteStatus.ERROR)) {
             Window.alert("Ошибка удаления обьекта : " + event.getMessage());
         } else {
-            CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+            CollectionPlugin coPlugin = getCollectionPlugin();
             CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
             cpView.delCollectionRow(event.getDeletedObject());
             if (event.isRefreshRequired() || config.isRefreshAllOnAction()) {
@@ -383,7 +383,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private void refresh() {
-        CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+        CollectionPlugin coPlugin = getCollectionPlugin();
         coPlugin.refresh();
     }
 
@@ -393,7 +393,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
      * и последующей автоматической смены выделенного элемента.
      */
     private void refreshSelection() {
-        CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+        CollectionPlugin coPlugin = getCollectionPlugin();
         CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
 
         List<Id> selectedIdsList = cpView.getSelectedIds();
@@ -430,8 +430,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
      * @return false - если строка не найдена иначе true
      */
     @Override
-    public void SelectRowById(Id objectId) {
-        CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+    public void selectRowById(Id objectId) {
+        CollectionPlugin coPlugin = getCollectionPlugin();
         CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
         cpView.setSelectedRow(objectId);
     }
@@ -439,9 +439,26 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     @Override
     public void updateCollection(UpdateCollectionEvent event) {
         if (config.isRefreshAllOnAction()) {
-            refresh();
-            refreshSelection();
+
+            // TODO: найти способ узнать происходит ли обновление когда корневой объект сохранен, добавлены новые дочерные в виджет, но еще не сохранены. В этом случае не делать обновление.
+            IdentifiableObject identifiableObject = event.getIdentifiableObject();
+            if (identifiableObject != null) {
+                Date createdDate = identifiableObject.getTimestamp("created_date");
+                Date updatedDate = identifiableObject.getTimestamp("updated_date");
+
+                String createdDateStr = createdDate.toString();
+                String updatedDateStr = updatedDate.toString();
+
+                boolean isNewObject = createdDateStr.equals(updatedDateStr);
+                // если добавляется новый объект, то обновлять остальные нет надобности
+                if (!isNewObject) {
+                    refresh();
+                }
+            } else {
+                refresh();
+            }
         }
+        refreshSelection();
     }
 
     class OpenFormClickHandler implements ClickHandler {
@@ -455,7 +472,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         @Override
         public void onClick(ClickEvent event) {
-            if(state.getRootObject()!=null && state.getRootObject().getId()!=null) {
+            if (state.getRootObject() != null && state.getRootObject().getId() != null) {
                 showNewForm(domainObjectType);
                 if (sourcePopup != null) {
                     sourcePopup.hide();
@@ -489,7 +506,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             this.add(container);
         }
     }
-
 
     protected void showNewForm(final String domainObjectType) {
         LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
@@ -538,6 +554,5 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         action.setPlugin(formPlugin);
         return action;
     }
-
 
 }

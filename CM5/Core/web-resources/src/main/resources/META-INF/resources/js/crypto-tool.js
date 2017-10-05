@@ -52,7 +52,7 @@
 					cryptoToolAsync.checkForPlugInAsync(plugin_loaded, plugin_loaded_error);					
 				});				
 			}else{
-				checkForPlugInNPAPI(plugin_loaded, plugin_loaded_error);
+				this.checkForPlugInNPAPI(plugin_loaded, plugin_loaded_error);
 			}
 		},
 

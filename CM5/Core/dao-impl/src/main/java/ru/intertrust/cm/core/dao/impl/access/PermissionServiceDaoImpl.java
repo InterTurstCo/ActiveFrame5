@@ -714,11 +714,40 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private void deleteAclRecords(Id objectId, boolean isAclReadTable) {
-        RdbmsId rdbmsObjectId = (RdbmsId) objectId;
-        String query = generateDeleteAclQuery(rdbmsObjectId, isAclReadTable);
-        Map<String, Object> parameters = initializeDeleteAclParameters(rdbmsObjectId);
-        masterNamedParameterJdbcTemplate.update(query, parameters);
-
+        if (needDeleteAclRecords(objectId)) {
+            RdbmsId rdbmsObjectId = (RdbmsId) objectId;
+            String query = generateDeleteAclQuery(rdbmsObjectId, isAclReadTable);
+            Map<String, Object> parameters = initializeDeleteAclParameters(rdbmsObjectId);
+            masterNamedParameterJdbcTemplate.update(query, parameters);
+        }
+    }
+    
+    /**
+     * Проверка на то что необходимо удалять записи прав
+     * @param objectId
+     * @return
+     */
+    private boolean needDeleteAclRecords(Id objectId){
+        String objectType = domainObjectTypeIdCache.getName(objectId);
+        AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
+        //Матрица не настроена, записей нет, удалять не надо
+        if (accessMatrix == null){
+            return false;
+        }
+        
+        //Праверка заимствуют ли права
+        if (accessMatrix.getMatrixReference() != null){
+            //Если права комбинированные то удалять надо, если нет то записей быть не должно
+            boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
+            if (combinateAccessReference){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        
+        //В остальных случаях записи должны быть, мы их удаляем
+        return true;
     }
 
     private String generateDeleteAclQuery(RdbmsId objectId, boolean isAclReadTable) {

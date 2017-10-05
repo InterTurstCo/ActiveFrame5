@@ -17,16 +17,16 @@
 				var signData = toBase64(bodyInput.value);
 				window.cryptoTool.sign(cerIndex+1, signData, function(signData, error){
 					if (signData == null && error != null){
-						resultDiv.innerText = error.message;
+						resultDiv.innerHTML = error.message;
 					}else{
-						resultDiv.innerText = signData;
+						resultDiv.innerHTML = signData;
 					}
 				});
 			} catch (err) {
-				resultDiv.innerText= err.message;
+				resultDiv.innerHTML= err.message;
 			}
 		}else{
-			resultDiv.innerText = "Cryptopro plugin not installed";
+			resultDiv.innerHTML = "Cryptopro plugin not installed";
 		}
 	}
 	
@@ -55,12 +55,12 @@
 			try{
 				if (isInit){
 					var install = window.cryptoTool.checkInstall();
-					infoDiv.innerText = "Check plugin = " + install;
+					infoDiv.innerHTML = "Check plugin = " + install;
 					if (install){
 						var certificatesSelect = document.getElementById("cer");
 						window.cryptoTool.getCertificates(function (certificates, error){
 							if (certificates == null && error != null){
-								infoDiv.innerText = error;
+								infoDiv.innerHTML = error;
 							}else{
 								for(var certificate in certificates) {
 									var option = document.createElement("option");
@@ -72,19 +72,19 @@
 						});
 					}
 				}else{
-					infoDiv.innerText = error;
+					infoDiv.innerHTML = error;
 				}
 			} catch (err) {
-				infoDiv.innerText = err.message;
+				infoDiv.innerHTML = err.message;
 			}
 		}	
 
 		try{
-			window.cryptoTool.init("http://testca.cryptopro.ru/tsp/", false, onInitCryptoTool);
+			window.cryptoTool.init("http://testca.cryptopro.ru/tsp/", false, "CAdES-BES", "GOST_3411_2012_256", onInitCryptoTool);
 			//window.cryptoTool.init("http://cryptopro.ru/tsp/", false);	
 			//window.cryptoTool.init("http://testca.cryptopro.ru/tsp/tsp.srf", false);
 		} catch (err) {
-			infoDiv.innerText = err;
+			infoDiv.innerHTML = err;
 		}
 	</script>
 </body>
