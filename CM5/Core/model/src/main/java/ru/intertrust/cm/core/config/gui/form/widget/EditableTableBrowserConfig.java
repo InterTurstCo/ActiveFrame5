@@ -91,6 +91,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     @Element(name = "default-button", required = true)
     private DefaultButtonConfig defaultButtonConfig;
 
+    @Element(name = "single-choice", required = false)
+    private SingleChoiceConfig singleChoice;
+
     @Override
     @Deprecated
     public LinkedFormConfig getLinkedFormConfig() {
@@ -174,6 +177,14 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
 
     public void setCollectionViewRefConfig(CollectionViewRefConfig collectionViewRefConfig) {
         this.collectionViewRefConfig = collectionViewRefConfig;
+    }
+
+    public SingleChoiceConfig getSingleChoice() {
+        return singleChoice;
+    }
+
+    public void setSingleChoice(SingleChoiceConfig singleChoice) {
+        this.singleChoice = singleChoice;
     }
 
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
@@ -347,6 +358,10 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
                 that.displayValuesAsLinksConfig != null) {
             return false;
         }
+        if (singleChoice != null ? !singleChoice.equals(that.singleChoice) :
+                that.singleChoice != null) {
+            return false;
+        }
         if (selectionPatternConfig != null ? !selectionPatternConfig.equals(that.selectionPatternConfig) :
                 that.selectionPatternConfig != null) {
             return false;
@@ -420,6 +435,7 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectButtonConfig != null ? selectButtonConfig.hashCode() : 0);
         result = 31 * result + (defaultButtonConfig != null ? defaultButtonConfig.hashCode() : 0);
+        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (resizable ? 1 : 0);
         result = 31 * result + (enterKeyAllowed ? 1 : 0);
         result = 31 * result + (defaultBtnEnabled ? 1 : 0);

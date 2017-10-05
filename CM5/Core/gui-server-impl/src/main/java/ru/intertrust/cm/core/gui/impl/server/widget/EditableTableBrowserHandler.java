@@ -12,10 +12,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
-import ru.intertrust.cm.core.gui.api.server.widget.DefaultValueProvider;
-import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.*;

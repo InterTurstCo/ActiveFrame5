@@ -2163,6 +2163,8 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionTableButtonsType" name="collection-table-buttons" minOccurs="0"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:singleChoiceType" name="single-choice"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id" use="optional"/>
                 <xs:attribute type="xs:boolean" name="select-btn-enabled" use="optional"/>
