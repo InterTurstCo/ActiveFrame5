@@ -2124,7 +2124,7 @@
         <xs:complexContent>
             <xs:extension base="con:abstractWidgetType">
                 <xs:sequence>
-                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="1"
+                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="0"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionRefType" name="collection-ref"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
