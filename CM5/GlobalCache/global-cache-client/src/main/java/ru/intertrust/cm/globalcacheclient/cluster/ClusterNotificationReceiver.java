@@ -73,6 +73,10 @@ public class ClusterNotificationReceiver implements MessageListener {
             if (GlobalCacheJmsHelper.logger.isDebugEnabled()) {
                 GlobalCacheJmsHelper.logger.debug("Node " + CacheInvalidation.NODE_ID + " (\"this\") parsed message from cluster: " + invalidation);
             }
+            if (invalidation.isClearCache()) {
+                globalCacheClient.clearCurrentNode();
+                return;
+            }
             invalidation.setReceiveTime(System.currentTimeMillis());
 
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
