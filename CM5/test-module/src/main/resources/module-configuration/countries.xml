@@ -784,7 +784,7 @@
                 <field-path value="country_pdf_attachment^country"/>
             </attachment-viewer>
 
-            <editable-table-browser id="etab" resizable="true" default-component-name="default.value.provider">
+            <editable-table-browser id="etab" resizable="true" default-component-name="default.value.provider" >
 
                 <field-path value="story"/>
 

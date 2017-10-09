@@ -33,6 +33,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     @Attribute(name = "default-component-name", required = false)
     private String defaultComponentName;
 
+    @Attribute(name = "depend-on-widgets-ids", required = false)
+    private String dependOnWidgetsIds;
+
     @NotNullLogicalValidation
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
@@ -177,6 +180,14 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
 
     public void setCollectionViewRefConfig(CollectionViewRefConfig collectionViewRefConfig) {
         this.collectionViewRefConfig = collectionViewRefConfig;
+    }
+
+    public String getDependOnWidgetsIds() {
+        return dependOnWidgetsIds;
+    }
+
+    public void setDependOnWidgetsIds(String dependOnWidgetsIds) {
+        this.dependOnWidgetsIds = dependOnWidgetsIds;
     }
 
     public SingleChoiceConfig getSingleChoice() {
@@ -407,6 +418,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         if (defaultComponentName != null ? !defaultComponentName.equals(that.defaultComponentName) : that.defaultComponentName != null) {
             return false;
         }
+        if (dependOnWidgetsIds != null ? !dependOnWidgetsIds.equals(that.dependOnWidgetsIds) : that.dependOnWidgetsIds != null) {
+            return false;
+        }
         if (collectionTableButtonsConfig != null ? !collectionTableButtonsConfig.equals(that.collectionTableButtonsConfig)
                 : that.collectionTableButtonsConfig != null) {
             return false;
@@ -418,6 +432,7 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (defaultComponentName != null ? defaultComponentName.hashCode() : 0);
+        result = 31 * result + (dependOnWidgetsIds != null ? dependOnWidgetsIds.hashCode() : 0);
         result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
