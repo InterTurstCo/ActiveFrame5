@@ -90,10 +90,13 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
 
     @Override
     protected boolean isChanged() {
-        getDefaultValue();
-        String initValue = trim(((EditableTableBrowserState) getInitialData()).getText());
-        final String currentValue = ((TextArea) ((FlowPanel) impl).getWidget(0)).getText();
-        return initValue == null ? currentValue != null : !initValue.equals(currentValue);
+        if(currentState.getEditableTableBrowserConfig().getFieldPathConfig()==null)
+            return false;
+        else {
+            String initValue = trim(((EditableTableBrowserState) getInitialData()).getText());
+            final String currentValue = ((TextArea) ((FlowPanel) impl).getWidget(0)).getText();
+            return initValue == null ? currentValue != null : !initValue.equals(currentValue);
+        }
     }
 
     @Override
