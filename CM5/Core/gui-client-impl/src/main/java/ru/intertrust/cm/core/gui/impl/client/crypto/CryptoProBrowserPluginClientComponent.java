@@ -96,7 +96,7 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
                                         });
                                         dialog.show();
                                     }else{
-                                        nativeSetCertificateIndex(0);
+                                        nativeSetCertificateIndex(1);
                                         handler.onInit();
                                     }
                                 }
