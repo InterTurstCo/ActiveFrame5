@@ -137,7 +137,7 @@ public class BouncycastleCryptoBean implements CryptoBean {
 
     protected String getName(String subjectDN) throws IOException {
         Map<String, String> subjectDnMap = new HashMap<String, String>();
-        String[] subjectDNArray = subjectDN.split(",");
+        String[] subjectDNArray = subjectDN.split("(?<!\\\\),");
         for (String subjectItem : subjectDNArray) {
             String[] subjectItemArray = subjectItem.split("=");
             subjectDnMap.put(subjectItemArray[0].toUpperCase().trim(), subjectItemArray[1].trim());
