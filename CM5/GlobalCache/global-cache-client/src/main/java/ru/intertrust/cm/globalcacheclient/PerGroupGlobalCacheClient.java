@@ -15,7 +15,9 @@ import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.TransactionChanges;
@@ -53,6 +55,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Autowired
     protected CurrentDataSourceContext currentDataSourceContext;
+
+    @Autowired
+    protected ExtensionService extensionService;
 
     private CollectionsDao collectionsDao;
 
@@ -119,6 +124,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public void clearCurrentNode() {
         globalCache.clear();
+        AfterClearGlobalCacheExtentionHandler handler = 
+                extensionService.getExtentionPoint(AfterClearGlobalCacheExtentionHandler.class, null);
+        handler.onClearGlobalCache();
     }
 
     @Override
