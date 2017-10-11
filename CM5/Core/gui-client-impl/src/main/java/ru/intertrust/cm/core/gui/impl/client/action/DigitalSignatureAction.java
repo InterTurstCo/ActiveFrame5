@@ -132,8 +132,8 @@ public class DigitalSignatureAction extends Action {
                 progress.hide();
                 //Сюда попадаем в том числе когда пользователь отменил ввод пароля, при этом можно ориентироваться только на текст сообщения
                 if (reason.contains("0x8010006E") &&
-                        (reason.contains("The action was cancelled by the user")
-                                || reason.contains("Действие было отменено пользователем"))) {
+                        (reason.contains("The action was cancelled")
+                                || reason.contains("Действие было отменено"))) {
                     //Пока не делается ничего
                 }else{
                     sendErrorMessage("Ошибка при выполнении действия: " + reason);
