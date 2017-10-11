@@ -17,39 +17,44 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
  */
 public abstract class ConfiguredButton extends Composite implements HasClickHandlers {
     protected Panel root;
+    private ButtonConfig bConfig;
+
     public ConfiguredButton(ButtonConfig buttonConfig) {
+        bConfig = buttonConfig;
         root = new AbsolutePanel();
-        build(buttonConfig);
+        build();
         initWidget(root);
     }
 
-    private void build(ButtonConfig buttonConfig) {
-        if (buttonConfig == null) {
+    private void build() {
+        if (bConfig == null) {
             buildDefault();
         } else {
-            buildFromConfig(buttonConfig);
+            buildFromConfig();
         }
 
     }
 
-    protected abstract void buildDefault() ;
+    protected abstract void buildDefault();
 
-    protected void buildFromConfig(ButtonConfig buttonConfig) {
+    protected void buildFromConfig() {
         root.addStyleName(getContainerStyle());
-        String imagePath = buttonConfig.getImage();
+        String imagePath = bConfig.getImage();
         buildImageFromConfig(imagePath);
-        String text = buttonConfig.getText();
+        String text = bConfig.getText();
         buildTextFromConfig(text);
 
     }
-    protected void buildImageFromConfig(String imagePath){
+
+    protected void buildImageFromConfig(String imagePath) {
         if (imagePath != null) {
             Image image = new Image(GlobalThemesManager.getResourceFolder() + imagePath);
             image.setStyleName(getImageStyle());
             root.add(image);
         }
     }
-    protected void buildTextFromConfig(String text){
+
+    protected void buildTextFromConfig(String text) {
         if (text != null) {
             Label label = new Label(text);
             label.setStyleName(getTitleStyle());
@@ -64,7 +69,10 @@ public abstract class ConfiguredButton extends Composite implements HasClickHand
     }
 
     protected String getTitleStyle() {
-        return "linkEditingButtonText";
+        if (bConfig != null && bConfig.getTextStyleName() != null)
+            return bConfig.getTextStyleName();
+        else
+            return "linkEditingButtonText";
     }
 
 
@@ -74,7 +82,10 @@ public abstract class ConfiguredButton extends Composite implements HasClickHand
 
 
     protected String getContainerStyle() {
-        return "darkButton";
+        if (bConfig != null && bConfig.getContainerStyleName() != null)
+            return bConfig.getContainerStyleName();
+        else
+            return "darkButton";
     }
 
 }

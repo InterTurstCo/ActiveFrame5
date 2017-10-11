@@ -13,12 +13,19 @@ public class ButtonConfig implements Dto {
     @Attribute(name = "image", required = false)
     private String image;
 
+    @Attribute(name = "container-style-name", required = false)
+    private String containerStyleName;
+
+    @Attribute(name = "text-style-name", required = false)
+    private String textStyleName;
+
     @Attribute(name = "text", required = false)
     @Localizable
     private String text;
 
     @Attribute(name = "display", required = false)
     private boolean display = true;
+
 
     public void setDisplay(boolean display) {
         this.display = display;
@@ -44,6 +51,22 @@ public class ButtonConfig implements Dto {
         return display;
     }
 
+    public String getContainerStyleName() {
+        return containerStyleName;
+    }
+
+    public void setContainerStyleName(String styleName) {
+        this.containerStyleName = styleName;
+    }
+
+    public String getTextStyleName() {
+        return textStyleName;
+    }
+
+    public void setTextStyleName(String textStyleName) {
+        this.textStyleName = textStyleName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -61,6 +84,12 @@ public class ButtonConfig implements Dto {
         if (text != null ? !text.equals(that.text) : that.text != null) {
             return false;
         }
+        if (containerStyleName != null ? !containerStyleName.equals(that.containerStyleName) : that.containerStyleName != null) {
+            return false;
+        }
+        if (textStyleName != null ? !textStyleName.equals(that.textStyleName) : that.textStyleName != null) {
+            return false;
+        }
         if (display != that.display) {
             return false;
         }
@@ -71,6 +100,8 @@ public class ButtonConfig implements Dto {
     public int hashCode() {
         int result = image != null ? image.hashCode() : 0;
         result = 31 * result + (text != null ? text.hashCode() : 0);
+        result = 31 * result + (containerStyleName != null ? containerStyleName.hashCode() : 0);
+        result = 31 * result + (textStyleName != null ? textStyleName.hashCode() : 0);
         result = 31 * result + (display ? 1 : 0);
         return result;
     }
