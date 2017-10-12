@@ -10,10 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -44,6 +41,10 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.ReportServiceException;
@@ -54,8 +55,8 @@ import ru.intertrust.cm.core.report.ScriptletClassLoader;
 
 /**
  * Имплементация сервися администрирования подсистемы отчетов
- * @author larin
  *
+ * @author larin
  */
 @Stateless(name = "ReportServiceAdmin")
 @Local(ReportServiceAdmin.class)
@@ -64,7 +65,8 @@ import ru.intertrust.cm.core.report.ScriptletClassLoader;
 public class ReportServiceAdminImpl extends ReportServiceBase implements ReportServiceAdmin {
 
     private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);
-    
+    private static Collection<DomainObjectTypeConfig> configurations;
+
     /**
      * Установка отчета в систему
      */
@@ -94,10 +96,10 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             }
 
             logger.info("Deploy report " + reportMetadata.getName());
-            
+
             //Получаем все вложения из временной директории и сохраняем их как вложения
             File[] filelist = tmpFolder.listFiles();
-            
+
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
 
@@ -108,21 +110,21 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
 
             } else {
-            	Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
-            	//Для существующих отчётов
-            	if (dopLockUpdate == null){
-            		dopLockUpdate = false;
-            	}
-            	if ((!dopLockUpdate) || (lockUpdate)){
-	                //Если существует то удаляем все вложения по нему
-	                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject.getId());
-	                for (DomainObject attachment : attachments) {
-	                    attachmentService.deleteAttachment(attachment.getId());
-	                }
-	               	updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
-            	}
+                Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
+                //Для существующих отчётов
+                if (dopLockUpdate == null) {
+                    dopLockUpdate = false;
+                }
+                if ((!dopLockUpdate) || (lockUpdate)) {
+                    //Если существует то удаляем все вложения по нему
+                    List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject.getId());
+                    for (DomainObject attachment : attachments) {
+                        attachmentService.deleteAttachment(attachment.getId());
+                    }
+                    updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
+                }
             }
-            
+
             tmpFolder.delete();
         } catch (SystemException ex) {
             throw ex;
@@ -130,14 +132,14 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             logger.error("Unexpected exception caught in deploy", ex);
             throw new ReportServiceException("Error deploy process", ex);
         }
-        
+
     }
-    
-    private void updateReportTemplate(DomainObject reportTemplateObject,ReportMetadataConfig reportMetadata,File[] filelist, boolean lockUpdate) throws IOException{
-    	//TODO переделать на админ токен
+
+    private void updateReportTemplate(DomainObject reportTemplateObject, ReportMetadataConfig reportMetadata, File[] filelist, boolean lockUpdate) throws IOException {
+        //TODO переделать на админ токен
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-    	reportTemplateObject.setString("description", reportMetadata.getDescription());
-    	reportTemplateObject.setBoolean("lockUpdate", lockUpdate);
+        reportTemplateObject.setString("description", reportMetadata.getDescription());
+        reportTemplateObject.setBoolean("lockUpdate", lockUpdate);
         reportTemplateObject = domainObjectDao.save(reportTemplateObject, accessToken);
 
 
@@ -155,7 +157,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             file.delete();
         }
 
-        
+
     }
 
     private void saveFile(DeployReportItem item, File tmpFolder) throws IOException {
@@ -175,22 +177,24 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
      */
     @Override
     public void undeploy(String name) {
+        configurations = configurationService.getConfigs(DomainObjectTypeConfig.class);
         try {
+            deleteCascade("report_template", getReportTemplateObject(name).getId());
             //TODO переделать на админ токен
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(name);
             //Удаляем сначала все связанные вложения
-            List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_template_attach", "report_template",  accessToken);
-            deleteDomainObjects(attachments, accessToken);            
+            List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_template_attach", "report_template", accessToken);
+            deleteDomainObjects(attachments, accessToken);
             //Удаляем сначала все связанные результаты генерации и их вложения
-            List<DomainObject> results = (domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_result", "template_id",  accessToken));
+            List<DomainObject> results = (domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_result", "template_id", accessToken));
             for (DomainObject childObject : results) {
-                List<DomainObject> resultAttachs = (domainObjectDao.findLinkedDomainObjects(childObject.getId(), "report_result_attachment", "report_result",  accessToken));
+                List<DomainObject> resultAttachs = (domainObjectDao.findLinkedDomainObjects(childObject.getId(), "report_result_attachment", "report_result", accessToken));
                 deleteDomainObjects(resultAttachs, accessToken);
             }
             deleteDomainObjects(results, accessToken);
-            
+
             domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
         } catch (SystemException ex) {
             throw ex;
@@ -198,12 +202,57 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             logger.error("Unexpected exception caught in undeploy", ex);
             throw new UnexpectedException("ReportServiceAdmin", "undeploy", "name: " + name, ex);
         }
+
     }
-    
-    private void deleteDomainObjects(List<DomainObject> childObjects, AccessToken accessToken){
+
+    private void deleteCascade(String doName, Id objectId) {
+        if (configurations != null) {
+            for (DomainObjectTypeConfig dObject : configurations) {
+                for (FieldConfig fieldConfig : dObject.getFieldConfigs()) {
+                    if (fieldConfig instanceof ReferenceFieldConfig && ((ReferenceFieldConfig) fieldConfig).getType().
+                            toLowerCase().equals(doName.toLowerCase())) {
+                        Boolean hasRef = hasReferences(dObject.getName());
+
+                        List<DomainObject> results = (domainObjectDao.findLinkedDomainObjects(objectId, dObject.getName(),
+                                fieldConfig.getName(),
+                                accessControlService.createSystemAccessToken(this.getClass().getName())));
+                        if (results.size() == 0)
+                            continue;
+                        // Если есть типы ссылающиеся на этот ДО, идем глубже
+                        if (results.size() > 0 && hasRef) {
+                            for (DomainObject r : results) {
+                                deleteCascade(dObject.getName(), r.getId());
+                            }
+                        }
+                        //удаляем строки со ссылкой на исходный ДО
+                        if (results.size() > 0) {
+                            deleteDomainObjects(results,
+                                    accessControlService.createSystemAccessToken(this.getClass().getName()));
+
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    private Boolean hasReferences(String doName) {
+        for (DomainObjectTypeConfig dObject : configurations) {
+            for (FieldConfig fieldConfig : dObject.getFieldConfigs()) {
+                if (fieldConfig instanceof ReferenceFieldConfig && ((ReferenceFieldConfig) fieldConfig).getType().
+                        toLowerCase().equals(doName.toLowerCase())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void deleteDomainObjects(List<DomainObject> childObjects, AccessToken accessToken) {
         for (DomainObject childObject : childObjects) {
             domainObjectDao.delete(childObject.getId(), accessToken);
-        } 
+        }
     }
 
     private void compileReport(File tempFolder) throws IOException, JRException, NoSuchMethodException,
@@ -236,7 +285,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
-    private void compileJasper(File fileName){
+    private void compileJasper(File fileName) {
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             ScriptletClassLoader scriptletClassLoader =
@@ -245,7 +294,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             logger.debug("Compile template " + fileName);
             String jasperLocation = fileName.getPath().replace(".jrxml", ".jasper");
             JasperCompileManager.compileReportToFile(fileName.getPath(), jasperLocation);
-        }catch(Exception ex){
+        } catch (Exception ex) {
             throw new ReportServiceException("Error compile " + fileName, ex);
         } finally {
             Thread.currentThread().setContextClassLoader(defaultClassLoader);
@@ -295,7 +344,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     }
 
     private String getCompileClassPath() throws IOException, URISyntaxException {
-        String[] rootPackages = new String[] {"net", "ru", "com", "org", "lotus"};
+        String[] rootPackages = new String[]{"net", "ru", "com", "org", "lotus"};
         //Получаем библиотеки для runtime компилятора
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         //Список найденых jar библиотек. Необходим чтоб не дублировать jar-ы
@@ -317,12 +366,12 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                         String dirName = physicalFile.getParent();
                         String fileName = vf.getName();
                         path = new File(dirName, fileName).getPath();
-                    }  else { // process "file:" and other urls as usual
+                    } else { // process "file:" and other urls as usual
                         int end = url.getPath().indexOf(".jar") + 4;
                         int start = url.getPath().indexOf(":/") + 2;
                         path = url.getPath().substring(start, end);
                     }
-                    if (!paths.contains(path)){
+                    if (!paths.contains(path)) {
                         cp.append(path).append(File.pathSeparator);
                         paths.add(path);
                     }
@@ -340,25 +389,25 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, name, lockupdate from report_template", 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             DeployReportData deployReportData = getReportData(identifiableObject.getId(), accessToken);
-            if (deployReportData.getItems().size() > 0){
+            if (deployReportData.getItems().size() > 0) {
                 logger.info("Recompile report " + identifiableObject.getString("name"));
                 deploy(deployReportData, identifiableObject.getBoolean("lockupdate") != null && identifiableObject.getBoolean("lockupdate"));
             }
-        }        
+        }
         logger.info("End recompile all reports");
     }
-    
-    private DeployReportData getReportData(Id templateId, AccessToken accessToken){
+
+    private DeployReportData getReportData(Id templateId, AccessToken accessToken) {
         DeployReportData result = new DeployReportData();
         List<DomainObject> attachments = getAttachments("report_template_attach", templateId);
         for (DomainObject attachment : attachments) {
             String name = attachment.getString("name");
-            if (!name.endsWith(".jasper")){
+            if (!name.endsWith(".jasper")) {
                 DeployReportItem item = new DeployReportItem();
                 item.setBody(getAttachmentContent(attachment));
                 item.setName(name);
                 result.getItems().add(item);
-            }            
+            }
         }
         return result;
     }
@@ -381,7 +430,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             throw new ReportServiceException("Error on get attachment body", ex);
         } finally {
             try {
-                if (contentStream != null){
+                if (contentStream != null) {
                     contentStream.close();
                 }
                 inputStream.close(true);
@@ -389,6 +438,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             }
         }
     }
-    
-    
+
+
 }

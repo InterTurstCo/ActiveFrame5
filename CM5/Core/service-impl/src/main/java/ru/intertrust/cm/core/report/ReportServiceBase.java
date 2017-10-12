@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -54,6 +55,9 @@ public abstract class ReportServiceBase {
 
     @Autowired
     protected StatusDao statusDao;
+
+    @Autowired
+    protected ConfigurationService configurationService;
     /**
      * Получение доменного объекта отчета по имени
      * @param name
