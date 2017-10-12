@@ -216,7 +216,8 @@
 					}
 					callcack(sSignedMessage, null);
 				} catch (err) {
-					callcack(null, "Failed to create signature. Error: " + err.message);
+					var message = cadesplugin.getLastError(err);
+					callcack(null, "Failed to create signature. Error: " + message);
 				}
 			}
 		}

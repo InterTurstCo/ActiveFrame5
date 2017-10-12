@@ -408,7 +408,7 @@
 /*}*/
 
 .decorated-action-link .actionBar-close {
-    background: url("resources/defaulttheme/images/icons/icon-edit-close.png") no-repeat 0 0;
+    background: url("resources/defaulttheme/images/icons/icon-edit-close-dark.png") no-repeat 3px 2px;
 }
 
 /*.gwt-MenuItem:hover .actionBar-close {*/
@@ -444,7 +444,8 @@
 /*}*/
 
 .decorated-action-link .actionBar-delete {
-    background: url("resources/defaulttheme/images/icons/icon-delete.png") no-repeat 0 0;
+    background: url(resources/defaulttheme/images/icons/icon-basket.png) no-repeat 10px 10px;
+    background-size: 14px;
 }
 
 /*.gwt-MenuItem:hover .actionBar-delete {*/
