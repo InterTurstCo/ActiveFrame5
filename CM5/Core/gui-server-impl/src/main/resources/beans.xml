@@ -80,5 +80,4 @@
     <bean id="filtersBuilder" class="ru.intertrust.cm.core.gui.impl.server.FilterBuilderImpl"/>
 
     <bean id="sortOrderHelper" class="ru.intertrust.cm.core.gui.impl.server.SorOrderHelperImpl" lazy-init="true"/>
-
 </beans>
