@@ -39,7 +39,7 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
     @Override
     protected void afterRequest(HttpServletRequest request,
                                 String message) {
-        elapsed = System.currentTimeMillis() - startTime;
+
         if (((excludePatterns != null && !isMatchByPattern(request.getRequestURI()))
                 || excludePatterns == null)
                 &&
@@ -53,11 +53,11 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
         UserCredentials credentials = (UserCredentials) request.getSession().getAttribute(
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
         String requestString = request.getRequestURL() +
-                ((request.getQueryString() != null) ? "?" + request.getQueryString() : "");
+                ((request.getQueryString() != null) ? ("?" + request.getQueryString()):"");
         String loginName = (credentials != null) ? ((UserUidWithPassword) credentials).getUserUid() : "NOT_LOGGED";
-        return elapsed + "\t" + request.getMethod() + "\t"
-                + request.getContentLength() + "\t" + request.getRemoteAddr() + "\t" + loginName +
-                "\t" + requestString;
+        String logRecord = String.format("%-10s\t%s\t%-10s\t%s\t%-15s\t%s",elapsed,request.getMethod(),
+                request.getContentLength(),request.getRemoteAddr(),loginName,requestString);
+        return logRecord;
     }
 
     private Boolean isMatchByPattern(String data) {
@@ -91,6 +91,7 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
             filterChain.doFilter(requestToUse, response);
         } finally {
             if(shouldLog && !this.isAsyncStarted(requestToUse)) {
+                elapsed = System.currentTimeMillis() - startTime;
                 this.afterRequest(requestToUse, createMessage(requestToUse,null,null));
             }
 
