@@ -37,7 +37,9 @@ public class InstallPluginDialog extends DialogBox{
         
         label = new Label("Не установлен плагин CryptoPro Browse Plugin. Скачать и установить плагин можно по ссылке:");
         
-        Anchor link = new Anchor("Скачать плагин", GWT.getHostPageBaseURL() + "cryptopro/cadesplugin.exe");
+        //Anchor link = new Anchor("Скачать плагин", GWT.getHostPageBaseURL() + "cryptopro/cadesplugin.exe");
+        //Скачиваем прям с сайта
+        Anchor link = new Anchor("Скачать плагин", "https://www.cryptopro.ru/products/cades/plugin/get_2_0");        
         Anchor instructions = new Anchor("Инструкция по установке", GWT.getHostPageBaseURL() + "cryptopro/instruction.html", "_blank");
 
         panel = new VerticalPanel();
