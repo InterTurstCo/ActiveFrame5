@@ -43,7 +43,7 @@ public abstract class ConfiguredButton extends Composite implements HasClickHand
         buildImageFromConfig(imagePath);
         String text = bConfig.getText();
         buildTextFromConfig(text);
-
+        root.setVisible(bConfig.isDisplay());
     }
 
     protected void buildImageFromConfig(String imagePath) {

@@ -27,6 +27,10 @@
     <jee:local-slsb id="userSettingsFetcher"
                     jndi-name="java:module/UserSettingsFetcher!ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher"
                     business-interface="ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher"/>
+
+    <jee:local-slsb id="httpRequestFilterUser"
+                    jndi-name="java:module/HttpRequestFilterUser!ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser"
+                    business-interface="ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser"/>
                     
     <bean id="applicationVersion" class="ru.intertrust.cm.core.gui.impl.server.util.VersionUtil" scope="singleton" />
 

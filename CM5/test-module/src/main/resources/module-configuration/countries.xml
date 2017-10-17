@@ -798,7 +798,7 @@
                 <default-sort-criteria column-field="name" order="desc"/>
                 <dialog-window resizable="true" height="400px" width="700px"/>
                 <display-values-as-links value="true" modal-window="false"/>
-                <select-button image="..." text="Выбрать"/>
+                <select-button image="..." text="Выбрать" display="false"/>
                 <default-button text="По умолч."/>
             </editable-table-browser>
             <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;

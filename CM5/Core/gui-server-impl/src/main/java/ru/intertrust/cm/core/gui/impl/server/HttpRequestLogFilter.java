@@ -6,14 +6,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
-import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 
-import javax.ejb.EJB;
+import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -36,6 +35,9 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
     @Value("${http.request.log.excluded.patterns:#{null}}")
     private String excludePatterns;
 
+    @Inject
+    private List<HttpRequestFilterUser> beanList;
+
     @Override
     protected void afterRequest(HttpServletRequest request,
                                 String message) {
@@ -54,9 +56,10 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
         String requestString = request.getRequestURL() +
                 ((request.getQueryString() != null) ? ("?" + request.getQueryString()):"");
-        String loginName = (credentials != null) ? ((UserUidWithPassword) credentials).getUserUid() : "NOT_LOGGED";
+        String loginName = findUser(request);
         String logRecord = String.format("%-10s\t%s\t%-10s\t%s\t%-15s\t%s",elapsed,request.getMethod(),
                 request.getContentLength(),request.getRemoteAddr(),loginName,requestString);
+        Cookie[] cookies = request.getCookies();
         return logRecord;
     }
 
@@ -96,5 +99,14 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
             }
 
         }
+    }
+
+    private String findUser(HttpServletRequest request){
+        for(HttpRequestFilterUser b : beanList){
+            if(b.getUserName(request)!=null)
+                return b.getUserName(request);
+        }
+        return "NOT_LOGGED";
+
     }
 }
