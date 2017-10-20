@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Stateless(name = "HttpRequestFilterUser")
 @Local(HttpRequestFilterUser.class)
-@Remote(HttpRequestFilterUser.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class HttpRequestFilterPlatform implements HttpRequestFilterUser {
 

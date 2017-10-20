@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 
+import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -35,7 +36,7 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
     @Value("${http.request.log.excluded.patterns:#{null}}")
     private String excludePatterns;
 
-    @Inject
+    @EJB
     private List<HttpRequestFilterUser> beanList;
 
     @Override
