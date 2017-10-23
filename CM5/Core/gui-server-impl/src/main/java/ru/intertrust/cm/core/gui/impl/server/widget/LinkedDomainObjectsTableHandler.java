@@ -275,6 +275,31 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         rowAccessMatrix.put(DEFAULT_VIEW_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
         rowAccessMatrix.put(DEFAULT_CREATE_NEW_ACCESS_CHECKER, hasAllowedCreationDoTypes);
 
+       if(widgetConfig.getSummaryTableConfig().getSummaryTableActionsColumnConfig()!=null){
+           for(SummaryTableActionColumnConfig saConfig : widgetConfig.getSummaryTableConfig().
+                   getSummaryTableActionsColumnConfig().
+                   getSummaryTableActionColumnConfig()){
+               if(saConfig.getAccessChecker()!=null){
+                   String accessCheckerComponent = saConfig.getAccessChecker();
+                   if (applicationContext.containsBeanDefinition(accessCheckerComponent)){
+                       AccessChecker accessChecker = (AccessChecker) applicationContext.getBean(accessCheckerComponent);
+                       if (accessChecker != null) {
+                           Boolean result = accessChecker.checkAccess(domainObject.getId());
+                           if("delete".equals(saConfig.getType())){
+                               Boolean summarizedAccess = result&&rowAccessMatrix.get(DEFAULT_DELETE_ACCESS_CHECKER);
+                               rowAccessMatrix.put(DEFAULT_DELETE_ACCESS_CHECKER,summarizedAccess);
+                           }
+                           if("edit".equals(saConfig.getType())){
+                               Boolean summarizedAccess = result&&rowAccessMatrix.get(DEFAULT_EDIT_ACCESS_CHECKER);
+                               rowAccessMatrix.put(DEFAULT_EDIT_ACCESS_CHECKER,summarizedAccess);
+                           }
+
+                       }
+                   }
+               }
+           }
+       }
+
         HashMap<String, EnumBoxConfig> enumBoxConfigsByFieldPath = getEnumBoxConfigs(domainObject.getTypeName(), widgetConfig, cache);
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
             SummaryTableActionColumnConfig summaryTableActionColumnConfig = columnConfig.getSummaryTableActionColumnConfig();

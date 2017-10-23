@@ -165,6 +165,7 @@
                                 <domain-object-type name="b4_2"/>
                             </domain-object-types>
                         </pattern>
+
                     </summary-table-column>
                 </summary-table>
             </linked-domain-objects-table>
