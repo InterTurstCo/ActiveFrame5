@@ -21,7 +21,8 @@ public class EnumBoxWidgetLogicalValidator extends AbstractWidgetLogicalValidato
         String fieldType = widget.getFieldConfigToValidate().getFieldType().name();
         EnumBoxConfig config = (EnumBoxConfig) widget.getWidgetConfig();
         if (!fieldTypeIsString(fieldType) && !fieldTypeIsBoolean(fieldType) &&
-                !fieldTypeIsLong(fieldType) && !fieldTypeIsDecimal(fieldType)) {
+                !fieldTypeIsLong(fieldType) && !fieldTypeIsDecimal(fieldType)
+                && !fieldTypeIsThruReference(fieldType) ) {
             String error = String.format("Invalid field type '%s' for enumeration-box with id '%s'." +
                     "Only String, Boolean, Long and Decimal are allowed", fieldType, config.getId());
             logger.error(error);

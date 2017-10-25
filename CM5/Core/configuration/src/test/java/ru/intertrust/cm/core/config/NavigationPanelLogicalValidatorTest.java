@@ -59,12 +59,10 @@ public class NavigationPanelLogicalValidatorTest {
     @Test
     public void validateIncorrectNavigationPanel() throws Exception {
 
-        String exceptionMessage = ("Configuration of "
-                + "navigation panel with name 'panel' was validated with errors.Count: 4 Content:\n"
-                + "Default second level panel state  couldn't be 'unpinned' when unpin is disabled\n"
-                + "Child link to open is not found for link with name 'Administration'\n"
-                + "Duplicate link name 'Cities' was found\n"
-                + "Child link to open is not found for link with name 'Documents In Work'");
+        String exceptionMessage = ("Configuration of navigation panel with name 'panel' was validated with errors.Count: 3 Content:\n" +
+                "Child link to open is not found for link with name 'Administration'\n" +
+                "Duplicate link name 'Cities' was found\n" +
+                "Child link to open is not found for link with name 'Documents In Work'");
         ConfigurationExplorer configurationExplorer =
                 createConfigurationExplorer(NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH);
         NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator();
@@ -72,7 +70,7 @@ public class NavigationPanelLogicalValidatorTest {
 
         List<LogicalErrors> errors = panelValidator.validate();
         assertEquals(1, errors.size());
-        assertEquals(4, errors.get(0).getErrorCount());
+        assertEquals(3, errors.get(0).getErrorCount());
         assertEquals(exceptionMessage, errors.get(0).toString());
 
 
@@ -85,7 +83,7 @@ public class NavigationPanelLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        return new ConfigurationExplorerImpl(configuration);
+        return new ConfigurationExplorerImpl(configuration,true);
     }
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
-    <navigation name="panel" level2-default-state="unpinned" unpin-enabled="false"
+    <navigation name="panel" level2-default-state="unpinned" unpin-enabled="true"
                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Administration" display-text="Администрирование" image="administration.png"
               child-to-open="Employees">

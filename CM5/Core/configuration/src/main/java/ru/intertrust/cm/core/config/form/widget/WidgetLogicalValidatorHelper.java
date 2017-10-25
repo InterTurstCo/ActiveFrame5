@@ -16,11 +16,16 @@ public class WidgetLogicalValidatorHelper {
     private static final String FIELD_TYPE_STRING = "STRING";
     private static final String FIELD_TYPE_LONG = "LONG";
     private static final String FIELD_TYPE_DECIMAL = "DECIMAL";
+    private static final String FIELD_REFERENCE = "REFERENCE";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
     public static boolean fieldTypeIsReference(String className) {
         return REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME.equalsIgnoreCase(className);
+    }
+
+    public static boolean fieldTypeIsThruReference(String fieldType) {
+        return FIELD_REFERENCE.equalsIgnoreCase(fieldType);
     }
 
     public static  boolean fieldTypeIsBoolean(String fieldType) {

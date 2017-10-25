@@ -50,7 +50,7 @@ public class ConfigurationExplorerImplTest {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH, ACCESS_CONFIG_PATH);
 
         config = configurationSerializer.deserializeConfiguration();
-        configExplorer = new ConfigurationExplorerImpl(config);
+        configExplorer = new ConfigurationExplorerImpl(config,true);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ConfigurationExplorerImplTest {
         ConfigurationSerializer configurationSerializer =
                 createConfigurationSerializer(DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH);
         config = configurationSerializer.deserializeConfiguration();
-        configExplorer = new ConfigurationExplorerImpl(config);
+        configExplorer = new ConfigurationExplorerImpl(config,true);
 
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs =
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
@@ -204,7 +204,7 @@ public class ConfigurationExplorerImplTest {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         config = configurationSerializer.deserializeConfiguration();
-        configExplorer = new ConfigurationExplorerImpl(config);
+        configExplorer = new ConfigurationExplorerImpl(config,true);
 
         String parent = configExplorer.getDomainObjectParentType("Employee");
         assertEquals("Person", parent);

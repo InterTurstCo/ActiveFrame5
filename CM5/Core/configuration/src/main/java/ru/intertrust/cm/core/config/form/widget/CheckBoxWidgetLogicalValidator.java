@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.LogicalErrors;
 import ru.intertrust.cm.core.config.WidgetConfigurationToValidate;
 
 import static ru.intertrust.cm.core.config.form.widget.WidgetLogicalValidatorHelper.fieldTypeIsBoolean;
+import static ru.intertrust.cm.core.config.form.widget.WidgetLogicalValidatorHelper.fieldTypeIsThruReference;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,7 +15,7 @@ public class CheckBoxWidgetLogicalValidator extends AbstractWidgetLogicalValidat
     @Override
     public void validate(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
         String fieldType = widget.getFieldConfigToValidate().getFieldType().name();
-        if (fieldTypeIsBoolean(fieldType)) {
+        if (fieldTypeIsBoolean(fieldType) || fieldType.equals("REFERENCE")) {
             return;
         }
         String error = String.format("Field '%s' in  domain object '%s' isn't a boolean type",

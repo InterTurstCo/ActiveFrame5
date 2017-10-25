@@ -187,7 +187,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
         if (configStorage.globalSettings.validateGui()) {
             // GUI validation is temporarily switched off as it's not working correctly anymore
-            //logicalErrorsList.addAll(validateGui());
+            logicalErrorsList.addAll(validateGui());
         }
 
         if (!logicalErrorsList.isEmpty()) {

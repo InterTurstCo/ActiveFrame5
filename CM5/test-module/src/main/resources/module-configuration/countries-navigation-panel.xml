@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
-    <navigation name="panel" level2-panel-width="220px" level2-default-state="unpinned" margin-size="default"
+    <navigation name="panel" level2-panel-width="220px" margin-size="default"
                 text-auto-cut="false"
                 is-default="true"
                 application="main"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.beans.FatalBeanException;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -49,11 +50,13 @@ public class CollectionViewLogicalValidatorTest {
                 + "Configuration of collection-view with name "
                 + "'countries_view' was validated with errors.Count: 1 Content:\n"
                 + "Couldn't find collection with name 'Countries'\n";
+        try {
+            ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_COLLECTION_VIEW_XML_PATH);
+        } catch (FatalBeanException exception){
+            String exM = exception.getCause().getMessage();
+            assertEquals(exM, expectedMessage);
+        }
 
-        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_COLLECTION_VIEW_XML_PATH);
-
-        List<LogicalErrors> logicalErrorsList = new CollectionViewLogicalValidator(configurationExplorer).validate();
-        assertEquals(expectedMessage, LogicalErrors.toString(logicalErrorsList));
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {

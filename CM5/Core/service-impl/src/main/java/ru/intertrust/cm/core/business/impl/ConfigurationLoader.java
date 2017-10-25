@@ -63,9 +63,11 @@ public class ConfigurationLoader {
         if (springApplicationContext.getContext() != null) {
             ExtensionService extensionService = springApplicationContext.getContext()
                     .getBean(ExtensionService.class);
-            OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
-                    OnLoadConfigurationExtensionHandler.class, null);
-            extension.onLoad();
+            if(extensionService!=null) {
+                OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
+                        OnLoadConfigurationExtensionHandler.class, null);
+                extension.onLoad();
+            }
         }
         
         //Установка флага загруженности конфигурации
