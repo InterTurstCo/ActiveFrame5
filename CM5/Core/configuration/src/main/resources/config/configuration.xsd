@@ -2284,6 +2284,7 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="id"/>
+                <xs:attribute type="xs:string" name="text" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

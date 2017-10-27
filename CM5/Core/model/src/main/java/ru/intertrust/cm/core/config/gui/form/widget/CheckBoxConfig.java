@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
 /**
@@ -10,14 +11,30 @@ import org.simpleframework.xml.Root;
 @Root(name = "check-box")
 public class CheckBoxConfig extends WidgetConfig {
 
+    @Attribute(name = "text", required = false)
+    private String text;
+
     @Override
     public boolean equals(Object o) {
-        return super.equals(o);
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        CheckBoxConfig that = (CheckBoxConfig) o;
+
+        if (text != null ? !text.equals(that.text) : that.text != null) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return  super.hashCode();
+        return text != null ? text.hashCode() : 0;
     }
 
     @Override
@@ -28,5 +45,13 @@ public class CheckBoxConfig extends WidgetConfig {
     @Override
     public String getLogicalValidatorComponentName() {
         return "checkBoxLogicalValidator";
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

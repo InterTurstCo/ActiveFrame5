@@ -7,6 +7,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
  */
 public class CheckBoxState extends WidgetState {
     private Boolean isSelected;
+    private String text;
 
     public CheckBoxState() {
     }
@@ -26,5 +27,13 @@ public class CheckBoxState extends WidgetState {
     @Override
     public boolean equals(Object obj) {
         return super.equals(obj);
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

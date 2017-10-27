@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.gui.form.widget.CheckBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -17,7 +18,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 public class CheckBoxHandler extends ValueEditingWidgetHandler {
     @Override
     public CheckBoxState getInitialState(WidgetContext context) {
-        return new CheckBoxState(context.<Boolean>getFieldPlainValue());
+        CheckBoxConfig cConfig = context.getWidgetConfig();
+        CheckBoxState cState = new CheckBoxState(context.<Boolean>getFieldPlainValue());
+        cState.setText(cConfig.getText());
+        return cState;
     }
 
     @Override
