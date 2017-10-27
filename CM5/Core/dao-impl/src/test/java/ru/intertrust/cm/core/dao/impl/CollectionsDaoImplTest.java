@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -286,6 +287,11 @@ public class CollectionsDaoImplTest {
                 createCollectionConfig(
                         "generated",
                         "generator"
+                ),
+                createCollectionConfig(
+                        "persons_simple",
+                        "select name from person where 1 = 1 ::where-clause",
+                        null
                 ),
                 collectionConfig,
                 complexCollectionConfig,
@@ -590,6 +596,21 @@ public class CollectionsDaoImplTest {
         expected.put("byParent_0_type", 1L);
         verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
                 eq(expected), any(CollectionRowMapper.class));
+    }
+
+    @Test
+    public void testGeneratedCountQuery() {
+        when(jdbcTemplate.queryForObject(anyString(), eq(Collections.<String, Object> singletonMap("user_id", 1)), eq(Integer.class))).thenReturn(0);
+        when(globalCacheClient.getCollectionCount(anyString(), anyListOf(Filter.class), any(AccessToken.class))).thenReturn(-1);
+        collectionsDaoImpl.findCollectionCount("persons_simple", Collections.<Filter> emptyList(), createMockAccessToken());
+        verify(jdbcTemplate).queryForObject(eq("WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                "WHERE gm.\"person_id\" = :user_id) " + "SELECT count(*) FROM ("
+                + "SELECT person.* FROM \"person\" person WHERE 1 = 1 "
+                + "AND EXISTS (SELECT 1 FROM \"person_read\" r WHERE r.\"group_id\" "
+                + "IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = person.\"access_object_id\")) person WHERE 1 = 1"),
+                eq(Collections.<String, Object> singletonMap("user_id", 1)),
+                eq(Integer.class));
     }
 
     // @Test

@@ -138,7 +138,7 @@ public class SqlQueryModifier {
         countExpression.setAllColumns(true);
         plainSelect.getSelectItems().add(new SelectExpressionItem(countExpression));
 
-        return plainSelect.toString();
+        return sqlParser.getSelectStatement().toString();
     }
 
     public SelectBody addIdBasedFilters(SelectBody selectBody, final List<? extends Filter> filterValues, final String idField) {
