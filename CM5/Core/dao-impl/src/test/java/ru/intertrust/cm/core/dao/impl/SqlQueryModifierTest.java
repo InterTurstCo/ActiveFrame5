@@ -278,4 +278,10 @@ public class SqlQueryModifierTest {
                 + CollectionsDaoImpl.PARAM_NAME_PREFIX + "idsExcluded20" + ")", selectBody.toString());
     }
 
+    @Test
+    public void testTransformCountQuery() {
+        assertEquals("WITH t AS (SELECT id, name FROM docs) SELECT count(*) FROM t"
+                , SqlQueryModifier.transformToCountQuery("WITH t AS (SELECT id, name FROM docs) SELECT id, name FROM t"));
+    }
+
 }

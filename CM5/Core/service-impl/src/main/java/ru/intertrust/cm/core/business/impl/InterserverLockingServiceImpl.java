@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
@@ -55,7 +56,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         }
         ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
             @Override
-            @Transactional
+            @Transactional(propagation = Propagation.REQUIRES_NEW)
             public void run() {
                 try {
                     getInterserverLockingDao().updateLock(resourceId, new Date());
@@ -69,7 +70,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         return true;
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     private boolean transactionalLock(final String resourceId) {
         Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
         Date lockTime = getInterserverLockingDao().getLastLockTime(resourceId);

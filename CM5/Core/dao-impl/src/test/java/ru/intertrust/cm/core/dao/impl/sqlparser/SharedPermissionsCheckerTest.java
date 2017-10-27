@@ -145,6 +145,16 @@ public class SharedPermissionsCheckerTest {
         assertTrue(checker.check(first, second));
     }
 
+    @Test
+    public void testLinkedToAbstractType() throws JSQLParserException {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Abstract")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Root").parent("Abstract")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Abstract_Multiple").linkedTo("Abstract", "Abstract_id")));
+        FromItemAccessor first = createAccessor("Abstract", "a");
+        FromItemAccessor second = createAccessor("Abstract_Multiple", "am", equalsExpression("a.ID", "am.abstract_id"), false);
+        assertTrue(checker.check(first, second));
+    }
+
     private Expression andExpression(Expression left, Expression right) {
         return new AndExpression(left, right);
     }
