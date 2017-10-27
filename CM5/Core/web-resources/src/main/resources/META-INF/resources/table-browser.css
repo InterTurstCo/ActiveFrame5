@@ -105,5 +105,9 @@
 textarea.gwt-TextArea.textarea-editable-tablebrowser-widget {
     resize: none;
     flex-grow: 1;
+    border: 1px solid #dbdbdb;
+    margin: 5px 5px 0 0;
+    padding: 5px 10px;
+    border-radius: 3px;
 }
 

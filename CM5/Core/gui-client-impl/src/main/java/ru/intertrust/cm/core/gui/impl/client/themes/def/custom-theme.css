@@ -150,6 +150,9 @@
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    border: 1px solid #dbdbdb;
+    padding: 5px 10px;
+    margin-top: 5px;
 }
 
 select.gwt-ListBox {
