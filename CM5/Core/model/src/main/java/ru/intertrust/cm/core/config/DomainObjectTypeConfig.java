@@ -33,6 +33,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Attribute(name = "audit-log", required = false)
     private Boolean auditLog;
 
+    @Attribute(name = "globally-cached", required = false)
+    private Boolean globallyCached;
+
     /**
      * Флаг, указывающий, что это не обычный доменный объект и для него не надо создвавать таблицу. 
      * true - не создать таблицу в базе данных.
@@ -174,6 +177,10 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         this.attachmentTypesConfig = attachmentTypesConfig;
     }
 
+    public Boolean isGloballyCached() {
+        return globallyCached;
+    }
+
     private static void initSystemFields() {
         for (SystemField systemField : SystemField.values()) {
             Class<? extends FieldConfig> fieldConfigClass = systemField.getFieldConfigClass();
@@ -226,6 +233,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (auditLog != null ? auditLog != that.auditLog : that.auditLog != null) {
+            return false;
+        }
+        if (globallyCached != null ? globallyCached != that.globallyCached : that.globallyCached != null) {
             return false;
         }
 

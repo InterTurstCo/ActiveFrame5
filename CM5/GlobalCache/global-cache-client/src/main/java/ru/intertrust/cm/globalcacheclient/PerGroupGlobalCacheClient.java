@@ -12,11 +12,7 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
@@ -151,7 +147,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public void notifyRead(Id id, DomainObject obj, AccessToken accessToken) {
-        if (isReactivationUndergoing() || notMaster()) {
+        if (isReactivationUndergoing() || notMaster() || neverCache(id)) {
             return;
         }
         if (obj == null || !isChangedInTransaction(obj.getId())) {
@@ -161,7 +157,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public void notifyReadByUniqueKey(String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing() || notMaster()) {
+        if (isReactivationUndergoing() || notMaster() || neverCache(type)) {
             return;
         }
         if (obj == null && !isTypeSaved(type) || obj != null && !isChangedInTransaction(obj.getId())) {
@@ -183,7 +179,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public void notifyReadAll(String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
-        if (isReactivationUndergoing() || notMaster()) {
+        if (isReactivationUndergoing() || notMaster() || neverCache(type, exactType)) {
             return;
         }
         final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(objects);
@@ -219,6 +215,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         }
         ArrayList<Pair<Id, DomainObject>> trustedObjects = new ArrayList<>(ids.size());
         for (Id id : ids) {
+            if (neverCache(id)) {
+                continue;
+            }
             DomainObject obj = objectsById.get(id);
             if (obj == null) {
                 trustedObjects.add(new Pair<Id, DomainObject>(id, null));
@@ -233,7 +232,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public void notifyLinkedObjectsRead(Id id, String linkedType, String linkedField, boolean exactType,
                                         List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing() || notMaster()) {
+        if (isReactivationUndergoing() || notMaster() || neverCache(id) || neverCache(linkedType, exactType)) {
             return;
         }
         final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(linkedObjects);
@@ -247,7 +246,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public void notifyLinkedObjectsIdsRead(Id id, String linkedType, String linkedField, boolean exactType,
                                         List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing() || notMaster()) {
+        if (isReactivationUndergoing() || notMaster() || neverCache(id) || neverCache(linkedType, exactType)) {
             return;
         }
         final List<Id> idsOfUnmodifiedObjects = getIdsOfObjectsUnmodifiedInTransaction(linkedObjectsIds);
@@ -266,7 +265,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         Pair<Set<String>, Set<String>> filterNamesWithTypes = collectionsDao.getDOTypes(name, filterValues);
         Set<String> filterNames = filterNamesWithTypes.getFirst();
         Set<String> doTypes = filterNamesWithTypes.getSecond();
-        if (isAtLeastOneTypeSaved(doTypes)) {
+        if (isAtLeastOneTypeSaved(doTypes) || neverCache(doTypes)) {
             return;
         }
         globalCache.notifyCollectionCountRead(null, name, doTypes, filterNames, filterValues, count, time, accessToken);
@@ -281,7 +280,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         Pair<Set<String>, Set<String>> filterNamesWithTypes = collectionsDao.getDOTypes(name, filterValues);
         Set<String> filterNames = filterNamesWithTypes.getFirst();
         Set<String> doTypes = filterNamesWithTypes.getSecond();
-        if (isAtLeastOneTypeSaved(doTypes)) {
+        if (isAtLeastOneTypeSaved(doTypes) || neverCache(doTypes)) {
             return;
         }
         globalCache.notifyCollectionRead(null, name, doTypes, filterNames, filterValues, sortOrder, offset, limit, collection, time, accessToken);
@@ -294,7 +293,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             return;
         }
         Set<String> doTypes = collectionsDao.getQueryDOTypes(query);
-        if (isAtLeastOneTypeSaved(doTypes)) {
+        if (isAtLeastOneTypeSaved(doTypes) || neverCache(doTypes)) {
             return;
         }
         globalCache.notifyCollectionRead(null, query, doTypes, paramValues, offset, limit, collection, time, accessToken);
@@ -343,7 +342,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public DomainObject getDomainObject(Id id, AccessToken accessToken) {
         ++totalReads;
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || neverCache(id)) {
             return null;
         }
         return logHit(isChangedInTransaction(id) ? null : globalCache.getDomainObject(null, id, accessToken));
@@ -352,7 +351,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public DomainObject getDomainObject(String type, Map<String, Value> uniqueKey, AccessToken accessToken) {
         ++totalReads;
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || neverCache(type)) {
             return null;
         }
         final DomainObject domainObject = globalCache.getDomainObject(null, type, uniqueKey, accessToken);
@@ -371,7 +370,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         final ArrayList<DomainObject> domainObjects = globalCache.getDomainObjects(null, ids, accessToken);
         for (int i = 0; i < domainObjects.size(); i++) {
             DomainObject domainObject = domainObjects.get(i);
-            if (domainObject != null && !domainObject.isAbsent() && isChangedInTransaction(domainObject.getId())) {
+            if (domainObject != null && !domainObject.isAbsent() && (isChangedInTransaction(domainObject.getId()) || neverCache(domainObject.getTypeName()))) {
                 domainObjects.set(i, null);
             }
         }
@@ -381,7 +380,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public List<DomainObject> getLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
         ++totalReads;
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || neverCache(linkedType, exactType) || neverCache(domainObjectId)) {
             return null;
         }
         if (canUseCacheToRetrieveType(linkedType, exactType)) {
@@ -394,7 +393,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public List<Id> getLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
         ++totalReads;
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || neverCache(linkedType, exactType) || neverCache(domainObjectId)) {
             return null;
         }
         if (canUseCacheToRetrieveType(linkedType, exactType)) {
@@ -407,7 +406,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken) {
         ++totalReads;
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || neverCache(type, exactType)) {
             return null;
         }
         if (canUseCacheToRetrieveType(type, exactType)) {
@@ -424,7 +423,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             return -1;
         }
         Set<String> doTypes = collectionsDao.getDOTypes(name, filterValues).getSecond();
-        if (isAtLeastOneTypeSaved(doTypes)) {
+        if (isAtLeastOneTypeSaved(doTypes) || neverCache(doTypes)) {
             return -1;
         }
         return logHit(globalCache.getCollectionCount(null, name, filterValues, doTypes, accessToken));
@@ -437,7 +436,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             return null;
         }
         Set<String> doTypes = collectionsDao.getDOTypes(name, filterValues).getSecond();
-        if (isAtLeastOneTypeSaved(doTypes)) {
+        if (isAtLeastOneTypeSaved(doTypes) || neverCache(doTypes)) {
             return null;
         }
         return logHit(globalCache.getCollection(null, name, filterValues, doTypes, sortOrder, offset, limit, accessToken));
@@ -450,7 +449,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             return null;
         }
         Set<String> doTypes = collectionsDao.getQueryDOTypes(query);
-        if (isAtLeastOneTypeSaved(doTypes)) {
+        if (isAtLeastOneTypeSaved(doTypes) || neverCache(doTypes)) {
             return null;
         }
         return logHit(globalCache.getCollection(null, query, paramValues, doTypes, offset, limit, accessToken));
@@ -489,6 +488,53 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         return result;
     }
 
+    private Collection<DomainObject> getObjectsUnmodifiedInTransaction(Collection<DomainObject> objects) {
+        if (objects.isEmpty()) {
+            return objects;
+        }
+        ArrayList<DomainObject> trustedObjects = new ArrayList<>(objects.size());
+        for (DomainObject object : objects) {
+            if (!neverCache(object.getTypeName()) && !isChangedInTransaction(object.getId())) {
+                trustedObjects.add(object);
+            }
+        }
+        return trustedObjects;
+    }
+
+    private List<Id> getIdsOfObjectsUnmodifiedInTransaction(Collection<Id> ids) {
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ArrayList<Id> trustedIds = new ArrayList<>(ids.size());
+        for (Id id : ids) {
+            if (!isChangedInTransaction(id)) {
+                trustedIds.add(id);
+            }
+        }
+        return trustedIds;
+    }
+
+    private boolean neverCache(String type) {
+        return Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached();
+    }
+
+    private boolean neverCache(String type, boolean exactType) {  // todo: take exactType into account
+        return Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached();
+    }
+
+    private boolean neverCache(Set<String> types) {
+        for (String type : types) {
+            if (Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean neverCache(Id id) {
+        return id == null ? false : neverCache(domainObjectTypeIdCache.getName(id));
+    }
+
     private boolean canUseCacheToRetrieveType(String type, boolean exactType) {
         final TransactionChanges transactionChanges = getTransactionChanges();
         boolean useCache;
@@ -509,32 +555,6 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             useCache = true;
         }
         return useCache;
-    }
-
-    private Collection<DomainObject> getObjectsUnmodifiedInTransaction(Collection<DomainObject> objects) {
-        if (objects.isEmpty()) {
-            return objects;
-        }
-        ArrayList<DomainObject> trustedObjects = new ArrayList<>(objects.size());
-        for (DomainObject object : objects) {
-            if (!isChangedInTransaction(object.getId())) {
-                trustedObjects.add(object);
-            }
-        }
-        return trustedObjects;
-    }
-
-    private List<Id> getIdsOfObjectsUnmodifiedInTransaction(Collection<Id> ids) {
-        if (ids.isEmpty()) {
-            return Collections.emptyList();
-        }
-        ArrayList<Id> trustedIds = new ArrayList<>(ids.size());
-        for (Id id : ids) {
-            if (!isChangedInTransaction(id)) {
-                trustedIds.add(id);
-            }
-        }
-        return trustedIds;
     }
 
     private boolean isAtLeastOneTypeSaved(Set<String> doTypes) {

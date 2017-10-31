@@ -406,6 +406,9 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges) {
         for (DomainObject created : modification.getCreatedDomainObjects()) {
+            if (neverCache(created.getTypeName())) {
+                continue;
+            }
             doTypeLastChangeTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
             final Id id = created.getId();
             if (modification.wasSaved(id)) {
@@ -416,6 +419,9 @@ public class GlobalCacheImpl implements GlobalCache {
             updateLinkedObjectsOfParents(null, created);
         }
         for (DomainObject updated : modification.getSavedAndChangedStatusDomainObjects()) {
+            if (neverCache(updated.getTypeName())) {
+                continue;
+            }
             doTypeLastChangeTime.setLastModificationTime(updated.getTypeName(), System.currentTimeMillis(), updated.getModifiedDate().getTime());
             final Id id = updated.getId();
             final Action updateAction = createOrUpdateDomainObjectEntries(id, updated, null);
@@ -425,12 +431,18 @@ public class GlobalCacheImpl implements GlobalCache {
             updateLinkedObjectsOfParents(updateAction.getDomainObjectBefore(), updated);
         }
         for (DomainObject deleted : modification.getDeletedDomainObjects()) {
+            if (neverCache(deleted.getTypeName())) {
+                continue;
+            }
             final String typeName = deleted.getTypeName();
             doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
             cleaner.updateObjectAndItsAccessEntiresOnDelete(deleted);
         }
         for (Id automaticObjectId : modification.getModifiedAutoDomainObjectIds()) {
             final String typeName = domainObjectTypeIdCache.getName(automaticObjectId);
+            if (neverCache(typeName)) {
+                continue;
+            }
             doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
             cleaner.evictObjectAndItsAccessEntiresById(automaticObjectId);
         }
@@ -447,6 +459,9 @@ public class GlobalCacheImpl implements GlobalCache {
         }
         final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
         for (String type : objectTypesAccessChanged) {
+            if (neverCache(type)) {
+                continue;
+            }
             Collection<String> typesAffected = explorer.getAllTypesDelegatingAccessCheckToInLowerCase(type);
             for (String typeAffected : typesAffected) {
                 doTypeLastChangeTime.setLastRightsChangeTime(typeAffected, System.currentTimeMillis());
@@ -460,10 +475,20 @@ public class GlobalCacheImpl implements GlobalCache {
         int count = 0;
         for (Map.Entry<Id, HashMap<Id, Boolean>> accessByObject : personAccessByObject.entrySet()) {
             final Id objectId = accessByObject.getKey();
+            if (objectId != null && neverCache(domainObjectTypeIdCache.getName(objectId))) {
+                continue;
+            }
             boolean atLeastOnePersonAccessGranted = false;
             for (Map.Entry<Id, Boolean> personAccess : accessByObject.getValue().entrySet()) {
                 final Boolean accessGranted = personAccess.getValue();
                 // todo: update only if access already set!
+                /*if (objectsTree.getDomainObjectNode(personAccess.getKey()) == null) {
+                    continue;
+                }
+                final UserSubject userSubject = new UserSubject((int) ((RdbmsId) personAccess.getKey()).getId());
+                if (userObjectAccess.isAccessGranted(userSubject, objectId) == null) {
+                    continue;
+                }*/
                 userObjectAccess.setAccess(new UserSubject((int) ((RdbmsId) personAccess.getKey()).getId()), objectId, accessGranted);
                 if (++count % 50 == 0) {
                     assureCacheSizeLimit();
@@ -521,6 +546,10 @@ public class GlobalCacheImpl implements GlobalCache {
 
     protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
         cleaner.evictObjectAndItsAccessEntires(domainObject);
+    }
+
+    private boolean neverCache(String type) {
+        return Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached();
     }
 
     private static int __count;
