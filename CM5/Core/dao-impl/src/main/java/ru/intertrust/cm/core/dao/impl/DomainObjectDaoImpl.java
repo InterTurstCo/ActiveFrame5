@@ -1,96 +1,34 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
-import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
-import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.DynamicGroupService;
-import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.api.ActionListener;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
-import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.EventLogService;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
-import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
-import ru.intertrust.cm.core.dao.api.IdGenerator;
-import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.extension.*;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.*;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
 /**
  * Класс реализации работы с доменным объектом
@@ -551,20 +489,33 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Query query = generateUpdateQuery(domainObjectTypeConfig, isUpdateStatus);
 
-        Date currentDate = new Date();
+        Date[] newModifiedDates = new Date[domainObjects.length];
+        Date now = new Date();
         // В случае если сохранялся родительский объект то берем дату
         // модификации из нее, иначе в базе и возвращаемом доменном объекте
         // будут различные даты изменения и изменение объект отвалится по ошибке
         // OptimisticLockException
         if (parentDOs != null) {
-            currentDate = parentDOs[0].getModifiedDate();
+            for (int i = 0; i < updatedObjects.length; i++) {
+                newModifiedDates[i] = parentDOs[i].getModifiedDate();
+            }
+        } else { // root DO
+            for (int i = 0; i < updatedObjects.length; i++) {
+                GenericDomainObject updatedObject = updatedObjects[i];
+                final Date modifiedDate = updatedObject.getModifiedDate();
+                if (now.compareTo(modifiedDate) > 0) {
+                    newModifiedDates[i] = now;
+                } else {
+                    newModifiedDates[i] = new Date(modifiedDate.getTime() + 1);
+                }
+            }
         }
 
         if (query != null) {
             List<Map<String, Object>> parameters = new ArrayList<>(domainObjects.length);
             for (int i = 0; i < updatedObjects.length; i++) {
                 parameters.add(initializeUpdateParameters(
-                        updatedObjects[i], domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus));
+                        updatedObjects[i], domainObjectTypeConfig, accessToken, newModifiedDates[i], isUpdateStatus));
             }
 
             BatchPreparedStatementSetter batchPreparedStatementSetter =
@@ -580,7 +531,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                     if (!isDerived(domainObjectTypeConfig)) {
                         if (count[j][i] == 0) {
-                            globalCacheClient.invalidateCurrentNode(new CacheInvalidation(Collections.singleton(updatedObjects[n].getId()), false));
+                            HashSet<Id> toInvalidate = new HashSet<>();
+                            for (GenericDomainObject updatedObject : updatedObjects) {
+                                toInvalidate.add(updatedObject.getId());
+                            }
+                            globalCacheClient.invalidateCurrentNode(new CacheInvalidation(toInvalidate, false));
                             throw new OptimisticLockException(updatedObjects[n]);
                         }
                     }
@@ -590,9 +545,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
         }
 
+        final Id currentUser = getCurrentUser(accessToken);
         for (int i = 0; i < updatedObjects.length; i++) {
 
-            updatedObjects[i].setModifiedDate(currentDate);
+            updatedObjects[i].setModifiedDate(newModifiedDates[i]);
+            updatedObjects[i].setModifiedBy(currentUser);
             updatedObjects[i].resetDirty();
 
             if (isUpdateStatus) {

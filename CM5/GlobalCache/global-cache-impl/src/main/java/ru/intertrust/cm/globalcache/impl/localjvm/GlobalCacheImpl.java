@@ -1111,9 +1111,7 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private void clearDomainObjectNode(Id id, ObjectNode cachedNode) {
-        clearParentsLinkedObjects(Collections.singletonList(id), ObjectNode.LinkedObjects.All);
-        clearFullRetrieval(domainObjectTypeIdCache.getName(id), null);
-        cachedNode.setDomainObject(null);
+        evictObjectAndCorrespondingEntries(id);
     }
 
     private void updateUniqueKeys(DomainObject object) {
@@ -1557,9 +1555,8 @@ public class GlobalCacheImpl implements GlobalCache {
             if (domainObject == null) {
                 return NodeDomainObject.Nothing;
             }
-            // suspicious situation... todo: log
             if (GenericDomainObject.isAbsent(cachedDomainObject)) {
-                return NodeDomainObject.Set;
+                return NodeDomainObject.Clear;
             }
 
             if (GenericDomainObject.isAbsent(domainObject)) {
@@ -1572,7 +1569,7 @@ public class GlobalCacheImpl implements GlobalCache {
             } else if (comparison == 0 && !domainObject.equals(cachedDomainObject)) {
                 return NodeDomainObject.Clear;
             } else {
-                return NodeDomainObject.Nothing;
+                return NodeDomainObject.Clear;
             }
         }
 

@@ -6,9 +6,9 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
  *         Time: 17:40
  */
 public class ModificationTime {
-    private long saveTime;
-    private long objectModifiedTime;
-    private long rightsChangedTime;
+    private volatile long saveTime;
+    private volatile long objectModifiedTime;
+    private volatile long rightsChangedTime;
 
     public ModificationTime(long saveTime, long objectModifiedTime, long rightsChangedTime) {
         this.saveTime = saveTime;
@@ -19,15 +19,21 @@ public class ModificationTime {
     public synchronized void updateSaveTime(long saveTime, long objectModifiedTime) {
         if (saveTime > this.saveTime) {
             this.saveTime = saveTime;
+        } else {
+            ++this.saveTime;
         }
         if (objectModifiedTime > this.objectModifiedTime) {
             this.objectModifiedTime = objectModifiedTime;
+        } else {
+            ++this.objectModifiedTime;
         }
     }
 
     public synchronized void updateRightsChangeTime(long time) {
         if (time > rightsChangedTime) {
             this.rightsChangedTime = time;
+        } else {
+            ++this.rightsChangedTime;
         }
     }
 
