@@ -10,9 +10,10 @@ import java.util.Map;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
@@ -283,7 +284,11 @@ public class DoelResolver implements DoelEvaluator {
                         link.setLeftExpression(new Column(new Table(null, "t" + (tableNum - 1)),
                                 getSqlName(linkField)));
                         link.setRightExpression(new Column(new Table(null, "t" + tableNum), getSqlName("id")));
-                        join.setOnExpression(link);
+                        EqualsTo linkType = new EqualsTo();
+                        linkType.setLeftExpression(new Column(new Table(null, "t" + (tableNum - 1)),
+                                getSqlName(linkField) + "_type"));
+                        linkType.setRightExpression(new Column(new Table(null, "t" + tableNum), getSqlName("id_type")));
+                        join.setOnExpression(new AndExpression(link, linkType));
                         joins.add(join);
                     }
                     tableNum++;
@@ -307,7 +312,12 @@ public class DoelResolver implements DoelEvaluator {
                     link.setLeftExpression(new Column(new Table(null, "t" + (tableNum - 1)), getSqlName(linkField)));
                     link.setRightExpression(new Column(new Table(null, "t" + tableNum),
                             getSqlName(childrenElem.getParentLink())));
-                    join.setOnExpression(link);
+                    EqualsTo linkType = new EqualsTo();
+                    linkType.setLeftExpression(new Column(new Table(null, "t" + (tableNum - 1)),
+                            getSqlName(linkField + "_type")));
+                    linkType.setRightExpression(new Column(new Table(null, "t" + tableNum),
+                            getSqlName(childrenElem.getParentLink() + "_type")));
+                    join.setOnExpression(new AndExpression(link, linkType));
                     joins.add(join);
                 }
                 tableNum++;
@@ -348,8 +358,6 @@ public class DoelResolver implements DoelEvaluator {
             fields.add(item);
         }
         plainSelect.setSelectItems(fields);
-        //plainSelect.accept(new WrapAndLowerCaseSelectVisitor());
-        //applyAcl(select, accessToken);
 
         List<Value> values = executeQuery(select.toString(), accessToken);
 
@@ -451,34 +459,25 @@ public class DoelResolver implements DoelEvaluator {
         throw new IllegalArgumentException("Field " + field + " not exists in type " + type);
     }
 
-    @SuppressWarnings("unused")
-    private Join makeJoin(String tableName, int num, String prevField, String currentField) {
-        Join join = new Join();
-        Table table = new Table();
-        table.setName(tableName);
-        table.setAlias(new Alias("t" + num));
-        join.setRightItem(table);
-        EqualsTo link = new EqualsTo();
-        link.setLeftExpression(new Column(new Table(null, "t" + (num - 1)), getSqlName(prevField)));
-        link.setRightExpression(new Column(new Table(null, "t" + num), getSqlName(currentField)));
-        join.setOnExpression(link);
-        return join;
-    }
-
     private Expression makeWhere(String field, List<RdbmsId> ids) {
         Column column = new Column(new Table(null, "t0"), getSqlName(field));
-        if (ids.size() == 1) {
-            EqualsTo where = new EqualsTo();
-            where.setLeftExpression(column);
-            where.setRightExpression(new LongValue(String.valueOf(ids.get(0).getId())));
-            return where;
-        } else {
-            ArrayList<Expression> idList = new ArrayList<>(ids.size());
-            for (RdbmsId id : ids) {
-                idList.add(new LongValue(String.valueOf(id.getId())));
+        Column typeCol = new Column(new Table(null, "t0"), getSqlName(field + "_type"));
+        Expression where = null;
+        for (RdbmsId id : ids) {
+            EqualsTo eqId = new EqualsTo();
+            eqId.setLeftExpression(column);
+            eqId.setRightExpression(new LongValue(String.valueOf(id.getId())));
+            EqualsTo eqType = new EqualsTo();
+            eqType.setLeftExpression(typeCol);
+            eqType.setRightExpression(new LongValue(String.valueOf(id.getTypeId())));
+            AndExpression eq = new AndExpression(eqId, eqType);
+            if (where == null) {
+                where = eq;
+            } else {
+                where = new OrExpression(new Parenthesis(where), new Parenthesis(eq));
             }
-            return new InExpression(column, new ExpressionList(idList));
         }
+        return where;
     }
 
     //@Deprecated

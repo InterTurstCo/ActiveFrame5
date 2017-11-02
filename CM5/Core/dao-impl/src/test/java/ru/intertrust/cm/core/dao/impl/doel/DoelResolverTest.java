@@ -84,9 +84,9 @@ public class DoelResolverTest {
         String correctSql =
                 "select t2.\"department\", t2.\"department_type\" " +
                 "from \"commission\" t0 " +
-                "join \"job\" t1 on t0.\"id\" = t1.\"parent\" " +
-                "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
-                "where t0.\"parent\" = 105";
+                "join \"job\" t1 on t0.\"id\" = t1.\"parent\" and t0.\"id_type\" = t1.\"parent_type\" " +
+                "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" and t1.\"assignee_type\" = t2.\"id_type\" " +
+                "where t0.\"parent\" = 105 and t0.\"parent_type\" = 1";
         verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
     }
@@ -112,8 +112,8 @@ public class DoelResolverTest {
         String correctSql =
                 "select t1.\"department\", t1.\"department_type\" " +
                 "from \"job\" t0 " +
-                "join \"person\" t1 on t0.\"assignee\" = t1.\"id\" " +
-                "where t0.\"parent\" in (11, 12)";
+                "join \"person\" t1 on t0.\"assignee\" = t1.\"id\" and t0.\"assignee_type\" = t1.\"id_type\" " +
+                "where (t0.\"parent\" = 11 and t0.\"parent_type\" = 2) or (t0.\"parent\" = 12 and t0.\"parent_type\" = 2)";
         verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
     }
@@ -130,10 +130,10 @@ public class DoelResolverTest {
         String correctSql =
                 "select t3.\"name\" " +
                 "from \"commission\" t0 " +
-                "join \"job\" t1 on t0.\"id\" = t1.\"parent\" " +
-                "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
-                "join \"unit\" t3 on t2.\"department\" = t3.\"id\" " +
-                "where t0.\"parent\" = 105";
+                "join \"job\" t1 on t0.\"id\" = t1.\"parent\" and t0.\"id_type\" = t1.\"parent_type\" " +
+                "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" and t1.\"assignee_type\" = t2.\"id_type\" " +
+                "join \"unit\" t3 on t2.\"department\" = t3.\"id\" and t2.\"department_type\" = t3.\"id_type\" " +
+                "where t0.\"parent\" = 105 and t0.\"parent_type\" = 1";
         verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
     }
@@ -147,9 +147,9 @@ public class DoelResolverTest {
         String correctSql =
                 "select t2.\"name\" " +
                 "from \"commission\" t0 " +
-                "join \"incomingdocument\" t1 on t0.\"parent\" = t1.\"id\" " +
-                "join \"person\" t2 on t1.\"addressee\" = t2.\"id\" " +
-                "where t0.\"id\" = 11";
+                "join \"incomingdocument\" t1 on t0.\"parent\" = t1.\"id\" and t0.\"parent_type\" = t1.\"id_type\" " +
+                "join \"person\" t2 on t1.\"addressee\" = t2.\"id\" and t1.\"addressee_type\" = t2.\"id_type\" " +
+                "where t0.\"id\" = 11 and t0.\"id_type\" = 2";
         verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
     }
@@ -176,11 +176,11 @@ public class DoelResolverTest {
         String correctSql1 =
                 "select t0.\"from\", t0.\"from_type\" " +
                 "from \"universallink\" t0 " +
-                "where t0.\"id\" = " + linkId.getId();
+                "where t0.\"id\" = " + linkId.getId() + " and t0.\"id_type\" = " + linkId.getTypeId();
         String correctSql2 =
                 "select t0.\"name\" " +
                 "from \"document\" t0 " +
-                "where t0.\"id\" = " + docId.getId();
+                "where t0.\"id\" = " + docId.getId() + " and t0.\"id_type\" = " + docId.getTypeId();
         //verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql1)), any(RowMapper.class));
         verify(collectionsDao, times(2)).findCollectionByQuery(sql.capture(), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
@@ -209,8 +209,8 @@ public class DoelResolverTest {
         String correctSql =
                 "select t1.\"id\", t1.\"id_type\" " +
                 "from \"universallink\" t0 " +
-                "join \"commission\" t1 on t0.\"from\" = t1.\"parent\" " +
-                "where t0.\"id\" = " + linkId.getId();
+                "join \"commission\" t1 on t0.\"from\" = t1.\"parent\" and t0.\"from_type\" = t1.\"parent_type\" " +
+                "where t0.\"id\" = " + linkId.getId() + " and t0.\"id_type\" = " + linkId.getTypeId();
         verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
     }
@@ -260,11 +260,11 @@ public class DoelResolverTest {
         String correctSql1 =
                 "select t0.\"id\", t0.\"id_type\" " +
                 "from \"commission\" t0 " +
-                "where t0.\"parent\" = " + docId.getId();
+                "where t0.\"parent\" = " + docId.getId() + " and t0.\"parent_type\" = " + docId.getTypeId();
         String correctSql2 =
                 "select t0.\"assignee\", t0.\"assignee_type\" " +
                 "from \"job\" t0 " +
-                "where t0.\"parent\" = " + comm1Id.getId();
+                "where t0.\"parent\" = " + comm1Id.getId() + " and t0.\"parent_type\" = " + comm1Id.getTypeId();
         verify(collectionsDao, times(2)).findCollectionByQuery(sql.capture(), any(Integer.class),
                 any(Integer.class), any(AccessToken.class));
         assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
