@@ -80,7 +80,10 @@ public class UniqueKeyIdMapping implements Sizeable {
     public void clear(UniqueKey uniqueKey) {
         final Id removedId = idByUniqueKey.remove(uniqueKey);
         if (removedId != null) {
-            uniqueKeyById.get(removedId).remove(uniqueKey);
+            final SizeableConcurrentHashMap<UniqueKey, UniqueKey> existingUniqueKeys = uniqueKeyById.get(removedId);
+            if (existingUniqueKeys != null) {
+                existingUniqueKeys.remove(uniqueKey);
+            }
         }
         clearNullValue(uniqueKey);
     }
