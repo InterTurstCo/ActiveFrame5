@@ -140,7 +140,6 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 .withWidgetDisplayConfig(getDisplayConfig())
                 .withParentWidget(this)
                 .buildViewHolder();
-
         return viewHolder.getWidget();
     }
 
@@ -153,9 +152,20 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 .withEditable(false)
                 .withHasLinkedFormMappings(this)
                 .withWidgetDisplayConfig(getDisplayConfig())
+                .withHeight(calculateDynamicHeight(state))
                 .buildViewHolder();
         return viewHolder.getWidget();
 
+    }
+
+    private Integer calculateDynamicHeight(WidgetState state) {
+        if ((((TableBrowserState) state).getTableBrowserConfig().getPageSize() == 0 || ((TableBrowserState) state).getTableBrowserConfig().getPageSize() <= 0
+        ) && (getDisplayConfig() == null || getDisplayConfig().getHeight()==null) && (((TableBrowserState) state).getStretched())) {
+            if (((TableBrowserState) state).getSelectedIds().size() > 0) {
+                return ((TableBrowserState) state).getSelectedIds().size() * 26;
+            }
+        }
+        return null;
     }
 
     private void commonInitialization(WidgetState state) {
@@ -231,7 +241,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     }
 
     protected void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
-                                      PluginPanel pluginPanel) {
+                                        PluginPanel pluginPanel) {
         collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         collectionPlugin.setLocalEventBus(localEventBus);
         collectionPlugin.setConfig(collectionViewerConfig);

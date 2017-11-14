@@ -23,6 +23,7 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
     private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
     private boolean isTemporaryState;
     private DomainObject rootObject;
+    private Boolean stretched = false;
 
     public TableBrowserConfig getTableBrowserConfig() {
         return tableBrowserConfig;
@@ -109,5 +110,13 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
 
     public boolean isTableView(){
         return WidgetUtil.drawAsTable(getWidgetConfig().getSelectionStyleConfig());
+    }
+
+    public Boolean getStretched() {
+        return stretched;
+    }
+
+    public void setStretched(Boolean stretched) {
+        this.stretched = stretched;
     }
 }

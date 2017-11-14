@@ -32,6 +32,7 @@ public class TableBrowserViewsBuilder {
     private int dialogWidth;
     private int dialogHeight;
     private int tableHeight;
+    private Integer externalHeight;
     private int tableWidth;
     private TableBrowserState state;
     private HasLinkedFormMappings hasLinkedFormMappings;
@@ -57,6 +58,13 @@ public class TableBrowserViewsBuilder {
         return this;
 
     }
+
+    public TableBrowserViewsBuilder withHeight(Integer height) {
+        this.externalHeight =height;
+        return this;
+
+    }
+
 
     public TableBrowserViewsBuilder withEditable(boolean editable) {
         this.editable = editable;
@@ -116,7 +124,7 @@ public class TableBrowserViewsBuilder {
 
     private void initWidgetSize() {
         String heightString = displayConfig!= null ? displayConfig.getHeight() : null;
-        tableHeight = heightString == null ? DEFAULT_TABLE_HEIGHT : Integer.parseInt(heightString.replaceAll("\\D+", ""));
+        tableHeight = heightString == null ? ((externalHeight==null)?DEFAULT_TABLE_HEIGHT:externalHeight) : Integer.parseInt(heightString.replaceAll("\\D+", ""));
         String widthString = displayConfig!= null ? displayConfig.getWidth() : null;
         tableWidth = widthString == null ? DEFAULT_TABLE_WIDTH : Integer.parseInt(widthString.replaceAll("\\D+", ""));
     }

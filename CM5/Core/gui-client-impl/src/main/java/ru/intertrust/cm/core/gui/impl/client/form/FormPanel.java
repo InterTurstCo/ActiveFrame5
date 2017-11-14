@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
@@ -338,6 +339,13 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
                 widget.setMessages(messages);
                 widget.setEventBus(eventBus);
                 widget.setContainer(this);
+
+                //CMFIVE-7785
+                if(widgetState instanceof TableBrowserState){
+                    if(row.getHeight()==null)
+                    ((TableBrowserState)widgetState).setStretched(true);
+                }
+
                 widget.setState(widgetState);
                 widgets.add(widget);
                 AbsolutePanel wrapper = new AbsolutePanel();
