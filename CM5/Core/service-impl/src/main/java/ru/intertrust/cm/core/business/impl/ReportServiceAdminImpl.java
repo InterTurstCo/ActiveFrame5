@@ -47,6 +47,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -310,6 +311,10 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null){
+        	throw new FatalException("Application start with JRE, but need JDK");
+        }
+        
 
         StandardJavaFileManager stdFileManager = compiler
                 .getStandardFileManager(null, Locale.getDefault(), null);
