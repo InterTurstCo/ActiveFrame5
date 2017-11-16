@@ -17,6 +17,7 @@ public class TableViewerState extends WidgetState {
     private CreatedObjectsConfig restrictedCreatedObjectsConfig;
     private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
     private DomainObject rootObject;
+    private Boolean stretched;
 
     public TableViewerState() {
     }
@@ -55,5 +56,13 @@ public class TableViewerState extends WidgetState {
 
     public void setRootObject(DomainObject rootObject) {
         this.rootObject = rootObject;
+    }
+
+    public Boolean getStretched() {
+        return stretched;
+    }
+
+    public void setStretched(Boolean stretched) {
+        this.stretched = stretched;
     }
 }

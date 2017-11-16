@@ -39,6 +39,7 @@ public class CollectionWidgetHelper {
 
     private List<BreadCrumbItem> breadCrumbItems ;
     private EventBus eventBus;
+    private EventBus parentEventBus;
 
     public CollectionWidgetHelper(EventBus eventBus) {
 
@@ -80,6 +81,11 @@ public class CollectionWidgetHelper {
         });
     }
 
+    public void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
+                                     final PluginPanel pluginPanel, EventBus parentBus){
+        parentEventBus = parentBus;
+        openCollectionPlugin(collectionViewerConfig, navigationConfig,pluginPanel);
+    }
 
     public void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
                                       final PluginPanel pluginPanel) {
@@ -92,7 +98,9 @@ public class CollectionWidgetHelper {
             public void onViewCreation(PluginViewCreatedEvent source) {
                 CollectionPluginView view = (CollectionPluginView) collectionPlugin.getView();
                 view.setBreadcrumbWidgets(breadCrumbItemsToWidgets(pluginPanel));
-
+                if(parentEventBus!=null){
+                    view.setParentContainerEventBus(parentEventBus);
+                }
             }
         });
         pluginPanel.open(collectionPlugin);

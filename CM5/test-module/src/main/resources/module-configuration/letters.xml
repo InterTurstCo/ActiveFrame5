@@ -349,7 +349,8 @@
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <linked-form name="organization_form" inline="true"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px" modal-width="800px" resizable="true"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px"
+                                 modal-width="800px" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                 </linked-form-mapping>
@@ -500,9 +501,9 @@
                      </extra-filter>-->
 
                     <!-- current user example, login person1/admin, create new  organization via hierarchy browser-->
-                     <!--<extra-filter name="byCreator">
-                         <param name="0" set-current-user="true"/>
-                     </extra-filter>-->
+                    <!--<extra-filter name="byCreator">
+                        <param name="0" set-current-user="true"/>
+                    </extra-filter>-->
 
                     <!-- filter organizations by boss employee with phone number "8 (495) 777-55-01"   -->
 
@@ -515,21 +516,21 @@
                     </extra-filter>-->
 
                     <!-- current date example-->
-                   <!-- <extra-filter name="byCreatedDate">
-                        <param name="0" set-current-moment="true" type="datetime"/>
-                    </extra-filter>-->
+                    <!-- <extra-filter name="byCreatedDate">
+                         <param name="0" set-current-moment="true" type="datetime"/>
+                     </extra-filter>-->
                     <!-- <param name="6" set-base-object="true"/>-->
-                 </collection-extra-filters>
-             </suggest-box>
+                </collection-extra-filters>
+            </suggest-box>
 
-             <table-browser id="l_tablebrowser" resizable="true">
-                 <dialog-window resizable="true" height="400px" width="700px"/>
-                 <field-path
-                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
-                 <collection-ref name="Organizations"/>
-                 <collection-view-ref name="organizations_default_view"/>
+            <table-browser id="l_tablebrowser" resizable="true">
+                <dialog-window resizable="true" height="400px" width="700px"/>
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
+                <collection-ref name="Organizations"/>
+                <collection-view-ref name="organizations_default_view"/>
 
-                 <!-- паттерн отображения уже выбранных значений -->
+                <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name}"/>
 
                 <!-- название фильтра по тексту, введённому пользователем -->
@@ -547,7 +548,8 @@
                 <display-values-as-links value="true" modal-window="false"/>
 
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="300px" modal-width="700px" resizable="true"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="300px"
+                                 modal-width="700px" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                     <linked-form name="developer_form2" domain-object-type="Developer">
@@ -576,56 +578,56 @@
                     <created-object domain-object-type="Employee" text="Сотрудник"/>
                     <created-object domain-object-type="Developer" text="Разработчки"/>
                 </created-objects>
-                 <selection-filters >
+                <selection-filters>
                     <selection-filter name="byNames">
                         <param name="0" value="Организация 11" type="string"/>
                         <param name="1" value="Организация 1" type="string"/>
                         <param name="2" value="Организация 2" type="string"/>
                         <param name="3" value="Организация 22" type="string"/>
                     </selection-filter>
-                 </selection-filters>
-            <!--    <collection-extra-filters>
-                    &lt;!&ndash;<extra-filter name="byStatus">
-                        <param name="0" widget-id="status"/>
-                    </extra-filter>&ndash;&gt;
-                    <extra-filter name="byNames">
-                        <param name="0" value="Организация 1" type="string"/>
-                        <param name="1" value="Организация 2" type="string"/>
+                </selection-filters>
+                <!--    <collection-extra-filters>
+                        &lt;!&ndash;<extra-filter name="byStatus">
+                            <param name="0" widget-id="status"/>
+                        </extra-filter>&ndash;&gt;
+                        <extra-filter name="byNames">
+                            <param name="0" value="Организация 1" type="string"/>
+                            <param name="1" value="Организация 2" type="string"/>
 
-                    </extra-filter>
-                   &lt;!&ndash; <extra-filter name="byCreator">
-                        <param name="0" set-current-user="true"/>
-                    </extra-filter>&ndash;&gt;
-                   &lt;!&ndash; <extra-filter name="byEmployee">
-                        <param name="0" type="reference">
-                            <unique-key-value type="Employee">
-                                <field name="Phone" value="8 (495) 777-55-01"/>
-                            </unique-key-value>
-                        </param>
-                    </extra-filter>&ndash;&gt;
-                   &lt;!&ndash; <extra-filter name="filter2" null-value-filter-name="filter-by-null">
-                        <param name="0" value="3.14" type="decimal"/>
-                        <param name="1" value="true" type="boolean"/>
-                        <param name="2" value="2014-07-11 19:32:57.737" time-zone-id="Europe/Kiev" type="datetime"/>
-                        <param name="3" set-current-moment="true" type="datetime"/>
-                        <param name="4" set-current-moment="true" type="dateTimeWithTimeZone"/>
-                        <param name="5" set-current-moment="true" type="timelessDate"/>
-                        <param name="6" set-base-object="true"/>
-                        <param name="7" set-current-user="true"/>
-                    </extra-filter>
-                    <extra-filter name="filter3">
-                        <param name="0" value="3.14" type="reference"/>
-                        <param name="1" widget-id="some-text-field" type="string"/>
-                        <param name="2" widget-id="some-suggest-box" type="reference"/>
-                        <param name="3" type="reference">
-                            <unique-key-value type="Employee">
-                                <field name="Phone" value="8 (495) 777-55-01"/>
+                        </extra-filter>
+                       &lt;!&ndash; <extra-filter name="byCreator">
+                            <param name="0" set-current-user="true"/>
+                        </extra-filter>&ndash;&gt;
+                       &lt;!&ndash; <extra-filter name="byEmployee">
+                            <param name="0" type="reference">
+                                <unique-key-value type="Employee">
+                                    <field name="Phone" value="8 (495) 777-55-01"/>
+                                </unique-key-value>
+                            </param>
+                        </extra-filter>&ndash;&gt;
+                       &lt;!&ndash; <extra-filter name="filter2" null-value-filter-name="filter-by-null">
+                            <param name="0" value="3.14" type="decimal"/>
+                            <param name="1" value="true" type="boolean"/>
+                            <param name="2" value="2014-07-11 19:32:57.737" time-zone-id="Europe/Kiev" type="datetime"/>
+                            <param name="3" set-current-moment="true" type="datetime"/>
+                            <param name="4" set-current-moment="true" type="dateTimeWithTimeZone"/>
+                            <param name="5" set-current-moment="true" type="timelessDate"/>
+                            <param name="6" set-base-object="true"/>
+                            <param name="7" set-current-user="true"/>
+                        </extra-filter>
+                        <extra-filter name="filter3">
+                            <param name="0" value="3.14" type="reference"/>
+                            <param name="1" widget-id="some-text-field" type="string"/>
+                            <param name="2" widget-id="some-suggest-box" type="reference"/>
+                            <param name="3" type="reference">
+                                <unique-key-value type="Employee">
+                                    <field name="Phone" value="8 (495) 777-55-01"/>
 
-                            </unique-key-value>
-                        </param>
-                    </extra-filter>&ndash;&gt;
-                </collection-extra-filters>-->
-                 <!--collection-table-buttons display-all-possible="true"/-->
+                                </unique-key-value>
+                            </param>
+                        </extra-filter>&ndash;&gt;
+                    </collection-extra-filters>-->
+                <!--collection-table-buttons display-all-possible="true"/-->
             </table-browser>
 
 
@@ -694,7 +696,7 @@
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <selection-filters >
+                    <selection-filters>
                         <selection-filter name="byNames">
                             <param name="0" value="Организация 9" type="string"/>
                             <param name="1" value="Организация 10" type="string"/>
@@ -787,7 +789,7 @@
                             <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
 
                         </node-collection-def>
-                        <node-collection-def collection="employees" parent-filter="byDepartment" >
+                        <node-collection-def collection="employees" parent-filter="byDepartment">
                             <single-choice value="true"/>
                             <!-- название фильтра по тексту, введённому пользователем -->
                             <fill-parent-on-add field-to-fill="department"/>
@@ -795,7 +797,8 @@
                             <!-- паттерн отображения уже выбранных значений -->
                             <selection-pattern value="{name} {position}"/>
                             <linked-form-mapping>
-                                <linked-form name="employee_form" domain-object-type="employee" modal-height="500px" modal-width="400px"/>
+                                <linked-form name="employee_form" domain-object-type="employee" modal-height="500px"
+                                             modal-width="400px"/>
                             </linked-form-mapping>
                         </node-collection-def>
                     </node-collection-def>
@@ -849,7 +852,8 @@
                     </created-objects>
                     <linked-form-mapping>
 
-                        <linked-form name="organization_form" domain-object-type="organization" modal-height="500px" modal-width="400px" resizable="true"/>
+                        <linked-form name="organization_form" domain-object-type="organization" modal-height="500px"
+                                     modal-width="400px" resizable="true"/>
 
                     </linked-form-mapping>
                     <!--<selection-filters row-limit="1"></selection-filters>-->
@@ -886,7 +890,7 @@
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <node-collection-def collection="employees" parent-filter="byDepartment" >
+                        <node-collection-def collection="employees" parent-filter="byDepartment">
                             <single-choice value="true"/>
                             <!-- название фильтра по тексту, введённому пользователем -->
                             <fill-parent-on-add field-to-fill="department"/>
@@ -894,7 +898,8 @@
                             <!-- паттерн отображения уже выбранных значений -->
                             <selection-pattern value="{name} {position}"/>
                             <linked-form-mapping>
-                                <linked-form name="employee_form" domain-object-type="employee" modal-height="500px" modal-width="400px"/>
+                                <linked-form name="employee_form" domain-object-type="employee" modal-height="500px"
+                                             modal-width="400px"/>
                             </linked-form-mapping>
                         </node-collection-def>
                     </node-collection-def>
@@ -950,39 +955,29 @@
                 </mapping>
             </enumeration-box>
             <table-viewer id="table-viewer" edit-component="abra.cabra">
-
+                <page-size>10</page-size>
                 <ignore-form-read-only-state value="false"/>
                 <collection-viewer>
                     <collection-ref name="Organizations"/>
                     <collection-view-ref name="organizations_default_view"/>
                     <default-sort-criteria column-field="name" order="desc"/>
 
-                    <!--collection-extra-filters>
-                        <extra-filter name="byNames" null-value-filter-name="nullValueFilter">
-                            <param name="0" set-base-object="true"/>
-
-                            <param name="0" value="Организация 1" type="string"/>
-                            <param name="1" value="Организация 2" type="string"/>
-                            <param name="2" value="Организация 3" type="string"/>
-                            <param name="3" value="Организация 4" type="string"/>
-
-                        </extra-filter>
-                    </collection-extra-filters-->
-
-
-
                     <act:tool-bar useDefault="true">
                         <act:action name="oAction" componentName="ordinary.action" text="Тест Ordinary Action"
-                                    />
-                        <act:simple-action componentName="simple.action" action-handler="test.simple.action" text="Тест SimpleAction"/>
+                        />
+                        <act:simple-action componentName="simple.action" action-handler="test.simple.action"
+                                           text="Тест SimpleAction"/>
                     </act:tool-bar>
                     <rows-selection default-state="empty" multi-selection="true"/>
                 </collection-viewer>
                 <collection-table-buttons display-all-possible="false"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px" modal-width="800px" resizable="true"/>
-                    <linked-form name="department_form" domain-object-type="Department" modal-height="400px" modal-width="600px"/>
-                    <linked-form name="employee_form" domain-object-type="Employee" modal-height="400px" modal-width="600px"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px"
+                                 modal-width="800px" resizable="true"/>
+                    <linked-form name="department_form" domain-object-type="Department" modal-height="400px"
+                                 modal-width="600px"/>
+                    <linked-form name="employee_form" domain-object-type="Employee" modal-height="400px"
+                                 modal-width="600px"/>
                 </linked-form-mapping>
                 <created-objects>
                     <created-object domain-object-type="Organization" text="Организация"/>
@@ -990,20 +985,6 @@
                     <created-object domain-object-type="Employee" text="Сотрудник"/>
                 </created-objects>
 
-<!--
-                <collection-ref name="Organizations"/>
-                <collection-view-ref name="organizations_default_view"/>
-                <default-sort-criteria column-field="name" order="desc"/>
-                <collection-extra-filters>
-                    <extra-filter name="byNames" >
-                        <param name="0" value="Организация 1" type="string"/>
-                        <param name="1" value="Организация 2" type="string"/>
-                        <param name="2" value="Организация 3" type="string"/>
-                        <param name="3" value="Организация 4" type="string"/>
-                    </extra-filter>
-                </collection-extra-filters>
-                <collection-table-buttons display-all-possible="false"/>
--->
             </table-viewer>
         </widget-config>
     </form>
@@ -1084,7 +1065,8 @@
             <text-box id="position">
                 <field-path value="Position"/>
             </text-box>
-            <linked-domain-object-hyperlink id="hyperlink" modal-window="false"> <!-- для единичного связанного объекта -->
+            <linked-domain-object-hyperlink id="hyperlink"
+                                            modal-window="false"> <!-- для единичного связанного объекта -->
                 <field-path value="department"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
                 <linked-form name="department_form2">
@@ -1131,7 +1113,8 @@
         </widget-config>
     </form>
 
-    <form name="department_form" domain-object-type="Department" is-default="true" default-value-setter="department.form.value.setter">
+    <form name="department_form" domain-object-type="Department" is-default="true"
+          default-value-setter="department.form.value.setter">
         <default-value-setter component="department.form.value.setter">
             <widget-states>
                 <editable/>
@@ -1203,7 +1186,7 @@
                         </td>
                         <td width="50%" h-align="left">
                             <widget id="Organization"/>
-                        </td>     
+                        </td>
                         <!-- text-box (Название) -->
                     </tr>
                 </table>
@@ -1356,7 +1339,8 @@
 
                 <text>Departments:</text>
             </label>
-            <linked-domain-object-hyperlink id="hyperlink" modal-window="false"> <!-- для единичного связанного объекта -->
+            <linked-domain-object-hyperlink id="hyperlink"
+                                            modal-window="false"> <!-- для единичного связанного объекта -->
                 <field-path value="boss"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
                 <linked-form name="employee_form">
@@ -1364,8 +1348,7 @@
                 <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name} {created_date}"/>
                 <!-- в паттерне ссылки задаются относительно field-path -->
-               <!-- <selection-filters row-limit="1"></selection-filters>-->
-
+                <!-- <selection-filters row-limit="1"></selection-filters>-->
 
 
             </linked-domain-object-hyperlink>
@@ -1494,40 +1477,40 @@
                 <!-- collection - название коллекции для отображения списка значений узла -->
 
 
-                    <!--<selection-filters row-limit="1"></selection-filters>-->
-                    <node-collection-def collection="departments" parent-filter="byOrganization"
-                                         title="Департамент" display-create-button="true">
-                        <single-choice value="false"/>
+                <!--<selection-filters row-limit="1"></selection-filters>-->
+                <node-collection-def collection="departments" parent-filter="byOrganization"
+                                     title="Департамент" display-create-button="true">
+                    <single-choice value="false"/>
 
-                        <linked-form-mapping>
-                            <linked-form name="department_form" domain-object-type="department">
-                                <title>
-                                    <existing-object>
-                                        <pattern value="{id}, {created_date}"/>
-                                        <formatting>
-                                            <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
-                                                <time-zone id="Europe/Kiev"/>
-                                                <field-paths>
-                                                    <field-path value="created_date"/>
-                                                </field-paths>
-                                            </date-format>
-                                        </formatting>
-                                    </existing-object>
-                                    <new-object>
-                                        <pattern value="new form "/>
+                    <linked-form-mapping>
+                        <linked-form name="department_form" domain-object-type="department">
+                            <title>
+                                <existing-object>
+                                    <pattern value="{id}, {created_date}"/>
+                                    <formatting>
+                                        <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                            <time-zone id="Europe/Kiev"/>
+                                            <field-paths>
+                                                <field-path value="created_date"/>
+                                            </field-paths>
+                                        </date-format>
+                                    </formatting>
+                                </existing-object>
+                                <new-object>
+                                    <pattern value="new form "/>
 
-                                    </new-object>
-                                </title>
+                                </new-object>
+                            </title>
 
-                            </linked-form>
-                        </linked-form-mapping>
-                        <create-new-button text="Department" image="images/icons/arrow-down.png"/>
+                        </linked-form>
+                    </linked-form-mapping>
+                    <create-new-button text="Department" image="images/icons/arrow-down.png"/>
 
-                        <display-values-as-links value="false"/>
-                        <input-text-filter name="byName"/>
-                        <!-- паттерн отображения уже выбранных значений -->
-                        <selection-pattern value="{name}"/>
-                        <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+                    <display-values-as-links value="false"/>
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                    <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
 
                 </node-collection-def>
 

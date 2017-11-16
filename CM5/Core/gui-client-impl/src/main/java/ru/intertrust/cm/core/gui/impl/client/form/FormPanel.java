@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
+import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
@@ -344,6 +345,10 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
                 if(widgetState instanceof TableBrowserState){
                     if(row.getHeight()==null)
                     ((TableBrowserState)widgetState).setStretched(true);
+                }
+                if(widgetState instanceof TableViewerState){
+                    if(row.getHeight()==null)
+                        ((TableViewerState)widgetState).setStretched(true);
                 }
 
                 widget.setState(widgetState);

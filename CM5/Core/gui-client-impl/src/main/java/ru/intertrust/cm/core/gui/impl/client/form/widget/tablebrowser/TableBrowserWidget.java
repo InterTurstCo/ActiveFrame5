@@ -62,7 +62,7 @@ import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.*;
 public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemRemoveEventHandler,
         HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler, OpenCollectionRequestEventHandler,
         CheckBoxFieldUpdateEventHandler, ParentTabSelectedEventHandler {
-
+    private static int MAGIC_NUMBER = 26;
     protected CollectionDialogBox dialogBox;
     private ViewHolder viewHolder;
     private List<BreadCrumbItem> breadCrumbItems = new ArrayList<>();
@@ -162,7 +162,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         if ((((TableBrowserState) state).getTableBrowserConfig().getPageSize() == 0 || ((TableBrowserState) state).getTableBrowserConfig().getPageSize() <= 0
         ) && (getDisplayConfig() == null || getDisplayConfig().getHeight()==null) && (((TableBrowserState) state).getStretched())) {
             if (((TableBrowserState) state).getSelectedIds().size() > 0) {
-                return ((TableBrowserState) state).getSelectedIds().size() * 26;
+                return ((TableBrowserState) state).getSelectedIds().size() * MAGIC_NUMBER;
             }
         }
         return null;

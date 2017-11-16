@@ -72,8 +72,9 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
         OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler,
-        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement, FiltersRemoteManagement, UpdateCollectionEventHandler {
-
+        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement, FiltersRemoteManagement, UpdateCollectionEventHandler,
+        CollectionViewerUpdatedEventHandler {
+    private static int MAGIC_NUMBER = 40;
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
     private CollectionWidgetHelper collectionWidgetHelper;
@@ -84,12 +85,15 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private TableViewerState state;
     private Boolean editableState = true;
     private List<Id> selectedIds;
+    private Panel pluginWrapper;
+    private boolean stretch = false;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
         state = (TableViewerState) currentState;
+
         CollectionViewerConfig config = initCollectionConfig(state);
-        collectionWidgetHelper.openCollectionPlugin(config, null, pluginPanel);
+        collectionWidgetHelper.openCollectionPlugin(config, null, pluginPanel, localEventBus);
         toolbar.setConfig(this.config);
         if (toolbar.getAddButton() != null && state.getTableViewerConfig().getLinkedFormMappingConfig() != null &&
                 state.getTableViewerConfig().getCreatedObjectsConfig() != null) {
@@ -103,6 +107,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 toolbar.getAddButton().removeFromParent();
             }
         }
+
     }
 
     @Override
@@ -117,7 +122,16 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
+        setStretch(state);
         return initView();
+    }
+
+    private void setStretch(WidgetState state){
+        TableViewerState sTate = (TableViewerState)state;
+        stretch = sTate.getStretched()&&
+                (sTate.getTableViewerConfig().getPageSize()==null || sTate.getTableViewerConfig().getPageSize()<=0)
+                &&
+                (getDisplayConfig()==null || getDisplayConfig().getHeight()==null);
     }
 
     private CollectionPlugin getCollectionPlugin() {
@@ -126,7 +140,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     private Widget initView() {
         WidgetDisplayConfig displayConfig = getDisplayConfig();
-        final Panel pluginWrapper = new AbsolutePanel();
+        pluginWrapper = new AbsolutePanel();
         pluginWrapper.addStyleName("table-viewer-wrapper");
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
@@ -143,6 +157,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         int tableWidth = Integer.parseInt(width.replaceAll("\\D+", ""));
         pluginPanel.setVisibleWidth(tableWidth);
         pluginWrapper.add(pluginPanel);
+
         eventBus.addHandler(ParentTabSelectedEvent.TYPE, this);
         collectionWidgetHelper = new CollectionWidgetHelper(localEventBus);
         localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
@@ -153,11 +168,12 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(CustomDeleteEvent.TYPE, this);
         localEventBus.addHandler(CustomEditEvent.TYPE, this);
         localEventBus.addHandler(UpdateCollectionEvent.TYPE, this);
-
+        localEventBus.addHandler(CollectionViewerUpdatedEvent.TYPE, this);
         WidgetsContainer wc = getContainer();
         if (wc.getPlugin() instanceof FormPlugin) {
             editableState = ((FormPlugin) wc.getPlugin()).getInitialVisualState().isEditable();
         }
+
         return pluginWrapper;
     }
 
@@ -459,6 +475,14 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             }
         }
         refreshSelection();
+    }
+
+    @Override
+    public void collectionViewerUpdated(CollectionViewerUpdatedEvent event) {
+       if(stretch){
+            int rOws = (event.getRows() >= 6) ? event.getRows() : 6;
+            pluginWrapper.setHeight(String.valueOf(rOws * MAGIC_NUMBER) + "px");
+        }
     }
 
     class OpenFormClickHandler implements ClickHandler {

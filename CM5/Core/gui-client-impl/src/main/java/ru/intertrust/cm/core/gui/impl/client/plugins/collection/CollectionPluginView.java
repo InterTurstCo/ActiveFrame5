@@ -95,6 +95,7 @@ public class CollectionPluginView extends PluginView {
     private int lastScrollPos = -1;
     // локальная шина событий
     private EventBus eventBus;
+    private EventBus parentContainerEventBus;
     private CollectionCsvController csvController;
     private SetSelectionModel<CollectionRowItem> selectionModel;
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
@@ -115,6 +116,10 @@ public class CollectionPluginView extends PluginView {
     private void updateSizes() {
         tableWidth = plugin.getOwner().getVisibleWidth();
         columnHeaderController.adjustColumnsWidth(tableWidth, tableBody);
+    }
+
+    public void setParentContainerEventBus(EventBus parentContainerEventBus) {
+        this.parentContainerEventBus = parentContainerEventBus;
     }
 
     public CollectionDataGrid getTableBody() {
@@ -206,7 +211,14 @@ public class CollectionPluginView extends PluginView {
         insertInitialRows();
 
         csvController = new CollectionCsvController(root);
-
+        /**
+         *  Бросаем ивент о том что коллекция подгружена, с id вьюхи как парметром
+         *  те кто хочет подстроить размер, слушает его, сравнивает со своим PluginView
+         *  и меняет высоту панели
+         */
+        if(parentContainerEventBus!=null){
+            parentContainerEventBus.fireEvent(new CollectionViewerUpdatedEvent(tableBody.getRowCount()));
+        }
     }
 
     public List<Id> getSelectedIds() {
@@ -994,10 +1006,12 @@ public class CollectionPluginView extends PluginView {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
                 handleCollectionRowsResponse(collectionRowItems, false);
+                parentContainerEventBus.fireEvent(new CollectionViewerUpdatedEvent(tableBody.getRowCount()));
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
                 }
                 fetchMoreItemsIfRequired();
+
             }
         });
     }
