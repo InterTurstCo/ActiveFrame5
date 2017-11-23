@@ -18,7 +18,7 @@
         <display>
             <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName"/>
             <column field="description" name="Описание" type="string" editable="false" sortable="true" search-filter="byDescription"/>
-            <column field="locked" name="Обновлять" type="string" editable="false" sortable="true"/>
+            <column field="locked" name="Обновлять" type="string" editable="false" sortable="true" />
         </display>
     </collection-view>
 

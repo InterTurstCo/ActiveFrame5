@@ -29,6 +29,7 @@
                                         <collection-ref name="Employees"/>
                                         <default-sort-criteria column-field="name"/>
                                     </collection-viewer>
+
                                 </domain-object-surfer>
                             </plugin>
                             <decorations>

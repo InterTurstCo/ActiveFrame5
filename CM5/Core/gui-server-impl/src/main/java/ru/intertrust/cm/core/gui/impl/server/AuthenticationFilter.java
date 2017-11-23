@@ -17,6 +17,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Map;
 
 /**
@@ -61,7 +63,8 @@ public class AuthenticationFilter implements Filter {
         UserCredentials credentials = (UserCredentials) session.getAttribute(
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
-        if (credentials == null) {
+        if (credentials == null ||
+                Collections.list(session.getAttributeNames()).size()==1) {
             forwardToLogin(servletRequest, servletResponse);
             return;
         }
