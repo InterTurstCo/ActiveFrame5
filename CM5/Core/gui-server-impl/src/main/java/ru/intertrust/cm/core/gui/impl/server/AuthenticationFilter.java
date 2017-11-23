@@ -63,8 +63,7 @@ public class AuthenticationFilter implements Filter {
         UserCredentials credentials = (UserCredentials) session.getAttribute(
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
-        if (credentials == null ||
-                Collections.list(session.getAttributeNames()).size()==1) {
+        if (credentials == null) {
             forwardToLogin(servletRequest, servletResponse);
             return;
         }

@@ -187,10 +187,10 @@
 
         <!-- Пример на основе "Руководства разработчика"-->
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries"
-              tooltip="Вкладка 'География'">
+              tooltip="Вкладка 'География'" display-counter="true" counter-type="all">
             <child-links>
                 <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран"
-                      counter-type="non-read" auto-cut="true">
+                      counter-type="non-read" auto-cut="true" display-counter="true">
                     <plugin>
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
