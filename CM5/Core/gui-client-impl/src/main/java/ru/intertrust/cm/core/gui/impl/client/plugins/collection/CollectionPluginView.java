@@ -78,7 +78,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 12:05 PM
  */
 public class CollectionPluginView extends PluginView {
-
+    private static final String MSG_CONF_ERROR = "Ошибка конфигурации. ";
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
     private VerticalPanel root = new VerticalPanel();
@@ -1025,7 +1025,11 @@ public class CollectionPluginView extends PluginView {
         } else {
             insertMoreRows(collectionRowItems);
         }
-        tableBody.flush();
+        try {
+            tableBody.flush();
+        } catch(Throwable e){
+            throw new GuiException(MSG_CONF_ERROR+e.getMessage());
+        }
         if (listCount == 0) {
             if (getPluginData().isEmbedded()) {
                 tableBody.setEmptyTableMessage(filteredByUser);
