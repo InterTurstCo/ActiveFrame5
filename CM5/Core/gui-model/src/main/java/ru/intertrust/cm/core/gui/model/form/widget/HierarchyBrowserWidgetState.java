@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
@@ -195,7 +196,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     public String getHyperlinkPopupTitle(String collectionName, String domainObjectType) {
         PopupTitlesHolder popupTitlesHolder = collectionNameNodeMap.get(collectionName).getDoTypeTitlesMap()
-                .get(domainObjectType.toLowerCase());
+                .get(Case.toLower(domainObjectType));
         return popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
     }
 

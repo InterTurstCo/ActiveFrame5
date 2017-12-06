@@ -1,31 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import static java.util.Collections.singletonList;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.CastExpression;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
@@ -33,18 +8,9 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import net.sf.jsqlparser.statement.select.WithItem;
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -61,6 +27,16 @@ import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static java.util.Collections.singletonList;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Модифицирует SQL запросы. Добавляет поле Тип Объекта идентификатора в SQL
@@ -323,7 +299,7 @@ public class SqlQueryModifier {
             String column = selectExpressionItem.getAlias().getName() + ":" +
                     (selectExpressionItem.getExpression() instanceof Column ?
                             ((Column) selectExpressionItem.getExpression()).getColumnName() : "");
-            column = DaoUtils.unwrap(column.toLowerCase());
+            column = DaoUtils.unwrap(Case.toLower(column));
             if (!columns.add(column)) {
                 throw new CollectionQueryException("Collection query contains duplicated columns: " +
                         plainSelect.toString());
@@ -550,7 +526,7 @@ public class SqlQueryModifier {
     }
 
     private String getColumnName(Column column) {
-        return DaoUtils.unwrap(column.getColumnName().toLowerCase());
+        return DaoUtils.unwrap(Case.toLower(column.getColumnName()));
     }
 
     private boolean containsExpressionInPlainselect(PlainSelect plainSelect, SelectExpressionItem selectExpressionItem) {
@@ -598,9 +574,9 @@ public class SqlQueryModifier {
             if (selectExpressionItem.getExpression() instanceof Column) {
                 Column column = (Column) selectExpressionItem.getExpression();
 
-                String fieldName = DaoUtils.unwrap(column.getColumnName().toLowerCase());
+                String fieldName = DaoUtils.unwrap(Case.toLower(column.getColumnName()));
                 String columnName = selectExpressionItem.getAlias() != null ?
-                        DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase()) : fieldName;
+                        DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName())) : fieldName;
 
                 if (columnToConfigMap.get(columnName) == null) {
                     FieldConfig fieldConfig = getFieldConfig(plainSelect, selectExpressionItem);
@@ -634,7 +610,7 @@ public class SqlQueryModifier {
             return;
         }
 
-        String name = DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase());
+        String name = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
         if (columnToConfigMap.get(name) == null) {
             FieldConfig fieldConfig = new ReferenceFieldConfig();
             fieldConfig.setName(name);
@@ -867,7 +843,7 @@ public class SqlQueryModifier {
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
             return getFieldConfigFromSubSelect(plainSubSelect, column);
         } else if (plainSelect.getFromItem() instanceof Table) {
-            String fieldName = DaoUtils.unwrap(column.getColumnName().toLowerCase());
+            String fieldName = DaoUtils.unwrap(Case.toLower(column.getColumnName()));
             return configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, column, false), fieldName);
         }
 
@@ -877,7 +853,7 @@ public class SqlQueryModifier {
     private FieldConfig getFieldConfigFromSubSelect(PlainSelect plainSelect, Column upperLevelColumn) {
         for (Object selectItem : plainSelect.getSelectItems()) {
             if (selectItem instanceof AllColumns) {
-                String fieldName = DaoUtils.unwrap(upperLevelColumn.getColumnName().toLowerCase());
+                String fieldName = DaoUtils.unwrap(Case.toLower(upperLevelColumn.getColumnName()));
                 return configurationExplorer.getFieldConfig(getDOTypeName(plainSelect, upperLevelColumn, true), fieldName);
             } else if (!(selectItem instanceof SelectExpressionItem)) {
                 continue;
@@ -890,7 +866,7 @@ public class SqlQueryModifier {
                     CaseExpression caseExpression = (CaseExpression) selectExpressionItem.getExpression();
                     if (caseExpressionReturnsId(caseExpression, plainSelect)) {
                         ReferenceFieldConfig fieldConfig = new ReferenceFieldConfig();
-                        fieldConfig.setName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase()));
+                        fieldConfig.setName(DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName())));
                         return fieldConfig;
                     }
                 }

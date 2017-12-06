@@ -1,16 +1,9 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import ru.intertrust.cm.core.business.api.dto.*;
+
 import java.util.Collection;
 import java.util.Collections;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
-import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.NumberRangeFilter;
-import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
-import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
 
 public class SimpleSearchFieldType implements SearchFieldType {
 
@@ -49,7 +42,7 @@ public class SimpleSearchFieldType implements SearchFieldType {
         return Collections.singleton(new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)
                 .append(multiValued ? type.infixMultiple : type.infixSingle)
-                .append(field.toLowerCase())
+                .append(Case.toLower(field))
                 .toString());
     }
 

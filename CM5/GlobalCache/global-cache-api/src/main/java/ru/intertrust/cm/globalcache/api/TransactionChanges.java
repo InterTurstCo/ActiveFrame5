@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.api;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.Collection;
@@ -40,7 +41,7 @@ public class TransactionChanges {
     }
 
     public boolean isTypeSaved(String type) {
-        return typesChanged == null ? false : typesChanged.contains(type.toLowerCase());
+        return typesChanged == null ? false : typesChanged.contains(Case.toLower(type));
     }
 
     public boolean isAtLeastOneTypeSaved(Collection<String> types) {
@@ -48,7 +49,7 @@ public class TransactionChanges {
             return false;
         }        
         for (String type : types) {
-            if (typesChanged.contains(type.toLowerCase())) {
+            if (typesChanged.contains(Case.toLower(type))) {
                 return true;
             }
         }
@@ -59,6 +60,6 @@ public class TransactionChanges {
         if (typesChanged == null) {
             typesChanged = new HashSet<>();
         }
-        typesChanged.add(type.toLowerCase());
+        typesChanged.add(Case.toLower(type));
     }
 }

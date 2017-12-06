@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.dao.api.DatabaseInfo;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -20,7 +21,7 @@ public class DatabaseInfoImpl implements DatabaseInfo {
     public Vendor getDatabaseVendor() {
         try (final Connection connection = dataSource.getConnection()){
             DatabaseMetaData metaData = connection.getMetaData();
-            String dbProductName = metaData.getDatabaseProductName().toLowerCase();
+            String dbProductName = Case.toLower(metaData.getDatabaseProductName());
 
             if (dbProductName.contains("oracle")) {
                 return Vendor.ORACLE;

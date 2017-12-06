@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
@@ -32,9 +33,9 @@ class WrapAndLowerCaseSelectItemVisitor implements SelectItemVisitor {
             if(fromItem != null && fromItem.getAlias() != null &&
                     allTableColumns.getTable().getName().equalsIgnoreCase(fromItem.getAlias().getName())) {
                 // Don't wrap alias
-                allTableColumns.getTable().setName(allTableColumns.getTable().getName().toLowerCase());
+                allTableColumns.getTable().setName(Case.toLower(allTableColumns.getTable().getName()));
             } else {
-                allTableColumns.getTable().setName(DaoUtils.wrap(allTableColumns.getTable().getName().toLowerCase()));
+                allTableColumns.getTable().setName(DaoUtils.wrap(Case.toLower(allTableColumns.getTable().getName())));
             }
         }
     }
@@ -44,7 +45,7 @@ class WrapAndLowerCaseSelectItemVisitor implements SelectItemVisitor {
         if (selectExpressionItem.getExpression() != null) {
             selectExpressionItem.getExpression().accept(new WrapAndLowerCaseExpressionVisitor());
             if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null) {
-                selectExpressionItem.setAlias(new Alias(DaoUtils.wrap(selectExpressionItem.getAlias().getName().toLowerCase()), false));
+                selectExpressionItem.setAlias(new Alias(DaoUtils.wrap(Case.toLower(selectExpressionItem.getAlias().getName())), false));
             }
         }
     }

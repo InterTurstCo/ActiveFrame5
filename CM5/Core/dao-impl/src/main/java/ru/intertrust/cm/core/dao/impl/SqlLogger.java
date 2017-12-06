@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -292,7 +293,7 @@ public class SqlLogger {
                     .append("\t").append(preparationTime)
                     .append("\t").append(executionTime)
                     .append("\t").append(rows);
-            if (!query.substring(0, 4).toLowerCase().equals("with")) {
+            if (!Case.toLower(query.substring(0, 4)).equals("with")) {
                 traceStringBuilder.append("\t\t").append(query);
             } else {
                 final int firstRBracket = query.indexOf(")");

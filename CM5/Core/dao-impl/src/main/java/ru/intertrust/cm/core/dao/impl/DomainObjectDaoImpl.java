@@ -1444,7 +1444,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-            String name = uniqueKeyFieldConfig.getName().toLowerCase();
+            String name = Case.toLower(uniqueKeyFieldConfig.getName());
 
             Value value = uniqueKeyValues.get(name);
             parameters.put(name, value.get());
@@ -2530,7 +2530,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             Set<String> uniqueKeyFieldNames = new HashSet<>();
             for (UniqueKeyFieldConfig keyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-                String fieldName = keyFieldConfig.getName().toLowerCase();
+                String fieldName = Case.toLower(keyFieldConfig.getName());
                 uniqueKeyFieldNames.add(fieldName);
             }
 

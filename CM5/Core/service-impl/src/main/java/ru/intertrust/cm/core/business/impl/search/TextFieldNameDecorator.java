@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.Iterator;
-
-import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.tools.DelegatingIterator;
+
+import java.util.Iterator;
 
 public class TextFieldNameDecorator implements Iterable<String> {
 
@@ -20,7 +20,7 @@ public class TextFieldNameDecorator implements Iterable<String> {
 
     TextFieldNameDecorator(Iterable<String> langIds, String sourceField, boolean multiValued) {
         this.langIds = langIds;
-        this.sourceField = sourceField.toLowerCase();
+        this.sourceField = Case.toLower(sourceField);
         //this.typeInfix = SearchFieldType.getFieldType(FieldType.STRING, multiValued).getInfix();
         this.multiValued = multiValued;
     }

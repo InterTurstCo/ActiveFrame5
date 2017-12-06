@@ -8,6 +8,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -227,7 +228,7 @@ public class ActionConfigBuilder {
             final Id id = domainObject.getId();
             boolean result = false;
             for (String permission : permissions) {
-                switch (permission.trim().toLowerCase()) {
+                switch (Case.toLower(permission.trim())) {
                     case "write":
                         result = accessVerificationService.isWritePermitted(id);
                         break;

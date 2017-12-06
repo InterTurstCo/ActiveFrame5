@@ -78,7 +78,7 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
                 BusinessUniverseConfig.NAME);
         SortOrder sortOrder = new SortOrder();
         if (businessUniverseConfig.getNotificationSortOrderConfig() != null && businessUniverseConfig.getNotificationSortOrderConfig().getValue() != null) {
-            if (businessUniverseConfig.getNotificationSortOrderConfig().getValue().toLowerCase().equals(ASC_CRITERION)) {
+            if (Case.toLower(businessUniverseConfig.getNotificationSortOrderConfig().getValue()).equals(ASC_CRITERION)) {
                 sortOrder.add(new SortCriterion(FIELD_ID, SortCriterion.Order.ASCENDING));
             } else {
                 sortOrder.add(new SortCriterion(FIELD_ID, SortCriterion.Order.DESCENDING));

@@ -1,28 +1,16 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+
+import java.io.Serializable;
+import java.util.*;
+
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
 /**
  * Представляет набор функций для работы со колонками доменного объекта
@@ -54,7 +42,7 @@ public class DaoUtils {
             }
 
             buidler.append(":");
-            buidler.append(column.toLowerCase());
+            buidler.append(Case.toLower(column));
 
         }
 
@@ -63,7 +51,7 @@ public class DaoUtils {
     }
 
     public static String generateParameter(String columnName) {
-        return columnName.toLowerCase();
+        return Case.toLower(columnName);
 
     }
 

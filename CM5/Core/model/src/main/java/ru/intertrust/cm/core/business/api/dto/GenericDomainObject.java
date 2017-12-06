@@ -194,8 +194,8 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
             return false;
         }
         GenericDomainObject that = (GenericDomainObject) o;
-        String typeLower = typeName == null ? null : typeName.toLowerCase();
-        String thatTypeLower = that.typeName == null ? null : that.typeName.toLowerCase();
+        String typeLower = typeName == null ? null : Case.toLower(typeName);
+        String thatTypeLower = that.typeName == null ? null : Case.toLower(that.typeName);
         if (typeLower != null ? !typeLower.equals(thatTypeLower) : thatTypeLower != null) {
             return false;
         }

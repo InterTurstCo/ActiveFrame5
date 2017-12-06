@@ -5,10 +5,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeAndAccessValue;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
@@ -90,7 +90,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
             public void onSuccess(Dto result) {
                 DomainObjectTypeAndAccessValue value = (DomainObjectTypeAndAccessValue) result;
                domainObjectType = value.getDomainObjectType();
-               PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? null : typeTitleMap.get(domainObjectType.toLowerCase());
+               PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? null : typeTitleMap.get(Case.toLower(domainObjectType));
                popupTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
                createNonEditableFormDialogBox(widget, value.isHasWritePermission());
             }

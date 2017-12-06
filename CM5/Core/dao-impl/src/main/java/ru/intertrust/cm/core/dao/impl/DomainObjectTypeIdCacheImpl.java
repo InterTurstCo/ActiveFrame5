@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -87,7 +88,7 @@ public class DomainObjectTypeIdCacheImpl implements DomainObjectTypeIdCache {
 
         private CaseTolerantKey(String key) {
             if (key != null) {
-                this.key = key.toLowerCase();
+                this.key = Case.toLower(key);
             }
         }
 

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.*;
@@ -219,7 +220,7 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         if (this.caseInsensitivePath != null) {
             return this.caseInsensitivePath;
         }
-        this.caseInsensitivePath = getPath().toLowerCase();
+        this.caseInsensitivePath = Case.toLower(getPath());
         return this.caseInsensitivePath;
     }
 

@@ -1,18 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -26,6 +17,13 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DefaultFields;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleVersionRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SingleVersionRowMapper;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
@@ -161,7 +159,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
 
-        String rootAlias = getRootTypeName(config).toLowerCase();
+        String rootAlias = Case.toLower(getRootTypeName(config));
 
         StringBuilder query = new StringBuilder();
         query.append(generateFindQuery(typeName));
@@ -174,7 +172,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
 
-        String rootAlias = getRootTypeName(config).toLowerCase();
+        String rootAlias = Case.toLower(getRootTypeName(config));
 
         StringBuilder query = new StringBuilder();
         query.append("select ");

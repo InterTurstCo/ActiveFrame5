@@ -91,7 +91,7 @@ public class ValueReader {
             return null;
         }
 
-        Number idType = (Number) rs.getObject(getReferenceTypeColumnName(columnName).toLowerCase());
+        Number idType = (Number) rs.getObject(Case.toLower(getReferenceTypeColumnName(columnName)));
         if (idType == null) {
             return null;
         }
@@ -210,7 +210,7 @@ public class ValueReader {
             }
 
             BasicRowMapper.Column nextColumn = columns.get(columnIndex + 1);
-            String timeZoneIdColumnName = getTimeZoneIdColumnName(column.getName()).toLowerCase();
+            String timeZoneIdColumnName = Case.toLower(getTimeZoneIdColumnName(column.getName()));
             if (!nextColumn.getName().equalsIgnoreCase(timeZoneIdColumnName)) {
                 throw new FatalException("TimeZone id field can not be null for column " + column.getName());
             }

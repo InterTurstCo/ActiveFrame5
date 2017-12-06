@@ -1,20 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.doel.DoelFunction;
@@ -26,6 +13,8 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.StatusDao;
+
+import java.util.*;
 
 /**
  * Функция DOEL, фильтрующая доменные объекты по их статусу.
@@ -94,7 +83,7 @@ public class StatusFunction implements DoelFunctionImplementation {
             String type;
             if (id instanceof RdbmsId) {
                 type = typeIdCache.getName(((RdbmsId) id).getTypeId());
-                type = configurationExplorer.getDomainObjectRootType(type).toLowerCase();
+                type = Case.toLower(configurationExplorer.getDomainObjectRootType(type));
             } else {
                 type = UNKNOWN_TYPE;
             }

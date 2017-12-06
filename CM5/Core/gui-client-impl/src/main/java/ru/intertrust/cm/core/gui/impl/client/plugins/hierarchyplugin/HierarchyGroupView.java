@@ -3,24 +3,18 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.InlineHTML;
+import com.google.gwt.user.client.ui.Panel;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
-import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
-import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
-import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * Created by IntelliJ IDEA.
@@ -113,7 +107,7 @@ public class HierarchyGroupView extends HierarchyNode
         GenericDomainObject eObject = (GenericDomainObject)event.getIdentifiableObject();
         if(groupConfig.getCreatedObjectsConfig()!=null){
             for(CreatedObjectConfig oConfig : groupConfig.getCreatedObjectsConfig().getCreateObjectConfigs()){
-                if(oConfig.getDomainObjectType().toLowerCase().equals(eObject.getTypeName().toLowerCase())){
+                if(Case.toLower(oConfig.getDomainObjectType()).equals(eObject.getTypeName().toLowerCase())){
                     //clickElement(expandButton.getElement());
                     //clickElement(expandButton.getElement());
                     childPanel.clear();

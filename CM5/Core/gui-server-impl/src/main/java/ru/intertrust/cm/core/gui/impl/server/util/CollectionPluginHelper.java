@@ -180,7 +180,7 @@ public class CollectionPluginHelper {
                                                             final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         LinkedHashMap<String, Value> values = new LinkedHashMap<>();
         for (String field : fieldMappings.keySet()) {
-            Value value = identifiableObject.getValue(field.toLowerCase());
+            Value value = identifiableObject.getValue(Case.toLower(field));
 
             if (value != null && value.get() != null) {
                 switch (value.getFieldType()) {

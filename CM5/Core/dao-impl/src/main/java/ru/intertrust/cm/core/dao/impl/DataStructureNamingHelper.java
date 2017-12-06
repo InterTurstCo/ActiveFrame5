@@ -1,13 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.model.FatalException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Helper для отображения имен конфигурации доменных объектов на базу данных
@@ -209,7 +210,7 @@ public class DataStructureNamingHelper {
             throw new IllegalArgumentException("Name is empty");
         }
 
-        String result = trimmedName.toLowerCase();
+        String result = Case.toLower(trimmedName);
         return result;
     }
 

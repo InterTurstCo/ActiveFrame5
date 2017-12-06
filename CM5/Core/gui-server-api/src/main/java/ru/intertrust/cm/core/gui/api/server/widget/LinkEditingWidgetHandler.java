@@ -2,10 +2,7 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -123,12 +120,12 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         if (config.getLinkedFormMappingConfig() != null) {
             List<LinkedFormConfig> linkedFormConfigs = config.getLinkedFormMappingConfig().getLinkedFormConfigs();
             for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
-                String domainObjectType = linkedFormConfig.getDomainObjectType().toLowerCase();
+                String domainObjectType = Case.toLower(linkedFormConfig.getDomainObjectType());
                 result.put(domainObjectType, getRequiredWidgetIdsFromForm(linkedFormConfig.getName(), parentWidgetConfigs));
 
             }
         } else if (config.getLinkedFormConfig() != null && config.getLinkedFormConfig().getDomainObjectType() != null) {
-            String domainObjectType = config.getLinkedFormConfig().getDomainObjectType().toLowerCase();
+            String domainObjectType = Case.toLower(config.getLinkedFormConfig().getDomainObjectType());
             result.put(domainObjectType, getRequiredWidgetIdsFromForm(config.getLinkedFormConfig().getName(),
                     parentWidgetConfigs));
 

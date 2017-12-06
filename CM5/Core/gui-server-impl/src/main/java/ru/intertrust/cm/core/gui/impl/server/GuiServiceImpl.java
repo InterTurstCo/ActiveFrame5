@@ -85,7 +85,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
         Collection<NavigationConfig> navigationConfigs = configurationExplorer.getConfigs(NavigationConfig.class);
         for (NavigationConfig config : navigationConfigs) {
-            if (config.getApplication() != null && config.getApplication().toLowerCase().equals(applicationName.toLowerCase())) {
+            if (config.getApplication() != null && Case.toLower(config.getApplication()).equals(Case.toLower(applicationName))) {
                 return config;
             }
         }

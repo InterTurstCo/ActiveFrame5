@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
+
 /**
 * Created by vmatsukevich on 4/24/14.
 */
@@ -10,8 +12,8 @@ public class FieldConfigKey {
     private boolean searchInHierarchy;
 
     FieldConfigKey(String domainObjectName, String fieldConfigName) {
-        this.domainObjectName = domainObjectName.toLowerCase();
-        this.fieldConfigName = fieldConfigName.toLowerCase();
+        this.domainObjectName = Case.toLower(domainObjectName);
+        this.fieldConfigName = Case.toLower(fieldConfigName);
     }
 
     public FieldConfigKey(String domainObjectName, String fieldConfigName, boolean searchInHierarchy) {

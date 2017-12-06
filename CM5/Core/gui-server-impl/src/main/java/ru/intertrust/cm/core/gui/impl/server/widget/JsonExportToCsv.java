@@ -248,7 +248,7 @@ public class JsonExportToCsv {
             if ("id".equalsIgnoreCase(field)) {
                 value = new StringValue(identifiableObject.getId().toStringRepresentation());
             } else {
-                value = identifiableObject.getValue(field.toLowerCase());
+                value = identifiableObject.getValue(Case.toLower(field));
             }
             if (value != null && value.get() != null) {
                 DateFormat dateFormat;

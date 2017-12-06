@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.UIObject;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -66,7 +67,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
             if (createdObjectConfigs.size() == 1) {
                 CreatedObjectConfig createdObjectConfig = createdObjectConfigs.get(0);
                 String domainObjectType = createdObjectConfig.getDomainObjectType();
-                PopupTitlesHolder popupTitlesHolder = typeTitleMap != null ? typeTitleMap.get(domainObjectType.toLowerCase()) : null;
+                PopupTitlesHolder popupTitlesHolder = typeTitleMap != null ? typeTitleMap.get(Case.toLower(domainObjectType)) : null;
                 String title = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
                 createSimpleClickAction(title, domainObjectType, linkedFormMappingConfig, state.getParentWidgetIdsForNewFormMap());
             } else {

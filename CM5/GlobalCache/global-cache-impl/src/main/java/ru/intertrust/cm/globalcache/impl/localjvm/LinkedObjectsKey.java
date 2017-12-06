@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
 import ru.intertrust.cm.globalcache.api.util.Sizeable;
@@ -16,8 +17,8 @@ public class LinkedObjectsKey implements Sizeable {
     public final Size size;
 
     public LinkedObjectsKey(String type, String field, boolean exactType) {
-        this.type = type.toLowerCase();
-        this.field = field.toLowerCase();
+        this.type = Case.toLower(type);
+        this.field = Case.toLower(field);
         this.exactType = exactType;
         this.size = new Size(SizeEstimator.estimateSize(this));
     }

@@ -10,6 +10,7 @@ import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.SimpleEventBus;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
@@ -520,7 +521,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             config.setUpdaterContext(hierarchyBrowserUpdaterContext);
             config.setDomainObjectUpdatorComponent("hierarchy-browser-do-updater");
         }
-        PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectTypeToCreate.toLowerCase());
+        PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(Case.toLower(domainObjectTypeToCreate));
         String newObjectTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
         LinkedFormMappingConfig linkedFormMappingConfig = nodeConfig.getLinkedFormMappingConfig();
         final String modalHeight = GuiUtil.getModalHeight(domainObjectTypeToCreate, linkedFormMappingConfig, null);

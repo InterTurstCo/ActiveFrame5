@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
@@ -47,7 +48,7 @@ public class ServerComponentServiceImpl implements ServerComponentService {
 
     @Override
     public ServerComponentHandler getServerComponent(String componentName) {
-        return (ServerComponentHandler) localApplicationContext.getBean(componentName.toLowerCase());
+        return (ServerComponentHandler) localApplicationContext.getBean(Case.toLower(componentName));
     }
 
     @PostConstruct
@@ -119,7 +120,7 @@ public class ServerComponentServiceImpl implements ServerComponentService {
 
     private String toLowerCase(String serverComponentName) {
         if (serverComponentName != null) {
-            serverComponentName = serverComponentName.toLowerCase();
+            serverComponentName = Case.toLower(serverComponentName);
         }
         return serverComponentName;
     }

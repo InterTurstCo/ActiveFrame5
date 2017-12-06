@@ -11,11 +11,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.PlatformTransactionManager;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -111,7 +108,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             boolean invalidateCurrent,
             boolean delete) {
 
-        String typeName = domainObject.getTypeName().toLowerCase();
+        String typeName = Case.toLower(domainObject.getTypeName());
 
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
         // Формируем мапу динамических групп, требующих пересчета и их
@@ -679,14 +676,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         //Переделать проверку чтобы учитывалось наследование типов
         String roleContextType = null;
         if (contextRoleConfig.getContext() != null && contextRoleConfig.getContext().getDomainObject() != null) {
-            roleContextType = contextRoleConfig.getContext().getDomainObject().getType().toLowerCase();
+            roleContextType = Case.toLower(contextRoleConfig.getContext().getDomainObject().getType());
         }
 
         //Получение всех вышестоящих типов
         List<String> parentTypeList = new ArrayList<>();
         String parentType = domainObjectType;
         while (parentType != null) {
-            parentTypeList.add(parentType.toLowerCase());
+            parentTypeList.add(Case.toLower(parentType));
             parentType = configurationExplorer.getDomainObjectParentType(parentType);
         }
 
@@ -864,10 +861,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param collector
      */
     private void registerCollector(String type, ContextRoleCollector collector, ContextRoleConfig config) {
-        List<ContextRoleRegisterItem> typeCollectors = collectors.get(type.toLowerCase());
+        List<ContextRoleRegisterItem> typeCollectors = collectors.get(Case.toLower(type));
         if (typeCollectors == null) {
             typeCollectors = new ArrayList<>();
-            collectors.put(type.toLowerCase(), typeCollectors);
+            collectors.put(Case.toLower(type), typeCollectors);
         }
         typeCollectors.add(new ContextRoleRegisterItem(collector));
     }

@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
-import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
-import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
-import ru.intertrust.cm.core.business.api.dto.IndexInfo;
-import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -457,7 +454,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             if (!isAccessObjectId && !refField) {
                 continue;
             }
-            final String fieldName = fieldConfig.getName().toLowerCase();
+            final String fieldName = Case.toLower(fieldConfig.getName());
             if (fieldsIndexesCreatedFor.contains(fieldName)) {
                 continue;
             }
@@ -479,13 +476,13 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                 for (IndexInfo indexInfo : indexes.values()) {
                     final List<String> columnNames = indexInfo.getColumnNames();
                     if (columnNames != null && columnNames.size() == 1) {
-                        fieldsIndexesCreatedFor.add(columnNames.get(0).toLowerCase());
+                        fieldsIndexesCreatedFor.add(Case.toLower(columnNames.get(0)));
                     }
                 }
             }
             for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
-                    final String fieldName = fieldConfig.getName().toLowerCase();
+                    final String fieldName = Case.toLower(fieldConfig.getName());
                     if (SystemField.id.name().equals(fieldName)) {
                         continue;
                     }
