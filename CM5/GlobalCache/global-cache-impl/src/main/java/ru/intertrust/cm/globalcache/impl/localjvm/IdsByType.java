@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.Sizeable;
@@ -20,7 +21,7 @@ public class IdsByType implements Sizeable {
     }
 
     public void setIdType(Id id, String type) {
-        String lowercasedType = type.toLowerCase();
+        String lowercasedType = Case.toLower(type);
         synchronized (lowercasedType) { // todo
             SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
             if (mapping == null) {
@@ -33,7 +34,7 @@ public class IdsByType implements Sizeable {
     }
 
     public void removeId(Id id, String type) {
-        String lowercasedType = type.toLowerCase();
+        String lowercasedType = Case.toLower(type);
         synchronized (lowercasedType) { // todo
             SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
             if (mapping == null) {
@@ -47,7 +48,7 @@ public class IdsByType implements Sizeable {
     }
 
     public ConcurrentMap<Id, Id> getIds(String type) {
-        return idByType.get(type.toLowerCase());
+        return idByType.get(Case.toLower(type));
     }
 
     @Override

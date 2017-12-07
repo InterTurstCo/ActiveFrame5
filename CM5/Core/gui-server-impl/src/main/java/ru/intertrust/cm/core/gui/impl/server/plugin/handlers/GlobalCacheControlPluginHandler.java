@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.PersonService;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
@@ -51,8 +52,8 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
         getSettings();
         extractStatistics(globalCachePluginData);
         for(DomainObject group : personMamagementService.getPersonGroups(personService.getCurrentPerson().getId())){
-             if(group.getString(FIELD_GROUP_NAME).toLowerCase().equals(SUPERUSERS_GROUP.toLowerCase()) ||
-                     group.getString(FIELD_GROUP_NAME).toLowerCase().equals(ADMINISTRATORS_GROUP.toLowerCase())){
+             if(Case.toLower(group.getString(FIELD_GROUP_NAME)).equals(Case.toLower(SUPERUSERS_GROUP)) ||
+                     Case.toLower(group.getString(FIELD_GROUP_NAME)).equals(Case.toLower(ADMINISTRATORS_GROUP))){
                  globalCachePluginData.setSuperUser(true);
              }
         }

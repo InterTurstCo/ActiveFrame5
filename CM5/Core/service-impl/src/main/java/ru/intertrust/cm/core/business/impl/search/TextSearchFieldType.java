@@ -1,14 +1,11 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+
+import java.util.*;
 
 public class TextSearchFieldType implements SearchFieldType {// extends SimpleSearchFieldType {
 
@@ -42,7 +39,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
                         .append(SolrFields.FIELD_PREFIX)
                         .append(langId)
                         .append(multiValued ? "s_" : "_")
-                        .append(field.toLowerCase())
+                        .append(Case.toLower(field))
                         .toString());
             }
         }
@@ -50,7 +47,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
             result.add(new StringBuilder()
                     .append(SolrFields.FIELD_PREFIX)
                     .append(multiValued ? "ts_" : "t_")
-                    .append(field.toLowerCase())
+                    .append(Case.toLower(field))
                     .toString());
         }
         return result;

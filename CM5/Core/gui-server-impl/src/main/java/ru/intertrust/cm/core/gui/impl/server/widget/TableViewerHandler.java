@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
@@ -18,7 +17,6 @@ import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetConfigUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -74,12 +72,12 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
         if (config.getLinkedFormMappingConfig() != null) {
             List<LinkedFormConfig> linkedFormConfigs = config.getLinkedFormMappingConfig().getLinkedFormConfigs();
             for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
-                String domainObjectType = linkedFormConfig.getDomainObjectType().toLowerCase();
+                String domainObjectType = Case.toLower(linkedFormConfig.getDomainObjectType());
                 result.put(domainObjectType, getRequiredWidgetIdsFromForm(linkedFormConfig.getName(), parentWidgetConfigs));
 
             }
         } else if (config.getLinkedFormConfig() != null && config.getLinkedFormConfig().getDomainObjectType() != null) {
-            String domainObjectType = config.getLinkedFormConfig().getDomainObjectType().toLowerCase();
+            String domainObjectType = Case.toLower(config.getLinkedFormConfig().getDomainObjectType());
             result.put(domainObjectType, getRequiredWidgetIdsFromForm(config.getLinkedFormConfig().getName(),
                     parentWidgetConfigs));
 

@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.InlineHyperlink;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
@@ -126,7 +127,7 @@ public final class GuiUtil {
                                                              WidgetsContainer container,
                                                              Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
         FormPluginConfig config = GuiUtil.createFormPluginConfig(mappingConfig, domainObjectType);
-        Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(domainObjectType.toLowerCase());
+        Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(Case.toLower(domainObjectType));
         config.setParentFormState(GuiUtil.createParentFormStatesHierarchy(container, widgetIds));
         config.setParentId(GuiUtil.getParentId(container));
         return config;

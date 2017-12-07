@@ -26,7 +26,7 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.UPDATED_DATE_COLUMN;
  */
 public class BasicRowMapper extends ValueReader {
 
-    protected static final String TYPE_ID_COLUMN = DomainObjectDao.TYPE_COLUMN.toLowerCase();
+    protected static final String TYPE_ID_COLUMN = Case.toLower(DomainObjectDao.TYPE_COLUMN);
 
     protected final String domainObjectType;
     protected final String idField;

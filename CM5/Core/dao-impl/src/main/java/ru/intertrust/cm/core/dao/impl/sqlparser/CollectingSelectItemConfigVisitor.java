@@ -1,28 +1,13 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
-import net.sf.jsqlparser.expression.operators.arithmetic.Division;
-import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
-import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
+import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.Between;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
-import net.sf.jsqlparser.expression.operators.relational.Matches;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -45,7 +30,7 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
         if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null &&
                 selectExpressionItem.getExpression() instanceof Column) {
             Column column = (Column) selectExpressionItem.getExpression();
-            String aliasName = DaoUtils.unwrap(selectExpressionItem.getAlias().getName().toLowerCase());
+            String aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
             if (columnToConfigMapping.get(aliasName) == null) {
                 columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
             }
@@ -53,7 +38,7 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
     }
 
     private String getColumnName(Column column) {
-        return DaoUtils.unwrap(column.getColumnName().toLowerCase());
+        return DaoUtils.unwrap(Case.toLower(column.getColumnName()));
     }
     
     @Override

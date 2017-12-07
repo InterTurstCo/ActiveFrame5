@@ -1,14 +1,9 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.*;
-
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -16,15 +11,11 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelValidator;
-import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
-import ru.intertrust.cm.core.config.search.IndexedContentConfig;
-import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
-import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
-import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
-import ru.intertrust.cm.core.config.search.SearchAreaConfig;
-import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
-import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.*;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import javax.annotation.PostConstruct;
+import java.util.*;
 
 /**
  * Класс, содержащий вспомогательные методы для облегчения работы с конфигурацией подсистемы поиска.
@@ -560,8 +551,8 @@ public class SearchConfigHelper {
             result = new TextSearchFieldType(getSupportedLanguages(), false,
                     config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
         } else {
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType.toLowerCase(),
-                    config.getName().toLowerCase());
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(Case.toLower(objectType),
+                    Case.toLower(config.getName()));
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
             }

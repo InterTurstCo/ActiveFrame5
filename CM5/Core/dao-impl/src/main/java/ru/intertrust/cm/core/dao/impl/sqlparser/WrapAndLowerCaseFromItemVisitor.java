@@ -5,6 +5,7 @@ import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
@@ -17,7 +18,7 @@ public class WrapAndLowerCaseFromItemVisitor extends FromItemVisitorAdapter {
     @Override
     public void visit(Table table) {
         if (table.getName() != null) {
-            table.setName(DaoUtils.wrap(table.getName().toLowerCase()));
+            table.setName(DaoUtils.wrap(Case.toLower(table.getName())));
         }
 
         if (table.getPivot() != null) {

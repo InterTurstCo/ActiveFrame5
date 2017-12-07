@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
 import ru.intertrust.cm.globalcache.api.util.Sizeable;
@@ -24,11 +25,11 @@ public class TypeUniqueKeyMapping implements Sizeable {
     }
 
     public UniqueKeyIdMapping getUniqueKeyIdMapping(String type) {
-        return type == null ? null : uniqueKeyMappingByType.get(type.toLowerCase());
+        return type == null ? null : uniqueKeyMappingByType.get(Case.toLower(type));
     }
 
     public UniqueKeyIdMapping getOrCreateUniqueKeyIdMapping(String type) {
-        final String lowercasedType = type.toLowerCase();
+        final String lowercasedType = Case.toLower(type);
         final UniqueKeyIdMapping mapping = uniqueKeyMappingByType.get(lowercasedType);
         if (mapping != null) {
             return mapping;

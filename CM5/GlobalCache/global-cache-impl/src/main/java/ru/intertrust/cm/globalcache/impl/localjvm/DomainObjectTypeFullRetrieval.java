@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
@@ -136,7 +137,7 @@ public class DomainObjectTypeFullRetrieval implements Sizeable {
         public final boolean exact;
 
         public Key(String type, boolean exact) {
-            this.type = type.toLowerCase();
+            this.type = Case.toLower(type);
             this.exact = exact;
         }
 

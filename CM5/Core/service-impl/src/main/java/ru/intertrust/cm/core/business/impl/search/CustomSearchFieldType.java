@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+
 import java.util.Collection;
 import java.util.Collections;
-
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 
 public class CustomSearchFieldType implements SearchFieldType {
 
@@ -25,7 +26,7 @@ public class CustomSearchFieldType implements SearchFieldType {
     public Collection<String> getSolrFieldNames(String field, boolean strict) {
         return Collections.singleton(new StringBuilder()
                 .append(solrPrefix)
-                .append(field.toLowerCase())
+                .append(Case.toLower(field))
                 .toString());
     }
 

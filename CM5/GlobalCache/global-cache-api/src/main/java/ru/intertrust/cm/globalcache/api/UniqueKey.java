@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.api;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
@@ -27,11 +28,11 @@ public class UniqueKey {
                 final Iterator<Map.Entry<String, Value>> iter = map.entrySet().iterator();
                 final Map.Entry<String, Value> e1 = iter.next();
                 final Map.Entry<String, Value> e2 = iter.next();
-                this.map = new PairMap<>(e1.getKey().toLowerCase(), e1.getValue(), e2.getKey().toLowerCase(), e2.getValue());
+                this.map = new PairMap<>(Case.toLower(e1.getKey()), e1.getValue(), Case.toLower(e2.getKey()), e2.getValue());
                 break;
             case 1:
                 final Map.Entry<String, Value> entry = map.entrySet().iterator().next();
-                this.map = Collections.singletonMap(entry.getKey().toLowerCase(), entry.getValue());
+                this.map = Collections.singletonMap(Case.toLower(entry.getKey()), entry.getValue());
                 break;
             case 0:
                 throw new IllegalArgumentException("Empty unique key map!");
@@ -40,7 +41,7 @@ public class UniqueKey {
             default:
                 this.map = new HashMap<>(((int) (size / 0.75f) + 1));
                 for (Map.Entry<String, Value> curEntry : map.entrySet()) {
-                    this.map.put(curEntry.getKey().toLowerCase(), curEntry.getValue());
+                    this.map.put(Case.toLower(curEntry.getKey()), curEntry.getValue());
                 }
         }
     }
@@ -52,11 +53,11 @@ public class UniqueKey {
             case 2:
                 UniqueKeyFieldConfig f1 = fields.get(0);
                 UniqueKeyFieldConfig f2 = fields.get(1);
-                this.map = new PairMap<>(f1.getName().toLowerCase(), object.getValue(f1.getName()), f2.getName().toLowerCase(), object.getValue(f2.getName()));
+                this.map = new PairMap<>(Case.toLower(f1.getName()), object.getValue(f1.getName()), Case.toLower(f2.getName()), object.getValue(f2.getName()));
                 break;
             case 1:
                 UniqueKeyFieldConfig field = fields.get(0);
-                this.map = Collections.singletonMap(field.getName().toLowerCase(), object.getValue(field.getName()));
+                this.map = Collections.singletonMap(Case.toLower(field.getName()), object.getValue(field.getName()));
                 break;
             case 0:
                 throw new IllegalArgumentException("Empty unique key map!");
@@ -65,7 +66,7 @@ public class UniqueKey {
             default:
                 this.map = new HashMap<>(((int) (size / 0.75f) + 1));
                 for (final UniqueKeyFieldConfig curField : fields) {
-                    this.map.put(curField.getName().toLowerCase(), object.getValue(curField.getName()));
+                    this.map.put(Case.toLower(curField.getName()), object.getValue(curField.getName()));
                 }
         }
     }

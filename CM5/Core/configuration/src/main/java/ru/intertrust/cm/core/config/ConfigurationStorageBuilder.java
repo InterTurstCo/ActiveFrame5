@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
@@ -407,7 +408,7 @@ public class ConfigurationStorageBuilder {
             String delegatedTo = configurationExplorer.getMatrixReferenceTypeName(typeConfig.getName());
             if (delegatedTo == null) {
                 result.add(typeConfig.getName());
-                resultInLowerCase.add(typeConfig.getName().toLowerCase());
+                resultInLowerCase.add(Case.toLower(typeConfig.getName()));
             }
 
             result.addAll(builderData.getHierarchicalDelegates());
@@ -697,7 +698,7 @@ public class ConfigurationStorageBuilder {
                     log.warn("Cycle detected in Domain Object Type hierarchy for " + childType.getName());
                 } else {
                     builderData.getHierarchicalDelegates().add(childType.getName());
-                    builderData.getHierarchicalDelegatesInLowerCase().add(childType.getName().toLowerCase());
+                    builderData.getHierarchicalDelegatesInLowerCase().add(Case.toLower(childType.getName()));
                     newDelegatingTypes.add(childType.getName());
                 }
             }
@@ -712,7 +713,7 @@ public class ConfigurationStorageBuilder {
                     log.warn("Cycle detected in access rights delegation for " + matrixConfig.getType());
                 } else {
                     builderData.getMatrixDelegates().add(matrixConfig.getType());
-                    builderData.getMatrixDelegatesInLowerCase().add(matrixConfig.getType().toLowerCase());
+                    builderData.getMatrixDelegatesInLowerCase().add(Case.toLower(matrixConfig.getType()));
                     newDelegatingTypes.add(matrixConfig.getType());
                 }
             }
@@ -908,7 +909,7 @@ public class ConfigurationStorageBuilder {
             FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
             if (!fieldConfig.isImmutable()) {
-                mutableFieldsConfig.put(fieldConfig.getName().toLowerCase(), fieldConfig);
+                mutableFieldsConfig.put(Case.toLower(fieldConfig.getName()), fieldConfig);
             }
         }
 
@@ -929,7 +930,7 @@ public class ConfigurationStorageBuilder {
         allFieldsConfig.addAll(domainObjectTypeConfig.getSystemFieldConfigs());
         HashSet<String> fieldNames = new HashSet<>(allFieldsConfig.size());
         for (FieldConfig fieldConfig : allFieldsConfig) {
-            fieldNames.add(fieldConfig.getName().toLowerCase());
+            fieldNames.add(Case.toLower(fieldConfig.getName()));
         }
         configurationStorage.fieldNamesLowerCasedByTypeMap.put(domainObjectTypeConfig.getName(), fieldNames);
     }

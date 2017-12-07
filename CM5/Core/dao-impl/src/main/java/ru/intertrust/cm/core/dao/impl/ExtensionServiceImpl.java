@@ -1,11 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +9,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
@@ -23,6 +17,12 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.dao.impl.extension.ExtentionInvocationHandler;
 import ru.intertrust.cm.core.model.ExtensionPointException;
+
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Имплементация сервиса точек расширения.
@@ -118,7 +118,7 @@ public class ExtensionServiceImpl implements ExtensionService{
                                         
                                         // CMFIVE-1491 значение фильтра должно быть case-insensitive                                        
                                         if (filter != null){
-                                            filter = filter.toLowerCase();
+                                            filter = Case.toLower(filter);
                                         }
 
                                         if (extentionPoint == null) {
@@ -222,7 +222,7 @@ public class ExtensionServiceImpl implements ExtensionService{
             if (filter != null) {
                 // Получение точек расширения по фильтру
                 List<ExtensionPointHandler> filteredExtension = oneTypeExtensions
-                        .get(filter.toLowerCase());
+                        .get(Case.toLower(filter));
                 // Если точки расширения по фильтру найдены то добавляем их в
                 // результат
                 if (filteredExtension != null && filteredExtension.size() > 0) {

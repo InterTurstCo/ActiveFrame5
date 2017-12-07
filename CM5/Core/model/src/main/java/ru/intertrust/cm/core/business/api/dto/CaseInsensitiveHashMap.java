@@ -41,7 +41,7 @@ public class CaseInsensitiveHashMap<T> implements Map<String, T>, Dto {
 
     @Override
     public boolean containsKey(Object key) {
-        return map.containsKey(((String) key).toLowerCase());
+        return map.containsKey(Case.toLower((String) key));
     }
 
     @Override
@@ -51,17 +51,17 @@ public class CaseInsensitiveHashMap<T> implements Map<String, T>, Dto {
 
     @Override
     public T get(Object key) {
-        return map.get(((String) key).toLowerCase());
+        return map.get(Case.toLower((String) key));
     }
 
     @Override
     public T put(String key, T value) {
-        return map.put(key.toLowerCase(), value);
+        return map.put(Case.toLower(key), value);
     }
 
     @Override
     public T remove(Object key) {
-        return map.remove(((String) key).toLowerCase());
+        return map.remove(Case.toLower((String) key));
     }
 
     @Override

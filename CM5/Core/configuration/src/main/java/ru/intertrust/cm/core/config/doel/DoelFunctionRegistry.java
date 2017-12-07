@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -33,7 +34,7 @@ public class DoelFunctionRegistry {
                 continue;
             }
             DoelFunction functionAnnotation = functionClass.getAnnotation(DoelFunction.class);
-            String functionName = functionAnnotation.name().toLowerCase();
+            String functionName = Case.toLower(functionAnnotation.name());
             if (functionMap.containsKey(functionName)) {
                 //TODO support function overriding for different context types
                 logger.error("Duplicate function definition: " + functionName + " [" + className + "]");
@@ -44,7 +45,7 @@ public class DoelFunctionRegistry {
     }
 
     public DoelFunctionValidator getFunctionValidator(String name) {
-        name = name.toLowerCase();
+        name = Case.toLower(name);
         if (!functionMap.containsKey(name)) {
             throw new IllegalArgumentException("Function " + name + " not defined");
         }
@@ -56,7 +57,7 @@ public class DoelFunctionRegistry {
     }
 
     public <T> T getFunctionImplementation(String name) {
-        name = name.toLowerCase();
+        name = Case.toLower(name);
         if (!functionMap.containsKey(name)) {
             throw new IllegalArgumentException("Function " + name + " not defined");
         }

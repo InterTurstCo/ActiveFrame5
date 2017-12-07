@@ -46,7 +46,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         this.fieldConfigs = new ArrayList<>(fieldConfigs);
         int fieldIndex = 0;
         for (FieldConfig field : this.fieldConfigs) {
-            fieldIndexes.put(field.getName().toLowerCase(), fieldIndex);
+            fieldIndexes.put(Case.toLower(field.getName()), fieldIndex);
             ++fieldIndex;
         }
     }

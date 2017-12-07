@@ -284,7 +284,7 @@ public class GenericIdentifiableObject implements IdentifiableObject, Cloneable 
     private String getLowerCaseKey(String key) {
         String lowerCaseKey = null;
         if (key != null) {
-            lowerCaseKey = key.toLowerCase();
+            lowerCaseKey = Case.toLower(key);
         }
         return lowerCaseKey;
     }
@@ -317,10 +317,10 @@ public class GenericIdentifiableObject implements IdentifiableObject, Cloneable 
         final Set<String> thatFieldNames = that.fieldValues.keySet();
         HashSet<String> allFieldNames = new HashSet<>(2 * (fieldNames.size() + thatFieldNames.size()));
         for (String fieldName : fieldNames) {
-            allFieldNames.add(fieldName.toLowerCase());
+            allFieldNames.add(Case.toLower(fieldName));
         }
         for (String thatFieldName : thatFieldNames) {
-            allFieldNames.add(thatFieldName.toLowerCase());
+            allFieldNames.add(Case.toLower(thatFieldName));
         }
         for (String fieldName : allFieldNames) {
             Value value = getValue(fieldName);

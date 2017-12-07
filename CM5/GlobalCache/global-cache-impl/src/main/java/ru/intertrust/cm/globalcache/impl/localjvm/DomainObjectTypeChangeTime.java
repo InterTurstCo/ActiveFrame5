@@ -1,5 +1,7 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import ru.intertrust.cm.core.business.api.dto.Case;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -15,7 +17,7 @@ public class DomainObjectTypeChangeTime {
     }
 
     public void setLastModificationTime(String type, long saveTime, long objectModifiedDate) {
-        type = type.toLowerCase();
+        type = Case.toLower(type);
         ModificationTime previousTime = doTypeLastSaveTime.get(type);
         if (previousTime == null) {
             final ModificationTime putResult = doTypeLastSaveTime.putIfAbsent(type, new ModificationTime(saveTime, objectModifiedDate, -1));
@@ -28,7 +30,7 @@ public class DomainObjectTypeChangeTime {
     }
 
     public void setLastRightsChangeTime(String type, long rightsChangeTime) {
-        type = type.toLowerCase();
+        type = Case.toLower(type);
         ModificationTime previousTime = doTypeLastSaveTime.get(type);
         if (previousTime == null) {
             final ModificationTime putResult = doTypeLastSaveTime.putIfAbsent(type, new ModificationTime(-1, -1, rightsChangeTime));
@@ -41,6 +43,6 @@ public class DomainObjectTypeChangeTime {
     }
 
     public ModificationTime getLastModificationTime(String type) {
-        return doTypeLastSaveTime.get(type.toLowerCase());
+        return doTypeLastSaveTime.get(Case.toLower(type));
     }
 }

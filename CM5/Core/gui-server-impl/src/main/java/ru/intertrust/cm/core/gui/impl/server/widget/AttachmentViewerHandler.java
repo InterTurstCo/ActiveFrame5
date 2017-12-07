@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -14,8 +15,6 @@ import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
 import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
-import java.util.ArrayList;
 
 /**
  * @author Ravil Abdulkhairov
@@ -69,8 +68,8 @@ public class AttachmentViewerHandler extends WidgetHandler {
             //TODO Удалить когда CMFIVE-3820 будет исправлен
             else if (dObject != null && dObject.getFields().contains(FIELD_MIMETYPE)
                     &&
-                    (dObject.getString(FIELD_NAME).toLowerCase().contains(EXT_PDF)
-                            || dObject.getString(FIELD_NAME).toLowerCase().contains(EXT_TEXT))) {
+                    (Case.toLower(dObject.getString(FIELD_NAME)).contains(EXT_PDF)
+                            || Case.toLower(dObject.getString(FIELD_NAME)).contains(EXT_TEXT))) {
                 state.setUrl(createServletUrl(dObject));
             }
             // ---------------------------------------------

@@ -13,8 +13,6 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.EditableTableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.EditableTableBrowserParams;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -28,7 +26,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.DefaultConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.SelectConfiguredButton;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.*;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.CollectionDialogBox;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.ViewHolder;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
@@ -94,7 +93,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
             return false;
         else {
             String initValue = trim(((EditableTableBrowserState) getInitialData()).getText());
-            final String currentValue = ((TextArea) ((FlowPanel) impl).getWidget(0)).getText();
+            final String currentValue = trim(((TextArea) ((FlowPanel) impl).getWidget(0)).getText());
             return initValue == null ? currentValue != null : !initValue.equals(currentValue);
         }
     }

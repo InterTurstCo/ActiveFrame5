@@ -6,6 +6,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -177,7 +178,7 @@ public class LinkedFormDialogBoxBuilder  {
     }
 
     private void setTitle() {
-        String domainObjectType = this.objectTypeName == null ? null : this.objectTypeName.toLowerCase();
+        String domainObjectType = this.objectTypeName == null ? null : Case.toLower(this.objectTypeName);
         PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? this.popupTitlesHolder : typeTitleMap.get(domainObjectType);
         String title = popupTitlesHolder == null ? (GuiUtil.getConfiguredTitle(formPlugin, id == null))
                 : getTitleFromHolder(popupTitlesHolder);
@@ -310,7 +311,7 @@ public class LinkedFormDialogBoxBuilder  {
 
     private void addParentStateToConfig(String objectType, FormPluginConfig config) {
         if (parentWidgetIdsForNewFormMap != null) {
-            Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(objectType.toLowerCase());
+            Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(Case.toLower(objectType));
             config.setParentFormState(GuiUtil.createParentFormStatesHierarchy(parentWidgetsContainer, widgetIds));
         }
         config.setParentId(GuiUtil.getParentId(parentWidgetsContainer));

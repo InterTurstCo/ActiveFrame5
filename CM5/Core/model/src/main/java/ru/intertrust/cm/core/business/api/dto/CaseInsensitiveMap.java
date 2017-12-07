@@ -65,7 +65,7 @@ public class CaseInsensitiveMap<T> implements Dto, Cloneable {
     private String getLowerCaseKey(String key) {
         String lowerCaseKey = null;
         if (key != null) {
-            lowerCaseKey = key.toLowerCase();
+            lowerCaseKey = Case.toLower(key);
         }
         return lowerCaseKey;
     }

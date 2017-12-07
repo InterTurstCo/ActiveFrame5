@@ -1,26 +1,20 @@
 package ru.intertrust.cm.core.business.impl;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.ProfileService;
+import ru.intertrust.cm.core.business.api.ResourceService;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.model.ReportServiceException;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-
-import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.ResourceService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.model.ReportServiceException;
 
 public class ResourceServiceImpl implements ResourceService {
 
@@ -42,8 +36,8 @@ public class ResourceServiceImpl implements ResourceService {
         query += "where lower(l.name) = {0} and lower(r.name) = {1}";
 
         List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(locale.toLowerCase()));
-        params.add(new StringValue(name.toLowerCase()));
+        params.add(new StringValue(Case.toLower(locale)));
+        params.add(new StringValue(Case.toLower(name)));
 
         String result = null;
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params);
@@ -62,8 +56,8 @@ public class ResourceServiceImpl implements ResourceService {
         query += "where lower(l.name) = {0} and lower(r.name) = {1}";
 
         List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(locale.toLowerCase()));
-        params.add(new StringValue(name.toLowerCase()));
+        params.add(new StringValue(Case.toLower(locale)));
+        params.add(new StringValue(Case.toLower(name)));
 
         Long result = null;
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params);
@@ -82,8 +76,8 @@ public class ResourceServiceImpl implements ResourceService {
         query += "where lower(l.name) = {0} and lower(r.name) = {1}";
 
         List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(locale.toLowerCase()));
-        params.add(new StringValue(name.toLowerCase()));
+        params.add(new StringValue(Case.toLower(locale)));
+        params.add(new StringValue(Case.toLower(name)));
 
         byte[] result = null;
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params);

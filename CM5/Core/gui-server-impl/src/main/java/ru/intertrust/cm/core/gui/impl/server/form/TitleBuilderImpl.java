@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.title.ExistingObjectConfig;
@@ -45,7 +46,7 @@ public class TitleBuilderImpl implements TitleBuilder {
             if (WidgetUtil.isNotEmpty(linkedFormConfigs)) {
                 for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
                     PopupTitlesHolder popupTitlesHolder = buildPopupTitles(linkedFormConfig, root);
-                    String domainObjectType = linkedFormConfig.getDomainObjectType().toLowerCase();
+                    String domainObjectType = Case.toLower(linkedFormConfig.getDomainObjectType());
                     result.put(domainObjectType, popupTitlesHolder);
                 }
             }

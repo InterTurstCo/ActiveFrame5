@@ -1476,7 +1476,7 @@ public class GlobalCacheImpl implements GlobalCache {
 
         @Override
         public int hashCode() {
-            int result = typeName.toLowerCase().hashCode();
+            int result = Case.toLower(typeName).hashCode();
             result = 31 * result + uniqueKey.hashCode();
             return result;
         }

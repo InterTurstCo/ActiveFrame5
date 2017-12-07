@@ -1,29 +1,19 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.select.*;
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.JsonExpression;
-import net.sf.jsqlparser.expression.KeepExpression;
-import net.sf.jsqlparser.expression.NumericBind;
-import net.sf.jsqlparser.expression.UserVariable;
-import net.sf.jsqlparser.expression.WithinGroupExpression;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Визитор для поиска конфигурации полей в Where части SQL запроса и для
@@ -126,7 +116,7 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     }
 
     private String getColumnName(Column column) {
-        return DaoUtils.unwrap(column.getColumnName().toLowerCase());
+        return DaoUtils.unwrap(Case.toLower(column.getColumnName()));
     }
 
     @Override

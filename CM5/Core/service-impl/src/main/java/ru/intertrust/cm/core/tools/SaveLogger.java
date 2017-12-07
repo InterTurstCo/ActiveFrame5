@@ -1,20 +1,20 @@
 package ru.intertrust.cm.core.tools;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Точка расширения вызывается при сохранениии всех доменных объектов и в
@@ -48,7 +48,7 @@ public class SaveLogger implements BeforeSaveExtensionHandler, AfterClearGlobalC
             init();
         }
         
-        if (typeNames.contains(domainObject.getTypeName().toLowerCase())) {
+        if (typeNames.contains(Case.toLower(domainObject.getTypeName()))) {
             StackTraceElement[] stack = Thread.currentThread().getStackTrace();
             String stackTrace = "";
             for (StackTraceElement stackTraceElement : stack) {
@@ -77,7 +77,7 @@ public class SaveLogger implements BeforeSaveExtensionHandler, AfterClearGlobalC
             if (types != null) {
                 String[] typeArr = types.split(",");
                 for (String type : typeArr) {
-                    names.add(type.toLowerCase());
+                    names.add(Case.toLower(type));
                 }
             }
             typeNames = names;

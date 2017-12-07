@@ -1,18 +1,12 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.JsonExpression;
-import net.sf.jsqlparser.expression.KeepExpression;
-import net.sf.jsqlparser.expression.NumericBind;
-import net.sf.jsqlparser.expression.SignedExpression;
-import net.sf.jsqlparser.expression.UserVariable;
-import net.sf.jsqlparser.expression.WithinGroupExpression;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
@@ -52,7 +46,7 @@ public class WrapAndLowerCaseExpressionVisitor extends BaseExpressionVisitor imp
     @Override
     public void visit(Column column) {
         if (column.getColumnName() != null) {
-            column.setColumnName(DaoUtils.wrap(column.getColumnName().toLowerCase()));
+            column.setColumnName(DaoUtils.wrap(Case.toLower(column.getColumnName())));
         }
     }
 

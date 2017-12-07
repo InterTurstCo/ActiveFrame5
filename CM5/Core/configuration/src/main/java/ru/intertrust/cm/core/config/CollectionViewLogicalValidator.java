@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
@@ -104,7 +105,7 @@ public class CollectionViewLogicalValidator implements ConfigurationValidator {
         for (CollectionColumnConfig column : columns) {
             if (column != null) {
                 String field = column.getField();
-                if (!sqlQuery.contains(field.toLowerCase())) {
+                if (!sqlQuery.contains(Case.toLower(field))) {
                     String collectionName = colConf.getName();
                     String error = String.format("Couldn't find field '%s' in sql query for collection with name '%s'",
                             field, collectionName);

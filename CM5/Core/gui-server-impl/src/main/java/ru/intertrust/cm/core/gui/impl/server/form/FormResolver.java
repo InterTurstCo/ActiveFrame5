@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
@@ -217,7 +218,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                     continue;
                 }
 
-                String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
+                String domainObjectTypeInLowerCase = Case.toLower(domainObjectType);
                 if (formConfig.isDefault()) {
                     if (defaultFormByDomainObjectType.containsKey(domainObjectType)) {
                         throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_MANY_DEFAULT_FORMS,
