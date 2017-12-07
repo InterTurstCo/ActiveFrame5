@@ -5,13 +5,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
 import ru.intertrust.cm.core.gui.model.Client;
 
+import javax.ejb.EJB;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +26,7 @@ import java.util.Map;
 
 /**
  * Фильтр HTTP запросов, осуществляющий аутентификацию пользователей
+ *
  * @author Denis Mitavskiy Date: 09.07.13 Time: 18:30
  */
 public class AuthenticationFilter implements Filter {
@@ -30,20 +34,26 @@ public class AuthenticationFilter implements Filter {
 
     private static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
     private static final String REMOTE = "/remote";
-    
+
     private ExtensionService extensionService;
 
+    @EJB
+    private ConfigurationService configurationService;
 
+    private BusinessUniverseConfig businessUniverseConfig;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         ApplicationContext ctx = WebApplicationContextUtils
                 .getRequiredWebApplicationContext(filterConfig.getServletContext());
-        this.extensionService = ctx.getBean(ExtensionService.class);        
+        this.extensionService = ctx.getBean(ExtensionService.class);
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
+        businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
+                BusinessUniverseConfig.NAME);
+
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession();
@@ -59,16 +69,15 @@ public class AuthenticationFilter implements Filter {
         //И вызов диалога аутентификации не произойдет
         AuthenticationExtentionHandler authExtHandler = extensionService.getExtentionPoint(AuthenticationExtentionHandler.class, null);
         authExtHandler.onBeforeAuthentication(request, response);
-        
+
         UserCredentials credentials = (UserCredentials) session.getAttribute(
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
-        if (credentials == null || (credentials!=null && session.isNew())) {
+        if (credentials == null || (credentials != null && session.isNew())) {
             forwardToLogin(servletRequest, servletResponse);
             return;
         }
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
-
 
 
         //Вызов точки расширения после аутентификации. Точки расширения могут сохранить данные аутентификации для каких то последующих их использования
@@ -127,6 +136,7 @@ public class AuthenticationFilter implements Filter {
                 }
             }
         }
+
         ((HttpServletResponse) servletResponse).sendRedirect(loginPath.toString());
     }
 

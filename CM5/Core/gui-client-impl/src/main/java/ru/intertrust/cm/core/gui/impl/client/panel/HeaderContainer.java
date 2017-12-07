@@ -194,7 +194,7 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
     // вызываем окно расширенного поиска
     public void showExtendedSearchPanel(boolean isNew, Map<String, WidgetState> extendedSearchConfiguration, List<String> searchAreas, String searchDomainObjectType) {
 
-        if(isNew || extendedSearchDialogBox == null){
+        if (isNew || extendedSearchDialogBox == null) {
             extendedSearchDialogBox = new ExtSearchDialogBox();
             extendedSearchDialogBox.setModal(true);
             extendedSearchDialogBox.setGlassEnabled(true);
@@ -214,8 +214,14 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                Window.Location.assign(GWT.getHostPageBaseURL() + BusinessUniverseConstants.LOGIN_PAGE +
-                        Window.Location.getQueryString());
+                if (!Window.Location.getPath().contains("BusinessUniverse.html"))
+                    Window.Location.assign(GWT.getHostPageBaseURL() +
+                            Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1) +
+                            Window.Location.getQueryString());
+                else
+                    Window.Location.assign(GWT.getHostPageBaseURL() +
+                            BusinessUniverseConstants.LOGIN_PAGE +
+                            Window.Location.getQueryString());
             }
 
             @Override
@@ -255,7 +261,7 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
 
     private void setInfoPage(final String pagePath) {
 
-        final String currentPath = (pagePath.contains("http://")||pagePath.contains("https://")) ? pagePath : GWT.getHostPageBaseURL() + pagePath;
+        final String currentPath = (pagePath.contains("http://") || pagePath.contains("https://")) ? pagePath : GWT.getHostPageBaseURL() + pagePath;
         Label help = new Label(LocalizeUtil.get(INFO_KEY, INFO));
         infoPanel.add(help);
 

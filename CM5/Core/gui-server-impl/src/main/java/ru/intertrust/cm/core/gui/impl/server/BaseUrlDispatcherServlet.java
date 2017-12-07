@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
 
-import ru.intertrust.cm.core.business.api.ConfigurationService;
-
-import javax.ejb.EJB;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
@@ -20,13 +17,14 @@ import java.io.IOException;
  */
 public class BaseUrlDispatcherServlet extends HttpServlet {
     private static final String BU_PAGE = "/BusinessUniverse.html";
+    private static final String ATTRIBUTE_URI = "uri";
 
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
         HttpSession session = request.getSession(false);
-        if(session.getAttribute("uri")==null)
-            session.setAttribute("uri", request.getRequestURI());
+        if(session.getAttribute(ATTRIBUTE_URI)==null)
+            session.setAttribute(ATTRIBUTE_URI, request.getRequestURI());
         //response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
 
         if(!request.getRequestURL().toString().contains(".")){

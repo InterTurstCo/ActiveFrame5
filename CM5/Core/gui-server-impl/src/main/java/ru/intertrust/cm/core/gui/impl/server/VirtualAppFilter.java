@@ -17,6 +17,7 @@ import java.io.*;
 public class VirtualAppFilter implements Filter {
     private final static String METHOD_POST = "POST";
     public final static String APP_NAME = "Application-Name";
+    public final static String ENCODING_UTF_8 = "UTF-8";
     @EJB
     private ConfigurationService configurationService;
 
@@ -28,7 +29,11 @@ public class VirtualAppFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
                 BusinessUniverseConfig.NAME);
-        if(businessUniverseConfig.getBaseUrlConfig() != null && businessUniverseConfig.getBaseUrlConfig().getValue() != null){
+        if(businessUniverseConfig.getBaseUrlConfig() != null && businessUniverseConfig.getBaseUrlConfig().getValue() != null
+                && ((HttpServletRequest) servletRequest).getRequestURL().toString().contains("/" + businessUniverseConfig.getBaseUrlConfig().getValue()+"/")
+                && !((HttpServletRequest) servletRequest).getRequestURL().toString().contains("Login.html")
+                )
+        {
             servletRequest.setAttribute(APP_NAME, "/" + businessUniverseConfig.getBaseUrlConfig().getValue());
         }
         if (((HttpServletRequest) servletRequest).getMethod().equalsIgnoreCase(METHOD_POST)
@@ -38,7 +43,7 @@ public class VirtualAppFilter implements Filter {
             XSSRequestWrapper wrappedRequest = new XSSRequestWrapper(
                     (HttpServletRequest) servletRequest);
             String body = IOUtils.toString(wrappedRequest.getReader());
-            wrappedRequest.resetInputStream(body.replace("/" + businessUniverseConfig.getBaseUrlConfig().getValue(), StringUtils.EMPTY).toString().getBytes("UTF-8"));
+            wrappedRequest.resetInputStream(body.replace("/" + businessUniverseConfig.getBaseUrlConfig().getValue(), StringUtils.EMPTY).toString().getBytes(ENCODING_UTF_8));
             filterChain.doFilter(wrappedRequest, servletResponse);
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
