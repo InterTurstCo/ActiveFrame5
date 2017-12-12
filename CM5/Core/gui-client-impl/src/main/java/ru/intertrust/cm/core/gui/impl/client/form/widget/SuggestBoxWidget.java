@@ -395,20 +395,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     @Override
     public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
-        currentState.getSelectedIds().remove(event.getId());
-        if (event.isTooltipContent()) {
-            currentState.getTooltipValues().remove(event.getId());
-        } else {
-            currentState.getListValues().remove(event.getId());
-
-        }
-        SuggestPresenter presenter = (SuggestPresenter) impl;
-        Widget tooltipButton = presenter.getTooltipButton();
-        if (tooltipButton != null && !shouldDrawTooltipButton(currentState)) {
-            tooltipButton.removeFromParent();
-            presenter.changeSuggestInputWidth();
-        }
-
+        /**
+         * Метод для расширения в наследниках, обработка события удаления
+         * айтема из выбраных
+         */
     }
 
     @Override
@@ -504,6 +494,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             currentState.getSelectedIds().remove(id);
             currentState.decrementFilteredItemsNumber();
             suggestBox.setFocus(true);
+            localEventBus.fireEvent(new WidgetItemRemoveEvent(id,true));
         }
 
         protected void drawItemFromTooltipContent() {
