@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
  *         Time: 17:14
  */
 public interface BusinessUniverseServiceAsync {
+
     void getBusinessUniverseInitialization(Client clientInfo, AsyncCallback<BusinessUniverseInitialization> async);
 
     void executeCommand(Command command, AsyncCallback<? extends Dto> async);
@@ -28,8 +29,8 @@ public interface BusinessUniverseServiceAsync {
 
     void getCollectionCounters(CollectionCountersRequest req, AsyncCallback<CollectionCountersResponse> async);
 
-
     public static class Impl {
+
         private static final BusinessUniverseServiceAsync instance;
 
         static {
@@ -42,34 +43,69 @@ public interface BusinessUniverseServiceAsync {
             return instance;
         }
 
+        /**
+         * Выполняет команду без блокировки экрана для дальнейших действий пользователя
+         *
+         * @param command команда
+         * @param async   обратный вызов по результату запроса
+         * @param <T>     возвращаемый тип
+         */
         public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async) {
-            executeCommand(command, async, false, false);
+            executeCommand(command, async, false, false, false);
         }
 
         /**
          * Выполняет команду
-         * @param command команда
-         * @param async обратный вызов по результату запроса
-         * @param indicate показывать индикатор выполения серверного запроса
-         * @param lockScreenImmediately немедленно блокировать экран. Игнорируется, если индикатор выполнения не показывается (indicate == false)
-         * @param <T> возвращаемый тип
+         *
+         * @param command    команда
+         * @param async      обратный вызов по результату запроса
+         * @param lockScreen блокировать ли экран при выполнении запроса, если true, то незаметная блокировка срабатывает сразу, а через 1 секунду визуализируется
+         * @param <T>        возвращаемый тип
          */
-        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean indicate, boolean lockScreenImmediately) {
-            if (indicate) {
-                Application.getInstance().showLoadingIndicator(lockScreenImmediately);
+        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean lockScreen) {
+            executeCommand(command, async, lockScreen, true, false);
+        }
+
+        /**
+         * Выполняет команду
+         *
+         * @param command    команда
+         * @param async      обратный вызов по результату запроса
+         * @param lockScreen блокировать ли экран при выполнении запроса
+         * @param indicate   нужно ли показывать индикатор выполнения запроса через 1 секунду (игнорируется, если экран не блокировался (lockScreen == false) )
+         */
+        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean lockScreen, final boolean indicate) {
+            executeCommand(command, async, lockScreen, indicate, false);
+        }
+
+        /**
+         * Выполняет команду
+         *
+         * @param command                  команда
+         * @param async                    обратный вызов по результату запроса
+         * @param lockScreen               блокировать ли экран при выполнении запроса
+         * @param indicate                 нужно ли показывать индикатор выполнения запроса (игнорируется, если экран не блокировался (lockScreen == false) )
+         * @param showIndicatorImmediately нужно ли немедленно показывать индикатор выполнения задачи,
+         *                                 либо через секунду, для того, чтобы сделать выполнение экшена незаметным для пользователя в случае, когда он отрабатывает быстро (т.е. в течении секунды)
+         *                                 (игнорируется, если экран не блокировался (lockScreen == false) )
+         * @param <T>                      возвращаемый тип
+         */
+        public static <T extends Dto> void executeCommand(Command command, final AsyncCallback<T> async, final boolean lockScreen, final boolean indicate, final boolean showIndicatorImmediately) {
+            if (lockScreen) {
+                Application.getInstance().lockScreen(indicate, showIndicatorImmediately);
             }
             getInstance().executeCommand(command, new AsyncCallback<T>() {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    if (indicate) {
-                        Application.getInstance().hideLoadingIndicator();
+                    if (lockScreen) {
+                        Application.getInstance().unlockScreen();
                     }
                     final String initialToken = History.getToken();
                     if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
                         String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
                         final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
-                                .append(Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/")+1))
+                                .append(Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1))
                                 .append(queryString);
                         if (initialToken != null && !initialToken.isEmpty()) {
                             loginPathBuilder.append('#').append(initialToken);
@@ -82,12 +118,13 @@ public interface BusinessUniverseServiceAsync {
 
                 @Override
                 public void onSuccess(T result) {
-                    if (indicate) {
-                        Application.getInstance().hideLoadingIndicator();
+                    if (lockScreen) {
+                        Application.getInstance().unlockScreen();
                     }
                     async.onSuccess(result);
                 }
             });
         }
     }
+
 }

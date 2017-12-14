@@ -137,7 +137,7 @@ public class PluginManagerView extends PluginView {
 
         mainPanel.add(cellTable);
 
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
     }
 
     private void deployPlugins() {

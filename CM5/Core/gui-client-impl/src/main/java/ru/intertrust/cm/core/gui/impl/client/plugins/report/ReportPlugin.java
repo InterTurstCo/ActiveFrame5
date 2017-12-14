@@ -53,7 +53,7 @@ public class ReportPlugin extends Plugin implements IsActive {
     public void setInitialData(PluginData initialData) {
         super.setInitialData(initialData);
         setDisplayActionToolBar(true);
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
     }
 
     public String getReportName() {

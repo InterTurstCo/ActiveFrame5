@@ -76,13 +76,13 @@ public class CalendarTableModel {
 
                 @Override
                 public void onFailure(Throwable caught) {
-                    Application.getInstance().hideLoadingIndicator();
+                    Application.getInstance().unlockScreen();
                     ready = true;
                 }
 
                 @Override
                 public void onSuccess(Dto result) {
-                    Application.getInstance().hideLoadingIndicator();
+                    Application.getInstance().unlockScreen();
                     final CalendarRowsResponse data = (CalendarRowsResponse) result;
                     if (values.size() > MAX_VALUES_SIZE) {
                         values.clear();
@@ -100,7 +100,7 @@ public class CalendarTableModel {
                     ready = true;
                 }
             };
-            Application.getInstance().showLoadingIndicator();
+            Application.getInstance().lockScreen();
             final CalendarConfig calendarConfig = (CalendarConfig) owner.getConfig();
             final CalendarRowsRequest request = new CalendarRowsRequest(calendarConfig, fromDate, toDate);
             final Command command = new Command("requestRows", CalendarConfig.COMPONENT_NAME, request);

@@ -41,7 +41,7 @@ public class ReportUploadPluginView  extends PluginView {
                 BusinessUniverseConstants.ADD_REPORT_FILES)));
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
     }
 
     @Override

@@ -44,7 +44,7 @@ public class ConfigurationDeployerPlugin extends Plugin implements IsActive {
     public void setInitialData(PluginData initialData) {
         super.setInitialData(initialData);
         setDisplayActionToolBar(true);
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
     }
 
     public List<AttachmentItem> getAttachmentItems() {

@@ -53,7 +53,7 @@ public class CalendarPluginView extends PluginView {
             calendarPanel = new WeekPanel(localEventBus, tableModel, calendarConfig);
         }
         container.add(calendarPanel);
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
         return container;
     }
 

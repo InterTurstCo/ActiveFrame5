@@ -182,7 +182,7 @@ public class HierarchySurferPluginView extends PluginView {
             northRootWidget.add(hierarchyPluginPanel);
             southRootWidget.add(formPluginPanel);
         }
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
         return rootSurferPanel;

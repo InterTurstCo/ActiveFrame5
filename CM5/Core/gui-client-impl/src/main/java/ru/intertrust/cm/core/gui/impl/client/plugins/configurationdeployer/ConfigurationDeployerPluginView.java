@@ -46,7 +46,7 @@ public class ConfigurationDeployerPluginView extends PluginView {
         mainPanel.setStyleName("uploadConfigurationWrapper");
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, ConfigurationDeployerPlugin.class.getSimpleName());
     }

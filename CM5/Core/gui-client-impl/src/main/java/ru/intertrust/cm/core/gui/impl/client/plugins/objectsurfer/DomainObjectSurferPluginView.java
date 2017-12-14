@@ -180,7 +180,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             northRootWidget.add(collectionViewerPluginPanel);
             sourthRootWidget.add(formPluginPanel);
         }
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, plugin.getClass().getSimpleName());
 

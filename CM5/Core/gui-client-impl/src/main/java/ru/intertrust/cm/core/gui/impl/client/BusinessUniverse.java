@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -21,7 +20,6 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
@@ -270,7 +268,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             if (manager.hasLink() || manager.getSelectedIds().isEmpty() ||
                     (!manager.hasLink() && !manager.getSelectedIds().isEmpty() && centralPluginPanel.getCurrentPlugin() instanceof FormPlugin &&
                             centralPluginPanel.getPluginsCount()==1)) {
-                Application.getInstance().showLoadingIndicator();
+                Application.getInstance().lockScreen();
                 PluginConfig pluginConfig = event.getPluginConfig();
                 if(pluginConfig==null){
                     if(selectedLinkConfig.getChildToOpen()!=null){
@@ -408,7 +406,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     private void handleHistory(String url) {
-        Application.getInstance().showLoadingIndicator();
+        Application.getInstance().lockScreen();
         final HistoryManager manager = Application.getInstance().getHistoryManager();
         if (url != null && !url.isEmpty()) {
             manager.setToken(url);
@@ -436,7 +434,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 throw new HistoryException("Переход по данным '" + url + "' невозможен");
             }
         }
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
     }
 
     private class HistoryValueChangeHandler implements ValueChangeHandler<String> {
@@ -473,7 +471,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private static class UncaughtExceptionHandlerImpl implements GWT.UncaughtExceptionHandler {
         @Override
         public void onUncaughtException(Throwable ex) {
-            Application.getInstance().hideLoadingIndicator();
+            Application.getInstance().unlockScreen();
             final String message;
             ex = unwrap(ex);
             if (ex instanceof HistoryException) {

@@ -28,7 +28,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSu
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
@@ -131,14 +130,14 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             @Override
             public void onSuccess(Dto result) {
                 final CollectionRowsResponse response = (CollectionRowsResponse) result;
-                Application.getInstance().showLoadingIndicator();
+                Application.getInstance().lockScreen();
                 CollectionPluginView view = ((CollectionPluginView) getView());
                 view.clearScrollHandler();
                 view.handleCollectionRowsResponse(response.getCollectionRows(), true);
                 Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        Application.getInstance().hideLoadingIndicator();
+                        Application.getInstance().unlockScreen();
                     }
                 });
             }

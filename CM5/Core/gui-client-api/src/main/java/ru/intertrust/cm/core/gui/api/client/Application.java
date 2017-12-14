@@ -23,16 +23,17 @@ import java.util.Map;
  * Time: 16:54
  */
 public class Application {
+
     private static final int MILLIS_IN_SEC = 1000;
 
     private static Application ourInstance = null;
 
     private PopupPanel glassPopupPanel;
 
-    private Timer timer = new Timer() {
+    private Timer indicateLockScreenTimer = new Timer() {
         @Override
         public void run() {
-            RootPanel.get().getElement().getStyle().setCursor(Style.Cursor.WAIT);
+            showLockScreenIndicator();
         }
     };
 
@@ -52,6 +53,7 @@ public class Application {
     private Map<String, String> localizedResources = new HashMap<>();
     private boolean inUploadProcess;
     private HandlerRegistration openDoInPluginHandlerRegistration;
+
     public String getVersion() {
         return version;
     }
@@ -145,10 +147,6 @@ public class Application {
         this.currentLocale = currentLocale;
     }
 
-    public void showLoadingIndicator() {
-        showLoadingIndicator(true);
-    }
-
     public Map<String, String> getLocalizedResources() {
         return localizedResources;
     }
@@ -160,27 +158,90 @@ public class Application {
         }
     }
 
-    public void showLoadingIndicator(boolean lockScreenImmediately) {
-        if (lockScreenImmediately) {
-            glassPopupPanel.show();
-            glassPopupPanel.center();
-        }
-        timer.schedule(1000);
+    /**
+     * Блокирует экран для выполнения действий.<br/>
+     * Если блокировка длится больше 1 секунды - она визуализируется (экран чуть затеняется, показывается индикатор загрузки)
+     */
+    public void lockScreen() {
+        lockScreen(true, false);
     }
 
-    public void hideLoadingIndicator() {
-        timer.cancel();
+    /**
+     * Блокирует экран для выполнения действий.<br/>
+     *
+     * @param indicate флаг индикации блокировки.<br/>
+     *                 <li/>true - блокировка визуализируется через 1 секунду (экран чуть затеняется, показывается индикатор загрузки)<br/>
+     *                 <li/>false - блокировка остается незаметной (прозрачный элемент поверх остальных)
+     */
+    public void lockScreen(final boolean indicate) {
+        lockScreen(indicate, false);
+    }
+
+    /**
+     * Блокирует экран для выполнения действий.<br/>
+     *
+     * @param indicate                 флаг индикации блокировки.<br/>
+     *                                 <li/>true - блокировка визуализируется<br/>
+     *                                 <li/>false - блокировка остается незаметной (прозрачный элемент поверх остальных)
+     * @param showIndicatorImmediately нужно ли немедленно показывать индикатор блокировки,
+     *                                 либо через секунду, для того, чтобы сделать ее незаметной для пользователя в случае, когда она будет быстро снята (т.е. в течении секунды)
+     *                                 (игнорируется, если индикации блокировки нет (indicate == false) )
+     */
+    public void lockScreen(final boolean indicate, final boolean showIndicatorImmediately) {
+        setGlassPopupTransparentState();
+
+        if (indicate) {
+            if (showIndicatorImmediately) {
+                showLockScreenIndicator();
+            } else {
+                indicateLockScreenTimer.schedule(1 * MILLIS_IN_SEC);
+            }
+        }
+
+        glassPopupPanel.show();
+        glassPopupPanel.center();
+    }
+
+    public void unlockScreen() {
+        indicateLockScreenTimer.cancel();
         RootPanel.get().getElement().getStyle().setCursor(Style.Cursor.DEFAULT);
         glassPopupPanel.hide();
     }
 
     private PopupPanel createGlassPopup() {
         final PopupPanel glassPopup = new PopupPanel();
+
         glassPopup.setModal(true);
         glassPopup.setGlassEnabled(true);
-        glassPopup.setGlassStyleName("transparentGlass");
-        glassPopup.setStyleName("PopupPanelPreloader");
+
         return glassPopup;
+    }
+
+    /**
+     * Установить для блокирующей действия пользователя панели прозрачный стиль:<br/>
+     * внешний вид экрана никак не меняется, но доступ к контролам интерфейса отсутствует.
+     */
+    private void setGlassPopupTransparentState() {
+        glassPopupPanel.setGlassStyleName("transparent-glass-no-wheel");
+        glassPopupPanel.setStyleName(null);
+    }
+
+    /**
+     * Установить для блокирующей действия пользователя панели стиль загрузки:<br/>
+     * экран чуть затеняется, а по центру показывается круговой индикатор выполнения, доступ к контролам интерфейса отсутствует.
+     */
+    private void setGlassPopupWheelState() {
+        glassPopupPanel.setGlassStyleName("transparentGlass");
+        glassPopupPanel.setStyleName("PopupPanelPreloader");
+    }
+
+    /**
+     * Устанавливает для блокирующей действия пользователя панели стиль загрузки,<br/>
+     * меняет стиль курсора мыши на ожидающий выполнения.
+     */
+    private void showLockScreenIndicator() {
+        RootPanel.get().getElement().getStyle().setCursor(Style.Cursor.WAIT);
+        setGlassPopupWheelState();
     }
 
     public boolean isInUploadProcess() {
@@ -191,11 +252,11 @@ public class Application {
         this.inUploadProcess = inUploadProcess;
     }
 
-    public void addOpenDoInPluginHandlerRegistration(OpenHyperlinkInSurferEventHandler handler){
-        if(openDoInPluginHandlerRegistration != null){
+    public void addOpenDoInPluginHandlerRegistration(OpenHyperlinkInSurferEventHandler handler) {
+        if (openDoInPluginHandlerRegistration != null) {
             openDoInPluginHandlerRegistration.removeHandler();
         }
         openDoInPluginHandlerRegistration = eventBus.addHandler(OpenHyperlinkInSurferEvent.TYPE, handler);
-
     }
+
 }

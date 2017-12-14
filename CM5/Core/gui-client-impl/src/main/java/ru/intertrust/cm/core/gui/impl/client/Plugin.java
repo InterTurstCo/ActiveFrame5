@@ -72,7 +72,7 @@ public abstract class Plugin extends BaseComponent {
     }
 
     public void onDataLoadFailure(Throwable cause) {
-        Application.getInstance().hideLoadingIndicator();
+        Application.getInstance().unlockScreen();
         String message;
         if (cause instanceof StatusCodeException) {
             message = "Невозможно подключиться к серверу.";
