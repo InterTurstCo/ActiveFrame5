@@ -27,6 +27,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     @Attribute(name = "default-btn-enabled", required = false)
     private boolean defaultBtnEnabled = true;
 
+    @Attribute(name = "autosuggest-allowed", required = false)
+    private boolean autosuggestAllowed = false;
+
     @Attribute(name = "enter-key-allowed", required = false)
     private boolean enterKeyAllowed = false;
 
@@ -47,6 +50,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
     @NotNullLogicalValidation
     @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
+
+    @Element(name = "drop-down-pattern", required = false)
+    private DropdownPatternConfig dropdownPatternConfig;
 
     @NotNullLogicalValidation
     @Element(name = "input-text-filter", required = false)
@@ -140,6 +146,22 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
 
     public boolean isResizable() {
         return resizable;
+    }
+
+    public boolean isAutosuggestAllowed() {
+        return autosuggestAllowed;
+    }
+
+    public void setAutosuggestAllowed(boolean autosuggestAllowed) {
+        this.autosuggestAllowed = autosuggestAllowed;
+    }
+
+    public DropdownPatternConfig getDropdownPatternConfig() {
+        return dropdownPatternConfig;
+    }
+
+    public void setDropdownPatternConfig(DropdownPatternConfig dropdownPatternConfig) {
+        this.dropdownPatternConfig = dropdownPatternConfig;
     }
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
@@ -353,6 +375,11 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
             return false;
         }
 
+        if (dropdownPatternConfig != null ? !dropdownPatternConfig.equals(that.dropdownPatternConfig) :
+                that.dropdownPatternConfig != null) {
+            return false;
+        }
+
         if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) :
                 that.defaultSortCriteriaConfig != null) {
             return false;
@@ -415,6 +442,9 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         if (defaultBtnEnabled != that.defaultBtnEnabled) {
             return false;
         }
+        if (autosuggestAllowed != that.autosuggestAllowed) {
+            return false;
+        }
         if (defaultComponentName != null ? !defaultComponentName.equals(that.defaultComponentName) : that.defaultComponentName != null) {
             return false;
         }
@@ -446,6 +476,7 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
+        result = 31 * result + (dropdownPatternConfig != null ? dropdownPatternConfig.hashCode() : 0);
         result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (selectButtonConfig != null ? selectButtonConfig.hashCode() : 0);
@@ -453,6 +484,7 @@ public class EditableTableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
         result = 31 * result + (resizable ? 1 : 0);
         result = 31 * result + (enterKeyAllowed ? 1 : 0);
+        result = 31 * result + (autosuggestAllowed ? 1 : 0);
         result = 31 * result + (defaultBtnEnabled ? 1 : 0);
         result = 31 * result + (selectBtnEnabled ? 1 : 0);
         return result;

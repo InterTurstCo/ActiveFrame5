@@ -1,11 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.editabletablebrowser;
 
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.google.web.bindery.event.shared.SimpleEventBus;
@@ -23,6 +29,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.SuggestBoxDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.DefaultConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.SelectConfiguredButton;
@@ -57,6 +64,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     private StretchyTextArea textArea;
     private ConfiguredButton addButton;
     private ConfiguredButton addDefaultButton;
+    private LazyLoadState lazyLoadState;
     private HandlerRegistration expandHierarchyRegistration;
     private EventBus localEventBus = new SimpleEventBus();
     private ViewHolder viewHolder;
@@ -66,14 +74,40 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     protected CollectionViewerConfig initialCollectionViewerConfig;
     protected EditableTableBrowserState currentState;
 
+    private ScrollPanel scrollPanel;
+    private static final List<String> DAYS = Arrays.asList("Sunday", "Monday",
+            "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+    private CellList<String> cellList;
 
     public EditableTableBrowserWidget() {
+        scrollPanel = new ScrollPanel();
         rootFlowPanel = new FlowPanel();
         textArea = new StretchyTextArea();
         rootFlowPanel.add(textArea);
         rootFlowPanel.addStyleName("root-editable-tablebrowser-widget");
         textArea.addStyleName("textarea-editable-tablebrowser-widget");
 
+        TextCell textCell = new TextCell();
+        cellList = new CellList<>(textCell);
+        cellList.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.ENABLED);
+
+        // Add a selection model to handle user selection.
+        final SingleSelectionModel<String> selectionModel = new SingleSelectionModel<String>();
+        cellList.setSelectionModel(selectionModel);
+        selectionModel.addSelectionChangeHandler(new SelectionChangeEvent.Handler() {
+            public void onSelectionChange(SelectionChangeEvent event) {
+                String selected = selectionModel.getSelectedObject();
+                if (selected != null) {
+                    textArea.setText(selected);
+                    scrollPanel.setVisible(false);
+                }
+            }
+        });
+        cellList.setRowCount(DAYS.size(), true);
+        cellList.setRowData(0, DAYS);
+        scrollPanel.add(cellList);
+        rootFlowPanel.add(scrollPanel);
+        scrollPanel.setVisible(false);
     }
 
     @Override
@@ -89,7 +123,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
 
     @Override
     protected boolean isChanged() {
-        if(currentState.getEditableTableBrowserConfig().getFieldPathConfig()==null)
+        if (currentState.getEditableTableBrowserConfig().getFieldPathConfig() == null)
             return false;
         else {
             String initValue = trim(((EditableTableBrowserState) getInitialData()).getText());
@@ -126,6 +160,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                 .withParentWidget(this)
                 .buildViewHolder();
         textArea.setEnabled(true);
+
         addButton = new SelectConfiguredButton(currentState.getEditableTableBrowserConfig().getSelectButtonConfig());
         addDefaultButton = new DefaultConfiguredButton(currentState.getEditableTableBrowserConfig().getDefaultButtonConfig());
         rootFlowPanel.add(addButton);
@@ -174,6 +209,9 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                         event.stopPropagation();
                         event.preventDefault();
                     }
+                    if(currentState.getEditableTableBrowserConfig().isAutosuggestAllowed() && textArea.getText().length()>=3) {
+                        fetchSuggestions(textArea.getText());
+                    }
                 }
             });
             textArea.addValueChangeHandler(new ValueChangeHandler() {
@@ -184,9 +222,10 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                     }
                 }
             });
-
-
         }
+
+
+
         return rootFlowPanel;
     }
 
@@ -311,7 +350,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     }
 
     private void fetchTableBrowserItems() {
-        if (!currentState.getSelectedIds().isEmpty())  {
+        if (!currentState.getSelectedIds().isEmpty()) {
             EditableTableBrowserConfig tableBrowserConfig = currentState.getEditableTableBrowserConfig();
             WidgetItemsRequest widgetItemsRequest = new WidgetItemsRequest();
             widgetItemsRequest.setSelectionPattern(tableBrowserConfig.getSelectionPatternConfig().getValue());
@@ -342,8 +381,8 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     }
 
     private void handleItems(LinkedHashMap<Id, String> listValues) {
-        for(Id itm : listValues.keySet()){
-            textArea.setText(textArea.getText().trim().concat(" "+listValues.get(itm)));
+        for (Id itm : listValues.keySet()) {
+            textArea.setText(textArea.getText().trim().concat(" " + listValues.get(itm)));
         }
     }
 
@@ -481,5 +520,52 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
         WidgetsContainer container = getContainer();
         return GuiUtil.createComplexFiltersParams(null, filterName, container, widgetsIdsComponentNames);
 
+    }
+
+    private ComplexFiltersParams createSuggestionFiltersParams(String requestQuery) {
+        Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
+        String filterName = currentState.getEditableTableBrowserConfig().getInputTextFilterConfig().getName();
+        WidgetsContainer container = getContainer();
+        return GuiUtil.createComplexFiltersParams(requestQuery, filterName, container, widgetsIdsComponentNames);
+    }
+
+    private SuggestionRequest createSuggestionRequest(String requestQuery) {
+        SuggestionRequest result = new SuggestionRequest();
+        String name = currentState.getEditableTableBrowserConfig().getCollectionRefConfig().getName();
+        result.setCollectionName(name);
+        String dropDownPatternConfig = currentState.getEditableTableBrowserConfig().getDropdownPatternConfig().getValue();
+        result.setDropdownPattern(dropDownPatternConfig);
+        result.setSelectionPattern(currentState.getEditableTableBrowserConfig().getSelectionPatternConfig().getValue());
+        result.setExcludeIds(new LinkedHashSet<Id>(currentState.getSelectedIds()));
+        result.setComplexFiltersParams(createSuggestionFiltersParams(requestQuery));
+        result.setDefaultSortCriteriaConfig(currentState.getEditableTableBrowserConfig().getDefaultSortCriteriaConfig());
+        result.setFormattingConfig(currentState.getEditableTableBrowserConfig().getFormattingConfig());
+        result.setCollectionExtraFiltersConfig(currentState.getEditableTableBrowserConfig().getCollectionExtraFiltersConfig());
+        if (lazyLoadState == null) {
+            lazyLoadState = new LazyLoadState(currentState.getEditableTableBrowserConfig().getPageSize(), 0);
+        } else {
+            lazyLoadState.setPageSize(currentState.getEditableTableBrowserConfig().getPageSize());
+        }
+        result.setLazyLoadState(lazyLoadState);
+        return result;
+    }
+
+    private void fetchSuggestions(final String query){
+        SuggestionRequest sRequest = createSuggestionRequest(query);
+        Command command = new Command("obtainSuggestions", getName(), sRequest);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                SuggestionList suggestionResponse = (SuggestionList) result;
+                if (suggestionResponse.getSuggestions().size()>0){
+                    scrollPanel.setVisible(true);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining suggestions for '" + query + "'", caught);
+            }
+        });
     }
 }

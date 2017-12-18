@@ -23,6 +23,7 @@ THE SOFTWARE.
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.TextArea;
@@ -78,6 +79,7 @@ public class StretchyTextArea extends TextArea {
 
     @Override
     public void onBrowserEvent(Event evt){
+
         super.onBrowserEvent(evt);
         if ((DOM.eventGetType(evt) & TEXTBOX_VALUECHANGE_EVENTS) != 0) {
             if (isStretchingEnabled()){
@@ -85,6 +87,8 @@ public class StretchyTextArea extends TextArea {
             }
         }
     }
+
+
 
     @Override
     public void setVisibleLines(int lines) {

@@ -586,52 +586,10 @@
                         <param name="3" value="Организация 22" type="string"/>
                     </selection-filter>
                 </selection-filters>
-                <!--    <collection-extra-filters>
-                        &lt;!&ndash;<extra-filter name="byStatus">
-                            <param name="0" widget-id="status"/>
-                        </extra-filter>&ndash;&gt;
-                        <extra-filter name="byNames">
-                            <param name="0" value="Организация 1" type="string"/>
-                            <param name="1" value="Организация 2" type="string"/>
-
-                        </extra-filter>
-                       &lt;!&ndash; <extra-filter name="byCreator">
-                            <param name="0" set-current-user="true"/>
-                        </extra-filter>&ndash;&gt;
-                       &lt;!&ndash; <extra-filter name="byEmployee">
-                            <param name="0" type="reference">
-                                <unique-key-value type="Employee">
-                                    <field name="Phone" value="8 (495) 777-55-01"/>
-                                </unique-key-value>
-                            </param>
-                        </extra-filter>&ndash;&gt;
-                       &lt;!&ndash; <extra-filter name="filter2" null-value-filter-name="filter-by-null">
-                            <param name="0" value="3.14" type="decimal"/>
-                            <param name="1" value="true" type="boolean"/>
-                            <param name="2" value="2014-07-11 19:32:57.737" time-zone-id="Europe/Kiev" type="datetime"/>
-                            <param name="3" set-current-moment="true" type="datetime"/>
-                            <param name="4" set-current-moment="true" type="dateTimeWithTimeZone"/>
-                            <param name="5" set-current-moment="true" type="timelessDate"/>
-                            <param name="6" set-base-object="true"/>
-                            <param name="7" set-current-user="true"/>
-                        </extra-filter>
-                        <extra-filter name="filter3">
-                            <param name="0" value="3.14" type="reference"/>
-                            <param name="1" widget-id="some-text-field" type="string"/>
-                            <param name="2" widget-id="some-suggest-box" type="reference"/>
-                            <param name="3" type="reference">
-                                <unique-key-value type="Employee">
-                                    <field name="Phone" value="8 (495) 777-55-01"/>
-
-                                </unique-key-value>
-                            </param>
-                        </extra-filter>&ndash;&gt;
-                    </collection-extra-filters>-->
-                <!--collection-table-buttons display-all-possible="true"/-->
             </table-browser>
 
 
-            <editable-table-browser id="l_editabletablebrowser" resizable="true">
+            <editable-table-browser id="l_editabletablebrowser" resizable="true" autosuggest-allowed="true">
                 <field-path value="category"/>
 
                 <collection-ref name="Organizations"/>
@@ -646,6 +604,7 @@
                 <display-values-as-links value="true" modal-window="false"/>
                 <select-button image="..." text="Выбрать"/>
                 <default-button text="По умолч."/>
+                <drop-down-pattern value="{name}"/>
             </editable-table-browser>
 
             <linked-domain-object-hyperlink id="l_hyperlink" modal-window="true">
