@@ -290,9 +290,9 @@
                 <tab name="EditableTableBrowserDemo">
                     <single-entry-group>
                         <tab-group>
-                            <table>
+                            <table height="200px">
                                 <tr>
-                                    <td>
+                                    <td v-align="top">
                                         <widget id="l_editabletablebrowser"/>
                                     </td>
                                 </tr>

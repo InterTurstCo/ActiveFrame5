@@ -86,6 +86,8 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
         rootFlowPanel.add(textArea);
         rootFlowPanel.addStyleName("root-editable-tablebrowser-widget");
         textArea.addStyleName("textarea-editable-tablebrowser-widget");
+        scrollPanel.addStyleName("scroll-panel-tablebrowser-widget");
+
 
         TextCell textCell = new TextCell();
         cellList = new CellList<>(textCell);

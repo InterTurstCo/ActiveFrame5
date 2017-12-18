@@ -100,6 +100,7 @@
     width: 100% !important;
     display: flex;
     align-items: start;
+    position: relative;
 }
 
 textarea.gwt-TextArea.textarea-editable-tablebrowser-widget {
@@ -109,5 +110,14 @@ textarea.gwt-TextArea.textarea-editable-tablebrowser-widget {
     margin: 6px 5px 0 0;
     padding: 5px 10px 4px 10px;
     border-radius: 3px;
+}
+
+.scroll-panel-tablebrowser-widget {
+    position: absolute !important;
+    top: 100%;
+    z-index: 10000;
+    box-shadow: 0px 0px 5px rgba(0,0,0, 0.3);
+    padding: 10px;
+    border-radius: 2px;
 }
 
