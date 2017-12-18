@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.personmanager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -24,6 +26,7 @@ import java.util.*;
  */
 @ExtensionPoint(filter = "group_group_settings")
 public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSaveExtensionHandler, AfterDeleteExtensionHandler {
+    final static Logger logger = LoggerFactory.getLogger(OnChangeGroupGroupSettingsExtensionPointHandler.class);    
 
     @Autowired
     private PersonManagementServiceDao personManagementService;
@@ -59,14 +62,16 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
                 throw new ExtensionPointException("Found cycle in groups. Group " + child + " exists role " + parent);
             }
 
-            // Получаем роли, которые включают родительскую роль с учетом иерархии
+            // Получаем группы, которые включают родительскую группу с учетом иерархии
             List<DomainObject> roles = personManagementService.getAllParentGroup(parent);
 
-            // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой роли
-            refreshRoleRoles(parent);
+            // Вызываем пересчет состава ролей всех этих групп и самой изменяемой группы
+            refreshGroupGroups(parent);
             for (DomainObject role : roles) {
-                refreshRoleRoles(role.getId());
+                refreshGroupGroups(role.getId());
             }
+        }else{
+            logger.warn("Group uncover is disabled");
         }
     }
 
@@ -80,7 +85,7 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
 
     }
 
-    private void refreshRoleRoles(Id parent) {
+    private void refreshGroupGroups(Id parent) {
         // Получаем состав группы из конфигурации
         Set<Id> childGroups = getAllChildGroupsIdByConfig(parent);
         // Получаем состав роли из базы
@@ -213,9 +218,9 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
         // Получаем роли, которые включают родительскую роль с учетом иерархии
         List<DomainObject> roles = personManagementService.getAllParentGroup(parent);
         // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой роли
-        refreshRoleRoles(parent);
+        refreshGroupGroups(parent);
         for (DomainObject role : roles) {
-            refreshRoleRoles(role.getId());
+            refreshGroupGroups(role.getId());
         }
     }
 }
