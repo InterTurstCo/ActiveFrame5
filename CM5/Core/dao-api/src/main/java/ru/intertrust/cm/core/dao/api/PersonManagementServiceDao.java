@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис для более удобной работы с пользователями и группами
@@ -128,5 +129,24 @@ public interface PersonManagementServiceDao {
      * @return
      */
     DomainObject findDynamicGroup(String name, Id contectId);
+    
+    /**
+     * Получение всех групп верхнего уровня 
+     */
+    public Set<Id> getAllRootGroup();
 
+    /**
+     * Пересчет "развернутого" состава групп, входящих в группу.
+     * @param groupId идентификатор группы, для которой производится пересчет
+     */
+    void recalcGroupGroup(Id groupId);
+
+    /**
+     * Пересчет "развернутого" состава групп, входящих в группу. 
+     * Пересчет производится для группы переданной в качестве параметра
+     * и для всех групп входящих в эту группу
+     * @param groupId идентификатор группы, для которой производится пересчет
+     * @return
+     */
+    Set<Id> recalcGroupGroupForGroupAndChildGroups(Id groupId);
 }

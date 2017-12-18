@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -10,6 +12,7 @@ import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter;
 
+import java.rmi.ServerException;
 import java.util.*;
 
 /**
@@ -19,6 +22,7 @@ import java.util.*;
  *
  */
 public class PersonManagementServiceDaoImpl implements PersonManagementServiceDao {
+    final static Logger logger = LoggerFactory.getLogger(PersonManagementServiceDaoImpl.class);
 
     @Autowired
     private CollectionsDao collectionsDao;
@@ -38,7 +42,6 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
-
 
     /**
      * Получение персон входящих непосредственно в группу
@@ -109,7 +112,9 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     }
 
     /**
-     * Проверка вхождения одной группы в другую. Проверка возможна как с учетом наследования так и без учета наследования, в зависимости от параметра recursive
+     * Проверка вхождения одной группы в другую. Проверка возможна как с учетом
+     * наследования так и без учета наследования, в зависимости от параметра
+     * recursive
      * @param parent
      *            родительская группа
      * @param child
@@ -174,7 +179,8 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getChildGroups(Id parent) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
         if (globalCacheManager.isEnabled()) {
-            final List<DomainObject> groupGroupSettings = domainObjectDao.findLinkedDomainObjects(parent, "group_group_settings", "parent_group_id", accessToken);
+            final List<DomainObject> groupGroupSettings =
+                    domainObjectDao.findLinkedDomainObjects(parent, "group_group_settings", "parent_group_id", accessToken);
             if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -373,4 +379,172 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         return identifiableObjectConverter.convertToDomainObject(result.get(0));
     }
 
+    @Override
+    public Set<Id> getAllRootGroup() {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(PersonManagementServiceDaoImpl.class.getName());
+        // Получение всех групп, у которых есть в составе другие группы, но они не входят в состав ни одной группы
+        // Иными словами получаем верхушки иерархий всех групп в системе
+        String query = "select id from user_group ";
+        query += "where not exists (select 1 from group_group_settings s where s.child_group_id = user_group.id) ";
+        query += "and exists(select 1 from group_group_settings s where s.parent_group_id = user_group.id)";
+
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
+        Set<Id> result = new HashSet<Id>();
+        //Для каждой группы верхнего уровня вызываем пересчет состава всех ее дочерних групп
+        for (IdentifiableObject collectionRow : collection) {
+            result.add(collectionRow.getId());
+        }
+        return result;
+    }
+
+    private Set<Id> recalcGroupGroupForGroupAndChildGroups(Id groupId, boolean hierarchy, AccessToken accessToken) {
+        // Получаем состав группы из конфигурации
+        HashMap<Id, Set<Id>> groupsMembers = new HashMap<Id, Set<Id>>();
+        getAllChildGroupsIdByConfig(groupsMembers, groupId, accessToken);
+        //В результате groupsMembers содержит информацию о составе переданной группы и всех дочерних групп, с учетом иерархии
+
+        Set<Id> result = new HashSet<Id>();
+        if (hierarchy) {
+            //Если в параметре передано пересчитывать все дочерние группы
+            //Для каждой группы из иерархии выполняем получение ее состава в базе и при необходимости корректируем состав 
+            for (Id recalGroupId : groupsMembers.keySet()) {
+                Set<Id> childGroups = groupsMembers.get(recalGroupId);
+                correctGroupMembers(recalGroupId, childGroups, accessToken);
+                result.add(recalGroupId);
+            }
+        } else {
+            //Пересчитываем состав в базе для единственной группы
+            Set<Id> childGroups = groupsMembers.get(groupId);
+            correctGroupMembers(groupId, childGroups, accessToken);
+            result.add(groupId);
+        }
+        return result;
+    }
+
+    private void correctGroupMembers(Id groupId, Set<Id> childGroups, AccessToken accessToken) {
+        logger.debug("Correct group {}", groupId);
+        // Получаем состав группы из базы
+        String query = "select gg.child_group_id from group_group gg where gg.parent_group_id = {0} and gg.child_group_id != {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(groupId));
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        Set<Id> childGroupsBase = getIds(collection);
+
+        // Сравниваем две коллекции
+        // Получаем список на добавление
+        List<Id> addList = new ArrayList<Id>();
+        for (Id group : childGroups) {
+            if (!childGroupsBase.contains(group)) {
+                addList.add(group);
+            }
+        }
+        // Получаем список на удаление
+        List<Id> delList = new ArrayList<Id>();
+        for (Id group : childGroupsBase) {
+            if (!childGroups.contains(group)) {
+                delList.add(group);
+            }
+        }
+
+        // Непосредственно добавляем элементы
+        ArrayList<DomainObject> groupGroups = new ArrayList<>(addList.size());
+        for (Id group : addList) {
+            DomainObject domainObject = createDomainObject("group_group");
+            domainObject.setReference("parent_group_id", groupId);
+            domainObject.setReference("child_group_id", group);
+            groupGroups.add(domainObject);
+            logger.debug("To group {} add member {}", groupId, group);
+        }
+        domainObjectDao.save(groupGroups, accessToken);
+
+        // Непосредственно удаляем элементы
+        ArrayList<Id> toDelete = new ArrayList<>(delList.size());
+        for (Id childGroup : delList) {
+            Id groupGroupId = getGroupGroupId(groupId, childGroup, accessToken);
+            toDelete.add(groupGroupId);
+            logger.debug("From group {} delete member {}", groupId, childGroup);
+        }
+        domainObjectDao.delete(toDelete, accessToken);
+    }
+
+    /**
+     * Рекурсивное получение настройки вхождения группы в группу из таблицы
+     * group_group_settings
+     * 
+     * @param parentRoleId
+     * @return
+     * @throws ServerException
+     */
+    private void getAllChildGroupsIdByConfig(HashMap<Id, Set<Id>> groupsMembers, Id parent, AccessToken accessToken) {
+        HashSet<Id> allGroups = new HashSet<>();
+        //Непосредственные вхождения
+        String query = "select child_group_id from group_group_settings where parent_group_id = {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(parent));
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+
+        Set<Id> childGroups = getIds(collection);
+        allGroups.addAll(childGroups);
+        //В цикле собираем информацию о составе дочерних групп
+        for (Id childGroup : childGroups) {
+            //Получаем состав дочерних групп
+            getAllChildGroupsIdByConfig(groupsMembers, childGroup, accessToken);
+            //Добавляем состав дочерних групп в основную группу
+            allGroups.addAll(groupsMembers.get(childGroup));
+        }
+        groupsMembers.put(parent, allGroups);
+    }
+
+    /**
+     * Получение списка идентификаторов элементов коллекции
+     * @param domainObjects
+     * @return
+     */
+    private Set<Id> getIds(IdentifiableObjectCollection collection) {
+        if (collection == null || collection.size() == 0) {
+            return Collections.emptySet();
+        }
+        Set<Id> result = new HashSet<>(collection.size());
+        for (IdentifiableObject row : collection) {
+            result.add(row.getId());
+        }
+        return result;
+    }
+
+    /**
+     * Получение идентификаторов доменных объектов вхождения группы в группу по
+     * идентификатору родительской и дочерней группы
+     * @param parent
+     * @param child
+     * @return
+     */
+    private Id getGroupGroupId(Id parent, Id child, AccessToken accessToken) {
+        String query = "select g.id from group_group g ";
+        query += "where g.parent_group_id = {0} and g.child_group_id = {1}";
+
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(parent));
+        params.add(new ReferenceValue(child));
+
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        Id result = null;
+
+        if (collection.size() > 0) {
+            result = collection.get(0).getId();
+        }
+        return result;
+    }
+
+    @Override
+    public Set<Id> recalcGroupGroupForGroupAndChildGroups(Id groupId) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(PersonManagementServiceDaoImpl.class.getName());
+        return recalcGroupGroupForGroupAndChildGroups(groupId, true, accessToken);
+    }
+
+    
+    @Override
+    public void recalcGroupGroup(Id groupId) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(PersonManagementServiceDaoImpl.class.getName());
+        recalcGroupGroupForGroupAndChildGroups(groupId, false, accessToken);
+    }
 }
