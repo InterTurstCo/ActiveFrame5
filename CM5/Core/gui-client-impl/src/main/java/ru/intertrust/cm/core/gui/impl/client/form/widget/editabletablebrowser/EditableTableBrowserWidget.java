@@ -75,8 +75,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     protected EditableTableBrowserState currentState;
 
     private ScrollPanel scrollPanel;
-    private static final List<String> DAYS = Arrays.asList("Sunday", "Monday",
-            "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+
     private CellList<String> cellList;
 
     public EditableTableBrowserWidget() {
@@ -105,8 +104,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                 }
             }
         });
-        cellList.setRowCount(DAYS.size(), true);
-        cellList.setRowData(0, DAYS);
+
         scrollPanel.add(cellList);
         rootFlowPanel.add(scrollPanel);
         scrollPanel.setVisible(false);
@@ -560,7 +558,14 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
             public void onSuccess(Dto result) {
                 SuggestionList suggestionResponse = (SuggestionList) result;
                 if (suggestionResponse.getSuggestions().size()>0){
+                    List<String> items = new ArrayList<>();
+                    for(SuggestionItem sItem : suggestionResponse.getSuggestions()){
+                        items.add(sItem.getDisplayText());
+                    }
+                    cellList.setRowCount(suggestionResponse.getSuggestions().size(), true);
+                    cellList.setRowData(0, items);
                     scrollPanel.setVisible(true);
+                    cellList.setFocus(true);
                 }
             }
 
