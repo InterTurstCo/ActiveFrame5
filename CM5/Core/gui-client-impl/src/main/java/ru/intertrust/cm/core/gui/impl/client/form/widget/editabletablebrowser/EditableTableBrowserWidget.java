@@ -101,6 +101,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                 if (selected != null) {
                     textArea.setText(selected);
                     scrollPanel.setVisible(false);
+                    textArea.setFocus(true);
                 }
             }
         });
@@ -108,6 +109,12 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
         scrollPanel.add(cellList);
         rootFlowPanel.add(scrollPanel);
         scrollPanel.setVisible(false);
+        scrollPanel.addDomHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent mouseOutEvent) {
+                scrollPanel.setVisible(false);
+            }
+        },MouseOutEvent.getType());
     }
 
     @Override
@@ -209,7 +216,10 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                         event.stopPropagation();
                         event.preventDefault();
                     }
-                    if(currentState.getEditableTableBrowserConfig().isAutosuggestAllowed() && textArea.getText().length()>=3) {
+                    if(key != KeyCodes.KEY_DELETE && key != KeyCodes.KEY_BACKSPACE && !event.isControlKeyDown()
+                            && key != KeyCodes.KEY_CTRL &&
+                            currentState.getEditableTableBrowserConfig().isAutosuggestAllowed()
+                            && textArea.getText().length()>=3) {
                         fetchSuggestions(textArea.getText());
                     }
                 }
