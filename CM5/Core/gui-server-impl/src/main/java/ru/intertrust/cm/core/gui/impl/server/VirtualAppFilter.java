@@ -37,6 +37,7 @@ public class VirtualAppFilter implements Filter {
             servletRequest.setAttribute(APP_NAME, "/" + businessUniverseConfig.getBaseUrlConfig().getValue());
         }
         if (((HttpServletRequest) servletRequest).getMethod().equalsIgnoreCase(METHOD_POST)
+                && businessUniverseConfig.getBaseUrlConfig()!=null && businessUniverseConfig.getBaseUrlConfig().getValue()!=null
                 && ((HttpServletRequest) servletRequest).getRequestURL().toString().contains("/" + businessUniverseConfig.getBaseUrlConfig().getValue())) {
 
 
