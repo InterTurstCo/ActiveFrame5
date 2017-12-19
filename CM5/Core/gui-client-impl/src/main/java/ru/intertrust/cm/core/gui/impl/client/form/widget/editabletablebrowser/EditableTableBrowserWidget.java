@@ -7,7 +7,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.cellview.client.CellList;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -29,7 +28,6 @@ import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.SuggestBoxDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.DefaultConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.SelectConfiguredButton;
@@ -78,6 +76,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
 
     private CellList<String> cellList;
 
+
     public EditableTableBrowserWidget() {
         scrollPanel = new ScrollPanel();
         rootFlowPanel = new FlowPanel();
@@ -109,6 +108,8 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
         scrollPanel.add(cellList);
         rootFlowPanel.add(scrollPanel);
         scrollPanel.setVisible(false);
+
+
         scrollPanel.addDomHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent mouseOutEvent) {
