@@ -49,7 +49,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * Флаг выключения расчета динамических групп. Полезно включить перед
      * процессом миграции
      */
-    @org.springframework.beans.factory.annotation.Value("${disable.group.clculation:false}")
+    @org.springframework.beans.factory.annotation.Value("${disable.group.calculation:false}")
     private boolean disableGroupCalculation;
 
     private Hashtable<String, List<DynamicGroupRegisterItem>> collectorsByTrackingType =
