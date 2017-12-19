@@ -117,10 +117,52 @@ textarea.gwt-TextArea.textarea-editable-tablebrowser-widget {
     top: 100%;
     left: 0;
     z-index: 10000;
-    box-shadow: 0px 0px 5px rgba(0,0,0, 0.3);
+    box-shadow: 0 5px 10px rgba(0,0,0, .3);
     padding: 10px;
-    border-radius: 2px;
     width: 100%;
     box-sizing: border-box;
+    border: 1px solid #ccc;
+    max-height: 120px;
 }
+
+
+
+.scroll-panel-tablebrowser-widget[class] [class*="cellListKeyboardSelectedItem"] {
+    color: #000;
+    background: #ededed;
+    border: 1px solid #cdcdcd
+}
+
+.scroll-panel-tablebrowser-widget [class*="cellListSelectedItem"] {
+    background: none
+}
+
+.scroll-panel-tablebrowser-widget [class*="cellListEvenItem"] {
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid transparent
+}
+
+.scroll-panel-tablebrowser-widget [class*="cellListEvenItem"]:hover {
+    padding: 5px;
+    margin-top: 5px;
+    background: #ededed;
+    border: 1px solid #cdcdcd
+}
+
+.scroll-panel-tablebrowser-widget [class*="cellListOddItem"]:hover {
+    padding: 5px;
+    margin-top: 5px;
+    background: #ededed;
+    border: 1px solid #cdcdcd;
+}
+
+.scroll-panel-tablebrowser-widget [class*="cellListOddItem"] {
+    padding: 5px;
+    margin-top: 5px;
+    color: #000;
+    border: 1px solid transparent
+}
+
+
 
