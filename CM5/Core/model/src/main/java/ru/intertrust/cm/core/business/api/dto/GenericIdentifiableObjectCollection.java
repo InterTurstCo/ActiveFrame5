@@ -97,7 +97,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     }
 
     public void sort(SortOrder sortOrder) {
-        Collections.sort(list, new FastIdentifiableObjectComparator(/*this,*/ sortOrder));
+        if(sortOrder != null){
+            Collections.sort(list, new FastIdentifiableObjectComparator(/*this,*/ sortOrder));
+        }
     }
 
     @Override

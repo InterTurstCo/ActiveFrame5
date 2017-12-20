@@ -1098,6 +1098,15 @@
                 ]]>
             </criteria>
         </filter>
+
+
+        <filter name="byMembers">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    g.parent_group_id = {0} and g.child_group_id in ({1})
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection name="PersonGroup" idField="id">
@@ -1118,6 +1127,13 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     g.usergroup = {0} and g.person_id = {1}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byMembers">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    g.usergroup = {0} and g.person_id in ({1})
                 ]]>
             </criteria>
         </filter>

@@ -6,13 +6,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -80,9 +75,29 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
     @Override
     public void onBeforeDelete(DomainObject deletedDomainObject) {
         clearCollectionCache();
+
+        //удаляем всех участников группы
+
+        deleteGroupMembers(deletedDomainObject);
+
         Id groupGroupId = getGroupGroupId(deletedDomainObject.getId(), deletedDomainObject.getId());
         AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
         domainObjectDao.delete(groupGroupId, accessToken);
+    }
+
+    private int deleteGroupMembers(DomainObject deletedDomainObject) {
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken(this.getClass().getName());
+        String query =
+                "select t.id from group_member t where t.usergroup = "
+                        + ((RdbmsId) deletedDomainObject.getId()).getId();
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
+        List<Id> ids = new ArrayList<>();
+        for (IdentifiableObject identifiableObject : collection) {
+            ids.add(identifiableObject.getId());
+
+        }
+        return  ids.isEmpty() ? 0 : domainObjectDao.delete(ids, accessToken);
     }
 
     /**

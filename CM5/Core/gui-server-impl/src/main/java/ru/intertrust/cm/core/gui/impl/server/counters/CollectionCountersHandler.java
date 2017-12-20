@@ -119,7 +119,7 @@ public class CollectionCountersHandler implements ComponentHandler {
         for (Map.Entry<CounterKey, Id> linkConfigDomainObjectEntry : counters.entrySet()) {
             CounterKey counterKey = linkConfigDomainObjectEntry.getKey();
             String collectionName = counterKey.getCollectionName();
-            int collectionCount;
+            int collectionCount = 0;
             if (localCollectionCountCache.containsKey(collectionName)) {
                 collectionCount = localCollectionCountCache.get(collectionName);
             } else {
@@ -127,8 +127,10 @@ public class CollectionCountersHandler implements ComponentHandler {
                 localCollectionCountCache.put(collectionName, collectionCount);
             }
             DomainObject navLinkCollectionObject = crudService.find(linkConfigDomainObjectEntry.getValue());
-            navLinkCollectionObject.setLong("collection_count", Long.valueOf(collectionCount));
-            crudService.save(navLinkCollectionObject);
+            if(!Long.valueOf(collectionCount).equals(navLinkCollectionObject.getLong("collection_count"))){
+                navLinkCollectionObject.setLong("collection_count", Long.valueOf(collectionCount));
+                crudService.save(navLinkCollectionObject);
+            }
         }
     }
 

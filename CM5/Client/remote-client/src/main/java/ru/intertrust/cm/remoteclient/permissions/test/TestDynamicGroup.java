@@ -46,9 +46,11 @@ public class TestDynamicGroup extends ClientBase {
             crudService = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
             collectionService = (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
             prsonService = (PersonManagementService.Remote) getService("PersonManagementService", PersonManagementService.Remote.class);
+            Long start = System.currentTimeMillis();
 
             testDynamicGroups();
 
+            System.out.println("End ->"+ (System.currentTimeMillis() - start));
         } finally {
             writeLog();
         }
@@ -143,7 +145,12 @@ public class TestDynamicGroup extends ClientBase {
      */
     private void deleteCreatedObjects() {
         for (int i = createdObjects.size() -1 ; i > -1; i--) {
-            crudService.delete(createdObjects.get(i));
+            try{
+                log("delete >> " + crudService.find(createdObjects.get(i)).toString());
+                crudService.delete(createdObjects.get(i));
+            }catch (Exception e){
+                throw e;
+            }
         }
     }
 

@@ -101,12 +101,30 @@ public interface PersonManagementServiceDao {
      */
     void remotePersonFromGroup(Id group, Id person);
 
+
+    /**
+     * Удаление персон из группы
+     * @param group
+     * @param persons
+     */
+    void remotePersonsFromGroup(Id group, List<Id> persons);
+
     /**
      * Удаление группы из группы
      * @param parent
      * @param child
      */
     void remoteGroupFromGroup(Id parent, Id child);
+
+
+    /**
+     * Удаление группы из группы
+     * @param parent
+     * @param childs
+     */
+    void remoteGroupFromGroups(Id parent, List<Id> childs);
+
+
 
     /**
      * Получение идентификатора группы по имени

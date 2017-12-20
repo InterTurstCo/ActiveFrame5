@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -246,7 +247,52 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     }
 
     @Override
+    public void remotePersonsFromGroup(Id group, List<Id> persons) {
+        if(group == null || persons == null || persons.isEmpty()){
+            return;
+        }
+        // Получение записи из group_members
+        Filter filter = new Filter();
+        filter.setFilter("byMembers");
+        ReferenceValue rv = new ReferenceValue(group);
+        filter.addCriterion(0, rv);
+
+        List<ReferenceValue> personValues = new ArrayList<>();
+        for(Id id : persons){
+            personValues.add(new ReferenceValue(id));
+        }
+
+        filter.addCriterion(1,ListValue.createListValue(personValues));
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени админа
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagmentService");
+
+        String collectionName = "PersonGroup";
+
+        // Получение колекции
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection(collectionName, filters, null, 0, 0, accessToken);
+        // Удаление в цикле всех записей
+
+        List<Id> ids = new ArrayList<>();
+        for (IdentifiableObject identifiableObject : collection) {
+            ids.add(identifiableObject.getId());
+        }
+        domainObjectDao.delete(ids, accessToken);
+    }
+
+    @Override
     public void remotePersonFromGroup(Id group, Id person) {
+        if(group == null || person == null ){
+            return;
+        }
         // Получение записи из group_members
         Filter filter = new Filter();
         filter.setFilter("byMember");
@@ -276,8 +322,55 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         }
     }
 
+
+    @Override
+    public void remoteGroupFromGroups(Id parent, List<Id> childs) {
+        if(parent == null || childs == null || childs.isEmpty()){
+            return;
+        }
+        // Получение записи из group_members
+        Filter filter = new Filter();
+        filter.setFilter("byMembers");
+        ReferenceValue rv = new ReferenceValue(parent);
+        filter.addCriterion(0, rv);
+        List<ReferenceValue> values = new ArrayList<>();
+        for(Id ids : childs){
+            values.add(new ReferenceValue(ids));
+        }
+
+        filter.addCriterion(1, ListValue.createListValue(values));
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени админа
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagmentService");
+
+        String collectionName = "GroupGroupSettings";
+
+        // Получение колекции
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection(collectionName, filters, null, 0, 0, accessToken);
+        // Удаление в цикле всех записей
+        List<Id> ids = new ArrayList<>();
+
+        for (IdentifiableObject identifiableObject : collection) {
+            ids.add(identifiableObject.getId());
+        }
+
+        domainObjectDao.delete(ids, accessToken);
+    }
+
+
     @Override
     public void remoteGroupFromGroup(Id parent, Id child) {
+        if(parent == null || child == null ){
+            return;
+        }
         // Получение записи из group_members
         Filter filter = new Filter();
         filter.setFilter("byMember");

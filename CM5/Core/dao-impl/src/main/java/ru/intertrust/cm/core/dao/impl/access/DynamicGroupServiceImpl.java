@@ -237,17 +237,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     private void deleteGroupMembersGroups(Id dynamicGroupId, List<Id> deleteGroup) {
         if (deleteGroup != null) {
-            for (Id id : deleteGroup) {
-                personManagementService.remoteGroupFromGroup(dynamicGroupId, id);
-            }
+           personManagementService.remoteGroupFromGroups(dynamicGroupId, deleteGroup);
         }
     }
 
     private void deleteGroupMembers(Id dynamicGroupId, List<Id> deletePerson) {
         if (deletePerson != null) {
-            for (Id id : deletePerson) {
-                personManagementService.remotePersonFromGroup(dynamicGroupId, id);
-            }
+            personManagementService.remotePersonsFromGroup(dynamicGroupId, deletePerson);
         }
     }
 
@@ -571,7 +567,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     private int deleteGroupMembers(DomainObject deletedDomainObject) {
-        int deleteRowCount = 0;
         //Получение персон, которые числятся членами группы
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
@@ -579,11 +574,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 "select t.id from group_member t where t.person_id = "
                         + ((RdbmsId) deletedDomainObject.getId()).getId();
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 0, accessToken);
+        List<Id> ids = new ArrayList<>();
         for (IdentifiableObject identifiableObject : collection) {
-            domainObjectDao.delete(identifiableObject.getId(), accessToken);
-            deleteRowCount++;
+            ids.add(identifiableObject.getId());
         }
-        return deleteRowCount;
+        return ids.isEmpty() ? 0 : domainObjectDao.delete(ids, accessToken);
     }
 
     @Override
