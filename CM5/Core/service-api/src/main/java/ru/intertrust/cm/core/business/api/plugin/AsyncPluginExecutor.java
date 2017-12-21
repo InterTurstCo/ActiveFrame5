@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.plugin;
 
+import java.util.concurrent.Future;
+
 public interface AsyncPluginExecutor {
-    void execute(String pluginId, String param);
+    Future<Void> execute(String pluginId, String param);
 }

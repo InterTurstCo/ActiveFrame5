@@ -16,17 +16,21 @@
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>service-api</artifactId>
             <version>${project.version}</version>
-        </dependency>     
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-        </dependency>     
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.jboss.spec</groupId>
             <artifactId>jboss-javaee-6.0</artifactId>
             <type>pom</type>
             <scope>provided</scope>
-        </dependency>          
+        </dependency>
     </dependencies>
 
 </project>

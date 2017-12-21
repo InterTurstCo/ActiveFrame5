@@ -20,3 +20,4 @@ TYPE_NAME=Status; KEYS=Name
 "Wait	";Ожидает
 "Run	";Запущен
 Fault;Ошибка
+Terminate;Остановлен

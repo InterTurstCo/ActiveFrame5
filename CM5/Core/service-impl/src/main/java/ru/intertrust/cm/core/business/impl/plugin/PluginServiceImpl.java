@@ -1,14 +1,17 @@
 package ru.intertrust.cm.core.business.impl.plugin;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.security.RunAs;
 import javax.ejb.Local;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
@@ -18,9 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -33,6 +37,7 @@ import ru.intertrust.cm.core.business.api.plugin.PluginStorage;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
@@ -59,18 +64,30 @@ public class PluginServiceImpl implements PluginService {
 
     @Autowired
     private StatusDao statusDao;
-    
+
     @Autowired
-    private CollectionsService collectionsService;    
+    private CollectionsDao collectionsService;
+
+    @Autowired
+    private ClusterManager clusterManager;
+
+    private static Map<String, Future> futures = new HashMap<String, Future>();
 
     @PostConstruct
     public void cleanPluginStatus() {
+        Set<String> workNodes = clusterManager.getNodeIds();
+
         //Ищем в таблице со статусами плагинов подвисшие плагины и меняем у них статус
         List<Value> params = new ArrayList<Value>();
         params.add(new ReferenceValue(statusDao.getStatusIdByName("Run")));
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery("select id from plugin_status where status = {0}", params);
+        IdentifiableObjectCollection collection =
+                collectionsService.findCollectionByQuery("select id, node_id from plugin_status where status = {0}", params, 0, 0, getSystemAccessToken());
         for (IdentifiableObject identifiableObject : collection) {
-            domainObjectDao.setStatus(identifiableObject.getId(), statusDao.getStatusIdByName("Sleep"), getSystemAccessToken());
+            //У тех плагинов которые запущены на остановленных нодах меняем статус 
+            if (!workNodes.contains(identifiableObject.getString("node_id"))) {
+                domainObjectDao.setStatus(identifiableObject.getId(), statusDao.getStatusIdByName("Sleep"), getSystemAccessToken());
+                logger.info("Set Sleep plugin {} status. It started on stopped node {}", identifiableObject.getId(), identifiableObject.getString("node_id"));
+            }
         }
     }
 
@@ -91,6 +108,48 @@ public class PluginServiceImpl implements PluginService {
         return executePluginInternal(id, param, true);
     }
 
+    /**
+     * Периодичесмкая задача проверки статусов плагинов.
+     */
+    @Schedule(dayOfWeek = "*", hour = "*", minute = "*", second = "30", year = "*", persistent = false)
+    public void backgroundProcessing() {
+        try {
+            //Ищем в таблице со статусами плагинов остановленные плагины отправляем процессу уведомление
+            List<Value> params = new ArrayList<Value>();
+            params.add(new ReferenceValue(statusDao.getStatusIdByName("Terminate")));
+            params.add(new StringValue(clusterManager.getNodeId()));
+            IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
+                    "select id, plugin_id from plugin_status where status = {0} and node_id = {1}", params, 0, 0, getSystemAccessToken());
+            for (IdentifiableObject identifiableObject : collection) {
+                synchronized (futures) {
+                    Future future = futures.get(identifiableObject.getString("plugin_id"));
+                    if (future != null) {
+                        future.cancel(true);
+                        logger.info("Send cancal event for plugin {} execution process", identifiableObject.getString("plugin_id"));
+                        futures.remove(identifiableObject.getString("plugin_id"));
+                    }
+                }
+            }
+
+            //Очищаем таблицу с future от завершенных плагинов
+            synchronized (futures) {
+                Set<String> pluginIds = new HashSet<String>();
+                for (String pluginId : futures.keySet()) {
+                    if (futures.get(pluginId).isDone()) {
+                        pluginIds.add(pluginId);
+                    }
+                }
+
+                for (String pluginId : pluginIds) {
+                    futures.remove(pluginId);
+                }
+            }
+
+        } catch (Exception ex) {
+            logger.info("Error on perodic check plugin status", ex);
+        }
+    }
+
     private String executePluginInternal(String pluginId, String param, boolean checkPermissions) {
         if (checkPermissions && !checkPermissions()) {
             throw new FatalException("Current user not permit execute plugin");
@@ -101,9 +160,13 @@ public class PluginServiceImpl implements PluginService {
             if (status != null && status.getStatus() == statusDao.getStatusIdByName("Run")) {
                 throw new FatalException("Plugin " + pluginId + " is started.");
             }
-            
-            asyncPluginExecutor.execute(pluginId, param);
-            
+
+            Future future = asyncPluginExecutor.execute(pluginId, param);
+
+            synchronized (futures) {
+                futures.put(pluginId, future);
+            }
+
             return "Started";
         } catch (FatalException ex) {
             throw ex;
@@ -130,5 +193,11 @@ public class PluginServiceImpl implements PluginService {
         UserGroupGlobalCache userCache = context.getBean(UserGroupGlobalCache.class);
         CurrentUserAccessor currentUserAccessor = context.getBean(CurrentUserAccessor.class);
         return userCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId());
+    }
+
+    @Override
+    public void terminateExecution(String id) {
+        DomainObject pluginStatus = getPluginStatus(id);
+        domainObjectDao.setStatus(pluginStatus.getId(), statusDao.getStatusIdByName("Terminate"), getSystemAccessToken());
     }
 }

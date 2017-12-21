@@ -92,7 +92,7 @@ public class AuthenticationFilter implements Filter {
                 forwardToLogin(servletRequest, servletResponse);
             }
         } else {
-            log.info(Thread.currentThread().getId() + " => user principal is already in request");
+            log.debug(Thread.currentThread().getId() + " => user principal is already in request");
         }
 
         try {
@@ -106,7 +106,7 @@ public class AuthenticationFilter implements Filter {
                     log.error("request logout failed", e);
                 }
             } else {
-                log.info(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
+                log.debug(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
             }
         }
 

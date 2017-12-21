@@ -22,7 +22,8 @@ public class PluginInfo implements Dto{
     
     public enum Status{
         Sleeping,
-        Running
+        Running,
+        Terminating
     }
     
     public PluginInfo(){

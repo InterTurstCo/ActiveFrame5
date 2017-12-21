@@ -9,6 +9,7 @@ import org.springframework.core.env.PropertyResolver;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.business.api.plugin.PluginStorage;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
@@ -16,6 +17,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.model.plugin.ExecutePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginInfoData;
+import ru.intertrust.cm.core.gui.model.plugin.TerminatePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.UploadData;
 
 @ComponentName("plugin.manager.plugin")
@@ -54,6 +56,14 @@ public class PluginManagerPluginHandler extends PluginHandler {
     public StringValue executePlugin(Dto request) {
         ExecutePluginData executePluginData = (ExecutePluginData) request;
         return new StringValue(context.getBean(PluginService.class).executePlugin(executePluginData.getPluginId(), executePluginData.getParameter()));
+    }
+
+    public TerminatePluginData terminatePlugins(Dto request) {
+        TerminatePluginData pluginInfo = (TerminatePluginData) request;
+        for (String pluginId : pluginInfo.getPluginIds()) {
+            context.getBean(PluginService.class).terminateExecution(pluginId);
+        }
+        return pluginInfo;
     }
 
 }

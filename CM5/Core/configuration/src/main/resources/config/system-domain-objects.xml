@@ -159,6 +159,7 @@
             <string name="plugin_id" length="256" not-null="true"/>
             <date-time name="last_start"/>
             <date-time name="last_finish"/>
+            <string name="node_id" length="256"/>
         </fields>
         <uniqueKey>
             <field name="plugin_id"/>

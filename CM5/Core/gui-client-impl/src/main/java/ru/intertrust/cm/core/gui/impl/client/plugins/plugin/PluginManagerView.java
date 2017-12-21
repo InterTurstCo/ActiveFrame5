@@ -43,12 +43,15 @@ import ru.intertrust.cm.core.gui.model.action.DownloadAttachmentActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.plugin.ExecutePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginInfoData;
+import ru.intertrust.cm.core.gui.model.plugin.TerminatePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.UploadData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
@@ -63,6 +66,7 @@ public class PluginManagerView extends PluginView {
     private SimplePager pager;
     private Button uploadButton;
     private Button executeButton;
+    private Button terminateButton;
     private Button updateButton;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<>();
     ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler;
@@ -193,6 +197,50 @@ public class PluginManagerView extends PluginView {
             }
         });
     } 
+
+    private void terminatePluginsProcess(List<PluginInfo> pluginInfos) {
+        TerminatePluginData terminatePlugins = new TerminatePluginData();
+        
+        //Из всех плагинов выбираем выделенные и запущенные
+        for(PluginInfo pluginInfo: pluginInfos){
+            if(pluginInfo.isChecked() && pluginInfo.getStatus().equals(PluginInfo.Status.Running)) {
+                terminatePlugins.getPluginIds().add(pluginInfo.getClassName());
+            }
+        }
+        
+        Command command = new Command("terminatePlugins", "plugin.manager.plugin", terminatePlugins);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while obtaining statistics");
+                caught.printStackTrace();
+                ApplicationWindow.errorAlert(LocalizeUtil.get(EXECUTION_ACTION_ERROR_KEY, EXECUTION_ACTION_ERROR) + caught.getMessage());
+                checkAndUpdatePerformButtonState();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                TerminatePluginData TerminatePluginData = (TerminatePluginData)result;
+                String message = "";
+                for (String pluginId : TerminatePluginData.getPluginIds()) {
+                    if (!message.isEmpty()){
+                        message += ", ";
+                    }
+                    message += pluginId;
+                }
+                
+                if (message.isEmpty()){
+                    message = "Не выбрано ни одного запущенного плагина";
+                }else{
+                    message = "Отправлен сигнал на остановку плагина(ов): " + message;
+                }
+                
+                MessageDialog messageDialog = new InfoMessageDialog(message);
+                messageDialog.alert();
+            }
+        });
+        
+    }
     
     private void refreshPluginsModel() {
         Command command = new Command("refreshPlugins", "plugin.manager.plugin", null);
@@ -461,6 +509,23 @@ public class PluginManagerView extends PluginView {
                                       }
         );
 
+        
+        terminateButton = new Button();
+        terminateButton.setStylePrimaryName("btn-terminate");
+        terminateButton.addStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        terminateButton.addStyleName("add-btn-table-viewer");
+        terminateButton.setEnabled(true);
+        terminateButton.setTitle("Остановить");
+        toolbarPanel.add(terminateButton);
+
+        terminateButton.addClickHandler(new ClickHandler() {
+                                          @Override
+                                          public void onClick(ClickEvent event) {
+                                              terminatePluginsProcess(dataProvider.getList());
+                                          }
+                                      }
+        );
+        
         updateButton = new Button();
         updateButton.setStylePrimaryName("btn-update");
         updateButton.addStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());

@@ -2,11 +2,11 @@ package ru.intertrust.cm.core.business.impl.plugin;
 
 import java.io.ByteArrayInputStream;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
+import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJBContext;
 import javax.ejb.Local;
@@ -19,17 +19,14 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor;
 import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
@@ -65,10 +62,13 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
 
     @Autowired
     protected PluginStorage pluginStorage;
+
+    @Autowired
+    protected ClusterManager clusterManager;
     
     @Override
     @Asynchronous
-    public void execute(String pluginId, String param) {
+    public Future<Void> execute(String pluginId, String param) {
         try {
             String result = null;
             ejbContext.getUserTransaction().begin();
@@ -82,6 +82,7 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
             }
             status = domainObjectDao.setStatus(status.getId(), statusDao.getStatusIdByName("Run"), getSystemAccessToken());
             status.setTimestamp("last_start", new Date());
+            status.setString("node_id", clusterManager.getNodeId());            
             status = domainObjectDao.save(status, getSystemAccessToken());
             
             ejbContext.getUserTransaction().commit();
@@ -129,6 +130,8 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
             attachmentService.saveAttachment(directRemoteInputStream, attachment);
 
             ejbContext.getUserTransaction().commit();
+            
+            return new AsyncResult<Void>(null); 
         } catch (Exception ex) {
             try {
                 ejbContext.getUserTransaction().rollback();

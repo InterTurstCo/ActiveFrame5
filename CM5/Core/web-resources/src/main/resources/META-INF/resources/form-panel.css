@@ -667,6 +667,12 @@ button.btn-perform {
     background-position: center;
 }
 
+button.btn-terminate {
+    background: url("resources/defaulttheme/images/icons/cancel_round.png") no-repeat;
+    background-size: 16px;
+    background-position: center;
+}
+
 button.btn-perform-disabled.add-btn-table-viewer {
     background: url("resources/defaulttheme/images/icons/icon-perform-disable.png") no-repeat;
     background-size: 16px;

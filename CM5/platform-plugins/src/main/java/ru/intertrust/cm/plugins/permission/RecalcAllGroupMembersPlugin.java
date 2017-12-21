@@ -12,22 +12,25 @@ import javax.ejb.SessionContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.plugin.Plugin;
 import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.dao.access.DynamicGroupProcessor;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.model.FatalException;
 
-@Plugin(name = "RecalcAllGroupGroupPlugin", description = "Пересчет состава всех групп в системе из иерархической в плоскую", transactional = false)
-public class RecalcAllGroupGroupPlugin extends PluginBase implements PluginHandler {
+@Plugin(name = "RecalcAllGroupMembersPlugin",
+        description = "Пересчет состава всех динамических групп по конфигурации. Поддерживаются параметры packageSize и threadCount", transactional = false)
+public class RecalcAllGroupMembersPlugin extends PluginBase implements PluginHandler {
     private static final int DEFAULT_PACKAGE_SIZE = 1000;
     private static final int DEFAULT_THREAD_COUNT = 8;
     private static final String PACKAGE_SIZE = "packageSize";
     private static final String THREAD_COUNT = "threadCount";
 
     @Autowired
-    private PersonManagementServiceDao personManagementService;
+    private CollectionsService collectionService;
 
     @Autowired
     private DynamicGroupProcessor dynamicGroupProcessor;
@@ -49,44 +52,45 @@ public class RecalcAllGroupGroupPlugin extends PluginBase implements PluginHandl
         }
 
         try {
-            info("Start plugin RecalcAllGroupGroupPlugin packageSize={0}, threadCount={1}", packageSize, threadCount);
+            info("Start plugin RecalcAllGroupMembersPlugin packageSize={0}, threadCount={1}", packageSize, threadCount);
 
-            Set<Id> result = personManagementService.getAllRootGroup();
-            info("Found {0} root groups", result.size());
+            ///Получение состава всех динамических групп
+            String query = "select id from user_group where object_id is not null";
+            IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
+
+            info("Found {0} groups for calculation", collection.size());
 
             List<Future> futures = new ArrayList<Future>();
             int groupCount = 0;
 
             Set<Id> groupPackage = new HashSet<>();
 
-            for (Id id : result) {
-
+            for (IdentifiableObject identifiableObject : collection) {
                 if (((SessionContext) context).wasCancelCalled()) {
                     info("Terminate work of plugin RecalcAllGroupMembersPlugin.");
                     break;
                 }
 
-                groupPackage.add(id);
+                groupPackage.add(identifiableObject.getId());
                 groupCount++;
 
-                if (groupPackage.size() >= packageSize || result.size() == groupCount) {
+                if (groupPackage.size() >= packageSize || collection.size() == groupCount) {
                     recalcPackage(futures, groupPackage, threadCount);
                     groupPackage = new HashSet<>();
                 }
+
             }
-            
+
             //Ожидаем окончание работы асинхронных процессов
             for (int i = (futures.size() - 1); i >= 0; i--) {
                 futures.get(i).get();
-            }            
-            
-            info("Finish plugin RecalcAllGroupGroupPlugin. Recalc {0} groups", groupCount);
+            }
+
+            info("Finish plugin RecalcAllGroupMembersPlugin. Recalc {0} groups", groupCount);
             return getLog();
-
         } catch (Exception ex) {
-            throw new FatalException("Error on run RecalcAllGroupGroupPlugin plugin", ex);
+            throw new FatalException("Error execute RecalcAllGroupMembersPlugin", ex);
         }
-
     }
 
     private void recalcPackage(List<Future> futures, Set<Id> groupPackage, int threadCount) {
@@ -100,7 +104,7 @@ public class RecalcAllGroupGroupPlugin extends PluginBase implements PluginHandl
 
             // Проверка на наличие свободных потоков
             if (futures.size() <= threadCount) {
-                Future future = dynamicGroupProcessor.calculateGroupGroupAcync(groupPackage);
+                Future future = dynamicGroupProcessor.calculateDynamicGroupAcync(groupPackage);
                 info("Start calculate async processor for {0} groups", groupPackage.size());
                 futures.add(future);
                 break;

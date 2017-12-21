@@ -192,6 +192,10 @@
                     jndi-name="java:module/TicketService!ru.intertrust.cm.core.dao.api.TicketService"
                     business-interface="ru.intertrust.cm.core.dao.api.TicketService"/>
 
+    <jee:local-slsb id="dynamicGroupProcessor"
+                    jndi-name="java:module/DynamicGroupProcessor!ru.intertrust.cm.core.dao.access.DynamicGroupProcessor"
+                    business-interface="ru.intertrust.cm.core.dao.access.DynamicGroupProcessor"/>
+
     <beans profile="default">
         <bean id="attachmentContentDao"
               class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"/>
