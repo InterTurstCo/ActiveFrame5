@@ -1,0 +1,55 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <collection name="NewTestCollection" idField="id" replace="runtime">
+        <prototype>
+            <![CDATA[
+                select
+                    co.id, co.name, co.independence_day, co.population, co.description, co.capital, co.square,
+                    cou.name as country_union_name
+                from country co
+                left join country_union cou on cou.id=co.country_union
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from country co ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    co.name like {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="NewTestCollectionView" collection="NewTestCollection" is-default="false" replace="runtime">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="name" name="Название" editable="false" type="string" sortable="true" search-filter="byName" min-width="300px" text-break-style="cut"/>
+            <column field="independence_day" name="День Независимости" type="timelessDate" editable="false" resizable="false" min-width="320px"
+                    sortable="true" search-filter="byIndependenceDay" date-pattern="dd.MM.yyyy" time-zone-id="GMT+12:00"/>
+            <column field="population" name="Популяция" type="long" editable="false" sortable="true"
+                    search-filter="byPopulation">
+                <renderer component-name="default.image.renderer" />
+                <image-mappings imageWidth="20" imageHeight="20">
+                    <mapping value="" image="cancel.png" />
+                    <mapping value="0" image="addButton.png" />
+                    <mapping value="45469800" image="sign.png" />
+                    <mapping value="143548980" image="CMJSpinner.gif" />
+                </image-mappings>
+            </column>
+            <column field="country_union_name" name="Состоит" type="string" editable="false" sortable="false"/>
+            <column field="description" name="Описание" type="string" editable="false" sortable="true"
+                    search-filter="byDescription"/>
+            <column field="square" name="Площадь" type="string" editable="false" sortable="true" search-filter="bySquare"/>
+        </display>
+    </collection-view>
+   
+</configuration>

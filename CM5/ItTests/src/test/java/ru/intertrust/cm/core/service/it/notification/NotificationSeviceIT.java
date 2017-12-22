@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.service.it.notification;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.ejb.EJB;
@@ -118,10 +117,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             notificationService.sendOnTransactionSuccess(notificationType, senderId, addresseeList, priority, context);
 
             //Спим секунду, так как отправка происходит в асинхронном режиме
-            Thread.currentThread().sleep(1000);
+            Thread.currentThread().sleep(500);
 
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, person1id,
-                    priority, context));
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId, person1id, priority, context));
         } finally {
             loginContext.logout();
         }
@@ -147,11 +145,10 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
             notificationService.sendOnTransactionSuccess(notificationType, senderId, addresseeList, priority, context);
 
-            //Спим секунду, так как отправка происходит в асинхронном режиме
-            Thread.currentThread().sleep(1000);
-
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("admin").getId(),
-                    priority, context));
+            //Делаем несколько попыток, так как отправка происходит в асинхронном режиме
+            Thread.currentThread().sleep(500);
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId, 
+                    personService.findPersonByLogin("admin").getId(), priority, context));
         } finally {
             loginContext.logout();
         }
@@ -176,24 +173,25 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             NotificationPriority priority = NotificationPriority.HIGH;
 
             notificationService.sendOnTransactionSuccess(notificationType, senderId, addresseeList, priority, context);
+            Thread.currentThread().sleep(500);
 
-            //Спим секунду, так как отправка происходит в асинхронном режиме
-            Thread.currentThread().sleep(1000);
+            //Делаем несколько попыток, так как отправка происходит в асинхронном режиме
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId,
+                    personService.findPersonByLogin("person1").getId(), priority, context));
 
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person1").getId(),
-                    priority, context));
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person3").getId(),
-                    priority, context));
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person4").getId(),
-                    priority, context));
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person5").getId(),
-                    priority, context));
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId,
+                    personService.findPersonByLogin("person3").getId(), priority, context));
 
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId,
+                    personService.findPersonByLogin("person4").getId(), priority, context));
+
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId,
+                    personService.findPersonByLogin("person5").getId(), priority, context));
         } finally {
             loginContext.logout();
         }
     }
-
+    
     @Test
     public void sendToContextRole() throws InterruptedException, LoginException {
         LoginContext loginContext = login("admin", "admin");
@@ -221,10 +219,10 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             notificationService.sendOnTransactionSuccess(notificationType, senderId, addresseeList, priority, context);
 
             //Спим секунду, так как отправка происходит в асинхронном режиме
-            Thread.currentThread().sleep(1000);
+            Thread.currentThread().sleep(500);
 
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, personService.findPersonByLogin("person1").getId(),
-                    priority, context));
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId, 
+                    personService.findPersonByLogin("person1").getId(), priority, context));
 
         } finally {
             loginContext.logout();
@@ -253,10 +251,10 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             notificationService.sendOnTransactionSuccess(notificationType, senderId, addresseeList, priority, context);
 
             //Спим секунду, так как отправка происходит в асинхронном режиме
-            Thread.currentThread().sleep(1000);
+            Thread.currentThread().sleep(500);
 
-            Assert.assertTrue(testChannel.contains(notificationType, senderId, person1Id,
-                    priority, context));
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, senderId, person1Id, priority, context));
+
         } finally {
             loginContext.logout();
         }
@@ -339,10 +337,10 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
             schedulerService.enableTask(task.getId());
 
-            Thread.currentThread().sleep(15000);
+            Thread.currentThread().sleep(5000);
 
-            Assert.assertTrue(testChannel.contains(notificationType, null, personService.findPersonByLogin("person001").getId(),
-                    priority, null));
+            Assert.assertTrue(tryToGetNotification(testChannel, notificationType, 
+                    null, personService.findPersonByLogin("person001").getId(), priority, null));
 
         } finally {
 
@@ -384,5 +382,36 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             result = crudService.find(collection.get(0).getId());
         }
         return result;
+    }
+
+    /**
+     * Получение сообщения
+     * @param testChannel
+     *            канал
+     * @param notificationType
+     *            тип
+     * @param senderId
+     *            отправитель
+     * @param addresseeId
+     *            получатель
+     * @param priority
+     *            приоритет
+     * @param context
+     *            контекст
+     * @return результат: true, если получить удалось, false - иначе
+     */
+    private boolean tryToGetNotification(NotificationTestChannel testChannel, String notificationType,
+            Id senderId, Id addresseeId, NotificationPriority priority, NotificationContext context) {
+        boolean bGet = false;
+        int cnt = 200;
+        while (cnt-- > 0 && !(bGet = testChannel.contains(notificationType, senderId,
+                addresseeId, priority, context))) {
+            try {
+                Thread.currentThread().sleep(500);
+            } catch (InterruptedException e) {
+                //do nothing
+            }
+        }
+        return bGet;
     }
 }

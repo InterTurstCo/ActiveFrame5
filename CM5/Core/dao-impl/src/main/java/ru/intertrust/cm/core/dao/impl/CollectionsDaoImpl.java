@@ -258,8 +258,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     private Set<FilterForCache> filtersForCache(List<? extends Filter> filterValues) {
         HashSet<FilterForCache> filtersForCache = new HashSet<>();
-        for (Filter f : filterValues) {
-            filtersForCache.add(new FilterForCache(f));
+        if (filterValues != null) {
+            for (Filter f : filterValues) {
+                filtersForCache.add(new FilterForCache(f));
+            }
         }
         return filtersForCache;
     }

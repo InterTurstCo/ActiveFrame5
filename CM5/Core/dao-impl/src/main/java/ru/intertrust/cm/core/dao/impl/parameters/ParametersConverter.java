@@ -23,15 +23,17 @@ public class ParametersConverter {
     public Pair<Map<String, Object>, QueryModifierPrompt> convertReferenceValuesInFilters(List<? extends Filter> filters) {
         Map<String, Object> referenceParameters = new HashMap<>();
         QueryModifierPrompt prompt = new QueryModifierPrompt();
-        for (Filter filterValue : filters) {
-            for (Integer criterionKey : filterValue.getCriterionKeys()) {
-                Value<?> value = null;
-                if (filterValue.getIsSingleParameterMap().get(criterionKey)) {
-                    value = filterValue.getCriterion(criterionKey);
-                } else {
-                    value = convertToListValue(filterValue.getMultiCriterion(criterionKey));
+        if (filters != null) {
+            for (Filter filterValue : filters) {
+                for (Integer criterionKey : filterValue.getCriterionKeys()) {
+                    Value<?> value = null;
+                    if (filterValue.getIsSingleParameterMap().get(criterionKey)) {
+                        value = filterValue.getCriterion(criterionKey);
+                    } else {
+                        value = convertToListValue(filterValue.getMultiCriterion(criterionKey));
+                    }
+                    processValue(referenceParameters, prompt, filterValue.getFilter() + "_" + criterionKey, value);
                 }
-                processValue(referenceParameters, prompt, filterValue.getFilter() + "_" + criterionKey, value);
             }
         }
         return new Pair<>(referenceParameters, prompt);

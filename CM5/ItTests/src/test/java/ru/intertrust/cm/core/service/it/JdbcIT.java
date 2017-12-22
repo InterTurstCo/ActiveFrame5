@@ -22,7 +22,9 @@ import org.junit.runner.RunWith;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 @RunWith(Arquillian.class)
 public class JdbcIT extends IntegrationTestBase {
@@ -60,7 +62,7 @@ public class JdbcIT extends IntegrationTestBase {
         try {
 
             // Создаем тестовый доменный объект
-            DomainObject outgoingDocument = greateOutgoingDocument();
+            DomainObject outgoingDocument = createOutgoingDocument();
 
             // Выполняем запрос с помощью JDBC
             Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
@@ -69,7 +71,7 @@ public class JdbcIT extends IntegrationTestBase {
 
             String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
             query += "from Outgoing_Document t ";
-            query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Long_Field = ?";
+            query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Author_type = ? and t.Long_Field = ?";
 
             prepareStatement =
                     connection.prepareStatement(query);
@@ -81,8 +83,14 @@ public class JdbcIT extends IntegrationTestBase {
             prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
             prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
             prepareStatement.setString(3, "Outgoing_Document");
-            prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
-            prepareStatement.setLong(5, 10);
+            // ОШИБКА: оператор не существует: bigint = character varying
+            // prepareStatement.setString(4, author);
+            Id author = outgoingDocument.getReference("Author");
+            prepareStatement.setLong(4,
+                    author instanceof RdbmsId ? ((RdbmsId) author).getId() : 0);
+            prepareStatement.setLong(5,
+                    author instanceof RdbmsId ? ((RdbmsId) author).getTypeId() : 0);
+            prepareStatement.setLong(6, 10);
             resultset = prepareStatement.executeQuery();
 
             printResultSet(resultset);
@@ -112,7 +120,7 @@ public class JdbcIT extends IntegrationTestBase {
         try {
 
             // Создаем тестовый доменный объект
-            greateOutgoingDocument();
+            createOutgoingDocument();
 
             // Грузим драйвер
             Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
@@ -142,7 +150,7 @@ public class JdbcIT extends IntegrationTestBase {
         }
     }
 
-    private DomainObject greateOutgoingDocument() {
+    private DomainObject createOutgoingDocument() {
         DomainObject document = crudService.createDomainObject("Outgoing_Document");
         document.setString("Name", "Outgoing_Document");
         document.setReference("Author", findDomainObject("Employee", "Name", "Сотрудник 1"));

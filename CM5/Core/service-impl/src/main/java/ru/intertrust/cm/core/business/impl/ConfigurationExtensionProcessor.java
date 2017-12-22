@@ -151,23 +151,14 @@ public class ConfigurationExtensionProcessor {
     public Set<ConfigChange> activateFromFiles(Collection<File> files) {
         synchronized (GLOBAL_LOCK) {
             final Configuration configuration = configurationSerializer.deserializeConfiguration(files);
-            for (TopLevelConfig draftConfig : configuration.getConfigurationList()) {
-                final String configType = getTagType(draftConfig.getClass());
-                final String configName = draftConfig.getName();
-                final HashMap<String, Value> map = new HashMap<>();
-                map.put("type", new StringValue(configType));
-                map.put("name", new StringValue(configName));
-                DomainObject extensionDO = domainObjectDao.findByUniqueKey("configuration_extension", map, accessToken);
-                if (extensionDO == null) {
-                    extensionDO = new GenericDomainObject("configuration_extension");
-                    extensionDO.setString("type", configType);
-                    extensionDO.setString("name", configName);
-                }
-                extensionDO.setString("current_xml", ConfigurationSerializer.serializeConfiguration(draftConfig));
-                extensionDO.setBoolean("active", true);
-                domainObjectDao.save(extensionDO, accessToken);
-            }
-            return applyNewExplorer(validateAndBuildNewConfigurationExplorer());
+            return activateConfig(configuration);
+        }
+    }
+
+    public Set<ConfigChange> activateFromString(String configString) {
+        synchronized (GLOBAL_LOCK) {
+            final Configuration configuration = configurationSerializer.deserializeConfiguration(configString);
+            return activateConfig(configuration);
         }
     }
 
@@ -241,6 +232,26 @@ public class ConfigurationExtensionProcessor {
             }
         }
     }
+
+    private Set<ConfigChange> activateConfig(Configuration configuration) {
+        for (TopLevelConfig draftConfig : configuration.getConfigurationList()) {
+            final String configType = getTagType(draftConfig.getClass());
+            final String configName = draftConfig.getName();
+            final HashMap<String, Value> map = new HashMap<>();
+            map.put("type", new StringValue(configType));
+            map.put("name", new StringValue(configName));
+            DomainObject extensionDO = domainObjectDao.findByUniqueKey("configuration_extension", map, accessToken);
+            if (extensionDO == null) {
+                extensionDO = new GenericDomainObject("configuration_extension");
+                extensionDO.setString("type", configType);
+                extensionDO.setString("name", configName);
+            }
+            extensionDO.setString("current_xml", ConfigurationSerializer.serializeConfiguration(draftConfig));
+            extensionDO.setBoolean("active", true);
+            domainObjectDao.save(extensionDO, accessToken);
+        }
+        return applyNewExplorer(validateAndBuildNewConfigurationExplorer());
+    }    
 
     private void copyDraftsToExtensions(List<DomainObject> toolingDOs) {
         for (DomainObject toolingDO : toolingDOs) {

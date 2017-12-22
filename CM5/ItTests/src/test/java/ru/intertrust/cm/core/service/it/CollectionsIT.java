@@ -149,7 +149,7 @@ public class CollectionsIT extends IntegrationTestBase {
         query = "select * from country_al ca inner join country c on ca.domain_object_id = c.id where c.id = {0}";
         List<Value> params = new ArrayList<Value>();
         Integer countryTypeid = domainObjectTypeIdCache.getId("country");
-        params.add(new StringValue(new RdbmsId(countryTypeid, 33).toStringRepresentation()));
+        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 33)));
 
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
@@ -533,7 +533,8 @@ public class CollectionsIT extends IntegrationTestBase {
         String query = "select * from Employee e where e.department = {0} and name = {1}";
         List<Value> params = new ArrayList<Value>();
         Integer departmentTypeid = domainObjectTypeIdCache.getId(DEPARTMENT_TYPE);
-        params.add(new StringValue(new RdbmsId(departmentTypeid, 1).toStringRepresentation()));
+        RdbmsId depId = new RdbmsId(departmentTypeid, 1);
+        params.add(new ReferenceValue(depId));
         params.add(new StringValue(EMPLOYEE_1_NAME));
 
         IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query, params);

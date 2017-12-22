@@ -187,6 +187,15 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     /**
      * {@inheritDoc}
+     */
+    @Override
+    public void activateFromString(String configString) throws SummaryConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().activateFromString(configString);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
      * @param extensionIds
      */
     @Override

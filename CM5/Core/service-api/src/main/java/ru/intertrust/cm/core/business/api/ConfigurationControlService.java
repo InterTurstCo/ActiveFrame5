@@ -83,6 +83,13 @@ public interface ConfigurationControlService {
     void activateFromFiles(Collection<File> files) throws SummaryConfigurationException;
 
     /**
+     * Производит активацию неактивных конфигурационных расширений, применяет локально и уведомляет узлы кластера. Активные расширения игнорируются.
+     * @param configString конфигурация
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
+     */
+    void activateFromString(String configString) throws SummaryConfigurationException;
+
+    /**
      * Производит активацию конфигурационных расширений из набора файлов, применяет локально и уведомляет узлы кластера
      * @param extensionIds список идентификаторов расширений
      * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке активации расширений
