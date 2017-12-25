@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.access.DynamicGroupSettings;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
@@ -32,16 +33,16 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
     @Autowired
     private DomainObjectCacheService domainObjectCacheService;
 
-    @org.springframework.beans.factory.annotation.Value("${disable.group.uncover:false}")
-    private boolean disableGroupUncover;
-
+    @Autowired
+    private DynamicGroupSettings dynamicGroupSettings;    
+    
     /**
      * Входная точка точки расширения. Вызывается когда сохраняется доменный
      * обьект group_group_settings
      */
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
-        if (!disableGroupUncover) {
+        if (!dynamicGroupSettings.isDisableGroupUncover()) {
             clearCollectionCache();
 
             Id parent = domainObject.getReference("parent_group_id");

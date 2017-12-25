@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.impl.plugin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,9 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
-import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -34,6 +31,7 @@ import ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor;
 import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.business.api.plugin.PluginStorage;
+import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -71,17 +69,24 @@ public class PluginServiceImpl implements PluginService {
     @Autowired
     private ClusterManager clusterManager;
 
+    @Autowired
+    private ConfigurationLoader configurationLoader;
+
     private static Map<String, Future> futures = new HashMap<String, Future>();
 
-    @PostConstruct
     public void cleanPluginStatus() {
         Set<String> workNodes = clusterManager.getNodeIds();
 
         //Ищем в таблице со статусами плагинов подвисшие плагины и меняем у них статус
         List<Value> params = new ArrayList<Value>();
-        params.add(new ReferenceValue(statusDao.getStatusIdByName("Run")));
+        params.add(new StringValue("Run"));
+
+        String query = "select ps.id, ps.node_id from plugin_status ps ";
+        query += "join status s on s.id = ps.status ";
+        query += "where s.name = {0}";
+
         IdentifiableObjectCollection collection =
-                collectionsService.findCollectionByQuery("select id, node_id from plugin_status where status = {0}", params, 0, 0, getSystemAccessToken());
+                collectionsService.findCollectionByQuery(query, params, 0, 0, getSystemAccessToken());
         for (IdentifiableObject identifiableObject : collection) {
             //У тех плагинов которые запущены на остановленных нодах меняем статус 
             if (!workNodes.contains(identifiableObject.getString("node_id"))) {
@@ -114,35 +119,40 @@ public class PluginServiceImpl implements PluginService {
     @Schedule(dayOfWeek = "*", hour = "*", minute = "*", second = "30", year = "*", persistent = false)
     public void backgroundProcessing() {
         try {
-            //Ищем в таблице со статусами плагинов остановленные плагины отправляем процессу уведомление
-            List<Value> params = new ArrayList<Value>();
-            params.add(new ReferenceValue(statusDao.getStatusIdByName("Terminate")));
-            params.add(new StringValue(clusterManager.getNodeId()));
-            IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
-                    "select id, plugin_id from plugin_status where status = {0} and node_id = {1}", params, 0, 0, getSystemAccessToken());
-            for (IdentifiableObject identifiableObject : collection) {
+            if (configurationLoader.isConfigurationLoaded()) {
+                //Ищем в таблице со статусами плагинов остановленные плагины отправляем процессу уведомление
+                List<Value> params = new ArrayList<Value>();
+                params.add(new ReferenceValue(statusDao.getStatusIdByName("Terminate")));
+                params.add(new StringValue(clusterManager.getNodeId()));
+                IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
+                        "select id, plugin_id from plugin_status where status = {0} and node_id = {1}", params, 0, 0, getSystemAccessToken());
+                for (IdentifiableObject identifiableObject : collection) {
+                    synchronized (futures) {
+                        Future future = futures.get(identifiableObject.getString("plugin_id"));
+                        if (future != null) {
+                            future.cancel(true);
+                            logger.info("Send cancal event for plugin {} execution process", identifiableObject.getString("plugin_id"));
+                            futures.remove(identifiableObject.getString("plugin_id"));
+                        }
+                    }
+                }
+
+                //Очищаем таблицу с future от завершенных плагинов
                 synchronized (futures) {
-                    Future future = futures.get(identifiableObject.getString("plugin_id"));
-                    if (future != null) {
-                        future.cancel(true);
-                        logger.info("Send cancal event for plugin {} execution process", identifiableObject.getString("plugin_id"));
-                        futures.remove(identifiableObject.getString("plugin_id"));
+                    Set<String> pluginIds = new HashSet<String>();
+                    for (String pluginId : futures.keySet()) {
+                        if (futures.get(pluginId).isDone()) {
+                            pluginIds.add(pluginId);
+                        }
+                    }
+
+                    for (String pluginId : pluginIds) {
+                        futures.remove(pluginId);
                     }
                 }
-            }
-
-            //Очищаем таблицу с future от завершенных плагинов
-            synchronized (futures) {
-                Set<String> pluginIds = new HashSet<String>();
-                for (String pluginId : futures.keySet()) {
-                    if (futures.get(pluginId).isDone()) {
-                        pluginIds.add(pluginId);
-                    }
-                }
-
-                for (String pluginId : pluginIds) {
-                    futures.remove(pluginId);
-                }
+                
+                //Ищем подвисшие плагины
+                cleanPluginStatus();
             }
 
         } catch (Exception ex) {

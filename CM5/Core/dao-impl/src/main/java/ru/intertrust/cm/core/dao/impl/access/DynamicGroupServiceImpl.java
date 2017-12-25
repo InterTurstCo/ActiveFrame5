@@ -1,12 +1,37 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.CollectorConfig;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
@@ -16,18 +41,16 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.access.DynamicGroupSettings;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.model.*;
-
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-import java.util.*;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.PermissionException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -42,15 +65,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     final static Logger logger = LoggerFactory
             .getLogger(DynamicGroupServiceImpl.class);
 
+    @Autowired
+    private DynamicGroupSettings dynamicGroupSettings;
+    
     @Resource
     private TransactionSynchronizationRegistry txReg;
-
-    /**
-     * Флаг выключения расчета динамических групп. Полезно включить перед
-     * процессом миграции
-     */
-    @org.springframework.beans.factory.annotation.Value("${disable.group.calculation:false}")
-    private boolean disableGroupCalculation;
 
     private Hashtable<String, List<DynamicGroupRegisterItem>> collectorsByTrackingType =
             new Hashtable<String, List<DynamicGroupRegisterItem>>();
@@ -66,7 +85,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             List<FieldModification> modifiedFieldNames, Set<Id> beforeSaveInvalidGroups) {
         String typeName = domainObject.getTypeName();
 
-        if (!disableGroupCalculation) {
+        if (!dynamicGroupSettings.isDisableGroupCalculation()) {
 
             List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(Case.toLower(typeName));
             // Формируем список динамических групп, требующих пересчета и их
@@ -141,7 +160,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         //При создание объекта получаем все его динамические группы и создаем их, пока пустыми
         createAllDynamicGroups(domainObject);
 
-        if (!disableGroupCalculation) {
+        if (!dynamicGroupSettings.isDisableGroupCalculation()) {
 
             List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(Case.toLower(typeName));
             // Формируем мап динамических групп, требующих пересчета и их
@@ -318,7 +337,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     public void notifyDomainObjectDeleted(DomainObject domainObject, Set<Id> beforeDeleteInvalidGroups) {
         String typeName = domainObject.getTypeName();
 
-        if (!disableGroupCalculation) {
+        if (!dynamicGroupSettings.isDisableGroupCalculation()) {
 
             List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(Case.toLower(typeName));
             // Формируем список динамических групп, требующих пересчета и их
@@ -586,7 +605,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         String typeName = domainObject.getTypeName();
         Set<Id> invalidGroups = new HashSet<Id>();
 
-        if (!disableGroupCalculation) {
+        if (!dynamicGroupSettings.isDisableGroupCalculation()) {
             List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(Case.toLower(typeName));
             // Формируем мапу динамических групп, требующих пересчета и их
             // коллекторов, исключая дублирование
@@ -613,7 +632,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         String typeName = domainObject.getTypeName();
         Set<Id> invalidGroups = new HashSet<Id>();
 
-        if (!disableGroupCalculation) {
+        if (!dynamicGroupSettings.isDisableGroupCalculation()) {
             List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(Case.toLower(typeName));
             // Формируем мапу динамических групп, требующих пересчета и их
             // коллекторов, исключая дублирование
