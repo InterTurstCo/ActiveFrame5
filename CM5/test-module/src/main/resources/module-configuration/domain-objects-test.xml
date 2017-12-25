@@ -654,24 +654,19 @@
             </criteria>
         </filter>
     </collection>
-
-	<domain-object-type name="nunid2punid_map">
-		<fields>
-			<string name="nunid" length="32" />
-			<string name="punid" length="32" />
-		</fields>
-		<uniqueKey>
-			<field name="nunid" />
-		</uniqueKey>
-		<uniqueKey>
-			<field name="punid" />
-		</uniqueKey>
-		<indices>
-			<index type="btree">
-				<expr value="nunid COLLATE &quot;C&quot;" />
-			</index>
-		</indices>
-	</domain-object-type>
+    
+    <domain-object-type name="nunid2punid_map">
+        <fields>
+            <string name="nunid" length="32" />
+            <string name="punid" length="32" />
+        </fields>
+        <uniqueKey>
+            <field name="nunid" />
+        </uniqueKey>
+        <uniqueKey>
+            <field name="punid"/>
+        </uniqueKey>
+    </domain-object-type>
 
     <access-matrix type="nunid2punid_map" read-everybody="true">
         <create>

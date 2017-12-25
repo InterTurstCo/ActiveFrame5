@@ -209,12 +209,8 @@ public class DataStructureNamingHelper {
         if (trimmedName.isEmpty()) {
             throw new IllegalArgumentException("Name is empty");
         }
-        // фрагменты в кавычках оставляем неизменными, остальное приводим к нижнему регистру
-        String result = "";
-        String sArr[] = trimmedName.split("\"");
-        for (int i = 0; i < sArr.length; i++) {
-            result += (i % 2 == 0 ? Case.toLower(sArr[i]) : "\"" + sArr[i] + "\"");
-        }
+
+        String result = Case.toLower(trimmedName);
         return result;
     }
 
