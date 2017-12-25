@@ -1,6 +1,8 @@
 package ru.intertrust.cm.plugins.permission;
 
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,6 +13,7 @@ import org.slf4j.LoggerFactory;
 public abstract class PluginBase {
     private Logger logger;
     private StringBuffer log = new StringBuffer();
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH.mm.ss.SSS"); 
     
     public PluginBase(){
         logger = LoggerFactory.getLogger(this.getClass());
@@ -37,7 +40,7 @@ public abstract class PluginBase {
         }
         
         logger.info(formatedMessage);
-        log.append(formatedMessage);
+        log.append(dateFormat.format(new Date()) + " " + formatedMessage + "\n");
     }
 
     protected void debug(String message, Object ... params){
@@ -52,7 +55,7 @@ public abstract class PluginBase {
 
     protected void error(String message, Throwable ex){
         logger.error(message, ex);
-        log.append(message + "\n" + ExceptionUtils.getStackTrace(ex));
+        log.append(dateFormat.format(new Date()) + " " + message + "\n" + ExceptionUtils.getStackTrace(ex) + "\n");
     }
     
     protected String getLog(){
