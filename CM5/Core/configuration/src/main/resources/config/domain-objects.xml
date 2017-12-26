@@ -325,6 +325,7 @@
             <string name="description" length="512" not-null="true" />
             <boolean name="forceMaster"/>
             <boolean name="lockUpdate"/>
+            <long name="reportHash"/>
         </fields>
         <uniqueKey>
             <field name="name" />

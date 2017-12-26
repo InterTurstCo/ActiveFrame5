@@ -49,15 +49,47 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);
     private static Collection<DomainObjectTypeConfig> configurations;
 
+
+    private int getReportHash(DeployReportData deployReportData) throws Exception{
+        Map<Integer, Integer> hashMap = new HashMap<>();
+        List<Integer> nameHash = new ArrayList<>();
+        for (DeployReportItem item : deployReportData.getItems()) {
+            hashMap.put(item.getName().hashCode(), Arrays.hashCode(item.getBody()));
+            nameHash.add(item.getName().hashCode());
+        }
+
+        Collections.sort(nameHash);
+        StringBuilder builder = new StringBuilder();
+        for(Integer item : nameHash){
+            builder.append(item).append(hashMap.get(item));
+        }
+
+        return builder.toString().hashCode();
+    }
+
     /**
      * Установка отчета в систему
      */
     @Override
     public void deploy(DeployReportData deployReportData, boolean lockUpdate) {
+
         try {
+            int reportHash = getReportHash(deployReportData);
+            ReportMetadataConfig reportMetadata = null;
+            for (DeployReportItem item : deployReportData.getItems()) {
+                //Ищем вложение с метаданными по имени
+                if (item.getName().equalsIgnoreCase(METADATA_FILE_MAME)) {
+                    reportMetadata = loadReportMetadata(item.getBody());
+                }
+            }
+            DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
+            if(reportTemplateObject != null && Long.valueOf(reportHash).equals(reportTemplateObject.getLong("reportHash"))){
+                return;
+            }
+
+
 
             //Получаем все новые вложения и ищем файл с метаинформацией
-            ReportMetadataConfig reportMetadata = null;
             File tmpFolder = new File(getTempFolder(), "deploy_report_" + System.currentTimeMillis());
             //File tmpFolder = File.createTempFile("report_", "_template");
             tmpFolder.mkdirs();
@@ -83,16 +115,18 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             File[] filelist = tmpFolder.listFiles();
 
             //Поиск шаблона по имени
-            DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
+            reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
 
             //Если не существует то создаем новый
             if (reportTemplateObject == null) {
                 reportTemplateObject = createDomainObject("report_template");
                 reportTemplateObject.setString("name", reportMetadata.getName());
+                reportTemplateObject.setLong("reportHash", Long.valueOf(reportHash));
                 updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
 
             } else {
                 Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
+                reportTemplateObject.setLong("reportHash", Long.valueOf(reportHash));
                 //Для существующих отчётов
                 if (dopLockUpdate == null) {
                     dopLockUpdate = false;
