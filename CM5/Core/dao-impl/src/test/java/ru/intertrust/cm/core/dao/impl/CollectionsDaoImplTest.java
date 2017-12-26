@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -31,10 +32,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.FilterForCache;
+import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -65,6 +68,7 @@ import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
+import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 /**
@@ -416,8 +420,11 @@ public class CollectionsDaoImplTest {
         filter = new Filter();
         filter.setFilter("byDepartment");
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
+        
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> pair = converter.convertReferenceValuesInFilters(singletonList(filter));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
                 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
@@ -429,7 +436,8 @@ public class CollectionsDaoImplTest {
 
         collectionsDaoImpl.findCollection("Employees", singletonList(filter), createByNameSortOrder(), 2, 0, accessToken);
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+        pair = converter.convertReferenceValuesInFilters(singletonList(filter));
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
                 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
@@ -440,14 +448,16 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+        pair = converter.convertReferenceValuesInFilters(singletonList(filter));
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
                 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         filter = new Filter();
         filter.setFilter("byDepartment1");
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+        pair = converter.convertReferenceValuesInFilters(singletonList(filter));
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
                 0, accessToken);
         assertNull(collectionQueryEntry);
 

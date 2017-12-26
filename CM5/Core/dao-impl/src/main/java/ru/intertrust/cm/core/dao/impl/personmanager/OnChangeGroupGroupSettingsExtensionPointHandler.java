@@ -61,7 +61,7 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
                 personManagementService.recalcGroupGroup(group.getId());
             }
         } else {
-            logger.warn("Group uncover is disabled");
+            logger.debug("Group uncover is disabled");
         }
     }
 

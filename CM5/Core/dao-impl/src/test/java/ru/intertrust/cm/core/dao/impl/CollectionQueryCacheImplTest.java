@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,21 @@ public class CollectionQueryCacheImplTest {
         assertSame(entry, cache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, null, 50, 51, createMockAccessToken()));
     }
 
+    @Test
+    public void testTrivialEqualityWithParamsWithPrompt() {
+        Filter filter = new Filter();
+        filter.setFilter("byGroup");
+        filter.addCriterion(0, new ReferenceValue(new RdbmsId(1, 1)));
+
+        List<Filter> filterValues = Collections.singletonList(filter);
+        
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> paramsWithPrompt = converter.convertReferenceValuesInFilters(filterValues);
+
+        cache.putCollectionQuery("PersonInGroup", filtersForCache(singletonList(filter)), paramsWithPrompt.getSecond(), null, 0, 0, createMockAccessToken(), entry);
+        assertSame(entry, cache.getCollectionQuery("PersonInGroup", filtersForCache(filterValues), paramsWithPrompt.getSecond(), null, 0, 0, createMockAccessToken()));
+    }    
+    
     private Set<FilterForCache> filtersForCache(List<Filter> filters) {
         HashSet<FilterForCache> filtersForCache = new HashSet<>();
         for (Filter f : filters) {
@@ -70,11 +86,11 @@ public class CollectionQueryCacheImplTest {
     }
 
     @Test
-    public void testFilterListValuesSizeDoAffectCache() {
+    public void testFilterListValuesNumberOfTypesDoAffectCache() {
         ParametersConverter converter = new ParametersConverter();
         List<Filter> filters = singletonList(idsFilter("byDepartment", new RdbmsId(1, 1), new RdbmsId(1, 2)));
         Pair<Map<String, Object>, QueryModifierPrompt> pair = converter.convertReferenceValuesInFilters(filters);
-        List<Filter> secondFilters = singletonList(idsFilter("byDepartment", new RdbmsId(1, 1), new RdbmsId(1, 2)));
+        List<Filter> secondFilters = singletonList(idsFilter("byDepartment", new RdbmsId(1, 1), new RdbmsId(2, 1)));
         Pair<Map<String, Object>, QueryModifierPrompt> secondPair = converter.convertReferenceValuesInFilters(secondFilters);
         cache.putCollectionQuery("Employees", filtersForCache(filters), pair.getSecond(), sortOrder("name",
                 Order.ASCENDING), 50, 51, createMockAccessToken(), entry);
