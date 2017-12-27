@@ -80,6 +80,18 @@ public class DataStructureNamingHelper {
     }
     
     /**
+     * Возвращает выражение индекса в sql-виде c учетом регистра фрагмента в
+     * кавычках
+     * 
+     * @param indexFieldConfig
+     *            конфигурация индексного поля
+     * @return выражение
+     */
+    public static String getSqlQuoteName(BaseIndexExpressionConfig indexFieldConfig) {
+        return convertToSqlQuoteFormat(indexFieldConfig.getValue());
+    }
+    
+    /**
      * Возвращает список имен полей доменных объектов в sql-виде
      * @param fieldConfigs список конфигураций полей доменных объектов
      * @return список имен полей доменных объектов в sql-виде
@@ -209,11 +221,40 @@ public class DataStructureNamingHelper {
         if (trimmedName.isEmpty()) {
             throw new IllegalArgumentException("Name is empty");
         }
-
         String result = Case.toLower(trimmedName);
         return result;
     }
 
+    // фрагменты в кавычках оставляем неизменными, остальное приводим к нижнему регистру
+    private static String convertToSqlQuoteFormat(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Name is null");
+        }
+
+        if (sqlNameCache.get(name) != null) {
+            return sqlNameCache.get(name);
+        } else {
+            String result = getQuoteConvertedValue(name);
+            sqlNameCache.put(name, result);
+            return result;
+        }
+    }
+
+    // фрагменты в кавычках оставляем неизменными, остальное приводим к нижнему регистру
+    private static String getQuoteConvertedValue(String name) {
+        String trimmedName = name.trim();
+        if (trimmedName.isEmpty()) {
+            throw new IllegalArgumentException("Name is empty");
+        }
+        String result = "";
+        String sArr[] = trimmedName.split("\"");
+        for (int i = 0; i < sArr.length; i++) {
+            result += (i % 2 == 0 ? Case.toLower(sArr[i]) : "\"" + sArr[i] + "\"");
+        }
+        return result;
+    }
+    
+    
     /**
      * Ключ, используемый в кеше названий колонок.
      * @author atsvetkov

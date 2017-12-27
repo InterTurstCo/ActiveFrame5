@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -72,6 +74,8 @@ public abstract class BasicQueryHelper {
     public abstract List<String> generateUpdateColumnTypeQueries(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
     public abstract String generateGatherStatisticsQuery();
+    
+    public abstract String getSqlIndexExpression(BaseIndexExpressionConfig indexFieldConfig);
 
     /**
      * Генерирует запрос, создающий таблицу BUSINESS_OBJECT
@@ -463,7 +467,7 @@ public abstract class BasicQueryHelper {
             if (indexExpression instanceof IndexFieldConfig) {
                 indexFields.add(getSqlName(indexExpression));
             } else if (indexExpression instanceof IndexExpressionConfig) {
-                indexExpressions.add(getSqlName(indexExpression));
+                indexExpressions.add(getSqlIndexExpression(indexExpression));
             }
         }
 
@@ -559,14 +563,15 @@ public abstract class BasicQueryHelper {
      * Создает имя явно сконфигурированного индекса. Имя формируется по патерну "i" + код типа ДО + урезанный MD5 хеш
      * от DDL выражения для индекса.
      * @param config конфигурация ДО.
-     * @param indexFields порля ДО, образующие индекс.
+     * @param indexFields поля ДО, образующие индекс.
      * @param indexExpressions выражения, образующие индекс.
      * @return
      */
     protected String generateExplicitIndexName(DomainObjectTypeConfig config, List<String> indexFields, List<String> indexExpressions) {
         String indexExpression = createIndexFieldsPart(indexFields, indexExpressions);
+        // Для совместимости со старыми именами индексов
+        String indexMd5 = md5Service.getMD5As32Base(Case.toLower(indexExpression));
         String id_type = getName(getDOTypeConfigId(config).toString(), false);
-        String indexMd5 = md5Service.getMD5As32Base(indexExpression);
         indexMd5 = indexMd5.substring(2, indexMd5.length() - id_type.length());
         return "i" + id_type + indexMd5;
     }

@@ -160,7 +160,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                 if (indexExpression instanceof IndexFieldConfig) {
                     indexFields.add(getSqlName(((IndexFieldConfig) indexExpression).getName()));
                 } else if (indexExpression instanceof IndexExpressionConfig) {
-                    indexExpressions.add(getSqlName((indexExpression).getValue()));
+                    indexExpressions.add(getQueryHelper().getSqlIndexExpression(indexExpression));
                 }
             }
 
