@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Helper для отображения имен конфигурации доменных объектов на базу данных
@@ -81,7 +83,7 @@ public class DataStructureNamingHelper {
     
     /**
      * Возвращает выражение индекса в sql-виде c учетом регистра фрагмента в
-     * кавычках
+     * кавычках или апострофах
      * 
      * @param indexFieldConfig
      *            конфигурация индексного поля
@@ -225,7 +227,7 @@ public class DataStructureNamingHelper {
         return result;
     }
 
-    // фрагменты в кавычках оставляем неизменными, остальное приводим к нижнему регистру
+    // фрагменты в кавычках или апострофах оставляем неизменными, остальное приводим к нижнему регистру
     private static String convertToSqlQuoteFormat(String name) {
         if (name == null) {
             throw new IllegalArgumentException("Name is null");
@@ -240,20 +242,25 @@ public class DataStructureNamingHelper {
         }
     }
 
-    // фрагменты в кавычках оставляем неизменными, остальное приводим к нижнему регистру
+    // фрагменты в кавычках или апострофах оставляем неизменными, остальное приводим к нижнему регистру
     private static String getQuoteConvertedValue(String name) {
         String trimmedName = name.trim();
         if (trimmedName.isEmpty()) {
             throw new IllegalArgumentException("Name is empty");
         }
         String result = "";
-        String sArr[] = trimmedName.split("\"");
-        for (int i = 0; i < sArr.length; i++) {
-            result += (i % 2 == 0 ? Case.toLower(sArr[i]) : "\"" + sArr[i] + "\"");
+        Pattern p = Pattern.compile("(\\\".*?\\\"|\\'.*?\\')");
+        Matcher m = p.matcher(trimmedName);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, "");
+            result += Case.toLower(sb.toString()) + m.group(1);
+            sb.setLength(0);
         }
+        m.appendTail(sb);
+        result += Case.toLower(sb.toString());
         return result;
-    }
-    
+    }    
     
     /**
      * Ключ, используемый в кеше названий колонок.

@@ -75,6 +75,14 @@ public abstract class BasicQueryHelper {
 
     public abstract String generateGatherStatisticsQuery();
     
+    /**
+     * Возвращает выражение индекса в sql-виде c учетом регистра фрагмента в
+     * кавычках или апострофах
+     * 
+     * @param indexFieldConfig
+     *            конфигурация индексного поля
+     * @return выражение
+     */
     public abstract String getSqlIndexExpression(BaseIndexExpressionConfig indexFieldConfig);
 
     /**
