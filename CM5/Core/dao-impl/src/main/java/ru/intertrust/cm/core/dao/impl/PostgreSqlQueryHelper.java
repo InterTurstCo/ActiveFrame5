@@ -188,7 +188,7 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
 
     @Override
     public String getSqlIndexExpression(BaseIndexExpressionConfig indexFieldConfig) {
-        return DataStructureNamingHelper.getSqlQuoteName(indexFieldConfig);
+        return DataStructureNamingHelper.getQuoteCaseSensitiveIndexExpr(indexFieldConfig);
     }
 
 }

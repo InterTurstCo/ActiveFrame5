@@ -87,7 +87,7 @@ public class DataStructureNamingHelper {
      *            конфигурация индексного поля
      * @return выражение
      */
-    public static String getSqlQuoteName(BaseIndexExpressionConfig indexFieldConfig) {
+    public static String getQuoteCaseSensitiveIndexExpr(BaseIndexExpressionConfig indexFieldConfig) {
         return convertToSqlQuoteFormat(indexFieldConfig.getValue());
     }
     
