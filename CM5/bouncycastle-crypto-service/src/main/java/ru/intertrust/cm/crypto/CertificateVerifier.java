@@ -283,17 +283,33 @@ public class CertificateVerifier {
     public void verifyCertificateCRLs(X509Certificate cert) {
         try {
             List<String> crlDistPoints = getCrlDistributionPoints(cert);
-            for (String crlDP : crlDistPoints) {
-                X509CRL crl = downloadCRL(crlDP);
+            for (int i=0; i<crlDistPoints.size(); i++) {
+                X509CRL crl = null;
+                try{
+                    //Пытаемся скачать список отзыва
+                    crl = downloadCRL(crlDistPoints.get(i));
+                }catch(Exception ex){
+                    //Не удалось скачать CRL, не ошибка если адресов несколько
+                    if (i == crlDistPoints.size() - 1){
+                        //Выбрасываем исключение если не удалось скачать хотя бы с одного адреса из сертификата
+                        throw new FatalException(
+                                "Can not download CRL from " + crlDistPoints, ex);
+                    }else{
+                        continue;
+                    }
+                }
                 if (crl.isRevoked(cert)) {
                     throw new FatalException(
-                            "The certificate is revoked by CRL: " + crlDP);
+                            "The certificate is revoked by CRL: " + crlDistPoints.get(i));
+                }else{
+                    //Достаточно проверить CRL на одном из адресов указанных в сертификате
+                    break;
                 }
             }
         } catch (Exception ex) {
             throw new FatalException(
                     "Can not verify CRL for certificate: " +
-                            cert.getSubjectX500Principal());
+                            cert.getSubjectX500Principal(), ex);
         }
     }
 

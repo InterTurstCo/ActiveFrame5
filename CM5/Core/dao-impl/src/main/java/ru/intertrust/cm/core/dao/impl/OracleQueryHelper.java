@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -173,4 +174,8 @@ public class OracleQueryHelper extends BasicQueryHelper {
         return COLUMNS_QUERY;
     }
 
+    @Override
+    public String getSqlIndexExpression(BaseIndexExpressionConfig indexFieldConfig) {
+        return DataStructureNamingHelper.getSqlName(indexFieldConfig);
+    }
 }

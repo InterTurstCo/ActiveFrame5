@@ -247,7 +247,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache, Applicati
     @Override
     public void putCollectionQuery(String collectionNameOrQuery, Set<FilterForCache> filterValues, QueryModifierPrompt prompt, SortOrder sortOrder, int offset,
             int limit, AccessToken accessToken, CollectionQueryEntry queryEntry) {
-        putInCache(collectionNameOrQuery, filterValues, null, sortOrder, offset, limit, accessToken, queryEntry);
+        putInCache(collectionNameOrQuery, filterValues, prompt, sortOrder, offset, limit, accessToken, queryEntry);
     }
 
     private void putInCache(String collectionNameOrQuery, Set<FilterForCache> filterValues, QueryModifierPrompt prompt, SortOrder sortOrder, int offset,

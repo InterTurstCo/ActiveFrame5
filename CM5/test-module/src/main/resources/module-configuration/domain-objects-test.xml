@@ -666,6 +666,15 @@
         <uniqueKey>
             <field name="punid"/>
         </uniqueKey>
+<!-- DBG index collation -->
+        <indices>
+			<index type="btree">
+				<expr value="nunid COLLATE &quot;C&quot;" />
+			</index>
+            <index>
+                <expr value="(CAST(suBstring(punid, 3, 15) AS INT))"/>
+            </index>
+		</indices>
     </domain-object-type>
 
     <access-matrix type="nunid2punid_map" read-everybody="true">

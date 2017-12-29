@@ -7,6 +7,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.CertificateFactory;
+
+import java.security.cert.X509Certificate;
+import java.util.Collections;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Ignore;
@@ -14,6 +18,7 @@ import org.junit.Test;
 
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 import ru.intertrust.cm.crypto.BouncycastleCryptoBean;
+import ru.intertrust.cm.crypto.CertificateVerifier;
 
 public class TestBouncycastleCryptoBean {
 
@@ -52,6 +57,19 @@ public class TestBouncycastleCryptoBean {
             assertEquals(Base64.encodeBase64String(hash), "KZeAILku4iKfMvKmAhU5gLctrdNZ0MgVkIcpBzLgeWM=");
         }
     }
+
+    @Test
+    @Ignore
+    public void testVerifyCertificate() throws Exception {
+        CertificateVerifier certificateVerifier = new CertificateVerifier();
+        
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        X509Certificate cert = (X509Certificate)cf.generateCertificate(this.getClass().getClassLoader().getResourceAsStream("cert/chursin.cer"));
+
+        X509Certificate addCert = (X509Certificate)cf.generateCertificate(this.getClass().getClassLoader().getResourceAsStream("cert/add-cert.cer"));
+        
+        certificateVerifier.verifyCertificate(cert, Collections.singleton(addCert));
+    }    
     
     /**
      * Получение файла в виде массива байт

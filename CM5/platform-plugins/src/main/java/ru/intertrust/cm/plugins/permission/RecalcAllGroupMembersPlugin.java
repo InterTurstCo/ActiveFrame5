@@ -54,8 +54,8 @@ public class RecalcAllGroupMembersPlugin extends PluginBase implements PluginHan
         try {
             info("Start plugin RecalcAllGroupMembersPlugin packageSize={0}, threadCount={1}", packageSize, threadCount);
 
-            ///Получение состава всех динамических групп
-            String query = "select id from user_group where object_id is not null";
+            ///Получение состава всех групп
+            String query = "select id from user_group";
             IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
 
             info("Found {0} groups for calculation", collection.size());

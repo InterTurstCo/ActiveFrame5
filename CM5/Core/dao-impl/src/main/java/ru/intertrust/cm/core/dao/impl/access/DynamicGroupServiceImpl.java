@@ -130,22 +130,24 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         DynamicGroupConfig config =
                 configurationExplorer.getConfig(DynamicGroupConfig.class, dynGroup.getString("group_name"));
 
-        //Получаем состав
-        Set<Id> groupMembres = new HashSet<>();
-        Set<Id> groupMembresGroups = new HashSet<Id>();
-
-        List<DynamicGroupRegisterItem> collectors = collectorsByGroupName.get(config.getName());
-        if (collectors != null) {
-            for (DynamicGroupRegisterItem dynamicGroupRegisterItem : collectors) {
-                addAllWithoutDuplicate(groupMembres,
-                        dynamicGroupRegisterItem.getCollector().getPersons(dynGroup.getReference("object_id")));
-                addAllWithoutDuplicate(groupMembresGroups,
-                        dynamicGroupRegisterItem.getCollector().getGroups(dynGroup.getReference("object_id")));
+        if (config != null){
+            //Получаем состав
+            Set<Id> groupMembres = new HashSet<>();
+            Set<Id> groupMembresGroups = new HashSet<Id>();
+    
+            List<DynamicGroupRegisterItem> collectors = collectorsByGroupName.get(config.getName());
+            if (collectors != null) {
+                for (DynamicGroupRegisterItem dynamicGroupRegisterItem : collectors) {
+                    addAllWithoutDuplicate(groupMembres,
+                            dynamicGroupRegisterItem.getCollector().getPersons(dynGroup.getReference("object_id")));
+                    addAllWithoutDuplicate(groupMembresGroups,
+                            dynamicGroupRegisterItem.getCollector().getGroups(dynGroup.getReference("object_id")));
+                }
             }
+    
+            // Выполняю пересчет
+            refreshGroupMembers(groupId, groupMembres, groupMembresGroups);
         }
-
-        // Выполняю пересчет
-        refreshGroupMembers(groupId, groupMembres, groupMembresGroups);
     }
 
     /**

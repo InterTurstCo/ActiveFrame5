@@ -902,6 +902,8 @@ public class ImportData {
             inputStream = this.getClass().getClassLoader().getResourceAsStream(filePath);
         } else {
             inputStream = new FileInputStream(attachmentBasePath + "/" + filePath);
+            // DBG import data
+            // inputStream = this.getClass().getClassLoader().getResourceAsStream(attachmentBasePath + "/" + filePath);
         }
         return inputStream;
     }

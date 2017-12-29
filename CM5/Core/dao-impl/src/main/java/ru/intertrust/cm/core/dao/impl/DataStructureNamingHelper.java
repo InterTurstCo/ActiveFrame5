@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Helper для отображения имен конфигурации доменных объектов на базу данных
@@ -77,6 +79,18 @@ public class DataStructureNamingHelper {
      */
     public static String getSqlName(BaseIndexExpressionConfig indexFieldConfig) {
         return convertToSqlFormat(indexFieldConfig.getValue());
+    }
+    
+    /**
+     * Возвращает выражение индекса в sql-виде c учетом регистра фрагмента в
+     * кавычках или апострофах
+     * 
+     * @param indexFieldConfig
+     *            конфигурация индексного поля
+     * @return выражение
+     */
+    public static String getQuoteCaseSensitiveIndexExpr(BaseIndexExpressionConfig indexFieldConfig) {
+        return convertToSqlQuoteFormat(indexFieldConfig.getValue());
     }
     
     /**
@@ -209,11 +223,45 @@ public class DataStructureNamingHelper {
         if (trimmedName.isEmpty()) {
             throw new IllegalArgumentException("Name is empty");
         }
-
         String result = Case.toLower(trimmedName);
         return result;
     }
 
+    // фрагменты в кавычках или апострофах оставляем неизменными, остальное приводим к нижнему регистру
+    private static String convertToSqlQuoteFormat(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Name is null");
+        }
+
+        if (sqlNameCache.get(name) != null) {
+            return sqlNameCache.get(name);
+        } else {
+            String result = getQuoteConvertedValue(name);
+            sqlNameCache.put(name, result);
+            return result;
+        }
+    }
+
+    // фрагменты в кавычках или апострофах оставляем неизменными, остальное приводим к нижнему регистру
+    private static String getQuoteConvertedValue(String name) {
+        String trimmedName = name.trim();
+        if (trimmedName.isEmpty()) {
+            throw new IllegalArgumentException("Name is empty");
+        }
+        String result = "";
+        Pattern p = Pattern.compile("(\\\".*?\\\"|\\'.*?\\')");
+        Matcher m = p.matcher(trimmedName);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            m.appendReplacement(sb, "");
+            result += Case.toLower(sb.toString()) + m.group(1);
+            sb.setLength(0);
+        }
+        m.appendTail(sb);
+        result += Case.toLower(sb.toString());
+        return result;
+    }    
+    
     /**
      * Ключ, используемый в кеше названий колонок.
      * @author atsvetkov
