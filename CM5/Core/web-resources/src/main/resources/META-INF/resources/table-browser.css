@@ -123,6 +123,7 @@ textarea.gwt-TextArea.textarea-editable-tablebrowser-widget {
     box-sizing: border-box;
     border: 1px solid #ccc;
     max-height: 120px;
+    background: #ffffff;
 }
 
 
