@@ -190,8 +190,10 @@ public class AddAclVisitorTest {
         AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
         SqlQueryParser parser = new SqlQueryParser("with t as(select x from y where z = 0) select id from base_documents bd where id = t.x");
         Select select = parser.getSelectStatement();
-        String expected = select.toString().replaceFirst("z = 0\\)", "z = 0\\), " + GROUPS_SUBQUERY.replace("WITH ", "").trim())
+
+        String expected = GROUPS_SUBQUERY.trim() + ", "+ select.toString().replace("WITH ", "").trim()
                 .replaceFirst("base_documents bd", aclSubquery("base_documents", "base_documents", "base_documents", "bd"));
+
         select.accept(visitor);
         assertEquals(expected, select.toString());
     }

@@ -123,6 +123,11 @@ public class CollectionsDaoImplTest {
                     "r.\"object_id\" = department.\"access_object_id\")) d ON e.\"department\" = d.\"id\" " +
                     "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\" ASC";
 
+
+    private static final String FIND_COLLECTION_QUERY_WITH =
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id), person_data AS (SELECT \"id\", \"id_type\", \"login\" FROM (SELECT person.* FROM \"person\" person WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = person.\"access_object_id\")) person), emp_data AS (SELECT em.\"id\" \"emid\", em.\"id_type\" \"emid_type\", pData.\"id\" \"pid\", pData.\"id_type\" \"pid_type\", em.\"name\", em.\"depid\" FROM \"person_data\" AS pData LEFT JOIN (SELECT employee.* FROM \"employee\" employee WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = employee.\"access_object_id\")) em ON (pData.\"id\" = em.\"personid\")) SELECT \"id\", \"id_type\", ppData.\"login\", dep.\"name\" FROM \"person_data\" ppData LEFT JOIN \"emp_data\" emData ON (ppData.\"id\" = emData.\"pid\") LEFT JOIN (SELECT department.* FROM \"department\" department WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = department.\"access_object_id\")) depp ON (depp.\"id\" = emData.\"depid\") WHERE 1 = 1 AND (\"login\" = :byName0)";
+
+
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
             "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
                     "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
@@ -293,6 +298,14 @@ public class CollectionsDaoImplTest {
                         "select name from person where 1 = 1 ::where-clause",
                         null
                 ),
+
+                createCollectionConfig(
+                        "persons_with",
+                        "with person_data as ( select id, Login from person), emp_data as (select em.id as emId, pData.id as pId, em.name, em.depId from person_data as pData left join employee em on (pData.id = em.personId) ) select ppData.id, ppData.Login, dep.name from person_data ppData left join emp_data emData on (ppData.id = emData.pId) left join department depp on (depp.id = emData.depId)  where 1=1 ::where-clause",
+                        null,
+                        filterConfig("byName", null, where("Login = {0}"))
+                ),
+
                 collectionConfig,
                 complexCollectionConfig,
                 personsCollectionConfig
@@ -497,6 +510,22 @@ public class CollectionsDaoImplTest {
                 collectionQueryCache.getCollectionQuery(collectionQuery, 4, 2, null, accessToken);
         assertNotNull(collectionQueryEntry);
     }
+
+    @Test
+    public void testCollectionWITH() throws Exception{
+
+        Filter filter = new Filter();
+        filter.setFilter("byName");
+        AccessToken accessToken = createMockAccessToken();
+
+        collectionsDaoImpl.findCollection("persons_with", singletonList(filter), new SortOrder(), 0, 0, accessToken);
+
+        verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH),
+                anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
+    }
+
+
+
 
     @Test
     public void testFindCollectionWithMultipleReferenceTypes() throws Exception {

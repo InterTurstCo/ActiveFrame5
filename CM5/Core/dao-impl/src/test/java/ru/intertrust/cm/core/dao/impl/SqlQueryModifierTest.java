@@ -87,14 +87,12 @@ public class SqlQueryModifierTest {
                     "WHERE 1 = 1 AND e.\"id\" = 1";
 
     private static final String PLAIN_SELECT_QUERY_WITH_WITH_ACL =
-            "WITH a AS (SELECT * FROM department), cur_user_groups AS (" +
-                    "SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
-                    "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id) " +
-                    "SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
-                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
-                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
-                    "r.\"object_id\" = employee.\"access_object_id\")) e WHERE 1 = 1 AND e.\"id\" = 1";
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id), " +
+                    "a AS (SELECT * FROM (SELECT department.* FROM \"department\" department WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r WHERE r.\"group_id\" " +
+                        "IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND r.\"object_id\" = department.\"access_object_id\")) department) " +
+                    "SELECT * FROM (SELECT employee.* FROM \"employee\" employee WHERE 1 = 1 " +
+                    "AND EXISTS (SELECT 1 FROM \"employee_read\" r WHERE r.\"group_id\" " +
+                    "IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND r.\"object_id\" = employee.\"access_object_id\")) e WHERE 1 = 1 AND e.\"id\" = 1";
 
     private static final String UNION_QUERY_WITH_ACL =
             "WITH cur_user_groups AS (" +
