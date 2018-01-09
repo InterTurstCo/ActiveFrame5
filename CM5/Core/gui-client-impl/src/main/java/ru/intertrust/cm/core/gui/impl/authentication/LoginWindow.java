@@ -83,6 +83,7 @@ public class LoginWindow implements Component {
         loginDialog.getElement().addClassName("auth-DialogBox");
         loginField = new TextBox();
         loginField.getElement().setId("id_login");
+        loginField.setName("username");
         passwordField = new PasswordTextBox();
         //error message
         message = new Label();
@@ -95,7 +96,7 @@ public class LoginWindow implements Component {
         passwordLabel.getElement().addClassName("auth-Label");
         loginField.setWidth("140px");
         passwordField.setWidth("140px");
-        passwordField.setName("username");
+        passwordField.setName("userpassword");
         loginButton = new FocusPanel();
 
         titleLogin = new Label();
@@ -134,7 +135,6 @@ public class LoginWindow implements Component {
         loginAndPasswordPanel.add(labelPasswordPanel);
         loginAndPasswordPanel.add(memoryPanel);
         loginAndPasswordPanel.add(languagePanel);
-        //loginAndPasswordPanel.add(new SubmitButton("GO"));
 
         labelLoginPanel.add(loginName);
         labelLoginPanel.add(loginField);
