@@ -43,6 +43,7 @@ public class LoginWindow implements Component {
     private AbsolutePanel enterPanel;
     private AbsolutePanel loginAndPasswordPanel;
     private AbsolutePanel versionPanel;
+    private FormPanel formPanel;
     private String coreVersion = "";
     private String productVersion = "";
     private String textApplicationLogo = "";
@@ -75,6 +76,8 @@ public class LoginWindow implements Component {
     }
 
     public LoginWindow() {
+        formPanel = new FormPanel();
+
         initialToken = History.getToken();
         loginDialog = new DialogBox();
         loginDialog.getElement().addClassName("auth-DialogBox");
@@ -92,7 +95,7 @@ public class LoginWindow implements Component {
         passwordLabel.getElement().addClassName("auth-Label");
         loginField.setWidth("140px");
         passwordField.setWidth("140px");
-
+        passwordField.setName("username");
         loginButton = new FocusPanel();
 
         titleLogin = new Label();
@@ -131,6 +134,7 @@ public class LoginWindow implements Component {
         loginAndPasswordPanel.add(labelPasswordPanel);
         loginAndPasswordPanel.add(memoryPanel);
         loginAndPasswordPanel.add(languagePanel);
+        //loginAndPasswordPanel.add(new SubmitButton("GO"));
 
         labelLoginPanel.add(loginName);
         labelLoginPanel.add(loginField);
@@ -141,7 +145,17 @@ public class LoginWindow implements Component {
         memoryCheckbox.getElement().addClassName("auth-CheckBox");
         memoryPanel.add(memoryCheckbox);
         memoryPanel.add(labelCheckBox);
-        loginDialog.add(rootPanel);
+
+        formPanel.setWidget(rootPanel);
+        formPanel.addSubmitHandler(new FormPanel.SubmitHandler() {
+            @Override
+            public void onSubmit(FormPanel.SubmitEvent submitEvent) {
+                login();
+            }
+        });
+
+        loginDialog.add(formPanel);
+
         versionPanel = new AbsolutePanel();
         versionPanel.setStyleName("versionPanel");
 
@@ -275,6 +289,7 @@ public class LoginWindow implements Component {
     public static native String getActiveElement() /*-{
         return $doc.activeElement.id;
     }-*/;
+
 
 
     protected void checkEnterKey(KeyDownEvent event) {
