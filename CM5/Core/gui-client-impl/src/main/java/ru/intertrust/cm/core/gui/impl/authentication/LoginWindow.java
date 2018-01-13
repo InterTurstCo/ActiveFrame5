@@ -55,7 +55,6 @@ public class LoginWindow implements Component {
     private Label loginName;
     private Label passwordLabel;
     private Label titleLogin;
-    private Label labelCheckBox;
     private Label titleClearUserSettings;
     private List<VersionInfo> productVersionList;
 
@@ -118,11 +117,7 @@ public class LoginWindow implements Component {
         labelLoginPanel.setStyleName("auth_login");
         AbsolutePanel labelPasswordPanel = new AbsolutePanel();
         labelPasswordPanel.setStyleName("auth_pass");
-        AbsolutePanel memoryPanel = new AbsolutePanel();
-        memoryPanel.setStyleName("auth_remember");
 
-        labelCheckBox = new Label();
-        labelCheckBox.setStyleName("auth_checkbox_title");
         AbsolutePanel languagePanel = new AbsolutePanel();
         languagePanel.setStyleName("auth_language");
         rootPanel.add(decoratedContentPanel);
@@ -133,7 +128,6 @@ public class LoginWindow implements Component {
 
         loginAndPasswordPanel.add(labelLoginPanel);
         loginAndPasswordPanel.add(labelPasswordPanel);
-        loginAndPasswordPanel.add(memoryPanel);
         loginAndPasswordPanel.add(languagePanel);
 
         labelLoginPanel.add(loginName);
@@ -141,10 +135,6 @@ public class LoginWindow implements Component {
         loginField.getElement().setId("focus_field");
         labelPasswordPanel.add(passwordLabel);
         labelPasswordPanel.add(passwordField);
-        CheckBox memoryCheckbox = new CheckBox();
-        memoryCheckbox.getElement().addClassName("auth-CheckBox");
-        memoryPanel.add(memoryCheckbox);
-        memoryPanel.add(labelCheckBox);
 
         formPanel.setWidget(rootPanel);
         formPanel.addSubmitHandler(new FormPanel.SubmitHandler() {
@@ -272,7 +262,6 @@ public class LoginWindow implements Component {
                 loginName.setText(get(USER_NAME_KEY, "Имя пользователя"));
                 passwordLabel.setText(get(PASSWORD_KEY, "Пароль"));
                 titleLogin.setText(get(SIGN_ON_KEY, "Войти"));
-                labelCheckBox.setText(get(REMEMBER_ME_KEY, "Запомнить меня"));
                 if (titleClearUserSettings != null) {
                     titleClearUserSettings.setText(get(RESET_SETTINGS_KEY, "Очистить настройки"));
                 }
