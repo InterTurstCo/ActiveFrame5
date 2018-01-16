@@ -9,11 +9,13 @@ import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
+import javax.ejb.EJB;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +32,8 @@ public class CollectionCountersHandler implements ComponentHandler {
     CurrentUserAccessor currentUserAccessor;
     @Autowired
     PersonService personService;
+    @EJB
+    SettingsUtil settingsUtil;
 
     public CollectionCountersResponse getCounters(Dto input) {
 
@@ -83,12 +87,7 @@ public class CollectionCountersHandler implements ComponentHandler {
             IdentifiableObject identifiableObject = bu_nav_link_collections.get(0);
             navLinkCollectionObject = crudService.find(identifiableObject.getId());
         } else {
-            navLinkCollectionObject = crudService.createDomainObject("bu_nav_link_collection");
-            navLinkCollectionObject.setString("link", key.getLinkName());
-            DomainObject person = personService.findPersonByLogin(currentUser);
-            navLinkCollectionObject.setReference("person", person);
-            navLinkCollectionObject.setLong("collection_count", 0L);
-            navLinkCollectionObject = crudService.save(navLinkCollectionObject);
+            navLinkCollectionObject = settingsUtil.createNewObject(key.getLinkName(),personService.findPersonByLogin(currentUser).getId(),0L,null);
         }
         return navLinkCollectionObject;
     }
@@ -126,11 +125,7 @@ public class CollectionCountersHandler implements ComponentHandler {
                 collectionCount = collectionsService.findCollectionCount(collectionName, Collections.EMPTY_LIST);
                 localCollectionCountCache.put(collectionName, collectionCount);
             }
-            DomainObject navLinkCollectionObject = crudService.find(linkConfigDomainObjectEntry.getValue());
-            if(!Long.valueOf(collectionCount).equals(navLinkCollectionObject.getLong("collection_count"))){
-                navLinkCollectionObject.setLong("collection_count", Long.valueOf(collectionCount));
-                crudService.save(navLinkCollectionObject);
-            }
+            settingsUtil.saveCounter(linkConfigDomainObjectEntry.getValue(),Long.valueOf(collectionCount));
         }
     }
 

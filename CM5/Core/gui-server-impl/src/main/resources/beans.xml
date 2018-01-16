@@ -31,7 +31,10 @@
     <jee:local-slsb id="httpRequestFilterUser"
                     jndi-name="java:module/HttpRequestFilterUser!ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser"
                     business-interface="ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser"/>
-                    
+    <jee:local-slsb id="settingsUtilImpl"
+                    jndi-name="java:module/settingsUtilImpl!ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil"
+                    business-interface="ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil"/>
+
     <bean id="applicationVersion" class="ru.intertrust.cm.core.gui.impl.server.util.VersionUtil" scope="singleton" />
 
     <bean id="formRetriever" class="ru.intertrust.cm.core.gui.impl.server.form.FormRetriever" scope="prototype"/>

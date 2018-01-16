@@ -3,21 +3,15 @@ package ru.intertrust.cm.core.gui.impl.server.action.system;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionContext;
-import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
+import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +26,8 @@ public class ResetAllSettingsActionHandler extends ActionHandler<ResetAllSetting
     @Autowired private CollectionsService collectionsService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
 
+    @EJB
+    SettingsUtil settingsUtil;
 
     @Override
     public ActionData executeAction(ResetAllSettingsActionContext context) {
@@ -48,14 +44,10 @@ public class ResetAllSettingsActionHandler extends ActionHandler<ResetAllSetting
             ids.add(iobj.getId());
         }
         if (!ids.isEmpty()) {
-            crudService.delete(ids);
+            settingsUtil.deleteIds(ids);
         }
 
-        final DomainObject domainObject = PluginHandlerHelper.findAndLockUserSettingsDomainObject(
-                currentUserAccessor, collectionsService, crudService);
-        domainObject.setString(UserSettingsHelper.DO_THEME_FIELD_KEY, context.getDefaultTheme());
-        crudService.save(domainObject);
-
+        settingsUtil.saveTheme(context.getDefaultTheme());
         return null;
     }
 

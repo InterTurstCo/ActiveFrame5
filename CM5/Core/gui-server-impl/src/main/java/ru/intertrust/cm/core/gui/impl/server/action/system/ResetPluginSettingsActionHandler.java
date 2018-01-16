@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -20,16 +21,30 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionContext;
 
+import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
+
 /**
  * @author Sergey.Okolot
  *         Created on 06.08.2014 16:44.
  */
-@ComponentName(ResetPluginSettingsActionContext.COMPONENT_NAME)
-public class ResetPluginSettingsActionHandler extends ActionHandler<ResetPluginSettingsActionContext, ActionData> {
 
-    @Autowired private CrudService crudService;
-    @Autowired private CollectionsService collectionsService;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
+@ComponentName(ResetPluginSettingsActionContext.COMPONENT_NAME)
+public class ResetPluginSettingsActionHandler extends ActionHandler<ResetPluginSettingsActionContext, ActionData>
+        {
+
+    @Autowired
+    private CrudService crudService;
+    @Autowired
+    private CollectionsService collectionsService;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+
+    @EJB
+    SettingsUtil settingsUtil;
+
 
     @Override
     public ActionData executeAction(ResetPluginSettingsActionContext context) {
@@ -38,12 +53,13 @@ public class ResetPluginSettingsActionHandler extends ActionHandler<ResetPluginS
         filters.add(Filter.create("byPerson", 0, new StringValue(currentUserAccessor.getCurrentUser())));
         final IdentifiableObjectCollection collection =
                 collectionsService.findCollection("bu_nav_link_collections", null, filters);
+
         if (collection.size() > 0) {
             final List<Id> ids = new ArrayList<>();
-            for (Iterator<IdentifiableObject> it = collection.iterator(); it.hasNext();) {
+            for (Iterator<IdentifiableObject> it = collection.iterator(); it.hasNext(); ) {
                 ids.add(it.next().getId());
             }
-            crudService.delete(ids);
+            settingsUtil.deleteIds(ids);
         }
         return null;
     }

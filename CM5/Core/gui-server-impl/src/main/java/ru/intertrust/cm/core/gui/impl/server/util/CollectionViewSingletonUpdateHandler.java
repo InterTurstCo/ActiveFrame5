@@ -14,7 +14,9 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil;
 
+import javax.ejb.EJB;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,14 +25,15 @@ import java.util.Set;
  * Обработчик изменения конфигурации {@link CollectionViewConfig}. Выполняется один раз на кластер экземпляров приложений
  */
 public class CollectionViewSingletonUpdateHandler implements ApplicationListener<SingletonConfigurationUpdateEvent> {
-    @Autowired
-    private DomainObjectDao domainObjectDao;
 
     @Autowired
     private CollectionsDao collectionsDao;
 
     @Autowired
     private AccessControlService accessControlService;
+
+    @EJB
+    SettingsUtil settingsUtil;
 
     @Override
     public void onApplicationEvent(SingletonConfigurationUpdateEvent event) {
@@ -49,7 +52,7 @@ public class CollectionViewSingletonUpdateHandler implements ApplicationListener
             for (int i = 0; i < collection.size(); ++i) {
                 toDelete.add(collection.getId(i));
             }
-            domainObjectDao.delete(toDelete, token);
+            settingsUtil.deleteIds(toDelete,token);
         }
     }
 }

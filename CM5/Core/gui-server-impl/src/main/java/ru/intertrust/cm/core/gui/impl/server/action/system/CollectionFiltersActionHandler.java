@@ -17,6 +17,8 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 
+import javax.ejb.EJB;
+
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_COLLECTION_VIEWER_FIELD_KEY;
 
 /**
@@ -29,7 +31,8 @@ public class CollectionFiltersActionHandler extends ActionHandler<CollectionFilt
     @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
-
+    @EJB
+    SettingsUtil settingsUtil;
     @Override
     public ActionData executeAction(CollectionFiltersActionContext context) {
         if (context.getLink() == null) {
@@ -37,7 +40,7 @@ public class CollectionFiltersActionHandler extends ActionHandler<CollectionFilt
                     "Неизвестный url", GuiContext.getUserLocale()));
         }
         final DomainObject domainObject = PluginHandlerHelper.findAndLockCollectionSettingsDomainObject(context.getLink(),
-                context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService);
+                context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService,settingsUtil);
         CollectionViewerConfig collectionViewerConfig = null;
         if (domainObject.getString(DO_COLLECTION_VIEWER_FIELD_KEY) != null) {
             collectionViewerConfig = PluginHandlerHelper.deserializeFromXml(CollectionViewerConfig.class,

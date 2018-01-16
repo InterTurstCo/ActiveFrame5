@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
+import ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil;
 import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
 import ru.intertrust.cm.core.gui.impl.server.validation.validators.*;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -27,6 +28,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
+import javax.ejb.EJB;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +40,7 @@ import java.util.Map;
  *         Created on 06.06.2014 12:00.
  */
 public class PluginHandlerHelper {
+
 
     public static final String DOMAIN_OBJECT_KEY = "domainObject";
     public static final String WORKFLOW_PROCESS_TYPE_KEY = "action.type";
@@ -149,15 +152,13 @@ public class PluginHandlerHelper {
     public static DomainObject findAndLockCollectionSettingsDomainObject(final String link, final String viewName,
                                                                          final CurrentUserAccessor currentUserAccessor,
                                                                          final CrudService crudService,
-                                                                         final CollectionsService collectionsService) {
+                                                                         final CollectionsService collectionsService,
+                                                                         final SettingsUtil settingsUtil) {
         final IdentifiableObject identifiableObject = getCollectionSettingIdentifiableObject(link,
                 viewName, currentUserAccessor.getCurrentUser(), collectionsService);
         final DomainObject result;
         if (identifiableObject == null) {
-            result = crudService.createDomainObject("bu_nav_link_collection");
-            result.setValue("link", new StringValue(link));
-            result.setValue("collection_view_name", new StringValue(viewName));
-            result.setValue("person", new ReferenceValue(currentUserAccessor.getCurrentUserId()));
+            result = settingsUtil.createNewObject(link,currentUserAccessor.getCurrentUserId(),0L,viewName);
         } else {
             result = crudService.findAndLock(identifiableObject.getId());
         }
