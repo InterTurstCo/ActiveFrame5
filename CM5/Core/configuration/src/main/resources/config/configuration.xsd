@@ -1486,6 +1486,14 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:balancerControlPluginType" name="balancer-control"
+                substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="balancerControlPluginType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType"/>
+        </xs:complexContent>
+    </xs:complexType>
+
 
     <xs:complexType name="collectionRefType">
         <xs:simpleContent>

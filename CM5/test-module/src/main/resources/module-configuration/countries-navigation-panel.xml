@@ -1683,6 +1683,11 @@
         <link name="Prototypes" display-text="Прототипы" image="images/settings.png"
               child-to-open="HSurfer">
             <child-links>
+                <link name="BalancerControl" display-text="Управление балансом">
+                    <plugin>
+                        <balancer-control/>
+                    </plugin>
+                </link>
 
                 <link name="HPlugin" display-text="Иерархический плагин (прототип)">
                     <plugin>

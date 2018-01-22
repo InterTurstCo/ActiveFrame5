@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.balancer.BalancerControlConfig;
 import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyPluginConfig;
@@ -24,6 +25,7 @@ public class LinkPluginDefinition implements Dto {
             @Element(name = "calendar", type = CalendarConfig.class),
             @Element(name = "report-plugin", type = ReportPluginConfig.class),
             @Element(name = "global-cache-control", type = GlobalCacheControlConfig.class),
+            @Element(name = "balancer-control", type = BalancerControlConfig.class),
             @Element(name = "hierarchy-plugin", type = HierarchyPluginConfig.class),
             @Element(name = "hierarchy-surfer", type = HierarchySurferConfig.class)
     })
