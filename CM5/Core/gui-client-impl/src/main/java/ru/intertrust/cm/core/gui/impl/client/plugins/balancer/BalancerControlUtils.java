@@ -11,4 +11,6 @@ public class BalancerControlUtils {
     public static final String BTN_EXTSTATONOFF = "Включить/Выключить расш. стат.";
     public static final String BTN_EXTSTATRESET = "Сбросить расш. стат.";
     public static final String BTN_SAVE = "Сохр. Настройки";
+    public static final String LBL_1 = "Кол-во запросов для \"Отказа\"";
+    public static final String LBL_2 = "Задержка для \"Проблемы\",сек.";
 }
