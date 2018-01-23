@@ -105,7 +105,7 @@ public interface BusinessUniverseServiceAsync {
                     if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
                         String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
                         final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
-                                .append(Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1))
+                                .append("Login.html")
                                 .append(queryString);
                         if (initialToken != null && !initialToken.isEmpty()) {
                             loginPathBuilder.append('#').append(initialToken);

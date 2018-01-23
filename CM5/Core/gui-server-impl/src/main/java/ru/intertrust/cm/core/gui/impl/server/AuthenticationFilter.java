@@ -37,10 +37,6 @@ public class AuthenticationFilter implements Filter {
 
     private ExtensionService extensionService;
 
-    @EJB
-    private ConfigurationService configurationService;
-
-    private BusinessUniverseConfig businessUniverseConfig;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -51,8 +47,6 @@ public class AuthenticationFilter implements Filter {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
-                BusinessUniverseConfig.NAME);
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;

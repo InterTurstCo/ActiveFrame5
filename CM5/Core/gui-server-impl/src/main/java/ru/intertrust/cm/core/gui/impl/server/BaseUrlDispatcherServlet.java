@@ -17,28 +17,16 @@ import java.io.IOException;
  */
 public class BaseUrlDispatcherServlet extends HttpServlet {
     private static final String BU_PAGE = "/BusinessUniverse.html";
-    private static final String ATTRIBUTE_URI = "uri";
 
     @Override
     public void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws IOException, ServletException {
         HttpSession session = request.getSession(false);
-        if(session.getAttribute(ATTRIBUTE_URI)==null)
-            session.setAttribute(ATTRIBUTE_URI, request.getRequestURI());
-        //response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
+        session.setAttribute( "uri", request.getRequestURI());
+        response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
 
-        if(!request.getRequestURL().toString().contains(".")){
-            request.getRequestDispatcher(BU_PAGE).forward(request,response);
-        }
-        else {
-            request.getRequestDispatcher(request.getRequestURI().substring(request.getRequestURI().
-                    lastIndexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString())+4)).forward(request,response);
-        }
+
     }
 
-    @Override
-    public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException{
-            request.getRequestDispatcher(request.getRequestURI().substring(request.getRequestURI().
-                    lastIndexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString())+4)).forward(request,response);
-    }
+
 }

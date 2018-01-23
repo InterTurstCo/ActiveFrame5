@@ -214,11 +214,6 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
         AsyncCallback<Void> callback = new AsyncCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
-                if (!Window.Location.getPath().contains("BusinessUniverse.html"))
-                    Window.Location.assign(GWT.getHostPageBaseURL() +
-                            Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1) +
-                            Window.Location.getQueryString());
-                else
                     Window.Location.assign(GWT.getHostPageBaseURL() +
                             BusinessUniverseConstants.LOGIN_PAGE +
                             Window.Location.getQueryString());
