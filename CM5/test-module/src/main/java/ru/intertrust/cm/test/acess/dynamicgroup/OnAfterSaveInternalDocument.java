@@ -17,7 +17,7 @@ import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
 /**
- * Устанавливает статус из текстового поля State. Необходим для тестирования прав в разных статусах. Пришлось делать
+ * Устанавливает статус из текстового поля ServerState. Необходим для тестирования прав в разных статусах. Пришлось делать
  * таким образом, из за невозможности установить статус через Remote интерфейс
  * @author larin
  * 
@@ -54,7 +54,7 @@ public class OnAfterSaveInternalDocument implements AfterSaveExtensionHandler {
 
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-            //Получаем старое значение поля State
+            //Получаем старое значение поля ServerState
             String oldStatus = fieldModification.getBaseValue() != null ? ((StringValue)fieldModification.getBaseValue()).get() : null;
             String newStatus = fieldModification.getComparedValue() != null ? ((StringValue)fieldModification.getComparedValue()).get() : null;
 
@@ -68,7 +68,7 @@ public class OnAfterSaveInternalDocument implements AfterSaveExtensionHandler {
     private FieldModification getChangeState(List<FieldModification> changedFields) {
         if (changedFields != null) {
             for (FieldModification fieldModification : changedFields) {
-                if (fieldModification.getName().equals("State"))
+                if (fieldModification.getName().equals("ServerState"))
                     return fieldModification;
             }
         }

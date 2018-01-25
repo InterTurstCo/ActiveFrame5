@@ -78,7 +78,7 @@ public class TestProcessInternalDoc extends ClientBase {
             attachment.setString("ReturnOnReject", "YES");
             attachment.setLong("Stage", 0L);
             attachment.setString("RegNum", "InternalDoc111");
-            //attachment.setString("State", "Draft");
+            //attachment.setString("ServerState", "Draft");
             attachment = crudService.save(attachment);
             
             
@@ -115,7 +115,7 @@ public class TestProcessInternalDoc extends ClientBase {
                         .createDomainObject("Examine_Card");
                 examineCard.setString("Name", "Карточка рассмотрения #"+String.valueOf(i));
                // examineCard.setReference("Status", draftStatus);
-                examineCard.setString("State", "Draft");
+                examineCard.setString("ServerState", "Draft");
                 examineCard.setReference("Parent_Document", attachment);
                 
                 Id examiner = personService.getPersonId("Examiner"+i);
@@ -135,7 +135,7 @@ public class TestProcessInternalDoc extends ClientBase {
                         .createDomainObject("Resolution_Card");
                 resolutionCard.setString("Name", "Карточка поручения #"+String.valueOf(i));
                // examineCard.setReference("Status", draftStatus);
-                resolutionCard.setString("State", "Execution");
+                resolutionCard.setString("ServerState", "Execution");
                 resolutionCard.setReference("Parent_Document", attachment);
                 
                 Id executor = personService.getPersonId("Executor"+i);
@@ -184,7 +184,7 @@ public class TestProcessInternalDoc extends ClientBase {
                         .createDomainObject("Negotiation_Card");
                 negotiationCard.setString("Name", "Карточка согласования #"+String.valueOf(i));
                 //negotiationCard.setReference("Status", draftStatus);
-                negotiationCard.setString("State", "Draft");
+                negotiationCard.setString("ServerState", "Draft");
                 negotiationCard.setReference("Parent_Document", attachment);
                 
                 
@@ -202,7 +202,7 @@ public class TestProcessInternalDoc extends ClientBase {
                              .createDomainObject("Negotiation_Card");
                 	 negotiationCardChild.setString("Name", "Дочерняя карточка согласования #"+String.valueOf(i));
                 	 //negotiationCardChild.setReference("Status", draftStatus);
-                	 negotiationCardChild.setString("State", "Draft");
+                	 negotiationCardChild.setString("ServerState", "Draft");
                 	 negotiationCardChild.setReference("Parent_Document", attachment);
                 	 negotiationCardChild.setReference("Add_Negotiation_Card", negotiationCard);
                 	 personId = personService.getPersonId(i+"SubNegatiator" + j);

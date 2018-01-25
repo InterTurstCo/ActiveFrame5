@@ -110,7 +110,7 @@ public class TestPermission extends ClientBase {
 
             //Смена статуса + проверка прав. Статус сейчас меняется в строковом поле, после в точке расширения отлавливается это изменение 
             //и меняется статус уже с помощью метода setState. Это сделано для тестирования и невозможности сменить статус снаружи
-            internalDocument.setString("State", "Negotiation");
+            internalDocument.setString("ServerState", "Negotiation");
             internalDocument = getCrudService().save(internalDocument);
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
@@ -163,7 +163,7 @@ public class TestPermission extends ClientBase {
                 checkPermissions(negotiationId, etalon, "Add new Negotiator");
             }            
 
-            internalDocument.setString("State", "Registration");
+            internalDocument.setString("ServerState", "Registration");
             internalDocument = getCrudService().save(internalDocument);
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
@@ -206,7 +206,7 @@ public class TestPermission extends ClientBase {
             deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
             negotiationCards.remove(0);
             
-            internalDocument.setString("State", "Registred");
+            internalDocument.setString("ServerState", "Registred");
             internalDocument = getCrudService().save(internalDocument);
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
@@ -225,7 +225,7 @@ public class TestPermission extends ClientBase {
             deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
             negotiationCards.remove(0);
 
-            internalDocument.setString("State", "OnRevision");
+            internalDocument.setString("ServerState", "OnRevision");
             internalDocument = getCrudService().save(internalDocument);
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
@@ -241,7 +241,7 @@ public class TestPermission extends ClientBase {
 
             
             //Статус "Complete" отсутствует в матрице, при переходе в этот статус права должны обнулиться полностью
-            internalDocument.setString("State", "Complete");
+            internalDocument.setString("ServerState", "Complete");
             internalDocument = getCrudService().save(internalDocument);
             etalon = new EtalonPermissions();
             checkPermissions(internalDocument.getId(), etalon, "Status Complete");

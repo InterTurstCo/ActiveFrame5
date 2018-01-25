@@ -1,13 +1,22 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.balancer;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.plugins.globalcache.GlobalCacheControlUtils;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginConfiguration;
+import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginStatRow;
+import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginTypesRow;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
  * Created by Ravil on 22.01.2018.
@@ -23,6 +32,11 @@ public class BalancerControlView extends PluginView {
     private AbsolutePanel mainPanel;
     private AbsolutePanel typesPanel;
     private AbsolutePanel configPanel;
+    private BalancerControlPluginData pluginData;
+    private FlexTable mainTable;
+    private FlexTable typesTable;
+    private TextBox rejectCounterTB;
+    private TextBox problemCounterTB;
     /**
      * Основной конструктор
      *
@@ -30,6 +44,7 @@ public class BalancerControlView extends PluginView {
      */
     protected BalancerControlView(Plugin plugin, EventBus eBus) {
         super(plugin);
+        pluginData = plugin.getInitialData();
     }
 
     @Override
@@ -51,11 +66,16 @@ public class BalancerControlView extends PluginView {
      */
 
     private void buildMainPanel(){
-        FlexTable mainTable = new FlexTable();
+        mainTable = new FlexTable();
         mainPanel = new AbsolutePanel();
         mainPanel.add(buildMainPanelButtons());
+        buildMainTable();
+        mainPanel.add(mainTable);
+        tabPanel.add(mainPanel,LBL_MAIN_PANEL);
+    }
 
-        mainTable.clear();
+    private void buildMainTable(){
+        mainTable.removeAllRows();
         mainTable.setStyleName("cacheCleaningTable");
         mainTable.getFlexCellFormatter().setRowSpan(0, 0, 3);
         mainTable.setWidget(0, 0, new InlineHTML("<span> </span>"));
@@ -67,8 +87,10 @@ public class BalancerControlView extends PluginView {
         mainTable.setWidget(0, 3, new InlineHTML("<span>Задержка, сек.</span>"));
         mainTable.getFlexCellFormatter().setRowSpan(0, 4, 3);
         mainTable.setWidget(0, 4, new InlineHTML("<span>Задержка, данные СУБД, сек.</span>"));
-        mainTable.getFlexCellFormatter().setColSpan(0, 5, 6);
-        mainTable.setWidget(0, 5, new InlineHTML("<span>Расширенная статистика</span>"));
+        mainTable.getFlexCellFormatter().setRowSpan(0, 5, 3);
+        mainTable.setWidget(0, 5, new InlineHTML("<span>TX ID, данные СУБД</span>"));
+        mainTable.getFlexCellFormatter().setColSpan(0, 6, 6);
+        mainTable.setWidget(0, 6, new InlineHTML("<span>Расширенная статистика</span>"));
         mainTable.getFlexCellFormatter().setColSpan(1, 0, 3);
         mainTable.setWidget(1, 0, new InlineHTML("<span>Сейчас</span>"));
         mainTable.getFlexCellFormatter().setColSpan(1, 1, 3);
@@ -82,34 +104,71 @@ public class BalancerControlView extends PluginView {
         mainTable.setWidget(2, 4, new InlineHTML("<span>% сбоев</span>"));
         mainTable.setWidget(2, 5, new InlineHTML("<span>SELECT/сек</span>"));
 
-/*
-
-
-
-        mainTable.setWidget(1, 2, new InlineHTML("<span>Среднее.</span>"));
-        mainTable.setWidget(2, 1, new InlineHTML("<span>" + "4" + "</span>"));
-        mainTable.setWidget(2, 2, new InlineHTML("<span>" + "18" + "</span>"));
-        mainTable.setWidget(2, 3, new InlineHTML("<span>" + "34" + "</span>"));
-        mainTable.getFlexCellFormatter().setColSpan(0, 2, 3);
-        mainTable.setWidget(0, 2, new InlineHTML("<span>Очистка, %</span>"));
-        mainTable.setWidget(1, 3, new InlineHTML("<span>Мин.</span>"));
-        mainTable.setWidget(1, 4, new InlineHTML("<span>Макс.</span>"));
-        mainTable.setWidget(1, 5, new InlineHTML("<span>Среднее.</span>"));
-        mainTable.setWidget(2, 4, new InlineHTML("<span>" + "45" + "</span>"));
-        mainTable.setWidget(2, 5, new InlineHTML("<span>" + "1" + "</span>"));
-        mainTable.setWidget(2, 6, new InlineHTML("<span>" + "12" + "</span>"));
-        mainTable.getFlexCellFormatter().setRowSpan(0, 3, 2);
-        mainTable.setWidget(0, 3, new InlineHTML("<span>Кол-во</span>"));
-        mainTable.setWidget(2, 7, new InlineHTML("<span>" + "54" + "</span>"));
-        */
-        mainPanel.add(mainTable);
-        tabPanel.add(mainPanel,LBL_MAIN_PANEL);
+        if(pluginData.getRows().isEmpty()){
+            mainTable.getFlexCellFormatter().setColSpan(3, 0, 12);
+            mainTable.setWidget(3, 0, new InlineHTML("<span> Нет данных </span>"));
+        } else {
+            int rowCounter = 3;
+            for(BalancerControlPluginStatRow row : pluginData.getRows()){
+                CheckBox cBox = new CheckBox();
+                cBox.setName("cbox"+rowCounter);
+                mainTable.setWidget(rowCounter, 0, cBox);
+                mainTable.setWidget(rowCounter, 1, new InlineHTML("<span>"+row.getDataSource()+"</span>"));
+                mainTable.setWidget(rowCounter, 2, new InlineHTML("<span>"+row.getState().getValue()+"</span>"));
+                mainTable.setWidget(rowCounter, 3, new InlineHTML("<span>"+row.getDelay()+"</span>"));
+                mainTable.setWidget(rowCounter, 4, new InlineHTML("<span>"+row.getDelayDbms()+"</span>"));
+                mainTable.setWidget(rowCounter, 5, new InlineHTML("<span>"+row.gettXId()+"</span>"));
+                mainTable.setWidget(rowCounter, 6, new InlineHTML("<span>"+row.getPercentageHitNow()+"</span>"));
+                mainTable.setWidget(rowCounter, 7, new InlineHTML("<span>"+row.getFaultsNow()+"</span>"));
+                mainTable.setWidget(rowCounter, 8, new InlineHTML("<span>"+row.getSelectSecNow()+"</span>"));
+                mainTable.setWidget(rowCounter, 9, new InlineHTML("<span>"+row.getPercentageHitHour()+"</span>"));
+                mainTable.setWidget(rowCounter, 10, new InlineHTML("<span>"+row.getFaultsHour()+"</span>"));
+                mainTable.setWidget(rowCounter, 11, new InlineHTML("<span>"+row.getSelectSecHour()+"</span>"));
+                rowCounter++;
+            }
+        }
     }
 
     private void buildTypesPanel(){
+        typesTable = new FlexTable();
         typesPanel = new AbsolutePanel();
         typesPanel.add(buildTypesPanelButtons());
+        buildTypesTable();
+        typesPanel.add(typesTable);
         tabPanel.add(typesPanel,LBL_TYPES_PANEL);
+    }
+
+    private void buildTypesTable(){
+        typesTable.removeAllRows();
+
+        typesTable.setStyleName("cacheCleaningTable");
+
+        typesTable.setWidget(0, 0, new InlineHTML("<span>Тип</span>"));
+        typesTable.setWidget(0, 1, new InlineHTML("<span>MASTER, время</span>"));
+        typesTable.setWidget(0, 2, new InlineHTML("<span>Мнимое</span>"));
+        typesTable.setWidget(0, 3, new InlineHTML("<span>SLAVE_1, dt, сек</span>"));
+        typesTable.setWidget(0, 4, new InlineHTML("<span>SLAVE_2, dt, сек</span>"));
+        typesTable.setWidget(0, 5, new InlineHTML("<span>SLAVE_3, dt, сек</span>"));
+        typesTable.setWidget(0, 6, new InlineHTML("<span>SLAVE_4, dt, сек</span>"));
+        typesTable.setWidget(0, 7, new InlineHTML("<span>SLAVE_5, dt, сек</span>"));
+
+        if(pluginData.getTypes().isEmpty()){
+            typesTable.getFlexCellFormatter().setColSpan(1, 0, 8);
+            typesTable.setWidget(1, 0, new InlineHTML("<span> Нет данных </span>"));
+        } else {
+            int rowCounter = 1;
+            for(BalancerControlPluginTypesRow row : pluginData.getTypes()) {
+                typesTable.setWidget(rowCounter, 0, new InlineHTML("<span>"+row.getType()+"</span>"));
+                typesTable.setWidget(rowCounter, 1, new InlineHTML("<span>"+row.getMasterTime()+"</span>"));
+                typesTable.setWidget(rowCounter, 2, new InlineHTML("<span>"+row.getImaginary()+"</span>"));
+                typesTable.setWidget(rowCounter, 3, new InlineHTML("<span>"+row.getSlave1dt()+"</span>"));
+                typesTable.setWidget(rowCounter, 4, new InlineHTML("<span>"+row.getSlave2dt()+"</span>"));
+                typesTable.setWidget(rowCounter, 5, new InlineHTML("<span>"+row.getSlave3dt()+"</span>"));
+                typesTable.setWidget(rowCounter, 6, new InlineHTML("<span>"+row.getSlave4dt()+"</span>"));
+                typesTable.setWidget(rowCounter, 7, new InlineHTML("<span>"+row.getSlave5dt()+"</span>"));
+            }
+        }
+
     }
 
     private void buildConfigPanel(){
@@ -117,14 +176,50 @@ public class BalancerControlView extends PluginView {
         configPanel.add(buildConfigPanelButtons());
         Panel componentsPanel = new HorizontalPanel();
         componentsPanel.add(new Label(BalancerControlUtils.LBL_1));
-        TextBox rejectCounterTB = new TextBox();
+        rejectCounterTB = new TextBox();
+        rejectCounterTB.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent changeEvent) {
+                pluginData.getConfiguration().setFaultRequest(Long.valueOf(rejectCounterTB.getValue()));
+            }
+        });
+        rejectCounterTB.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                String input = rejectCounterTB.getText();
+                if (!input.matches("[0-9]*")) {
+                    Window.alert("Должно быть число");
+                    return;
+                }
+            }
+        });
+
+        rejectCounterTB.setValue(pluginData.getConfiguration().getFaultRequest().toString());
         componentsPanel.add(rejectCounterTB);
         componentsPanel.add(new Label(BalancerControlUtils.LBL_2));
-        TextBox problemCounterTB = new TextBox();
+        problemCounterTB = new TextBox();
+        problemCounterTB.addChangeHandler(new ChangeHandler() {
+            @Override
+            public void onChange(ChangeEvent changeEvent) {
+                pluginData.getConfiguration().setFaultRequest(Long.valueOf(problemCounterTB.getValue()));
+            }
+        });
+        problemCounterTB.addKeyPressHandler(new KeyPressHandler() {
+            @Override
+            public void onKeyPress(KeyPressEvent event) {
+                String input = problemCounterTB.getText();
+                if (!input.matches("[0-9]*")) {
+                    Window.alert("Должно быть число");
+                    return;
+                }
+            }
+        });
+        problemCounterTB.setValue(pluginData.getConfiguration().getProblemDelay().toString());
         componentsPanel.add(problemCounterTB);
         configPanel.add(componentsPanel);
         tabPanel.add(configPanel,LBL_CONFIG_PANEL);
     }
+
 
     /**
      * Панели кнопок
@@ -171,7 +266,21 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                Command command = new Command("refreshPage", "BalancerControl.plugin", new BalancerControlPluginData());
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                        Window.alert("Ошибка команды обновления: "+caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        pluginData = (BalancerControlPluginData) result;
+                        buildMainTable();
+                        buildTypesTable();
+                    }
+                });
             }
         });
         return refreshButton;
@@ -182,7 +291,7 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                serversOperation(true);;
             }
         });
         return refreshButton;
@@ -193,10 +302,28 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                serversOperation(false);
             }
         });
         return refreshButton;
+    }
+
+    private void serversOperation(Boolean isOn){
+        BalancerControlPluginData request = new BalancerControlPluginData();
+        request.setTurnOn(isOn);
+        Command command = new Command("turnOnOff", "BalancerControl.plugin", request);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                caught.printStackTrace();
+                Window.alert("Ошибка операции с сервером: "+caught.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+
+            }
+        });
     }
 
     private Widget buildCheckButton() {
@@ -204,7 +331,20 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                BalancerControlPluginData request = new BalancerControlPluginData();
+                Command command = new Command("checkServer", "BalancerControl.plugin", request);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                        Window.alert("Ошибка операции с сервером: "+caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        Window.alert(((BalancerControlPluginData)result).getMessage());
+                    }
+                });
             }
         });
         return refreshButton;
@@ -215,7 +355,20 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                BalancerControlPluginData request = new BalancerControlPluginData();
+                Command command = new Command("extStatOnOff", "BalancerControl.plugin", request);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                        Window.alert("Ошибка операции с сервером: "+caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        Window.alert(((BalancerControlPluginData)result).getMessage());
+                    }
+                });
             }
         });
         return refreshButton;
@@ -226,7 +379,19 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                Command command = new Command("extStatReset", "BalancerControl.plugin", new BalancerControlPluginData());
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                        Window.alert("Ошибка операции с сервером: "+caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        ;
+                    }
+                });
             }
         });
         return refreshButton;
@@ -237,7 +402,21 @@ public class BalancerControlView extends PluginView {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                ;
+                BalancerControlPluginData request = new BalancerControlPluginData();
+                request.setConfiguration(pluginData.getConfiguration());
+                Command command = new Command("saveConfig", "BalancerControl.plugin", new BalancerControlPluginData());
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        caught.printStackTrace();
+                        Window.alert("Ошибка операции с сервером: "+caught.getMessage());
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        Window.alert(((BalancerControlPluginData)result).getMessage());
+                    }
+                });
             }
         });
         return refreshButton;
