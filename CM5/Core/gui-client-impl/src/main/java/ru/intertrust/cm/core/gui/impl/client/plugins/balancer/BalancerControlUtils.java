@@ -14,4 +14,12 @@ public class BalancerControlUtils {
     public static final String BTN_SAVE = "Сохр. Настройки";
     public static final String LBL_1 = "Кол-во запросов для \"Отказа\"";
     public static final String LBL_2 = "Задержка для \"Проблемы\",сек.";
+    public static final String BTN_IMG_REFRESH = "images/global-cache-control/refresh.svg";
+    public static final String BTN_IMG_TURNON = "images/global-cache-control/play-circle-outline.svg";
+    public static final String BTN_IMG_TURNOFF = "images/global-cache-control/stop-circle-outline.svg";
+    public static final String BTN_IMG_CHECK = "images/global-cache-control/checkbox-marked-circle-outline.svg";
+    public static final String BTN_IMG_EXTSTATONOFF = "images/global-cache-control/dip-switch.svg";
+    public static final String BTN_IMG_EXTSTATRESET = "images/global-cache-control/arrow-down-bold-circle-outline.svg";
+    public static final String BTN_IMG_SAVE = "images/global-cache-control/content-save-outline.svg";
+
 }

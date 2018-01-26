@@ -72,6 +72,7 @@ public class BalancerControlView extends PluginView {
         buildMainTable();
         mainPanel.add(mainTable);
         tabPanel.add(mainPanel,LBL_MAIN_PANEL);
+        mainPanel.addStyleName("balancerControl");
     }
 
     private void buildMainTable(){
@@ -136,6 +137,7 @@ public class BalancerControlView extends PluginView {
         buildTypesTable();
         typesPanel.add(typesTable);
         tabPanel.add(typesPanel,LBL_TYPES_PANEL);
+        tabPanel.addStyleName("balancerControl");
     }
 
     private void buildTypesTable(){
@@ -173,6 +175,7 @@ public class BalancerControlView extends PluginView {
 
     private void buildConfigPanel(){
         configPanel = new AbsolutePanel();
+        tabPanel.addStyleName("balancerControl");
         configPanel.add(buildConfigPanelButtons());
         Panel componentsPanel = new HorizontalPanel();
         componentsPanel.add(new Label(BalancerControlUtils.LBL_1));
@@ -262,7 +265,7 @@ public class BalancerControlView extends PluginView {
      */
 
     private Widget buildRefreshButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_REFRESH, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_REFRESH, BalancerControlUtils.BTN_IMG_REFRESH);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -287,7 +290,7 @@ public class BalancerControlView extends PluginView {
     }
 
     private Widget buildTurnOnButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_TURNON, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_TURNON, BalancerControlUtils.BTN_IMG_TURNON);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -298,7 +301,7 @@ public class BalancerControlView extends PluginView {
     }
 
     private Widget buildTurnOffButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_TURNOFF, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_TURNOFF, BalancerControlUtils.BTN_IMG_TURNOFF);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -327,7 +330,7 @@ public class BalancerControlView extends PluginView {
     }
 
     private Widget buildCheckButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_CHECK, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_CHECK, BalancerControlUtils.BTN_IMG_CHECK);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -351,7 +354,7 @@ public class BalancerControlView extends PluginView {
     }
 
     private Widget buildExtStatOnOffButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_EXTSTATONOFF, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_EXTSTATONOFF, BalancerControlUtils.BTN_IMG_EXTSTATONOFF);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -375,7 +378,7 @@ public class BalancerControlView extends PluginView {
     }
 
     private Widget buildExtStatResetButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_EXTSTATRESET, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_EXTSTATRESET, BalancerControlUtils.BTN_IMG_EXTSTATRESET);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -398,7 +401,7 @@ public class BalancerControlView extends PluginView {
     }
 
     private Widget buildSaveButton() {
-        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_SAVE, GlobalCacheControlUtils.BTN_IMG_REFRESH);
+        ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(BalancerControlUtils.BTN_SAVE, BalancerControlUtils.BTN_IMG_SAVE);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

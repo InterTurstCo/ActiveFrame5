@@ -155,3 +155,36 @@
     line-height: 17px;
     margin: 10px;
 }
+
+.balancerControl .topMenuButton img {
+    width: 24px;
+}
+
+.balancerControl .topMenuButton {
+    display: flex;
+    align-items: flex-end;
+}
+
+.balancerControl .topMenuButton:hover .topMenuButtonText {
+    color: #6f6f6f;
+    transition: color .3s;
+}
+
+.balancerControl .cacheCleaningTable tr:nth-child(2) {
+    font-weight: normal;
+}
+
+.normal-condition {
+    color: #81c784;
+}
+
+.failure-condition {
+    color: #ff8a80;
+}
+
+.problem-condition {
+    color: #dce775;
+}
+
+
+
