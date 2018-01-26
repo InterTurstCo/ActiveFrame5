@@ -165,12 +165,26 @@
     align-items: flex-end;
 }
 
+.tabPanel .topMenuButton {
+    display: flex;
+    align-items: flex-end;
+}
+
 .balancerControl .topMenuButton:hover .topMenuButtonText {
     color: #6f6f6f;
     transition: color .3s;
 }
 
+.tabPanel .topMenuButton:hover .topMenuButtonText {
+    color: #6f6f6f;
+    transition: color .3s;
+}
+
 .balancerControl .cacheCleaningTable tr:nth-child(2) {
+    font-weight: normal;
+}
+
+.tabPanel .cacheCleaningTable tr:nth-child(2) {
     font-weight: normal;
 }
 

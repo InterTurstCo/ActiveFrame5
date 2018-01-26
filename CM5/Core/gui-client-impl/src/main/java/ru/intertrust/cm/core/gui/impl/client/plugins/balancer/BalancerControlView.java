@@ -137,7 +137,7 @@ public class BalancerControlView extends PluginView {
         buildTypesTable();
         typesPanel.add(typesTable);
         tabPanel.add(typesPanel,LBL_TYPES_PANEL);
-        tabPanel.addStyleName("balancerControl");
+        tabPanel.addStyleName("tabPanel");
     }
 
     private void buildTypesTable(){
@@ -175,7 +175,7 @@ public class BalancerControlView extends PluginView {
 
     private void buildConfigPanel(){
         configPanel = new AbsolutePanel();
-        tabPanel.addStyleName("balancerControl");
+        configPanel.addStyleName("configPanel");
         configPanel.add(buildConfigPanelButtons());
         Panel componentsPanel = new HorizontalPanel();
         componentsPanel.add(new Label(BalancerControlUtils.LBL_1));
