@@ -22,7 +22,7 @@ import ru.intertrust.cm.core.gui.model.crypto.DigitalSignatureConfig;
 public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClientComponent {
     private static final String CERTIFICATE_ID_COOKIE_NAME = "CryptoProBrowserPluginClientComponent.CERTIFICATE_ID";
     //Время хранения выбранного сертификата - год
-    private static final long EXPIRE_PERIOD = 1000 * 60 * 60 * 24 * 365;
+    private static final long EXPIRE_PERIOD = 1000L * 60L * 60L * 24L * 365L;
     
     private DigitalSignatureConfig config;
     private CAdESCryptoSettingsConfig extendedConfig;
