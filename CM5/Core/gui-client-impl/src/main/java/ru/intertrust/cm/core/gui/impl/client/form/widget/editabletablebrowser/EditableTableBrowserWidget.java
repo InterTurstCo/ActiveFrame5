@@ -67,7 +67,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     private EventBus localEventBus = new SimpleEventBus();
     private ViewHolder viewHolder;
     private List<BreadCrumbItem> breadCrumbItems = new ArrayList<>();
-
+    private List<String> items;
     protected CollectionDialogBox dialogBox;
     protected CollectionViewerConfig initialCollectionViewerConfig;
     protected EditableTableBrowserState currentState;
@@ -104,7 +104,26 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                 }
             }
         });
+        cellList.addDomHandler(new KeyUpHandler() {
+            @Override
+            public void onKeyUp(KeyUpEvent keyUpEvent) {
+                int key = keyUpEvent.getNativeEvent().getKeyCode();
+                if (key == KeyCodes.KEY_ENTER) {
+                    keyUpEvent.getNativeEvent().stopPropagation();
+                    keyUpEvent.getNativeEvent().preventDefault();
+                    String selected = items.get(cellList.getKeyboardSelectedRow());
+                    cellList.getSelectionModel().setSelected(selected,true);
+                    scrollPanel.setVisible(false);
+                }
+                if(key == KeyCodes.KEY_ESCAPE){
+                    scrollPanel.setVisible(false);
+                    textArea.setFocus(true);
+                }
+            }
+        },KeyUpEvent.getType());
 
+
+        cellList.getKeyboardSelectedRow();
         scrollPanel.add(cellList);
         rootFlowPanel.add(scrollPanel);
         scrollPanel.setVisible(false);
@@ -114,6 +133,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
             @Override
             public void onMouseOut(MouseOutEvent mouseOutEvent) {
                 scrollPanel.setVisible(false);
+                textArea.setFocus(true);
             }
         },MouseOutEvent.getType());
     }
@@ -207,6 +227,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                         event.stopPropagation();
                         event.preventDefault();
                     }
+
                 }
             });
             textArea.addKeyUpHandler(new KeyUpHandler() {
@@ -217,11 +238,19 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                         event.stopPropagation();
                         event.preventDefault();
                     }
+                    if (key == KeyCodes.KEY_DOWN || key == KeyCodes.KEY_UP) {
+                        event.stopPropagation();
+                        event.preventDefault();
+                        cellList.setFocus(true);
+                    }
                     if(key != KeyCodes.KEY_DELETE && key != KeyCodes.KEY_BACKSPACE && !event.isControlKeyDown()
                             && key != KeyCodes.KEY_CTRL &&
                             currentState.getEditableTableBrowserConfig().isAutosuggestAllowed()
-                            && textArea.getText().length()>=3) {
+                            && textArea.getText().length()>=3 &&
+                            key != KeyCodes.KEY_DOWN && key != KeyCodes.KEY_UP && key != KeyCodes.KEY_ENTER) {
                         fetchSuggestions(textArea.getText());
+                        event.stopPropagation();
+                        event.preventDefault();
                     }
                 }
             });
@@ -569,14 +598,13 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
             public void onSuccess(Dto result) {
                 SuggestionList suggestionResponse = (SuggestionList) result;
                 if (suggestionResponse.getSuggestions().size()>0){
-                    List<String> items = new ArrayList<>();
+                    items = new ArrayList<>();
                     for(SuggestionItem sItem : suggestionResponse.getSuggestions()){
                         items.add(sItem.getDisplayText());
                     }
                     cellList.setRowCount(suggestionResponse.getSuggestions().size(), true);
                     cellList.setRowData(0, items);
                     scrollPanel.setVisible(true);
-                    cellList.setFocus(true);
                 }
             }
 
