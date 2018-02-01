@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.balancer;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -12,11 +11,11 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.plugins.globalcache.GlobalCacheControlUtils;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginConfiguration;
 import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginStatRow;
 import ru.intertrust.cm.core.gui.model.plugin.BalancerControlPluginTypesRow;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
 
 /**
  * Created by Ravil on 22.01.2018.
@@ -286,6 +285,7 @@ public class BalancerControlView extends PluginView {
                 });
             }
         });
+
         return refreshButton;
     }
 
