@@ -16,9 +16,9 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 
@@ -212,11 +212,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             deleteDomainObjects(results, accessToken);
 
             domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in undeploy", ex);
-            throw new UnexpectedException("ReportServiceAdmin", "undeploy", "name: " + name, ex);
+            throw RemoteSuitableException.convert(ex);
         }
 
     }

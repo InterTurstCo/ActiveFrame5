@@ -14,8 +14,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.ProfileException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -77,11 +76,8 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             return profileObject;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getProfile", ex);
-            throw new UnexpectedException("ProfileService", "getProfile", "name: " + name, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 /*
@@ -138,11 +134,8 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             return personProfileObject;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonProfile", ex);
-            throw new UnexpectedException("ProfileService", "getPersonProfile", "personId: " + personId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -186,11 +179,8 @@ public class ProfileServiceImpl implements ProfileService {
                     saveProfileAttribute(profile, profileId, attributeName);
                 }
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in setProfile", ex);
-            throw new UnexpectedException("ProfileService", "setProfile", "profile: " + profile, ex);
+            throw RemoteSuitableException.convert(ex);
         }
 
     }
@@ -207,11 +197,8 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             Id currentUserId = currentUserAccessor.getCurrentUserId();
             return currentUserId != null ? getPersonProfileByPersonId(currentUserId) : null;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonProfile", ex);
-            throw new UnexpectedException("ProfileService", "getPersonProfile", "", ex);
+            throw RemoteSuitableException.convert(ex);
         }
 
     }
@@ -237,11 +224,8 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             return personProfileObject;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonProfileByPersonId", ex);
-            throw new UnexpectedException("ProfileService", "getPersonProfileByPersonId", "personId: " + personId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -310,11 +294,8 @@ public class ProfileServiceImpl implements ProfileService {
                     saveProfileAttribute(profile, profileId, attributeName);
                 }
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in setPersonProfile", ex);
-            throw new UnexpectedException("ProfileService", "setPersonProfile", "profile: " + profile, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -336,11 +317,8 @@ public class ProfileServiceImpl implements ProfileService {
             }
             final DefaultLocaleConfig defaultLocaleConfig = configurationService.getGlobalSettings().getDefaultLocaleConfig();
             return defaultLocaleConfig != null ? defaultLocaleConfig.getName() : MessageResourceProvider.getDefaultLocale();
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonLocale", ex);
-            throw new UnexpectedException("ProfileService getPersonLocale", ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

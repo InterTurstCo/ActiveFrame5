@@ -14,8 +14,7 @@ import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 @Stateless(name = "PersonService")
 @Local(PersonService.class)
@@ -35,12 +34,8 @@ public class PersonServiceImpl implements PersonService {
     public DomainObject findPersonByLogin(String login) {
         try {
             return personServiceDao.findPersonByLogin(login);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findPersonByLogin", ex);
-            throw new UnexpectedException("PersonService", "findPersonByLogin",
-                    "login:" + login, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

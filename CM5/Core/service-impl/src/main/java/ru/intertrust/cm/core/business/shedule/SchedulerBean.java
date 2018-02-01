@@ -60,8 +60,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.SchedulerDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Singleton(name = "SchedulerBean")
@@ -393,11 +392,8 @@ public class SchedulerBean {
             result.setMonth(task.getString(SCHEDULE_MONTH));
             result.setYear(task.getString(SCHEDULE_YEAR));
             return result;
-        } catch (AccessException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getTaskSchedule", ex);
-            throw new UnexpectedException("ScheduleService", "getTaskSchedule", "taskId:" + (task != null ? task.getId() : null), ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

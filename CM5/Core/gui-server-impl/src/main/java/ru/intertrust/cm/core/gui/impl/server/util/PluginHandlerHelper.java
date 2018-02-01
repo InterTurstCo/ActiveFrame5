@@ -26,7 +26,7 @@ import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.FatalException;
 
 import javax.ejb.EJB;
 import java.io.StringWriter;
@@ -184,7 +184,7 @@ public class PluginHandlerHelper {
             result = configurationService.getLocalizedConfig(CollectionViewConfig.class, collectionViewName, locale);
         }
         if (result == null) {
-            throw new UnexpectedException("Couldn't find collection view with name '" + collectionViewName + "'");
+            throw new FatalException("Couldn't find collection view with name '" + collectionViewName + "'");
         }
         return result;
     }
@@ -199,7 +199,7 @@ public class PluginHandlerHelper {
                 return collectionViewConfig.getName();
             }
         }
-        throw new UnexpectedException("Couldn't find view for collection with name '" + collectionName + "'");
+        throw new FatalException("Couldn't find view for collection with name '" + collectionName + "'");
     }
 
     public static List<String> doServerSideValidation(final FormState formState,

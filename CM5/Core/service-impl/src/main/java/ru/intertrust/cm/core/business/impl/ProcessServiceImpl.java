@@ -44,8 +44,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.ProcessException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
 
@@ -117,13 +117,8 @@ public class ProcessServiceImpl implements ProcessService {
             idProcess = runtimeService.startProcessInstanceByKey(processName,
                     variablesHM).getId();
             return idProcess;
-        } catch (SystemException ex) {
-            throw ex;            
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in startProcess", ex);
-            throw new UnexpectedException("ProcessService", "startProcess",
-                    "processName:" + processName + " attachedObjectId:" + attachedObjectId
-                            + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray())), ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -150,12 +145,8 @@ public class ProcessServiceImpl implements ProcessService {
     public void terminateProcess(String processId) {
         try {
             runtimeService.deleteProcessInstance(processId, null);
-        } catch (SystemException ex) {
-            throw ex;            
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in terminateProcess", ex);
-            throw new UnexpectedException("ProcessService", "terminateProcess",
-                    "processId:" + processId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -183,12 +174,8 @@ public class ProcessServiceImpl implements ProcessService {
     public void undeployProcess(String processDefinitionId, boolean cascade) {
         try {
             repositoryService.deleteDeployment(processDefinitionId, cascade);
-        } catch (SystemException ex) {
-            throw ex;            
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in undeployProcess", ex);
-            throw new UnexpectedException("ProcessService", "undeployProcess",
-                    "processDefinitionId:" + processDefinitionId + " cascade:" + cascade, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -200,11 +187,8 @@ public class ProcessServiceImpl implements ProcessService {
             Id personId = personService.findPersonByLogin(personLogin).getId();
             result = getUserTasks(personId);
             return result;
-        } catch (SystemException ex) {
-            throw ex;            
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getUserTasks", ex);
-            throw new UnexpectedException("ProcessService", "getUserTasks", "", ex);
+            throw RemoteSuitableException.convert(ex);
         }
 
     }
@@ -220,12 +204,8 @@ public class ProcessServiceImpl implements ProcessService {
                 result = getUserDomainObjectTasks(attachedObjectId, personId);
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;            
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getUserDomainObjectTasks", ex);
-            throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
-                    "attachedObjectId:" + attachedObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -273,14 +253,8 @@ public class ProcessServiceImpl implements ProcessService {
             formService.submitTaskFormData(taskId, params);
 
             // taskService.complete(taskId, createHashMap(variables));
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in completeTask", ex);
-            throw new UnexpectedException("ProcessService", "completeTask",
-                    "taskDomainObjectId:" + taskDomainObjectId
-                            + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray()))
-                            + " action:" + action, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -299,11 +273,8 @@ public class ProcessServiceImpl implements ProcessService {
                 result.add(resItem);
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;            
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getDeployedProcesses", ex);
-            throw new UnexpectedException("ProcessService", "getDeployedProcesses", "", ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -345,11 +316,8 @@ public class ProcessServiceImpl implements ProcessService {
                 result.add(task);
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getUserTasks", ex);
-            throw new UnexpectedException("ProcessService", "getUserTasks", "personId: " + personId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -407,12 +375,8 @@ public class ProcessServiceImpl implements ProcessService {
                 }
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getUserDomainObjectTasks", ex);
-            throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
-                    "attachedObjectId: " + attachedObjectId + " personId: " + personId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

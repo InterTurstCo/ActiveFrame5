@@ -22,8 +22,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,12 +67,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             attachmentDomainObject.setReference(attchmentLinkedField, objectId);
             return attachmentDomainObject;
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in createAttachmentDomainObjectFor", ex);
-            throw new UnexpectedException("AttachmentService", "createAttachmentDomainObjectFor",
-                    "objectId:" + objectId + " attachmentType:" + attachmentType, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -91,12 +86,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         try {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             return saveAttachment(contentStream, attachmentDomainObject);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in saveAttachment", ex);
-            throw new UnexpectedException("AttachmentService", "saveAttachment",
-                    "attachmentDomainObject: " + attachmentDomainObject.getId(), ex);
+            throw RemoteSuitableException.convert(ex);
         } finally {
             if (contentStream != null) {
                 try {
@@ -118,7 +109,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         attachmentDomainObject.setLong(CONTENT_LENGTH, attachmentInfo.getContentLength());
         
         if (newFilePath == null || newFilePath.isEmpty()) {
-            throw new UnexpectedException("File isn't created. DO:" + attachmentDomainObject.getId());
+            throw new FatalException("File isn't created. DO:" + attachmentDomainObject.getId());
         }
         attachmentDomainObject.setValue(PATH, new StringValue(newFilePath));
         AccessToken accessToken = createSystemAccessToken();
@@ -137,12 +128,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             InputStream inFile = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream remoteInputStream = wrapStream(inFile);
             return remoteInputStream;
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in loadAttachment", ex);
-            throw new UnexpectedException("AttachmentService", "loadAttachment",
-                    "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -152,12 +139,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
             domainObjectDao.delete(attachmentDomainObjectId, createSystemAccessToken());
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in loadAttachment", ex);
-            throw new UnexpectedException("AttachmentService", "loadAttachment",
-                    "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -173,12 +156,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
             return foundAttachments;
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findAttachmentDomainObjectsFor", ex);
-            throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
-                    "domainObjectId:" + domainObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -225,12 +204,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
             return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findAttachmentDomainObjectsFor", ex);
-            throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
-                    "domainObjectId:" + domainObjectId + " attachmentType:" + attachmentType, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

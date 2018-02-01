@@ -7,7 +7,6 @@ import java.util.List;
 
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl;
-import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Обработчик вызова точки расширения. Производит поиск всех точек расширения в

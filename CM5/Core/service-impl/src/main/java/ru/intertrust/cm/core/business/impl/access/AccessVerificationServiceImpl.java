@@ -20,8 +20,7 @@ import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 @Stateless
 @Local(AccessVerificationService.class)
@@ -54,10 +53,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
 
             }
             return true;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isReadPermitted", "objectId:" + objectId, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -72,10 +69,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
                 }
             }
             return result;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isWritePermitted", "objectId:" + objectId, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -90,10 +85,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
                 }
             }
             return result;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isDeletePermitted", "objectId:" + objectId, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -107,11 +100,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
                 return false;
             }
             return true;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isCreatePermitted",
-                    "domainObjectType:" + domainObjectType, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
     
@@ -125,11 +115,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
                 return false;
             }
             return true;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isCreatePermitted",
-                    "domainObject:" + domainObject, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -144,11 +131,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
                 return false;
             }
             return true;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isCreateChildPermitted",
-                    "domainObjectType:" + domainObjectType + ", parentObjectId:" + parentObjectId, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
     
@@ -168,11 +152,8 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
             }
 
             return true;
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new UnexpectedException("AccessVerificationService", "isExecuteActionPermitted",
-                    "actionName:" + actionName + ", objectId:" + objectId, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 }

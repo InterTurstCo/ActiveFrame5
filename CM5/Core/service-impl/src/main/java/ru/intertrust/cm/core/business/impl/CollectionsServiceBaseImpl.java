@@ -11,8 +11,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,14 +55,8 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
 
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollection", ex);
-            throw new UnexpectedException("CollectionsService", "findCollection",
-                    "collectionName:" + collectionName + " sortOrder: " + sortOrder
-                    + " filterValues:" + (filterValues == null ? "null" : Arrays.toString(filterValues.toArray()))
-                            + " offset:" + offset + " limit:" + limit, ex);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -85,12 +78,8 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollectionCount", ex);
-            throw new UnexpectedException("CollectionsService", "findCollectionCount",
-                    "collectionName:" + collectionName + " filterValues:" + filterValues, ex);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -100,12 +89,8 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollectionByQuery", ex);
-            throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
-                    "query:" + query + " offset:" + offset + " limit:" + limit, ex);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -121,13 +106,8 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollectionByQuery", ex);
-            throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
-                    "query:" + query + " params: " + (params == null ? "null" : Arrays.toString(params.toArray()))
-                    +  " offset:" + offset + " limit:" + limit, ex);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

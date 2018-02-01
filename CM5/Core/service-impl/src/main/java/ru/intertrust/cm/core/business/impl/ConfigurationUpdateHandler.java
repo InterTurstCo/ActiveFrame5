@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.EJB;
@@ -82,9 +82,8 @@ public class ConfigurationUpdateHandler implements MessageListener {
                 invalidateGlobalCacheEntries();
                 extensionProcessor().applyConfigurationExtension();
             }
-        } catch (JMSException e) {
-            logger.error("Unexpected exception caught in onMessage", e);
-            throw new UnexpectedException("ConfigurationUpdateHandler", "onMessage", "", e);
+        } catch (JMSException ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

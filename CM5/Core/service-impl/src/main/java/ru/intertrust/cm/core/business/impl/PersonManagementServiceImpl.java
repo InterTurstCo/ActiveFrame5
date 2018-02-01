@@ -16,9 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 @Stateless(name = "PersonManagementService")
 @Local(PersonManagementService.class)
@@ -39,9 +37,7 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         try {
             return personServiceDao.findPersonByLogin(login).getId();
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonId", ex);
-            throw new UnexpectedException("PersonManagementService", "getPersonId",
-                    "login:" + login, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -49,12 +45,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public List<DomainObject> getPersonsInGroup(Id groupId) {
         try {
             return personManagementServiceDao.getPersonsInGroup(groupId);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonsInGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "getPersonsInGroup",
-                    "groupId:" + groupId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -62,12 +54,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
         try {
             return personManagementServiceDao.getAllPersonsInGroup(groupId);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getAllPersonsInGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "getAllPersonsInGroup",
-                    "groupId:" + groupId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -75,12 +63,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public boolean isPersonInGroup(Id groupId, Id personId) {
         try {
             return personManagementServiceDao.isPersonInGroup(groupId, personId);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in isPersonInGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "isPersonInGroup",
-                    "groupId:" + groupId + " personId:" + personId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -88,12 +72,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public List<DomainObject> getPersonGroups(Id personId) {
         try {
             return personManagementServiceDao.getPersonGroups(personId);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getPersonGroups", ex);
-            throw new UnexpectedException("PersonManagementService", "getPersonGroups",
-                    "personId:" + personId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -101,12 +81,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public boolean isGroupInGroup(Id parent, Id child, boolean recursive) {
         try {
             return personManagementServiceDao.isGroupInGroup(parent, child, recursive);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in isGroupInGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "isGroupInGroup",
-                    "parent:" + parent + " child:" + child + " recursive: " + recursive, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -114,12 +90,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public List<DomainObject> getAllParentGroup(Id child) {
         try {
             return personManagementServiceDao.getAllParentGroup(child);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getAllParentGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "getAllParentGroup",
-                    "child:" + child, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -127,12 +99,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public List<DomainObject> getChildGroups(Id parent) {
         try {
             return personManagementServiceDao.getChildGroups(parent);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getChildGroups", ex);
-            throw new UnexpectedException("PersonManagementService", "getChildGroups",
-                    "parent:" + parent, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -140,12 +108,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public List<DomainObject> getAllChildGroups(Id parent) {
         try {
             return personManagementServiceDao.getAllChildGroups(parent);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getAllChildGroups", ex);
-            throw new UnexpectedException("PersonManagementService", "getAllChildGroups",
-                    "parent:" + parent, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -153,12 +117,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void addPersonToGroup(Id group, Id person) {
         try {
             personManagementServiceDao.addPersonToGroup(group, person);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in addPersonToGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "addPersonToGroup",
-                    "group:" + group + " person:" + person, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -166,12 +126,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void addGroupToGroup(Id parent, Id child) {
         try {
             personManagementServiceDao.addGroupToGroup(parent, child);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in addGroupToGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "addGroupToGroup",
-                    "parent:" + parent + " child:" + child, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -179,12 +135,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void remotePersonFromGroup(Id group, Id person) {
         try {
             personManagementServiceDao.remotePersonFromGroup(group, person);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in remotePersonFromGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "remotePersonFromGroup",
-                    "group:" + group + " person:" + person, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -192,12 +144,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public void remoteGroupFromGroup(Id parent, Id child) {
         try {
             personManagementServiceDao.remoteGroupFromGroup(parent, child);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in remoteGroupFromGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "remoteGroupFromGroup",
-                    "parent:" + parent + " child:" + child, ex);
+            throw RemoteSuitableException.convert(ex);
         }
 
     }
@@ -206,12 +154,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public Id getGroupId(String groupName) {
         try {
             return personManagementServiceDao.getGroupId(groupName);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getGroupId", ex);
-            throw new UnexpectedException("PersonManagementService", "getGroupId",
-                    "groupName:" + groupName, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -219,12 +163,8 @@ public class PersonManagementServiceImpl implements PersonManagementService {
     public DomainObject findDynamicGroup(String name, Id contectId) {
         try {
             return personManagementServiceDao.findDynamicGroup(name, contectId);
-        } catch (AccessException ex){
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findDynamicGroup", ex);
-            throw new UnexpectedException("PersonManagementService", "findDynamicGroup",
-                    "name:" + name + " contectId:" + contectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

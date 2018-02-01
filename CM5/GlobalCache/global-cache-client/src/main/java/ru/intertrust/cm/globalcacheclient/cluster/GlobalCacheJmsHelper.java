@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.globalcache.api.util.Size;
 
 import javax.jms.*;
@@ -127,7 +127,7 @@ public class GlobalCacheJmsHelper {
             }
             return result;
         } catch (NamingException | JMSException e) {
-            throw new UnexpectedException(e);
+            throw RemoteSuitableException.convert(e);
         } finally {
             close(con);
         }
@@ -156,7 +156,7 @@ public class GlobalCacheJmsHelper {
             bm.writeBytes(messageBytes);
             publisher.send(bm);
         } catch (NamingException | JMSException e) {
-            throw new UnexpectedException(e);
+            throw RemoteSuitableException.convert(e);
         } finally {
             close(con);
         }

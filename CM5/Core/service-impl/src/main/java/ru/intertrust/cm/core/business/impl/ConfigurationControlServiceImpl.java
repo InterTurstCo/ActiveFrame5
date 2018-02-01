@@ -23,8 +23,7 @@ import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.annotation.Resource;
@@ -99,12 +98,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                     break;
                 }
             }
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in updateConfiguration", ex);
-            throw new UnexpectedException("ConfigurationControlService", "updateConfiguration", "updateContent:" +
-                    updateContent + ", fileName:" + fileName, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -128,12 +123,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             }
 
             return false;
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in restartRequiredForFullUpdate", ex);
-            throw new UnexpectedException("ConfigurationControlService", "restartRequiredForFullUpdate",
-                    "configurationString:" + configurationString, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -262,8 +253,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                         .publishEvent(new SingletonConfigurationUpdateEvent(configurationExplorer, configChanges));
                 JmsUtils.sendTopicMessage(new ConfigurationUpdateMessage(), CONFIGURATION_UPDATE_JMS_TOPIC);
             }
-        } catch (JMSException | NamingException e) {
-            throw new UnexpectedException("ConfigurationControlService", "notifyClusterAboutExtensionActivation", null, e);
+        } catch (JMSException | NamingException ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -281,9 +272,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                     JmsUtils.sendTopicMessage(config, CONFIGURATION_UPDATE_JMS_TOPIC);
                 }
             }
-        } catch (Exception e) {
-            logger.error("Unexpected exception caught in updateConfiguration", e);
-            throw new UnexpectedException("ConfigurationControlService", "updateConfiguration", configurationString, e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

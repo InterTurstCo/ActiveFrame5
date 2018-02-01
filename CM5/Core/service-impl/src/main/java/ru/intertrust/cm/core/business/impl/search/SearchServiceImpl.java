@@ -35,9 +35,8 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SearchException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "SearchService")
 @Local(SearchService.class)
@@ -100,12 +99,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 return result;
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            log.error("Unexpected exception caught in search", ex);
-            throw new UnexpectedException("SearchService", "search",
-                "query: " + query + ", areaName: " + areaName + ", targetCollectionName: " + targetCollectionName, ex);
+            throw RemoteSuitableException.convert(ex);
         }
         //return result;
     }
@@ -158,12 +153,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 return result;
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            log.error("Unexpected exception caught in search", ex);
-            throw new UnexpectedException("SearchService", "search",
-                "query: " + query /*+ ", targetCollectionName: " + targetCollectionName*/, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

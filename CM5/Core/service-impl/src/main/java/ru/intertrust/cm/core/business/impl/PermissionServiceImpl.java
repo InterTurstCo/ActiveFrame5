@@ -20,8 +20,7 @@ import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -59,12 +58,8 @@ public class PermissionServiceImpl implements PermissionService {
             Id personId = personServiceDao.findPersonByLogin(personLogin).getId();
 
             return permissionServiceDao.getObjectPermission(domainObjectId, personId);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getObjectPermission", ex);
-            throw new UnexpectedException("PermissionService", "getObjectPermission",
-                    "domainObjectId:" + domainObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -72,12 +67,8 @@ public class PermissionServiceImpl implements PermissionService {
     public DomainObjectPermission getObjectPermission(Id domainObjectId, Id userId) {
         try {
             return permissionServiceDao.getObjectPermission(domainObjectId, userId);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getObjectPermission", ex);
-            throw new UnexpectedException("PermissionService", "getObjectPermission",
-                    "domainObjectId:" + domainObjectId + " userId:" + userId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -85,12 +76,8 @@ public class PermissionServiceImpl implements PermissionService {
     public List<DomainObjectPermission> getObjectPermissions(Id domainObjectId) {
         try {
             return permissionServiceDao.getObjectPermissions(domainObjectId);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getObjectPermissions", ex);
-            throw new UnexpectedException("PermissionService", "getObjectPermissions",
-                    "domainObjectId:" + domainObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -98,12 +85,8 @@ public class PermissionServiceImpl implements PermissionService {
     public boolean isReadPermittedToEverybody(String domainObjectType) {
         try {
             return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in isReadPermittedToEverybody", ex);
-            throw new UnexpectedException("PermissionService", "isReadPermittedToEverybody",
-                    "domainObjectType:" + domainObjectType, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -111,11 +94,8 @@ public class PermissionServiceImpl implements PermissionService {
     public void refreshAcls() {
         try {
             permissionServiceDao.refreshAcls();
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in refreshAcls", ex);
-            throw new UnexpectedException("PermissionService refreshAcls", ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -123,12 +103,8 @@ public class PermissionServiceImpl implements PermissionService {
     public void refreshAclFor(Id domainObjectId) {
         try {
             permissionServiceDao.refreshAclFor(domainObjectId);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in refreshAclFor", ex);
-            throw new UnexpectedException("PermissionService", "refreshAclFor",
-                    "domainObjectId:" + domainObjectId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -136,12 +112,8 @@ public class PermissionServiceImpl implements PermissionService {
     public void recalcGroup(Id groupId) {
         try {
             dynamicGroupService.recalcGroup(groupId);
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in recalcGroup", ex);
-            throw new UnexpectedException("PermissionService", "recalcGroup",
-                    "groupId:" + groupId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }    
 }

@@ -36,9 +36,9 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SchedulerDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Реализация сервиса выполнения периодических заданий
@@ -83,11 +83,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 result.add(task);
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getTaskList", ex);
-            throw new UnexpectedException("ScheduleService", "getTaskList", "", ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -100,11 +97,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 result.add(sheduleTaskReestrItem.getScheduleTask().getClass().toString());
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getTaskClasses", ex);
-            throw new UnexpectedException("ScheduleService", "getTaskClasses", "", ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -121,11 +115,8 @@ public class ScheduleServiceImpl implements ScheduleService {
             result.setMonth(task.getString(SCHEDULE_MONTH));
             result.setYear(task.getString(SCHEDULE_YEAR));
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getTaskSchedule", ex);
-            throw new UnexpectedException("ScheduleService", "getTaskSchedule", "taskId:" + taskId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -141,12 +132,8 @@ public class ScheduleServiceImpl implements ScheduleService {
             task.setString(SCHEDULE_MONTH, schedule.getMonth());
             task.setString(SCHEDULE_YEAR, schedule.getYear());
             domainObjectDao.save(task, accessToken);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in setTaskSchedule", ex);
-            throw new UnexpectedException("ScheduleService", "setTaskSchedule",
-                    "taskId:" + taskId + " schedule:" + schedule, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -217,11 +204,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setBoolean(SCHEDULE_ACTIVE, true);
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in enableTask", ex);
-            throw new UnexpectedException("ScheduleService", "enableTask", "taskId:" + taskId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -234,11 +218,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setBoolean(SCHEDULE_ACTIVE, false);
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in disableTask", ex);
-            throw new UnexpectedException("ScheduleService", "disableTask", "taskId:" + taskId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -246,11 +227,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     public void run(Id taskId) {
         try {
             schedulerDao.createTaskExecution(taskId);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in run", ex);
-            throw new UnexpectedException("ScheduleService", "run", "taskId:" + taskId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -263,12 +241,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setLong(SCHEDULE_PRIORITY, new Long(priority));
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in setPriority", ex);
-            throw new UnexpectedException("ScheduleService", "setPriority",
-                    "taskId:" + taskId + " priority: " + priority, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -281,12 +255,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setLong(SCHEDULE_TIMEOUT, new Long(timeout));
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in setTimeout", ex);
-            throw new UnexpectedException("ScheduleService", "setTimeout",
-                    "taskId:" + taskId + " timeout:" + timeout, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -294,12 +264,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     public DomainObject createScheduleTask(String className, String name) {
         try {
             return scheduleTaskLoader.createTaskDomainObject(scheduleTaskLoader.getSheduleTaskReestrItem(className), name);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in createScheduleTask", ex);
-            throw new UnexpectedException("ScheduleService", "createScheduleTask",
-                    "className:" + className + " name:" + name, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

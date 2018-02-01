@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.AttachmentAvailabilityActionContext;
 import ru.intertrust.cm.core.gui.model.action.DownloadAttachmentActionContext;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.SystemException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -87,7 +87,7 @@ public class DownloadAttachmentActionHandler implements ComponentHandler {
         RemoteInputStream remoteFileData = null;
         try {
             remoteFileData = attachmentService.loadAttachment(id);
-        } catch (UnexpectedException ex) {
+        } catch (SystemException ex) {
 
         }
         return remoteFileData;

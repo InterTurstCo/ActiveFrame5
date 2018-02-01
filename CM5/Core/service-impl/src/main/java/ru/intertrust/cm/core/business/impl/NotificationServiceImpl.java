@@ -40,8 +40,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.NotificationException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Stateless(name = "NotificationService")
@@ -88,13 +87,8 @@ public class NotificationServiceImpl implements NotificationService {
             } else {
                 logger.warn("Notification service is disabled");
             }
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
-            throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
-                    "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
-                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -260,14 +254,8 @@ public class NotificationServiceImpl implements NotificationService {
                 logger.warn("Notification service is disabled");
             }
 
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in sendNow", ex);
-            throw new UnexpectedException("NotificationService", "sendNow",
-                    "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
-                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
-                            + " priority: " + priority + " context:" + context, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -283,13 +271,8 @@ public class NotificationServiceImpl implements NotificationService {
             } else {
                 logger.warn("Notification service is disabled");
             }
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
-            throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
-                    "notificationType:" + notificationType + " sender:" + senderName + " addresseeList:"
-                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -329,14 +312,8 @@ public class NotificationServiceImpl implements NotificationService {
                 logger.warn("Notification service is disabled");
             }
 
-        } catch (SystemException e) {
-            throw e;
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in sendNow", ex);
-            throw new UnexpectedException("NotificationService", "sendNow",
-                    "notificationType:" + notificationType + " sender:" + senderName + " addresseeList:"
-                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
-                            + " priority: " + priority + " context:" + context, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 }

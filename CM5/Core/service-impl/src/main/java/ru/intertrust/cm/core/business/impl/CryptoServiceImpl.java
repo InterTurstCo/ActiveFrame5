@@ -34,8 +34,8 @@ import ru.intertrust.cm.core.config.crypto.TypeCryptoSettingsConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "CryptoService")
 @Local(CryptoService.class)
@@ -65,10 +65,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     public VerifyResult verify(InputStream document) {
         try {
             return getCryptoBean().verify(document);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "verify", "document:" + document, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -76,10 +74,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     public VerifyResult verify(InputStream document, byte[] signature) {
         try {
             return getCryptoBean().verify(document, signature);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "verify", "document:" + document + ", signature:" + signature, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -87,11 +83,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     public VerifyResult verify(InputStream document, byte[] signature, byte[] signerSertificate) {
         try {
             return getCryptoBean().verify(document, signature, signerSertificate);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "verify", "document:" + document + ", signature:" +
-                    signature + ", signerSertificate:" + signerSertificate, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -198,10 +191,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
             } else {
                 throw new FatalException("Type crypto settings not found for type " + signedType);
             }
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "saveSignedResult", "signedResult:" + signedResult, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -210,10 +201,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
         try {
             //Очищаем кэш
             typeCryptoConfigs.clear();
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "onApplicationEvent", "event:" + event, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -221,10 +210,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     public byte[] hash(InputStream document) {
         try {
             return getCryptoBean().hash(document);
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "hash", "document:" + document, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -242,10 +229,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
                 throw new FatalException("Type crypto settings not found for type " + signedType);
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "getContentForSignature", "id:" + id, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -263,10 +248,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
                 throw new FatalException("Type crypto settings not found for type " + signedType);
             }
             return result;
-        } catch (SystemException ex) {
-            throw ex;
         } catch (Exception ex) {
-            throw new UnexpectedException("CryptoServiceImpl", "getBatchForSignature", "rootId:" + rootId, ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 

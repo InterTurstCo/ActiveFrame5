@@ -7,8 +7,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.*;
@@ -63,11 +62,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             RecursiveConfigurationLoader recursiveLoader = createRecursiveConfigurationLoader();
             recursiveLoader.load(configurationExplorer);
             saveConfiguration();
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Unexpected exception caught in loadConfiguration", e);
-            throw new UnexpectedException("ConfigurationLoadService", "loadConfiguration", "", e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
@@ -119,11 +115,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             if (schemaUpdatedByScriptMigration || schemaUpdatedByAutoMigration) {
                 statisticsGatherer.gatherStatistics();
             }
-        } catch (SystemException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error("Unexpected exception caught in updateConfiguration", e);
-            throw new UnexpectedException("ConfigurationLoadService", "updateConfiguration", "", e);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
