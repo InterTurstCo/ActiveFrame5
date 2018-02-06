@@ -111,6 +111,13 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     }
 
+
+    public void clearAllEventHook(){
+        /**
+         * Это метод для классов наследников которым надо реагировать на событие полной очистки
+          */
+    }
+
     @Override
     public Component createNew() {
         return new SuggestBoxWidget();
@@ -636,7 +643,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         currentState.evictTooltipItems();
                         currentState.getSelectedIds().clear();
                         clearAll();
-
+                        clearAllEventHook();
                     }
                 });
             }
