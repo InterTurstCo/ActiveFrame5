@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.impl.client.BusinessUniverse;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
@@ -36,15 +37,13 @@ import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static java.awt.SystemColor.window;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 
-public class NavigationTreePluginView extends PluginView   {
+public class NavigationTreePluginView extends PluginView {
     private static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
     private static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
     public static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 134;
@@ -55,6 +54,7 @@ public class NavigationTreePluginView extends PluginView   {
     private int DURATION = 500;
     private static final int DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH = 220;
     private static final int TOP_MARGIN = 80;
+    public static final long SESSION_TIMEOUT = 1800000;
     private int START_WIDGET_WIDTH = 0;
     private boolean pinButtonPressed = false;
     private TreeItem currentSelectedItem;
@@ -79,7 +79,6 @@ public class NavigationTreePluginView extends PluginView   {
     }
 
 
-
     interface MyTreeImages extends Tree.Resources {
         @Source("treeOpen.png")
         ImageResource treeOpen();
@@ -100,7 +99,7 @@ public class NavigationTreePluginView extends PluginView   {
         int secondLevelNavigationPanelWidth = navigationConfig.getSecondLevelPanelWidth() == null
                 ? DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH
                 : StringUtil.getIntValue(navigationConfig.getSecondLevelPanelWidth());
-        CompactModeState compactModeState =  Application.getInstance().getCompactModeState();
+        CompactModeState compactModeState = Application.getInstance().getCompactModeState();
         compactModeState.setSecondLevelNavigationPanelWidth(secondLevelNavigationPanelWidth);
         compactModeState.setFirstLevelNavigationPanelWidth(FIRST_LEVEL_NAVIGATION_PANEL_WIDTH);
         boolean minimalMargin = NavigationPanelSecondLevelMarginSize.MINIMAL.equals(navigationConfig.getMarginSize());
@@ -110,8 +109,8 @@ public class NavigationTreePluginView extends PluginView   {
         pinButton = new HTML();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
-        if(minimalMargin){
-        navigationTreeContainer.addStyleName("minimalLeftMargin");
+        if (minimalMargin) {
+            navigationTreeContainer.addStyleName("minimalLeftMargin");
 
         }
         decorateNavigationTreeContainer(navigationTreeContainer);
@@ -149,7 +148,7 @@ public class NavigationTreePluginView extends PluginView   {
         if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
             activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
         }
-        if(navigationTreePluginData.isPinned()){
+        if (navigationTreePluginData.isPinned()) {
             changeState();
         }
 
@@ -173,19 +172,20 @@ public class NavigationTreePluginView extends PluginView   {
 
         return navigationTreeContainer;
     }
-    public void changeSecondLevelNavigationPanelHeight(){
+
+    public void changeSecondLevelNavigationPanelHeight() {
         navigationTreesPanel.setHeight(Window.getClientHeight() - TOP_MARGIN + "px");
     }
 
     private void changeState() {
-            final Timer timer = new Timer() {
-                @Override
-                public void run() {
-                    onPinButtonClick();
-                    this.cancel();
-                }
-            };
-            timer.schedule(navigationTreeOpeningTime);
+        final Timer timer = new Timer() {
+            @Override
+            public void run() {
+                onPinButtonClick();
+                this.cancel();
+            }
+        };
+        timer.schedule(navigationTreeOpeningTime);
     }
 
     private void onPinButtonClick() {
@@ -263,6 +263,14 @@ public class NavigationTreePluginView extends PluginView   {
         mouseHoldTimer.schedule(navigationTreeOpeningTime);
     }
 
+    public static native double getLastActivity() /*-{
+        if (typeof($wnd.dateObj) !== "undefined") {
+            return $wnd.dateObj;
+        } else {
+            return 0;
+        }
+    }-*/;
+
     private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis) {
         final Command collectionsCountersCommand = new Command();
         collectionsCountersCommand.setName("getCounters");
@@ -273,33 +281,36 @@ public class NavigationTreePluginView extends PluginView   {
         final Timer timer = new Timer() {
             @Override
             public void run() {
-                collectionCountersRequest.setCounterKeys(counterKeys);
-                collectionCountersRequest.setLastUpdatedTime(lastCountersUpdateTime);
-                BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(collectionsCountersCommand, new AsyncCallback<Dto>() {
-                    @Override
-                    public void onSuccess(Dto result) {
-                        CollectionCountersResponse response = (CollectionCountersResponse) result;
-                        lastCountersUpdateTime = response.getLastUpdatedTime();
-                        Map<CounterKey, Long> countersValues = response.getCounterValues();
-                        for (CounterDecorator counterObject : counterDecorators) {
-                            CounterKey identifier = counterObject.getCounterKey();
-                            counterObject.decorate(countersValues.get(identifier));
-                        }
-                        for (CounterDecorator counterObject : rootCounterDecorators) {
-                            if (counterObject.getCounterKey().getCollectionName() != null) {
+                Date now = new Date();
+                if (now.getTime() - getLastActivity() < SESSION_TIMEOUT) {
+                    collectionCountersRequest.setCounterKeys(counterKeys);
+                    collectionCountersRequest.setLastUpdatedTime(lastCountersUpdateTime);
+                    BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(collectionsCountersCommand, new AsyncCallback<Dto>() {
+                        @Override
+                        public void onSuccess(Dto result) {
+                            CollectionCountersResponse response = (CollectionCountersResponse) result;
+                            lastCountersUpdateTime = response.getLastUpdatedTime();
+                            Map<CounterKey, Long> countersValues = response.getCounterValues();
+                            for (CounterDecorator counterObject : counterDecorators) {
                                 CounterKey identifier = counterObject.getCounterKey();
                                 counterObject.decorate(countersValues.get(identifier));
                             }
+                            for (CounterDecorator counterObject : rootCounterDecorators) {
+                                if (counterObject.getCounterKey().getCollectionName() != null) {
+                                    CounterKey identifier = counterObject.getCounterKey();
+                                    counterObject.decorate(countersValues.get(identifier));
+                                }
+                            }
+                            counterKeys.clear();
+                            counterKeys.putAll(response.getCounterServerObjectIds());
                         }
-                        counterKeys.clear();
-                        counterKeys.putAll(response.getCounterServerObjectIds());
-                    }
 
-                    @Override
-                    public void onFailure(Throwable caught) {
-                        GWT.log("error while getting collection counters info");
-                    }
-                });
+                        @Override
+                        public void onFailure(Throwable caught) {
+                            GWT.log("error while getting collection counters info");
+                        }
+                    });
+                }
             }
         };
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
@@ -334,6 +345,7 @@ public class NavigationTreePluginView extends PluginView   {
             currentSelectedItem = null;
         }
     }
+
     @Deprecated //use repaintNavigationTrees(LinkConfig linkConfig, String childToOpenName) instead
     public void repaintNavigationTrees(String rootLinkName, String childToOpenName) {
         NavigationTreePluginData navigationTreePluginData = plugin.getInitialData();
@@ -349,7 +361,7 @@ public class NavigationTreePluginView extends PluginView   {
     }
 
     public void repaintNavigationTrees(LinkConfig linkConfig, String childToOpenName) {
-        if(linkConfig == null){
+        if (linkConfig == null) {
             return;
         }
         updateCounterTimerContext();
@@ -378,8 +390,8 @@ public class NavigationTreePluginView extends PluginView   {
 
         VerticalPanel verticalPanel = new VerticalPanel();
         NavigationTreePluginData data = plugin.getInitialData();
-        if(data.getNavigationConfig().isUnpinEnabled()){
-        verticalPanel.add(pinButton);
+        if (data.getNavigationConfig().isUnpinEnabled()) {
+            verticalPanel.add(pinButton);
         }
         SelectionHandler<TreeItem> handler = createSelectionHandler();
         Tree.Resources resources = GWT.create(MyTreeImages.class);
@@ -387,7 +399,7 @@ public class NavigationTreePluginView extends PluginView   {
         int linkTextMargin = NavigationPanelSecondLevelMarginSize.DEFAULT.equals(data.getNavigationConfig().getMarginSize())
                 ? LINK_TEXT_MARGIN + FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN : LINK_TEXT_MARGIN;
         int visibleCharsLength = (int) ((Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth()
-                        - linkTextMargin) / ONE_CHAR_WIDTH);
+                - linkTextMargin) / ONE_CHAR_WIDTH);
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             NavigationTreeBuilder navigationTreeBuilder = new NavigationTreeBuilder(childLinksConfig);
             navigationTreeBuilder
@@ -405,6 +417,7 @@ public class NavigationTreePluginView extends PluginView   {
 
 
     }
+
     private native void setScrollLeft(Element elem) /*-{
         elem.scrollLeft = 0;
     }-*/;
@@ -495,7 +508,7 @@ public class NavigationTreePluginView extends PluginView   {
     }
 
     private LinkConfig buildRootLinks(final List<LinkConfig> linkConfigList, final String selectedRootLinkName, final
-                                      SidebarView sideBarView, boolean isDynamic) {
+    SidebarView sideBarView, boolean isDynamic) {
         LinkConfig result = null;
         final ClickHandler clickHandler = new RootNodeButtonClickHandler();
         NavigationTreePluginData data = plugin.getInitialData();
@@ -511,23 +524,23 @@ public class NavigationTreePluginView extends PluginView   {
                 rootCounterDecorators.add(counterRootNodeDecorator);
             }
             sideBarView.getMenuItems().add(nodeButton);
-            if(isDynamic){
-            navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
-                @Override
-                public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
+            if (isDynamic) {
+                navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
+                    @Override
+                    public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
 
-                   if(GlobalThemesManager.getCurrentTheme() instanceof LightThemeBundle){
-                       autoOpen = Boolean.parseBoolean(
-                               ((LightThemeBundle)GlobalThemesManager.getCurrentTheme()).lightCss().autoOpenNavigationPanel()
-                       );
-                       DURATION = 0;
-                   }
-                    if (!animatedTreePanelIsOpened && (mouseMoveEvent.getClientX() < START_SIDEBAR_WIDTH) && !pinButtonPressed && autoOpen) {
-                        animatedTreePanelIsOpened = true;
-                        openTreePanel();
+                        if (GlobalThemesManager.getCurrentTheme() instanceof LightThemeBundle) {
+                            autoOpen = Boolean.parseBoolean(
+                                    ((LightThemeBundle) GlobalThemesManager.getCurrentTheme()).lightCss().autoOpenNavigationPanel()
+                            );
+                            DURATION = 0;
+                        }
+                        if (!animatedTreePanelIsOpened && (mouseMoveEvent.getClientX() < START_SIDEBAR_WIDTH) && !pinButtonPressed && autoOpen) {
+                            animatedTreePanelIsOpened = true;
+                            openTreePanel();
+                        }
                     }
-                }
-            }, MouseMoveEvent.getType());
+                }, MouseMoveEvent.getType());
             }
 
             if (selectedRootLinkName == null) {
@@ -578,8 +591,8 @@ public class NavigationTreePluginView extends PluginView   {
             if (!animatedTreePanelIsOpened && !pinButtonPressed && !autoOpen) {
                 animatedTreePanelIsOpened = true;
                 openTreePanel();
-            } else if(animatedTreePanelIsOpened && !pinButtonPressed && !autoOpen){
-                if(selectedRootNode.equals(((RootNodeButton) event.getSource()).getName())){
+            } else if (animatedTreePanelIsOpened && !pinButtonPressed && !autoOpen) {
+                if (selectedRootNode.equals(((RootNodeButton) event.getSource()).getName())) {
                     animatedTreePanelIsOpened = false;
                     hideTreePanel();
                 }
@@ -592,8 +605,8 @@ public class NavigationTreePluginView extends PluginView   {
                     (!autoOpen && animatedTreePanelIsOpened && (selectedRootNode!=null && !selectedRootNode.equals(source.getName()))))
              */
 
-            if(autoOpen || selectedRootNode==null ||
-                    (!autoOpen && (selectedRootNode!=null && !selectedRootNode.equals(source.getName())))) {
+            if (autoOpen || selectedRootNode == null ||
+                    (!autoOpen && (selectedRootNode != null && !selectedRootNode.equals(source.getName())))) {
                 Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
                         .getName()), plugin);
                 clearSelectedButton();

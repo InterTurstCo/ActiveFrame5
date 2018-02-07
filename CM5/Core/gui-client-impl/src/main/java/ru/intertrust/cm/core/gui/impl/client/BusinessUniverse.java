@@ -83,6 +83,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             @Override
             public void onSuccess(BusinessUniverseInitialization result) {
                 initialize(result);
+                /**
+                 * Привязка JS к центральной панели для отслеживания действий пользователя
+                 */
+                initJS(centralPluginPanel.asWidget().getElement());
             }
 
             @Override
@@ -93,6 +97,27 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(GuiUtil.getClient(), callback);
     }
+
+    public static native void initJS(Element container) /*-{
+
+        var callback = function (allmutations) {
+                // allmutations — массив, и мы можем использовать соответствующие методы JavaScript.
+                allmutations.map(function(mr){ $wnd.dateObj = new Date().getTime();; });
+            },
+            mo = new MutationObserver(callback),
+            options = {
+                // обязательный параметр: наблюдаем за добавлением и удалением дочерних элементов.
+                childList: true,
+                // наблюдаем за добавлением и удалением дочерних элементов любого уровня вложенности.
+                subtree: true,
+                // наблюдаем за изменением атрибутов элементов любого уровня вложенности.
+                attributes: true
+            };
+        //Передаем контейнер на который вешаем наблюдателя и конфигурацию
+        mo.observe(container, options);
+    }-*/;
+
+
 
     private void initialize(BusinessUniverseInitialization initializationInfo) {
         final Application application = Application.getInstance();
@@ -219,6 +244,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         History.addValueChangeHandler(new HistoryValueChangeHandler());
         navigationTreePanel.setVisibleWidth(NavigationTreePluginView.FIRST_LEVEL_NAVIGATION_PANEL_WIDTH);
         navigationTreePanel.open(navigationTreePlugin);
+
     }
 
     @Override
@@ -226,7 +252,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         List<LinkConfig> configs = event.getNavigationConfig().getLinkConfigList();
         String linkName = event.getLinkName();
         LinkConfig selectedLinkConfig = getLinkConfigByName(linkName, configs);
-        if (selectedLinkConfig!=null && selectedLinkConfig.getOuterTypeConfig() != null) {
+        if (selectedLinkConfig != null && selectedLinkConfig.getOuterTypeConfig() != null) {
             OuterTypeConfig outerLink = selectedLinkConfig.getOuterTypeConfig();
             String actualUrl = null;
             if (outerLink.getUrlTypeConfig().isAbsolute()) {
@@ -267,14 +293,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             final HistoryManager manager = Application.getInstance().getHistoryManager();
             if (manager.hasLink() || manager.getSelectedIds().isEmpty() ||
                     (!manager.hasLink() && !manager.getSelectedIds().isEmpty() && centralPluginPanel.getCurrentPlugin() instanceof FormPlugin &&
-                            centralPluginPanel.getPluginsCount()==1)) {
+                            centralPluginPanel.getPluginsCount() == 1)) {
                 Application.getInstance().lockScreen();
                 PluginConfig pluginConfig = event.getPluginConfig();
-                if(pluginConfig==null){
-                    if(selectedLinkConfig.getChildToOpen()!=null){
-                        for(ChildLinksConfig cfg : selectedLinkConfig.getChildLinksConfigList()){
-                            for(LinkConfig lCfg : cfg.getLinkConfigList()){
-                                if(lCfg.getName().equals(selectedLinkConfig.getChildToOpen())){
+                if (pluginConfig == null) {
+                    if (selectedLinkConfig.getChildToOpen() != null) {
+                        for (ChildLinksConfig cfg : selectedLinkConfig.getChildLinksConfigList()) {
+                            for (LinkConfig lCfg : cfg.getLinkConfigList()) {
+                                if (lCfg.getName().equals(selectedLinkConfig.getChildToOpen())) {
                                     pluginConfig = lCfg.getPluginDefinition().getPluginConfig();
                                 }
                             }
@@ -304,12 +330,14 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }-*/;
 
     private native boolean isOpen(Element win) /*-{
-        return !! (win && !win.closed);
+        return !!(win && !win.closed);
     }-*/;
 
     private native void focus(Element win) /*-{
         win.blur();
-        setTimeout(function() { win.focus(); },500);
+        setTimeout(function () {
+            win.focus();
+        }, 500);
     }-*/;
 
     private LinkConfig getLinkConfigByName(String linkName, List<LinkConfig> configs) {
@@ -344,7 +372,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         domainObjectSurfer.setDisplayInfobar(true);
 
         // закрываем предыдущий результат
-        if(centralPluginPanel.getCurrentPlugin().getInitialData() instanceof ExtendedSearchDomainObjectSurfacePluginData){
+        if (centralPluginPanel.getCurrentPlugin().getInitialData() instanceof ExtendedSearchDomainObjectSurfacePluginData) {
             centralPluginPanel.closeCurrentPlugin();
         }
         centralPluginPanel.openChild(domainObjectSurfer);

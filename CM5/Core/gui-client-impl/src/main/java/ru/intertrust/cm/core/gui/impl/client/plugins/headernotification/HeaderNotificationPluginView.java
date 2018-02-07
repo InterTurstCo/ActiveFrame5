@@ -24,6 +24,10 @@ import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
+import java.util.Date;
+
+import static ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView.SESSION_TIMEOUT;
+import static ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView.getLastActivity;
 
 /**
  * Created by lvov on 25.03.14.
@@ -52,7 +56,10 @@ public class HeaderNotificationPluginView extends PluginView{
         timer = new Timer() {
             @Override
             public void run() {
-                cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
+                Date now = new Date();
+                if (now.getTime() - getLastActivity() < SESSION_TIMEOUT) {
+                    cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
+                }
             }
         };
         timer.scheduleRepeating(headerNotificationPeriod);
