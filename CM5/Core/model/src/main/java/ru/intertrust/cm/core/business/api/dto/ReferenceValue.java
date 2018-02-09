@@ -40,8 +40,21 @@ public class ReferenceValue extends Value<ReferenceValue> {
     public int compareTo(ReferenceValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;
+        } else if (this.isEmpty()) {
+            return -1;
         } else {
-            return this.isEmpty() ? -1 : reference.toStringRepresentation().compareTo(o.reference.toStringRepresentation());
+            if (((RdbmsId) reference).getTypeId() > ((RdbmsId) o.reference).getTypeId())
+                return 1;
+            else if (((RdbmsId) reference).getTypeId() < ((RdbmsId) o.reference).getTypeId())
+                return -1;
+            else {
+                if (((RdbmsId) reference).getId() > ((RdbmsId) o.reference).getId())
+                    return 1;
+                else if (((RdbmsId) reference).getId() < ((RdbmsId) o.reference).getId())
+                    return -1;
+                else
+                    return 0;
+            }
         }
     }
 
