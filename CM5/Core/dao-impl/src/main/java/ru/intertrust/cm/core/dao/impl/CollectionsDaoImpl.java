@@ -1,14 +1,36 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import net.sf.jsqlparser.statement.select.Select;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdBasedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
@@ -19,19 +41,21 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
+import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
 import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 
 /**
  * @author vmatsukevich Date: 7/1/13 Time: 6:58 PM
@@ -183,14 +207,16 @@ public class CollectionsDaoImpl implements CollectionsDao {
             return validateCache(collectionName, processedFilterValues, sortOrder, offset, limit, accessToken, start, fromGlobalCache);
         }
 
-        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, processedFilterValues, sortOrder, offset, limit,
+        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, processedFilterValues, sortOrder, offset,
+                limit,
                 accessToken);
         final IdentifiableObjectCollection collection = dbResultAndStart.getFirst();
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
             collectionsCacheService.putCollectionToCache(collection, collectionName, processedFilterValues, sortOrder, offset, limit);
         }
-        globalCacheClient.notifyCollectionRead(collectionName, processedFilterValues, sortOrder, offset, limit, collection, dbResultAndStart.getSecond(), accessToken);
+        globalCacheClient.notifyCollectionRead(collectionName, processedFilterValues, sortOrder, offset, limit, collection, dbResultAndStart.getSecond(),
+                accessToken);
         return collection;
     }
 
@@ -549,7 +575,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         String collectionQuery;
         Map<String, FieldConfig> columnToConfigMapForSelectItems;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, null, accessToken);
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, paramsWithPrompt.getSecond(), accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
@@ -579,7 +605,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
 
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
-            collectionQueryCache.putCollectionQuery(query, offset, limit, null, accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionQuery(query, offset, limit, paramsWithPrompt.getSecond(), accessToken, collectionQueryEntry);
         }
 
         if (accessToken.isDeferred()) {

@@ -127,10 +127,8 @@ public class CollectionsDaoImplTest {
                     "r.\"object_id\" = department.\"access_object_id\")) d ON e.\"department\" = d.\"id\" " +
                     "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\" ASC";
 
-
     private static final String FIND_COLLECTION_QUERY_WITH =
             "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id), person_data AS (SELECT \"id\", \"id_type\", \"login\" FROM (SELECT person.* FROM \"person\" person WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = person.\"access_object_id\")) person), emp_data AS (SELECT em.\"id\" \"emid\", em.\"id_type\" \"emid_type\", pData.\"id\" \"pid\", pData.\"id_type\" \"pid_type\", em.\"name\", em.\"depid\" FROM \"person_data\" AS pData LEFT JOIN (SELECT employee.* FROM \"employee\" employee WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = employee.\"access_object_id\")) em ON (pData.\"id\" = em.\"personid\")) SELECT \"id\", \"id_type\", ppData.\"login\", dep.\"name\" FROM \"person_data\" ppData LEFT JOIN \"emp_data\" emData ON (ppData.\"id\" = emData.\"pid\") LEFT JOIN (SELECT department.* FROM \"department\" department WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND r.\"object_id\" = department.\"access_object_id\")) depp ON (depp.\"id\" = emData.\"depid\") WHERE 1 = 1 AND (\"login\" = :byName0)";
-
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
             "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
@@ -223,6 +221,7 @@ public class CollectionsDaoImplTest {
 
     @Before
     public void setUp() throws Exception {
+        collectionQueryCache.clearCollectionQueryCache();
         initConfigurationExplorer();
         when(serverComponentService.getServerComponent("generator")).thenReturn(new CollectionDataGenerator() {
 
@@ -286,34 +285,36 @@ public class CollectionsDaoImplTest {
                 );
 
         personsCollectionConfig = createCollectionConfig("Persons", PERSONS_PROROTYPE, PERSONS_COUNTING_PROTOTYPE);
-        configuration.getConfigurationList().addAll(asList(
-                createCollectionConfig(
-                        "children",
-                        "select name from child where 1 = 1 ::where-clause",
-                        null,
-                        filterConfig("byParent", null, where("parent = {0}"))
-                ),
-                createCollectionConfig(
-                        "generated",
-                        "generator"
-                ),
-                createCollectionConfig(
-                        "persons_simple",
-                        "select name from person where 1 = 1 ::where-clause",
-                        null
-                ),
+        configuration
+                .getConfigurationList()
+                .addAll(asList(
+                        createCollectionConfig(
+                                "children",
+                                "select name from child where 1 = 1 ::where-clause",
+                                null,
+                                filterConfig("byParent", null, where("parent = {0}"))
+                        ),
+                        createCollectionConfig(
+                                "generated",
+                                "generator"
+                        ),
+                        createCollectionConfig(
+                                "persons_simple",
+                                "select name from person where 1 = 1 ::where-clause",
+                                null
+                        ),
 
-                createCollectionConfig(
-                        "persons_with",
-                        "with person_data as ( select id, Login from person), emp_data as (select em.id as emId, pData.id as pId, em.name, em.depId from person_data as pData left join employee em on (pData.id = em.personId) ) select ppData.id, ppData.Login, dep.name from person_data ppData left join emp_data emData on (ppData.id = emData.pId) left join department depp on (depp.id = emData.depId)  where 1=1 ::where-clause",
-                        null,
-                        filterConfig("byName", null, where("Login = {0}"))
-                ),
+                        createCollectionConfig(
+                                "persons_with",
+                                "with person_data as ( select id, Login from person), emp_data as (select em.id as emId, pData.id as pId, em.name, em.depId from person_data as pData left join employee em on (pData.id = em.personId) ) select ppData.id, ppData.Login, dep.name from person_data ppData left join emp_data emData on (ppData.id = emData.pId) left join department depp on (depp.id = emData.depId)  where 1=1 ::where-clause",
+                                null,
+                                filterConfig("byName", null, where("Login = {0}"))
+                        ),
 
-                collectionConfig,
-                complexCollectionConfig,
-                personsCollectionConfig
-                ));
+                        collectionConfig,
+                        complexCollectionConfig,
+                        personsCollectionConfig
+                        ));
 
         GlobalSettingsConfig globalSettingsConfig = new GlobalSettingsConfig();
         CollectionQueryCacheConfig collectionQueryCacheConfig = new CollectionQueryCacheConfig();
@@ -433,11 +434,12 @@ public class CollectionsDaoImplTest {
         filter = new Filter();
         filter.setFilter("byDepartment");
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
-        
+
         ParametersConverter converter = new ParametersConverter();
         Pair<Map<String, Object>, QueryModifierPrompt> pair = converter.convertReferenceValuesInFilters(singletonList(filter));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(),
+                createByNameSortOrder(), 2,
                 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
@@ -450,7 +452,8 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.findCollection("Employees", singletonList(filter), createByNameSortOrder(), 2, 0, accessToken);
 
         pair = converter.convertReferenceValuesInFilters(singletonList(filter));
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(),
+                createByNameSortOrder(), 2,
                 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
@@ -462,7 +465,8 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
         pair = converter.convertReferenceValuesInFilters(singletonList(filter));
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(),
+                createByNameSortOrder(), 2,
                 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
@@ -470,10 +474,25 @@ public class CollectionsDaoImplTest {
         filter.setFilter("byDepartment1");
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
         pair = converter.convertReferenceValuesInFilters(singletonList(filter));
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(), createByNameSortOrder(), 2,
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), pair.getSecond(),
+                createByNameSortOrder(), 2,
                 0, accessToken);
         assertNull(collectionQueryEntry);
 
+    }
+
+    @Test
+    public void testCollectionQueryCacheListValue() {
+        AccessToken accessToken = createMockAccessToken();
+        String collectionQuery = "Select * from country where id in ({0})";
+        List<Value<?>> referenceValues =
+                Arrays.<Value<?>> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
+        ListValue listValue = ListValue.createListValue(referenceValues);
+        collectionsDaoImpl.findCollectionByQuery(collectionQuery, asList(listValue), 2, 2, accessToken);
+        assertNull(collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, null, accessToken));
+        assertEquals("SELECT * FROM \"country\" WHERE (\"id\" IN (:PARAM0_0) AND \"id_type\" = :PARAM0_0_type) LIMIT 2 OFFSET 2", collectionQueryCache
+                .getCollectionQuery(collectionQuery, 2, 2, getPrompt(asList(listValue)), accessToken)
+                .getQuery());
     }
 
     @Test
@@ -483,33 +502,28 @@ public class CollectionsDaoImplTest {
 
         List<Value<?>> referenceValues =
                 Arrays.<Value<?>> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
-        ListValue listValue = ListValue.createListValue(referenceValues);
 
-        List<Value> params = new ArrayList<>();
-        params.add(listValue);
-
-        Set<ListValue> listParams = new HashSet<>();
-        listParams.add(listValue);
+        List<? extends Value<?>> params = asList(ListValue.createListValue(referenceValues));
 
         CollectionQueryEntry collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, null, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, getPrompt(params), accessToken);
         assertNull(collectionQueryEntry);
 
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 0, 0, accessToken);
 
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, null, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, getPrompt(params), accessToken);
         assertNotNull(collectionQueryEntry);
 
         // другие offset и limit
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, null, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, getPrompt(params), accessToken);
         assertNull(collectionQueryEntry);
 
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 2, 2, accessToken);
 
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, null, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, getPrompt(params), accessToken);
         assertNotNull(collectionQueryEntry);
 
         // запрос без параметров
@@ -521,8 +535,14 @@ public class CollectionsDaoImplTest {
         assertNotNull(collectionQueryEntry);
     }
 
+    private QueryModifierPrompt getPrompt(List<? extends Value<?>> params) {
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> pair = converter.convertReferenceValues(params);
+        return pair.getSecond();
+    }
+
     @Test
-    public void testCollectionWITH() throws Exception{
+    public void testCollectionWITH() throws Exception {
 
         Filter filter = new Filter();
         filter.setFilter("byName");
@@ -533,9 +553,6 @@ public class CollectionsDaoImplTest {
         verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH),
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
     }
-
-
-
 
     @Test
     public void testFindCollectionWithMultipleReferenceTypes() throws Exception {
