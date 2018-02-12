@@ -787,6 +787,17 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.findCollectionCount("generated", asList(filter), createMockSystemAccessToken());
     }
 
+    @Test
+    public void testMultiColumnIn() {
+        collectionsDaoImpl.findCollectionByQuery("select Login from Person where (Boss, Boss_type) in (select id, id_type from Internal_Employee)",
+                asList(new Value<?>[] { }), 0, 0,
+                createMockSystemAccessToken());
+        verify(jdbcTemplate).query(
+                eq("SELECT \"login\" FROM \"person\" WHERE (\"boss\", \"boss_type\") IN (SELECT \"id\", \"id_type\" FROM \"internal_employee\")"),
+                eq(new HashMap<String, Object>()), any(CollectionRowMapper.class));
+
+    }
+
     private String refineQuery(String actualQuery) {
         return actualQuery.trim().replaceAll("\\s+", " ");
     }

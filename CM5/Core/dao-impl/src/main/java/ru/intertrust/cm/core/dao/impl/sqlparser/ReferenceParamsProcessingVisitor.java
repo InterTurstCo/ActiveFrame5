@@ -60,7 +60,11 @@ public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor
 
     @Override
     public void visit(InExpression inExpression) {
-        inExpression.getLeftExpression().accept(this);
+        if (inExpression.getLeftExpression() != null) {
+            inExpression.getLeftExpression().accept(this);
+        } else if (inExpression.getLeftItemsList() != null) {
+            inExpression.getLeftItemsList().accept(this);
+        }
         inExpression.getRightItemsList().accept(this);
         boolean isInExpression = !inExpression.isNot();
         processReferenceParameterInsideInExpression(inExpression, isInExpression);
