@@ -16,8 +16,6 @@ import org.springframework.util.StreamUtils;
 
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
@@ -27,8 +25,6 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestReportService extends ClientBase {
-    private CrudService crudService;
-    private CollectionsService collectionService;
     private ReportService reportService;
     private ReportServiceAdmin reportServiceAdmin;
 
@@ -41,28 +37,23 @@ public class TestReportService extends ClientBase {
         }
     }
 
-    protected void initServices() throws NamingException{
-        crudService = (CrudService) getService(
-                "CrudServiceImpl", CrudService.Remote.class);
+    protected void initServices() throws NamingException {
 
-        collectionService = (CollectionsService) getService(
-                "CollectionsServiceImpl", CollectionsService.Remote.class);
-        
         reportService = (ReportService) getService(
                 "ReportService", ReportService.Remote.class);
 
         reportServiceAdmin = (ReportServiceAdmin) getService(
                 "ReportServiceAdmin", ReportServiceAdmin.Remote.class);
     }
-    
+
     public void execute(String[] args) throws Exception {
         try {
             long start = System.currentTimeMillis();
-            
+
             super.execute(args);
 
             initServices();
-            
+
             //Установка отчетов
             deployReport("../reports/reports/all-employee");
             ReportResult result = null;
@@ -70,7 +61,7 @@ public class TestReportService extends ClientBase {
             Map params = new HashMap();
             params.put("ID_PARAMETER", new RdbmsId(100, 1000));
             params.put("DATE_PARAMETER", new Date());
-            
+
             List listParam = new ArrayList();
             listParam.add(new RdbmsId(200, 2000));
             listParam.add(new RdbmsId(300, 3000));
@@ -84,7 +75,7 @@ public class TestReportService extends ClientBase {
 
             deployReport("../reports/reports/employee-groups");
             result = generateReport("employee-groups", null);
-            
+
             deployReport("../reports/reports/all-employee-scriptlet");
             result = generateReport("all-employee-scriptlet", null);
 
@@ -97,7 +88,7 @@ public class TestReportService extends ClientBase {
             params.clear();
             params.put("FORMAT", "PDF");
             result = generateReport("test-resource-service", params);
-            
+
             //TODO асинхронная генерация, временно закоментарино, до перехода на eap 6.1 
             /*Future<ReportResult> acyncResult = reportService.generateAsync("all-employee-ds", null);
             while (!acyncResult.isDone())
@@ -106,36 +97,36 @@ public class TestReportService extends ClientBase {
                Thread.sleep(100);
             }
             writeToFile(acyncResult.get().getReport(), new File(acyncResult.get().getFileName()));*/
-            
+
+            deployReport("../reports/reports/test-xml-to-html");
+            result = generateReport("test-xml-to-html", null);
+
             log("Test complete at " + (System.currentTimeMillis() - start));
-            
-            
-            
+
         } finally {
             writeLog();
         }
     }
 
-    protected ReportResult generateReport(String reportName, Map params, String ... namePrefix) throws IOException {
+    protected ReportResult generateReport(String reportName, Map params, String... namePrefix) throws IOException {
         ReportResult result = reportService.generate(reportName, params);
         InputStream reportStream = RemoteInputStreamClient.wrap(result.getReport());
-        File resultFolder = new File("report-result"); 
-        if (!resultFolder.exists()){
+        File resultFolder = new File("report-result");
+        if (!resultFolder.exists()) {
             resultFolder.mkdirs();
         }
-        
+
         String fileName = result.getFileName();
-        if (namePrefix != null && namePrefix.length > 0){
+        if (namePrefix != null && namePrefix.length > 0) {
             fileName = namePrefix[0] + "-" + fileName;
         }
-        
+
         File reportResultFile = new File("report-result", fileName);
-        
-        
+
         StreamUtils.copy(reportStream, new FileOutputStream(reportResultFile));
         return result;
     }
-    
+
     /**
      * Запись массива байт в файл
      * @param content
@@ -150,7 +141,7 @@ public class TestReportService extends ClientBase {
         } finally {
             outStream.close();
         }
-    }    
+    }
 
     protected void deployReport(String templateFolderPath) throws IOException {
         DeployReportData deployData = new DeployReportData();
@@ -161,11 +152,11 @@ public class TestReportService extends ClientBase {
             DeployReportItem item = new DeployReportItem();
             item.setName(file.getName());
             item.setBody(readFile(file));
-            
+
             deployData.getItems().add(item);
         }
-        
+
         reportServiceAdmin.deploy(deployData, true);
-    }   
+    }
 
 }

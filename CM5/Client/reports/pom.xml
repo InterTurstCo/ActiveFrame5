@@ -5,20 +5,25 @@
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>reports</artifactId>
     <packaging>jar</packaging>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 
     <name>Reports</name>
     <url>http://maven.apache.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <sochi.version>0.5.21-11-SNAPSHOT</sochi.version>
+        <sochi.version>0.6.3-13-SNAPSHOT</sochi.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>service-api</artifactId>
+            <version>${sochi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>service-impl</artifactId>
             <version>${sochi.version}</version>
         </dependency>
         <dependency>

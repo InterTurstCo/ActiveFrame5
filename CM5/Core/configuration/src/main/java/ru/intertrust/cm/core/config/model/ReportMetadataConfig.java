@@ -10,22 +10,38 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 
 @Root
 public class ReportMetadataConfig implements Dto{
+    private static final long serialVersionUID = 1929271821116302898L;
+
     @Attribute
     private String name;
+
     @Attribute
     private String description;
-    @Attribute
+    
+    @Attribute(required=false)
     private String mainTemplate;
+
+    /**
+     * Класс имплементации генератора отчета. По умолчанию используется генератор JasperReports
+     */
+    @Attribute(required=false)
+    private String reportGeneratorClass;
+    
     @Attribute(required=false)
     private String dataSourceClass;
+    
     @Attribute(required=false)
     private String form;
+    
     @Attribute(required=false)
     private Integer keepDays;
-    @ElementList(required=false)
+    
+    @ElementList(required=false, name="parameters", entry="parameter")
     private List<ReportParameter> parameters;
-    @ElementList(name="formats", required=true)
+    
+    @ElementList(name="formats", required=false)
     private List<String> formats;
+    
     @ElementList(name="postProcessors", required=false)
     private List<String> postProcessors;
     
@@ -83,5 +99,13 @@ public class ReportMetadataConfig implements Dto{
     public void setPostProcessors(List<String> postProcessors) {
         this.postProcessors = postProcessors;
     }
+    public String getReportGeneratorClass() {
+        return reportGeneratorClass;
+    }
+    public void setReportGeneratorClass(String reportGeneratorClass) {
+        this.reportGeneratorClass = reportGeneratorClass;
+    }
+    
+    
 
 }

@@ -12,7 +12,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +21,6 @@ import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
@@ -55,6 +53,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
+import ru.intertrust.cm.core.config.model.ReportParameter;
 import ru.intertrust.cm.core.config.model.ReportParameterData;
 import ru.intertrust.cm.core.config.model.ReportParametersData;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -68,6 +67,7 @@ import ru.intertrust.cm.core.dao.api.extension.BeforeGenerateReportExtensionHand
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
+import ru.intertrust.cm.core.service.api.ReportTemplateCache;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -169,10 +169,18 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     /**
      * Формирование отчета
      */
-    public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
+    public ReportResult generate(String name, Map<String, Object> callParameters, Integer keepDays, DataSourceContext dataSource) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
         String reportServerUrl = globalServerSettingsService.getString("report.server.url");
 
+        //Создаем копию параметров, так как они могут модифицироватся
+        Map<String, Object> parameters = null;
+        if (callParameters == null){
+            parameters = new HashMap<String, Object>();
+        }else{
+            parameters = new HashMap<String, Object>(callParameters);
+        }
+        
         //Для отладки =================
         /*boolean server = false;
         for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
@@ -286,6 +294,13 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 ReportMetadataConfig reportMetadata = loadReportMetadata(
                         readFile(new File(templateFolder, ReportServiceAdmin.METADATA_FILE_MAME)));
 
+                //Применяем параметры по умолчанию
+                if (reportMetadata.getParameters() != null){
+                    for (ReportParameter defaultParameter : reportMetadata.getParameters()) {
+                        parameters.put(defaultParameter.getName(), defaultParameter.getValue());
+                    }
+                }
+                
                 //Вызов точки расширения до генерации отчета
                 //Сначала для точек расширения у которых указан фильтр
                 BeforeGenerateReportExtensionHandler beforeExtentionHandler =
@@ -303,7 +318,8 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 }
                 
                 //Вызов постобработчиков, указзаных в конфигурации отчёта
-                String format = reportMetadata.getFormats().get(0);
+                String format = reportMetadata.getFormats() != null && reportMetadata.getFormats().size() > 0 ? 
+                        reportMetadata.getFormats().get(0) : defaultReportFormat;
                 if (format.equals("SOCHIDOCX")){
 	                List<String> postProcessorsList = reportMetadata.getPostProcessors();
 	                if (postProcessorsList!=null){

@@ -318,6 +318,6 @@
     <bean id="cryptoServiceConfig" class="ru.intertrust.cm.core.business.impl.CryptoServiceConfigImpl"/>
     
     <beans profile="default">
-        <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>
+        <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCacheImpl"/>
     </beans>
 </beans>

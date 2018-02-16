@@ -1,15 +1,14 @@
 package ru.intertrust.cm.core.config.model;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-
+import org.simpleframework.xml.Text;
 
 public class ReportParameter {
     @Attribute
     private String name;
     
-    @Element
-    private ReportParametrSettings settings;
+    @Text
+    private String value;
 
     public String getName() {
         return name;
@@ -19,11 +18,13 @@ public class ReportParameter {
         this.name = name;
     }
 
-    public ReportParametrSettings getSettings() {
-        return settings;
+    public String getValue() {
+        return value;
     }
 
-    public void setSettings(ReportParametrSettings settings) {
-        this.settings = settings;
+    public void setValue(String value) {
+        this.value = value;
     }
+    
+    
 }

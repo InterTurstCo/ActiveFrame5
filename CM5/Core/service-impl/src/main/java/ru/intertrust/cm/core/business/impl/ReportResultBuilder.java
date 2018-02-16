@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -29,16 +31,22 @@ import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.util.StreamUtils;
 
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
+import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 import ru.intertrust.cm.core.service.api.ReportDS;
+import ru.intertrust.cm.core.service.api.ReportGenerator;
 
 /**
  * @author Denis Mitavskiy
@@ -60,6 +68,9 @@ public class ReportResultBuilder extends ReportServiceBase {
 
     @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
     private String defaultReportFormat;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
 
     /**
      * Генерация отчета
@@ -87,69 +98,76 @@ public class ReportResultBuilder extends ReportServiceBase {
             ScriptletClassLoader scriptletClassLoader =
                     new ScriptletClassLoader(templateFile.getParentFile().getPath(), defaultClassLoader);
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
-
-            Connection connection = getConnection();
-            JasperPrint print = null;
-            if (reportMetadata.getDataSourceClass() == null) {
-                print = JasperFillManager.fillReport(templateFile.getPath(), params, connection);
-            } else {
-                Class<?> reportDSClass = Thread.currentThread()
-                        .getContextClassLoader().loadClass(reportMetadata.getDataSourceClass());
-                ReportDS reportDS = (ReportDS) reportDSClass.newInstance();
-                JRDataSource ds = reportDS.getJRDataSource(
-                        connection, params);
-                params.put(JRParameter.REPORT_CONNECTION, connection);
-                print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
-            }
-            connection.close();
-            JRExporter exporter = null;
-            String extension = null;
-
-            String format = getFormat(reportMetadata, params);
-
-            if (RTF_FORMAT.equalsIgnoreCase(format)) {
-                exporter = new JRRtfExporter();
-                extension = RTF_FORMAT;
-            } else if (DOCX_FORMAT.equalsIgnoreCase(format)) {
-                exporter = new JRDocxExporter();
-                extension = DOCX_FORMAT;
-            } else if (XLS_FORMAT.equalsIgnoreCase(format)) {
-                exporter = new JRXlsExporter();
-                extension = XLS_FORMAT;
-            } else if (HTML_FORMAT.equalsIgnoreCase(format)) {
-                exporter = new JRHtmlExporter();
-                extension = HTML_FORMAT;
-            } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
-                exporter = new JRXlsxExporter();
-                extension = XLSX_FORMAT;
-            } else if (SOCHI_DOCX_FORMAT.equalsIgnoreCase(format)) {
-                exporter = new SochiJRDocxExporter();
-                extension = DOCX_FORMAT;
-            } else {
-                // По умолчанию PDF
-                exporter = new JRPdfExporter();
-                extension = PDF_FORMAT;
-            }
-
+            File resultFile = null;
             File resultFolder = getResultFolder();
-
-            String reportName = reportMetadata.getName() + " ";
-            reportName += ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
-
-            /*if (HTML_FORMAT.equalsIgnoreCase(format)) {
-                exporter.setParameter(
-                        JRHtmlExporterParameter.IMAGES_URI,
-                        "image?report="
-                                + URLEncoder.encode(reportName, "UTF-8")
-                                + "&image=");
-            }*/
-
-            File resultFile = new File(resultFolder, reportName);
-
-            exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-            exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,
-                    resultFile.getPath());
-            exporter.exportReport();
+            
+            //Если задан кастомный класс генератора используем его
+            if (reportMetadata.getReportGeneratorClass() != null){
+                Class<?> generatorClass = scriptletClassLoader.loadClass(reportMetadata.getReportGeneratorClass());
+                ReportGenerator reportGenerator =
+                        (ReportGenerator) applicationContext.getAutowireCapableBeanFactory().createBean(
+                                generatorClass, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
+                
+                try (InputStream reportStream = reportGenerator.generate(reportMetadata, templateFolder, params)) {
+                    resultFile = new File(resultFolder, getReportName(reportMetadata, reportGenerator.getFormat()));
+                    StreamUtils.copy(reportStream, new FileOutputStream(resultFile));
+                }
+                
+            }else{
+                Connection connection = getConnection();
+                JasperPrint print = null;
+                if (reportMetadata.getDataSourceClass() == null) {
+                    print = JasperFillManager.fillReport(templateFile.getPath(), params, connection);
+                } else {
+                    Class<?> reportDSClass = Thread.currentThread()
+                            .getContextClassLoader().loadClass(reportMetadata.getDataSourceClass());
+                    ReportDS reportDS = (ReportDS) reportDSClass.newInstance();
+                    JRDataSource ds = reportDS.getJRDataSource(
+                            connection, params);
+                    params.put(JRParameter.REPORT_CONNECTION, connection);
+                    print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
+                }
+                connection.close();
+                JRExporter exporter = null;
+                String extension = null;
+    
+                String format = getFormat(reportMetadata, params);
+    
+                if (RTF_FORMAT.equalsIgnoreCase(format)) {
+                    exporter = new JRRtfExporter();
+                    extension = RTF_FORMAT;
+                } else if (DOCX_FORMAT.equalsIgnoreCase(format)) {
+                    exporter = new JRDocxExporter();
+                    extension = DOCX_FORMAT;
+                } else if (XLS_FORMAT.equalsIgnoreCase(format)) {
+                    exporter = new JRXlsExporter();
+                    extension = XLS_FORMAT;
+                } else if (HTML_FORMAT.equalsIgnoreCase(format)) {
+                    exporter = new JRHtmlExporter();
+                    extension = HTML_FORMAT;
+                } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
+                    exporter = new JRXlsxExporter();
+                    extension = XLSX_FORMAT;
+                } else if (SOCHI_DOCX_FORMAT.equalsIgnoreCase(format)) {
+                    exporter = new SochiJRDocxExporter();
+                    extension = DOCX_FORMAT;
+                } else {
+                    // По умолчанию PDF
+                    exporter = new JRPdfExporter();
+                    extension = PDF_FORMAT;
+                }
+    
+                
+    
+                String reportName = getReportName(reportMetadata, extension);
+    
+                resultFile = new File(resultFolder, reportName);
+    
+                exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,
+                        resultFile.getPath());
+                exporter.exportReport();
+            }
 
             return resultFile;
         } finally {
@@ -157,6 +175,10 @@ public class ReportResultBuilder extends ReportServiceBase {
         }
     }
 
+    private String getReportName(ReportMetadataConfig reportMetadata, String extension){
+        return reportMetadata.getName() + " " + ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
+    }
+    
     private Connection getConnection() throws ClassNotFoundException, SQLException {
         String connectionString = null;
         connectionString = "jdbc:sochi:local";

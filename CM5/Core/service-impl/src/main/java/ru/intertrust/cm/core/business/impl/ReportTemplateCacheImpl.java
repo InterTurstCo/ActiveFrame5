@@ -1,9 +1,19 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -15,12 +25,9 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.ReportServiceException;
+import ru.intertrust.cm.core.service.api.ReportTemplateCache;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
-public class ReportTemplateCache {
+public class ReportTemplateCacheImpl implements ReportTemplateCache{
 
     @Value("${report.template.cache}")
     private String reportCachePath;
@@ -40,6 +47,7 @@ public class ReportTemplateCache {
     @Autowired
     private CurrentDataSourceContext currentDataSourceContext;
 
+    @Override
     public File getTemplateFolder(DomainObject reportTemplateDo) throws IOException {
         //Проверка есть директория для данного отчета в файловой системе, и если есть то проверка даты ее создания
         final String originalDatasource = currentDataSourceContext.get();
