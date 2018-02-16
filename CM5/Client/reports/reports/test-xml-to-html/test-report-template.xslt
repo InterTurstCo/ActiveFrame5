@@ -4,7 +4,7 @@
         <html>
             <head>
                 <title>Информация о персонах</title>
-                <link type="text/css" rel="stylesheet" media="all" href="remote/report/test-xml-to-html/test-report.css"/>                
+                <link type="text/css" rel="stylesheet" media="all" href="remote/report/resource/test-xml-to-html/test-report.css"/>                
             </head>
             <body>
                 <h1>Информация о персонах</h1>

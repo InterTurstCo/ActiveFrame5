@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,6 +52,7 @@ public class GenerateReportServlet {
                                HttpServletResponse response) throws IOException, ServletException {
 
         String reportName = request.getParameter("report_name");
+        String inline = request.getParameter("inline");
         OutputStream resOut = response.getOutputStream();
         OutputStream bufferOut = new BufferedOutputStream(resOut);
         InputStream reportStream = null;
@@ -58,7 +60,11 @@ public class GenerateReportServlet {
             Map<String, Object> params = convertParameters(request.getParameterMap());
 
             ReportResult reportResult = reportService.generate(reportName, params, DataSourceContext.CLONE);
-            response.setHeader("Content-Disposition", "attachment; filename=" + reportResult.getFileName());
+            if (inline == null){
+                response.setHeader("Content-Disposition", "attachment; filename=" + reportResult.getFileName());
+            }else{
+                response.setContentType(new File(reportResult.getFileName()).toURL().openConnection().getContentType());
+            }
             
             reportStream = RemoteInputStreamClient.wrap(reportResult.getReport());
 

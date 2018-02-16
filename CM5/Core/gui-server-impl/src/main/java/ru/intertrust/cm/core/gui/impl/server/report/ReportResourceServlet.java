@@ -24,7 +24,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.service.api.ReportTemplateCache;
 
-@WebServlet(name = "ReportResourceServlet", urlPatterns = { "/remote/report/*" }, asyncSupported = true)
+@WebServlet(name = "ReportResourceServlet", urlPatterns = { "/remote/report/resource/*" }, asyncSupported = true)
 public class ReportResourceServlet extends HttpServlet{
     private static final long serialVersionUID = -8266715903807003342L;
 
