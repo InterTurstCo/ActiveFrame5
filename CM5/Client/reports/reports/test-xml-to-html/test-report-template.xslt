@@ -9,7 +9,7 @@
             <body>
                 <h1>Информация о персонах</h1>
                 <table border="1">
-                    <tr>
+                    <tr class="table-header">
                         <th>Id</th>
                         <th>Login</th>
                         <th>Имя</th>
@@ -17,7 +17,7 @@
                         <th>Email</th>
                     </tr>
                     <xsl:for-each select="persons/person">
-                        <tr>
+                        <tr class="table-row">
                             <td>
                                 <xsl:value-of select="@id" />
                             </td>
