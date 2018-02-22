@@ -137,7 +137,7 @@ public class CollectionPluginView extends PluginView {
                  * causes table shift AFVTBCNT-161
                  * tableBody.setFocus(true);
                  */
-                if (CollectionDataGridUtils.isTableVerticalScrollNotVisible(tableBody) && tableBody.getRowCount()>0) {
+                if (CollectionDataGridUtils.isTableVerticalScrollNotVisible(tableBody) && tableBody.getRowCount() > 0) {
                     if (sortCollectionState != null) {
                         sortCollectionState.setResetCollection(false);
                     }
@@ -216,7 +216,7 @@ public class CollectionPluginView extends PluginView {
          *  те кто хочет подстроить размер, слушает его, сравнивает со своим PluginView
          *  и меняет высоту панели
          */
-        if(parentContainerEventBus!=null){
+        if (parentContainerEventBus != null) {
             parentContainerEventBus.fireEvent(new CollectionViewerUpdatedEvent(tableBody.getRowCount()));
         }
     }
@@ -429,7 +429,7 @@ public class CollectionPluginView extends PluginView {
                 boolean remote = event.isRemote();
                 if (filterCanceled) {
                     onKeyEscapePressed();
-                } else if(!filterCanceled && !remote){
+                } else if (!filterCanceled && !remote) {
                     onKeyEnterPressed();
                 }
                 updateFilterConfig();
@@ -1006,7 +1006,12 @@ public class CollectionPluginView extends PluginView {
                 CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
                 handleCollectionRowsResponse(collectionRowItems, false);
-                parentContainerEventBus.fireEvent(new CollectionViewerUpdatedEvent(tableBody.getRowCount()));
+                /**
+                 * Этот ивент обрабатывается только в TableViewer, когда CollectionViewer используется внутри него
+                 */
+                if (parentContainerEventBus != null) {
+                    parentContainerEventBus.fireEvent(new CollectionViewerUpdatedEvent(tableBody.getRowCount()));
+                }
                 if (collectionRowItems.size() < collectionRowsRequest.getLimit()) {
                     return;
                 }
@@ -1027,8 +1032,8 @@ public class CollectionPluginView extends PluginView {
         }
         try {
             tableBody.flush();
-        } catch(Throwable e){
-            throw new GuiException(MSG_CONF_ERROR+e.getMessage());
+        } catch (Throwable e) {
+            throw new GuiException(MSG_CONF_ERROR + e.getMessage());
         }
         if (listCount == 0) {
             if (getPluginData().isEmbedded()) {
@@ -1141,7 +1146,7 @@ public class CollectionPluginView extends PluginView {
             }
 
             if (lastScrollPos >= maxScrollTop ||
-                    maxScrollTop-lastScrollPos==1) {
+                    maxScrollTop - lastScrollPos == 1) {
                 if (sortCollectionState != null) {
                     sortCollectionState.setResetCollection(false);
                 }

@@ -199,6 +199,7 @@ public class SplitterEx extends DockLayoutPanel {
                 public void onClick(ClickEvent event) {
 
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
+
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0,
                             (fullSize)?customSize:splitterSize,
                             target.getParent().getOffsetHeight(),

@@ -96,7 +96,8 @@ public class DomainObjectSurferPluginView extends PluginView {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
 
-                checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(),
+                checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(),
+                        (event.getFirstWidgetHeight()!=0)?event.getFirstWidgetHeight():8,
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
                 storeSplitterSettings(event.isType(), size, event.isArrowsPress() ? false : true);
