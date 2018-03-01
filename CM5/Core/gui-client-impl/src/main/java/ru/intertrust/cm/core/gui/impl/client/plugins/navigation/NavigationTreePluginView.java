@@ -54,7 +54,7 @@ public class NavigationTreePluginView extends PluginView {
     private int DURATION = 500;
     private static final int DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH = 220;
     private static final int TOP_MARGIN = 80;
-    public static final long SESSION_TIMEOUT = 1800000;
+    public static final long SESSION_TIMEOUT = 1800;
     private int START_WIDGET_WIDTH = 0;
     private boolean pinButtonPressed = false;
     private TreeItem currentSelectedItem;
