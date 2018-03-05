@@ -37,6 +37,10 @@ public class AuthenticationFilter implements Filter {
 
     private ExtensionService extensionService;
 
+    @EJB
+    private ConfigurationService configurationService;
+
+    private BusinessUniverseConfig businessUniverseConfig;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -47,6 +51,8 @@ public class AuthenticationFilter implements Filter {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
+        businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
+                BusinessUniverseConfig.NAME);
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
@@ -75,7 +81,7 @@ public class AuthenticationFilter implements Filter {
 
 
         //Вызов точки расширения после аутентификации. Точки расширения могут сохранить данные аутентификации для каких то последующих их использования
-        //Например для использования в SSO 
+        //Например для использования в SSO
         //authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
 
         if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet

@@ -83,10 +83,10 @@
         <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
     </filter>
 
-    <!--filter>
+    <filter>
         <filter-name>virtualAppFilter</filter-name>
         <filter-class>ru.intertrust.cm.core.gui.impl.server.VirtualAppFilter</filter-class>
-    </filter-->
+    </filter>
 
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
@@ -112,10 +112,10 @@
         <filter-name>httpRequestLogFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-    <!--filter-mapping>
+    <filter-mapping>
         <filter-name>virtualAppFilter</filter-name>
         <url-pattern>/*</url-pattern>
-    </filter-mapping-->
+    </filter-mapping>
     <filter-mapping>
         <filter-name>TicketFilter</filter-name>
         <url-pattern>/ws/*</url-pattern>
