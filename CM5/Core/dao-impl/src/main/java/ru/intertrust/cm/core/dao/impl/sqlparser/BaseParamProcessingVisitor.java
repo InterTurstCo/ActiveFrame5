@@ -36,6 +36,11 @@ public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor i
 
     @Override
     protected void visitSubSelect(SubSelect subSelect) {
+        if (subSelect.getWithItemsList() != null) {
+            for (WithItem withItem : subSelect.getWithItemsList()) {
+                withItem.accept(this);
+            }
+        }
         subSelect.getSelectBody().accept(this);
     }
 
@@ -47,8 +52,8 @@ public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor i
         plainSelect.getFromItem().accept(this);
 
         if (plainSelect.getJoins() != null) {
-            for (Iterator joinsIterartor = plainSelect.getJoins().iterator(); joinsIterartor.hasNext();) {
-                Join join = (Join) joinsIterartor.next();
+            for (Iterator<Join> joinsIterartor = plainSelect.getJoins().iterator(); joinsIterartor.hasNext();) {
+                Join join = joinsIterartor.next();
                 join.getRightItem().accept(this);
                 if (join.getOnExpression() != null) {
                     join.getOnExpression().accept(this);
@@ -122,6 +127,12 @@ public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor i
 
     @Override
     public void visit(WithItem withItem) {
+        if (withItem.getWithItemList() != null) {
+            for (SelectItem selectItem : withItem.getWithItemList()) {
+                selectItem.accept(this);
+            }
+        }
+        withItem.getSelectBody().accept(this);
     }
 
     @Override

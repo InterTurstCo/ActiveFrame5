@@ -154,6 +154,28 @@ public class ReferenceParamsProcessingVisitorTest {
                 visitor.getReplaceExpressions());
     }
 
+    @Test
+    public void testWithInSubselect() {
+        Pair<Map<String, Object>, QueryModifierPrompt> pair = converter.convertReferenceValues(singletonList(ListValue.createListValue(asList(new Value<?>[] {
+                new ReferenceValue(new RdbmsId(1, 1)),
+                new ReferenceValue(new RdbmsId(2, 2))
+        }))));
+        ReferenceParamsProcessingVisitor visitor = new ReferenceParamsProcessingVisitor(pair.getSecond(), false);
+        String query = "select id from (with t as (select id from document where parent in (" + parameterStub(0) + ")) select id from t) s";
+        SqlQueryParser parser = new SqlQueryParser(query);
+        Select select = parser.getSelectStatement();
+        select.getSelectBody().accept(visitor);
+        HashMap<String, Object> expectedParameters = new HashMap<>();
+        expectedParameters.put("PARAM0_0", singletonList(1L));
+        expectedParameters.put("PARAM0_0_type", 1L);
+        expectedParameters.put("PARAM0_1", singletonList(2L));
+        expectedParameters.put("PARAM0_1_type", 2L);
+        assertEquals(expectedParameters, pair.getFirst());
+        assertEquals(singletonMap("parent IN (" + parameterStub(0) + ")", "(" + "(parent IN (:PARAM0_0) AND parent_type = :PARAM0_0_type)"
+                + " OR (parent IN (:PARAM0_1) AND parent_type = :PARAM0_1_type)" + ")"),
+                visitor.getReplaceExpressions());
+    }
+
     private String parameterStub(int index) {
         return CollectionsDaoImpl.START_PARAM_SIGN + CollectionsDaoImpl.PARAM_NAME_PREFIX + index + CollectionsDaoImpl.END_PARAM_SIGN;
     }
