@@ -191,7 +191,7 @@ public class AddAclVisitorTest {
         SqlQueryParser parser = new SqlQueryParser("with t as(select x from y where z = 0) select id from base_documents bd where id = t.x");
         Select select = parser.getSelectStatement();
 
-        String expected = GROUPS_SUBQUERY.trim() + ", "+ select.toString().replace("WITH ", "").trim()
+        String expected = GROUPS_SUBQUERY.trim() + ", " + select.toString().replace("WITH ", "").trim()
                 .replaceFirst("base_documents bd", aclSubquery("base_documents", "base_documents", "base_documents", "bd"));
 
         select.accept(visitor);
@@ -305,6 +305,20 @@ public class AddAclVisitorTest {
                 + select.toString().replaceAll("FROM attribute a", "FROM " + aclSubquery("attribute", "base_documents", "base_attribute", "a"));
         select.accept(visitor);
         assertEquals(expected, select.toString());
+    }
+
+    @Test
+    public void testBasicQueryStartsWithWithRecursive() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
+        AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
+        SqlQueryParser parser = new SqlQueryParser("with recursive t as (select id from base_documents bd) select id from t");
+        Select select = parser.getSelectStatement();
+        String expected = GROUPS_SUBQUERY.replaceAll("WITH", "WITH RECURSIVE").replaceAll(":user_id\\) ", ":user_id\\)")
+                + select.toString().replaceAll("WITH RECURSIVE", ",")
+                        .replaceAll("FROM base_documents bd", "FROM " + aclSubquery("base_documents", "base_documents", "base_documents", "bd"));
+        select.accept(visitor);
+        assertEquals(expected, select.toString());
+
     }
 
     private String aclSubquery(String type, String aclType, String accessObjectIdType, String alias) {
