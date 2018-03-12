@@ -30,7 +30,7 @@ public class BaseUrlDispatcherServlet extends HttpServlet {
             session.setAttribute(ATTRIBUTE_URI, request.getRequestURI());
         //response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
 
-        if(!request.getRequestURL().toString().contains(".")){
+        if(!request.getRequestURL().toString().substring(request.getRequestURL().toString().indexOf("/",8)).contains(".")){
             request.getRequestDispatcher(BU_PAGE).forward(request,response);
         }
         else {
