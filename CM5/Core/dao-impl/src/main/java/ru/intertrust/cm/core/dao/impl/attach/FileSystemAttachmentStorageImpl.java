@@ -38,12 +38,12 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, DOCTYPE, CREATOR, EXT
     }
 
-    public static final String PROP_PREFIX = "attachment.storage.";
-    public static final String PROP_LOCATION = "root";
+    public static final String PROP_PREFIX = "attachments.storage.";
+    public static final String PROP_LOCATION = "dir";
     public static final String PROP_PATHMASK = "folders";
     public static final String PROP_LEGACY = "attachment.storage";
 
-    public static final String DEFAULT_PATHMASK = "{year}/{month}/{day}/{hour}";
+    public static final String DEFAULT_PATHMASK = "{year}/{month}/{day}";
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentStorageImpl.class);
 
@@ -79,14 +79,17 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         if (rootFolder == null) {
             rootFolder = env.getProperty(PROP_LEGACY);
             if (rootFolder == null) {
-                throw new ConfigurationException("Root folder for storage " + name + " is not defined!");
+                throw new ConfigurationException("Directory for storage " + name + " is not defined!");
+            }
+            if (!new File(rootFolder).isDirectory()) {
+                throw new ConfigurationException("Directory " + rootFolder + " not exists or is inaccessible");
             }
         }
         pathMask = storageConfig.getSubfolderMask();
         if (Boolean.TRUE == storageConfig.getConfigurable()) {
             String pathMask = getProperty(PROP_PATHMASK);
-            if (pathMask != null) {     //TODO also check validity
-                this.pathMask = pathMask;
+            if (pathMask != null) {
+                this.pathMask = validatePathMask(pathMask);
             }
         }
         if (pathMask == null || pathMask.isEmpty()) {
@@ -173,6 +176,29 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         return bean;
     }
 
+    private String validatePathMask(String pathMask) {
+        int pos = 0;
+        //TODO check for absence of .. (upper dir) links in the mask
+        while (true) {
+            pos = pathMask.indexOf('{', pos);
+            if (pos == -1) {
+                break;
+            }
+            int end = pathMask.indexOf('}', pos + 1);
+            if (end == -1) {
+                throw new ConfigurationException("Subfolder mask syntax error: no closing bracket [" + pathMask + "]");
+            }
+            String varName = pathMask.substring(pos + 1, end);
+            try {
+                /*Variable var =*/ Variable.valueOf(varName.toUpperCase());
+            } catch (Exception e) {
+                throw new ConfigurationException("Subfolder mask syntax error: unknown variable " + varName, e);
+            }
+            pos = end + 1;
+        }
+        return pathMask;
+    }
+
     private String generateLocalPath(Context context) {
         StringBuilder path = new StringBuilder();
         int start = 0;
@@ -184,11 +210,13 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             path.append(pathMask.substring(start, end));
             start = end + 1;
             end = pathMask.indexOf('}', start);
-            if (end == -1) {
+            /*if (end == -1) {
                 throw new ConfigurationException("Subfolder mask syntax error: no closing bracket [" + pathMask + "]");
-            }
+            }*/
             String varName = pathMask.substring(start, end);
-            for (Variable var : Variable.values()) {
+            Variable var = Variable.valueOf(varName.toUpperCase());
+            path.append(getVarValue(var, context));
+            /*for (Variable var : Variable.values()) {
                 if (var.name().equalsIgnoreCase(varName)) {
                     path.append(getVarValue(var, context));
                     varName = null;
@@ -197,7 +225,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             }
             if (varName != null) {
                 throw new ConfigurationException("Subfolder mask syntax error: unknown variable " + varName);
-            }
+            }*/
             start = end + 1;
         }
         if (start < pathMask.length()) {
@@ -235,6 +263,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             String ext = findExtension(context.getFileName());
             return ext.length() > 1 ? ext.substring(1) : "_";
         }
+        // Check in init() must prevent running here
         throw new ConfigurationException("Subfolder mask syntax error: unknown variable " + var.name());
     }
 

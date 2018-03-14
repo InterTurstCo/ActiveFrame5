@@ -19,6 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -71,7 +72,7 @@ public class FileSystemAttachmentStorageImplTest {
         when(env.getProperty(FileSystemAttachmentStorageImpl.PROP_LEGACY)).thenReturn(tmpDir);
         when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.FALSE);
         FileSystemAttachmentStorageImpl testee = createTestee("default");
-        AttachmentStorage.Context ctx = new AttachmentStorage.Context()
+        AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("MainAtt").parentObject(domainObject).fileName("test.txt").creationTime();
         when(fileTypeDetector.detectMimeType(anyString())).thenReturn("text/ok");
         try {
@@ -90,11 +91,11 @@ public class FileSystemAttachmentStorageImplTest {
 
     @Test
     public void testSaveContent_configured() {
-        when(env.getProperty("attachment.storage.default.root")).thenReturn(tmpDir);
-        when(env.getProperty("attachment.storage.default.folders")).thenReturn("{doctype}/{year}-{month}/{ext}/{creator}");
+        when(env.getProperty("attachments.storage.default.dir")).thenReturn(tmpDir);
+        when(env.getProperty("attachments.storage.default.folders")).thenReturn("{doctype}/{year}-{month}/{ext}/{creator}");
         when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.TRUE);
         FileSystemAttachmentStorageImpl testee = createTestee("default");
-        AttachmentStorage.Context ctx = new AttachmentStorage.Context()
+        AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("MainAtt").parentObject(domainObject).fileName("test.txt").creationTime();
         when(domainObject.getTypeName()).thenReturn("RootObject");
         when(currentUserAccessor.getCurrentUserId()).thenReturn(new RdbmsId(11, 101));
@@ -110,11 +111,11 @@ public class FileSystemAttachmentStorageImplTest {
 
     @Test
     public void testSaveContent_globallyConfigured() {
-        when(env.getProperty("attachment.storage.root")).thenReturn(tmpDir);
-        when(env.getProperty("attachment.storage.folders")).thenReturn("{Year}/{Month}/{DocType}");
+        when(env.getProperty("attachments.storage.dir")).thenReturn(tmpDir);
+        when(env.getProperty("attachments.storage.folders")).thenReturn("{Year}/{Month}/{DocType}");
         when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.TRUE);
         FileSystemAttachmentStorageImpl testee = createTestee("Special");
-        AttachmentStorage.Context ctx = new AttachmentStorage.Context()
+        AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("SpecAtt").parentObject(domainObject).fileName("original name.ext").creationTime();
         when(domainObject.getTypeName()).thenReturn("RootObject");
         try {
@@ -130,11 +131,11 @@ public class FileSystemAttachmentStorageImplTest {
 
     @Test
     public void testSaveContent_foldersConfigurationIgnored() {
-        when(env.getProperty("attachment.storage.alternate.root")).thenReturn(tmpDir);
-        when(env.getProperty("attachment.storage.alternate.folders")).thenReturn("{doctype}/{creator}");    //This must be ignored
+        when(env.getProperty("attachments.storage.alternate.dir")).thenReturn(tmpDir);
+        when(env.getProperty("attachments.storage.alternate.folders")).thenReturn("{doctype}/{creator}");    //This must be ignored
         when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.TRUE);
         FileSystemAttachmentStorageImpl testee = createTestee("alternate");
-        AttachmentStorage.Context ctx = new AttachmentStorage.Context()
+        AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("AltAtt").parentObject(domainObject).fileName("test.txt").creationTime();
         when(domainObject.getTypeName()).thenReturn("RootObject");
         try {
@@ -146,6 +147,11 @@ public class FileSystemAttachmentStorageImplTest {
         } finally {
             clearTestDir();
         }
+    }
+
+    @Before
+    public void init() throws IOException {
+        Files.createDirectories(Paths.get(tmpDir));
     }
 
     private ConfigurationExplorer loadConfiguration(String path) {
