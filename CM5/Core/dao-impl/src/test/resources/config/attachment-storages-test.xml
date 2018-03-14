@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <attachment-storage name="default">
+        <folder configurable="true">
+            <subfolder-mask>{year}/{month}/{day}</subfolder-mask>
+            <delete-file mode="never"/>
+        </folder>
+    </attachment-storage>
+
+    <attachment-storage name="Alternate">
+        <folder configurable="false">
+            <subfolder-mask>{year}/{doctype}</subfolder-mask>
+            <delete-file mode="immed"/>
+        </folder>
+    </attachment-storage>
+
+    <attachment-storage name="Special">
+        <folder configurable="true">
+            <subfolder-mask>{doctype}/{year}/{month}/{day}/{hour}</subfolder-mask>
+        </folder>
+    </attachment-storage>
+
+    <domain-object-type name="Attachment" template="true">
+        <fields><!-- doesn't matter here --></fields>
+        <!-- storage not configured directly -->
+    </domain-object-type>
+
+    <domain-object-type name="SpecialAttachment" extends="Attachment" template="true">
+        <fields><!-- doesn't matter here --></fields>
+        <attachment-storage name="Special"/>
+    </domain-object-type>
+
+    <domain-object-type name="SimpleObject">
+        <attachment-types>
+            <attachment-type name="SimpleAtt"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="ExtendedObject" extends="SimpleObject">
+        <attachment-types>
+            <attachment-type name="ExtendedAtt"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="RootAlternateObject">
+        <attachment-types>
+            <attachment-type name="RootAlternateAtt"/>
+        </attachment-types>
+        <attachment-storage name="Alternate"/>
+    </domain-object-type>
+
+    <domain-object-type name="ExtAlternateObject" extends="RootAlternateObject">
+        <attachment-types>
+            <attachment-type name="ExtAlternateAtt"/>
+        </attachment-types>
+        <!-- storage configuration must be taken from parent -->
+    </domain-object-type>
+
+    <domain-object-type name="SubExtAlternateObject" extends="ExtAlternateObject">
+        <attachment-types>
+            <attachment-type name="SubExtAlternateAtt"/>
+        </attachment-types>
+        <attachment-storage name="Special"/>
+    </domain-object-type>
+
+    <domain-object-type name="RootObject">
+        <attachment-types>
+            <attachment-type name="MainAtt"/>
+            <attachment-type name="AltAtt" storage="Alternate"/>
+            <attachment-type name="SpecAtt" template="SpecialAttachment"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="ChildObject" extends="RootObject">
+        <attachment-storage name="Alternate"/>
+    </domain-object-type>
+
+    <domain-object-type name="GrandChildObject" extends="ChildObject">
+    </domain-object-type>
+
+    <domain-object-type name="GreatGrandChildObject" extends="GrandChildObject">
+        <attachment-types>
+            <attachment-type name="TypeA_Att"/>
+            <attachment-type name="TypeB_Att" storage="Special"/>
+            <attachment-type name="TypeC_Att" template="SpecialAttachment"/>
+            <attachment-type name="TypeD_Att" template="SpecialAttachment" storage="default"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="FarDescendantObject" extends="GreatGrandChildObject">
+    </domain-object-type>
+
+    <!-- Just for correct validation -->
+    <global-settings>
+        <audit-log enable="false"/>
+        <transaction-trace enable="false"/>
+    </global-settings>
+
+</configuration>

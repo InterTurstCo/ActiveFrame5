@@ -21,6 +21,13 @@
         </fields>
     </domain-object-type>
 
+    <attachment-storage name="default">
+        <folder configurable="true">
+            <subfolder-mask>{year}/{month}/{day}/{hour}</subfolder-mask>
+            <delete-file mode="never"/>
+        </folder>
+    </attachment-storage>
+
     <domain-object-type name="Attachment" template="true">
         <fields>
             <string name="Name" length="512"/>

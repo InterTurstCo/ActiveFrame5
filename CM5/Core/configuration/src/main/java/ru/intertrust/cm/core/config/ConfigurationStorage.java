@@ -56,7 +56,8 @@ public class ConfigurationStorage {
     public GlobalSettingsConfig globalSettings;
 
     public CaseInsensitiveMap<String> attachmentDomainObjectTypes = new CaseInsensitiveMap<>();
-    
+    public CaseInsensitiveMap<String> attachmentParentObjectTypes = new CaseInsensitiveMap<>();
+
     public CaseInsensitiveMap<String> auditLogTypes = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();

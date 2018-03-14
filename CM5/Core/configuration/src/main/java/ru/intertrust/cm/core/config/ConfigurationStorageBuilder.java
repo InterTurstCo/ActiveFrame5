@@ -492,6 +492,7 @@ public class ConfigurationStorageBuilder {
                     removeTopLevelConfigFromMap(attachmentDomainObjectTypeConfig);
                     removeDomainObjectFieldConfigsFromMap(attachmentDomainObjectTypeConfig);
                     configurationStorage.attachmentDomainObjectTypes.remove(attachmentDomainObjectTypeConfig.getName());
+                    configurationStorage.attachmentParentObjectTypes.remove(attachmentDomainObjectTypeConfig.getName());
                 }
             }
 
@@ -1012,6 +1013,8 @@ public class ConfigurationStorageBuilder {
                 fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
                 configurationStorage.attachmentDomainObjectTypes.put(attachmentDomainObjectTypeConfig.getName(),
                         attachmentDomainObjectTypeConfig.getName());
+                configurationStorage.attachmentParentObjectTypes.put(attachmentDomainObjectTypeConfig.getName(),
+                        domainObjectTypeConfig.getName());
                 fillAuditLogConfigMap(attachmentDomainObjectTypeConfig);
 
             }

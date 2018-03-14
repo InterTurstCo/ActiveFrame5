@@ -14,12 +14,9 @@ public class AttachmentTypeConfig implements Dto{
 
     @Attribute(name = "template", required = false)
     private String template;
-    
-    @Attribute(name = "path", required = false)
-    private String path;
 
-    @Attribute(name = "mimeType", required = false)
-    private String mimeType;
+    @Attribute(name = "storage", required = false)
+    private String storage;
 
     @Element(name = "parent", required = false)
     private ReferenceFieldConfig parentReference;
@@ -43,20 +40,12 @@ public class AttachmentTypeConfig implements Dto{
         this.template = template;
     }
 
-    public String getPath() {
-        return path;
+    public String getStorage() {
+        return storage;
     }
 
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
+    public void setStorage(String storage) {
+        this.storage = storage;
     }
 
     public ReferenceFieldConfig getParentReference() {
@@ -86,11 +75,7 @@ public class AttachmentTypeConfig implements Dto{
             return false;
         }
 
-        if (path != null ? !path.equals(that.path) : that.path != null) {
-            return false;
-        }
-
-        if (mimeType != null ? !mimeType.equals(that.mimeType) : that.mimeType != null) {
+        if (storage != null ? !storage.equals(that.storage) : that.storage != null) {
             return false;
         }
 

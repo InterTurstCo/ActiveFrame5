@@ -101,8 +101,14 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     }
 
     protected DomainObject saveAttachment(InputStream contentStream, DomainObject attachmentDomainObject) {
+        AccessToken accessToken = createSystemAccessToken();
+
         String fileName = attachmentDomainObject.getString(NAME);
-        AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(contentStream, fileName);
+        String attachmentType = attachmentDomainObject.getTypeName();
+        Id parentId = attachmentDomainObject.getReference(configurationExplorer.getAttachmentParentType(attachmentType));
+        DomainObject parentObject = domainObjectDao.find(parentId, accessToken);
+        AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(contentStream,
+                parentObject, attachmentType, fileName);
         String newFilePath = attachmentInfo.getRelativePath();
 
         attachmentDomainObject.setString(MIME_TYPE, attachmentInfo.getMimeType());
@@ -112,7 +118,6 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             throw new FatalException("File isn't created. DO:" + attachmentDomainObject.getId());
         }
         attachmentDomainObject.setValue(PATH, new StringValue(newFilePath));
-        AccessToken accessToken = createSystemAccessToken();
 
         return domainObjectDao.save(attachmentDomainObject, accessToken);
     }

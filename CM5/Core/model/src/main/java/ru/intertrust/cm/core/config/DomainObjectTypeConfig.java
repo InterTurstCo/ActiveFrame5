@@ -13,7 +13,7 @@ import java.util.List;
  *         Time: 8:50 PM
  */
 @Root(name = "domain-object-type")
-@Order(elements={"fields", "uniqueKey", "indices", "attachment-types"})
+@Order(elements={"fields", "uniqueKey", "indices", "attachment-types", "attachment-storage"})
 public class DomainObjectTypeConfig implements TopLevelConfig {
 
     private Integer id;
@@ -50,6 +50,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
      */
     @Element(name = "attachment-types", required = false)
     private AttachmentTypesConfig attachmentTypesConfig;
+
+    @Element(name = "attachment-storage", required = false)
+    private UseAttachmentStorageConfig attachmentStorageConfig;
 
 //    @Element(name = "template", required = false)
 //    private String template;
@@ -177,6 +180,18 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         this.attachmentTypesConfig = attachmentTypesConfig;
     }
 
+    public UseAttachmentStorageConfig getAttachmentStorageConfig() {
+        return attachmentStorageConfig;
+    }
+
+    public void setAttachmentStorageConfig(UseAttachmentStorageConfig attachmentStorageConfig) {
+        this.attachmentStorageConfig = attachmentStorageConfig;
+    }
+
+    public String getAttachmentStorageName() {
+        return attachmentStorageConfig == null ? null : attachmentStorageConfig.getName();
+    }
+
     public Boolean isGloballyCached() {
         return globallyCached;
     }
@@ -230,6 +245,9 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (attachmentTypesConfig != null ? !attachmentTypesConfig.equals(that.attachmentTypesConfig) : that.attachmentTypesConfig != null) {
+            return false;
+        }
+        if (attachmentStorageConfig != null ? !attachmentStorageConfig.equals(that.attachmentStorageConfig) : that.attachmentStorageConfig != null) {
             return false;
         }
         if (auditLog != null ? auditLog != that.auditLog : that.auditLog != null) {

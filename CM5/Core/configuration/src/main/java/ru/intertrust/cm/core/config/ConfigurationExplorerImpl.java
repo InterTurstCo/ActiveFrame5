@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -557,6 +558,16 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         try {
             Collection<String> values = configStorage.attachmentDomainObjectTypes.values();
             return values.toArray(new String[values.size()]);
+        } finally {
+            unlock();
+        }
+    }
+
+    @Override
+    public String getAttachmentParentType(String attachmentType) {
+        lock();
+        try {
+            return configStorage.attachmentParentObjectTypes.get(attachmentType);
         } finally {
             unlock();
         }

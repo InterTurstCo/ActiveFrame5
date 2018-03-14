@@ -549,9 +549,9 @@ public class ImportData {
 
                 //Установка контента вложения
                 //TODO Delete
-                long contentLength = getContentLength(filePath);
+                //long contentLength = getContentLength(filePath);
                 try (InputStream stream = getAttachmentStream(filePath)) {
-                    result = saveAttachment(stream, attachment, contentLength);
+                    result = saveAttachment(stream, attachment, domainObject);
                 }
             }
         }
@@ -864,11 +864,11 @@ public class ImportData {
         return attachmentDomainObject;
     }
 
-    private DomainObject saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, long contentLength) {
+    private DomainObject saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, DomainObject parentObject) {
 
         try {
             String fileName = attachmentDomainObject.getString(BaseAttachmentService.NAME);
-            AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(inputStream, fileName);
+            AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(inputStream, parentObject, attachmentDomainObject.getTypeName(), fileName);
             String newFilePath = attachmentInfo.getRelativePath();
             if (newFilePath == null || newFilePath.isEmpty()) {
                 throw new DaoException("File isn't created");

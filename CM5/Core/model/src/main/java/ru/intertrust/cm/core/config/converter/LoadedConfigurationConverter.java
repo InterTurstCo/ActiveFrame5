@@ -5,8 +5,11 @@ import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
 import org.simpleframework.xml.stream.InputNode;
+import org.simpleframework.xml.transform.Matcher;
+import org.simpleframework.xml.transform.Transform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LoadedConfiguration;
@@ -38,7 +41,17 @@ public class LoadedConfigurationConverter extends ConfigurationConverter {
 
         ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
         Strategy strategy = new AnnotationStrategy();
-        Serializer serializer = new Persister(strategy);
+        Matcher matcher = new Matcher() {
+            @Override
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            public Transform match(Class type) throws Exception {
+                if (type.isEnum()) {
+                    return new EnumTransform((Class<? extends Enum>) type);
+                }
+                return null;
+            }
+        };
+        Serializer serializer = new Persister(strategy, matcher);
         InputNode nextNode;
 
         while ((nextNode = inputNode.getNext()) != null) {

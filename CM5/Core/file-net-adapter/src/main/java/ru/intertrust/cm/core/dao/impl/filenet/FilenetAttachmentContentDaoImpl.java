@@ -25,7 +25,7 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
     private FileNetAdapter fileNetAdapter;
 
     @Override
-    public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
+    public AttachmentInfo saveContent(InputStream inputStream, DomainObject parentObject, String attachmentType, String fileName) {
         AttachmentInfo attachmentInfo = new AttachmentInfo();
         ByteArrayOutputStream output = null;
         try {

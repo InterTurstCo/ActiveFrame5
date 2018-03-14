@@ -193,7 +193,7 @@ public class AttachmentServiceImplTest {
                     InputStream inputStream = (InputStream) invocation.getArguments()[0];
                     return saveContent(inputStream, "Test_File.jpg");
                 }
-            }).when(attachmentContentDao).saveContent(any(InputStream.class), any(String.class));
+            }).when(attachmentContentDao).saveContent(any(InputStream.class), any(DomainObject.class), any(String.class), any(String.class));
 
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {

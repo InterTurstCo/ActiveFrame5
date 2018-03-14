@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
+    <attachment-storage name="default">
+        <folder>
+            <subfolder-mask>{year}/{month}/{day}</subfolder-mask>
+            <delete-file mode="never"/>
+        </folder>
+    </attachment-storage>
+
     <domain-object-type name="Attachment" template="true">
         <fields>
             <string name="Name" length="128" />

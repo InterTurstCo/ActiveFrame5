@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StubConfigurationExplorer implements ConfigurationExplorer {
-
     @Override
     public Configuration getConfiguration() {
         throw new UnsupportedOperationException();
@@ -236,5 +235,10 @@ public class StubConfigurationExplorer implements ConfigurationExplorer {
     public ReentrantReadWriteLock getReadWriteLock() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String getAttachmentParentType(String attachmentType) {
+        throw new UnsupportedOperationException();
+   }
 
 }

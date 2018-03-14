@@ -5,6 +5,9 @@ import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
 import org.simpleframework.xml.stream.InputNode;
+import org.simpleframework.xml.transform.Matcher;
+import org.simpleframework.xml.transform.Transform;
+
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
@@ -30,7 +33,17 @@ public class ConfigurationConverter extends ListConverter<Configuration> {
 
         ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
         Strategy strategy = new AnnotationStrategy();
-        Serializer serializer = new Persister(strategy);
+        Matcher matcher = new Matcher() {
+            @Override
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            public Transform match(Class type) throws Exception {
+                if (type.isEnum()) {
+                    return new EnumTransform((Class<? extends Enum>) type);
+                }
+                return null;
+            }
+        };
+        Serializer serializer = new Persister(strategy, matcher);
         InputNode nexNode;
 
         while ((nexNode = inputNode.getNext()) != null) {

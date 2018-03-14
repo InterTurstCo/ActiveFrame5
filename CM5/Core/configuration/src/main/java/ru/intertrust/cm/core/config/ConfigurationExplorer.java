@@ -204,8 +204,20 @@ public interface ConfigurationExplorer {
      * @return true если тип доменного обхекта аудит лог
      */
     boolean isAuditLogType(String domainObjectType);
-    
+
+    /**
+     * Получение списка всех типов доменных объектов, предназначенных для хранения вложений
+     * @return массив имён типов
+     */
     public String[] getAllAttachmentTypes();
+
+    /**
+     * Получение имени типа доменного объекта, к которому привязан заданный тип вложения.
+     * Это же имя используется в качестве имени поля, хранящего ссылку на родительский объект.
+     * @param attachmentType тип доменного объекта вложения
+     * @return имя типа родительского объекта
+     */
+    public String getAttachmentParentType(String attachmentType);
 
     boolean isReadPermittedToEverybody(String domainObjectType);
 

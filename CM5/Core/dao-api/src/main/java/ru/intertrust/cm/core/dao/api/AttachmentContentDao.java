@@ -19,7 +19,7 @@ public interface AttachmentContentDao {
      * @param fileName имя файла вложения.
      * @return информация о вложении
      */
-    AttachmentInfo saveContent(InputStream  inputStream, String fileName);
+    AttachmentInfo saveContent(InputStream inputStream, DomainObject parentObject, String attachmentType, String fileName);
 
     /**
      * Загружает Вложение по относительному пути в хранилище.
@@ -34,5 +34,6 @@ public interface AttachmentContentDao {
      */
     void deleteContent(DomainObject domainObject);
 
+    @Deprecated
     String toRelativeFromAbsPathFile(String absFilePath);
 }

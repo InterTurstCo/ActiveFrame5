@@ -31,12 +31,16 @@ import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
+ * А.П. Этот класс более не используется. Реализация интерфейса {@link AttachmentContentDao} сделана обобщённой,
+ * поддерживающей несколько хранилищ вложений, и перенесена в класс {@link ru.intertrust.cm.core.dao.impl.attach.AttachmentContentDaoImpl}.
+ * Хранилище вложений в папках файловой системы реализовано в классе {@link ru.intertrust.cm.core.dao.impl.attach.FileSystemAttachmentStorageImpl}.
+ * 
  * User: vlad
  * свойство path в DomainObject - относительный путь к файлам.
  * свойство attachmentSaveLocation - должно отображать корневой путь к папкам,
  * где сохраняются вложенные файлы.
  */
-public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao {
+public class FileSystemAttachmentContentDaoImpl /*implements AttachmentContentDao*/ {
 
     private static final String DATE_PATTERN = "yyyy/MM/dd";
     final private static org.slf4j.Logger logger = LoggerFactory.getLogger(FileSystemAttachmentContentDaoImpl.class);
@@ -70,7 +74,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         this.eventLogService = eventLogService;
     }
 
-    @Override
+    //@Override
     public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
         AttachmentInfo attachmentInfo = new AttachmentInfo();
         String absDirPath = getAbsoluteDirPath();
@@ -128,7 +132,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return fileExtension;
     }
 
-    @Override
+    //@Override
     public InputStream loadContent(DomainObject domainObject) {
         try {
             if (!configurationExplorer.isAttachmentType(domainObject.getTypeName())) {
@@ -158,7 +162,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
     }
 
-    @Override
+    //@Override
     public void deleteContent(DomainObject domainObject) {
         if (isPathEmptyInDo(domainObject)) {
             return;
@@ -194,7 +198,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
     }
 
-    @Override
+    //@Override
     public String toRelativeFromAbsPathFile(String absFilePath) {
         String relativePath = Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation)) ?
                 absFilePath.substring(attachmentSaveLocation.length()) : absFilePath;

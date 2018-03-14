@@ -39,14 +39,22 @@
 
     <xs:complexType name="domainObjectTypeToValidate">
         <xs:sequence>
-            <xs:element name="fields" minOccurs="0" maxOccurs="1" type="con:fieldsType"
-                        xmlns:con="https://cm5.intertrust.ru/config">
-            </xs:element>
-            <xs:element type="con:uniqueKeyType" name="uniqueKey" minOccurs="0" maxOccurs="unbounded"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:indecesType" name="indices" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element type="con:attachmentTypes" name="attachment-types" minOccurs="0" maxOccurs="1"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        	<xs:element name="fields" minOccurs="0" maxOccurs="1"
+        		type="con:fieldsType"
+        		xmlns:con="https://cm5.intertrust.ru/config">
+        	</xs:element>
+        	<xs:element type="con:uniqueKeyType" name="uniqueKey"
+        		minOccurs="0" maxOccurs="unbounded"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element type="con:indecesType" name="indices"
+        		minOccurs="0" maxOccurs="unbounded" />
+        	<xs:element type="con:attachmentTypes"
+        		name="attachment-types" minOccurs="0" maxOccurs="1"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="attachment-storage"
+        		type="con:useAttachmentStorageType" minOccurs="0"
+        		maxOccurs="1">
+        	</xs:element>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="con:domainObjectNameType"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -67,9 +75,12 @@
     </xs:complexType>
 
     <xs:complexType name="attachmentType">
-        <xs:attribute name="name" use="required" type="con:domainObjectNameType"
-                      xmlns:con="https://cm5.intertrust.ru/config"/>
-        <xs:attribute name="template" use="optional" type="con:domainObjectNameType"/>
+    	<xs:attribute name="name" use="required"
+    		type="con:domainObjectNameType"
+    		xmlns:con="https://cm5.intertrust.ru/config" />
+    	<xs:attribute name="template" use="optional"
+    		type="con:domainObjectNameType" />
+    	<xs:attribute name="storage" type="xs:string" use="optional"></xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="namedTriggerType">
@@ -388,67 +399,97 @@
 
     <xs:complexType name="configurationType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element type="con:globalConfigType" name="global-settings" maxOccurs="1" minOccurs="1"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:domainObjectTypeToValidate" name="domain-object-type" maxOccurs="unbounded"
-                        minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:collectionType" name="collection" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="static-group" type="con:staticGroupType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="dynamic-group" type="con:dynamicGroupType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="context-role" type="con:contextRoleType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="access-matrix" type="con:accessMatrixType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="navigation" type="con:navigationPanelType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="form" type="con:formType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="form-mappings" type="con:formMappingsType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="navigation-panel-mappings" type="con:navigationPanelMappingsType" maxOccurs="unbounded"
-                        minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="navigation-panel-mapping" type="con:navigationPanelMappingType" maxOccurs="unbounded"
-                        minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="field-group" minOccurs="0" type="con:fieldGroupType"/>
-            <!--
-                        <xs:element name="groups" type="con:groupsNavType"
-                                    maxOccurs="unbounded" minOccurs="0"
-                                    xmlns:con="https://cm5.intertrust.ru/config"/>
-            -->
-            <!-- <xs:element name="group-name" type="con:groupNavType"
-                         maxOccurs="unbounded" minOccurs="0"
-                         xmlns:con="https://cm5.intertrust.ru/config"/>-->
-            <xs:element name="widget-template" type="con:widgetTemplateType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="collection-view" type="con:collectionViewType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="collection-mappings" type="con:collectionMappingsType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element ref="act:action"/>
-            <xs:element ref="act:action-group"/>
-            <xs:element ref="act:simple-action"/>
-            <xs:element ref="act:tool-bar"/>
-            <xs:element ref="act:menu-bar"/>
-            <xs:element ref="act:action-context"/>
-            <xs:element name="search-area" type="con:searchAreaType" maxOccurs="unbounded" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="business-universe" type="con:businessUniverseType" maxOccurs="1" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element type="con:namedTriggerType" name="named-trigger" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element name="url-config" type="con:urlConfigType" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element type="con:notificationType" name="notification" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element name="import-settings" type="con:importSettings" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element name="type-crypto-settings" type="con:typeCryptoSettings" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element name="migration-script" type="con:migration-scriptType" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element name="form-table-template" type="con:formTableTemplateType" maxOccurs="unbounded"
-                        minOccurs="0"/>
-            <xs:element name="form-tab-template" type="con:formTabTemplateType" maxOccurs="unbounded" minOccurs="0"/>
+        	<xs:element type="con:globalConfigType"
+        		name="global-settings" maxOccurs="1" minOccurs="1"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="attachment-storage"
+        		type="con:attachmentStorageType" maxOccurs="unbounded"
+        		minOccurs="0">
+        	</xs:element>
+        	<xs:element type="con:domainObjectTypeToValidate"
+        		name="domain-object-type" maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element type="con:collectionType" name="collection"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="static-group" type="con:staticGroupType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="dynamic-group" type="con:dynamicGroupType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="context-role" type="con:contextRoleType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="access-matrix" type="con:accessMatrixType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="navigation" type="con:navigationPanelType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="form" type="con:formType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="form-mappings" type="con:formMappingsType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="navigation-panel-mappings"
+        		type="con:navigationPanelMappingsType" maxOccurs="unbounded"
+        		minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="navigation-panel-mapping"
+        		type="con:navigationPanelMappingType" maxOccurs="unbounded"
+        		minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="field-group" minOccurs="0"
+        		type="con:fieldGroupType" />
+        	<!--
+        		<xs:element name="groups" type="con:groupsNavType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config"/>
+        	-->
+        	<!-- <xs:element name="group-name" type="con:groupNavType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config"/>-->
+        	<xs:element name="widget-template"
+        		type="con:widgetTemplateType" maxOccurs="unbounded"
+        		minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="collection-view"
+        		type="con:collectionViewType" maxOccurs="unbounded"
+        		minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="collection-mappings"
+        		type="con:collectionMappingsType" maxOccurs="unbounded"
+        		minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element ref="act:action" />
+        	<xs:element ref="act:action-group" />
+        	<xs:element ref="act:simple-action" />
+        	<xs:element ref="act:tool-bar" />
+        	<xs:element ref="act:menu-bar" />
+        	<xs:element ref="act:action-context" />
+        	<xs:element name="search-area" type="con:searchAreaType"
+        		maxOccurs="unbounded" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element name="business-universe"
+        		type="con:businessUniverseType" maxOccurs="1" minOccurs="0"
+        		xmlns:con="https://cm5.intertrust.ru/config" />
+        	<xs:element type="con:namedTriggerType" name="named-trigger"
+        		maxOccurs="unbounded" minOccurs="0" />
+        	<xs:element name="url-config" type="con:urlConfigType"
+        		minOccurs="0" maxOccurs="unbounded" />
+        	<xs:element type="con:notificationType" name="notification"
+        		maxOccurs="unbounded" minOccurs="0" />
+        	<xs:element name="import-settings" type="con:importSettings"
+        		maxOccurs="unbounded" minOccurs="0" />
+        	<xs:element name="type-crypto-settings"
+        		type="con:typeCryptoSettings" maxOccurs="unbounded"
+        		minOccurs="0" />
+        	<xs:element name="migration-script"
+        		type="con:migration-scriptType" maxOccurs="unbounded"
+        		minOccurs="0" />
+        	<xs:element name="form-table-template"
+        		type="con:formTableTemplateType" maxOccurs="unbounded"
+        		minOccurs="0" />
+        	<xs:element name="form-tab-template"
+        		type="con:formTabTemplateType" maxOccurs="unbounded"
+        		minOccurs="0" />
         </xs:choice>
     </xs:complexType>
 
@@ -4403,4 +4444,36 @@
         <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>
 
+
+    <xs:complexType name="attachmentStorageType">
+        <xs:choice minOccurs="1" maxOccurs="1">
+            <xs:element name="folder" type="con:folderStorageType"></xs:element>
+        </xs:choice>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="folderStorageType">
+        <xs:sequence>
+            <xs:element name="subfolder-mask" type="xs:string" maxOccurs="1" minOccurs="0"></xs:element>
+            <xs:element name="delete-file" type="con:deleteFileType" maxOccurs="1" minOccurs="0"></xs:element>
+        </xs:sequence>
+        <xs:attribute name="configurable" type="xs:boolean" use="optional"></xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="useAttachmentStorageType">
+        <xs:attribute name="name" type="xs:string" use="required"></xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="deleteFileType">
+        <xs:attribute name="mode" use="optional">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="immed"></xs:enumeration>
+                    <xs:enumeration value="never"></xs:enumeration>
+                    <xs:enumeration value="delayed"></xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="delay" type="xs:int" use="optional"></xs:attribute>
+    </xs:complexType>
 </xs:schema>

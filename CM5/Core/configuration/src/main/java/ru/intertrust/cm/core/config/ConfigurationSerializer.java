@@ -4,11 +4,15 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
+import org.simpleframework.xml.transform.Matcher;
+import org.simpleframework.xml.transform.Transform;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LoadedConfiguration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ConfigurationDeserializationException;
+import ru.intertrust.cm.core.config.converter.EnumTransform;
 import ru.intertrust.cm.core.config.migration.MigrationScriptConfig;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
@@ -248,7 +252,17 @@ public class ConfigurationSerializer {
 
     private static Serializer createSerializerInstance() {
         Strategy strategy = new AnnotationStrategy();
-        return new Persister(strategy);
+        Matcher matcher = new Matcher() {
+            @Override
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            public Transform match(Class type) throws Exception {
+                if (type.isEnum()) {
+                    return new EnumTransform((Class<? extends Enum>) type);
+                }
+                return null;
+            }
+        };
+        return new Persister(strategy, matcher);
     }
 
     public void setModuleService(ModuleService moduleService) {
