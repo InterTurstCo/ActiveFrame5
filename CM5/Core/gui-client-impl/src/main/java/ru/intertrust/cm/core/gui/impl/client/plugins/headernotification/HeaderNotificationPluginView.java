@@ -57,7 +57,7 @@ public class HeaderNotificationPluginView extends PluginView{
             @Override
             public void run() {
                 Date now = new Date();
-                if (now.getTime() - getLastActivity() < SESSION_TIMEOUT) {
+                if ((now.getTime() - getLastActivity() < SESSION_TIMEOUT) || getLastActivity()==0) {
                     cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
                 }
             }
