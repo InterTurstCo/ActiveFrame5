@@ -143,7 +143,10 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
-            domainObjectDao.delete(attachmentDomainObjectId, createSystemAccessToken());
+            AccessToken accessToken = createSystemAccessToken();
+            DomainObject attachmentObject = domainObjectDao.find(attachmentDomainObjectId, accessToken);
+            domainObjectDao.delete(attachmentDomainObjectId, accessToken);
+            attachmentContentDao.deleteContent(attachmentObject);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }

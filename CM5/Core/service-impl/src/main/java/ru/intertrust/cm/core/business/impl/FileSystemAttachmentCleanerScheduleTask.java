@@ -46,9 +46,6 @@ import ru.intertrust.cm.core.model.ScheduleException;
 public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHandle {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentCleanerScheduleTask.class);
 
-    @org.springframework.beans.factory.annotation.Value("${attachment.storage}")
-    private String attachmentSaveLocation;
-
     @org.springframework.beans.factory.annotation.Value("${attachment.delete.batch.size:100}")
     private int fileDeleteBatchSize;
 
@@ -112,73 +109,6 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
         }
         logger.info(result);
         return result;
-/*
-        File storageDir = new File(attachmentSaveLocation);
-        String storageDirAbsolutePath = storageDir.getAbsolutePath();
-        List<File> allFiles = new ArrayList<>();
-        readFiles(allFiles, storageDir, true);
-        
-        logger.info("Found {} files", allFiles.size());
-
-        long allAttachments = allFiles.size();
-        long processed = 0;
-        long linked = 0;
-        long deleted = 0;
-        long error = 0;
-        
-        int counter = 0;
-
-        try {
-
-            for (File file : allFiles) {
-                counter++;
-                String absolutePath = file.getAbsolutePath();
-                String relativePath = absolutePath.substring(storageDirAbsolutePath.length());
-                String unixRelativePath = attachmentContentDao.toRelativeFromAbsPathFile(absolutePath);
-
-                //TODO: Remove Windoes-related code when all clients move to unix-style paths of attachments
-                boolean isLinked = isLinkedInDo(unixRelativePath) || (relativePath.startsWith("\\") && isLinkedInDo(relativePath));
-
-                if (!isLinked) {
-                    if (file.delete()) {
-                        logger.info("File " + relativePath + " has not linked from Domain Objects and was deleted");
-                    } else {
-                        logger.error("File " + relativePath + " can not be deleted");
-                        error++;
-                    }
-                }else{
-                    linked++;
-                }
-
-                if (counter % fileDeleteBatchSize == 0) {
-                    ejbContext.getUserTransaction().commit();
-                    ejbContext.getUserTransaction().begin();
-                }
-            }
-        } catch (NotSupportedException | SystemException | HeuristicRollbackException | HeuristicMixedException | RollbackException e) {
-            try {
-                ejbContext.getUserTransaction().rollback();
-            } finally {
-                throw new ScheduleException(e);
-            }
-        } finally {
-            try {
-                if (Status.STATUS_ACTIVE ==  ejbContext.getUserTransaction().getStatus()) {
-                    ejbContext.getUserTransaction().commit();
-                }
-            } catch (SystemException | HeuristicRollbackException | HeuristicMixedException | RollbackException e) {
-                throw new ScheduleException(e);
-            }
-        }
-
-        logger.info("FileSystemAttachmentCleanerScheduleTask complete: " + counter + " file(s) deleted");
-        result += "Processed: " + processed + "; ";
-        result += "Linked: " + linked + "; ";
-        result += "Deleted: " + deleted + "; ";
-        result += "Errors: " + error + "; ";
-        
-        return "" + counter + " file(s) deleted";
-*/
     }
 
     private String[] getAllStorageRoots() {
