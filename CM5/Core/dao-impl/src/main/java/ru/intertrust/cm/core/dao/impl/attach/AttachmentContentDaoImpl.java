@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -70,15 +71,12 @@ public class AttachmentContentDaoImpl implements AttachmentContentDao {
         } else {
             throw new ConfigurationException("Unsupported storage type configuration: " + config.getClass().getName());
         }
-        appContext.getAutowireCapableBeanFactory().autowireBean(storage);
+        AutowireCapableBeanFactory factory = appContext.getAutowireCapableBeanFactory();
+        factory.autowireBean(storage);
+        factory.initializeBean(storage, name + "AttachmentStorage");
         return storage;
     }
-/*
-    private AttachmentStorageConfig generateDefaultStorageConfig() {
-        AttachmentStorageConfig result = new AttachmentStorageConfig();
-        result.
-    }
-*/
+
     @Override
     public AttachmentInfo saveContent(InputStream inputStream, DomainObject parentObject, String attachmentType, String fileName) {
         if (!confExplorer.isAttachmentType(attachmentType)) {
@@ -90,7 +88,7 @@ public class AttachmentContentDaoImpl implements AttachmentContentDao {
             throw new DaoException("Storage for " + attachmentType + " is not configured");
         }
         return storage.saveContent(inputStream, new AttachmentStorage.Context()
-                .attachmentType(attachmentType).parentObject(parentObject).fileName(fileName));
+                .attachmentType(attachmentType).parentObject(parentObject).fileName(fileName).creationTime());
     }
 
     @Override
@@ -165,12 +163,6 @@ public class AttachmentContentDaoImpl implements AttachmentContentDao {
                 }
             }
         }
-    }
-
-    @Override
-    public String toRelativeFromAbsPathFile(String absFilePath) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     private String getParentObjectType(DomainObject attachment) {

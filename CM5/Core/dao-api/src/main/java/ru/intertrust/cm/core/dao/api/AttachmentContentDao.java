@@ -33,7 +33,4 @@ public interface AttachmentContentDao {
      * @param domainObject ДО Вложение
      */
     void deleteContent(DomainObject domainObject);
-
-    @Deprecated
-    String toRelativeFromAbsPathFile(String absFilePath);
 }

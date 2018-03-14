@@ -75,10 +75,10 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
             throw new DaoException("Error delete content", ex);
         }
     }
-
+/*
     @Override
     public String toRelativeFromAbsPathFile(String absFilePath) {
         throw new UnsupportedOperationException();
     }
-
+*/
 }

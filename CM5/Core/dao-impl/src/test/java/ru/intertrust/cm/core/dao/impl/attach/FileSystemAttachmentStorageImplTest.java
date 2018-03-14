@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -68,6 +69,7 @@ public class FileSystemAttachmentStorageImplTest {
     @Test
     public void testSaveContent_legacyLocationProperty() {
         when(env.getProperty(FileSystemAttachmentStorageImpl.PROP_LEGACY)).thenReturn(tmpDir);
+        when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.FALSE);
         FileSystemAttachmentStorageImpl testee = createTestee("default");
         AttachmentStorage.Context ctx = new AttachmentStorage.Context()
                 .attachmentType("MainAtt").parentObject(domainObject).fileName("test.txt").creationTime();
@@ -77,8 +79,9 @@ public class FileSystemAttachmentStorageImplTest {
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
             assertTrue(content.length == info.getContentLength());
             assertEquals("text/ok", info.getMimeType());
-            assertTrue(info.getRelativePath().replaceAll("\\" + File.separator, "/").startsWith(
-                    new SimpleDateFormat("yyyy/MM/dd/").format(ctx.getCreationTime().getTime())));
+            String requiredPath = new SimpleDateFormat("yyyy/MM/dd/").format(ctx.getCreationTime().getTime())
+                    .replaceAll("\\/", "\\" + File.separator);
+            assertTrue(info.getRelativePath().startsWith(requiredPath));
             assertTrue(info.getRelativePath().endsWith(".txt"));
         } finally {
             clearTestDir();
@@ -89,6 +92,7 @@ public class FileSystemAttachmentStorageImplTest {
     public void testSaveContent_configured() {
         when(env.getProperty("attachment.storage.default.root")).thenReturn(tmpDir);
         when(env.getProperty("attachment.storage.default.folders")).thenReturn("{doctype}/{year}-{month}/{ext}/{creator}");
+        when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.TRUE);
         FileSystemAttachmentStorageImpl testee = createTestee("default");
         AttachmentStorage.Context ctx = new AttachmentStorage.Context()
                 .attachmentType("MainAtt").parentObject(domainObject).fileName("test.txt").creationTime();
@@ -97,7 +101,7 @@ public class FileSystemAttachmentStorageImplTest {
         try {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
-            assertTrue(info.getRelativePath().replaceAll("\\" + File.separator, "/").startsWith("RootObject/"
+            assertTrue(info.getRelativePath().startsWith("RootObject/"
                     + new SimpleDateFormat("yyyy-MM").format(ctx.getCreationTime().getTime()) + "/txt/101/"));
         } finally {
             clearTestDir();
@@ -108,6 +112,7 @@ public class FileSystemAttachmentStorageImplTest {
     public void testSaveContent_globallyConfigured() {
         when(env.getProperty("attachment.storage.root")).thenReturn(tmpDir);
         when(env.getProperty("attachment.storage.folders")).thenReturn("{Year}/{Month}/{DocType}");
+        when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.TRUE);
         FileSystemAttachmentStorageImpl testee = createTestee("Special");
         AttachmentStorage.Context ctx = new AttachmentStorage.Context()
                 .attachmentType("SpecAtt").parentObject(domainObject).fileName("original name.ext").creationTime();
@@ -115,7 +120,7 @@ public class FileSystemAttachmentStorageImplTest {
         try {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
-            assertTrue(info.getRelativePath().replaceAll("\\" + File.separator, "/").startsWith(
+            assertTrue(info.getRelativePath().startsWith(
                     new SimpleDateFormat("yyyy/MM").format(ctx.getCreationTime().getTime()) + "/RootObject/"));
             assertFalse(info.getRelativePath().contains("original name"));
         } finally {
@@ -127,6 +132,7 @@ public class FileSystemAttachmentStorageImplTest {
     public void testSaveContent_foldersConfigurationIgnored() {
         when(env.getProperty("attachment.storage.alternate.root")).thenReturn(tmpDir);
         when(env.getProperty("attachment.storage.alternate.folders")).thenReturn("{doctype}/{creator}");    //This must be ignored
+        when(env.getProperty("${attachments.path.unixstyle:true}", boolean.class)).thenReturn(Boolean.TRUE);
         FileSystemAttachmentStorageImpl testee = createTestee("alternate");
         AttachmentStorage.Context ctx = new AttachmentStorage.Context()
                 .attachmentType("AltAtt").parentObject(domainObject).fileName("test.txt").creationTime();
@@ -134,7 +140,7 @@ public class FileSystemAttachmentStorageImplTest {
         try {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
-            assertTrue(info.getRelativePath().replaceAll("\\" + File.separator, "/").startsWith(
+            assertTrue(info.getRelativePath().startsWith(
                     new SimpleDateFormat("yyyy").format(ctx.getCreationTime().getTime()) + "/RootObject/"));
                     // actual format is taken from configuration
         } finally {
@@ -218,6 +224,15 @@ public class FileSystemAttachmentStorageImplTest {
                 field.setAccessible(true);
                 try {
                     field.set(target, mock);
+                } catch (Exception e) {
+                    System.out.println("Error initializing field " + field.getName() + ": " + e.getMessage());
+                }
+            }
+            Value value = field.getAnnotation(Value.class);
+            if (value != null) {
+                field.setAccessible(true);
+                try {
+                    field.set(target, env.getProperty(value.value(), field.getType()));
                 } catch (Exception e) {
                     System.out.println("Error initializing field " + field.getName() + ": " + e.getMessage());
                 }

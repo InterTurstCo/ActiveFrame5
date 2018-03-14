@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.attach;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,12 +10,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Calendar;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 
@@ -42,8 +45,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
     public static final String DEFAULT_PATHMASK = "{year}/{month}/{day}/{hour}";
 
-    //public static final String FIELD_PATH = "Path";
-
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentStorageImpl.class);
 
     private static final String BEAN_DELETE_NEVER = "fileDeleteNever";
@@ -57,12 +58,14 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     private String pathMask;
     private FileDeleteStrategy deleteStrategy;
 
-    //@Autowired private ConfigurationExplorer confExplorer;
     @Autowired private CurrentUserAccessor currentUserAccessor;
     @Autowired private UserTransactionService txService;
     @Autowired private FileTypeDetector contentDetector;
     @Autowired private Environment env;
     @Autowired private ApplicationContext appContext;
+
+    @Value("${attachments.path.unixstyle:true}")
+    private boolean pathUnixStyle;
 
     public FileSystemAttachmentStorageImpl(String name, FolderStorageConfig storageConfig) {
         this.name = name;
@@ -71,6 +74,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
     @PostConstruct
     public void initialize() {
+        logger.info("Attachment storage " + name + " initialization");
         rootFolder = getProperty(PROP_LOCATION);
         if (rootFolder == null) {
             rootFolder = env.getProperty(PROP_LEGACY);
@@ -84,6 +88,10 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             if (pathMask != null) {     //TODO also check validity
                 this.pathMask = pathMask;
             }
+        }
+        if (pathMask == null || pathMask.isEmpty()) {
+            logger.info("Folders mask for storage " + name + " is not configured; use default");
+            pathMask = DEFAULT_PATHMASK;
         }
         this.deleteStrategy = createDeleteStrategy(storageConfig.getDeleteFileConfig());
     }
@@ -114,7 +122,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         }
 
         AttachmentInfo info = new AttachmentInfo();
-        info.setRelativePath(Paths.get(rootFolder).relativize(filePath).toString());
+        info.setRelativePath(relativizePath(filePath));
         info.setContentLength(filePath.toFile().length());
         info.setMimeType(contentDetector.detectMimeType(filePath.toString()));
         return info;
@@ -230,15 +238,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         throw new ConfigurationException("Subfolder mask syntax error: unknown variable " + var.name());
     }
 
-    /*private Calendar getTime(Map<String, Object> context) {
-        if (context.containsKey("time")) {
-            return (Calendar) context.get("time");
-        }
-        Calendar time = Calendar.getInstance();
-        context.put("time", time);
-        return time;
-    }*/
-
     private String getProperty(String propName) {
         String value = env.getProperty(PROP_PREFIX + name + "." + propName);
         return value != null ? value : env.getProperty(PROP_PREFIX + propName);
@@ -261,5 +260,13 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             }
         }
         return ext;
+    }
+
+    private String relativizePath(Path fullPath) {
+        String relativePath = Paths.get(rootFolder).relativize(fullPath).toString();
+        if (pathUnixStyle && !"/".equals(File.separator)) {
+            relativePath = relativePath.replaceAll(Pattern.quote(File.separator), "/");
+        }
+        return relativePath;
     }
 }

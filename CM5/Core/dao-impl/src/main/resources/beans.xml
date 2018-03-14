@@ -201,6 +201,7 @@
     <beans profile="default">
         <bean id="attachmentContentDao" class="ru.intertrust.cm.core.dao.impl.attach.AttachmentContentDaoImpl"/>
 
+        <bean id="attachmentStorageConfigHelper" class="ru.intertrust.cm.core.dao.impl.attach.AttachmentStorageConfigHelper"/>
         <bean id="fileTypeDetector" class="ru.intertrust.cm.core.dao.impl.attach.TikaFileTypeDetector"/>
         <bean id="fileDeleteNever" class="ru.intertrust.cm.core.dao.impl.attach.NeverFileDeleteStrategy"/>
         <bean id="fileDeleteImmediate" class="ru.intertrust.cm.core.dao.impl.attach.ImmediateFileDeleteStrategy"/>
