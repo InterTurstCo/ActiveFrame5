@@ -65,7 +65,7 @@
         </login-screen>
         <logo image="images/logo.png"/>
         <base-url value="app"></base-url>
-
+        <default-app value="geo"></default-app>
         <settings-popup>
             <themes>
                 <theme display-name="Основная тема" component-name="light-theme" default-theme="true"

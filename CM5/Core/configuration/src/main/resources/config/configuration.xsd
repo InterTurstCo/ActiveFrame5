@@ -505,6 +505,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="base-url" type="con:baseUrl" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="default-app" type="con:defaultApp" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="notification-sort-order" type="con:notificationSortOrder" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="settings-popup" type="con:settingsPopupType" maxOccurs="1" minOccurs="0"
@@ -600,6 +602,9 @@
         <xs:attribute name="image" use="required" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="baseUrl">
+        <xs:attribute name="value" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="defaultApp">
         <xs:attribute name="value" use="required" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="notificationSortOrder">

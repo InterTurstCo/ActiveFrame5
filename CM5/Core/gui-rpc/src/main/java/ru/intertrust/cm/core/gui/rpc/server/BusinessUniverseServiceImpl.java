@@ -96,20 +96,20 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
 
-        if(getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE)!=null)
-        {
-            String applicationNamePart = getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().substring(
-                    getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().lastIndexOf("/")+1
-            );
-            initialization.setApplicationName(applicationNamePart);
-
-        }
-
-        addInformationToInitializationObject(initialization);
         String currentLocale = userInfo.getLocale();
         initialization.setCurrentLocale(currentLocale);
         final BusinessUniverseConfig businessUniverseConfig = configurationService.getLocalizedConfig(BusinessUniverseConfig.class,
                 BusinessUniverseConfig.NAME, currentLocale);
+
+        if (getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE) != null) {
+            String applicationNamePart = getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().substring(
+                    getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().lastIndexOf("/") + 1
+            );
+            initialization.setApplicationName(applicationNamePart);
+        }
+
+        addInformationToInitializationObject(initialization);
+
 
         addLogoImagePath(businessUniverseConfig, initialization);
 
@@ -131,8 +131,12 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setGlobalLocalizedResources(messages);
         DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(false);
         initialization.setInitialNavigationLink(domainObject.getString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY));
-        if(initialization.getApplicationName()==null){
+        if (initialization.getApplicationName() == null) {
             initialization.setApplicationName(domainObject.getString(UserSettingsHelper.DO_INITIAL_APPLICATION_NAME));
+            if(initialization.getApplicationName() == null || initialization.getApplicationName().equals("undefined")) {
+                initialization.setApplicationName((businessUniverseConfig.getDefaultAppConfig()!=null)?
+                        businessUniverseConfig.getDefaultAppConfig().getValue():"undefined");
+            }
         }
         return initialization;
     }
@@ -159,7 +163,6 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
 
-
     private GuiException handleEjbException(Command command, RuntimeException e) {
         try {
             final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
@@ -170,7 +173,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 log.error(message, e);
             }
             return new GuiException(message, e);
-        } catch (Throwable throwable){
+        } catch (Throwable throwable) {
             log.error("Exception when handling exception...");
             log.error("Original exception", e);
             log.error("Exception while handling", throwable);
@@ -282,7 +285,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private void addHeaderNotificationPeriod(BusinessUniverseConfig businessUniverseConfig,
-                                  BusinessUniverseInitialization initialization) {
+                                             BusinessUniverseInitialization initialization) {
         initialization.setHeaderNotificationPeriod(
                 businessUniverseConfig.getHeaderNotificationRefreshConfig() == null
                         ? null
@@ -298,7 +301,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                         : businessUniverseConfig.getCollectionCountRefreshConfig().getTime());
     }
 
-    private void addGlobalSettingsRelatedData(BusinessUniverseInitialization initialization){
+    private void addGlobalSettingsRelatedData(BusinessUniverseInitialization initialization) {
         GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
         final ApplicationHelpConfig helpConfig = globalSettingsConfig.getApplicationHelpConfig();
         if (helpConfig != null) {
@@ -314,17 +317,17 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 : guiService.getProductVersion(productVersion.getArchive()));
     }
 
-    public boolean isSearchConfigured(){
+    public boolean isSearchConfigured() {
         Collection<SearchAreaConfig> searchAreaConfigs = configurationService.getConfigs(SearchAreaConfig.class);
-        for(SearchAreaConfig searchAreaConfig  : searchAreaConfigs){
+        for (SearchAreaConfig searchAreaConfig : searchAreaConfigs) {
             List<TargetDomainObjectConfig> targetObjects = searchAreaConfig.getTargetObjects();
             // список целевых ДО в конкретной области поиска
             ArrayList<String> arrayTargetObjects = new ArrayList<String>();
             for (TargetDomainObjectConfig targetObject : targetObjects) {
                 // получаем результирующую форму поиска(удаляем несоответствующие поля)
                 List<IndexedFieldConfig> fields = targetObject.getFields();
-                ArrayList <String> fieldNames = new ArrayList<String>(fields.size());
-                for (IndexedFieldConfig field :fields) {
+                ArrayList<String> fieldNames = new ArrayList<String>(fields.size());
+                for (IndexedFieldConfig field : fields) {
                     fieldNames.add(field.getName());
                 }
                 // если форма поиска для данного ДО не сконфигурирована, в интерфейсе не отображается
