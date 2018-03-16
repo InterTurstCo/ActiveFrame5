@@ -201,7 +201,11 @@ public class RecursiveExpressionVisitor extends ExpressionVisitorAdapter impleme
 
     @Override
     public void visit(InExpression inExpression) {
-        inExpression.getLeftExpression().accept(this);
+        if (inExpression.getLeftItemsList() != null) {
+            inExpression.getLeftItemsList().accept(this);
+        } else if (inExpression.getLeftExpression() != null) {
+            inExpression.getLeftExpression().accept(this);
+        }
         inExpression.getRightItemsList().accept(this);
     }
 

@@ -1,17 +1,18 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Возвращает множество таблиц (типов ДО) в SQL запросе.
@@ -41,6 +42,16 @@ public class CollectDOTypesVisitor {
             if (expression != null) {
                 expression.accept(this);
             }
+        }
+
+        @Override
+        public void visit(InExpression inExpression) {
+            if (inExpression.getLeftItemsList() != null) {
+                inExpression.getLeftItemsList().accept(this);
+            } else if (inExpression.getLeftExpression() != null) {
+                inExpression.getLeftExpression().accept(this);
+            }
+            inExpression.getRightItemsList().accept(this);
         }
     }
 

@@ -669,6 +669,13 @@ public class CollectionsDaoImplTest {
                 eq(Integer.class));
     }
 
+    @Test
+    public void testMulticolumnIn() {
+        collectionsDaoImpl.findCollectionByQuery(
+                "select id from employee where (department, department_id) in (select id, id_type from department where id = {0})",
+                singletonList(new ReferenceValue(new RdbmsId(1, 1))), 0, 0, createMockAccessToken());
+    }
+
     // @Test
     public void testFindComplexCollectionWithFilters() throws Exception {
         List<Filter> filterValues = new ArrayList<>();
