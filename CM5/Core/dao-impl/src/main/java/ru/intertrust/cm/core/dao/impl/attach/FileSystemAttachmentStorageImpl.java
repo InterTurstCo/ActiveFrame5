@@ -277,6 +277,9 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     }
 
     private String findExtension(String fileName) {
+        if (fileName == null) {
+            return "";
+        }
         int lastDot = fileName.lastIndexOf('.');
         if (lastDot < 0) {
             return "";
