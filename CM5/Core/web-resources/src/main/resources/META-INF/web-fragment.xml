@@ -91,6 +91,7 @@
     <filter-mapping>
         <filter-name>LoginFilter</filter-name>
         <url-pattern>/remote/*</url-pattern>
+        <url-pattern>/app/remote/*</url-pattern>
         <url-pattern>/attachment-download/*</url-pattern>
         <url-pattern>/attachment-viewer-download/*</url-pattern>
         <url-pattern>/attachment-upload</url-pattern>
