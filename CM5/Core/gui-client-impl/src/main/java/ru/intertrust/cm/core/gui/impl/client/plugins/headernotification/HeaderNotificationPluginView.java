@@ -5,8 +5,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -32,7 +34,9 @@ import static ru.intertrust.cm.core.gui.impl.client.plugins.navigation.Navigatio
 /**
  * Created by lvov on 25.03.14.
  */
-public class HeaderNotificationPluginView extends PluginView{
+public class HeaderNotificationPluginView extends PluginView {
+
+
     private FlowPanel container;
     private Plugin plugin;
     private HeaderNotificationPluginData headerNotificationPluginData;
@@ -52,13 +56,21 @@ public class HeaderNotificationPluginView extends PluginView{
         }
     }
 
-    private void updateNotificationTimer(final int headerNotificationPeriod){
+    private void updateNotificationTimer(final int headerNotificationPeriod) {
         timer = new Timer() {
             @Override
             public void run() {
                 Date now = new Date();
-                if (getLastActivity()==0 || ((now.getTime() - getLastActivity())/1000 < SESSION_TIMEOUT)) {
+                if (getLastActivity() == 0 || ((now.getTime() - getLastActivity()) / 1000 < SESSION_TIMEOUT)) {
                     cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
+                } else {
+                    String context = GWT.getHostPageBaseURL().split("/")[3];
+                    StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL().substring(0,
+                            GWT.getHostPageBaseURL().indexOf(context)+context.length()+1))
+                            .append("Login.html");
+
+
+                    Window.Location.replace(loginPathBuilder.toString());
                 }
             }
         };
@@ -74,7 +86,7 @@ public class HeaderNotificationPluginView extends PluginView{
         return container;
     }
 
-    private void containerSetStyle(){
+    private void containerSetStyle() {
         container.addStyleName("header-notification-style");
     }
 
@@ -85,22 +97,22 @@ public class HeaderNotificationPluginView extends PluginView{
         return formPlugin;
     }
 
-    private void buildPlugin(){
-        if (listNotificationItem.size() == 0){
+    private void buildPlugin() {
+        if (listNotificationItem.size() == 0) {
             AbsolutePanel absolutePanel = new AbsolutePanel();
-            absolutePanel.add( new Label(LocalizeUtil.get(LocalizationKeys.NO_NEW_NOTIFICATIONS_KEY,
+            absolutePanel.add(new Label(LocalizeUtil.get(LocalizationKeys.NO_NEW_NOTIFICATIONS_KEY,
                     BusinessUniverseConstants.NO_NEW_NOTIFICATIONS)));
             container.add(absolutePanel);
 
 
         }
-        for (int i =0; i < listNotificationItem.size(); i++){
+        for (int i = 0; i < listNotificationItem.size(); i++) {
             AbsolutePanel absolutePanel = new AbsolutePanel();
             final FocusPanel crossContainer = new FocusPanel();
-            if (i == 0){
+            if (i == 0) {
                 crossContainer.addStyleName("cross-button-first");
-            }   else {
-            crossContainer.addStyleName("cross-button");
+            } else {
+                crossContainer.addStyleName("cross-button");
             }
 
             absolutePanel.addStyleName("section-suggest-item");
@@ -111,12 +123,12 @@ public class HeaderNotificationPluginView extends PluginView{
             final Id notificationId = headerNotificationItem.getId();
             final Id contextObjectId = headerNotificationItem.getContextObjectId();
             final Id objectIdToOpenForm = contextObjectId != null ? contextObjectId : notificationId;
-            Label label = new Label(headerNotificationItem.getSubject() +" "+ headerNotificationItem.getBody());
+            Label label = new Label(headerNotificationItem.getSubject() + " " + headerNotificationItem.getBody());
 
             label.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    FormPluginConfig config = new FormPluginConfig(objectIdToOpenForm) ;
+                    FormPluginConfig config = new FormPluginConfig(objectIdToOpenForm);
                     FormPluginState formPluginState = new FormPluginState();
                     formPluginState.setToggleEdit(true);
                     formPluginState.setEditable(false);
@@ -153,7 +165,7 @@ public class HeaderNotificationPluginView extends PluginView{
         Application.getInstance().getEventBus().fireEvent(new HeaderNotificationRemoveItemEvent(listNotificationItem.size()));
     }
 
-    private void cancelHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
+    private void cancelHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem) {
         Command command = new Command("deleteNotification", "header.notifications.plugin", cancelHeaderNotificationItem);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

@@ -13,6 +13,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -20,7 +21,7 @@ import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
-import ru.intertrust.cm.core.gui.impl.client.BusinessUniverse;
+
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
@@ -37,13 +38,16 @@ import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+
 import java.util.*;
 
-import static java.awt.SystemColor.window;
+
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 
 public class NavigationTreePluginView extends PluginView {
+
+
     private static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
     private static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
     public static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 134;
@@ -310,6 +314,12 @@ public class NavigationTreePluginView extends PluginView {
                             GWT.log("error while getting collection counters info");
                         }
                     });
+                } else {
+                    String context = GWT.getHostPageBaseURL().split("/")[3];
+                    StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL().substring(0,
+                            GWT.getHostPageBaseURL().indexOf(context)+context.length()+1))
+                            .append("Login.html");
+                    Window.Location.replace(loginPathBuilder.toString());
                 }
             }
         };
