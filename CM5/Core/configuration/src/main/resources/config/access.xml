@@ -686,41 +686,7 @@
         </create>
     </access-matrix>
 
-    <access-matrix type="User_Group">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="Group_Member">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="Group_Admin">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="group_group_settings">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="group_group">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="report_template" read-everybody="true">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
+    <access-matrix type="report_template" read-everybody="true"/>
 
     <access-matrix type="report_template_attach" read-everybody="true"/>
 

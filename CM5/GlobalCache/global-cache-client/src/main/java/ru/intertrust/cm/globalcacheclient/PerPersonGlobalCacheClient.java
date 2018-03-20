@@ -1,8 +1,14 @@
 package ru.intertrust.cm.globalcacheclient;
 
+import javax.ejb.EJBContext;
+import javax.ejb.SessionContext;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
@@ -28,13 +34,28 @@ public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
             return;
         }
 
-        final PersonAccessChanges personAccessChanges = getPersonAccessChanges(groupAccessChanges);
+        PersonAccessChanges personAccessChanges = null;
+        if (Boolean.TRUE.equals(getEjbContext().getContextData().get(CurrentUserAccessor.INITIAL_DATA_LOADING))) {
+            personAccessChanges = new PersonAccessChanges();
+        }else{
+            personAccessChanges = getPersonAccessChanges(groupAccessChanges);
+        }
+        
         globalCache.notifyCommit(modification, personAccessChanges);
         if (settings.isInCluster()) {
             clusterSynchronizer.notifyCommit(modification, personAccessChanges);
         }
     }
 
+    private EJBContext getEjbContext() {
+        try {
+            InitialContext ic = new InitialContext();
+            return (SessionContext) ic.lookup("java:comp/EJBContext");
+        } catch (NamingException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+    
     @Override
     public void notifyPersonGroupChanged(Id person) {
         getAccessChanges().personGroupChanged(person);

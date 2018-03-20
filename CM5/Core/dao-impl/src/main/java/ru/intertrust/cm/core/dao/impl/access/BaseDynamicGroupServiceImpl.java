@@ -5,7 +5,9 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +82,9 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     private GlobalCacheManager globalCacheManager;
 
+    private Map<String, Id> groupIds = new HashMap<String, Id>();
+    
+    
     public void setDoelResolver(DoelResolver doelResolver) {
         this.doelResolver = doelResolver;
         doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
@@ -120,6 +125,10 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     public Id getUserGroupByGroupName(String groupName) {
+        if (groupIds.containsKey(groupName)){
+            return groupIds.get(groupName); 
+        }
+        
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
         Filter filter = new Filter();
@@ -132,7 +141,8 @@ public class BaseDynamicGroupServiceImpl {
         if (resultCollection == null || resultCollection.size() == 0) {
             return null;
         }
-
+        
+        groupIds.put(groupName, resultCollection.getId(0));
         return resultCollection.getId(0);
     }
 
