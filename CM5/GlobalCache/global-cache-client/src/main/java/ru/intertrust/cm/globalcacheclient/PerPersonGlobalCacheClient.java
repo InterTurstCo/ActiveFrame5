@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.ServerStatus;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
@@ -23,6 +24,9 @@ public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
 
     @Autowired
     private GlobalCacheSettings settings;
+    
+    @Autowired
+    private ServerStatus serverStatus;
 
     @Override
     public void notifyCommit(DomainObjectsModification modification) {
@@ -35,7 +39,7 @@ public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
         }
 
         PersonAccessChanges personAccessChanges = null;
-        if (Boolean.TRUE.equals(getEjbContext().getContextData().get(CurrentUserAccessor.INITIAL_DATA_LOADING))) {
+        if (serverStatus.isInit()) {
             personAccessChanges = new PersonAccessChanges();
         }else{
             personAccessChanges = getPersonAccessChanges(groupAccessChanges);
@@ -44,15 +48,6 @@ public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
         globalCache.notifyCommit(modification, personAccessChanges);
         if (settings.isInCluster()) {
             clusterSynchronizer.notifyCommit(modification, personAccessChanges);
-        }
-    }
-
-    private EJBContext getEjbContext() {
-        try {
-            InitialContext ic = new InitialContext();
-            return (SessionContext) ic.lookup("java:comp/EJBContext");
-        } catch (NamingException ex) {
-            throw new IllegalStateException(ex);
         }
     }
     
