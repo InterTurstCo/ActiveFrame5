@@ -161,7 +161,7 @@ public class AddAclVisitorTest {
     @Test
     public void testCaseInsensitiveness() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("Base_Documents")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Documents").parent("Base_Documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Documents", false).parent("Base_Documents")));
         AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
         SqlQueryParser parser = new SqlQueryParser("select id from documents d join base_documents bd on bd.id = d.id");
         Select select = parser.getSelectStatement();
@@ -201,9 +201,9 @@ public class AddAclVisitorTest {
     @Test
     public void testUsageOfLinkedTypeWithParent() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents").parent("base_documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents", false).parent("base_documents")));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("linked_attribute").linkedTo("documents", "document_id")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("linked_attribute_child").parent("linked_attribute")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("linked_attribute_child", false).parent("linked_attribute")));
         AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
         SqlQueryParser parser = new SqlQueryParser("select string_value from linked_attribute_child");
         Select select = parser.getSelectStatement();
@@ -255,7 +255,7 @@ public class AddAclVisitorTest {
     @Test
     public void testEliminateExcessiveAcl() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents").parent("base_documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents", false).parent("base_documents")));
         AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
         SqlQueryParser parser = new SqlQueryParser("select id from documents d join base_documents bd on bd.id = d.id");
         Select select = parser.getSelectStatement();
@@ -269,7 +269,7 @@ public class AddAclVisitorTest {
     @Test
     public void testEliminateExcessiveAclMoreComplex() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents").parent("base_documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents", false).parent("base_documents")));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents_m").linkedTo("documents", "owner")));
         AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
         SqlQueryParser parser = new SqlQueryParser(
@@ -286,8 +286,8 @@ public class AddAclVisitorTest {
     @Test
     public void testEliminateExcessiveAclEvenMoreComplex() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents").parent("base_documents")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_attribute")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents", false).parent("base_documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_attribute", false)));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("attribute").parent("base_attribute").linkedTo("base_documents", "root")));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("attribute_attribute").linkedTo("base_attribute", "root")));
         AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);

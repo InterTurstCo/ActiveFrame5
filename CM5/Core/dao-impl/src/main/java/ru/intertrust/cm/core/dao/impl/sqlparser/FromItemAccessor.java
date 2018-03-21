@@ -11,6 +11,11 @@ public class FromItemAccessor {
 
     private PlainSelect select;
 
+    @Override
+    public String toString() {
+        return getFromItem().toString();
+    }
+
     public FromItemAccessor(Join join) {
         this.join = join;
     }
