@@ -297,7 +297,7 @@ public abstract class BaseExpressionVisitor implements ExpressionVisitor {
         }
 
         if (analyticExpression.getExpression() != null) {
-            analyticExpression.getDefaultValue().accept(this);
+            analyticExpression.getExpression().accept(this);
         }
 
         if (analyticExpression.getOffset() != null) {
