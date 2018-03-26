@@ -1101,6 +1101,7 @@ table.form-panel-header .gwt-Red-Label {
     max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
+    word-wrap: break-word;
 }
 
 .body-popup-plugin-meneger
