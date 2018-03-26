@@ -10,6 +10,7 @@ import net.sf.jsqlparser.schema.Table;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 
 public class SharedPermissionsChecker {
 
@@ -37,7 +38,7 @@ public class SharedPermissionsChecker {
             if (expr.getLeftExpression() instanceof Column && expr.getRightExpression() instanceof Column) {
                 Column left = (Column) expr.getLeftExpression();
                 Column right = (Column) expr.getRightExpression();
-                if (checkColumn(left, first, firstFieldName) || checkColumn(right, second, secondFieldName)
+                if (checkColumn(left, first, firstFieldName) && checkColumn(right, second, secondFieldName)
                         || checkColumn(right, first, firstFieldName) && checkColumn(left, second, secondFieldName)) {
                     result = true;
                 }
@@ -45,7 +46,8 @@ public class SharedPermissionsChecker {
         }
 
         private boolean checkColumn(Column column, String table, String field) {
-            return column.getColumnName().equalsIgnoreCase(field) && ("id".equalsIgnoreCase(field) || column.getTable().getName().equalsIgnoreCase(table));
+            return column.getColumnName().equalsIgnoreCase(field)
+                    && (column.getTable() == null || column.getTable().getName() == null || column.getTable().getName().equalsIgnoreCase(table));
         }
 
         @Override
@@ -80,10 +82,10 @@ public class SharedPermissionsChecker {
                 if (areRelated(firstType, secondType)) {
                     return check(second, firstTable, secondTable, "id", "id");
                 } else {
-                    String linker = getLinker(firstType, secondType);
-                    if (linker != null) {
-                        String field = findReferenceField(linker);
-                        return check(second, firstTable, secondTable, firstType.equals(linker) ? field : "id", secondType.equals(linker) ? field : "id");
+                    if (oneReferencesAnother(firstType, secondType)) {
+                        return check(second, firstTable, secondTable, getReferenceField(firstType), "id");
+                    } else if (oneReferencesAnother(secondType, firstType)) {
+                        return check(second, firstTable, secondTable, "id", getReferenceField(secondType));
                     } else {
                         return false;
                     }
@@ -96,27 +98,19 @@ public class SharedPermissionsChecker {
         }
     }
 
-    private String findReferenceField(String type) {
-        AccessMatrixConfig matrixConfig = null;
-        DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
-        while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeConfig.getName())) == null
-                && typeConfig.getExtendsAttribute() != null) {
-            typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getExtendsAttribute());
+    private boolean oneReferencesAnother(String one, String another) {
+        String matrixReferenceField = getReferenceField(one);
+        if (matrixReferenceField != null) {
+            String referencedType = ((ReferenceFieldConfig) configurationExplorer.getFieldConfig(one, matrixReferenceField)).getType();
+            return areRelated(referencedType, another);
+        } else {
+            return false;
         }
-
-        return matrixConfig == null ? null : matrixConfig.getMatrixReference();
     }
 
-    private String getLinker(String firstType, String secondType) {
-        String firstLinked = configurationExplorer.getMatrixReferenceTypeName(firstType);
-        String secondLinked = configurationExplorer.getMatrixReferenceTypeName(secondType);
-        if (firstLinked != null && areRelated(secondType, firstLinked)) {
-            return firstType;
-        } else if (secondLinked != null && areRelated(firstType, secondLinked)) {
-            return secondType;
-        } else {
-            return null;
-        }
+    private String getReferenceField(String type) {
+        AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectType(type);
+        return accessMatrix == null ? null : accessMatrix.getMatrixReference();
     }
 
     private boolean check(FromItemAccessor second, Table firstTable, Table secondTable, String firstFieldName, String secondFieldName) {

@@ -21,11 +21,19 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
         private DomainObjectTypeConfig typeConfig = new DomainObjectTypeConfig();
         private AccessMatrixConfig matrixConfig;
 
-        public TypeConfigBuilder(String name) {
+        public TypeConfigBuilder(String name, boolean hasAccessMatrix) {
             typeConfig.setName(name);
             DomainObjectFieldsConfig fieldsConfig = new DomainObjectFieldsConfig();
             fieldsConfig.setFieldConfigs(new ArrayList<FieldConfig>());
             typeConfig.setDomainObjectFieldsConfig(fieldsConfig);
+            if (hasAccessMatrix) {
+                matrixConfig = new AccessMatrixConfig();
+                matrixConfig.setType(typeConfig.getName());
+            }
+        }
+
+        public TypeConfigBuilder(String name) {
+            this(name, true);
         }
 
         public TypeConfigBuilder parent(String typeName) {
@@ -34,10 +42,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
         }
 
         public TypeConfigBuilder linkedTo(String typeName, String fieldName) {
-            if (matrixConfig == null) {
-                matrixConfig = new AccessMatrixConfig();
-                matrixConfig.setType(typeConfig.getName());
-            }
+
             ReferenceFieldConfig parentLink = new ReferenceFieldConfig();
             parentLink.setName(fieldName);
             parentLink.setType(typeName);
@@ -161,13 +166,18 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
                 }
             } else {
                 String fieldName = matrixConfig.getMatrixReference();
-                DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig) getCategorySafe(DomainObjectTypeConfig.class).get(childTypeName);
-                for (FieldConfig fieldConfig : typeConfig.getFieldConfigs()) {
-                    if (fieldConfig.getName().equals(fieldName) && fieldConfig instanceof ReferenceFieldConfig) {
-                        return ((ReferenceFieldConfig) fieldConfig).getType();
+                if (fieldName == null) {
+                    return childTypeName;
+                } else {
+                    DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig) getCategorySafe(DomainObjectTypeConfig.class).get(childTypeName);
+                    for (FieldConfig fieldConfig : typeConfig.getFieldConfigs()) {
+                        if (fieldConfig.getName().equals(fieldName) && fieldConfig instanceof ReferenceFieldConfig) {
+                            String nextType = ((ReferenceFieldConfig) fieldConfig).getType();
+                            return getMatrixReferenceTypeName(nextType);
+                        }
                     }
+                    return null;
                 }
-                return null;
             }
         }
     }

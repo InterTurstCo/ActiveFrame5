@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.dao.impl;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,6 +44,8 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache, Applicati
     private ConfigurationExplorer configurationExplorer;
 
     private CollectionQueryLogTimer collectionQueryLogTimer;
+    
+    private Random rnd = new Random();
 
     @Override
     public void onApplicationEvent(ConfigurationUpdateEvent event) {
@@ -269,7 +273,21 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache, Applicati
 
     private void removeOneEntryFromCache() {
         if (!collectionQueryCache.keySet().isEmpty()) {
-            CollectionQueryKey key = collectionQueryCache.keySet().iterator().next();
+            //Удаляем случайный элемент
+            int removeIndex = rnd.nextInt() % collectionQueryCache.size();
+            if (removeIndex < 0){ 
+                removeIndex = removeIndex * -1;
+            }
+            CollectionQueryKey key = null;
+            Iterator<CollectionQueryKey> keys = collectionQueryCache.keySet().iterator();
+            int curIndex = 0;
+            while(keys.hasNext()){
+                key = keys.next();
+                if (curIndex >=removeIndex){
+                    break;
+                }
+                curIndex++;
+            }
             collectionQueryCache.remove(key);
         }
     }

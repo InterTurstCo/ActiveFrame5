@@ -795,14 +795,13 @@ public class CollectionsDaoImplTest {
     }
 
     @Test
-    public void testMultiColumnIn() {
-        collectionsDaoImpl.findCollectionByQuery("select Login from Person where (Boss, Boss_type) in (select id, id_type from Internal_Employee)",
+    public void testWindowFunctionWithExpression() {
+        collectionsDaoImpl.findCollectionByQuery("select Name, min(created_date) over (partition by Boss) from Person p",
                 asList(new Value<?>[] { }), 0, 0,
                 createMockSystemAccessToken());
         verify(jdbcTemplate).query(
-                eq("SELECT \"login\" FROM \"person\" WHERE (\"boss\", \"boss_type\") IN (SELECT \"id\", \"id_type\" FROM \"internal_employee\")"),
+                eq("SELECT \"name\", min(\"created_date\") OVER (PARTITION BY \"boss\" ) FROM \"person\" p"),
                 eq(new HashMap<String, Object>()), any(CollectionRowMapper.class));
-
     }
 
     private String refineQuery(String actualQuery) {

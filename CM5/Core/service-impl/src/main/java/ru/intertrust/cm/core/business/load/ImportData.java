@@ -477,7 +477,19 @@ public class ImportData {
                     //Символ "_" строки означает у нас пустую строку если не указано конкретное значение символа пустой строки в метаинформации файла в ключе EMPTY_STRING_SYMBOL
                     newValue = new StringValue("");
                 } else {
-                    newValue = new StringValue(fieldValue);
+                    //Если тип string проверяем длину строки
+                    if (fieldConfig.getFieldType() == FieldType.STRING) {
+                        int maxLen = ((StringFieldConfig)fieldConfig).getLength();
+                        if (fieldValue.length() > maxLen){
+                            logger.warn("String value " + fieldValue + " of field " + fieldName + " is truncate to " + maxLen + " simvols");
+                            String truncateStringValue = fieldValue.substring(0, maxLen-1);                            
+                            newValue = new StringValue(truncateStringValue);
+                        }else{
+                            newValue = new StringValue(fieldValue);
+                        }
+                    }else{
+                        newValue = new StringValue(fieldValue);
+                    }
                 }
             }
         } else {

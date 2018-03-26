@@ -55,7 +55,7 @@ public class SharedPermissionsCheckerTest {
     @Test
     public void testSimpleBundle() throws JSQLParserException {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("root")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch").parent("root")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch", false).parent("root")));
         FromItemAccessor first = createAccessor("root", null);
         FromItemAccessor second = createAccessor("branch", null, equalsExpression("branch.id", "root.id"), false);
         assertTrue(checker.check(first, second));
@@ -64,7 +64,7 @@ public class SharedPermissionsCheckerTest {
     @Test
     public void testWithAlias() throws JSQLParserException {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("root")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch").parent("root")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch", false).parent("root")));
         FromItemAccessor first = createAccessor("root", "r");
         FromItemAccessor second = createAccessor("branch", "b", equalsExpression("b.id", "r.id"), false);
         assertTrue(checker.check(first, second));
@@ -73,7 +73,7 @@ public class SharedPermissionsCheckerTest {
     @Test
     public void testOneOfAndsIsEnough() throws JSQLParserException {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("root")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch").parent("root")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch", false).parent("root")));
         FromItemAccessor first = createAccessor("root", "r");
         FromItemAccessor second = createAccessor("branch", "b", andExpression(parseExpression("someOtherCondition()"), equalsExpression("b.id", "r.id")), false);
         assertTrue(checker.check(first, second));
@@ -121,7 +121,7 @@ public class SharedPermissionsCheckerTest {
     @Test
     public void testAutoSuccessForFullJoinIfTablesRelated() throws JSQLParserException {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("root")));
-        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch").parent("root")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("branch", false).parent("root")));
         FromItemAccessor first = createAccessor("root", "r");
         FromItemAccessor second = createAccessor("branch", "b", null, true);
         assertTrue(checker.check(first, second));
@@ -152,6 +152,44 @@ public class SharedPermissionsCheckerTest {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("Abstract_Multiple").linkedTo("Abstract", "Abstract_id")));
         FromItemAccessor first = createAccessor("Abstract", "a");
         FromItemAccessor second = createAccessor("Abstract_Multiple", "am", equalsExpression("a.ID", "am.abstract_id"), false);
+        assertTrue(checker.check(first, second));
+    }
+
+    @Test
+    public void testJoinThroughParentType() throws JSQLParserException {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Abstract")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Root").parent("Abstract")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Root_Multiple").linkedTo("Root", "Root_id")));
+        FromItemAccessor first = createAccessor("Abstract", "a");
+        FromItemAccessor second = createAccessor("Root_Multiple", "rm", equalsExpression("a.ID", "rm.root_id"), false);
+        assertTrue(checker.check(first, second));
+    }
+
+    @Test
+    public void testBorrowedAccessMatrix() throws JSQLParserException {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Document")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Resolution").linkedTo("Document", "Root")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("ResolutionAttr").linkedTo("Resolution", "Owner")));
+        FromItemAccessor first = createAccessor("Resolution", "r");
+        FromItemAccessor second = createAccessor("ResolutionAttr", "ra", equalsExpression("ra.owner", "r.id"), false);
+        assertTrue(checker.check(first, second));
+    }
+
+    @Test
+    public void testMatrixlessTypes() throws JSQLParserException {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("A", false)));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("B", false)));
+        FromItemAccessor first = createAccessor("A", "a");
+        FromItemAccessor second = createAccessor("B", "b", equalsExpression("b.a", "A.id"), false);
+        assertFalse(checker.check(first, second));
+    }
+
+    @Test
+    public void testAliaslessColumnname() throws JSQLParserException {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("A")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("B")).linkedTo("A", "a"));
+        FromItemAccessor first = createAccessor("A", null);
+        FromItemAccessor second = createAccessor("B", null, equalsExpression("a", "A.id"), false);
         assertTrue(checker.check(first, second));
     }
 
