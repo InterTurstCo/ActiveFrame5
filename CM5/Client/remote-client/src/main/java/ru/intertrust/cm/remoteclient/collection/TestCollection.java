@@ -99,8 +99,7 @@ public class TestCollection extends ClientBase {
                     calendar.get(Calendar.DAY_OF_MONTH),
                     calendar.get(Calendar.HOUR),
                     calendar.get(Calendar.MINUTE),
-                    calendar.get(Calendar.SECOND), 0
-                    );
+                    calendar.get(Calendar.SECOND), 0);
             DateTimeWithTimeZoneValue value = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
             params.add(value);
             executeQuery(query, 1, params);
@@ -249,6 +248,12 @@ public class TestCollection extends ClientBase {
             sortOrder.add(new SortCriterion("name", SortCriterion.Order.ASCENDING));
             filters = new ArrayList<Filter>();
             executeCollection("EmployeesGenerator", 3, sortOrder, filters);
+
+            //Тест запросов которые перегружают кэш отпарсенных запросов и вытесняют ранее закэшированные запросы
+            for (int i = 0; i < 5000; i++) {
+                query = "select id from person where login = '" + System.currentTimeMillis() + "'";
+                executeQuery(query, 1, null);
+            }
 
         } finally {
             writeLog();
