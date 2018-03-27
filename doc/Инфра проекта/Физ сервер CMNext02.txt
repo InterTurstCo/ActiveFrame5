@@ -1,0 +1,58 @@
+--------------------------------------------------------
+Инф. по физическому серверу CMNext02 нагрузочных тестов
+--------------------------------------------------------
+
+Технические характеристики:
+	· 2 двухъядерных Xeon, 
+	· 16 гб памяти 
+	· 6 дисков по 2 в зеркале, итого 3 диска в системе
+
+Локальный адрес
+	IP: 169.254.0.144
+	Login: administrator
+	Password: password456 (устарел?)
+
+Удаленный адрес
+	Oleg V. Baranov/InterTrust/RU написано 23.04.2013 11:06:04:
+	> Доступ снаружи предоставлен, 89.175.40.157:3569
+
+Админский доступ
+	> Логин и пароль администратора administrator/Pass!Word456. Просьба 
+	> учетные данные администратора не менять.
+
+Установленное ПО
+	PostgresSQL
+		User: postgres
+		Pass: super-pass
+
+
+Прочее установленное ПО
+	Lotus Notes 
+		Login: Administrator
+		Pass: 12345678
+
+	Tomcat 
+		Расположен в директории C:\Tomcat.
+		Tomcat 7.0.12 32bit, 
+		appBase=D:\cmnapps.
+		Порт 8080
+		Сервис "Apache Tomcat 7"
+		Login: admin
+		Password: super-user
+		http://cmnext02.inttrust.ru:8080 или 8446
+
+	JDK: 
+		Java расположена в директории C:\Program Files\Java\
+		Java(TM) SE Runtime Environment (build 1.6.0_21-b06)
+		Java HotSpot(TM) 64-Bit Server VM (build 17.0-b16, mixed mode)
+
+	PostgresSQL
+		cmnext02: 3306
+		db: cmjdb
+		Login: root
+		Password: утерян (((
+
+MySQL
+		db: cmjdb
+		Login: root
+		Password: 123321
