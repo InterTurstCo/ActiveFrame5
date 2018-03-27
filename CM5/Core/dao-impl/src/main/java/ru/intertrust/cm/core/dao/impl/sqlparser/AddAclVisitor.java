@@ -4,23 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.StatementVisitor;
-import net.sf.jsqlparser.statement.StatementVisitorAdapter;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItemVisitor;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.WithItem;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -38,7 +32,7 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  * доступа. Например, employee -> (select * from employee where exists(...))
  * @author atsvetkov
  */
-public class AddAclVisitor extends StatementVisitorAdapter implements StatementVisitor, SelectVisitor, SelectItemVisitor {
+public class AddAclVisitor extends BasicVisitor {
 
     private static Map<String, SelectBody> aclSelectBodyCache = new ConcurrentHashMap<>();
 
@@ -62,9 +56,9 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
 
     private boolean aclWithItemAdded = false;
 
-    private RecursiveExpressionVisitor recursiveExpressionVisitor;
-
     private HashMap<PlainSelect, List<List<FromItemAccessor>>> tableGroups = new HashMap<PlainSelect, List<List<FromItemAccessor>>>();
+
+    private Stack<PlainSelect> selectStack = new Stack<>();
 
     private SharedPermissionsChecker sharedPermissionsChecker;
 
@@ -74,7 +68,6 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
         this.domainObjectQueryHelper = domainObjectQueryHelper;
-        recursiveExpressionVisitor = new RecursiveExpressionVisitor(this);
         sharedPermissionsChecker = new SharedPermissionsChecker(configurationExplorer);
     }
 
@@ -155,7 +148,7 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
             }
         } else {
             if (from != null) {
-                from.accept(recursiveExpressionVisitor);
+                from.accept(this);
             }
         }
     }
@@ -173,25 +166,25 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
                         addTableToTableGroup(new FromItemAccessor(join), plainSelect);
                     }
                 } else {
-                    joinItem.accept(recursiveExpressionVisitor);
+                    joinItem.accept(this);
                 }
             }
         }
     }
 
     private void addTableToTableGroup(FromItemAccessor accessor, PlainSelect plainSelect) {
-        if (!tableGroups.containsKey(plainSelect)) {
-            tableGroups.put(plainSelect, new ArrayList<List<FromItemAccessor>>());
-        }
-        List<List<FromItemAccessor>> contextTableGroups = tableGroups.get(plainSelect);
-        for (List<FromItemAccessor> group : contextTableGroups) {
-            for (FromItemAccessor a : group) {
-                if (sharedPermissionsChecker.check(a, accessor)) {
-                    group.add(accessor);
-                    return;
+        for (PlainSelect ps : selectStack) {
+            List<List<FromItemAccessor>> contextTableGroups = tableGroups.get(ps);
+            for (List<FromItemAccessor> group : contextTableGroups) {
+                for (FromItemAccessor a : group) {
+                    if (sharedPermissionsChecker.check(a, accessor)) {
+                        group.add(accessor);
+                        return;
+                    }
                 }
             }
         }
+        List<List<FromItemAccessor>> contextTableGroups = tableGroups.get(plainSelect);
         List<FromItemAccessor> newGroup = new ArrayList<FromItemAccessor>();
         newGroup.add(accessor);
         contextTableGroups.add(newGroup);
@@ -208,30 +201,27 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
 
     private void processWhereClause(PlainSelect plainSelect) {
         if (plainSelect.getWhere() != null) {
-            plainSelect.getWhere().accept(recursiveExpressionVisitor);
+            plainSelect.getWhere().accept(this);
         }
     }
 
     @Override
-    public void visit(AllColumns allColumns) {
-
-    }
-
-    @Override
-    public void visit(AllTableColumns allTableColumns) {
-
-    }
-
-    @Override
     public void visit(PlainSelect plainSelect) {
+        if (!tableGroups.containsKey(plainSelect)) {
+            tableGroups.put(plainSelect, new ArrayList<List<FromItemAccessor>>());
+        }
 
         processFromItem(plainSelect);
 
-        processJoins(plainSelect);
-
         processWhereClause(plainSelect);
 
+        selectStack.push(plainSelect);
+
+        processJoins(plainSelect);
+
         processSelectItems(plainSelect);
+
+        selectStack.pop();
     }
 
     private void substituteTablesWithAclSubQueries() {
@@ -241,7 +231,6 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
                 accessor.setFromItem(createAclSubSelect((Table) accessor.getFromItem()));
             }
         }
-
     }
 
     @Override
@@ -262,26 +251,5 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
 
         substituteTablesWithAclSubQueries();
         tableGroups.clear();
-    }
-
-    @Override
-    public void visit(SelectExpressionItem selectExpressionItem) {
-        selectExpressionItem.getExpression().accept(recursiveExpressionVisitor);
-    }
-
-    @Override
-    public void visit(SetOperationList setOperationList) {
-        if (setOperationList.getSelects() != null) {
-            for (SelectBody plainSelect : setOperationList.getSelects()) {
-                visit((PlainSelect) plainSelect);
-            }
-        }
-    }
-
-    @Override
-    public void visit(WithItem withItem) {
-        if (withItem.getSelectBody() != null) {
-            withItem.getSelectBody().accept(this);
-        }
     }
 }

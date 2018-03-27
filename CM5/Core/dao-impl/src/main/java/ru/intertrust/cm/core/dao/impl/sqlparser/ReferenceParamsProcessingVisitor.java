@@ -31,7 +31,7 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  * @author atsvetkov
  */
 
-public class ReferenceParamsProcessingVisitor extends BaseParamProcessingVisitor {
+public class ReferenceParamsProcessingVisitor extends BasicVisitor {
     private Map<String, String> replaceExpressions = new HashMap<>();
 
     private QueryModifierPrompt prompt;

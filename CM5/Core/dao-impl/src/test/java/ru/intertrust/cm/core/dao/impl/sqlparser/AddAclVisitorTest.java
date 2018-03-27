@@ -321,6 +321,19 @@ public class AddAclVisitorTest {
 
     }
 
+    @Test
+    public void testEliminateExcessiveAclInSubquery() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("attributes").linkedTo("documents", "Owner")));
+        AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
+        SqlQueryParser parser = new SqlQueryParser("select id, (select string_agg(v, ', ') from attributes where owner = d.id) from documents d");
+        Select select = parser.getSelectStatement();
+        String expected = GROUPS_SUBQUERY
+                + select.toString().replaceAll("FROM documents d", "FROM " + aclSubquery("documents", "documents", "documents", "d"));
+        select.accept(visitor);
+        assertEquals(expected, select.toString());
+    }
+
     private String aclSubquery(String type, String aclType, String accessObjectIdType, String alias) {
         String subquery = "(SELECT "
                 + type

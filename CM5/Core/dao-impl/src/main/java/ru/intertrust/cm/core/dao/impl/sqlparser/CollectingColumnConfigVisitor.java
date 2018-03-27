@@ -1,19 +1,22 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.expression.*;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
-import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.select.*;
-import ru.intertrust.cm.core.business.api.dto.Case;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.statement.select.FromItemVisitor;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectVisitor;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.SubSelect;
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * Визитор для поиска конфигурации полей в Where части SQL запроса и для
@@ -21,7 +24,7 @@ import java.util.Map;
  * @author atsvetkov
  */
 
-public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor implements ExpressionVisitor, FromItemVisitor, SelectVisitor {
+public class CollectingColumnConfigVisitor extends BasicVisitor implements ExpressionVisitor, FromItemVisitor, SelectVisitor {
 
     protected ConfigurationExplorer configurationExplorer;
     protected PlainSelect plainSelect;
@@ -62,12 +65,12 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     }
 
     @Override
-    protected void visitSubSelect(SubSelect subSelect) {
+    public void visit(SubSelect subSelect) {
         if (subSelect.getSelectBody() instanceof PlainSelect) {
             PlainSelect subPlainSelect = (PlainSelect) subSelect.getSelectBody();
             innerSubSelects.add(subPlainSelect);
         }
-        subSelect.getSelectBody().accept(this);
+        super.visit(subSelect);
     }
 
     @Override
@@ -80,17 +83,8 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
     }
 
     @Override
-    public void visit(SelectExpressionItem selectExpressionItem) {
-        selectExpressionItem.getExpression().accept(this);
-    }
-
-    @Override
     public void visit(Column column) {
         collectColumnConfiguration(column);
-    }
-
-    @Override
-    public void visit(RegExpMatchOperator regExpMatchOperator) {
     }
 
     private void collectColumnConfiguration(Column column) {
@@ -117,41 +111,5 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     private String getColumnName(Column column) {
         return DaoUtils.unwrap(Case.toLower(column.getColumnName()));
-    }
-
-    @Override
-    public void visit(WithinGroupExpression wgexpr) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(JsonExpression jsonExpr) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(RegExpMySQLOperator regExpMySQLOperator) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(UserVariable var) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NumericBind bind) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(KeepExpression aexpr) {
-        // TODO Auto-generated method stub
-
     }
 }

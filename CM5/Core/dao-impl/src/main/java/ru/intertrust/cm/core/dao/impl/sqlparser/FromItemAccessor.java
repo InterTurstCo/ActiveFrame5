@@ -42,7 +42,7 @@ public class FromItemAccessor {
 
     public Expression getCondition() {
         if (select != null) {
-            return null;
+            return select.getWhere();
         } else {
             return join.getOnExpression();
         }
