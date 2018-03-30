@@ -3,9 +3,7 @@ package ru.intertrust.cm.globalcache.api.util;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author Denis Mitavskiy
- *         Date: 16.09.2015
- *         Time: 13:09
+ * @author Denis Mitavskiy Date: 16.09.2015 Time: 13:09
  */
 public class Size {
     public static final long BYTES_IN_MEGABYTE = 1024 * 1024;
@@ -30,7 +28,7 @@ public class Size {
         set(size);
     }
 
-    public Size setTotal(Size total) {
+    public synchronized Size setTotal(Size total) {
         if (this.sizeTotal != null) {
             throw new IllegalArgumentException("Total's already initialized");
         }
@@ -60,7 +58,7 @@ public class Size {
         return size.get() / BYTES_IN_MEGABYTE;
     }
 
-    public void detachFromTotal() {
+    public synchronized void detachFromTotal() {
         Size total = sizeTotal;
         sizeTotal = null;
         final long previous = this.size.getAndSet(0);
@@ -69,11 +67,12 @@ public class Size {
         }
     }
 
+    @Override
     public String toString() {
         return get() / BYTES_IN_MEGABYTE + " MB";
     }
 
-    private void updateTotal(long delta) {
+    private synchronized void updateTotal(long delta) {
         if (sizeTotal != null) {
             sizeTotal.add(delta);
         }
