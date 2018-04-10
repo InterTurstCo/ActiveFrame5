@@ -15,6 +15,10 @@
             <act:validator class-name="ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator" widget-id="8a"/>
         </act:validators-->
     </act:action>
+    <act:action name="aSaveAndClose" componentName="save.and.close.action" order="201" dirtySensitivity="false"
+                text="Сохранить и Закрыть" tooltip="Сохранить изменения и закрыть форму редактирования" imageClass="actionBar-save"
+                permissions="Write">
+    </act:action>
     <act:action name="aDelete" componentName="delete.action" order="300"
                 text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"
                 permissions="Delete">
