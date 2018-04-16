@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
 
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
@@ -43,6 +46,12 @@ public class DoelResolver implements DoelEvaluator {
 
     private static final Logger log = LoggerFactory.getLogger(DoelResolver.class);
 
+    @org.springframework.beans.factory.annotation.Value("${doel.caches.skip:false}")
+    private boolean skipCaches;
+    @org.springframework.beans.factory.annotation.Value("${doel.debug.expressions:}")
+    private String debuggingExpressionsSetting;
+    private Set<DoelExpression> debuggingExpressions;
+
     @Autowired
     private CollectionsDao collectionsDao;
     @Autowired
@@ -63,7 +72,7 @@ public class DoelResolver implements DoelEvaluator {
     private UserGroupGlobalCache userGroupCache;
     @Autowired
     private DomainObjectQueryHelper domainObjectQueryHelper;
-
+/*
     public ConfigurationExplorer getConfigurationExplorer() {
         return configurationExplorer;
     }
@@ -79,13 +88,23 @@ public class DoelResolver implements DoelEvaluator {
     public void setDomainObjectCacheService(DomainObjectCacheServiceImpl domainObjectCacheService) {
         this.domainObjectCacheService = domainObjectCacheService;
     }
-
+*/
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
     
     public AccessControlService getAccessControlService() {
         return accessControlService;
+    }
+
+    @PostConstruct
+    private void initialize() {
+        if (debuggingExpressionsSetting != null && !debuggingExpressionsSetting.isEmpty()) {
+            debuggingExpressions = new HashSet<>();
+            for (String expr : debuggingExpressionsSetting.split(";")) {
+                debuggingExpressions.add(DoelExpression.parse(expr));
+            }
+        }
     }
 
     @Override
@@ -97,7 +116,14 @@ public class DoelResolver implements DoelEvaluator {
     @SuppressWarnings("rawtypes")
     public <T extends Value> List<T> evaluateInternal(DoelExpression expression, Id sourceObjectId,
             AccessToken accessToken) {
+        DebugPrinter debugPrinter = null;
+        if (needToDebugExpression(expression)) {
+            debugPrinter = new DebugPrinter(expression, sourceObjectId);
+        }
         if (sourceObjectId == null) {
+            if (debugPrinter != null) {
+                debugPrinter.print(str("no evaluation"));
+            }
             return Collections.emptyList();
         }
         try {
@@ -105,13 +131,19 @@ public class DoelResolver implements DoelEvaluator {
             DoelValidator.DoelTypes check =
                     DoelValidator.validateTypes(expression, domainObjectTypeIdCache.getName(id));
             if (!check.isCorrect()) {
+                if (debugPrinter != null) {
+                    debugPrinter.print(str("not valid for type " + domainObjectTypeIdCache.getName(id)));
+                }
                 return Collections.emptyList();
             }
             ArrayList<T> result = new ArrayList<>();
             for (DoelValidator.DoelTypes.Link type : check.getTypeChains()) {
-                evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken);
+                evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken, debugPrinter);
             }
-            if (log.isTraceEnabled()) {
+            if (debugPrinter != null) {
+                debugPrinter.print(list("result", result));
+            }
+            else if (log.isTraceEnabled()) {
                 log.trace("Calculated " + expression + " for " + sourceObjectId + ": " + result);
             }
             return result;
@@ -144,7 +176,7 @@ public class DoelResolver implements DoelEvaluator {
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private <T extends Value> void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
-            List<RdbmsId> sourceIds, List<T> result, AccessToken accessToken) {
+            List<RdbmsId> sourceIds, List<T> result, AccessToken accessToken, DebugPrinter debugPrinter) {
         //String type = branch.getType();
 
         ArrayList<RdbmsId> nextIds = new ArrayList<>();
@@ -153,6 +185,9 @@ public class DoelResolver implements DoelEvaluator {
 
         // Получение объектов из кэша
         useCache: while (step < expr.getElements().length) {
+            if (skipCaches) {
+                break useCache;
+            }
             boolean lastStep = step == expr.getElements().length - 1;
             DoelExpression.Element element = expr.getElements()[step];
             if (DoelExpression.ElementType.FIELD == element.getElementType()) {
@@ -163,8 +198,16 @@ public class DoelResolver implements DoelEvaluator {
                     nextObjects = new ArrayList<>(nextIds.size());
                     for (RdbmsId objId : sourceIds) {
                         DomainObject obj = domainObjectCacheService.get(objId, accessToken);
+                        if (debugPrinter != null && obj != null) {
+                            debugPrinter.print(var("step", step), var("elem", element), var("objId", objId),
+                                    str("got from tx cache"), var("object", obj));
+                        }
                         if (obj == null) {
                             obj = globalCacheClient.getDomainObject(objId, accessToken);
+                            if (debugPrinter != null && obj != null) {
+                                debugPrinter.print(var("step", step), var("elem", element), var("objId", objId),
+                                        str("got from global cache"), var("object", obj));
+                            }
                         }
 
                         if (obj == null) {
@@ -181,16 +224,28 @@ public class DoelResolver implements DoelEvaluator {
                         }*/
                         if (fieldElem.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)) {
                             result.add((T) new ReferenceValue(obj.getId()));
+                            if (debugPrinter != null) {
+                                debugPrinter.print(var("step", step), var("elem", element), var("objId", obj.getId()),
+                                        str("use ID " + obj.getId()));
+                            }
                         } else {
                             T value = obj.getValue(fieldElem.getName());
                             if (value != null) {
                                 result.add(value);
+                            }
+                            if (debugPrinter != null) {
+                                debugPrinter.print(var("step", step), var("elem", element), var("objId", obj.getId()),
+                                        str(value == null ? "no value; skipped" : "use value " + value.get()));
                             }
                         }
                     } else {
                         Id link = obj.getReference(fieldElem.getName());
                         if (link != null) {
                             nextIds.add((RdbmsId) link);
+                        }
+                        if (debugPrinter != null) {
+                            debugPrinter.print(var("step", step), var("elem", element), var("objId", obj.getId()),
+                                    str(link == null ? "no ref; skipped" : "use ref " + link));
                         }
                     }
                 }
@@ -204,10 +259,18 @@ public class DoelResolver implements DoelEvaluator {
                 for (RdbmsId objId : sourceIds) {
                     List<DomainObject> children = domainObjectCacheService.getAll(objId, accessToken,
                             childrenElem.getChildType(), childrenElem.getParentLink());
+                    if (debugPrinter != null && children != null) {
+                        debugPrinter.print(var("step", step), var("elem", element), var("objId", objId),
+                                str("got linked from tx cache:"), list(children));
+                    }
 
                     if (children == null) {
                         children = globalCacheClient.getLinkedDomainObjects(objId, childrenElem.getChildType(),
                                 childrenElem.getParentLink(), false, accessToken);
+                        if (debugPrinter != null && children != null) {
+                            debugPrinter.print(var("step", step), var("elem", element), var("objId", objId),
+                                    str("got linked from global cache:"), list(children));
+                        }
                     }
 
                     if (children == null) {
@@ -246,10 +309,16 @@ public class DoelResolver implements DoelEvaluator {
                 branch = nextTypes.get(0);
             } else /*if (nextTypes.size() > 1)*/ {
                 DoelExpression subExpr = expr.excludeCommonBeginning(expr.cutByCount(step));
-                Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, sourceIds);
+                Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, sourceIds, debugPrinter);
                 for (DoelTypes.Link subBranch : nextTypes) {
                     if (groupedIds.containsKey(subBranch.getType())) {
-                        evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken);
+                        if (debugPrinter != null) {
+                            debugPrinter.print(var("step", step),
+                                    str("evaluate subexpr " + subExpr + " for type" + subBranch.getType()),
+                                    list(groupedIds.get(subBranch.getType())));
+                        }
+                        evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken,
+                                debugPrinter);
                     }
                 }
                 return;
@@ -358,8 +427,14 @@ public class DoelResolver implements DoelEvaluator {
             fields.add(item);
         }
         plainSelect.setSelectItems(fields);
+        if (debugPrinter != null) {
+            debugPrinter.print(var("step", step), var("exec sql", select));
+        }
 
         List<Value> values = executeQuery(select.toString(), accessToken);
+        if (debugPrinter != null) {
+            debugPrinter.print(var("step", step), list("got from db", values));
+        }
 
         Function[] functions = expr.getElements()[step - 1].getFunctions();
         if (functions != null) {
@@ -369,6 +444,9 @@ public class DoelResolver implements DoelEvaluator {
                     log.trace("Processing function " + function + " [" + impl.getClass().getName() + "] on " + values);
                 }
                 values = impl.process(values, function.getArguments(), accessToken);
+                if (debugPrinter != null) {
+                    debugPrinter.print(var("step", step), var("func", function), list("replaced with", values));
+                }
                 if (values.size() == 0) {
                     return;
                 }
@@ -379,10 +457,16 @@ public class DoelResolver implements DoelEvaluator {
             // Продолжаем обработку, если оказалось несколько ветвей
             List<DoelTypes.Link> nextTypes = branch.getNext();
             DoelExpression subExpr = expr.excludeCommonBeginning(expr.cutByCount(step));
-            Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, values);
+            Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, values, debugPrinter);
             for (DoelTypes.Link subBranch : nextTypes) {
                 if (groupedIds.containsKey(subBranch.getType())) {
-                    evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken);
+                    if (debugPrinter != null) {
+                        debugPrinter.print(var("step", step),
+                                str("evaluate subexpr " + subExpr + " for type" + subBranch.getType()),
+                                list(groupedIds.get(subBranch.getType())));
+                    }
+                    evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken,
+                            debugPrinter);
                 }
             }
         } else {
@@ -403,7 +487,7 @@ public class DoelResolver implements DoelEvaluator {
         return values;
     }
 
-    private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {
+    private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids, DebugPrinter debugPrinter) {
         HashSet<String> typeSet = new HashSet<>();
         for (DoelTypes.Link link : types) {
             typeSet.add(link.getType());
@@ -430,12 +514,18 @@ public class DoelResolver implements DoelEvaluator {
                         result.put(type, new ArrayList<RdbmsId>());
                     }
                     result.get(type).add(id);
+                    if (debugPrinter != null) {
+                        debugPrinter.print(var("objId", id), var("type", idType), str("will be processed as " + type));
+                    }
                     continue idCycle;
                 }
             }
 
             if (log.isInfoEnabled()) {
                 log.info("Unexpected object type: " + domainObjectTypeIdCache.getName(id)); //*****
+            }
+            if (debugPrinter != null) {
+                debugPrinter.print(var("objId", id), var("type", idType), str("not valid; skipped"));
             }
         }
         return result;
@@ -549,4 +639,93 @@ public class DoelResolver implements DoelEvaluator {
         }
     }
 */
+    private interface Printable {
+        void print(StringBuilder out);
+    }
+
+    private boolean needToDebugExpression(DoelExpression expr) {
+        return debuggingExpressions != null && debuggingExpressions.contains(expr);
+    }
+
+    private class DebugPrinter {
+        String prologue;
+
+        DebugPrinter(DoelExpression expression, Id sourceObjectId) {
+            prologue = "[doel.debug] expr=" + expression + "; srcId=" + sourceObjectId;
+        }
+
+        void print(Printable... items) {
+            StringBuilder sb = new StringBuilder(prologue);
+            for (Printable item : items) {
+                item.print(sb);
+            }
+            log.warn(sb.toString());
+        }
+    }
+
+    private static Printable str(final String str) {
+        return new Printable() {
+            @Override
+            public void print(StringBuilder out) {
+                out.append(": ").append(str);
+            }
+        };
+    }
+
+    private static Printable var(final String name, final Object var) {
+        return new Printable() {
+            @Override
+            public void print(StringBuilder out) {
+                out.append("; ").append(name).append("=").append(var);
+            }
+        };
+    }
+/*
+    private static <T> Printable arr(final String name, final T[] array) {
+        return new Printable() {
+            @Override
+            public void print(StringBuilder out) {
+                out.append("; ").append(name).append(": ").append(array.length).append(" items");
+                for (T item : array) {
+                    out.append("\n\t\t\t").append(item);
+                }
+            }
+        };
+    }
+
+    private static <T> Printable arr(final T[] array) {
+        return new Printable() {
+            @Override
+            public void print(StringBuilder out) {
+                out.append(array.length).append(" items");
+                for (T item : array) {
+                    out.append("\n\t\t\t").append(item);
+                }
+            }
+        };
+    }
+*/
+    private static <T> Printable list(final String name, final List<T> array) {
+        return new Printable() {
+            @Override
+            public void print(StringBuilder out) {
+                out.append("; ").append(name).append(": ").append(array.size()).append(" items");
+                for (T item : array) {
+                    out.append("\n\t\t\t").append(item);
+                }
+            }
+        };
+    }
+
+    private static <T> Printable list(final List<T> array) {
+        return new Printable() {
+            @Override
+            public void print(StringBuilder out) {
+                out.append(array.size()).append(" items");
+                for (T item : array) {
+                    out.append("\n\t\t\t").append(item);
+                }
+            }
+        };
+    }
 }

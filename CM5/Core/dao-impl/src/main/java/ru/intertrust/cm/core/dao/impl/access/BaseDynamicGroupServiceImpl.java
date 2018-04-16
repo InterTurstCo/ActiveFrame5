@@ -87,7 +87,7 @@ public class BaseDynamicGroupServiceImpl {
     
     public void setDoelResolver(DoelResolver doelResolver) {
         this.doelResolver = doelResolver;
-        doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
+        //doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
     }
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
