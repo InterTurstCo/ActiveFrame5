@@ -546,6 +546,52 @@ public class SearchServiceTest {
         assertTrue(compositeQuery.contains("<reference filter>"));
         assertTrue(compositeQuery.contains("<date filter>"));
     }
+
+    @Test   // CMFIVE-15653 test
+    public void testExtendedSearch_RepeatedIds() throws Exception {
+        // Подготовка данных
+        SearchQuery query = new SearchQuery();
+        query.addAreas(Arrays.asList("TestArea"));
+        query.setTargetObjectType("TargetType");
+        query.addFilter(new TextSearchFilter("StringField", "text search"));
+        FilterAdapter<SearchFilter> adapterMock = mock(FilterAdapter.class);
+        when((FilterAdapter<SearchFilter>)searchFilterImplementorFactory.createImplementorFor(any(Class.class)))
+                .thenReturn(adapterMock);
+        when(adapterMock.getFilterString(argThat(isA(TextSearchFilter.class)), any(SearchQuery.class)))
+                .thenReturn("<text filter>");
+        IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
+        when(configMock.getType()).thenReturn("TargetType");
+
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+
+        SolrDocument doc1 = docMock("doc1", 1f);
+        SolrDocument doc2 = docMock("doc2", 0.77f);
+        SolrDocument doc3 = docMock("doc3", 0.5f);
+        SolrDocument doc2copy = docMock("doc2", 0.45f);
+        SolrDocument doc4 = docMock("doc4", 0.1234f);
+        SolrDocumentList docList = new SolrDocumentList();
+        docList.addAll(Arrays.asList(doc1, doc2, doc3, doc2copy, doc4));
+        docList.setMaxScore(1f);
+        QueryResponse response = mock(QueryResponse.class);
+        when(response.getResults()).thenReturn(docList);
+
+        when(solrServer.query(any(SolrParams.class))).thenReturn(response);
+
+        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
+        when(objects.size()).thenReturn(4);
+        when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
+
+        // Вызов проверяемого метода
+        service.search(query, "TestCollection", 20);
+
+        // Проверка правильности запроса к Solr
+        ArgumentCaptor<SolrDocumentList> compactedList = ArgumentCaptor.forClass(SolrDocumentList.class);
+        verify(namedCollectionRetriever).queryCollection(compactedList.capture(), eq(20));
+        assertEquals(4, compactedList.getValue().size());
+        assertTrue(!compactedList.getValue().contains(doc2copy));
+    }
 /*
     @Test
     public void tempTestCombine() {

@@ -181,32 +181,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
                     continue;
                 }
-                /*if (filter instanceof CombiningFilter) {
-                    CombiningFilter combiningFilter = (CombiningFilter) filter;
-                    if (combiningFilter.getFilters().size() == 1 || combiningFilter.getOperation() == combineOperation) {
-                        addFilters(combiningFilter.getFilters(), query);
-                    } else {
-                        ComplexQuery nestedQuery = new ComplexQuery();
-                        nestedQuery.combineOperation = combiningFilter.getOperation();
-                        nestedQuery.addFilters(combiningFilter.getFilters(), query);
-                        nestedQueries.add(nestedQuery);
-                    }
-                    continue;
-                }
-                if (filter instanceof NegativeFilter
-                        && ((NegativeFilter) filter).getBaseFilter() instanceof CombiningFilter) {
-                    CombiningFilter combiningFilter = (CombiningFilter) ((NegativeFilter) filter).getBaseFilter();
-                    if (combiningFilter.getFilters().size() == 1) {
-                        addFilters(Collections.<SearchFilter>singleton(
-                                new NegativeFilter(combiningFilter.getFilters().get(0))), query);
-                    } else {
-                        ComplexQuery nestedQuery = new ComplexQuery();
-                        nestedQuery.combineOperation = combiningFilter.getOperation();
-                        nestedQuery.negate = true;
-                        nestedQuery.addFilters(combiningFilter.getFilters(), query);
-                        nestedQueries.add(nestedQuery);
-                    }
-                }*/
 
                 String filterValue = adapter.getFilterString(filter, query);
                 if (filterValue == null || filterValue.isEmpty()) {
@@ -295,6 +269,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 if (foundParts.size() == 1) {
                     result = foundParts.get(0);
+                    compactList(result);
                 } else {
                     // TODO special processing for negateResult==true needed
                     result = combineResults(foundParts, combineOperation == CombiningFilter.AND
