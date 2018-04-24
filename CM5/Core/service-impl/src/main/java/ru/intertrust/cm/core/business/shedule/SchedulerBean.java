@@ -229,6 +229,16 @@ public class SchedulerBean {
                 if (startedTask.future.isDone()) {
                     //Удаляем из наблюдаемых задач
                     startedTasks.remove(i);
+                    //Проверяем в правильном ли состоянии у нас задача. Статус должен быть Complete, если не так то устанавливаем его с WARNING в лог
+                    DomainObject taskDomainObject = domainObjectDao.find(startedTask.taskId, getAccessToken());
+                    if (!taskDomainObject.getStatus().equals(statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_COMPLETE))){
+                        domainObjectDao.setStatus(
+                                taskDomainObject.getId(), 
+                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_COMPLETE), 
+                                getAccessToken());
+                        logger.warn("Schedule task " + taskDomainObject.getId()
+                                + " is not complete in async processor. Complete it in SceduleBean");
+                    }
                 } else if (startedTask.isCancaled) {
                     //Задача была прервана, но тем не менее она не завершена до сих пор, значит флаг isInterrupted не учитывался при построение класса задачи
                     //Данную задачу делаем не активной, помечаем как плохая и посылаем уведомление администратору.
