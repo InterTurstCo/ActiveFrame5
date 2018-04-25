@@ -92,6 +92,11 @@
     <dependencyManagement>
         <dependencies>
             <!-- Simple Framework (XML processing) -->
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>jsr305</artifactId>
+				<version>1.3.9</version>
+			</dependency>
             <dependency>
                 <groupId>org.simpleframework</groupId>
                 <artifactId>simple-xml</artifactId>
