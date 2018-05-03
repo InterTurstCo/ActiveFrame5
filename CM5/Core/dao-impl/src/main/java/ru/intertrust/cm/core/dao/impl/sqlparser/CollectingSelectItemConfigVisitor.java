@@ -27,9 +27,7 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
                 selectExpressionItem.getExpression() instanceof Column) {
             Column column = (Column) selectExpressionItem.getExpression();
             String aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
-            if (columnToConfigMapping.get(aliasName) == null) {
-                columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
-            }
+            columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
         }
     }
 

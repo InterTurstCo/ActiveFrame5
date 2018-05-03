@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 public class FakeConfigurationExplorer extends StubConfigurationExplorer {
@@ -61,7 +62,22 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
 
         public TypeConfigBuilder addLongField(String field) {
             FieldConfig config = new LongFieldConfig();
-            config.setName("field");
+            config.setName(field);
+            typeConfig.getFieldConfigs().add(config);
+            return this;
+        }
+
+        public TypeConfigBuilder addStringField(String field) {
+            FieldConfig config = new StringFieldConfig();
+            config.setName(field);
+            typeConfig.getFieldConfigs().add(config);
+            return this;
+        }
+
+        public TypeConfigBuilder addReferenceField(String field, String type) {
+            ReferenceFieldConfig config = new ReferenceFieldConfig();
+            config.setName(field);
+            config.setType(type);
             typeConfig.getFieldConfigs().add(config);
             return this;
         }
