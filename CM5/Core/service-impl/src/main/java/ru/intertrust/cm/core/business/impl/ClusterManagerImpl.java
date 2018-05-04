@@ -90,6 +90,11 @@ public class ClusterManagerImpl implements ClusterManager{
         crudService.delete(nodeInfo.getId());
     }
 
+    @Override
+    public boolean isMainServer() {
+        return !configurationLoader.isConfigurationTableExist() || mainClusterManager;
+    }
+
     /**
      * Попадаем сюда раз в INTERVAL мс. Обновляем информацию о доступности ноды
      * и проверяем наличие ведущего менеджера

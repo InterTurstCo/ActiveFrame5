@@ -8,7 +8,15 @@ public interface GloballyLockableInitializer {
     interface Remote extends GloballyLockableInitializer {}
 
     /**
-     * Выолняет инициализацию приложения, глобально синхронизированную между узлами в кластере
+     * Выполняет блокировку перед вызовом init в случае если текущий сервер ведущий.
+     * @throws Exception
      */
-    void init() throws Exception;
+    void start() throws Exception;
+
+    /**
+     * Снимает блокировку выставленную в init в случае если текущий сервер ведущий.
+     * @throws Exception
+     */
+    void finish() throws Exception;
+
 }

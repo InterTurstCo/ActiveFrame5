@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.jta.JtaTransactionManager;
+import ru.intertrust.cm.core.business.api.ClusterManager;
+import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
@@ -41,8 +43,9 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private static final Logger logger = LoggerFactory.getLogger(GloballyLockableInitializerImpl.class);
 
     private static final long serverId = new Random().nextLong();
+    private static final String LOCK_KEY = "GloballyLockableInitializer_LOCK_KEY";
 
-    @Autowired private InitializationLockDao initializationLockDao;
+   // @Autowired private InitializationLockDao initializationLockDao;
     @Autowired private DataStructureDao dataStructureDao;
     @Autowired private ConfigurationLoader configurationLoader;
     @Autowired private DomainObjectTypeIdCache domainObjectTypeIdCache;
@@ -55,6 +58,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ExtensionService extensionService;
     @Autowired private PluginService pluginService;
     @Autowired private ApplicationContext context;
+    @Autowired private ClusterManager clusterManager;
+    @Autowired private InterserverLockingService interserverLockingService;
 
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
@@ -62,138 +67,72 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @EJB private StatisticsGatherer statisticsGatherer;
 
     @Override
-    public void init() throws Exception {
+    public void start() throws Exception {
+        if(clusterManager.isMainServer()){
+            if(!interserverLockingService.lock(LOCK_KEY)){
+                throw new FatalException("Текущий сервер помечен как маснет но не смог получить блокировку");
+            }
+        }
+        init();
+    }
+
+    @Override
+    public void finish() throws Exception {
+        if(clusterManager.isMainServer()){
+            interserverLockingService.unlock(LOCK_KEY);
+        }
+    }
+
+
+    private void init() throws Exception {
         UserTransaction userTransaction = null;
-        try {
-            if (!initializationLockDao.isInitializationLockTableCreated()) {
-                try {
-                    initializationLockDao.createInitializationLockTable();
-                } catch (DataAccessException e) {
-                    logger.error("Error creating initialization_lock table", e);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e1) {
-                        throw new FatalException(e1);
-                    }
-                    init();
-                }
-
-                userTransaction = startTransaction();
-                initializationLockDao.createLockRecord(serverId);
-                userTransaction.commit();
-
-                ExecutorService executorService = Executors.newSingleThreadExecutor();
-                executorService.execute(new LockUpdaterTask());
-
+        // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
+        if(clusterManager.isMainServer()){
+            // если нет конфигукации предполагаем что необходимо создать все структуру базы.
+            if(!configurationLoader.isConfigurationTableExist()){
                 configurationLoader.load();
                 executeInitialLoadingTasks();
                 statisticsGatherer.gatherStatistics();
-
-                executorService.shutdownNow();
-                return;
+            }else{
+                domainObjectTypeIdCache.build();
+                configurationLoader.update();
+                executeInitialLoadingTasks();
             }
-
-            userTransaction = startTransaction();
-
-            while(true) {
-                if (userTransaction == null) {
-                    userTransaction = startTransaction();
-                }
-
-                if (!initializationLockDao.isLocked()) {
-                    break;
-                }
-
-                userTransaction.commit();
-                userTransaction = null;
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new FatalException(e);
-                }
-            }
-
-            initializationLockDao.lock(serverId);
-            userTransaction.commit();
-
-            ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.execute(new LockUpdaterTask());
+        }else{
+            // заполняем только кэши
 
             domainObjectTypeIdCache.build();
-            configurationLoader.update();
-            executeInitialLoadingTasks();
+            configurationLoader.onLoadComplete();
+            //++
+            scheduleTaskLoader.load();
+            configurationLoader.applyConfigurationExtensionCleaningOutInvalid();
 
-            executorService.shutdownNow();
-        } catch (Exception e) {
-            logger.error("GloballyLockableInitializer: failed to initialize application", e);
-            if (userTransaction != null && userTransaction.getStatus() == Status.STATUS_ACTIVE) {
-                userTransaction.rollback();
-            }
-            throw e;
-        } finally{
-            try {
-                userTransaction = startTransaction();
-                initializationLockDao.unlock();
-                userTransaction.commit();
-            } catch (Exception e) {
-                logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
-                if (userTransaction != null && userTransaction.getStatus() == Status.STATUS_ACTIVE) {
-                    userTransaction.rollback();
-                }
-            }
+            localizationLoader.load();
+
+            migrationService.writeMigrationLog();
+            pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);
+
         }
+
     }
 
     private void executeInitialLoadingTasks() throws Exception {
         domainObjectTypeIdCache.build();
+
         initialDataLoader.load();
         extensionService.getExtentionPoint(PreDataLoadApplicationInitializer.class, null).initialize();
         importSystemData.load();
         importReportsData.load();
         extensionService.getExtentionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
+
         scheduleTaskLoader.load();
         configurationLoader.applyConfigurationExtensionCleaningOutInvalid();
+
         localizationLoader.load();
+
         migrationService.writeMigrationLog();
         pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);
     }
 
-    private UserTransaction startTransaction() throws SystemException, NotSupportedException {
-        UserTransaction userTransaction = ejbContext.getUserTransaction();
-        if (Status.STATUS_ACTIVE != userTransaction.getStatus()) {
-            userTransaction.begin();
-        }
-        return userTransaction;
-    }
-
-    private class LockUpdaterTask implements Runnable {
-
-        @Override
-        public void run() {
-            TransactionManager transactionManager = jtaTransactionManager.getTransactionManager();
-
-            while(!Thread.interrupted()) {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    return;
-                }
-
-                try {
-                    transactionManager.begin();
-                    initializationLockDao.updateLock();
-                    transactionManager.commit();
-                } catch (Exception e) {
-                    try {
-                        transactionManager.rollback();
-                    } catch (SystemException e1) {
-                        logger.error("Failed to rollback transaction", e1);
-                    }
-                    throw new FatalException(e);
-                }
-            }
-        }
-    }
 
 }

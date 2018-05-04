@@ -37,7 +37,7 @@ public class BootstrapBean {
 
             logger.info("Initialized spring context");
 
-            executeInitializationTasks(beanFactory);
+           // executeInitializationTasks(beanFactory);
 
             logger.info("Initial data loaded");
         } catch (Throwable ex) {

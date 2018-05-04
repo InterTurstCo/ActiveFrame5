@@ -21,4 +21,10 @@ public interface ConfigurationLoadService {
      * Загрузка конфигурации
      */
     void loadConfiguration();
+
+    /**
+     * возращает true если таблица конфигурации существует.
+     * @return
+     */
+    boolean isConfigurationTableExist();
 }
