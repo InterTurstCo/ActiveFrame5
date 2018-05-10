@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.web.app;
+package ru.intertrust.cm.core.initialize;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,15 +6,15 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.web.WebApplicationInitializer;
+import ru.intertrust.cm.core.business.impl.GloballyLockableInitializer;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Created by Vitaliy.Orlov on 04.05.2018.
  */
-public class PlatformWebApplicationInitializer implements WebApplicationInitializer {
+public abstract class PlatformWebApplicationInitializer implements WebApplicationInitializer {
     private Logger logger = LoggerFactory.getLogger(PlatformWebApplicationInitializer.class);
 
     @Override
@@ -27,20 +27,25 @@ public class PlatformWebApplicationInitializer implements WebApplicationInitiali
 
             logger.info("Initialized spring context");
 
-            executeBeanMethod(beanFactory, "globallyLockableInitializer", "start");
+            GloballyLockableInitializer globallyLockableInitializer = beanFactory.getBean(GloballyLockableInitializer.class);
 
-            executeBeanMethod(beanFactory, "globallyLockableInitializer", "finish");
+            logger.info("Start global initialize");
+            globallyLockableInitializer.start();
 
-            logger.info("Initial data loaded");
+            logger.info("Start app initialize");
+
+            onInitContext(servletContext, beanFactory);
+
+            logger.info("Finish app initialize");
+            globallyLockableInitializer.finish();
+
+            logger.info("Initial data loaded : complete");
         } catch (Throwable ex) {
             throw new FatalBeanException("Error init spring context", ex);
         }
 
     }
 
+    public abstract void onInitContext(ServletContext servletContext, BeanFactory platformBeanFactory);
 
-    private void executeBeanMethod(BeanFactory factory, String beanName, String methodName) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        final Object scheduleTaskLoader = factory.getBean(beanName);
-        scheduleTaskLoader.getClass().getMethod(methodName).invoke(scheduleTaskLoader);
-    }
 }

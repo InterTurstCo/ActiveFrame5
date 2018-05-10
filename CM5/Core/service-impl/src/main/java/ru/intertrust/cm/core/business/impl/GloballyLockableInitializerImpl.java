@@ -68,6 +68,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
     @Override
     public void start() throws Exception {
+        logger.info("on Start");
         if(clusterManager.isMainServer()){
             if(!interserverLockingService.lock(LOCK_KEY)){
                 throw new FatalException("Текущий сервер помечен как маснет но не смог получить блокировку");
@@ -78,6 +79,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
     @Override
     public void finish() throws Exception {
+        logger.info("on Finish");
         if(clusterManager.isMainServer()){
             interserverLockingService.unlock(LOCK_KEY);
         }
@@ -85,21 +87,25 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
 
     private void init() throws Exception {
-        UserTransaction userTransaction = null;
+       logger.info("Run init");
         // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
         if(clusterManager.isMainServer()){
+            logger.info("server is main");
             // если нет конфигукации предполагаем что необходимо создать все структуру базы.
             if(!configurationLoader.isConfigurationTableExist()){
+                logger.info("no database-> create database structure");
                 configurationLoader.load();
                 executeInitialLoadingTasks();
                 statisticsGatherer.gatherStatistics();
             }else{
+                logger.info("database exist-> update database structure");
                 domainObjectTypeIdCache.build();
                 configurationLoader.update();
                 executeInitialLoadingTasks();
             }
         }else{
             // заполняем только кэши
+            logger.info("server is not main -> just fill cache");
 
             domainObjectTypeIdCache.build();
             configurationLoader.onLoadComplete();
@@ -114,6 +120,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
         }
 
+        logger.info("Finish init");
     }
 
     private void executeInitialLoadingTasks() throws Exception {
