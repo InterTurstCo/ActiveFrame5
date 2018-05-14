@@ -63,6 +63,9 @@ public class ImportData {
     private int rowsInOneTransaction;
     @org.springframework.beans.factory.annotation.Value("${import.transaction.timeout:1000}")
     private int transactionTimeout;
+    
+    @org.springframework.beans.factory.annotation.Value("${ignor.import.error=false}")
+    private boolean ignorImportError;        
 
     private String typeName;
     private boolean deleteOther;
@@ -395,13 +398,21 @@ public class ImportData {
                         attachments = fieldValues[i];
                     }
                 } else {
-                    //Запоминаем старое значение
-                    Value oldValue = domainObject.getValue(fieldName);
-                    Value newValue = getFieldValue(fieldName, fieldValues[i]);
-                    //Сравниваем изменения. Если значение поменялось, тогда пишем в доменный объект
-                    if ((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
-                        domainObject.setValue(fieldName, newValue);
-                    }
+                	try {
+	                    //Запоминаем старое значение
+	                    Value oldValue = domainObject.getValue(fieldName);
+	                    Value newValue = getFieldValue(fieldName, fieldValues[i]);
+	                    //Сравниваем изменения. Если значение поменялось, тогда пишем в доменный объект
+	                    if ((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
+	                        domainObject.setValue(fieldName, newValue);
+	                    }
+                	}catch(Exception e) {
+                		if(!ignorImportError) {
+                			throw new IOException("Import error in object =" + domainObject.getTypeName() + " id=" + domainObject.getId() );
+                		}else {
+                			System.out.println("WARNING: error during the import process. Object=" + domainObject.getTypeName() + " id=" + domainObject.getId());
+                		}
+                	}
                 }
             }
 
