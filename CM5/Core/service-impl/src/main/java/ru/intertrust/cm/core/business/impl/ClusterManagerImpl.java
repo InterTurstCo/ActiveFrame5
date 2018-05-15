@@ -28,6 +28,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -52,6 +53,7 @@ public class ClusterManagerImpl implements ClusterManager{
     final private static long DEAD_INTERVAL = 60 * 1000;
     final private static String TIMER_NAME = ClusterManager.class.getName();
     final private static String ALL_ROLE = "all";
+    final private static String CLUSTER_MANAGER_LOCK_KEY = "CLUSTER_MANAGER_LOCK_KEY";
 
     private String nodeId;
     private boolean mainClusterManager;
@@ -69,8 +71,14 @@ public class ClusterManagerImpl implements ClusterManager{
     private CrudService crudService;
     
     @Autowired
-    private ConfigurationLoader configurationLoader;    
-    
+    private ConfigurationLoader configurationLoader;
+
+    @Autowired
+    private InterserverLockingService interserverLockingService;
+
+
+    private boolean isInternalLockUsed = false;
+
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
     private String availableRoles;
 
@@ -102,6 +110,15 @@ public class ClusterManagerImpl implements ClusterManager{
      */
     @Timeout
     public void onTimeout(Timer timer) {
+        // пока конфигурация не загружена пробуем залочить interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY)
+        if(!configurationLoader.isConfigurationLoaded()){
+            mainClusterManager = interserverLockingService.isLocked(CLUSTER_MANAGER_LOCK_KEY);
+            if(!mainClusterManager){
+                mainClusterManager = interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY);
+                isInternalLockUsed = true;
+            }
+        }
+
         if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
             //Обновляем информацию о ноде в базе
             DomainObject nodeInfo = crudService.findAndLockByUniqueKey("cluster_node",
@@ -161,6 +178,12 @@ public class ClusterManagerImpl implements ClusterManager{
             //Зачитываем роли в реестр
             readRoleNodes();
         }
+
+        if(configurationLoader.isConfigurationLoaded() && isInternalLockUsed){
+            interserverLockingService.unlock(CLUSTER_MANAGER_LOCK_KEY);
+            isInternalLockUsed = false;
+        }
+
     }
 
     /**
