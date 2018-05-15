@@ -410,7 +410,8 @@ public class ImportData {
                 		if(!ignorImportError) {
                 			throw new IOException("Import error in object =" + domainObject.getTypeName() + " id=" + domainObject.getId() );
                 		}else {
-                			System.out.println("WARNING: error during the import process. Object=" + domainObject.getTypeName() + " id=" + domainObject.getId());
+                			//System.out.println("WARNING: error during the import process. Object=" + domainObject.getTypeName() + " id=" + domainObject.getId());
+                			logger.warn("ImportData.importLine(): Error during the import process Object=" + domainObject.getTypeName() + " for field " + fieldName);
                 		}
                 	}
                 }
