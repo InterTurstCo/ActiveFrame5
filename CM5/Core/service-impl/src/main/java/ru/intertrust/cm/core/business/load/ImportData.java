@@ -64,7 +64,7 @@ public class ImportData {
     @org.springframework.beans.factory.annotation.Value("${import.transaction.timeout:1000}")
     private int transactionTimeout;
     
-    @org.springframework.beans.factory.annotation.Value("${ignor.import.error=false}")
+    @org.springframework.beans.factory.annotation.Value("${ignor.import.error:false}")
     private boolean ignorImportError;        
 
     private String typeName;
