@@ -360,45 +360,47 @@ public class ImportData {
      */
     private Id importLine(String[] line, Boolean rewrite) throws ParseException, IOException,
             NoSuchAlgorithmException {
-        //Разделяем строку на значения
-        String[] fieldValues = line;
-        List<String> fieldValuesList = new ArrayList<String>();
-
-        //тримим и обрабатываем пустые значения в конце строки
-        for (int i = 0; i < fields.length; i++) {
-            if (fieldValues.length < i + 1) {
-                fieldValuesList.add("");
-            } else {
-                fieldValuesList.add(fieldValues[i].trim());
-            }
-        }
-        fieldValues = fieldValuesList.toArray(new String[fieldValuesList.size()]);
-
-        //Получение доменного объекта по ключевым полям
-        DomainObject domainObject = findDomainObject(fieldValues);
-        if (domainObject == null) {
-            //Создание доменного объекта
-            domainObject = createDomainObject(typeName);
-        }
-
-        //Выполяем действия перед импортом
-        doBeforeImportRow(domainObject.getId());
-
-        //Если доменный объект новый или стоит флаг перезаписывать атрибуты то устанавливаем атрибуты
-        if (rewrite || domainObject.isNew()) {
-
-            String attachments = null;
-            //Установка полей
-            for (int i = 0; i < fields.length; i++) {
-                String fieldName = fields[i];
-
-                //Обрабатываем ключевое поле вложения
-                if (ImportDataService.ATTACHMENT_FIELD_NAME.equals(fieldName)) {
-                    if (!fieldValues[i].isEmpty()) {
-                        attachments = fieldValues[i];
-                    }
-                } else {
-                	try {
+    	
+    	try {
+    	
+	        //Разделяем строку на значения
+	        String[] fieldValues = line;
+	        List<String> fieldValuesList = new ArrayList<String>();
+	
+	        //тримим и обрабатываем пустые значения в конце строки
+	        for (int i = 0; i < fields.length; i++) {
+	            if (fieldValues.length < i + 1) {
+	                fieldValuesList.add("");
+	            } else {
+	                fieldValuesList.add(fieldValues[i].trim());
+	            }
+	        }
+	        fieldValues = fieldValuesList.toArray(new String[fieldValuesList.size()]);
+	
+	        //Получение доменного объекта по ключевым полям
+	        DomainObject domainObject = findDomainObject(fieldValues);
+	        if (domainObject == null) {
+	            //Создание доменного объекта
+	            domainObject = createDomainObject(typeName);
+	        }
+	
+	        //Выполяем действия перед импортом
+	        doBeforeImportRow(domainObject.getId());
+	
+	        //Если доменный объект новый или стоит флаг перезаписывать атрибуты то устанавливаем атрибуты
+	        if (rewrite || domainObject.isNew()) {
+	
+	            String attachments = null;
+	            //Установка полей
+	            for (int i = 0; i < fields.length; i++) {
+	                String fieldName = fields[i];
+	
+	                //Обрабатываем ключевое поле вложения
+	                if (ImportDataService.ATTACHMENT_FIELD_NAME.equals(fieldName)) {
+	                    if (!fieldValues[i].isEmpty()) {
+	                        attachments = fieldValues[i];
+	                    }
+	                } else {
 	                    //Запоминаем старое значение
 	                    Value oldValue = domainObject.getValue(fieldName);
 	                    Value newValue = getFieldValue(fieldName, fieldValues[i]);
@@ -406,31 +408,33 @@ public class ImportData {
 	                    if ((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
 	                        domainObject.setValue(fieldName, newValue);
 	                    }
-                	}catch(Exception e) {
-                		if(!ignorImportError) {
-                			throw new IOException("Import error in object =" + domainObject.getTypeName() + " id=" + domainObject.getId() );
-                		}else {
-                			//System.out.println("WARNING: error during the import process. Object=" + domainObject.getTypeName() + " id=" + domainObject.getId());
-                			logger.warn("ImportData.importLine(): Error during the import process Object=" + domainObject.getTypeName() + " for field " + fieldName);
-                		}
-                	}
-                }
-            }
-
-            //Доменный объект сохраняем только если он изменился
-            if (domainObject.isNew() || domainObject.isDirty()) {
-                domainObject = domainObjectDao.save(domainObject, getWriteAccessToken(domainObject));
-            }
-
-            //Создаем вложения если необходимо
-            if (attachments != null) {
-                String[] attachementsList = attachments.split(",");
-                for (int j = 0; j < attachementsList.length; j++) {
-                    createAttachment(domainObject, attachementsList[j]);
-                }
-            }
-        }
-        return domainObject.getId();
+	                }
+	            }
+	
+	            //Доменный объект сохраняем только если он изменился
+	            if (domainObject.isNew() || domainObject.isDirty()) {
+	                domainObject = domainObjectDao.save(domainObject, getWriteAccessToken(domainObject));
+	            }
+	
+	            //Создаем вложения если необходимо
+	            if (attachments != null) {
+	                String[] attachementsList = attachments.split(",");
+	                for (int j = 0; j < attachementsList.length; j++) {
+	                    createAttachment(domainObject, attachementsList[j]);
+	                }
+	            }
+	        }
+	        return domainObject.getId();
+        
+    	}catch(Exception e) {
+    		if(!ignorImportError) {
+    			throw new IOException("Import error", e);
+    		}else {
+    			logger.warn("ImportData.importLine(): Error during the import process", e);
+    		}
+    	}
+		return null; 
+        
     }
 
     private Value getFieldValue(String fieldName, String fieldValue) throws ParseException {
