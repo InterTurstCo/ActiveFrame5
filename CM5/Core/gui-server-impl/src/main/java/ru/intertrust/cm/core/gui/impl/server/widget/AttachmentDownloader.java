@@ -85,8 +85,10 @@ public class AttachmentDownloader {
 
         filename = URLEncoder.encode(filename, UTF_8).replaceAll("\\+","%20");
         //For Firefox encoding issue
-        String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*=UTF-8''" + filename
-                :"attachment; filename=\"" + filename + "\"";
+//        String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*=UTF-8''" + filename
+//                :"attachment; filename=\"" + filename + "\"";
+        // now for all browsers (probably except Safari) 
+        String contentDispositionPart = "attachment; filename=\"" + filename + "\"" + "; filename*=UTF-8''" + filename;
         response.setHeader("Content-disposition", contentDispositionPart);
 
         try (InputStream fileData = (id != null ?  RemoteInputStreamClient.wrap(remoteFileData)
