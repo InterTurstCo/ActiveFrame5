@@ -30,18 +30,28 @@ public class BaseUrlDispatcherServlet extends HttpServlet {
             session.setAttribute(ATTRIBUTE_URI, request.getRequestURI());
         //response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
 
-        if(!request.getRequestURL().toString().substring(request.getRequestURL().toString().indexOf("/",8)).contains(".")){
+        // первая версия костыля для CMFIVE-18382 (забраковано) 
+//        if (request.getRequestURL().toString().contains("app/attachment-download")) {
+//            response.sendRedirect(request.getContextPath() + "/attachment-download" +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
+//            return;
+//        }
+        
+        if( !request.getRequestURL().toString().substring(request.getRequestURL().toString().indexOf("/",8)).contains(".") 
+                && !request.getRequestURL().toString().contains("attachment-download")  // - вторая версия костыля для CMFIVE-18382
+                ){
             request.getRequestDispatcher(BU_PAGE).forward(request,response);
         }
         else {
             request.getRequestDispatcher(request.getRequestURI().substring(request.getRequestURI().
-                    indexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString())+4)).forward(request,response);
+                    indexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString()) 
+                        + request.getAttribute(VirtualAppFilter.APP_NAME).toString().length())).forward(request,response);
         }
     }
 
     @Override
     public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException{
         request.getRequestDispatcher(request.getRequestURI().substring(request.getRequestURI().
-                indexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString())+4)).forward(request,response);
+                indexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString()) 
+                    + request.getAttribute(VirtualAppFilter.APP_NAME).toString().length())).forward(request,response);
     }
 }
