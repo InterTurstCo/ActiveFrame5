@@ -4,17 +4,21 @@
         http://jboss.org/schema/arquillian
         http://jboss.org/schema/arquillian/arquillian_1_0.xsd">
     <defaultProtocol type="Servlet 3.0" />
-   
-     <container qualifier="wildfly-remote" default="true">
+
+
+    <!-- 
+    Для установки параметров management_port, management_address, management_user, management_password 
+    необходимо передать их через параметры командной строки maven в виде:
+    mvn clean integration-test -P integration-test -Dmanagement_port=9990 -Dmanagement_address=localhost -Dmanagement_user=manager -Dmanagement_password=xxxx 
+    -->
+    <container qualifier="wildfly-remote" default="true">
         <configuration>
             <!--[managementAddress, password, managementPort, port, managementProtocol, host, authenticationConfig, username]-->
-            <property name="managementPort">10000</property>     
+            <property name="managementPort">${management_port}</property>
+            <property name="managementAddress">${management_address}</property>
             <property name="managementProtocol">remote+http</property>
-            <!-- <property name="managementPort">10009</property>     
-            <property name="managementProtocol">remote</property> -->
-            <property name="managementAddress">localhost</property>
-            <!-- <property name="username">adm-user1</property>
-			<property name="password">adm_user_12345</property> -->
+            <property name="username">${management_user}</property>
+            <property name="password">${management_password}</property>
         </configuration>
     </container>
     
