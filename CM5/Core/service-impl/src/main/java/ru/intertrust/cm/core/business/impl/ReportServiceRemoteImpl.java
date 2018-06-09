@@ -4,6 +4,8 @@ import java.io.InputStream;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -17,6 +19,7 @@ import ru.intertrust.cm.core.model.FatalException;
 @Stateless(name = "ReportService")
 @Remote(ReportService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class ReportServiceRemoteImpl extends ReportServiceImpl {
 
     @Override
