@@ -65,7 +65,7 @@ public class PluginStorageImpl implements PluginStorage {
 
     @Autowired
     private UserGroupGlobalCache userCache;
-    
+
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
@@ -81,20 +81,24 @@ public class PluginStorageImpl implements PluginStorage {
         String pluginFolderPath = getPluginFolder();
         if (pluginFolderPath != null) {
             File pluginFolder = new File(pluginFolderPath);
-            File[] subfolders = pluginFolder.listFiles(new FileFilter() {
-                @Override
-                public boolean accept(File folderFile) {
-                    return folderFile.isDirectory();
-                }
-            });
+            if (pluginFolder.exists() && pluginFolder.isDirectory()) {
+                File[] subfolders = pluginFolder.listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File folderFile) {
+                        return folderFile.isDirectory();
+                    }
+                });
 
-            for (File subfolder : subfolders) {
-                try {
-                    FileUtils.deleteDirectory(subfolder);
-                } catch (Exception ex) {
-                    //Пишем в лог, невозможность очистить временный каталог не должен мешать запуску сервера
-                    logger.warn("Error delete temp folder", ex);
+                for (File subfolder : subfolders) {
+                    try {
+                        FileUtils.deleteDirectory(subfolder);
+                    } catch (Exception ex) {
+                        //Пишем в лог, невозможность очистить временный каталог не должен мешать запуску сервера
+                        logger.warn("Error delete temp folder", ex);
+                    }
                 }
+            }else{
+                logger.warn("Plugin folder " + pluginFolderPath + " is not exists");
             }
         }
     }
@@ -112,7 +116,7 @@ public class PluginStorageImpl implements PluginStorage {
             for (PluginInfo pluginInfo : pluginsInfo.values()) {
                 DomainObject status = getPluginStatus(pluginInfo.getClassName());
 
-                if (status != null){
+                if (status != null) {
                     pluginInfo.setLastStart(status.getTimestamp("last_start"));
                     pluginInfo.setLastFinish(status.getTimestamp("last_finish"));
                     String statusName = statusDao.getStatusNameById(status.getStatus());
@@ -126,7 +130,7 @@ public class PluginStorageImpl implements PluginStorage {
                     Id logId = logs.size() == 0 ? null : logs.get(0).getId();
 
                     pluginInfo.setLastResult(logId);
-                }else{
+                } else {
                     pluginInfo.setStatus(PluginInfo.Status.Sleeping);
                 }
             }
