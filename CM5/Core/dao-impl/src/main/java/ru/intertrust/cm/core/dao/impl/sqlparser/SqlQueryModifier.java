@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
@@ -514,6 +515,10 @@ public class SqlQueryModifier {
         }
 
         Column column = (Column) selectExpressionItem.getExpression();
+        // предотвращаем добавление в SELECT поля access_object_it_type
+        if (column.getColumnName().equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID)) {
+            return null;
+        }
         FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
 
         if (fieldConfig instanceof ReferenceFieldConfig) {

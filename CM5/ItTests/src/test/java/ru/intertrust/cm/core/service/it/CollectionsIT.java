@@ -244,7 +244,7 @@ public class CollectionsIT extends IntegrationTestBase {
         params = new ArrayList<Value>();
         personTypeid = domainObjectTypeIdCache.getId("Person");
         
-        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 3)));
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
 

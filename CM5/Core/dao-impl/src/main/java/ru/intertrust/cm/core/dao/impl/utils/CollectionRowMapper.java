@@ -139,7 +139,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
         for (Column column : columnModel.getColumns()) {
             String columnName = column.getName();
             FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
-            if (columnFieldConfig != null) {
+            // условие !columnName.equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID) добавлено, 
+            // чтобы поле аccess_object_id в выборке коллекции имело тип Long (вместо Reference) 
+            if (columnFieldConfig != null && !columnName.equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID)) {
                 continue;
             }
 

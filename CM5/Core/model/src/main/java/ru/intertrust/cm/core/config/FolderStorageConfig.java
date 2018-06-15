@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.config;
 
+import java.io.Serializable;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
 @Root(name = "folder")
-public class FolderStorageConfig implements AttachmentStorageTypeConfig {
+public class FolderStorageConfig implements Serializable, AttachmentStorageTypeConfig {
 
     @Attribute(name = "configurable", required = false)
     private Boolean configurable;

@@ -7,9 +7,12 @@
 
 
     <!-- 
-    Для установки параметров management_port, management_address, management_user, management_password 
-    необходимо передать их через параметры командной строки maven в виде:
+    To set params management_port, management_address, management_user, management_password 
+    we should pass it via command line like following:
     mvn clean integration-test -P integration-test -Dmanagement_port=9990 -Dmanagement_address=localhost -Dmanagement_user=manager -Dmanagement_password=xxxx 
+
+    Unfortunatelly, Cyrillic comments in that xml cause exception 
+    com.sun.org.apache.xerces.internal.impl.io.MalformedByteSequenceException: Invalid byte 2 of 2-byte UTF-8 sequence.
     -->
     <container qualifier="wildfly-remote" default="true">
         <configuration>

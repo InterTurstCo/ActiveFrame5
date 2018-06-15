@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.config;
 
+import java.io.Serializable;
+
 import org.simpleframework.xml.Attribute;
 
-public class DeleteFileConfig {
+public class DeleteFileConfig implements Serializable {
 
     public enum Mode {
         IMMED, NEVER, DELAYED
