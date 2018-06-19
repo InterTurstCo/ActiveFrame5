@@ -76,8 +76,10 @@ public class ClusterManagerImpl implements ClusterManager{
     @Autowired
     private InterserverLockingService interserverLockingService;
 
-
     private boolean isInternalLockUsed = false;
+
+    private boolean isInitMainCluster = false;
+
 
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
     private String availableRoles;
@@ -110,13 +112,9 @@ public class ClusterManagerImpl implements ClusterManager{
      */
     @Timeout
     public void onTimeout(Timer timer) {
-        // пока конфигурация не загружена пробуем залочить interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY)
-        if(!configurationLoader.isConfigurationLoaded()){
-            mainClusterManager = interserverLockingService.isLocked(CLUSTER_MANAGER_LOCK_KEY);
-            if(!mainClusterManager){
-                mainClusterManager = interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY);
-                isInternalLockUsed = true;
-            }
+        mainClusterManager = interserverLockingService.isLocked(CLUSTER_MANAGER_LOCK_KEY);
+        if(!mainClusterManager){
+            mainClusterManager = interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY);
         }
 
         if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
@@ -134,56 +132,21 @@ public class ClusterManagerImpl implements ClusterManager{
 
             //Получаем информацию о менеджере кластера
             DomainObject clusterManagerInfo = getClusterManagerInfo();
-            //Если текущий сервер менеджер кластера
-            if (mainClusterManager) {
-                //Проверяем небыло ли каких сбоев и не занял ли мое место кто то другой
-                if (clusterManagerInfo.getString("node_id").equals(nodeId)) {
-                    //Текущий сервер остается ведущим, обновляем last_available
-                    DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
-                    //Проверяем что объект никто не менял
-                    if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
-                        lockedClusterManagerInfo.setTimestamp("last_available", new Date());
-                        crudService.save(lockedClusterManagerInfo);
-                    } else {
-                        reRunTimer();
-                    }
-                } else {
-                    //Вакансию заняли, снимаю полномочия
-                    mainClusterManager = false;
-                    logger.info("Free cluster manager role " + nodeId);
-                }
-            } else {
-                //Проверяем нет ли активного менеджера кластера и если нет принимаю эту роль на себя
-                if (isDead(clusterManagerInfo)) {
-                    //Если не активен занимаю вакансию
-                    DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
-                    //Проверяем что объект никто не менял
-                    if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
-                        lockedClusterManagerInfo.setString("node_id", nodeId);
-                        lockedClusterManagerInfo.setTimestamp("last_available", new Date());
-                        crudService.save(lockedClusterManagerInfo);
-                        mainClusterManager = true;
-                        logger.info("Accept cluster manager role " + nodeId);
-                    } else {
-                        reRunTimer();
-                    }
-                }
-            }
-            
             //Выполняем операции менеджера кластера
             if (mainClusterManager){
+                DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
+                //Проверяем что объект никто не менял
+                if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
+                    lockedClusterManagerInfo.setString("node_id", nodeId);
+                    lockedClusterManagerInfo.setTimestamp("last_available", new Date());
+                    crudService.save(lockedClusterManagerInfo);
+                }
+
                 manageRoles();
             }
-            
             //Зачитываем роли в реестр
             readRoleNodes();
         }
-
-        if(configurationLoader.isConfigurationLoaded() && isInternalLockUsed){
-            interserverLockingService.unlock(CLUSTER_MANAGER_LOCK_KEY);
-            isInternalLockUsed = false;
-        }
-
     }
 
     /**

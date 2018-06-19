@@ -71,7 +71,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         logger.info("on Start");
         if(clusterManager.isMainServer()){
             if(!interserverLockingService.lock(LOCK_KEY)){
-                throw new FatalException("Текущий сервер помечен как маснет но не смог получить блокировку");
+                throw new FatalException("Current server marked as main but could not get lock");
             }
         }
         init();
