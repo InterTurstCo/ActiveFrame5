@@ -38,7 +38,6 @@ public class DownloadAttachmentAction extends Action {
         if (getTemporaryName() != null) {
             url.append(DOWNLOAD_TEMP_NAME).append(DOWNLOAD_EQUAL).append(getTemporaryName());
         } else if (getId() != null) {
-            url.append("&");
             url.append(DOWNLOAD_ID).append(DOWNLOAD_EQUAL).append(getId().toStringRepresentation());
         }
 
