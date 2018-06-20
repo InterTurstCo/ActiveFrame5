@@ -443,15 +443,31 @@ public class ImportData {
         if (fieldConfig != null) {
             if (fieldConfig.getFieldType() == FieldType.BOOLEAN) {
                 if (fieldValue.length() != 0) {
-                    newValue = new BooleanValue(Boolean.valueOf(fieldValue));
+                    if(isSQLValue(fieldValue)){
+                        newValue = new BooleanValue(Boolean.valueOf(getSQLValue(fieldValue)));
+                    }else{
+                        newValue = new BooleanValue(Boolean.valueOf(fieldValue));
+                    }
                 }
             } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
                 if (fieldValue.length() != 0) {
-                    newValue = new DateTimeValue(ThreadSafeDateFormat.parse(fieldValue, DATE_TIME_PATTERN));
+                    if(isSQLValue(fieldValue)){
+                        newValue = new DateTimeValue(ThreadSafeDateFormat.parse(getSQLValue(fieldValue), DATE_TIME_PATTERN));
+
+                    }else{
+                        newValue = new DateTimeValue(ThreadSafeDateFormat.parse(fieldValue, DATE_TIME_PATTERN));
+                    }
                 }
             } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
                 if (fieldValue.length() != 0) {
-                    Date date = ThreadSafeDateFormat.parse(fieldValue, DATE_TIME_PATTERN);
+                    Date date = null;
+                    if(isSQLValue(fieldValue)){
+                        date = ThreadSafeDateFormat.parse(getSQLValue(fieldValue), DATE_TIME_PATTERN);
+                    }else{
+                        date = ThreadSafeDateFormat.parse(fieldValue, DATE_TIME_PATTERN);
+                    }
+
+
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(date);
                     DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(TimeZone.getDefault().getID(),
@@ -466,11 +482,20 @@ public class ImportData {
                 }
             } else if (fieldConfig.getFieldType() == FieldType.DECIMAL) {
                 if (fieldValue.length() != 0) {
-                    newValue = new DecimalValue(new BigDecimal(fieldValue));
+                    if(isSQLValue(fieldValue)){
+                        newValue = new DecimalValue(new BigDecimal(getSQLValue(fieldValue)));
+                    }else{
+                        newValue = new DecimalValue(new BigDecimal(fieldValue));
+                    }
+
                 }
             } else if (fieldConfig.getFieldType() == FieldType.LONG) {
                 if (fieldValue.length() != 0) {
-                    newValue = new LongValue(Long.parseLong(fieldValue));
+                    if(isSQLValue(fieldValue)){
+                        newValue = new LongValue(Long.parseLong(getSQLValue(fieldValue)));
+                    }else{
+                        newValue = new LongValue(Long.parseLong(fieldValue));
+                    }
                 }
             } else if (fieldConfig.getFieldType() == FieldType.REFERENCE) {
                 //Здесь будут выражения в формате type.field="Значение поля" или field="Значение поля" или запрос
@@ -478,7 +503,12 @@ public class ImportData {
             } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
                 if (fieldValue.length() != 0) {
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(ThreadSafeDateFormat.parse(fieldValue, TIMELESS_DATE_PATTERN));
+
+                    if(isSQLValue(fieldValue)){
+                        calendar.setTime(ThreadSafeDateFormat.parse(getSQLValue(fieldValue), TIMELESS_DATE_PATTERN));
+                    }else{
+                        calendar.setTime(ThreadSafeDateFormat.parse(fieldValue, TIMELESS_DATE_PATTERN));
+                    }
                     newValue = new TimelessDateValue(new TimelessDate(
                         calendar.get(Calendar.YEAR),
                         calendar.get(Calendar.MONTH),
@@ -518,6 +548,29 @@ public class ImportData {
         }
 
         return newValue;
+    }
+
+    private String getSQLValue(String query) {
+
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, new ArrayList<Value>(), 0, 0, getSelectAccessToken());
+
+        if(collection.size() == 0){
+            throw new FatalException("getSQLValue : Not find value by query: " + query);
+        }
+
+        if(collection.size() > 1){
+            throw new FatalException("getSQLValue : Found more then one value by query: " + query);
+        }
+
+        if(collection.getFieldsConfiguration().size() > 1){
+            throw new FatalException("getSQLValue : query contains more than one result column: " + query);
+        }
+
+        return collection.get(0,0).toString();
+    }
+
+    private boolean isSQLValue(String fieldValue) {
+        return fieldValue != null && fieldValue.trim().toLowerCase().startsWith("select");
     }
 
     private boolean isEmptySimvol(String testString) {
