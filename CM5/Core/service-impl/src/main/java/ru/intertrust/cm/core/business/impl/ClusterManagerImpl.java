@@ -112,10 +112,7 @@ public class ClusterManagerImpl implements ClusterManager{
      */
     @Timeout
     public void onTimeout(Timer timer) {
-        mainClusterManager = interserverLockingService.isLocked(CLUSTER_MANAGER_LOCK_KEY);
-        if(!mainClusterManager){
-            mainClusterManager = interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY);
-        }
+        mainClusterManager = interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY);
 
         if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
             //Обновляем информацию о ноде в базе
