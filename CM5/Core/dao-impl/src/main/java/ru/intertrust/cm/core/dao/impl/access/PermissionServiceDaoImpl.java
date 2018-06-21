@@ -295,7 +295,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("object_id", rdbmsObjectId.getId());
 
-        return switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<Set<AclInfo>>() {
+        /*
+         * switchableNamedParameterJdbcTemplate -> masterNamedParameterJdbcTemplate
+         * так как незакомиченная транзакция на мастере не видна на слейве
+         */
+        return masterNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<Set<AclInfo>>() {
 
             @Override
             public Set<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {

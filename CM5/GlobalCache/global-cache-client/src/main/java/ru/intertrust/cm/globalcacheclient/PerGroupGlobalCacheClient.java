@@ -515,16 +515,20 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     }
 
     private boolean neverCache(String type) {
-        return Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached();
+        if (type == null) {
+            return true;
+        }
+        DomainObjectTypeConfig dotc = explorer.getDomainObjectTypeConfig(type);
+        return Boolean.FALSE == (dotc != null ? dotc.isGloballyCached() : Boolean.FALSE);
     }
 
     private boolean neverCache(String type, boolean exactType) {  // todo: take exactType into account
-        return Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached();
+        return neverCache(type);
     }
 
     private boolean neverCache(Set<String> types) {
         for (String type : types) {
-            if (Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached()) {
+            if (neverCache(type)) {
                 return true;
             }
         }

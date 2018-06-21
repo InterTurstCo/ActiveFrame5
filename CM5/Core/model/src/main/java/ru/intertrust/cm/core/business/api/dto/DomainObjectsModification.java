@@ -8,11 +8,11 @@ import java.util.*;
 public class DomainObjectsModification implements Dto {
 
     private String transactionId;
-    private Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new HashMap<>();
-    private Map<Id, DomainObject> savedDomainObjects = new HashMap<>();
+    private Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new LinkedHashMap<>();
+    private Map<Id, DomainObject> savedDomainObjects = new LinkedHashMap<>();
     private List<DomainObject> createdDomainObjects = new ArrayList<>();
     private List<Id> modifiedAutoDomainObjectIds = new ArrayList<>();
-    private Map<Id, DomainObject> deletedDomainObjects = new HashMap<>();
+    private Map<Id, DomainObject> deletedDomainObjects = new LinkedHashMap<>();
     private Map<Id, DomainObject> changeStatusDomainObjects = new LinkedHashMap<>();
     private Map<Id, DomainObject> savedAndChangedStatusDomainObjects = new LinkedHashMap<>();
 

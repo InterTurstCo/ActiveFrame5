@@ -15,15 +15,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.*;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.notification.*;
+import ru.intertrust.cm.core.business.api.notification.NotificationServiceController;
 import ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig;
 import ru.intertrust.cm.core.config.FindObjectsConfig;
 import ru.intertrust.cm.core.config.FindObjectsQueryConfig;
 import ru.intertrust.cm.core.config.NotificationAddresseConfig;
 import ru.intertrust.cm.core.service.it.IntegrationTestBase;
+import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
 /**
  * Интеграционный тест сервиса отправки сообщений
@@ -57,6 +60,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
      */
     private boolean isDataLoaded = false;
 
+    private NotificationServiceController notificationServiceController;
+    private boolean isNotificationsEnabled = false;
+
 
     @Before
     public void init() throws IOException, LoginException {
@@ -64,6 +70,11 @@ public class NotificationSeviceIT extends IntegrationTestBase {
         loginContext.login();
         try {
             if (!isDataLoaded) {
+                ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
+                notificationServiceController = 
+                        (NotificationServiceController) applicationContext.getBean("notificationServiceController");
+                isNotificationsEnabled = notificationServiceController.isEnable();
+
                 initBase();
                 importTestData("test-data/import-system-profile.csv");
                 importTestData("test-data/import-person-profile.csv");
@@ -80,6 +91,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             }
         } finally {
             loginContext.logout();
+            if (!isNotificationsEnabled) {
+                notificationServiceController.setEnable(true);
+            }
         }
     }
 
@@ -93,7 +107,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
     @After
     public void dispose() throws LoginException {
-
+        if (!isNotificationsEnabled) {
+            notificationServiceController.setEnable(false);
+        }
     }
 
     @Test
@@ -133,7 +149,7 @@ public class NotificationSeviceIT extends IntegrationTestBase {
         try {
             NotificationTestChannel testChannel = new NotificationTestChannel();
             NotificationAddresseeGroup addressee =
-                    new NotificationAddresseeGroup(personManagementService.getGroupId("Administrators"));
+                    new NotificationAddresseeGroup(personManagementService.getGroupId("Superusers"));
             List<NotificationAddressee> addresseeList = new ArrayList<NotificationAddressee>();
             addresseeList.add(addressee);
             NotificationContext context = new NotificationContext();
