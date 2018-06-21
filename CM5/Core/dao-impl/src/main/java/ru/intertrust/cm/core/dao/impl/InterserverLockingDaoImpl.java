@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
-import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 
-import java.util.Date;
+import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 
 public class InterserverLockingDaoImpl implements InterserverLockingDao {
 
@@ -46,7 +47,7 @@ public class InterserverLockingDaoImpl implements InterserverLockingDao {
 
     @Override
     public void updateLock(String resourceId, Date lockTime) {
-        getJdbcOperations().update("update locks set lock_time = ?", lockTime);
+        getJdbcOperations().update("update locks set lock_time = ? where resource_id = ?", lockTime, resourceId);
     }
 
     @Override

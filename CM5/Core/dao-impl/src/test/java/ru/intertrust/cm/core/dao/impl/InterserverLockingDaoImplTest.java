@@ -84,7 +84,7 @@ public class InterserverLockingDaoImplTest {
     public void testUpdateLock() {
         Date time = new Date();
         interserverLockingDaoImpl.updateLock("abc", time);
-        verify(jdbcOperations).update("update locks set lock_time = ?", time);
+        verify(jdbcOperations).update("update locks set lock_time = ? where resource_id = ?", time, "abc");
     }
 
     @Test
