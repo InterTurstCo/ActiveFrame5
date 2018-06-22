@@ -45,6 +45,9 @@
         </crypto-settings>
        <collection-query-cache max-size="1000" />
         <migration-modules><module name="core"/></migration-modules>
+        <development-mode>
+            <logical-validation access-matrices="false" indirect-permissions="false" gui="true"/>
+        </development-mode>
     </global-settings>
 
     <business-universe>
