@@ -349,8 +349,11 @@
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <linked-form name="organization_form" inline="true"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px"
-                                 modal-width="800px" resizable="true"/>
+                    <!-- type="free-form" означает что используется отвязанная от ДО форма которая должна
+                     сама представлять списки RowItem и обеспечивать корректное сохранение и ее компонент
+                     должен реализовать интерфейс LinkedDomainObjectFreeFormHandler -->
+                    <linked-form name="free_form" domain-object-type="Organization" modal-height="400px"
+                                 modal-width="800px" resizable="true" type="free-form" handler="TestFreeFormHandler"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                 </linked-form-mapping>

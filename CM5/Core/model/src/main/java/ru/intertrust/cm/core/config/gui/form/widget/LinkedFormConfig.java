@@ -31,6 +31,12 @@ public class LinkedFormConfig implements Dto{
     @Attribute(name = "resizable", required = false)
     private boolean resizable;
 
+    @Attribute(name = "type", required = false)
+    private String type;
+
+    @Attribute(name = "handler", required = false)
+    private String handler;
+
     @Element(name = "title", required = false)
     private TitleConfig titleConfig;
 
@@ -90,6 +96,22 @@ public class LinkedFormConfig implements Dto{
         this.modalHeight = modalHeight;
     }
 
+    public String getHandler() {
+        return handler;
+    }
+
+    public void setHandler(String handler) {
+        this.handler = handler;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -114,6 +136,12 @@ public class LinkedFormConfig implements Dto{
             return false;
         }
         if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth!= null) {
+            return false;
+        }
+        if (type != null ? !type.equals(that.type) : that.type!= null) {
+            return false;
+        }
+        if (handler != null ? !handler.equals(that.handler) : that.handler!= null) {
             return false;
         }
         if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight!= null) {

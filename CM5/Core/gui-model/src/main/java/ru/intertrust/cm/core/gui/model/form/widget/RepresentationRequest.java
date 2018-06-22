@@ -22,6 +22,7 @@ public class RepresentationRequest implements Dto {
     private FormState createdObjectState;
     private String linkedFormName;
     private String collectionName;
+    private String handlerName;
     private Id rootId;
     private LinkedHashMap<String, FormState> newFormStates;
 
@@ -81,6 +82,14 @@ public class RepresentationRequest implements Dto {
 
     public void setSummaryTableConfig(SummaryTableConfig summaryTableConfig) {
         this.summaryTableConfig = summaryTableConfig;
+    }
+
+    public String getHandlerName() {
+        return handlerName;
+    }
+
+    public void setHandlerName(String handlerName) {
+        this.handlerName = handlerName;
     }
 
     public FormState getCreatedObjectState() {
