@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.notification.*;
 import ru.intertrust.cm.core.business.api.notification.NotificationServiceController;
 import ru.intertrust.cm.core.business.api.notification.NotificationTaskConfig;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.config.FindObjectsConfig;
 import ru.intertrust.cm.core.config.FindObjectsQueryConfig;
 import ru.intertrust.cm.core.config.NotificationAddresseConfig;
@@ -62,6 +63,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
     private NotificationServiceController notificationServiceController;
     private boolean isNotificationsEnabled = false;
+    
+    @EJB
+    private ScheduleTaskLoader scheduleTaskLoader;
 
 
     @Before
@@ -310,6 +314,12 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
         LoginContext loginContext = login("admin", "admin");
         loginContext.login();
+        
+        boolean isScheduleTasksEnabled = scheduleTaskLoader.isEnable();
+        if (!isScheduleTasksEnabled) {
+            scheduleTaskLoader.setEnable(true);
+        }
+
         DomainObject task = null;
         try {
 
@@ -363,6 +373,9 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             //Отключение задач
             if (task != null)
                 schedulerService.disableTask(task.getId());
+            if (!isScheduleTasksEnabled) {
+                scheduleTaskLoader.setEnable(false);
+            }
             loginContext.logout();
         }
     }
