@@ -20,6 +20,9 @@ public class LinkedFormMappingConfig implements Dto {
     private List<LinkedFormConfig> linkedFormConfigs;
 
     public List<LinkedFormConfig> getLinkedFormConfigs() {
+        if(linkedFormConfigs==null){
+            linkedFormConfigs = new ArrayList<>();
+        }
         return linkedFormConfigs;
     }
 

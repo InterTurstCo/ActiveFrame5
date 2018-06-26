@@ -20,6 +20,9 @@ public class RowItemsResponse implements Dto {
     }
 
     public LinkedHashMap<String, RowItem> getRowItemsMap() {
+        if(rowItemsMap==null){
+            rowItemsMap = new LinkedHashMap<>();
+        }
         return rowItemsMap;
     }
 }

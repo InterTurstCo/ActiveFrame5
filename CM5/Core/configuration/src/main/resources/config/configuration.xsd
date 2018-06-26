@@ -2722,8 +2722,8 @@
         <xs:attribute type="xs:string" name="modal-width" use="optional"/>
         <xs:attribute type="xs:string" name="modal-height" use="optional"/>
         <xs:attribute type="xs:boolean" name="resizable" use="optional"/>
-        <xs:attribute type="con:formTypeType" name="type" use="optional"/>
-        <xs:attribute type="xs:string" name="handler"/>
+        <xs:attribute type="xs:string" name="multi-form-name"/>
+        <xs:attribute type="xs:string" name="multi-form-handler"/>
     </xs:complexType>
 
     <xs:complexType name="widgetTemplateType">

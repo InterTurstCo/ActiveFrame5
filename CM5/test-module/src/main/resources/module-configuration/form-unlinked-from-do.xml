@@ -49,24 +49,24 @@
         -->
         <widget-config>
             <label id="headerLabel">
-                <text>Заголовок формы</text>
+                <text>Тестовая форма. Создаем N обьектов для LinkedDomainObjectsTable</text>
             </label>
             <label id="textFieldLabel">
-                <text>Имя доменного обьекта</text>
+                <text>Имя подразделения</text>
             </label>
             <text-box id="textBox">
                 <field-path/>
             </text-box>
 
             <label id="priorityLabel">
-                <text>Приоритет</text>
+                <text>Сколько создать подразделений</text>
             </label>
             <enumeration-box id="priority">
                 <field-path/>
                 <mapping>
-                    <map value="1" display-text="низкий"/>
-                    <map value="2" display-text="обычный"/>
-                    <map value="3" display-text="срочный"/>
+                    <map value="1" display-text="Один"/>
+                    <map value="2" display-text="Два"/>
+                    <map value="3" display-text="Три"/>
                 </mapping>
             </enumeration-box>
 

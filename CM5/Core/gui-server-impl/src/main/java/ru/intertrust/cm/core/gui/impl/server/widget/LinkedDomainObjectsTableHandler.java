@@ -459,16 +459,14 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     public Dto convertFreeFormStateToRowItems(Dto inputParams) {
-        RowItemsResponse rowItemsResponse = new RowItemsResponse();
         RepresentationRequest request = (RepresentationRequest)inputParams;
         try {
             LinkedDomainObjectFreeFormHandler linkedDomainObjectFreeFormHandler =
                 (LinkedDomainObjectFreeFormHandler) applicationContext.getBean(request.getHandlerName());
-            linkedDomainObjectFreeFormHandler.getRowItems(request);
+            return linkedDomainObjectFreeFormHandler.getRowItemsAndFormStates(request);
         } catch (NoSuchBeanDefinitionException exception){
             throw new GuiException("Handler component "+request.getHandlerName()+" not found");
         }
-        return rowItemsResponse;
     }
 
     protected RowItem convertFormStateToRowItem(Id objectId, Id rootId,FormState createdObjectState,

@@ -31,11 +31,11 @@ public class LinkedFormConfig implements Dto{
     @Attribute(name = "resizable", required = false)
     private boolean resizable;
 
-    @Attribute(name = "type", required = false)
-    private String type;
+    @Attribute(name = "multi-form-handler", required = false)
+    private String multiFormHandler;
 
-    @Attribute(name = "handler", required = false)
-    private String handler;
+    @Attribute(name = "multi-form-name", required = false)
+    private String multiFormName;
 
     @Element(name = "title", required = false)
     private TitleConfig titleConfig;
@@ -96,20 +96,20 @@ public class LinkedFormConfig implements Dto{
         this.modalHeight = modalHeight;
     }
 
-    public String getHandler() {
-        return handler;
+    public String getMultiFormHandler() {
+        return multiFormHandler;
     }
 
-    public void setHandler(String handler) {
-        this.handler = handler;
+    public void setMultiFormHandler(String handler) {
+        this.multiFormHandler = handler;
     }
 
-    public String getType() {
-        return type;
+    public String getMultiFormName() {
+        return multiFormName;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setMultiFormName(String multiFormName) {
+        this.multiFormName = multiFormName;
     }
 
     @Override
@@ -138,10 +138,10 @@ public class LinkedFormConfig implements Dto{
         if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth!= null) {
             return false;
         }
-        if (type != null ? !type.equals(that.type) : that.type!= null) {
+        if (multiFormHandler != null ? !multiFormHandler.equals(that.multiFormHandler) : that.multiFormHandler!= null) {
             return false;
         }
-        if (handler != null ? !handler.equals(that.handler) : that.handler!= null) {
+        if (multiFormName != null ? !multiFormName.equals(that.multiFormName) : that.multiFormName!= null) {
             return false;
         }
         if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight!= null) {
