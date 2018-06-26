@@ -65,6 +65,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
   private Button addButton;
   private boolean hasRemovedItems;
   private HandlerRegistration addButtonHandlerRegistration;
+  private static String substitutedFormName;
 
   @Override
   public void setCurrentState(WidgetState state) {
@@ -260,6 +261,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
   }
 
   private void showNewForm(String domainObjectType) {
+
     LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
     DialogBoxAction saveAction = new DialogBoxAction() {
       @Override
@@ -280,12 +282,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             return false;
           }
         }, true);
-        String formHandler = isFreeFormAndHadHandler(formState);
+        String[] formHandler = isFreeFormAndHadHandler(formState);
 
-        if (StringUtils.EMPTY.equals(formHandler)) {
+        if (StringUtils.EMPTY.equals(formHandler[1])) {
           convertFormStateAndFillRowItem(formState);
         } else {
-          convertFreeFormStateAndFillRowItems(formState,formHandler);
+          convertFreeFormStateAndFillRowItems(formState,substitutedFormName,formHandler[1]);
         }
 
       }
@@ -296,13 +298,27 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         // no op
       }
     };
+
+    //Создаем копию linkedFormMappings для случая когда при создании используется кастомная форма
+    LinkedFormMappingConfig clonedMappingConfig =
+        cloneMappingConfig(currentState.getLinkedDomainObjectsTableConfig().
+            getLinkedFormMappingConfig());
+    for(LinkedFormConfig linkedFormConfig : clonedMappingConfig.getLinkedFormConfigs()){
+      if(linkedFormConfig.getMultiFormHandler()!=null
+          &&
+          linkedFormConfig.getMultiFormName()!=null){
+        substitutedFormName = linkedFormConfig.getName();
+        linkedFormConfig.setName(linkedFormConfig.getMultiFormName());
+      }
+    }
+
     LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
         .setSaveAction(saveAction)
         .setCancelAction(cancelAction)
         .withHeight(GuiUtil.getModalHeight(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
         .withWidth(GuiUtil.getModalWidth(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
         .withObjectType(domainObjectType)
-        .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
+        .withLinkedFormMapping(clonedMappingConfig)
         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
         .withParentWidgetIds(currentState.getParentWidgetIdsForNewFormMap())
         .withWidgetsContainer(getContainer())
@@ -315,18 +331,37 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
   }
 
-  private String isFreeFormAndHadHandler(FormState formState) {
+  private LinkedFormMappingConfig cloneMappingConfig(LinkedFormMappingConfig sourceConfig) {
+    LinkedFormMappingConfig clonedMappingConfig = new LinkedFormMappingConfig();
+    for (LinkedFormConfig linkedFormConfig : sourceConfig.getLinkedFormConfigs()) {
+      LinkedFormConfig newConfig = new LinkedFormConfig();
+      newConfig.setResizable(linkedFormConfig.isResizable());
+      newConfig.setName(linkedFormConfig.getName());
+      newConfig.setModalWidth(linkedFormConfig.getModalWidth());
+      newConfig.setModalHeight(linkedFormConfig.getModalHeight());
+      newConfig.setDomainObjectType(linkedFormConfig.getDomainObjectType());
+      newConfig.setInline(linkedFormConfig.isInline());
+      newConfig.setMultiFormHandler(linkedFormConfig.getMultiFormHandler());
+      newConfig.setMultiFormName(linkedFormConfig.getMultiFormName());
+      newConfig.setTitleConfig(linkedFormConfig.getTitleConfig());
+      clonedMappingConfig.getLinkedFormConfigs().add(newConfig);
+    }
+    return clonedMappingConfig;
+  }
+
+  private String[] isFreeFormAndHadHandler(FormState formState) {
     for (LinkedFormConfig linkedFormConfig :
         ((LinkedFormViewerConfig) formState.getFormViewerConfig()).getLinkedFormConfigs()) {
       if (formState.getName().equals(linkedFormConfig.getName())
           &&
-          (linkedFormConfig.getType() != null && linkedFormConfig.getType().equals("free-form"))
-          &&
-          (linkedFormConfig.getHandler()!=null)) {
-        return linkedFormConfig.getHandler();
+          (linkedFormConfig.getMultiFormName() != null
+              &&
+              linkedFormConfig.getMultiFormHandler() != null)
+          ) {
+        return new String[]{linkedFormConfig.getName(),linkedFormConfig.getMultiFormHandler()};
       }
     }
-    return StringUtils.EMPTY;
+    return new String[]{StringUtils.EMPTY,StringUtils.EMPTY};
   }
 
   private boolean isFormResizable(String domainObjectType) {
@@ -385,21 +420,22 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
   }
 
 
-  private void convertFreeFormStateAndFillRowItems(final FormState formState, String handler) {
+  private void convertFreeFormStateAndFillRowItems(final FormState formState, String realFormName, String handler) {
     SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
     final RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
     request.setHandlerName(handler);
     LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig();
     String linkedFormName = findLinkedFormName(formState, linkedFormMappingConfig);
     request.setLinkedFormName(linkedFormName);
+    request.setRealFormName(realFormName);
     Command command = new Command("convertFreeFormStateToRowItems", getName(), request);
     BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
       @Override
       public void onSuccess(Dto result) {
-        RowItemsResponse rowItemsResponse = (RowItemsResponse) result;
+        FreeFormRowItemsResponse rowItemsResponse = (FreeFormRowItemsResponse) result;
         for (String key : rowItemsResponse.getRowItemsMap().keySet()) {
           RowItem rowItem = rowItemsResponse.getRowItemsMap().get(key);
-          String stateKey = currentState.addNewFormState(formState);
+          String stateKey = currentState.addNewFormState(rowItemsResponse.getFormStates().get(key));
           rowItem.setParameter(STATE_KEY, stateKey);
           insertInCorrectModel(rowItem);
         }

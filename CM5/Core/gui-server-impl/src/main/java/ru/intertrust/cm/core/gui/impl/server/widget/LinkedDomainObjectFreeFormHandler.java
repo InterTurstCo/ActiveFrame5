@@ -16,6 +16,6 @@ public interface LinkedDomainObjectFreeFormHandler extends ComponentHandler {
    * @param representationRequest состояние кастомной формы и конфигурация SummaryTable
    * @return RepresentationRequest
    */
-  Dto getRowItems(RepresentationRequest representationRequest);
+  Dto getRowItemsAndFormStates(RepresentationRequest representationRequest);
 
 }
