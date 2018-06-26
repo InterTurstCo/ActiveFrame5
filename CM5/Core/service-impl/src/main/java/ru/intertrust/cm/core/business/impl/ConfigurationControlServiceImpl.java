@@ -207,6 +207,16 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     /**
      * {@inheritDoc}
+     * @param extensionIds
+     */
+    @Override
+    public void cleanExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().cleanExtensions(extensionIds);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }    
+    
+    /**
+     * {@inheritDoc}
      */
     @Override
     public void deleteNewExtensions(List<Id> extensionIds) throws ConfigurationException, SummaryConfigurationException {
