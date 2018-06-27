@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,11 +72,19 @@ public class ReportRestService {
         queue.setString("name", param.getName());
         queue.setTimestamp("start", new Date());
         queue = crudService.save(queue);
-        
+
         reportservice.generateAsync(param.getName(), param.getParams(), queue.getId(), ticketService.createTicket());
 
         return queue.getId();
     }
+
+    @RequestMapping(value = "/cmd/generate", method = RequestMethod.POST)
+    public Id generateReportTest(
+            HttpServletRequest request) {
+
+       return null;
+    }
+
 
     @RequestMapping(value = "/report/content/{reportId}", method = RequestMethod.GET)
     public InputStreamResource getReportContent(

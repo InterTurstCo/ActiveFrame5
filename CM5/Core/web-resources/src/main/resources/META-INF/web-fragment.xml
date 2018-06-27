@@ -36,6 +36,7 @@
         <url-pattern>/upload-configuration/*</url-pattern>
         <url-pattern>/json-extended-search-export-to-csv/*</url-pattern>
         <url-pattern>/image-preview</url-pattern>
+        <url-pattern>/execAction</url-pattern>
         <url-pattern>/ws/*</url-pattern>
     </servlet-mapping>
 
@@ -96,6 +97,7 @@
         <url-pattern>/attachment-viewer-download/*</url-pattern>
         <url-pattern>/attachment-upload</url-pattern>
         <url-pattern>/generate-report/*</url-pattern>
+        <url-pattern>/execAction</url-pattern>
         <url-pattern>/json-export-to-csv/*</url-pattern>
         <url-pattern>/configuration-export-to-file/*</url-pattern>
         <url-pattern>/upload-configuration/*</url-pattern>
