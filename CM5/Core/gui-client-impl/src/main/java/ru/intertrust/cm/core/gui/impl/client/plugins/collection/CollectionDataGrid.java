@@ -3,10 +3,11 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -33,6 +34,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
  *         Time: 12:05 PM
  */
 public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
+
     private HeaderPanel panel;
     private EventBus eventBus;
     private CollectionPlugin plugin;
@@ -52,6 +54,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
         addStyleName("collection-plugin-view-container");
         addCellPreviewHandler(new CollectionCellPreviewHandler());
+        addDomHandler(new CollectionRowOnDoubleClickHandler(), DoubleClickEvent.getType());
         sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
 
     }
@@ -81,6 +84,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     }
 
     private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
+
         private Id clickedItemId;
 
         @Override
@@ -96,24 +100,21 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
             int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
             switch (nativeEventType) {
                 case Event.ONCLICK:
-                    if(CollectionRowItem.RowType.BUTTON.equals(clickedItem.getRowType())){
+                    if (CollectionRowItem.RowType.BUTTON.equals(clickedItem.getRowType())) {
                         eventBus.fireEvent(new CollectionRowMoreItemsEvent(clickedItem));
                         getSelectionModel().setSelected(clickedItem, false);
-                    }else{
-                    handleClickEvent(id);
+                    } else {
+                        handleClickEvent(id);
                     }
                     break;
                 case Event.ONKEYDOWN:
                     handleKeyEvents(event);
                     break;
-
             }
-
         }
 
-        private boolean cancelSelection( CollectionRowItem clickedItem, Element element){
-            //return clickedItem.isExpanded() ||
-            return        CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
+        private boolean cancelSelection(CollectionRowItem clickedItem, Element element) {
+            return CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
                     || (displayCheckBoxes && "checkbox".equalsIgnoreCase(element.getPropertyString("type")));
         }
 
@@ -127,7 +128,6 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
                     break;
 
             }
-
         }
 
         private void handleKeyArrowUpAndDown() {
@@ -159,18 +159,8 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         }
 
         private void handleClick(final Id id) {
-
             if (id != clickedItemId) {
                 performOnClickAction(id);
-                Timer timer = new Timer() {
-                    @Override
-                    public void run() {
-                        clickedItemId = null;
-                    }
-                };
-                timer.schedule(500);
-            } else {
-                performOnDoubleClickAction(id);
             }
             clickedItemId = id;
         }
@@ -182,19 +172,46 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
             }
             eventBus.fireEvent(new CollectionRowSelectedEvent(id));
         }
+    }
 
-        public void performOnDoubleClickAction(Id id) {
-            final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
-            //if (collectionViewerConfig.getTableBrowserParams() == null) {
-                eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-            //}
+    private class CollectionRowOnDoubleClickHandler implements DoubleClickHandler {
+
+        @Override
+        public void onDoubleClick(DoubleClickEvent doubleClickEvent) {
+            CollectionDataGrid grid = (CollectionDataGrid) doubleClickEvent.getSource();
+            int rowIndex = grid.getKeyboardSelectedRow();
+            CollectionRowItem doubleClickedRow = grid.getVisibleItem(rowIndex);
+            if (doubleClickedRow != null) {
+                final Id id = doubleClickedRow.getId();
+                handleDoubleClickEvent(id);
+            }
         }
 
-        private boolean checkDirtiness() {
-            final DomainObjectSurferPlugin parentSurfer = plugin.getContainingDomainObjectSurferPlugin();
-            return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
+        private void handleDoubleClickEvent(final Id id) {
+            if (checkDirtiness()) {
+                Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
+                    @Override
+                    public void onAffirmative() {
+                        performOnDoubleClickAction(id);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                    }
+                });
+            } else {
+                performOnDoubleClickAction(id);
+            }
+        }
+
+        private void performOnDoubleClickAction(Id id) {
+            eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
         }
     }
 
+    private boolean checkDirtiness() {
+        final DomainObjectSurferPlugin parentSurfer = plugin.getContainingDomainObjectSurferPlugin();
+        return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
+    }
 
 }

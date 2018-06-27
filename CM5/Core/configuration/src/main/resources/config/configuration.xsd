@@ -1730,6 +1730,7 @@
         <xs:attribute type="xs:string" name="extends"/>
         <xs:attribute type="con:replacementPolicyType" name="replace" use="optional"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
+
     </xs:complexType>
 
     <xs:simpleType name="formTypeType">
@@ -1737,6 +1738,7 @@
             <xs:enumeration value="edit"/>
             <xs:enumeration value="search"/>
             <xs:enumeration value="report"/>
+            <xs:enumeration value="free-form"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -2720,6 +2722,8 @@
         <xs:attribute type="xs:string" name="modal-width" use="optional"/>
         <xs:attribute type="xs:string" name="modal-height" use="optional"/>
         <xs:attribute type="xs:boolean" name="resizable" use="optional"/>
+        <xs:attribute type="xs:string" name="multi-form-name"/>
+        <xs:attribute type="xs:string" name="multi-form-handler"/>
     </xs:complexType>
 
     <xs:complexType name="widgetTemplateType">

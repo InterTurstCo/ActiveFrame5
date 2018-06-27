@@ -14,6 +14,8 @@ import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.util.HashSet;
 
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
+
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationLoadService}
  * @author vmatsukevich
@@ -65,6 +67,11 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
+    }
+
+    @Override
+    public boolean isConfigurationTableExist() {
+        return dataStructureDao.isTableExist(CONFIGURATION_TABLE);
     }
 
     /**

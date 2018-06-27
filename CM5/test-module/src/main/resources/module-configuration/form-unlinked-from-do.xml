@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="free_form" type="free-form">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Основное">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="textFieldLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="textBox"/>
+                                    </td>
+                                    <td>
+                                        <widget id="priorityLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="priority"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4">
+                                        <widget id="Name"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <!--
+        Филдпас для виджетов должен выглядеть так <field-path/>
+        Значений по умолчанию задать нельзя, т.к. производится проверка по имени поля
+        и поля доменного обьекта который не привязан
+        -->
+        <widget-config>
+            <label id="headerLabel">
+                <text>Тестовая форма. Создаем N обьектов для LinkedDomainObjectsTable</text>
+            </label>
+            <label id="textFieldLabel">
+                <text>Имя подразделения</text>
+            </label>
+            <text-box id="textBox">
+                <field-path/>
+            </text-box>
+
+            <label id="priorityLabel">
+                <text>Сколько создать подразделений</text>
+            </label>
+            <enumeration-box id="priority">
+                <field-path/>
+                <mapping>
+                    <map value="1" display-text="Один"/>
+                    <map value="2" display-text="Два"/>
+                    <map value="3" display-text="Три"/>
+                </mapping>
+            </enumeration-box>
+
+
+
+            <linked-domain-objects-table id="Name">
+                <field-path/>
+                <linked-form name="organization_form" inline="true"/>
+                <linked-form-mapping>
+                    <linked-form name="department_form" domain-object-type="Department"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="Отдел" domain-object-type="Department"/>
+                </created-objects>
+
+                <summary-table>
+                    <summary-table-column header="Название" widget-id="Name">
+                        <action component-name="default.linked.table.action"
+                                access-checker="attachment.read.access.checker"
+                                new-objects-access-checker="attachment.write.access.checker"
+                                tooltip="Скачать">
+                            <display position="before" tooltip="Скачать">
+                                <image url="/images/icons/ico-save.gif"/>
+                                <text value="Скачать"/>
+                            </display>
+                        </action>
+
+                        <pattern value="{name} - Department">
+                            <domain-object-types>
+                                <domain-object-type name="Department"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+
+                    </summary-table-column>
+
+                </summary-table>
+                <collection-ref name="Departments"/>
+
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+</configuration>

@@ -58,20 +58,7 @@ public class ConfigurationLoader {
      */
     public void load() throws Exception {
         configurationLoadService.loadConfiguration();
-
-        // Вызов точки расширения
-        if (springApplicationContext.getContext() != null) {
-            ExtensionService extensionService = springApplicationContext.getContext()
-                    .getBean(ExtensionService.class);
-            if(extensionService!=null) {
-                OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
-                        OnLoadConfigurationExtensionHandler.class, null);
-                extension.onLoad();
-            }
-        }
-        
-        //Установка флага загруженности конфигурации
-        configurationLoaded = true;
+        onLoadComplete();
     }
 
     /**
@@ -84,18 +71,7 @@ public class ConfigurationLoader {
     public void update() throws Exception {
         try {
             configurationLoadService.updateConfiguration();
-
-            // Вызов точки расширения
-            if (springApplicationContext.getContext() != null) {
-                ExtensionService extensionService = springApplicationContext.getContext()
-                        .getBean(ExtensionService.class);
-                OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
-                        OnLoadConfigurationExtensionHandler.class, null);
-                extension.onLoad();
-            }
-
-            //Установка флага загруженности конфигурации
-            configurationLoaded = true;
+            onLoadComplete();
         } catch (Throwable throwable) {
             logger.error("Unexpected exception", throwable);
             throw throwable;
@@ -104,6 +80,20 @@ public class ConfigurationLoader {
 
     public void applyConfigurationExtensionCleaningOutInvalid() {
         extensionProcessor().applyConfigurationExtensionCleaningOutInvalid();
+    }
+
+    public void onLoadComplete(){
+        // Вызов точки расширения
+        if (springApplicationContext.getContext() != null) {
+            ExtensionService extensionService = springApplicationContext.getContext()
+                    .getBean(ExtensionService.class);
+            OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
+                    OnLoadConfigurationExtensionHandler.class, null);
+            extension.onLoad();
+        }
+
+        //Установка флага загруженности конфигурации
+        configurationLoaded = true;
     }
 
     private ConfigurationExtensionProcessor extensionProcessor() {
@@ -118,6 +108,15 @@ public class ConfigurationLoader {
      */
     public boolean isConfigurationLoaded(){
         return configurationLoaded;
+    }
+
+
+    /**
+     * возращает true если таблица конфигурации существует.
+     * @return
+     */
+    public boolean isConfigurationTableExist(){
+        return configurationLoadService.isConfigurationTableExist();
     }
     
 }

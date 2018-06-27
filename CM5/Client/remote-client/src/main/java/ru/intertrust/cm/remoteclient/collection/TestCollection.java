@@ -250,11 +250,13 @@ public class TestCollection extends ClientBase {
             executeCollection("EmployeesGenerator", 3, sortOrder, filters);
 
             //Тест запросов которые перегружают кэш отпарсенных запросов и вытесняют ранее закэшированные запросы
-            for (int i = 0; i < 5000; i++) {
+            /*for (int i = 0; i < 5000; i++) {
                 query = "select id from person where login = '" + System.currentTimeMillis() + "'";
                 executeQuery(query, 1, null);
-            }
+            }*/
 
+            executeCollection("a1_collection", 9, null, null);
+            
         } finally {
             writeLog();
         }

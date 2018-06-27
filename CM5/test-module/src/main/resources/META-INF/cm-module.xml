@@ -53,6 +53,7 @@
         <configuration-path>module-configuration/schedule.xml</configuration-path>
         <configuration-path>module-configuration/form-templates.xml</configuration-path>
         <configuration-path>module-configuration/actions.xml</configuration-path>
+        <configuration-path>module-configuration/form-unlinked-from-do.xml</configuration-path>
 
         <!-- Тестовые обьекты для иерархического плагина  -->
         <configuration-path>hierarchy-plugin-test-data/domain-objects.xml</configuration-path>

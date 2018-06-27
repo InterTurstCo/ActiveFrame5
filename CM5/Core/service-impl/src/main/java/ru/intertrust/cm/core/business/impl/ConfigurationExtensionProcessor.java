@@ -180,6 +180,18 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
+    public Set<ConfigChange> cleanExtensions(List<Id> extensionIds) {
+        synchronized (GLOBAL_LOCK) {
+            if (extensionIds == null || extensionIds.isEmpty()) {
+                return Collections.emptySet();
+            }
+            
+            setCleanExtensions(extensionIds);
+            
+            return applyNewExplorer(validateAndBuildNewConfigurationExplorer());
+        }
+    }    
+    
     public Set<ConfigChange> deleteNewExtensions(List<Id> extensionIds) {
         synchronized (GLOBAL_LOCK) {
             if (extensionIds == null || extensionIds.isEmpty()) {
@@ -283,6 +295,15 @@ public class ConfigurationExtensionProcessor {
         domainObjectDao.save(domainObjects, accessToken);
     }
 
+    private void setCleanExtensions(List<Id> extensionIds) {
+        final List<DomainObject> domainObjects = domainObjectDao.find(extensionIds, accessToken);
+        for (DomainObject domainObject : domainObjects) {
+            domainObject.setBoolean("active", false);
+            domainObject.setString("current_xml", null);
+        }
+        domainObjectDao.save(domainObjects, accessToken);
+    }    
+    
     private ConfigurationExplorer validateAndBuildNewConfigurationExplorer() {
         final ArrayList<ConfigurationException> result = new ArrayList<>();
         final ExtensionsInfo extensions = getExtensionsInformation();

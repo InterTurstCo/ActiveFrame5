@@ -17,7 +17,7 @@
         </prototype>
 
         <counting-prototype>
-            select count(CE.*) from
+            select count(*) from
             configuration_extension CE
             LEFT JOIN config_extension_tooling CET ON CE.id = CET.configuration_extension
         </counting-prototype>

@@ -104,6 +104,13 @@ public interface ConfigurationControlService {
     void deactivateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException;
 
     /**
+     * Производит очистку конфигурационного расширения и его деактивацию
+     * @param extensionIds
+     * @throws SummaryConfigurationException
+     */
+    void cleanExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException;
+    
+    /**
      * Производит удаление конфигурационных расширений из набора файлов, применяет локально и уведомляет узлы кластера
      * @param extensionIds список идентификаторов расширений
      * @throws ConfigurationException, возникающих при попытке удаления расширений дистрибутива

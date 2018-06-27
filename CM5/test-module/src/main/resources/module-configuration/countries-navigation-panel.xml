@@ -1640,6 +1640,7 @@
                                     <act:action componentName="validate.extensions.action.handler" text="Проверить" name="validateAction"/>
                                     <act:action componentName="activate.extensions.action.handler" text="Активировать" name="activateAction"/>
                                     <act:action componentName="deactivate.extensions.action.handler" text="Деактивировать" name="deactivateAction"/>
+                                    <act:action componentName="clean.extensions.action.handler" text="Очистить" name="cleanAction"/>                                    
                                     <act:action componentName="download.config.action.handler" text="Выгрузить в файл" name="downloadAction"/>
                                     <act:action componentName="upload.action.handler" text="Загрузить из файла" name="uploadAction"/>
                                 </act:tool-bar>

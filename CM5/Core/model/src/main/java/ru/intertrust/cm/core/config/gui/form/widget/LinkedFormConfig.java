@@ -31,6 +31,12 @@ public class LinkedFormConfig implements Dto{
     @Attribute(name = "resizable", required = false)
     private boolean resizable;
 
+    @Attribute(name = "multi-form-handler", required = false)
+    private String multiFormHandler;
+
+    @Attribute(name = "multi-form-name", required = false)
+    private String multiFormName;
+
     @Element(name = "title", required = false)
     private TitleConfig titleConfig;
 
@@ -90,6 +96,22 @@ public class LinkedFormConfig implements Dto{
         this.modalHeight = modalHeight;
     }
 
+    public String getMultiFormHandler() {
+        return multiFormHandler;
+    }
+
+    public void setMultiFormHandler(String handler) {
+        this.multiFormHandler = handler;
+    }
+
+    public String getMultiFormName() {
+        return multiFormName;
+    }
+
+    public void setMultiFormName(String multiFormName) {
+        this.multiFormName = multiFormName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -114,6 +136,12 @@ public class LinkedFormConfig implements Dto{
             return false;
         }
         if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth!= null) {
+            return false;
+        }
+        if (multiFormHandler != null ? !multiFormHandler.equals(that.multiFormHandler) : that.multiFormHandler!= null) {
+            return false;
+        }
+        if (multiFormName != null ? !multiFormName.equals(that.multiFormName) : that.multiFormName!= null) {
             return false;
         }
         if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight!= null) {
