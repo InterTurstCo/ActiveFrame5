@@ -351,7 +351,8 @@
                 <linked-form-mapping>
                     <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px"
                                  modal-width="800px" resizable="true"/>
-                    <linked-form name="department_form" domain-object-type="Department"/>
+                    <linked-form name="department_form" domain-object-type="Department"
+                                 multi-form-name="free_form"  multi-form-handler="TestFreeFormHandler"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                 </linked-form-mapping>
                 <created-objects>
@@ -1093,23 +1094,7 @@
                     </tr>
                 </table>
             </header>
-            <body display-single-tab="false"> <!-- в теле - только закладки -->
-                <!--<tab name="Главная"> &lt;!&ndash; закладка состоит из групп с разметкой &ndash;&gt;
-                    <single-entry-group> &lt;!&ndash; наследник от TabGroupsConfig &ndash;&gt;
-                        <tab-group> &lt;!&ndash; вхождение в группу уже может содержать разметку &ndash;&gt;
-                            <table>
-                                <tr>
-                                    <td h-align="right">
-                                        <widget id="Organization-Label"/>
-                                    </td>
-                                    <td h-align="left">
-                                        <widget id="Organization"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </tab-group>
-                    </single-entry-group>
-                </tab>-->
+            <body display-single-tab="false">
             </body>
         </markup>
         <widget-config>
@@ -1121,15 +1106,6 @@
             <text-box id="Name">
                 <field-path value="Name"/>
             </text-box>
-
-            <label id="Organization-Label">
-                <relates-to widget-id="Organization"/>
-                <text>Организация:</text>
-            </label>
-            <combo-box id="Organization">
-                <field-path value="Organization"/>
-                <pattern value="{Name}"/>
-            </combo-box>
         </widget-config>
     </form>
     <form name="department_form2" domain-object-type="Department" is-default="false">

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +32,7 @@ import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -454,6 +456,17 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             result.put(entry.getKey(), rowItem);
         }
         return new RowItemsResponse(result);
+    }
+
+    public Dto convertFreeFormStateToRowItems(Dto inputParams) {
+        RepresentationRequest request = (RepresentationRequest)inputParams;
+        try {
+            LinkedDomainObjectFreeFormHandler linkedDomainObjectFreeFormHandler =
+                (LinkedDomainObjectFreeFormHandler) applicationContext.getBean(request.getHandlerName());
+            return linkedDomainObjectFreeFormHandler.getRowItemsAndFormStates(request);
+        } catch (NoSuchBeanDefinitionException exception){
+            throw new GuiException("Handler component "+request.getHandlerName()+" not found");
+        }
     }
 
     protected RowItem convertFormStateToRowItem(Id objectId, Id rootId,FormState createdObjectState,
