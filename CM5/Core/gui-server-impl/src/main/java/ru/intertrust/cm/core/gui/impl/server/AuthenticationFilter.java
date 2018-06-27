@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Фильтр HTTP запросов, осуществляющий аутентификацию пользователей
@@ -74,6 +76,36 @@ public class AuthenticationFilter implements Filter {
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
         if (credentials == null || (credentials != null && session.isNew())) {
+
+            String authCredentials = request.getHeader("Authorization");
+            if(authCredentials != null && !authCredentials.trim().toString().isEmpty()){
+
+
+                try{
+                    final String encodedUserPassword = authCredentials.replaceFirst("Basic"
+                            + " ", "");
+                    String usernameAndPassword = null;
+                    try {
+                        byte[] decodedBytes = Base64.decodeBase64(
+                                encodedUserPassword);
+                        usernameAndPassword = new String(decodedBytes, "UTF-8");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    final StringTokenizer tokenizer = new StringTokenizer(usernameAndPassword, ":");
+                    final String username = tokenizer.nextToken();
+                    final String password = tokenizer.nextToken();
+
+                    LoginService loginService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
+                    loginService.login(request, new UserUidWithPassword(username, password));
+
+                    filterChain.doFilter(servletRequest, servletResponse);
+                    return;
+                }catch (Exception e){
+                    forwardToLogin(servletRequest, servletResponse);
+                }
+            }
+
             forwardToLogin(servletRequest, servletResponse);
             return;
         }
