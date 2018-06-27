@@ -1600,7 +1600,7 @@
         <filter name="byText">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    em.name like {0}
+                    lower(em.name) like lower('%'||{0}) OR lower(em.position) like lower('%'||{0})
                 ]]>
             </criteria>
         </filter>

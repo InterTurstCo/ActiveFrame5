@@ -103,7 +103,7 @@
         <filter name="byName">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    d.name like {0}
+                    lower(d.name) like lower('%'||{0})
                 ]]>
             </criteria>
         </filter>
@@ -156,7 +156,7 @@
         <filter name="byName">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    o.name like {0}
+                    lower(o.name) like lower('%'||{0})
                 ]]>
             </criteria>
         </filter>
