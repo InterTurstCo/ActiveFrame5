@@ -236,44 +236,7 @@
                     <act:action-param name="create.object.type" value="city"/>
                 </act:action-params>
             </act:action-ref>
-            <act:action-ref name-ref="aSaveAndClose" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
-            <!--
-            <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 1"
-                               permissions="Delete,Write,Create">
-                <act:action-params>
-                    <act:action-param name="param1" value="value1"/>
-                    <act:action-param name="param2" value="value2"/>
-                    <act:action-param name="param3" value="value3"/>
-                    <act:action-param name="param4" value="value4"/>
-                </act:action-params>
-                <act:before-execution>
-                    <act:confirmation-message text="Are you sure?"/>
-                    <act:linked-domain-object title="Заголовок доп. формы">
-                        <act:reference field-path="description_form|country"/>
-                        <act:perform-validation value="true"/>
-                        <act:form-mapping form="confirm_country">
-                            <act:users>
-                                <act:user uid="admin"/>
-                            </act:users>
-                            <act:groups>
-                                <act:group name="Administrators" priority="1"/>
-                            </act:groups>
-                        </act:form-mapping>
-                    </act:linked-domain-object>
-                    <act:save-context value="true"/>
-                </act:before-execution>
-                <act:after-execution>
-                    <act:on-success-message text="Country '{name}' saved"/>
-                </act:after-execution>
-
-            </act:simple-action>
-            <act:action-ref name-ref="aSimpleAction2"/>
-            <act:action-ref name-ref="aDigitalSignature"/>
-            <act:action-ref name-ref="aVerifyDigitalSignature"/>
-            <act:action-group name="testGroup2" text="Вторая группа действий" merged="false" imageClass="actionBar-create">
-                <act:action-group-ref name-ref="create.visual.parameters.objects"/>
-            </act:action-group>
-            -->
+            <act:action-ref name-ref="aSaveAndClose" merged="false" rendered="not toggle-edit or (toggle-edit and not preview)"/>
         </act:tool-bar>
         <markup>
             <header>
@@ -400,7 +363,7 @@
                         </tab-group>
                     </bookmarks>
                 </tab>
-                <tab name="Города и Друзья">
+               <tab name="Города и Друзья">
                     <hiding-groups>
                         <tab-group name="Друзья" initial-state="closed">
                             <table>
@@ -408,45 +371,38 @@
                                     <td>
                                         <widget id="best_friend_label"/>
                                     </td>
-                                    <!-- label (Лучший друг) -->
                                     <td h-align="left">
                                         <widget id="best_friend"/>
                                     </td>
-                                    <!-- text-box (Лучший друг (название)) -->
                                 </tr>
                                 <tr>
                                     <td>
                                         <widget id="best_desc_label"/>
                                     </td>
                                     <td h-align="left">
-                                        <!--<widget id="best_friend_desc"/>-->
                                         <widget id="test"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <!--<widget id="best_desc_back_label"/>-->
                                         <widget id="test"/>
                                     </td>
                                     <td h-align="left">
-                                        <!--<widget id="best_friend_desc_back"/>-->
                                         <widget id="test"/>
                                     </td>
                                     <td h-align="left">
-                                        <!--<widget id="16"/>-->
                                         <widget id="test"/>
                                     </td>
                                 </tr>
                             </table>
                         </tab-group>
-                        <tab-group name="Города" initial-state="expanded">
+                         <tab-group name="Города" initial-state="expanded">
                             <table>
                                 <tr>
                                     <td h-align="right">
                                         <widget id="12"/>
                                     </td>
                                     <td h-align="left">
-                                        <!--<widget id="14"/>-->
                                         <widget id="test"/>
                                     </td>
                                 </tr>
@@ -454,88 +410,89 @@
                         </tab-group>
                     </hiding-groups>
                 </tab>
-                <tab name="Attachments">
-                    <single-entry-group>
-                        <tab-group>
-                            <table>
-                                <tr>
-                                    <td>
-                                        <widget id="attachmentLbl"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <widget id="country_attachment" width="600px"/>
-                                    </td>
-                                </tr>
-                               <tr>
-                                    <td>
-                                        <widget id="attachmentPdfLbl"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <widget id="country_pdf_attachment" width="600px"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <widget id="flagAttachmentLbl"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <widget id="flag_attachment" width="600px"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <widget id="faunaAttachmentLbl"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <widget id="fauna_attachment" width="600px"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </tab-group>
-                    </single-entry-group>
-                </tab>
-                <tab name="Table Browser">
-                    <single-entry-group>
-                        <tab-group>
-                            <table>
-                                <tr>
-                                    <td>
-                                        <widget id="17a" width="1200px"/>
+                     <tab name="Attachments">
+                           <single-entry-group>
+                               <tab-group>
+                                   <table>
+                                       <tr>
+                                           <td>
+                                               <widget id="attachmentLbl"/>
+                                           </td>
+                                       </tr>
+                                             <tr>
+                                                 <td>
+                                                     <widget id="country_attachment" width="600px"/>
+                                                 </td>
+                                             </tr>
 
-                                    </td>
-                                    <!--<td>
-                                        <widget id="bad_label" width="200px"/>
-                                    </td>-->
-                                </tr>
-                            </table>
-                        </tab-group>
-                    </single-entry-group>
-                </tab>
-                <tab name="Editable Table Browser">
-                    <single-entry-group>
-                        <tab-group>
-                            <table>
-                                <tr>
-                                    <td>
-                                        <widget id="etab" width="1200px"/>
+                                                                                  <tr>
+                                                                                       <td>
+                                                                                           <widget id="attachmentPdfLbl"/>
+                                                                                       </td>
+                                                                                   </tr>
+                                                                                   <tr>
+                                                                                       <td>
+                                                                                           <widget id="country_pdf_attachment" width="600px"/>
+                                                                                       </td>
+                                                                                   </tr>
 
-                                    </td>
-                                    <!--<td>
-                                        <widget id="bad_label" width="200px"/>
-                                    </td>-->
-                                </tr>
+                                                                                                                         <tr>
+                                                                                                                              <td>
+                                                                                                                                  <widget id="flagAttachmentLbl"/>
+                                                                                                                              </td>
+                                                                                                                          </tr>
+
+                                                                                                                                 <tr>
+                                                                                                                                     <td>
+                                                                                                                                         <widget id="flag_attachment" width="600px"/>
+                                                                                                                                     </td>
+                                                                                                                                 </tr>
+
+                                                                                                                                 <tr>
+                                                                                                                                     <td>
+                                                                                                                                         <widget id="faunaAttachmentLbl"/>
+                                                                                                                                     </td>
+                                                                                                                                 </tr>
+                                                                                                                                 <tr>
+                                                                                                                                     <td>
+                                                                                                                                         <widget id="fauna_attachment" width="600px"/>
+                                                                                                                                     </td>
+                                                                                                                                 </tr>
+
                             </table>
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                      <tab name="Table Browser">
+                          <single-entry-group>
+                              <tab-group>
+                                  <table>
+                                      <tr>
+                                          <td>
+                                              <widget id="17a" width="1200px"/>
+
+                                          </td>
+
+                                      </tr>
+                                  </table>
+                              </tab-group>
+                          </single-entry-group>
+                      </tab>
+                      <tab name="Editable Table Browser">
+                          <single-entry-group>
+                              <tab-group>
+                                  <table>
+                                      <tr>
+                                          <td>
+                                              <widget id="etab" width="1200px"/>
+
+                                          </td>
+
+                                      </tr>
+                                  </table>
+                              </tab-group>
+                          </single-entry-group>
+                      </tab>
             </body>
         </markup>
         <widget-config>
@@ -907,8 +864,10 @@
                 <input-text-filter name="byNameforTableBrowser"/>
 
                 <!-- количество элементов, показываемых на одной странице выпадающего списка. в правом нижнем углу
-                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе) -->
-                <page-size>0</page-size>
+                под таблицей указатель страниц (за пример нужно взять страницы поиска в Яндексе)
+                не задавать page-size=0 это приведет к попытка докачки строк если коллекция не пустая и бесконечнопу потоку
+                запросов на сервер-->
+                <page-size>10</page-size>
                 <display-chosen-values value="false"/>
                 <selection-style name="table"/>
                 <single-choice value="false"/>

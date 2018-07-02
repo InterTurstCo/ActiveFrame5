@@ -186,16 +186,15 @@
         <!--</link>-->
 
         <!-- Пример на основе "Руководства разработчика"-->
-        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries"
-              tooltip="Вкладка 'География'" display-counter="true" counter-type="all">
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="CountryUnions"
+              tooltip="Вкладка 'География'">
             <child-links>
-                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран"
-                      counter-type="non-read" auto-cut="true" display-counter="true">
+                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран">
                     <plugin>
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
-                                <act:tool-bar useDefault="true">
+                                <!--act:tool-bar useDefault="true">
                                     <act:action name="oAction" componentName="ordinary.action"
                                                 text="Тест Ordinary Action"/>
                                     <act:action-ref name-ref="aRefresh" order="10"/>
@@ -219,21 +218,21 @@
 
                                     <act:action componentName="save-csv.action" order="70"
                                                 text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
-                                </act:tool-bar>
+                                </act:tool-bar-->
                                 <collection-ref name="Countries"/>
                                 <default-sort-criteria column-field="name" order="desc"/>
-                                <search-area-ref name="Countries-Search-Area"/>
+                                <!--search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
                                 <rows-selection default-state="empty" multi-selection="true"/>
-                                <user-settings save="true"/>
+                                <user-settings save="true"/-->
                             </collection-viewer>
                             <!--form-viewer form-mapping-component="custom.mapping.component"/-->
-                            <form-viewer>
+                            <!--form-viewer>
                                 <form-mapping domain-object-type="country" form="country_form"/>
                                 <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
                             </form-viewer>
-                            <toggle-edit switch-to-read-mode-on-save="true">true</toggle-edit>
+                            <toggle-edit switch-to-read-mode-on-save="true">true</toggle-edit-->
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -1900,8 +1899,9 @@
                     <collection-viewer>
                         <collection-ref name="Countries"/>
                         <default-sort-criteria column-field="name" order="desc"/>
-                        <search-area-ref name="Countries-Search-Area"/>
-                        <search-collection-ref name="Countries"/>
+
+                        <!--search-area-ref name="Countries-Search-Area"/>
+                        <search-collection-ref name="Countries"/-->
                         <filter-panel panel-state="open"/>
                         <initial-filters>
                             <initial-filter name="byName">
