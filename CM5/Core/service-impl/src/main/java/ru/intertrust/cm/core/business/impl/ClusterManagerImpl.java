@@ -14,13 +14,22 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
+import javax.ejb.EJBContext;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.RollbackException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,18 +55,22 @@ import ru.intertrust.cm.core.model.FatalException;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @Startup
-public class ClusterManagerImpl implements ClusterManager{
+@TransactionManagement(TransactionManagementType.BEAN)
+public class ClusterManagerImpl implements ClusterManager {
     final private static org.slf4j.Logger logger = LoggerFactory.getLogger(ClusterManagerImpl.class);
     final private static long INTERVAL = 30 * 1000;
     final private static long DEAD_INTERVAL = 60 * 1000;
     final private static String TIMER_NAME = ClusterManager.class.getName();
     final private static String ALL_ROLE = "all";
 
+    @Resource
+    private EJBContext ejbContext;
+
     private String nodeId;
     private boolean mainClusterManager;
-    private Set<String> activeRoles = new HashSet<String>(); 
+    private Set<String> activeRoles = new HashSet<String>();
     private Map<String, Boolean> roleRegister = new HashMap<String, Boolean>();
-    
+
     //Реестр ролей и нод, которые имееют данную роль
     private Map<String, Set<String>> roleNodes = new HashMap<String, Set<String>>();
     private Map<String, Set<String>> nodeRoles = new HashMap<String, Set<String>>();
@@ -67,10 +80,10 @@ public class ClusterManagerImpl implements ClusterManager{
 
     @Autowired
     private CrudService crudService;
-    
+
     @Autowired
-    private ConfigurationLoader configurationLoader;    
-    
+    private ConfigurationLoader configurationLoader;
+
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
     private String availableRoles;
 
@@ -97,64 +110,82 @@ public class ClusterManagerImpl implements ClusterManager{
      */
     @Timeout
     public void onTimeout(Timer timer) {
-        if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
-            //Обновляем информацию о ноде в базе
-            DomainObject nodeInfo = crudService.findAndLockByUniqueKey("cluster_node",
-                    Collections.singletonMap("node_id", (Value) new StringValue(nodeId)));
-            if (nodeInfo == null) {
-                nodeInfo = crudService.createDomainObject("cluster_node");
-                nodeInfo.setString("node_id", nodeId);
-            }
-            nodeInfo.setString("available_roles", availableRoles);
-            nodeInfo.setTimestamp("last_available", new Date());
-            crudService.save(nodeInfo);
-            logger.debug("Update cluster node info for node " + nodeId);
+        try {
+            if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
+                //Обновляем информацию о ноде в базе
+                ejbContext.getUserTransaction().begin();
+                DomainObject nodeInfo = crudService.findAndLockByUniqueKey("cluster_node",
+                        Collections.singletonMap("node_id", (Value) new StringValue(nodeId)));
+                if (nodeInfo == null) {
+                    nodeInfo = crudService.createDomainObject("cluster_node");
+                    nodeInfo.setString("node_id", nodeId);
+                }
+                nodeInfo.setString("available_roles", availableRoles);
+                nodeInfo.setTimestamp("last_available", new Date());
+                crudService.save(nodeInfo);
+                ejbContext.getUserTransaction().commit();
+                logger.debug("Update cluster node info for node " + nodeId);
 
-            //Получаем информацию о менеджере кластера
-            DomainObject clusterManagerInfo = getClusterManagerInfo();
-            //Если текущий сервер менеджер кластера
-            if (mainClusterManager) {
-                //Проверяем небыло ли каких сбоев и не занял ли мое место кто то другой
-                if (clusterManagerInfo.getString("node_id").equals(nodeId)) {
-                    //Текущий сервер остается ведущим, обновляем last_available
-                    DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
-                    //Проверяем что объект никто не менял
-                    if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
-                        lockedClusterManagerInfo.setTimestamp("last_available", new Date());
-                        crudService.save(lockedClusterManagerInfo);
+                //Получаем информацию о менеджере кластера
+                DomainObject clusterManagerInfo = getClusterManagerInfo();
+                //Если текущий сервер менеджер кластера
+                if (mainClusterManager) {
+                    //Проверяем небыло ли каких сбоев и не занял ли мое место кто то другой
+                    if (clusterManagerInfo.getString("node_id").equals(nodeId)) {
+                        //Текущий сервер остается ведущим, обновляем last_available
+                        ejbContext.getUserTransaction().begin();
+                        DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
+                        //Проверяем что объект никто не менял
+                        if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
+                            lockedClusterManagerInfo.setTimestamp("last_available", new Date());
+                            crudService.save(lockedClusterManagerInfo);
+                        } else {
+                            reRunTimer();
+                        }
+                        ejbContext.getUserTransaction().commit();
                     } else {
-                        reRunTimer();
+                        //Вакансию заняли, снимаю полномочия
+                        mainClusterManager = false;
+                        logger.info("Free cluster manager role " + nodeId);
                     }
                 } else {
-                    //Вакансию заняли, снимаю полномочия
-                    mainClusterManager = false;
-                    logger.info("Free cluster manager role " + nodeId);
-                }
-            } else {
-                //Проверяем нет ли активного менеджера кластера и если нет принимаю эту роль на себя
-                if (isDead(clusterManagerInfo)) {
-                    //Если не активен занимаю вакансию
-                    DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
-                    //Проверяем что объект никто не менял
-                    if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
-                        lockedClusterManagerInfo.setString("node_id", nodeId);
-                        lockedClusterManagerInfo.setTimestamp("last_available", new Date());
-                        crudService.save(lockedClusterManagerInfo);
-                        mainClusterManager = true;
-                        logger.info("Accept cluster manager role " + nodeId);
-                    } else {
-                        reRunTimer();
+                    //Проверяем нет ли активного менеджера кластера и если нет принимаю эту роль на себя
+                    if (isDead(clusterManagerInfo)) {
+                        //Если не активен занимаю вакансию
+                        ejbContext.getUserTransaction().begin();
+                        DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
+                        //Проверяем что объект никто не менял
+                        if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
+                            lockedClusterManagerInfo.setString("node_id", nodeId);
+                            lockedClusterManagerInfo.setTimestamp("last_available", new Date());
+                            crudService.save(lockedClusterManagerInfo);
+                            mainClusterManager = true;
+                            logger.info("Accept cluster manager role " + nodeId);
+                        } else {
+                            reRunTimer();
+                        }
+                        ejbContext.getUserTransaction().commit();
                     }
                 }
+
+                //Выполняем операции менеджера кластера
+                if (mainClusterManager) {
+                    manageRoles();
+                }
+
+                //Зачитываем роли в реестр
+                readRoleNodes();
             }
-            
-            //Выполняем операции менеджера кластера
-            if (mainClusterManager){
-                manageRoles();
+        } catch (Exception ex) {
+            logger.error("Error in Cluster Manager timer", ex);
+        } finally {
+            try {
+                if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
+                    ejbContext.getUserTransaction().rollback();
+                }
+            } catch (Exception ex) {
+                logger.error("Error rollback transaction in Cluster Manager timer", ex);
             }
-            
-            //Зачитываем роли в реестр
-            readRoleNodes();
         }
     }
 
@@ -169,15 +200,15 @@ public class ClusterManagerImpl implements ClusterManager{
         List<DomainObject> nodeInfos = crudService.findAll("cluster_node");
         for (DomainObject nodeInfo : nodeInfos) {
             Set<String> activeRoles = toSet(nodeInfo.getString("active_roles"));
-            if (nodeInfo.getString("node_id").equals(nodeId)){
+            if (nodeInfo.getString("node_id").equals(nodeId)) {
                 this.activeRoles = activeRoles;
             }
-            
+
             nodeRoles.put(nodeInfo.getString("node_id"), activeRoles);
-            
+
             for (String activeRole : activeRoles) {
                 Set<String> nodes = roleNodes.get(activeRole);
-                if (nodes == null){
+                if (nodes == null) {
                     nodes = new HashSet<String>();
                     roleNodes.put(activeRole, nodes);
                 }
@@ -188,8 +219,10 @@ public class ClusterManagerImpl implements ClusterManager{
 
     /**
      * Операции менеджера кластеров. Распределение ролей
+     * @throws Exception
      */
-    private void manageRoles() {
+    private void manageRoles() throws Exception {
+        ejbContext.getUserTransaction().begin();
         //Информация о singleton ролях
         Set<String> singletonRolesReg = new HashSet<String>();
         //Информация о singleton ролях которые надо распределить. Нужен для определения нераспределенных ролей
@@ -200,49 +233,49 @@ public class ClusterManagerImpl implements ClusterManager{
         Set<String> multybleRoles = new HashSet<String>();
         //Цикл по всем ролям и построение списка синглтон и мултибле ролей
         for (String roleName : roleRegister.keySet()) {
-            if (roleRegister.get(roleName)){
+            if (roleRegister.get(roleName)) {
                 singletonRoles.add(roleName);
                 singletonRolesReg.add(roleName);
-            }else{
+            } else {
                 multybleRolesReg.add(roleName);
                 multybleRoles.add(roleName);
             }
         }
-        
+
         //Зачитываем информацию о всех нодах
         List<DomainObject> clusterNodeInfos = crudService.findAll("cluster_node");
         List<ActiveNodeInfo> activeNodeInfos = new ArrayList<ActiveNodeInfo>();
 
         //отсеиваем только работающие ноды
         for (DomainObject clusterNodeInfo : clusterNodeInfos) {
-            if (!isDead(clusterNodeInfo)){
-                ActiveNodeInfo activeNodeInfo = new ActiveNodeInfo(clusterNodeInfo); 
+            if (!isDead(clusterNodeInfo)) {
+                ActiveNodeInfo activeNodeInfo = new ActiveNodeInfo(clusterNodeInfo);
                 activeNodeInfos.add(activeNodeInfo);
                 //Проверяем не имеет ли нода синглтон роль
                 //Цикл по ролям.                
                 for (String singletonRole : singletonRolesReg) {
                     //Проверка не распределялась ли эта роль ранее, на другой ноде
-                    if(!singletonRoles.contains(singletonRole)){
+                    if (!singletonRoles.contains(singletonRole)) {
                         //Это роль была распределена ранее, удаляем ее из активных ролей ноды
                         activeNodeInfo.removeActiveRole(singletonRole);
-                    }else if (activeNodeInfo.getActiveRoles().contains(singletonRole)){
+                    } else if (activeNodeInfo.getActiveRoles().contains(singletonRole)) {
                         //Роль распределена на текущую проверяемую ноду, удалить ее из списка нераспределенных
                         singletonRoles.remove(singletonRole);
                     }
                 }
-            }else{
+            } else {
                 //Удаляем информацию о данной недоступной ноде
                 crudService.delete(clusterNodeInfo.getId());
             }
         }
-        
+
         //Распределение оставшихся singlton ролей
         for (ActiveNodeInfo activeNodeInfo : activeNodeInfos) {
             //Цикл по ролям                
             for (String singletonRole : singletonRolesReg) {
                 //Проверка на то что еще не распределена роль
-                if(singletonRoles.contains(singletonRole)){
-                    if (activeNodeInfo.getAvailableRoles().contains(singletonRole) || activeNodeInfo.getAvailableRoles().contains(ALL_ROLE)){
+                if (singletonRoles.contains(singletonRole)) {
+                    if (activeNodeInfo.getAvailableRoles().contains(singletonRole) || activeNodeInfo.getAvailableRoles().contains(ALL_ROLE)) {
                         //Нода подходит, даем ей эту роль
                         activeNodeInfo.addActiveRole(singletonRole);
                         //Роль распределена, удалить ее из списка нераспределенных
@@ -251,16 +284,16 @@ public class ClusterManagerImpl implements ClusterManager{
                 }
             }
         }
-        
+
         //Проверяем остались ли нераспределенные singletonRole
-        if (singletonRoles.size() > 0){
+        if (singletonRoles.size() > 0) {
             logger.error("In claster not found nodes with roles: " + singletonRoles, new FatalException());
         }
-        
+
         //Распределение multible ролей
         for (ActiveNodeInfo activeNodeInfo : activeNodeInfos) {
             for (String multybleRole : multybleRolesReg) {
-                if (activeNodeInfo.getAvailableRoles().contains(multybleRole) || activeNodeInfo.getAvailableRoles().contains(ALL_ROLE)){
+                if (activeNodeInfo.getAvailableRoles().contains(multybleRole) || activeNodeInfo.getAvailableRoles().contains(ALL_ROLE)) {
                     //Нода подходит, даем ей эту роль
                     activeNodeInfo.addActiveRole(multybleRole);
                     multybleRoles.remove(multybleRole);
@@ -269,16 +302,17 @@ public class ClusterManagerImpl implements ClusterManager{
         }
 
         //Проверяем остались ли нераспределенные multybleRole
-        if (multybleRoles.size() > 0){
+        if (multybleRoles.size() > 0) {
             logger.error("In claster not found nodes with roles: " + multybleRoles, new FatalException());
         }
-        
+
         //Сохранение изменений
         for (ActiveNodeInfo activeNodeInfo : activeNodeInfos) {
             activeNodeInfo.saveChanges();
-        }        
-    }       
-    
+        }
+        ejbContext.getUserTransaction().commit();
+    }
+
     /**
      * Немедленный повторный запуск по таймеру
      */
@@ -287,7 +321,8 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     /**
-     * Получение информации о текущем менеджере кластера. Если нет ни одного то создание записи
+     * Получение информации о текущем менеджере кластера. Если нет ни одного то
+     * создание записи
      * @return
      */
     private DomainObject getClusterManagerInfo() {
@@ -309,7 +344,8 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     /**
-     * Проверка доступности ноды или менеджера кластера. Принимает на вход доменные объекты типа cluster_node или cluster_manager
+     * Проверка доступности ноды или менеджера кластера. Принимает на вход
+     * доменные объекты типа cluster_node или cluster_manager
      * @param domainObject
      * @return
      */
@@ -325,62 +361,62 @@ public class ClusterManagerImpl implements ClusterManager{
 
     @Override
     public void regRole(String roleName, boolean singleton) {
-        roleRegister.put(roleName, singleton);        
+        roleRegister.put(roleName, singleton);
     }
-    
-    private class ActiveNodeInfo{
+
+    private class ActiveNodeInfo {
         private DomainObject nodeDomainObject;
         private Set<String> availableRoles;
         private Set<String> activeRoles;
         private boolean changed = false;
-        
-        public ActiveNodeInfo(DomainObject nodeInfo){
+
+        public ActiveNodeInfo(DomainObject nodeInfo) {
             nodeDomainObject = nodeInfo;
             availableRoles = toSet(nodeInfo.getString("available_roles"));
             activeRoles = toSet(nodeInfo.getString("active_roles"));
         }
-        
-        public void addActiveRole(String newRole){
+
+        public void addActiveRole(String newRole) {
             activeRoles.add(newRole);
             changed = true;
         }
-        
-        public void removeActiveRole(String oldRole){
+
+        public void removeActiveRole(String oldRole) {
             activeRoles.remove(oldRole);
             changed = true;
         }
 
-        public Set<String> getActiveRoles(){
+        public Set<String> getActiveRoles() {
             return activeRoles;
         }
-        
-        public Set<String> getAvailableRoles(){
+
+        public Set<String> getAvailableRoles() {
             return availableRoles;
         }
 
-        public boolean isChanged(){
+        public boolean isChanged() {
             return changed;
         }
-        
-        private String getActiveRolesAsSting(){
+
+        private String getActiveRolesAsSting() {
             String result = null;
             for (String role : activeRoles) {
-                if (result == null){
+                if (result == null) {
                     result = role;
-                }else{
+                } else {
                     result += "," + role;
                 }
             }
             return result;
         }
-        
-        public void saveChanges(){
-            if (changed){
+
+        public void saveChanges() {
+            if (changed) {
                 nodeDomainObject.setString("active_roles", getActiveRolesAsSting());
                 crudService.save(nodeDomainObject);
             }
         }
-        
+
         public DomainObject getNodeDomainObject() {
             return nodeDomainObject;
         }
@@ -395,10 +431,10 @@ public class ClusterManagerImpl implements ClusterManager{
     public Set<String> getNodesWithRole(String roleName) {
         return roleNodes.get(roleName) == null ? new HashSet<String>() : roleNodes.get(roleName);
     }
-    
-    private Set<String> toSet(String value){
-        Set<String> result = new HashSet<String>(); 
-        if (value != null && !value.isEmpty()){
+
+    private Set<String> toSet(String value) {
+        Set<String> result = new HashSet<String>();
+        if (value != null && !value.isEmpty()) {
             String[] valuesArr = value.split(",");
             for (String item : valuesArr) {
                 result.add(item);
@@ -408,7 +444,7 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
-    public Set<String> getNodeIds() {        
+    public Set<String> getNodeIds() {
         return nodeRoles.keySet();
     }
 }
