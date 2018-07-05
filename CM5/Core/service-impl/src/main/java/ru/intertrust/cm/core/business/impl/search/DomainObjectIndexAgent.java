@@ -65,7 +65,7 @@ import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 @ExtensionPoint
 public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHandler, AfterDeleteAfterCommitExtensionHandler {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 

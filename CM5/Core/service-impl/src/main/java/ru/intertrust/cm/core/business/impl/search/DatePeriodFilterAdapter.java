@@ -18,7 +18,7 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
 
     @Autowired private SearchConfigHelper configHelper;
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     protected Logger log = LoggerFactory.getLogger(getClass());
 
     @Override

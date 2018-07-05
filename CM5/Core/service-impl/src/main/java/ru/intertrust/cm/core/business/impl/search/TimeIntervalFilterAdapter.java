@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilter> {
 
-    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
