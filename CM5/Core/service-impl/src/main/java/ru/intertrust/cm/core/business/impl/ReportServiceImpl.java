@@ -17,9 +17,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
+import javax.transaction.Status;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -101,6 +104,9 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
     @Autowired
     private ExtensionService extensionService;
+    
+    @Resource
+    private EJBContext ejbContext;
 
     @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
     private String defaultReportFormat;
@@ -284,6 +290,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 loggingThread.start();
             }
             try {
+                ejbContext.getUserTransaction().begin();
                 // Получение доменного объекта шаблона отчета
                 DomainObject reportTemplate = getReportTemplateObject(name);
 
@@ -357,14 +364,19 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
                 //Удаляем временный файл
                 result.delete();
+                ejbContext.getUserTransaction().commit();
 
                 return reportResult;
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
+            } catch (Throwable ex) {
+                try {
+                    if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
+                        ejbContext.getUserTransaction().rollback();
+                    }
+                } catch (Exception ignoreEx) {
+                    logger.warn("Error rollback transaction", ignoreEx);
+                }
+                logger.error("Error generate report", ex);
                 throw new ReportServiceException("Error on generate report", ex);
-            } catch (Throwable t) {
-                logger.error(t.getMessage());
-                throw t;
             } finally {
                 if (loggingThread != null) {
                     loggingThread.cancel();
