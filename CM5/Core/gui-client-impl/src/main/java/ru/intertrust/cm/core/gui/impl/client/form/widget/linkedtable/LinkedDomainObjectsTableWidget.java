@@ -303,12 +303,14 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     LinkedFormMappingConfig clonedMappingConfig =
         cloneMappingConfig(currentState.getLinkedDomainObjectsTableConfig().
             getLinkedFormMappingConfig());
-    for(LinkedFormConfig linkedFormConfig : clonedMappingConfig.getLinkedFormConfigs()){
-      if(linkedFormConfig.getMultiFormHandler()!=null
-          &&
-          linkedFormConfig.getMultiFormName()!=null){
-        substitutedFormName = linkedFormConfig.getName();
-        linkedFormConfig.setName(linkedFormConfig.getMultiFormName());
+    if(clonedMappingConfig!=null) {
+      for (LinkedFormConfig linkedFormConfig : clonedMappingConfig.getLinkedFormConfigs()) {
+        if (linkedFormConfig.getMultiFormHandler() != null
+            &&
+            linkedFormConfig.getMultiFormName() != null) {
+          substitutedFormName = linkedFormConfig.getName();
+          linkedFormConfig.setName(linkedFormConfig.getMultiFormName());
+        }
       }
     }
 
@@ -332,33 +334,42 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
   }
 
   private LinkedFormMappingConfig cloneMappingConfig(LinkedFormMappingConfig sourceConfig) {
-    LinkedFormMappingConfig clonedMappingConfig = new LinkedFormMappingConfig();
-    for (LinkedFormConfig linkedFormConfig : sourceConfig.getLinkedFormConfigs()) {
-      LinkedFormConfig newConfig = new LinkedFormConfig();
-      newConfig.setResizable(linkedFormConfig.isResizable());
-      newConfig.setName(linkedFormConfig.getName());
-      newConfig.setModalWidth(linkedFormConfig.getModalWidth());
-      newConfig.setModalHeight(linkedFormConfig.getModalHeight());
-      newConfig.setDomainObjectType(linkedFormConfig.getDomainObjectType());
-      newConfig.setInline(linkedFormConfig.isInline());
-      newConfig.setMultiFormHandler(linkedFormConfig.getMultiFormHandler());
-      newConfig.setMultiFormName(linkedFormConfig.getMultiFormName());
-      newConfig.setTitleConfig(linkedFormConfig.getTitleConfig());
-      clonedMappingConfig.getLinkedFormConfigs().add(newConfig);
+    if(sourceConfig!=null) {
+      LinkedFormMappingConfig clonedMappingConfig = new LinkedFormMappingConfig();
+      for (LinkedFormConfig linkedFormConfig : sourceConfig.getLinkedFormConfigs()) {
+        LinkedFormConfig newConfig = new LinkedFormConfig();
+        newConfig.setResizable(linkedFormConfig.isResizable());
+        newConfig.setName(linkedFormConfig.getName());
+        newConfig.setModalWidth(linkedFormConfig.getModalWidth());
+        newConfig.setModalHeight(linkedFormConfig.getModalHeight());
+        newConfig.setDomainObjectType(linkedFormConfig.getDomainObjectType());
+        newConfig.setInline(linkedFormConfig.isInline());
+        newConfig.setMultiFormHandler(linkedFormConfig.getMultiFormHandler());
+        newConfig.setMultiFormName(linkedFormConfig.getMultiFormName());
+        newConfig.setTitleConfig(linkedFormConfig.getTitleConfig());
+        clonedMappingConfig.getLinkedFormConfigs().add(newConfig);
+      }
+      return clonedMappingConfig;
+    } else {
+      return sourceConfig;
     }
-    return clonedMappingConfig;
   }
 
   private String[] isFreeFormAndHadHandler(FormState formState) {
-    for (LinkedFormConfig linkedFormConfig :
-        ((LinkedFormViewerConfig) formState.getFormViewerConfig()).getLinkedFormConfigs()) {
-      if (formState.getName().equals(linkedFormConfig.getName())
-          &&
-          (linkedFormConfig.getMultiFormName() != null
-              &&
-              linkedFormConfig.getMultiFormHandler() != null)
-          ) {
-        return new String[]{linkedFormConfig.getName(),linkedFormConfig.getMultiFormHandler()};
+    if (formState.getFormViewerConfig()!=null
+      &&
+        ((LinkedFormViewerConfig) formState.getFormViewerConfig()).getLinkedFormConfigs() != null
+        ) {
+      for (LinkedFormConfig linkedFormConfig :
+          ((LinkedFormViewerConfig) formState.getFormViewerConfig()).getLinkedFormConfigs()) {
+        if (formState.getName().equals(linkedFormConfig.getName())
+            &&
+            (linkedFormConfig.getMultiFormName() != null
+                &&
+                linkedFormConfig.getMultiFormHandler() != null)
+            ) {
+          return new String[]{linkedFormConfig.getName(),linkedFormConfig.getMultiFormHandler()};
+        }
       }
     }
     return new String[]{StringUtils.EMPTY,StringUtils.EMPTY};
