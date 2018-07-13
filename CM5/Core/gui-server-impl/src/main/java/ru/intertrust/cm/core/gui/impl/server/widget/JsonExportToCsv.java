@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,6 +27,7 @@ import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -114,10 +116,15 @@ public class JsonExportToCsv {
 
     @ResponseBody
     @RequestMapping(value = "json-export-to-csv", method = RequestMethod.POST)
-    public void generateCsv(@ModelAttribute("json") String stringCsvRequest, HttpServletResponse response)
+    public void generateCsv(@ModelAttribute("json") String stringCsvRequest,  HttpServletRequest request, HttpServletResponse response)
             throws IOException, ParseException, ServletException {
 
         ObjectMapper mapper = new ObjectMapper();
+        if(stringCsvRequest.equals(StringUtils.EMPTY) && request.getAttribute("Json Payload")!=null){
+            stringCsvRequest = java.net.URLDecoder.decode(request.getAttribute("Json Payload")
+                .toString()
+                .split("=")[1], "UTF-8");
+        }
 
         JsonCsvRequest csvRequest = mapper.readValue(stringCsvRequest, JsonCsvRequest.class);
         String collectionName = csvRequest.getCollectionName();
