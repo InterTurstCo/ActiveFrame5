@@ -59,4 +59,15 @@ public interface InterserverLockingService {
      */
     void waitUntilNotLocked(String resourceId);
 
+    /**
+     * Попытка заблокировать ресурс, с учетом того, какой объект пытается
+     * наложить блокировку.
+     * @param resourceId
+     *            идентификатор (имя) ресурса
+     * @return <code>true</code>, если удалось заблокировать, или если ресурс
+     *         уже заблокирован объектом, накладывающим блокировку
+     *         <code>false</code> в противном случае
+     */
+    boolean selfSharedLock(String resourceId);
+
 }

@@ -51,6 +51,11 @@ public class InterserverLockingDaoImpl implements InterserverLockingDao {
     }
 
     @Override
+    public void updateLock(String resourceId, Date oldLockTime, Date lockTime) {
+        getJdbcOperations().update("update locks set lock_time = ? where resource_id = ? and lock_time = ?", lockTime, resourceId, oldLockTime);
+    }
+
+    @Override
     public boolean unlock(String resourceId, Date lockTime) {
         return getJdbcOperations().update("delete from locks where resource_id = ? and lock_time = ?", resourceId, lockTime) > 0;
     }

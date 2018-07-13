@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -43,7 +43,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     @Autowired
     private InterserverLockingDao interserverLockingDao;
 
-    private final HashMap<String, ScheduledFuture<?>> heldLocks = new HashMap<>();
+    private final ConcurrentHashMap<String, ScheduledFutureEx> heldLocks = new ConcurrentHashMap<>();
 
     @Override
     public synchronized boolean lock(final String resourceId) {
@@ -54,7 +54,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         } catch (DuplicateKeyException ex) {
             return false;
         }
-        ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
+        ScheduledFutureEx future = new ScheduledFutureEx(getExecutorService().scheduleWithFixedDelay(new Runnable() {
             @Override
             @Transactional(propagation = Propagation.REQUIRES_NEW)
             public void run() {
@@ -65,11 +65,57 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                     logger.error("Error while updating lock on resource " + resourceId + ". Lock released.", ex);
                 }
             }
-        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS);
-        heldLocks.put(resourceId, future);
+        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS));
+        
+        future = heldLocks.put(resourceId, future);
+        if (future != null) {
+            future.cancel(true);
+        }
         return true;
     }
 
+    @Override
+    public synchronized boolean selfSharedLock(final String resourceId) {
+        Date lockTime = null;
+        LOCK_STATUS lockStatus = LOCK_STATUS.NO_LOCK;
+        try {
+            LockResult lockResult = transactionalSelfSharedLock(resourceId);
+            lockTime = lockResult.getLockTime();
+            lockStatus = lockResult.getLockStatus();
+            if (lockStatus != LOCK_STATUS.OWN_LOCK && lockStatus != LOCK_STATUS.NEW_LOCK) {
+                return false;
+            }
+        } catch (DuplicateKeyException ex) {
+            return false;
+        }
+        if (lockStatus == LOCK_STATUS.OWN_LOCK) {
+            return true;
+        }
+        ScheduledFutureEx future = new ScheduledFutureEx(getExecutorService().scheduleWithFixedDelay(new Runnable() {
+            @Override
+            @Transactional(propagation = Propagation.REQUIRES_NEW)
+            public void run() {
+                try {
+                    Date newDate = new Date();
+                    ScheduledFutureEx future = heldLocks.get(resourceId);
+                    Date oldDate = future != null ? future.getLockTime() : null;
+                    getInterserverLockingDao().updateLock(resourceId, oldDate, newDate);
+                    if (future != null) {
+                        future.setLockTime(newDate);
+                    }
+                } catch (Exception ex) {
+                    heldLocks.remove(resourceId);
+                    logger.error("Error while updating lock on resource " + resourceId + ". Lock released.", ex);
+                }
+            }
+        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS), lockTime);
+        future = heldLocks.put(resourceId, future);
+        if (future != null) {
+            future.cancel(true);
+        }
+        return true;
+    }
+    
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     private boolean transactionalLock(final String resourceId) {
         Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
@@ -88,6 +134,42 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         }
         return true;
     }
+    
+    /**
+     * Попытка заблокировать ресурс, с учетом того, какой объект пытается
+     * наложить блокировку.
+     * @param resourceId
+     *            идентификатор (имя) ресурса
+     * @return true, если удалось заблокировать, или если ресурс уже
+     *         заблокирован объектом, накладывающим блокировку false в противном
+     *         случае
+     * @return результат попытки блокировки (статус + отсечка времени
+     *         блокировки)
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    private LockResult transactionalSelfSharedLock(final String resourceId) {
+        Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
+        ScheduledFutureEx future = heldLocks.get(resourceId);
+        Date oldLockTime = future != null ? future.getLockTime() : null;
+        Date lockTime = getInterserverLockingDao().getLastLockTime(resourceId);
+
+        if (lockTime == null) {
+            // do nothing
+        } else if (lockTime.before(overdue)) {
+            if (!getInterserverLockingDao().unlock(resourceId, lockTime)) {
+                return new LockResult(LOCK_STATUS.OTHER_LOCK, lockTime);
+            }
+        } else {
+            return lockTime.getTime() == (oldLockTime != null ? oldLockTime.getTime() : 0) ?
+                    new LockResult(LOCK_STATUS.OWN_LOCK, lockTime) : 
+                    new LockResult(LOCK_STATUS.OTHER_LOCK, lockTime);
+        }
+        lockTime = new Date();
+        if (!getInterserverLockingDao().lock(resourceId, lockTime)) {
+            return new LockResult(LOCK_STATUS.OTHER_LOCK, lockTime);
+        }
+        return new LockResult(LOCK_STATUS.NEW_LOCK, lockTime);
+    }
 
     @Override
     public boolean isLocked(String resourceId) {
@@ -103,7 +185,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
 
     @Override
     public synchronized void unlock(String resourceId) {
-        ScheduledFuture<?> future = heldLocks.get(resourceId);
+        ScheduledFutureEx future = heldLocks.get(resourceId);
         if (future != null) {
             future.cancel(true);
             getInterserverLockingDao().unlock(resourceId);
@@ -144,4 +226,69 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         future.cancel(true);
     }
 
+    private class ScheduledFutureEx {
+        private final ScheduledFuture<?> scheduledFuture;
+        private Date lockTime;
+        
+        private ScheduledFutureEx(ScheduledFuture<?> scheduledFuture) {
+            this(scheduledFuture, null);
+        }
+
+        private ScheduledFutureEx(ScheduledFuture<?> scheduledFuture, Date lockTime) {
+            this.scheduledFuture = scheduledFuture;
+            this.lockTime = lockTime;
+        }
+        
+        private Date getLockTime() {
+            return lockTime;
+        }
+        
+        private void setLockTime(Date lockTime) {
+            this.lockTime = lockTime;
+        }
+        
+        private boolean cancel(boolean mayInterruptIfRunning) {
+            return scheduledFuture.cancel(mayInterruptIfRunning);
+        }
+    }
+    
+    /**
+     * Статус блокировки.
+     * @author mike
+     *
+     */
+    private enum LOCK_STATUS {
+        /* Блокировка наложена */
+        NEW_LOCK,
+        /* Блокировка уже наложена объектом, запрашивающим блокировку */
+        OWN_LOCK,
+        /* Блокировка наложена другим объектом */
+        OTHER_LOCK,
+        /* Нет блокировки */
+        NO_LOCK
+    }
+    
+    /**
+     * Результат попытки наложения блокировки.
+     * @author mike
+     *
+     */
+    private class LockResult {
+        private final LOCK_STATUS lockStatus;
+        private final Date lockTime;
+        
+        private LockResult(LOCK_STATUS lockStatus, Date lockTime) {
+            this.lockStatus = lockStatus;
+            this.lockTime = lockTime;
+        }
+        
+        private Date getLockTime() {
+            return lockTime;
+        }
+        
+        private LOCK_STATUS getLockStatus() {
+            return lockStatus;
+        }
+        
+    }
 }

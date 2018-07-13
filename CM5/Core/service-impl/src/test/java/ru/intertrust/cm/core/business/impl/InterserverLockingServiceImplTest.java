@@ -103,6 +103,11 @@ public class InterserverLockingServiceImplTest {
         }
 
         @Override
+        public void updateLock(String resourceId, Date oldLockTime, Date lockTime) {
+            locks.put(resourceId, lockTime);
+        }
+
+        @Override
         public boolean unlock(String resourceId, Date lockTime) {
             return locks.remove(resourceId, lockTime);
         }

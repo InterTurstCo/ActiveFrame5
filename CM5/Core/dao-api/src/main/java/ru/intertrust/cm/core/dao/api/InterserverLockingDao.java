@@ -12,6 +12,18 @@ public interface InterserverLockingDao {
 
     void updateLock(String resourceId, Date lockTime);
 
+    /**
+     * Обновление отсечки времени блокировки по составному ключу (идентификатор
+     * + старая отсечка времени).
+     * @param resourceId
+     *            идентификатор ресурса
+     * @param oldLockTime
+     *            старая отсечка времени
+     * @param lockTime
+     *            новая отсечка времени
+     */
+    void updateLock(String resourceId, Date oldLockTime, Date lockTime);
+
     boolean unlock(String resourceId, Date lockTime);
 
 }

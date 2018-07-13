@@ -14,6 +14,8 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.Timeout;
@@ -56,7 +58,7 @@ public class ClusterManagerImpl implements ClusterManager{
     final private static String CLUSTER_MANAGER_LOCK_KEY = "CLUSTER_MANAGER_LOCK_KEY";
 
     private String nodeId;
-    private boolean mainClusterManager;
+    private Boolean mainClusterManager = null;
     private Set<String> activeRoles = new HashSet<String>(); 
     private Map<String, Boolean> roleRegister = new HashMap<String, Boolean>();
     
@@ -101,8 +103,9 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
+    @Lock(LockType.READ)
     public boolean isMainServer() {
-        return !configurationLoader.isConfigurationTableExist() || mainClusterManager;
+        return !configurationLoader.isConfigurationTableExist() || isMainClusterManager();
     }
 
     /**
@@ -111,8 +114,9 @@ public class ClusterManagerImpl implements ClusterManager{
      * @param timer
      */
     @Timeout
+    @Lock(LockType.READ)
     public void onTimeout(Timer timer) {
-        mainClusterManager = interserverLockingService.lock(CLUSTER_MANAGER_LOCK_KEY);
+        mainClusterManager = interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY);
 
         if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
             //Обновляем информацию о ноде в базе
@@ -130,7 +134,7 @@ public class ClusterManagerImpl implements ClusterManager{
             //Получаем информацию о менеджере кластера
             DomainObject clusterManagerInfo = getClusterManagerInfo();
             //Выполняем операции менеджера кластера
-            if (mainClusterManager){
+            if (isMainClusterManager()){
                 DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
                 //Проверяем что объект никто не менял
                 if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
@@ -146,6 +150,15 @@ public class ClusterManagerImpl implements ClusterManager{
         }
     }
 
+    /**
+     * Признак ведущего сервера.
+     * @return true, если ведущий
+     */
+    private boolean isMainClusterManager() {
+        return mainClusterManager != null ? mainClusterManager.booleanValue() : 
+            (mainClusterManager = interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY)).booleanValue(); 
+    }
+    
     /**
      * Зачитываем информацию о ролях текущей ноды
      */
@@ -307,6 +320,7 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
+    @Lock(LockType.READ)
     public boolean hasRole(String roleName) {
         return activeRoles.contains(roleName);
     }
@@ -375,11 +389,13 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
+    @Lock(LockType.READ)
     public String getNodeId() {
         return nodeId;
     }
 
     @Override
+    @Lock(LockType.READ)
     public Set<String> getNodesWithRole(String roleName) {
         return roleNodes.get(roleName) == null ? new HashSet<String>() : roleNodes.get(roleName);
     }
@@ -396,6 +412,7 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
+    @Lock(LockType.READ)
     public Set<String> getNodeIds() {        
         return nodeRoles.keySet();
     }
