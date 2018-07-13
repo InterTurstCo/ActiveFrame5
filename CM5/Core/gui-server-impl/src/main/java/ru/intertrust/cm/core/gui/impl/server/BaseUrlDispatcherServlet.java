@@ -52,10 +52,11 @@ public class BaseUrlDispatcherServlet extends HttpServlet {
   public void doPost(final HttpServletRequest request, final HttpServletResponse response) throws IOException, ServletException {
     String csvPath = "/json-export-to-csv";
     String csvFilter = request.getAttribute("Application-Name")+csvPath;
-    if (request.getRequestURI().contains(csvFilter)){
-      request.setAttribute("Json Payload",getJson(request));
-    }
 
+
+    if (request.getRequestURI().contains(csvFilter)) {
+      request.setAttribute("Json Payload", getJson(request));
+    }
       request.getRequestDispatcher(request.getRequestURI().substring(request.getRequestURI().
           indexOf(request.getAttribute(VirtualAppFilter.APP_NAME).toString())
           + request.getAttribute(VirtualAppFilter.APP_NAME).toString().length())).forward(request, response);
