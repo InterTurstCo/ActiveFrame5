@@ -34,6 +34,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     private ChoiceStyleConfig choiceStyleConfig;
     private ClearAllButtonConfig clearAllButtonConfig;
     private DigitalSignaturesConfig digitalSignaturesConfig;
+    private String appname;
 
     @Override
     public ArrayList<Id> getIds() {
@@ -127,6 +128,14 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         this.choiceStyleConfig = choiceStyleConfig;
     }
 
+    public String getAppname() {
+        return appname;
+    }
+
+    public void setAppname(String appname) {
+        this.appname = appname;
+    }
+
     public boolean isPopupChoiceStyle() {
         if (choiceStyleConfig == null) {
             return false;
@@ -161,6 +170,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         if (actionLinkConfig != null ? !actionLinkConfig.equals(that.actionLinkConfig) : that.actionLinkConfig != null)
             return false;
         if (attachments != null ? !attachments.equals(that.attachments) : that.attachments != null) return false;
+        if (appname != null ? !appname.equals(that.appname) : that.appname != null) return false;
         if (allAttachments != null ? !allAttachments.equals(that.allAttachments) : that.allAttachments != null) return false;
         if (selectionStyleConfig != null ? !selectionStyleConfig.equals(that.selectionStyleConfig) : that.selectionStyleConfig != null)
             return false;
@@ -184,6 +194,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         int result = selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0;
         result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
         result = 31 * result + (allAttachments != null ? allAttachments.hashCode() : 0);
+        result = 31 * result + (appname != null ? appname.hashCode() : 0);
         result = 31 * result + (actionLinkConfig != null ? actionLinkConfig.hashCode() : 0);
         result = 31 * result + (imagesConfig != null ? imagesConfig.hashCode() : 0);
         result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);

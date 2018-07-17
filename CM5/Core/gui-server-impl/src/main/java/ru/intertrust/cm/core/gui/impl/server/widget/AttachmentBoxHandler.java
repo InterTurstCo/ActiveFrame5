@@ -4,9 +4,11 @@ import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
@@ -51,6 +53,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private AccessVerificationService accessVerificationService;
     @Autowired
     private CrudService crudService;
+    @Autowired
+    private ConfigurationService configurationService;
 
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
@@ -79,6 +83,11 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                 widgetConfig.getAttachmentType().getName()));
         state.setClearAllButtonConfig(widgetConfig.getClearButtonConfig());
         state.setDigitalSignaturesConfig(widgetConfig.getDigitalSignaturesConfig());
+        BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
+            BusinessUniverseConfig.NAME);
+        if(businessUniverseConfig.getBaseUrlConfig()!=null && businessUniverseConfig.getBaseUrlConfig().getValue() != null){
+            state.setAppname(businessUniverseConfig.getBaseUrlConfig().getValue());
+        }
         return state;
     }
 
