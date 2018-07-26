@@ -28,6 +28,10 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
             Column column = (Column) selectExpressionItem.getExpression();
             String aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
             columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
+            columnToConfigMapping.remove(getColumnName(column));
+        }else if(selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null){
+            String aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
+            columnToConfigMapping.remove(aliasName);
         }
     }
 

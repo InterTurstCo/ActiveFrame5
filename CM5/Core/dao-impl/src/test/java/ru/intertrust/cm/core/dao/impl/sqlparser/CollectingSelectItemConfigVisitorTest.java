@@ -3,11 +3,14 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 import static java.util.Collections.singletonMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.junit.Test;
 
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer.TypeConfigBuilder;
 
 public class CollectingSelectItemConfigVisitorTest {
@@ -34,6 +37,16 @@ public class CollectingSelectItemConfigVisitorTest {
         assertFalse(visitor.getColumnToConfigMapping().get("owner") instanceof ReferenceFieldConfig);
     }
 
+    @Test
+    public void testNotRefField() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("document")).addStringField("subject").addReferenceField("owner", "person"));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("document_addressee")).addStringField("name").addReferenceField("owner", "document"));
+        PlainSelect plainSelect = plainSelect("select 'xxx' as owner from (select owner from document) t");
+        CollectingSelectItemConfigVisitor visitor = new CollectingSelectItemConfigVisitor(configurationExplorer, plainSelect);
+        plainSelect.accept(visitor);
+        assertTrue(visitor.getColumnToConfigMapping().get("owner") == null);
+    }
+    
     protected PlainSelect plainSelect(String query) {
         PlainSelect plainSelect = (PlainSelect) (new SqlQueryParser(query)).getSelectStatement().getSelectBody();
         return plainSelect;

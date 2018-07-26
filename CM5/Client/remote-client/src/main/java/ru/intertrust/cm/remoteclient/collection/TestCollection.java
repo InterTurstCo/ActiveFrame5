@@ -99,7 +99,8 @@ public class TestCollection extends ClientBase {
                     calendar.get(Calendar.DAY_OF_MONTH),
                     calendar.get(Calendar.HOUR),
                     calendar.get(Calendar.MINUTE),
-                    calendar.get(Calendar.SECOND), 0);
+                    calendar.get(Calendar.SECOND), 0
+                    );
             DateTimeWithTimeZoneValue value = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
             params.add(value);
             executeQuery(query, 1, params);
@@ -256,7 +257,10 @@ public class TestCollection extends ClientBase {
             }*/
 
             executeCollection("a1_collection", 9, null, null);
+                        
+            executeQuery("select 'xxx' as profile from (select profile as p from person) t", 1, null);
             
+            executeQuery("select profile from (select login as profile from person) t", 1, null);
         } finally {
             writeLog();
         }

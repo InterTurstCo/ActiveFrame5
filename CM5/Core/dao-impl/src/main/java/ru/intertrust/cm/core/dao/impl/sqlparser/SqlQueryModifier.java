@@ -519,7 +519,12 @@ public class SqlQueryModifier {
         if (column.getColumnName().equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID)) {
             return null;
         }
-        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
+        
+        String aliasName = getColumnName(column);
+        if(selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null){
+            aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
+        }
+        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(aliasName);
 
         if (fieldConfig instanceof ReferenceFieldConfig) {
             return createReferenceFieldTypeSelectItem(selectExpressionItem);
