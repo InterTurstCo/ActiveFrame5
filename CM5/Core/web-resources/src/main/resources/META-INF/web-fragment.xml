@@ -36,7 +36,7 @@
         <url-pattern>/upload-configuration/*</url-pattern>
         <url-pattern>/json-extended-search-export-to-csv/*</url-pattern>
         <url-pattern>/image-preview</url-pattern>
-        <url-pattern>/ws/*</url-pattern>
+        <url-pattern>/af5-ws/*</url-pattern>
     </servlet-mapping>
 
    <security-constraint>
@@ -119,6 +119,6 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>TicketFilter</filter-name>
-        <url-pattern>/ws/*</url-pattern>
+        <url-pattern>/af5-ws/*</url-pattern>
     </filter-mapping>
 </web-fragment>

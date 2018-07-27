@@ -210,7 +210,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             HttpEntity<GenerateReportParam> entity = new HttpEntity<GenerateReportParam>(generateReportParam, headers);
 
             Id queueId = restTemplate.postForObject(
-                    reportServerUrl + "/ws/report/generate", entity, Id.class);
+                    reportServerUrl + "/af5-ws/report/generate", entity, Id.class);
 
             //Ждем смены статуса, но не более
             IdentifiableObject queue = null;
@@ -272,7 +272,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
             };
 
-            restTemplate.execute(reportServerUrl + "/ws/report/content/{reportId}",
+            restTemplate.execute(reportServerUrl + "/af5-ws/report/content/{reportId}",
                     HttpMethod.GET, requestCallback, responseExtractor, reportResult.getResultId().toStringRepresentation());
             return reportResult;
         } else {
