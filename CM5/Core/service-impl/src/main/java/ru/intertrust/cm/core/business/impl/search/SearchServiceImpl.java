@@ -146,7 +146,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     fetchLimit = found.size();
                 }
                 IdentifiableObjectCollection result = collectionRetriever.queryCollection(found, maxResults);
-                if (found.size() == fetchLimit && result.size() < maxResults) {
+                if (found.size() >= fetchLimit && result.size() < maxResults) {
                     // Увеличиваем размер выборки в Solr
                     fetchLimit = estimateFetchLimit(found.size(), result.size());
                     continue;
@@ -275,7 +275,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     result = combineResults(foundParts, combineOperation == CombiningFilter.AND
                             ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
                 }
-                clippingFactor /= fetchLimit - result.size() + 1;
+                clippingFactor *= Math.max(1f, 0.9f * result.size()) / rows;
             } while (clipped && result.size() < fetchLimit);
             return result;
         }
@@ -463,7 +463,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
     private int estimateFetchLimit(int foundSize, int collectionSize) {
-        int factor = 10;
+        int factor = 100;
         if (collectionSize > 0) {
             // Пытаемся оценить процент отсева 
             factor = 2 * foundSize / collectionSize;
