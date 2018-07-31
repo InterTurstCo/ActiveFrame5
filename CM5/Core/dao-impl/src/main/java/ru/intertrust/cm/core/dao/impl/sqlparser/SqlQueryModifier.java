@@ -482,15 +482,17 @@ public class SqlQueryModifier {
     }
 
     private String getSelectExpressionItemName(SelectExpressionItem selectExpressionItem) {
+        String result = null;
         if (selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null) {
-            return selectExpressionItem.getAlias().getName();
+            result = selectExpressionItem.getAlias().getName();
         } else {
             if (selectExpressionItem.getExpression() instanceof Column) {
-                return ((Column) selectExpressionItem.getExpression()).getColumnName();
+                result = ((Column) selectExpressionItem.getExpression()).getColumnName();
             } else {
-                return selectExpressionItem.toString();
+                result = selectExpressionItem.toString();
             }
         }
+        return DaoUtils.unwrap(result);
     }
 
     private SelectExpressionItem findSelectExpressionItemByAlias(PlainSelect plainSelect, String alias) {
@@ -520,11 +522,7 @@ public class SqlQueryModifier {
             return null;
         }
         
-        String aliasName = getColumnName(column);
-        if(selectExpressionItem.getAlias() != null && selectExpressionItem.getAlias().getName() != null){
-            aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
-        }
-        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(aliasName);
+        FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getSelectExpressionItemName(selectExpressionItem));
 
         if (fieldConfig instanceof ReferenceFieldConfig) {
             return createReferenceFieldTypeSelectItem(selectExpressionItem);

@@ -20,6 +20,12 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
 
     @Override
     public void visit(SelectExpressionItem selectExpressionItem) {
+        //Если с данным именем уже нашли колонку в подзапросе, то ничего не делаем, конфигурация останется та, что получена в подзапросе
+        if (selectExpressionItem.getExpression() instanceof Column 
+                && columnToConfigMapping.containsKey(((Column)selectExpressionItem.getExpression()).getColumnName())){
+            return;
+        }
+        
         selectExpressionItem.getExpression().accept(this);
 
         // Add column to config mapping for column alias
