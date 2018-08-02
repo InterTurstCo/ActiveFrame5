@@ -38,9 +38,11 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.util.StreamUtils;
 
 import ru.intertrust.cm.core.business.api.DataSourceContext;
+import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
@@ -66,11 +68,25 @@ public class ReportResultBuilder extends ReportServiceBase {
     public static final String XLSX_FORMAT = "XLSX";
     public static final String SOCHI_DOCX_FORMAT = "SOCHIDOCX";
 
+    public static final String MASK_NAME = "{name}";  //имя отчёта(из метаданных)
+    public static final String MASK_DESCR = "{description}"; //описание отчёта(из метаданных)
+    public static final String MASK_LONG_DATE = "{long-date}"; //дата и время построения
+    public static final String MASK_SHORT_DATE = "{short-date}"; //дата отчёта
+    public static final String MASK_CREATOR = "{creator}"; //логин текущего пользователя
+    private static final String DATE_LONG_PATTERN = "dd-MM-yyyy HH:mm:ss";
+    private static final String DATE_SHORT_PATTERN = "dd-MM-yyyy";
+
     @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
     private String defaultReportFormat;
     
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private GlobalServerSettingsService globalServerSettingsService;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
 
     /**
      * Генерация отчета
@@ -176,7 +192,18 @@ public class ReportResultBuilder extends ReportServiceBase {
     }
 
     private String getReportName(ReportMetadataConfig reportMetadata, String extension){
-        return reportMetadata.getName() + " " + ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
+        String mask = reportMetadata.getFileNameMask();
+        if( mask == null || mask.isEmpty() ) {
+            mask = globalServerSettingsService.getString("report.global.fileMask");
+            if( mask == null || mask.isEmpty() ) {
+                return reportMetadata.getName() + " " + ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
+            }
+        }
+        return mask.replace(MASK_NAME, reportMetadata.getName()).
+                replace(MASK_DESCR, reportMetadata.getDescription()).
+                replace(MASK_LONG_DATE, ThreadSafeDateFormat.format(new Date(), DATE_LONG_PATTERN)).
+                replace(MASK_SHORT_DATE, ThreadSafeDateFormat.format(new Date(), DATE_SHORT_PATTERN)).
+                replace(MASK_CREATOR, currentUserAccessor.getCurrentUser()) + "." + extension;
     }
     
     private Connection getConnection() throws ClassNotFoundException, SQLException {
