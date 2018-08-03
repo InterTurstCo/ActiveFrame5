@@ -21,6 +21,9 @@ public class ReportMetadataConfig implements Dto{
     @Attribute(required=false)
     private String mainTemplate;
 
+    @Attribute(required=false)
+    private String fileNameMask;
+
     /**
      * Класс имплементации генератора отчета. По умолчанию используется генератор JasperReports
      */
@@ -63,6 +66,8 @@ public class ReportMetadataConfig implements Dto{
     public void setMainTemplate(String mainTemplate) {
         this.mainTemplate = mainTemplate;
     }
+    public String getFileNameMask() { return fileNameMask; }
+    public void setFileNameMask(String fileNameMask) { this.fileNameMask = fileNameMask; }
     public String getForm() {
         return form;
     }
