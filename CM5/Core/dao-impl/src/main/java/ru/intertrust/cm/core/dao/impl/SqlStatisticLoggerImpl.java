@@ -43,7 +43,7 @@ public class SqlStatisticLoggerImpl implements ScheduleTaskHandle, SqlStatisticL
 
   @Override
   public synchronized void log(String query, long executionTime, StackTraceElement[] stackTraceElements) {
-    if (enabled || !enabled) {
+    if (enabled) {
       allCount.incrementAndGet();
       allTime.set(allTime.get()+executionTime);
       if (!statistics.containsKey(query)) {
@@ -72,7 +72,7 @@ public class SqlStatisticLoggerImpl implements ScheduleTaskHandle, SqlStatisticL
   public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
     readSettings();
 
-    if (enabled || !enabled) {
+    if (enabled) {
       writeLog();
       statistics.clear();
       allTime.set(0l);
