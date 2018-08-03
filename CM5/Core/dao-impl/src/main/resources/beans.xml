@@ -160,6 +160,8 @@
 
     <bean id="sqlLoggerEnforcer" class="ru.intertrust.cm.core.dao.impl.SqlLoggerEnforcerImpl"/>
 
+    <bean id="sqlStatisticLogger" class="ru.intertrust.cm.core.dao.impl.SqlStatisticLoggerImpl" scope="singleton"/>
+
     <bean id="delegatingGlobalCacheClientFactory" class="ru.intertrust.cm.core.dao.impl.DelegatingGlobalCacheClientFactory"/>
 
     <bean id="globalCacheClient" factory-bean="delegatingGlobalCacheClientFactory" factory-method="getGlobalCacheClient">
