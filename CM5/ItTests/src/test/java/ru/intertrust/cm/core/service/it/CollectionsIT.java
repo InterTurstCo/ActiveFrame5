@@ -205,7 +205,189 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(collection);
         assertTrue(collection.size() >= 1);
 
+        // CMFIVE-19480
+        query = "select * from country where id in ({0}) or id in (:1) or name = ':0 :2 {0} {2}'";
+        countryTypeid = domainObjectTypeIdCache.getId("country");
+        params = new ArrayList<Value>();     
+        ListValue lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)),
+                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
+        params.add(lv);
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)),
+                new ReferenceValue(new RdbmsId(countryTypeid, 4)));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
 
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue(1), new LongValue(3));
+        params.add(lv);
+        lv = new ListValue(new LongValue(2), new LongValue(4));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        // GlobalCache
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue(1), new LongValue(3));
+        params.add(lv);
+        lv = new ListValue(new LongValue(2), new LongValue(4));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        
+        // QueryCache
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
+        params.add(lv);
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue();
+        params.add(lv);
+        lv = new ListValue();
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from country where id in ({0})";
+        params = new ArrayList<Value>();     
+        lv = new ListValue();
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue(1));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue());
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue());
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from country where id in (:0) or id in (:1)";
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)),
+                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
+        params.add(lv);
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)),
+                new ReferenceValue(new RdbmsId(countryTypeid, 4)));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue(1), new LongValue(3));
+        params.add(lv);
+        lv = new ListValue(new LongValue(2), new LongValue(4));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        // GlobalCache
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)),
+                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
+        params.add(lv);
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)),
+                new ReferenceValue(new RdbmsId(countryTypeid, 4)));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        // QueryCache
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue(1));
+        params.add(lv);
+        lv = new ListValue(new LongValue(4));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue();
+        params.add(lv);
+        lv = new ListValue();
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from country where id in (:0)";
+        params = new ArrayList<Value>();     
+        lv = new ListValue();
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue(1));
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new LongValue());
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue());
+        params.add(lv);
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from country where id = :0 or id = :1";
+        params = new ArrayList<Value>();     
+        params.add(new LongValue(1));
+        params.add(new LongValue(2));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 3)));
+        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 4)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from country where id = {0} or id = {1}";
+        params = new ArrayList<Value>();     
+        params.add(new LongValue(3));
+        params.add(new LongValue(4));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        params = new ArrayList<Value>();     
+        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
+        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 2)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+        // CMFIVE-19480
+        
         query = "SELECT so_org_desc_sys.id as id, orgDescr.Module, orgDescr.created_date FROM SO_OrgDescriptionSys so_org_desc_sys " +
         		"join SO_OrgDescription orgDescr on orgDescr.id = so_org_desc_sys.id and orgDescr.id_type = so_org_desc_sys.id_type  " +
         		"WHERE  orgDescr.IsDeleted=0 and orgDescr.Edited is null and module = {0}";
