@@ -74,6 +74,9 @@ public class SqlLogger {
     @Autowired
     private CurrentDataSourceContext currentDataSourceContext;
 
+    @Autowired
+    SqlStatisticLogger sqlStatisticLogger;
+
     @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
                 "execution(* *(String, ..))")
@@ -103,18 +106,21 @@ public class SqlLogger {
             formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
             for (String logEntry : resolvedQueries) {
                 logger.info(logEntry);
+                sqlStatisticLogger.log(query,executionTime,Thread.currentThread().getStackTrace());
             }
         } else if (logWarn && logger.isWarnEnabled()) {
             List<String> resolvedQueries = resolveParameters(query, joinPoint);
             formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
             for (String logEntry : resolvedQueries) {
                 logger.warn(logEntry);
+                sqlStatisticLogger.log(query,executionTime,Thread.currentThread().getStackTrace());
             }
         } else if (logger.isTraceEnabled()){
             List<String> resolvedQueries = resolveParameters(query, joinPoint);
             formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
             for (String logEntry : resolvedQueries) {
                 logger.trace(logEntry);
+                sqlStatisticLogger.log(query,executionTime,Thread.currentThread().getStackTrace());
             }
         }
 
