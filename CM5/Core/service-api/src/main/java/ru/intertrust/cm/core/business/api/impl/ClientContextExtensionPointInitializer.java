@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
+import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 
@@ -42,9 +43,12 @@ public class ClientContextExtensionPointInitializer {
     @PostConstruct
     public void init() {
         logger.info("start init");
-        extensionService.init(contextName, context, packages);
-        pluginService.init(contextName, context);
-
-        logger.info("end init");
+        if (ServerStatus.isEnable()) {
+            extensionService.init(contextName, context, packages);
+            pluginService.init(contextName, context);
+            logger.info("end init");
+        }else {
+            logger.info("Af5 is disabled");
+        }
     }
 }
