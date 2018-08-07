@@ -54,6 +54,7 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleProcessor;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
+import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -154,7 +155,9 @@ public class SchedulerBean {
                 if (!scheduleTaskLoader.isEnable()) {
                     logger.warn("Can not run scheduler. Service is disabled.");
                 } else {
-                    logger.warn("Can not run scheduler. Configuration is not loaded.");
+                    if (ServerStatus.isEnable()) {
+                        logger.warn("Can not run scheduler. Configuration is not loaded.");
+                    }
                 }
             }
         } catch (Exception ex) {
