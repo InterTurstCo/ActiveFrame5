@@ -457,7 +457,7 @@
 
 
             <column field="name" name="Название организации" editable="false" type="string" sortable="true"
-                    search-filter="byName">
+                    search-filter="byName" >
                 <!-- если ID типа Organization, то вызывается данная коллекция -->
                 <!-- если for-domain-object-type не указан, то данная коллекция используется "в последнюю очередь".
                  это удобно для случая, когда текущая коллекция содержит элементы только одного типа -->

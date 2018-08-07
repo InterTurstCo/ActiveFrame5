@@ -5,6 +5,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -49,6 +50,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheck
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.CheckBoxHeaderWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidgetFactory;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -77,7 +79,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class CollectionPluginView extends PluginView {
+public class CollectionPluginView extends PluginView  {
     private static final String MSG_CONF_ERROR = "Ошибка конфигурации. ";
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
@@ -469,7 +471,6 @@ public class CollectionPluginView extends PluginView {
                     }
                 }));
 
-
     }
 
     public SaveToCsvEventHandler createExportToCSVActionHahdler() {
@@ -813,11 +814,12 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(CollectionColumn checkBoxColumn, List<ColumnHeaderBlock> columnHeaderBlocks) {
         ColumnFormatter.formatCheckBoxColumn(checkBoxColumn);
-        tableBody.addColumn(checkBoxColumn);
-        HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(checkBoxColumn, null, null);
+
+        HeaderWidget headerWidget = new CheckBoxHeaderWidget();
         CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, checkBoxColumn, headerWidget, eventBus);
         ColumnHeaderBlock columnHeaderBlock = new ColumnHeaderBlock(collectionColumnHeader, checkBoxColumn);
         columnHeaderBlocks.add(columnHeaderBlock);
+        tableBody.addColumn(checkBoxColumn,collectionColumnHeader);
         createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
     }
 
@@ -1118,6 +1120,7 @@ public class CollectionPluginView extends PluginView {
             columnHeaderController.sideBarFixPositionEvent(event);
         }
     }
+
 
 
     private class ScrollLazyLoadHandler implements ScrollHandler {

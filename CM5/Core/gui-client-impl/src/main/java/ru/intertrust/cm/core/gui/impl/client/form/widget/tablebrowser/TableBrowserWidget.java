@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -475,6 +476,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return currentState.getSelectedIds();
     }
 
+
     protected class OpenCollectionClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
@@ -503,7 +505,10 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             }
         });
 
+
+
     }
+
 
     protected void addClickHandlersForSingleChoice(final CollectionDialogBox dialogBox) {
         addCommonClickHandlers(dialogBox);
