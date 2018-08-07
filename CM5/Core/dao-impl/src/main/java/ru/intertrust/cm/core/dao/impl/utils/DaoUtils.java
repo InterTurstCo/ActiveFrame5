@@ -6,6 +6,8 @@ import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
@@ -19,6 +21,53 @@ import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
  * 
  */
 public class DaoUtils {
+
+    public enum ParamPatternConverter {
+        // Паттерн поиска параметров вида ":0", ":p1"
+        COLON("(\\:[\\w]+)", new MatchConverter() {
+            @Override
+            public String convert(String src) {
+                return src != null && !src.isEmpty() ? src.substring(1) : "";
+            }
+        }),
+
+        // Паттерн поиска параметров вида "{0}", "{p1}"
+        BRACE("(\\{[\\w]+\\})", new MatchConverter() {
+            @Override
+            public String convert(String src) {
+                return src != null && src.length() > 2 ? src.substring(1, src.length() - 1) : "";
+            }
+        });
+        
+        private String pattern;
+        private MatchConverter matchConverter;
+        private ParamPatternConverter(String pattern, MatchConverter matchConverter) {
+            this.pattern = pattern;
+            this.matchConverter = matchConverter;
+        }
+        
+        public String getPattern () {
+            return pattern;
+        }
+        public MatchConverter getMatchConverter() {
+            return matchConverter;
+        }
+    }
+    
+    /**
+     * Преобразование найденного фрагмента
+     * @author mike
+     *
+     */
+    private interface MatchConverter {
+        /**
+         * Преобразование фрагмента.
+         * @param src
+         *            исходный фрагмент
+         * @return преобразованный фрагмент
+         */
+        String convert(String src);
+    }    
 
     /**
      * Формирует строку параметров вида :param1, param2,.. из списка переданных
@@ -187,4 +236,85 @@ public class DaoUtils {
         }
         return result;
     }
+    
+    /**
+     * Обработка имен параметров в тексте sql-запроса за исключением фрагментов
+     * в апострофахю
+     * @param srcSql
+     *            исходный текст запроса
+     * @param prefix
+     *            префикс для постановки
+     * @param suffix
+     *            суффикс для подстановки
+     * @param matchConverters
+     *            массив паттернов и конвертеров
+     * @return преобразованный запрос
+     */
+    public static String adjustParameterNamesBeforePreProcessing(String srcSql, String prefix, String suffix, 
+            ParamPatternConverter ... paramPatternConverters) {
+        if (paramPatternConverters == null || paramPatternConverters.length == 0) {
+            return srcSql;
+        }
+        // поиск фрагментов в апострофах, чтобы оставить их без изменения
+        Pattern p = Pattern.compile("(\\'.*?\\')");
+        Matcher m = p.matcher(srcSql);
+        StringBuffer sb = new StringBuffer();
+        String res = "";
+        String tmp = null;
+        // Цикл по фрагментам в апострофах
+        while (m.find()) {
+            m.appendReplacement(sb, "");
+            tmp = sb.toString();
+            sb.setLength(0);
+            String grp = m.group(1);
+            // преобразование фрагмента вне апострофов и конкатенация результата
+            for (ParamPatternConverter ppc : paramPatternConverters) {
+                tmp = adjustSqlParamNames(tmp, ppc.getPattern(), ppc.getMatchConverter(), prefix, suffix);
+            }
+            res += tmp + grp;
+        }
+        m.appendTail(sb);
+        tmp = sb.toString();
+        // преобразование фрагмента вне апострофов и конкатенация результата
+        for (ParamPatternConverter ppc : paramPatternConverters) {
+            tmp = adjustSqlParamNames(tmp, ppc.getPattern(), ppc.getMatchConverter(), prefix, suffix);
+        }
+        res += tmp;
+        return res;
+    }
+
+    /**
+     * Обработка имен параметров в фрагменте текста sql-запроса вне апострофов
+     * @param src
+     *            фрагмент текста
+     * @param regExp
+     *            паттерн поиска
+     * @param matchConverter
+     *            конвертер фрагмента, найденного по паттерну
+     * @param prefix
+     *            префикс
+     * @param suffix
+     *            суффикс
+     * @return преобразованный фрагмент
+     */
+    private static String adjustSqlParamNames(String src, String regExp, 
+            MatchConverter matchConverter, String prefix, String suffix) {
+        if (matchConverter == null) {
+            return src;
+        }
+        Pattern p = Pattern.compile(regExp);
+        Matcher m = p.matcher(src);
+        StringBuffer sb = new StringBuffer();
+        String res = "";
+        while (m.find()) {
+            m.appendReplacement(sb, prefix);
+            String gr = m.group(1);
+            res += sb.toString() + matchConverter.convert(gr) + suffix;
+            sb.setLength(0);
+        }
+        m.appendTail(sb);
+        res += sb;
+        return res;
+    }
+
 }

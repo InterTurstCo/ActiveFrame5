@@ -56,6 +56,7 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
  * @author vmatsukevich Date: 7/1/13 Time: 6:58 PM
@@ -658,16 +659,23 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     public static String adjustParameterNames(String subQuery, String parameterPrefix) {
-        String newFilterCriteria = subQuery.replace("{", parameterPrefix);
-        newFilterCriteria = newFilterCriteria.replace("}", "");
-
-        return newFilterCriteria;
+        // CMFIVE-19480
+        // String newFilterCriteria = subQuery.replace("{", parameterPrefix);
+        // newFilterCriteria = newFilterCriteria.replace("}", "");
+        //
+        // return newFilterCriteria;
+        return DaoUtils.adjustParameterNamesBeforePreProcessing(subQuery, parameterPrefix, "", DaoUtils.ParamPatternConverter.BRACE);
+        // CMFIVE-19480
     }
 
     public static String adjustParameterNamesBeforePreProcessing(String subQuery, String parameterPrefix) {
-        String newFilterCriteria = subQuery.replaceAll("[{]", START_PARAM_SIGN + parameterPrefix);
-        newFilterCriteria = newFilterCriteria.replaceAll("[}]", END_PARAM_SIGN);
-        return newFilterCriteria;
+        // CMFIVE-19480
+        // String newFilterCriteria = subQuery.replaceAll("[{]", START_PARAM_SIGN + parameterPrefix;);
+        // newFilterCriteria = newFilterCriteria.replaceAll("[}]", END_PARAM_SIGN);
+        // return newFilterCriteria;
+        return DaoUtils.adjustParameterNamesBeforePreProcessing(subQuery, START_PARAM_SIGN + parameterPrefix, END_PARAM_SIGN, 
+                new DaoUtils.ParamPatternConverter[] {DaoUtils.ParamPatternConverter.COLON, DaoUtils.ParamPatternConverter.BRACE});
+        // CMFIVE-19480
     }
 
     /*
