@@ -32,8 +32,10 @@ import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
+import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer.TypeConfigBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SqlQueryModifierTest {
@@ -282,4 +284,17 @@ public class SqlQueryModifierTest {
                 , SqlQueryModifier.transformToCountQuery("WITH t AS (SELECT id, name FROM docs) SELECT id, name FROM t"));
     }
 
+
+    @Test
+    public void testSubSelectRefFields() {
+        FakeConfigurationExplorer confExplorer = new FakeConfigurationExplorer();
+        confExplorer.createTypeConfig((new TypeConfigBuilder("cg_action")).addReferenceField("id", "cg_action").addReferenceField("Module", "SS_Module"));
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(confExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
+        SqlQueryParser sqlParser = new SqlQueryParser("SELECT id, Module FROM (SELECT cg_action.id AS id, cg_action.module as Module FROM CG_Action cg_action ) s");
+        Select select = sqlParser.getSelectStatement();
+        
+        collectionQueryModifier.addServiceColumns(select);
+
+        assertEquals("SELECT id, id_type, Module, module_type FROM (SELECT cg_action.id AS id, cg_action.id_type \"id_type\", cg_action.module AS Module, cg_action.module_type \"module_type\" FROM CG_Action cg_action) s", select.toString());
+    }
 }

@@ -11,6 +11,7 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -182,7 +183,7 @@ public class SqlQueryModifier {
     }
 
     private Map<String, FieldConfig> buildColumnToConfigMapForSelectItems(SelectBody selectBody) {
-        final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
+        final Map<String, FieldConfig> columnToTableMapping = new CaseInsensitiveHashMap<FieldConfig>();
 
         processSelectBody(selectBody, new QueryProcessor() {
             @Override

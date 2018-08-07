@@ -14,6 +14,7 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -33,7 +34,7 @@ public class CollectingColumnConfigVisitor extends BasicVisitor implements Expre
 
     protected String plainSelectQuery;
 
-    protected Map<String, FieldConfig> columnToConfigMapping = new HashMap<>();
+    protected Map<String, FieldConfig> columnToConfigMapping = new CaseInsensitiveHashMap<FieldConfig>();
 
     public Map<String, FieldConfig> getColumnToConfigMapping() {
         return columnToConfigMapping;
