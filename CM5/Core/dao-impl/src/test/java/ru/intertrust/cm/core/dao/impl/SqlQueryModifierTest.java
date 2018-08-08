@@ -12,6 +12,7 @@ import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -297,4 +298,20 @@ public class SqlQueryModifierTest {
 
         assertEquals("SELECT id, id_type, Module, module_type FROM (SELECT cg_action.id AS id, cg_action.id_type \"id_type\", cg_action.module AS Module, cg_action.module_type \"module_type\" FROM CG_Action cg_action) s", select.toString());
     }
+    
+    
+    @Test
+    @Ignore("Бага в парсере")
+    public void testRefFieldFromJoin() {
+        FakeConfigurationExplorer confExplorer = new FakeConfigurationExplorer();
+        confExplorer.createTypeConfig((new TypeConfigBuilder("action")).addReferenceField("id", "action").addReferenceField("module_id", "module"));
+        confExplorer.createTypeConfig((new TypeConfigBuilder("module")).addReferenceField("id", "module").addReferenceField("module_type_id", "module_type"));
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(confExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
+        SqlQueryParser sqlParser = new SqlQueryParser("select a.id, module_type_id from action a join module m on m.id = a.module_id");
+        Select select = sqlParser.getSelectStatement();
+        
+        collectionQueryModifier.addServiceColumns(select);
+
+        assertEquals("SELECT a.id, a.id_type, module_type_id, module_type_id_type FROM action a JOIN module m on m.id = a.module_id", select.toString());
+    }    
 }
