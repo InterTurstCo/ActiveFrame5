@@ -206,59 +206,27 @@ public class CollectionsIT extends IntegrationTestBase {
         assertTrue(collection.size() >= 1);
 
         // CMFIVE-19480
-        query = "select * from country where id in ({0}) or id in (:1) or name = ':0 :2 {0} {2}'";
-        countryTypeid = domainObjectTypeIdCache.getId("country");
-        params = new ArrayList<Value>();     
-        ListValue lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)),
-                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
-        params.add(lv);
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)),
-                new ReferenceValue(new RdbmsId(countryTypeid, 4)));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue(1), new LongValue(3));
-        params.add(lv);
-        lv = new ListValue(new LongValue(2), new LongValue(4));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        // GlobalCache
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue(1), new LongValue(3));
-        params.add(lv);
-        lv = new ListValue(new LongValue(2), new LongValue(4));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
+        boolean b1 = true, b2 = true, b3 = true;
         
-        // QueryCache
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
-        params.add(lv);
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue();
-        params.add(lv);
-        lv = new ListValue();
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
         query = "select * from country where id in ({0})";
         params = new ArrayList<Value>();     
-        lv = new ListValue();
+        ListValue lv = new ListValue();
         params.add(lv);
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
 
+        params = new ArrayList<Value>();     
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)), 
+                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
+        params.add(lv);
+        try {
+            collection = collectionService.findCollectionByQuery(query, params);
+            b1 = collection != null;
+        } catch (Exception e) {
+            b1 = false;
+        }
+
+        query = "select * from country where id in ( {0})";
         params = new ArrayList<Value>();     
         lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
         params.add(lv);
@@ -266,126 +234,36 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(collection);
 
         params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue(1));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue());
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new ReferenceValue());
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        query = "select * from country where id in (:0) or id in (:1)";
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)),
-                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
-        params.add(lv);
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)),
-                new ReferenceValue(new RdbmsId(countryTypeid, 4)));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue(1), new LongValue(3));
-        params.add(lv);
-        lv = new ListValue(new LongValue(2), new LongValue(4));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        // GlobalCache
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)),
-                new ReferenceValue(new RdbmsId(countryTypeid, 2)));
-        params.add(lv);
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 3)),
-                new ReferenceValue(new RdbmsId(countryTypeid, 4)));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        // QueryCache
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue(1));
-        params.add(lv);
-        lv = new ListValue(new LongValue(4));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
         lv = new ListValue();
         params.add(lv);
-        lv = new ListValue();
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        query = "select * from country where id in (:0)";
-        params = new ArrayList<Value>();     
-        lv = new ListValue();
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue(1));
-        params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
+        try {
+            collection = collectionService.findCollectionByQuery(query, params);
+            b2 = collection != null;
+        } catch (Exception e) {
+            b2 = false;
+        }
         
+        query = "select * from country where id in ({0} )";
         params = new ArrayList<Value>();     
-        lv = new ListValue(new LongValue());
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1)), 
+                new ReferenceValue(new RdbmsId(countryTypeid + 1, 2)));
         params.add(lv);
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
 
         params = new ArrayList<Value>();     
-        lv = new ListValue(new ReferenceValue());
+        lv = new ListValue(new ReferenceValue(new RdbmsId(countryTypeid, 1))); 
         params.add(lv);
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        query = "select * from country where id = :0 or id = :1";
-        params = new ArrayList<Value>();     
-        params.add(new LongValue(1));
-        params.add(new LongValue(2));
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 3)));
-        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 4)));
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        query = "select * from country where id = {0} or id = {1}";
-        params = new ArrayList<Value>();     
-        params.add(new LongValue(3));
-        params.add(new LongValue(4));
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
-
-        params = new ArrayList<Value>();     
-        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 1)));
-        params.add(new ReferenceValue(new RdbmsId(countryTypeid, 2)));
-        collection = collectionService.findCollectionByQuery(query, params);
-        assertNotNull(collection);
+        try {
+            collection = collectionService.findCollectionByQuery(query, params);
+            b3 = collection != null;
+        } catch (Exception e) {
+            b3 = false;
+        }
+        
+        assertTrue(b1);
+        assertTrue(b2);
+        assertTrue(b3);
         // CMFIVE-19480
         
         query = "SELECT so_org_desc_sys.id as id, orgDescr.Module, orgDescr.created_date FROM SO_OrgDescriptionSys so_org_desc_sys " +

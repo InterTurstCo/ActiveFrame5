@@ -664,7 +664,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         // newFilterCriteria = newFilterCriteria.replace("}", "");
         //
         // return newFilterCriteria;
-        return DaoUtils.adjustParameterNamesBeforePreProcessing(subQuery, parameterPrefix, "", DaoUtils.ParamPatternConverter.BRACE);
+        return DaoUtils.adjustParameterNamesBeforePreProcessing(subQuery, parameterPrefix, "", 
+                DaoUtils.ParamPatternConverter.BRACE);
         // CMFIVE-19480
     }
 
@@ -673,8 +674,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
         // String newFilterCriteria = subQuery.replaceAll("[{]", START_PARAM_SIGN + parameterPrefix;);
         // newFilterCriteria = newFilterCriteria.replaceAll("[}]", END_PARAM_SIGN);
         // return newFilterCriteria;
-        return DaoUtils.adjustParameterNamesBeforePreProcessing(subQuery, START_PARAM_SIGN + parameterPrefix, END_PARAM_SIGN, 
-                new DaoUtils.ParamPatternConverter[] {DaoUtils.ParamPatternConverter.COLON, DaoUtils.ParamPatternConverter.BRACE});
+        return DaoUtils.adjustParameterNamesBeforePreProcessing(subQuery, START_PARAM_SIGN + parameterPrefix, END_PARAM_SIGN,
+                DaoUtils.ParamPatternConverter.BRACE);
+        /* 
+        Если нужно обрабатывать параметр вида :0 аналогично {0}, (т.е. с возможностью использования ReferenceValue),
+        последний параметр должен быть в виде 
+        new DaoUtils.ParamPatternConverter[] {DaoUtils.ParamPatternConverter.COLON, DaoUtils.ParamPatternConverter.BRACE}
+         */
         // CMFIVE-19480
     }
 
