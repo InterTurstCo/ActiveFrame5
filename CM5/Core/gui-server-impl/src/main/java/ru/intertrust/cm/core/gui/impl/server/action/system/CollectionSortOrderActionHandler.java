@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.action.system;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -29,6 +31,9 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_COLLECT
 @ComponentName(CollectionSortOrderActionContext.COMPONENT_NAME)
 public class CollectionSortOrderActionHandler extends ActionHandler<CollectionSortOrderActionContext, ActionData> {
 
+    private static final String SETTINGS_OP_LOCK = "Optimistic lock exception while saving settings";
+    private static Logger log = LoggerFactory.getLogger(CollectionSortOrderActionHandler.class);
+
     @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
@@ -57,7 +62,7 @@ public class CollectionSortOrderActionHandler extends ActionHandler<CollectionSo
         try {
             crudService.save(domainObject);
         } catch (OptimisticLockException ole){
-            ole.printStackTrace();
+            log.error(SETTINGS_OP_LOCK,ole);
         }
         return null;
     }

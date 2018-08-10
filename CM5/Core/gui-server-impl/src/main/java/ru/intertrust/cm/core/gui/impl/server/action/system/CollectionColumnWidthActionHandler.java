@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.action.system;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -14,6 +16,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -31,6 +34,9 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_COLLECT
  */
 @ComponentName(CollectionColumnWidthActionContext.COMPONENT_NAME)
 public class CollectionColumnWidthActionHandler extends ActionHandler<CollectionColumnWidthActionContext, ActionData> {
+
+    private static final String SETTINGS_OP_LOCK = "Optimistic lock exception while saving settings";
+    private static Logger log = LoggerFactory.getLogger(CollectionColumnWidthActionHandler.class);
 
     @Autowired private ConfigurationExplorer configurationService;
     @Autowired private CrudService crudService;
@@ -66,7 +72,7 @@ public class CollectionColumnWidthActionHandler extends ActionHandler<Collection
         try {
             crudService.save(object);
         } catch (OptimisticLockException ole){
-            ole.printStackTrace();
+            log.error(SETTINGS_OP_LOCK,ole);
         }
         return null;
     }
