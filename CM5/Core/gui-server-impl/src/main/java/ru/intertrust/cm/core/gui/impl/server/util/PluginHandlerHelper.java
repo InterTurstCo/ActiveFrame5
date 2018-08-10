@@ -160,7 +160,7 @@ public class PluginHandlerHelper {
         if (identifiableObject == null) {
             result = settingsUtil.createNewObject(link,currentUserAccessor.getCurrentUserId(),0L,viewName);
         } else {
-            result = crudService.findAndLock(identifiableObject.getId());
+            result = crudService.find(identifiableObject.getId());
         }
         return result;
     }

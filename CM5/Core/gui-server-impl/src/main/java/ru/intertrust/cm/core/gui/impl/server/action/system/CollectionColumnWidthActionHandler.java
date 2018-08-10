@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -62,7 +63,11 @@ public class CollectionColumnWidthActionHandler extends ActionHandler<Collection
 
         final String configAsStr = PluginHandlerHelper.serializeToXml(collectionViewConfig);
         object.setString(DO_COLLECTION_VIEW_FIELD_KEY, configAsStr);
-        crudService.save(object);
+        try {
+            crudService.save(object);
+        } catch (OptimisticLockException ole){
+            ole.printStackTrace();
+        }
         return null;
     }
 

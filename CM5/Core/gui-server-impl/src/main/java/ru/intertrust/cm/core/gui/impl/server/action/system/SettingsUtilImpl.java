@@ -107,7 +107,7 @@ public class SettingsUtilImpl implements SettingsUtil {
                     getUserSettingsIdentifiableObject(currentUserAccessor.getCurrentUser(), collectionsService);
             DomainObject result;
             if (identifiableObject != null) {
-                result = crudService.findAndLock(identifiableObject.getId());
+                result = crudService.find(identifiableObject.getId());
             } else {
                 result = crudService.createDomainObject("bu_user_settings");
                 result.setReference("person", currentUserAccessor.getCurrentUserId());

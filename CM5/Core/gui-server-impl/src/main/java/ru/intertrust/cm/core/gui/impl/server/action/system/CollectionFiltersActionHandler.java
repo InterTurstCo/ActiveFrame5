@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -53,7 +54,11 @@ public class CollectionFiltersActionHandler extends ActionHandler<CollectionFilt
                 context.getCollectionViewerConfig().getInitialFiltersConfig());
         domainObject.setString(DO_COLLECTION_VIEWER_FIELD_KEY,
                 PluginHandlerHelper.serializeToXml(collectionViewerConfig));
-        crudService.save(domainObject);
+        try {
+            crudService.save(domainObject);
+        } catch (OptimisticLockException ole){
+            ole.printStackTrace();
+        }
         return null;
     }
 
