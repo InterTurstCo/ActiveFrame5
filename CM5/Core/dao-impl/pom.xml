@@ -36,6 +36,12 @@
         </dependency>
 
         <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>global-cache-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>9.0-801.jdbc3</version>

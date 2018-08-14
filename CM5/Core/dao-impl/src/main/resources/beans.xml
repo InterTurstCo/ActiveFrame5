@@ -44,6 +44,8 @@
 
     <bean id="currentDataSourceJndiContext" class="ru.intertrust.cm.core.dao.impl.CurrentDataSourceContextImpl"/>
 
+    <bean id="disabledGlobalCacheClient" class="ru.intertrust.cm.core.dao.impl.DisabledGlobalCacheClient"/>
+
     <bean id="switchableDataSource" class="ru.intertrust.cm.core.dao.impl.JndiRoutingDataSource"
           depends-on="currentDataSourceJndiContext"/>
 

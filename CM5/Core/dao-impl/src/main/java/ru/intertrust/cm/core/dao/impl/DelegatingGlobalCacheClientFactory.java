@@ -68,7 +68,7 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
     protected GlobalCacheClient getImpl() {
         GlobalCacheClient impl;
         if (!isEnabled() || !context.containsBean("globalCacheClientFactory")) {
-            return DisabledGlobalCacheClient.INSTANCE;
+            return (GlobalCacheClient) context.getBean("disabledGlobalCacheClient");
         }
         impl = ((GlobalCacheClientFactory) context.getBean("globalCacheClientFactory")).getGlobalCacheClient();
         if (impl == null) {

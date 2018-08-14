@@ -1,10 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.*;
+import org.springframework.stereotype.Component;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.globalcacheclient.GlobalCacheSettings;
 
 import java.io.Serializable;
 import java.util.*;
@@ -15,7 +19,12 @@ import java.util.*;
  *         Time: 15:53
  */
 public class DisabledGlobalCacheClient implements GlobalCacheClient {
+
+    @Autowired
+    private GlobalCacheSettings globalCacheSettings;
+
     public static final DisabledGlobalCacheClient INSTANCE = new DisabledGlobalCacheClient();
+
 
     @Override
     public void activate(boolean isAtStartActivation) {
@@ -31,7 +40,12 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
 
     @Override
     public Map<String, Serializable> getSettings() {
-        return Collections.emptyMap();
+        final HashMap<String, Serializable> settings = new HashMap<>();
+        settings.put("global.cache.mode", globalCacheSettings.getMode().toString());
+        settings.put("global.cache.max.size", globalCacheSettings.getSizeLimitBytes());
+        settings.put("global.cache.cluster.mode", globalCacheSettings.isInCluster());
+        settings.put("global.cache.wait.lock.millies", globalCacheSettings.getWaitLockMillies());
+        return settings;
     }
 
     @Override
