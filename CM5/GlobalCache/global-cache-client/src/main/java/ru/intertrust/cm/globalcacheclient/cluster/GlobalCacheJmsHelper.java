@@ -12,6 +12,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * @author Denis Mitavskiy
@@ -26,9 +27,9 @@ public class GlobalCacheJmsHelper {
     public static final String NOTIFICATION_TOPIC = "topic/ClusterNotificationTopic";
     public static final String DELAY_QUEUE = "queue/ClusterNotificationDelayQueue";
 
-    public static void sendClusterNotification(CacheInvalidation message) {
+    public static void sendClusterNotification(CacheInvalidation message, String topicName) {
         try {
-            send(message, true, CLUSTER_NOTIFICATION_CONNECTION_FACTORY, NOTIFICATION_TOPIC);
+            send(message, true, CLUSTER_NOTIFICATION_CONNECTION_FACTORY, topicName );
         } catch (Throwable t) {
             logger.error("Exception while sending cluster notification: " + message, t);
             throw t;

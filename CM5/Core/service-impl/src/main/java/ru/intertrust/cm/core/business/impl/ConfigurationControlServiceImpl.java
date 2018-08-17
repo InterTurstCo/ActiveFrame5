@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
+
 import javax.annotation.Resource;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
@@ -52,7 +53,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     private enum UpdateType {CONFIGURATION, WORKFLOW, DATA_IMPORT}
 
-    private static final String CONFIGURATION_UPDATE_JMS_TOPIC = "topic/ConfigurationUpdateTopic";
+  //  private static final String CONFIGURATION_UPDATE_JMS_TOPIC = "topic/ConfigurationUpdateTopic";
+    
+    @org.springframework.beans.factory.annotation.Value("${global.cache.topic.update.name:topic/ConfigurationUpdateTopic}")
+	private String updateConfigTopic;
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationControlServiceImpl.class);
 
@@ -134,7 +138,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void activateDraftsById(List<Id> toolingIds) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDraftsById(toolingIds);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -143,7 +147,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void activateDrafts(List<DomainObject> toolingDOs) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts(toolingDOs);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges, updateConfigTopic);
     }
 
     @Override
@@ -164,7 +168,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void activateDrafts() throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts();
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -173,7 +177,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void activateFromFiles(Collection<File> files) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateFromFiles(files);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -182,7 +186,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void activateFromString(String configString) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateFromString(configString);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -192,7 +196,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void activateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateExtensions(extensionIds);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -202,7 +206,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void deactivateExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().deactivateExtensions(extensionIds);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -212,7 +216,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void cleanExtensionsById(List<Id> extensionIds) throws SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().cleanExtensions(extensionIds);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }    
     
     /**
@@ -221,7 +225,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Override
     public void deleteNewExtensions(List<Id> extensionIds) throws ConfigurationException, SummaryConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().deleteNewExtensions(extensionIds);
-        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges,updateConfigTopic);
     }
 
     /**
@@ -256,12 +260,13 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         return configurationExtensionProcessor;
     }
 
-    private void notifySingletonListenersAndClusterAboutExtensionActivation(Set<ConfigChange> configChanges) {
+	private void notifySingletonListenersAndClusterAboutExtensionActivation(Set<ConfigChange> configChanges,String topicName) {
         try {
             if (!configChanges.isEmpty()) {
                 ((ConfigurationExplorerImpl) configurationExplorer).getApplicationEventPublisher()
                         .publishEvent(new SingletonConfigurationUpdateEvent(configurationExplorer, configChanges));
-                JmsUtils.sendTopicMessage(new ConfigurationUpdateMessage(), CONFIGURATION_UPDATE_JMS_TOPIC);
+              // JmsUtils.sendTopicMessage(new ConfigurationUpdateMessage(), CONFIGURATION_UPDATE_JMS_TOPIC);
+               JmsUtils.sendTopicMessage(new ConfigurationUpdateMessage(), topicName);
             }
         } catch (JMSException | NamingException ex) {
             throw RemoteSuitableException.convert(ex);
@@ -279,7 +284,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
             for (TopLevelConfig config : configuration.getConfigurationList()) {
                 TopLevelConfig oldConfig = configurationExplorer.getConfig(config.getClass(), config.getName());
                 if (oldConfig == null || !oldConfig.equals(config)) {
-                    JmsUtils.sendTopicMessage(config, CONFIGURATION_UPDATE_JMS_TOPIC);
+                    JmsUtils.sendTopicMessage(config, updateConfigTopic);
                 }
             }
         } catch (Exception ex) {
