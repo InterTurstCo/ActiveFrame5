@@ -160,7 +160,8 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     }
 
     private Integer calculateDynamicHeight(WidgetState state) {
-        if ((((TableBrowserState) state).getTableBrowserConfig().getPageSize() == 0 || ((TableBrowserState) state).getTableBrowserConfig().getPageSize() <= 0
+        if ((((TableBrowserState) state).getTableBrowserConfig().getPageSize() == null ||
+            ((TableBrowserState) state).getTableBrowserConfig().getPageSize() == 0 || ((TableBrowserState) state).getTableBrowserConfig().getPageSize() <= 0
         ) && (getDisplayConfig() == null || getDisplayConfig().getHeight()==null) && (((TableBrowserState) state).getStretched())) {
             if (((TableBrowserState) state).getSelectedIds().size() > 0) {
                 return ((TableBrowserState) state).getSelectedIds().size() * MAGIC_NUMBER;

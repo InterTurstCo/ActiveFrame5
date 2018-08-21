@@ -204,6 +204,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             toolbar.getToolbarPanel().setVisible(true);
         } else {
             toolbar.getToolbarPanel().setVisible(false);
+            toolbar.getToolbarPanel().setHeight("0px");
         }
 
         if (config.getCollectionViewerConfig() == null) {

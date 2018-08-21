@@ -651,9 +651,9 @@
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Letter">
                             <collection-viewer>
+                                <act:tool-bar useDefault="true"/>
                                 <collection-ref name="Letters"/>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
