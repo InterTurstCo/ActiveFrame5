@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
@@ -29,7 +31,9 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -313,5 +317,22 @@ public class SqlQueryModifierTest {
         collectionQueryModifier.addServiceColumns(select);
 
         assertEquals("SELECT a.id, a.id_type, module_type_id, module_type_id_type FROM action a JOIN module m on m.id = a.module_id", select.toString());
-    }    
+    }
+    
+    @Test
+    public void testBuildColumnToConfigMapForSelectItemsWithJoin() {
+        FakeConfigurationExplorer confExplorer = new FakeConfigurationExplorer();
+        confExplorer.createTypeConfig((new TypeConfigBuilder("f_dp_resolution")).addReferenceField("hierparent", "f_dp_resolution").addReferenceField("id", "f_dp_resolution"));
+        confExplorer.createTypeConfig((new TypeConfigBuilder("f_dp_resltnbase")).addReferenceField("id", "f_dp_resolution"));
+        
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(confExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
+        SqlQueryParser sqlParser = new SqlQueryParser("SELECT parent_id, parent_id_type FROM (SELECT resf.hierparent parent_id ,resf.hierparent_type parent_id_type FROM (SELECT f_dp_resolution.* FROM f_dp_resolution f_dp_resolution) resf JOIN ( SELECT f_dp_resltnbase.* FROM f_dp_resltnbase f_dp_resltnbase ) res2 ON res2.id = resf.hierparent) s");
+        Select select = sqlParser.getSelectStatement();
+        
+        collectionQueryModifier.addServiceColumns(select);
+        Map<String, FieldConfig> columnConfig = collectionQueryModifier.buildColumnToConfigMapForSelectItems(select);
+        
+
+        assertTrue(columnConfig.get("parent_id")!= null && ReferenceFieldConfig.class.equals(columnConfig.get("parent_id").getClass()));
+    }
 }
