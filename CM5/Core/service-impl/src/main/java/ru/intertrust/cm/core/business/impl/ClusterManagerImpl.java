@@ -82,6 +82,9 @@ public class ClusterManagerImpl implements ClusterManager{
 
     private boolean isInitMainCluster = false;
 
+    @org.springframework.beans.factory.annotation.Value("${cluster.manager:false}")
+    private boolean canBeClusterMaster;
+
 
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
     private String availableRoles;
@@ -116,7 +119,8 @@ public class ClusterManagerImpl implements ClusterManager{
     @Timeout
     @Lock(LockType.READ)
     public void onTimeout(Timer timer) {
-        mainClusterManager = interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY);
+
+        mainClusterManager = !isCanBeMaster() ? false : interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY);
 
         if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
             //Обновляем информацию о ноде в базе
@@ -132,31 +136,37 @@ public class ClusterManagerImpl implements ClusterManager{
             logger.debug("Update cluster node info for node " + nodeId);
 
             //Получаем информацию о менеджере кластера
-            DomainObject clusterManagerInfo = getClusterManagerInfo();
-            //Выполняем операции менеджера кластера
-            if (isMainClusterManager()){
-                DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
-                //Проверяем что объект никто не менял
-                if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
-                    lockedClusterManagerInfo.setString("node_id", nodeId);
-                    lockedClusterManagerInfo.setTimestamp("last_available", new Date());
-                    crudService.save(lockedClusterManagerInfo);
-                }
+            if(isCanBeMaster()){
+                DomainObject clusterManagerInfo = getClusterManagerInfo();
+                //Выполняем операции менеджера кластера
+                if (isMainClusterManager()){
+                    DomainObject lockedClusterManagerInfo = crudService.findAndLock(clusterManagerInfo.getId());
+                    //Проверяем что объект никто не менял
+                    if (lockedClusterManagerInfo.equals(clusterManagerInfo)) {
+                        lockedClusterManagerInfo.setString("node_id", nodeId);
+                        lockedClusterManagerInfo.setTimestamp("last_available", new Date());
+                        crudService.save(lockedClusterManagerInfo);
+                    }
 
-                manageRoles();
+                    manageRoles();
+                }
             }
             //Зачитываем роли в реестр
             readRoleNodes();
         }
     }
 
+
+    private boolean isCanBeMaster(){
+        return canBeClusterMaster;
+    }
     /**
      * Признак ведущего сервера.
      * @return true, если ведущий
      */
     private boolean isMainClusterManager() {
         return mainClusterManager != null ? mainClusterManager.booleanValue() : 
-            (mainClusterManager = interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY)).booleanValue(); 
+            (mainClusterManager = !isCanBeMaster() ? false : interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY)).booleanValue();
     }
     
     /**

@@ -74,6 +74,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             if(!interserverLockingService.lock(LOCK_KEY)){
                 throw new FatalException("Current server marked as main but could not get lock");
             }
+        }else{
+            interserverLockingService.waitUntilNotLocked(LOCK_KEY);
         }
         if (ServerStatus.isEnable()) {
             init();
