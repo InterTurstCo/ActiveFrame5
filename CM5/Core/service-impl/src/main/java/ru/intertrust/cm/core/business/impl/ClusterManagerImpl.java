@@ -31,6 +31,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
+import ru.intertrust.cm.core.business.api.dto.ClusterNodeInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -66,6 +67,8 @@ public class ClusterManagerImpl implements ClusterManager{
     private Map<String, Set<String>> roleNodes = new HashMap<String, Set<String>>();
     private Map<String, Set<String>> nodeRoles = new HashMap<String, Set<String>>();
 
+    private Map<String, ClusterNodeInfo> clusterNodeInfoMap = new HashMap<>();
+
     @Resource
     private TimerService timerService;
 
@@ -84,6 +87,9 @@ public class ClusterManagerImpl implements ClusterManager{
 
     @org.springframework.beans.factory.annotation.Value("${cluster.manager:false}")
     private boolean canBeClusterMaster;
+
+    @org.springframework.beans.factory.annotation.Value("${server.name}")
+    private String nodeName;
 
 
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
@@ -129,6 +135,7 @@ public class ClusterManagerImpl implements ClusterManager{
             if (nodeInfo == null) {
                 nodeInfo = crudService.createDomainObject("cluster_node");
                 nodeInfo.setString("node_id", nodeId);
+                nodeInfo.setString("node_name", nodeName);
             }
             nodeInfo.setString("available_roles", availableRoles);
             nodeInfo.setTimestamp("last_available", new Date());
@@ -168,7 +175,17 @@ public class ClusterManagerImpl implements ClusterManager{
         return mainClusterManager != null ? mainClusterManager.booleanValue() : 
             (mainClusterManager = !isCanBeMaster() ? false : interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY)).booleanValue();
     }
-    
+
+    @Override
+    public Map<String, ClusterNodeInfo> geNodesInfo() {
+       return clusterNodeInfoMap;
+    }
+
+    @Override
+    public ClusterNodeInfo getClusterManagerNodeInfo() {
+        return clusterNodeInfoMap.get(getClusterManagerInfo().getString("node_id"));
+    }
+
     /**
      * Зачитываем информацию о ролях текущей ноды
      */
@@ -177,8 +194,11 @@ public class ClusterManagerImpl implements ClusterManager{
         roleNodes.clear();
         nodeRoles.clear();
 
+        clusterNodeInfoMap.clear();
+
         List<DomainObject> nodeInfos = crudService.findAll("cluster_node");
         for (DomainObject nodeInfo : nodeInfos) {
+
             Set<String> activeRoles = toSet(nodeInfo.getString("active_roles"));
             if (nodeInfo.getString("node_id").equals(nodeId)){
                 this.activeRoles = activeRoles;
@@ -194,7 +214,21 @@ public class ClusterManagerImpl implements ClusterManager{
                 }
                 nodes.add(nodeInfo.getString("node_id"));
             }
+
+            ClusterNodeInfo nInfo = buildNodeInfo(nodeInfo);
+            clusterNodeInfoMap.put(nInfo.getNodeId(), nInfo);
+
         }
+    }
+
+    private ClusterNodeInfo buildNodeInfo(DomainObject nodeInfo) {
+        ClusterNodeInfo info = new ClusterNodeInfo();
+        info.setNodeId(nodeInfo.getString("node_id"));
+        info.setLastAvailable(nodeInfo.getTimestamp("last_available"));
+        info.setActiveRoles( toSet(nodeInfo.getString("active_roles")));
+        info.setAvailableRoles( toSet(nodeInfo.getString("available_roles")));
+        info.setNodeName(nodeInfo.getString("node_name"));
+        return info;
     }
 
     /**
@@ -296,6 +330,7 @@ public class ClusterManagerImpl implements ClusterManager{
     private void reRunTimer() {
         timerService.createTimer(0, TIMER_NAME);
     }
+
 
     /**
      * Получение информации о текущем менеджере кластера. Если нет ни одного то создание записи

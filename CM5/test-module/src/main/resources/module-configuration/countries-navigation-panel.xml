@@ -1892,6 +1892,14 @@
     </navigation>
 
     <navigation name="panel_1" is-default="true" application="geo">
+
+        <link name="ClusterManager" display-text="Менеджер кластера" >
+            <plugin>
+                <custom name="cluster.management.plugin"/>
+            </plugin>
+        </link>
+
+
         <link name="Geography" display-text="География" image="images/analitika.png">
             <plugin>
                 <!--domain-object-type-to-create="country" - temp solution - remove later-->

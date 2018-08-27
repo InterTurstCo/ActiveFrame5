@@ -179,6 +179,7 @@
     <domain-object-type name="cluster_node" initial-status="Active">
         <fields>
             <string name="node_id" length="256" not-null="true"/>
+            <string name="node_name" length="256"/>
             <string name="available_roles" length="256"/>
             <string name="active_roles" length="256"/>
             <date-time name="last_available" not-null="true"/>

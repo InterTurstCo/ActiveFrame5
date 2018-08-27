@@ -1,0 +1,25 @@
+.nodeInfoBox {
+    margin: 10px !important;
+    padding: 10px !important;
+    border: 1px solid #000;
+}
+
+.nodeInfoBox .gwt-Label {
+    text-decoration: none;
+}
+
+
+.nodeTable {
+    text-align: right;
+    margin: 0 0 13px 13px;
+    text-decoration: none;
+}
+
+.nodeTable td {
+    padding: 10px !important;
+    border: 1px solid #000;
+}
+
+.nodeTable tr:first-child td {
+    font-weight: bold;
+}

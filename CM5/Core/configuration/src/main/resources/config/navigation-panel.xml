@@ -2,6 +2,14 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <navigation name="panel_old"
                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+
+        <link name="ClusterManager" display-text="Менеджер кластера" >
+            <plugin>
+                <custom name="cluster.management.plugin"/>
+            </plugin>
+        </link>
+
+
         <link name="Administration" display-text="Администрирование" image="images/inbox.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links

@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.business.api;
 
+import ru.intertrust.cm.core.business.api.dto.ClusterNodeInfo;
+
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -48,4 +51,17 @@ public interface ClusterManager {
      * @return
      */
     boolean isMainServer();
+
+    /**
+     * Возвращает информацию о всех нодах в кластере
+     * @return
+     */
+    Map<String, ClusterNodeInfo> geNodesInfo();
+
+    /**
+     * Возвращает информацию о текущем менеджере кластера
+     * @return
+     */
+    ClusterNodeInfo getClusterManagerNodeInfo();
+
 }
