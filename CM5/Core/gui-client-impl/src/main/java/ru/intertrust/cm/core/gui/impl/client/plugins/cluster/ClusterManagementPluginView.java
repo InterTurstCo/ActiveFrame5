@@ -4,23 +4,17 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 
-import javafx.scene.layout.Pane;
-import ru.intertrust.cm.core.business.api.dto.ClusterNodeInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.plugins.globalcache.GlobalCacheControlUtils;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.cluster.ClusterManagementPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.GlobalCacheControlPanel;
-import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.cluster.ClusterNodeInfoViewModel;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
