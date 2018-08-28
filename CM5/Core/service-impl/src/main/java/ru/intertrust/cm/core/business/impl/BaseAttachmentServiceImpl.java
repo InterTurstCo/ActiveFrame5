@@ -209,9 +209,9 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
             String domainObjectType = domainObjectTypeIdCache.getName(domainObjectId);
 
-            String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+            String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
-            return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
+            return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attachmentLinkedField, accessToken);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
