@@ -88,7 +88,7 @@ public class ClusterManagerImpl implements ClusterManager{
     @org.springframework.beans.factory.annotation.Value("${cluster.manager:false}")
     private boolean canBeClusterMaster;
 
-    @org.springframework.beans.factory.annotation.Value("${server.name}")
+    @org.springframework.beans.factory.annotation.Value("${server.name:#{null}}")
     private String nodeName;
 
 
