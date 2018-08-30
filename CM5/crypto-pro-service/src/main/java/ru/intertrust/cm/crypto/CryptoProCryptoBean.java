@@ -78,7 +78,11 @@ public class CryptoProCryptoBean implements CryptoBean {
             signerInfo.setSubject(cer.getSubjectDN().getName());
             signerInfo.setIssuer(cer.getIssuerDN().getName());
             TimeStampToken tst = signer.getSignatureTimestampToken();
-            signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
+            if (tst != null) {
+                signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
+            }else {
+                //signerInfo.setSignDate(signer.get);
+            }
         } catch (Exception ex) {
             signerInfo.setValid(false);
             signerInfo.setError(ex.toString());

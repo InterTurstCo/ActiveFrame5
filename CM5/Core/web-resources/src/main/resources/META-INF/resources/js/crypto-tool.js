@@ -65,7 +65,7 @@
 
 				var fileref = document.createElement('script');
 				fileref.setAttribute("type", "text/javascript");
-				fileref.setAttribute("src", "js/crypto-tool-async.js");
+				fileref.setAttribute("src", (this.contextPath == null ? "" : this.contextPath + "/") + "js/crypto-tool-async.js");
 				document.getElementsByTagName("head")[0].appendChild(fileref);
 				this.async_code_included = true;
 			}
@@ -82,11 +82,12 @@
 			}
 		},
 
-		init: function (tsAddress, hashOnServer, signatureType, hashAlgorithm, collback) {
+		init: function (tsAddress, hashOnServer, signatureType, hashAlgorithm, contextPath, collback) {
 			this.tsAddress = tsAddress;
 			this.hashOnServer = hashOnServer;
 			this.signatureType = signatureType;
 			this.hashAlgorithm = hashAlgorithm;
+			this.contextPath = contextPath;
 
 			if (cryptoTool.pluginInstalled){
 				return collback(true);

@@ -139,7 +139,7 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
 
     private native void nativeInit(String tsAddress, boolean hashOnServer, String signatureType, String hashAlgorithm, Callback<String, String> callback)
     /*-{
-         $wnd.cryptoTool.init(tsAddress, hashOnServer, signatureType, hashAlgorithm, function(isInit, error){
+         $wnd.cryptoTool.init(tsAddress, hashOnServer, signatureType, hashAlgorithm, null, function(isInit, error){
             try{
                 if (isInit){
                     callback.@com.google.gwt.core.client.Callback::onSuccess(Ljava/lang/Object;)("");

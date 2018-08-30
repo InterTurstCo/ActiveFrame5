@@ -15,11 +15,11 @@
 				var resultDiv = document.getElementById("signature");
 				var cerIndex = parseInt(certificatesSelect.value);
 				var signData = toBase64(bodyInput.value);
-				window.cryptoTool.sign(cerIndex+1, signData, function(signData, error){
-					if (signData == null && error != null){
+				window.cryptoTool.sign(cerIndex+1, signData, function(signature, error){
+					if (signature == null && error != null){
 						resultDiv.innerHTML = error.message;
 					}else{
-						resultDiv.innerHTML = signData;
+						resultDiv.innerHTML = signature;
 					}
 				});
 			} catch (err) {
@@ -80,7 +80,7 @@
 		}	
 
 		try{
-			window.cryptoTool.init("http://testca.cryptopro.ru/tsp/", false, "CAdES-BES", "GOST_3411_2012_256", onInitCryptoTool);
+			window.cryptoTool.init("http://testca.cryptopro.ru/tsp/", false, "CAdES-BES", "GOST_3411_2012_256", null, onInitCryptoTool);
 			//window.cryptoTool.init("http://cryptopro.ru/tsp/", false);	
 			//window.cryptoTool.init("http://testca.cryptopro.ru/tsp/tsp.srf", false);
 		} catch (err) {

@@ -2,16 +2,18 @@ package ru.intertrust.cm.crypto;
 
 import java.math.BigInteger;
 
+import org.bouncycastle.asn1.cryptopro.CryptoProObjectIdentifiers;
+import org.bouncycastle.asn1.rosstandart.RosstandartObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.DSA;
 import org.bouncycastle.crypto.Digest;
 import org.bouncycastle.crypto.Signer;
-import org.bouncycastle.crypto.digests.GOST3411Digest;
-import org.bouncycastle.crypto.digests.GOST3411_2012_256Digest;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.params.ParametersWithRandom;
+import org.bouncycastle.crypto.signers.DSASigner;
 import org.bouncycastle.crypto.signers.ECGOST3410Signer;
+import org.bouncycastle.crypto.signers.ECGOST3410_2012Signer;
 
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -24,7 +26,18 @@ public class GostSigner implements Signer {
     {
         try{
             this.digest = BcUtil.createDigest(digAlg);
-            this.dsaSigner = new ECGOST3410Signer();
+            
+            if (digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_94)
+                    || digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_2001)
+                    || digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411_94_CryptoProParamSet)) {
+                this.dsaSigner = new ECGOST3410Signer();
+            } else if (digAlg.getAlgorithm().equals(RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256)
+                    || digAlg.getAlgorithm().equals(RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512)){
+                this.dsaSigner = new ECGOST3410_2012Signer();
+            }else {
+                this.dsaSigner = new DSASigner();
+            }
+            
         }catch(Exception ex){
             throw new FatalException("Error create GostSigner", ex);
         }
