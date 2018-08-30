@@ -21,6 +21,7 @@ public class GostSigner implements Signer {
     private final Digest digest;
     private final DSA dsaSigner;
     private boolean forSigning;
+    private int hashSize;
 
     public GostSigner(AlgorithmIdentifier digAlg)
     {
@@ -28,6 +29,7 @@ public class GostSigner implements Signer {
             this.digest = BcUtil.createDigest(digAlg);
             
             if (digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_94)
+                    || digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411)
                     || digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411_94_with_gostR3410_2001)
                     || digAlg.getAlgorithm().equals(CryptoProObjectIdentifiers.gostR3411_94_CryptoProParamSet)) {
                 this.dsaSigner = new ECGOST3410Signer();
@@ -37,6 +39,7 @@ public class GostSigner implements Signer {
             }else {
                 this.dsaSigner = new DSASigner();
             }
+            hashSize = digest.getDigestSize();
             
         }catch(Exception ex){
             throw new FatalException("Error create GostSigner", ex);
@@ -151,12 +154,12 @@ public class GostSigner implements Signer {
         {
             BigInteger[] sig = new BigInteger[2];
 
-            byte[] r = new byte[32];
-            byte[] s = new byte[32];
+            byte[] r = new byte[hashSize];
+            byte[] s = new byte[hashSize];
 
-            System.arraycopy(signature, 0, s, 0, 32);
+            System.arraycopy(signature, 0, s, 0, hashSize);
 
-            System.arraycopy(signature, 32, r, 0, 32);
+            System.arraycopy(signature, hashSize, r, 0, hashSize);
 
             sig = new BigInteger[2];
             sig[0] = new BigInteger(1, r);
