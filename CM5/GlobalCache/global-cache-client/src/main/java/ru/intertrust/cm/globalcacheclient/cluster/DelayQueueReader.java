@@ -48,15 +48,15 @@ public class DelayQueueReader {
     }
 
     //@Schedule(hour = "*", minute = "*", second = "*/1", persistent = false)
-   /* public void schedule() {
+    public void schedule() {
         if (!settings.isInCluster() || processing || System.currentTimeMillis() < nextRun.get()) {
             return;
         }
         performSync();
         nextRun.addAndGet(settings.getClusterSynchronizationMillies());
-    }*/
+    }
 
-    /*private synchronized void performSync() {
+    private synchronized void performSync() {
         processing = true;
         GlobalCacheClient cacheClient = (GlobalCacheClient) context.getBean("globalCacheClient");
         try {
@@ -117,7 +117,7 @@ public class DelayQueueReader {
         } finally {
             processing = false;
         }
-    }*/
+    }
 
     private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> createdIdsToInvalidate, HashSet<Id> toInvalidate, boolean clearFullAccessLog, HashSet<Id> usersToInvalideAccess) {
         if (createdIdsToInvalidate.isEmpty() && toInvalidate.isEmpty() && !clearFullAccessLog && usersToInvalideAccess.isEmpty()) {
