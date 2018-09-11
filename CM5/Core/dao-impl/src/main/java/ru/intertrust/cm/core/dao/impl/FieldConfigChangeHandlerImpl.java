@@ -104,6 +104,7 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
                                 "from '" + oldFieldConfig.getType() + "' to '" + newFieldConfig.getType() +
                                 "' in " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
                     }
+                    schemaCache.reset();
                 }
             }
         }
@@ -112,17 +113,17 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
     private void handle(DecimalFieldConfig newFieldConfig, DecimalFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
         ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, newFieldConfig);
 
-        if ((newFieldConfig.getScale() == null && oldFieldConfig.getScale() != null &&
-                newFieldConfig.getScale() == null && columnInfo.getScale() != null) ||
-                (!newFieldConfig.getScale().equals(oldFieldConfig.getScale()) &&
+        if ((newFieldConfig.getScale() == null && oldFieldConfig.getScale() != null 
+                && oldFieldConfig.getScale() != 0 && columnInfo.getScale() != null && columnInfo.getScale() != 0) ||
+                (newFieldConfig.getScale() != null && !newFieldConfig.getScale().equals(oldFieldConfig.getScale()) &&
                         !newFieldConfig.getScale().equals(columnInfo.getScale()))) {
             throw new ConfigurationException("Configuration loading aborted: unsupported scale attribute " +
                     "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
         }
 
         if ((newFieldConfig.getPrecision() == null && oldFieldConfig.getPrecision() != null &&
-                newFieldConfig.getPrecision() == null && columnInfo.getPrecision() != null) ||
-                (!newFieldConfig.getPrecision().equals(oldFieldConfig.getPrecision()) &&
+                oldFieldConfig.getPrecision() != 0 && columnInfo.getPrecision() != null && columnInfo.getPrecision() != 0) ||
+                (newFieldConfig.getPrecision() != null && !newFieldConfig.getPrecision().equals(oldFieldConfig.getPrecision()) &&
                         !newFieldConfig.getPrecision().equals(columnInfo.getPrecision()))) {
             throw new ConfigurationException("Configuration loading aborted: unsupported precision attribute " +
                     "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());

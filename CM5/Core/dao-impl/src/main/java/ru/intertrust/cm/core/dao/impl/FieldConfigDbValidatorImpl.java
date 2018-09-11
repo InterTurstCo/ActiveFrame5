@@ -36,12 +36,13 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
     }
 
     private void validate(StringFieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, ColumnInfo columnInfo) {
-        if (fieldConfig.getLength() != columnInfo.getLength()) {
+        // CMFIVE-21855 считаем это не ошибкой и модифицируем поле в коде далее 
+        /*if (fieldConfig.getLength() != columnInfo.getLength()) {
             throw new ConfigurationValidationException("Validation against DB failed for field '" +
                     domainObjectTypeConfig.getName() + "." + fieldConfig.getName() +
                     "' because such column already exists but has a different length property '" +
                     columnInfo.getLength() + "'");
-        }
+        }*/
     }
 
     private void validate(PasswordFieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, ColumnInfo columnInfo) {
@@ -65,12 +66,13 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
             return;
         }
 
-        String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, fieldConfig);
+        // CMFIVE-21855 считаем это не ошибкой и пересоздаем констраинт в коде далее 
+        /*String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, fieldConfig);
         if (foreignKeyName == null) {
             throw new ConfigurationValidationException("Validation against DB failed for field '" +
                     domainObjectTypeConfig.getName() + "." + fieldConfig.getName() +
                     "' because required foreign key doesn't exist");
-        }
+        }*/
     }
 
     private void validate(DecimalFieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, ColumnInfo columnInfo) {
@@ -96,7 +98,7 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
     }
 
     private void validateBasicAttributes(FieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, ColumnInfo columnInfo) {
-        if (fieldConfig.isNotNull() != columnInfo.isNotNull()) {
+        if (fieldConfig.isNotNull() && !columnInfo.isNotNull()) {
             throw new ConfigurationValidationException("Validation against DB failed for field '" +
                     domainObjectTypeConfig.getName() + "." + fieldConfig.getName() +
                     "' because such column already exists but has a different not-null property '" +
@@ -114,8 +116,9 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
                     continue;
                 }
 
-                StringBuilder message = generateUniqueKeyNotFoundExceptionMessage(fieldConfig, domainObjectTypeConfig, uniqueKeyConfig);
-                throw new ConfigurationValidationException(message.toString());
+                // CMFIVE-21855 считаем это не ошибкой и пересоздаем констраинт в коде далее 
+                /*StringBuilder message = generateUniqueKeyNotFoundExceptionMessage(fieldConfig, domainObjectTypeConfig, uniqueKeyConfig);
+                throw new ConfigurationValidationException(message.toString());*/
             }
         }
     }
