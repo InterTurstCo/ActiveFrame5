@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 
@@ -145,10 +146,21 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
         final String sqlType = getSqlType(fieldConfig);
         query.append("alter table ").append(wrap(getSqlName(config))).append(" alter column ").
                 append(wrappedColumnName).append(" set data type ").append(sqlType).append(";");
-        query.append("alter table ").append(wrap(getALTableSqlName(config.getName()))).append(" alter column ").
-                append(wrappedColumnName).append(" set data type ").append(sqlType).append(";");
+        if (!isAuditLog(config)) {
+            query.append("alter table ").append(wrap(getALTableSqlName(config.getName()))).append(" alter column ").
+                    append(wrappedColumnName).append(" set data type ").append(sqlType).append(";");
+        }
 
         return Collections.singletonList(query.toString());
+    }
+
+    /**
+     * Метод возвращает true если тип является описание аудит лога
+     * @param config
+     * @return
+     */
+    private boolean isAuditLog(DomainObjectTypeConfig config) {
+        return config.getName().toLowerCase().endsWith(Configuration.AUDIT_LOG_SUFFIX);
     }
 
     @Override
