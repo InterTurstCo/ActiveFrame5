@@ -870,7 +870,7 @@ public abstract class BasicQueryHelper {
         }
 
         if (BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
-            return "smallint check (" + wrap(getSqlName(fieldConfig)) + " in (0, 1))";
+            return "smallint " + (fieldConfig.isNotNull() ? "default 0 " : "") + "check (" + wrap(getSqlName(fieldConfig)) + " in (0, 1)) ";
         }
 
         throw new IllegalArgumentException("Invalid field type");

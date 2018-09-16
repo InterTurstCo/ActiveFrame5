@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcStatement implements Statement {
-    public static final int COLLECTION_LIMIT = 1000;
+    public static final int COLLECTION_LIMIT = 5000;
     //public static final int COLLECTION_LIMIT = 5;
     private int collectionPartition = 0;
     private boolean closed = false;
