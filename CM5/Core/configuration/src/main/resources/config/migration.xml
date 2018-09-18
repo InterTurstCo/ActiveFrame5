@@ -7,7 +7,10 @@
         <before-auto-migration>
             <native-command>
                 <![CDATA[
-                    alter table migration_log add column module_name character varying(255)
+do $$ begin  
+alter table migration_log add column module_name character varying(255);
+exception when duplicate_column then raise notice 'column "module_name" already exists in "migration_log"'; 
+end; $$
                 ]]>
             </native-command>
             <execute component-name="ToPerModuleMigrationMigrator"/>
