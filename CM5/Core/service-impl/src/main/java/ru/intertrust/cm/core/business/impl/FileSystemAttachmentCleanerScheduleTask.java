@@ -41,7 +41,7 @@ import ru.intertrust.cm.core.model.ScheduleException;
  * Периодическое задание удаляющее все файлы вложений в хранилище,
  * не имеющие ссылающихся на них доменных объектов.
  */
-@ScheduleTask(name = "FileSystemAttachmentCleanerScheduleTask", hour = "2", minute = "15", active = true,
+@ScheduleTask(name = "FileSystemAttachmentCleanerScheduleTask", hour = "2", minute = "15", active = false,
               taskTransactionalManagement = true)
 public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHandle {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentCleanerScheduleTask.class);
@@ -164,10 +164,11 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
                 if (!isLinkedInDo(path)) {
                     try {
                         Files.delete(file);
+                        ++deleteCount;
                         logger.info("File " + path + " has no links form domain objects and was deleted");
                     } catch (IOException e) {
-                        logger.warn("Error deleting not linked file " + file, e);
                         ++errorCount;
+                        logger.warn("Error deleting not linked file " + file, e);
                     }
                 }
             }
@@ -194,11 +195,13 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
 
             String alternatePath = relativePath.replaceAll(Pattern.quote(File.separator), "/");
             @SuppressWarnings("rawtypes")
-            List<Value> params = Arrays.<Value>asList(new StringValue(relativePath), new StringValue(alternatePath));
+            List<Value> params = Arrays.<Value>asList(new StringValue(relativePath),
+                    new StringValue(alternatePath), new StringValue("/" + alternatePath));
 
             for (String attachmentType : attachmentTypes) {
                 IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(
-                        "select t.id from " + attachmentType + " t where t.path = {0} or t.path = {1}", params, 0, 2, accessToken);
+                        "select t.id from " + attachmentType + " t where t.path = {0} or t.path = {1} or t.path = {2}",
+                        params, 0, 2, accessToken);
                 if (collection != null && collection.size() > 0) {
                     return true;
                 }
