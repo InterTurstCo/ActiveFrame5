@@ -37,12 +37,13 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.model.ScheduleException;
+
 /**
  * Периодическое задание удаляющее все файлы вложений в хранилище,
  * не имеющие ссылающихся на них доменных объектов.
  */
-@ScheduleTask(name = "FileSystemAttachmentCleanerScheduleTask", hour = "2", minute = "15", active = false,
-              taskTransactionalManagement = true)
+/*@ScheduleTask(name = "FileSystemAttachmentCleanerScheduleTask", hour = "2", minute = "15", active = false,
+              taskTransactionalManagement = true)*/
 public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHandle {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentCleanerScheduleTask.class);
 
@@ -69,6 +70,11 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
 
     @Override
     public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) {
+		// CMFIVE-22601 Отключаем задачу, if (true) нужно чтоб не падала компиляция
+		if (true){
+			return "Attention, task disabled. See CMFIVE-22601";
+		}
+		
         logger.info("FileSystemAttachmentCleanerScheduleTask started");
 
         Worker worker = new Worker();
