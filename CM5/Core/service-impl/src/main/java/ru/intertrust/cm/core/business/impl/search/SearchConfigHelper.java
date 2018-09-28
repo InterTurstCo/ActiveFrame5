@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.config.search.*;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.annotation.PostConstruct;
+
 import java.util.*;
 
 /**
@@ -36,8 +38,8 @@ public class SearchConfigHelper {
     private Map<String, ArrayList<SearchAreaDetailsConfig>> effectiveConfigsMap =
             Collections.synchronizedMap(new HashMap<String, ArrayList<SearchAreaDetailsConfig>>());
 
-    private Map<Pair<IndexedFieldConfig, String>, SearchFieldType> fieldTypeMap =
-            Collections.synchronizedMap(new HashMap<Pair<IndexedFieldConfig, String>, SearchFieldType>());
+    private Map<Pair<IndexedFieldConfig, String>, Set<SearchFieldType>> fieldTypeMap =
+            Collections.synchronizedMap(new HashMap<Pair<IndexedFieldConfig, String>, Set<SearchFieldType>>());
 
     private Map<Pair<String, String>, String> attachmentParentLinkNameMap =
             Collections.synchronizedMap(new HashMap<Pair<String, String>, String>());
@@ -468,48 +470,7 @@ public class SearchConfigHelper {
         }
         throw new IllegalStateException("Wrong filter configuration");
     }
-/*
-    public static class FieldDataType {
-        public static final FieldDataType UNKNOWN = new FieldDataType(null);
 
-        private FieldType dataType;
-        private boolean multivalued = false;
-
-        FieldDataType(FieldType dataType) {
-            this.dataType = dataType;
-        }
-
-        FieldDataType(FieldType dataType, boolean multivalued) {
-            this.dataType = dataType;
-            this.multivalued = multivalued;
-        }
-
-        public FieldType getDataType() {
-            return dataType;
-        }
-
-        public boolean isMultivalued() {
-            return multivalued;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (obj == null || !FieldDataType.class.equals(obj.getClass())) {
-                return false;
-            }
-            FieldDataType that = (FieldDataType) obj;
-            return this.dataType == that.dataType && this.multivalued == that.multivalued;
-        }
-
-        @Override
-        public int hashCode() {
-            return 529 * dataType.hashCode() + (multivalued ? 31 : 887);
-        }
-    }
-*/
     /**
      * Определяет тип данных индексируемого поля, определённого в конфигурации области поиска.
      * 
@@ -518,16 +479,16 @@ public class SearchConfigHelper {
      * @return тип данных, хранимых в индексируемом поле
      * @throws IllegalArgumentException если конфигурация ссылается на несуществующее поле
      */
-    public SearchFieldType getFieldType(IndexedFieldConfig config, String objectType) {
+    public Set<SearchFieldType> getFieldTypes(IndexedFieldConfig config, String objectType) {
         Pair<IndexedFieldConfig, String> key = new Pair<>(config, objectType);
 
-        SearchFieldType result = fieldTypeMap.get(new Pair<>(config, objectType));
+        Set<SearchFieldType> result = fieldTypeMap.get(new Pair<>(config, objectType));
         if (result != null) {
             return result;
         }
 
         if (config.getSolrPrefix() != null) {
-            result = new CustomSearchFieldType(config.getSolrPrefix());
+            result = Collections.<SearchFieldType>singleton(new CustomSearchFieldType(config.getSolrPrefix()));
         } else if (config.getDoel() != null) {
             DoelExpression expr = DoelExpression.parse(config.getDoel());
             DoelValidator.DoelTypes analyzed = DoelValidator.validateTypes(expr, objectType);
@@ -536,32 +497,30 @@ public class SearchConfigHelper {
                         + " [" + config.getDoel() + "] is invalid");
                 return null;
             }
-            Set<FieldType> types = analyzed.getResultTypes();
-            SimpleSearchFieldType.Type dataType = null;
-            if (types.size() == 1) {
-                dataType = SimpleSearchFieldType.byFieldType(types.iterator().next());
-            }
-            if (dataType != null) {
-                result = new SimpleSearchFieldType(dataType, !analyzed.isSingleResult());
-            } else {
-                result = new TextSearchFieldType(getSupportedLanguages(config), !analyzed.isSingleResult(),
-                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
+            result = new HashSet<>(analyzed.getResultTypes().size() * 2);   // Considering default load factor (0.75)
+            for (FieldType type : analyzed.getResultTypes()) {
+                SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(type);
+                if (dataType != null) {
+                    result.add(new SimpleSearchFieldType(dataType, !analyzed.isSingleResult()));
+                } else {
+                    result.add(new TextSearchFieldType(getSupportedLanguages(config), !analyzed.isSingleResult(),
+                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
+                }
             }
         } else if (config.getScript() != null) {
-            result = new TextSearchFieldType(getSupportedLanguages(), false,
-                    config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
+            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), false,
+                    config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
         } else {
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(Case.toLower(objectType),
-                    Case.toLower(config.getName()));
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
             }
             SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(fieldConfig.getFieldType());
             if (dataType != null) {
-                result = new SimpleSearchFieldType(dataType, false);
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, false));
             } else {
-                result = new TextSearchFieldType(getSupportedLanguages(config), false,
-                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING);
+                result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(config),
+                        false, config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
             }
         }
 
@@ -601,7 +560,7 @@ public class SearchConfigHelper {
         for (IndexedDomainObjectConfig config : configs) {
             for (IndexedFieldConfig field : config.getFields()) {
                 if (fieldName.equalsIgnoreCase(field.getName())) {
-                    types.add(getFieldType(field, config.getType()));
+                    types.addAll(getFieldTypes(field, config.getType()));
                     break;      // No more fields with this name should be in this object config
                 }
             }

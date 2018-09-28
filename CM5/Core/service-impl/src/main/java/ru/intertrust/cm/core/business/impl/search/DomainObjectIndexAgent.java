@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
@@ -29,6 +29,7 @@ import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
@@ -129,23 +130,23 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
             SearchConfigHelper.SearchAreaDetailsConfig config, List<Id> mainIds) {
         for (Id mainId : mainIds) {
             SolrInputDocument doc = new SolrInputDocument();
+
+            // System fields
             doc.addField(SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
             doc.addField(SolrFields.AREA, config.getAreaName());
             doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
             doc.addField(SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
             doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             doc.addField(SolrFields.MODIFIED, object.getModifiedDate());
+
+            // Business fields
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                SearchFieldType type = configHelper.getFieldType(fieldConfig, object.getTypeName());
-                if (type == null) {
-                    continue;
-                }
-                Object value = calculateField(object, fieldConfig);
-                /*if (type == null) {
-                    type = getTypeByValue(value);
-                }*/
-                for (String fieldName : type.getSolrFieldNames(fieldConfig.getName(), true)) {
-                    doc.addField(fieldName, value);
+                Map<SearchFieldType, ?> values = calculateField(object, fieldConfig);
+                for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
+                    SearchFieldType type = entry.getKey();
+                    for (String fieldName : type.getSolrFieldNames(fieldConfig.getName(), true)) {
+                        doc.addField(fieldName, entry.getValue());
+                    }
                 }
             }
             doc.addField("id", createUniqueId(object, config));
@@ -231,30 +232,73 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
         }
     }
 
-    private Object calculateField(DomainObject object, IndexedFieldConfig config) {
-        if (config.getScript() != null) {
-            SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
-            Object result = scriptService.eval(config.getScript(), context);
-            return result;
-        }
-        if (config.getDoel() != null) {
-            AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
-            List<? extends Value<?>> values = doelEvaluator.evaluate(
-                    DoelExpression.parse(config.getDoel()), object.getId(), accessToken);
-            if (values.size() == 0) {
-                return null;
-            } else if (values.size() == 1) {
-                return convertValue(values.get(0));
-            } else {
-                ArrayList<Object> result = new ArrayList<>(values.size());
+    private Map<SearchFieldType, ?> calculateField(DomainObject object, IndexedFieldConfig config) {
+        try {
+            Collection<SearchFieldType> types = configHelper.getFieldTypes(config, object.getTypeName());
+            if (types.size() == 0) {
+                return Collections.emptyMap();
+            }
+
+            if (config.getScript() != null) {
+                SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
+                Object value = scriptService.eval(config.getScript(), context);
+                return Collections.singletonMap(types.iterator().next(), value);
+
+            } else if (config.getDoel() != null) {
+                DoelExpression doel = DoelExpression.parse(config.getDoel());
+                AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
+                List<? extends Value<?>> values = doelEvaluator.evaluate(doel, object.getId(), accessToken);
+                if (values.size() == 0) {
+                    return Collections.emptyMap();
+                }
+                // sort values by types
+                Map<SearchFieldType, Object> result = new HashMap<>();
                 for (Value<?> value : values) {
-                    result.add(convertValue(value));
+                    SimpleSearchFieldType.Type typeId = SimpleSearchFieldType.byFieldType(FieldType.find(value.getClass()));
+                    for (SearchFieldType type : types) {
+                        if (typeId == null && type instanceof TextSearchFieldType) {
+                            if (!((TextSearchFieldType) type).isMultiValued()) {
+                                result.put(type, convertValue(value));
+                            } else {
+                                @SuppressWarnings("unchecked")
+                                List<Object> list = (List<Object>) result.get(type);
+                                if (list == null) {
+                                    result.put(type, list = new ArrayList<>());
+                                }
+                                list.add(convertValue(value));
+                            }
+                        } else if (type instanceof SimpleSearchFieldType && ((SimpleSearchFieldType) type).type == typeId) {
+                            if (!((SimpleSearchFieldType) type).multiValued) {
+                                result.put(type, convertValue(value));
+                            } else {
+                                @SuppressWarnings("unchecked")
+                                List<Object> list = (List<Object>) result.get(type);
+                                if (list == null) {
+                                    result.put(type, list = new ArrayList<>());
+                                }
+                                list.add(convertValue(value));
+                            }
+                        }
+                    }
                 }
                 return result;
+
+            } else {
+                Object value = convertValue(object.getValue(config.getName()));
+                return Collections.singletonMap(types.iterator().next(), value);
             }
+
+        } catch (Exception e) {
+            StringBuilder message = new StringBuilder("Field ").append(config.getName()).append(" calculation error");
+            if (config.getScript() != null) {
+                message.append(" [script=").append(config.getScript()).append("]");
+            }
+            if (config.getDoel() != null) {
+                message.append(" [doel=").append(config.getDoel()).append("]");
+            }
+            log.error(message.toString(), e);
+            return Collections.emptyMap();
         }
-        Value<?> value = object.getValue(config.getName());
-        return convertValue(value);
     }
 
     private List<Id> calculateMainObjects(Id objectId, IndexedDomainObjectConfig[] configChain) {
@@ -336,7 +380,7 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
            .append(":").append(config.getTargetObjectType());
         return buf.toString();
     }
-
+/*
     private SearchFieldType getTypeByValue(Object value) {
         if (value != null && value.getClass().isArray()) {
             Object[] array = (Object[]) value;
@@ -351,7 +395,7 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
 
     private SearchFieldType getTypeByValue(Object value, boolean multiple) {
         if (value == null || value instanceof String) {
-            return new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false);
+            return new TextSearchFieldType(configHelper.getSupportedLanguages(), multiple, false);
         }
         if (value instanceof Long || value instanceof Integer || value instanceof Byte) {
             return new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, multiple);
@@ -367,7 +411,7 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
         }
         return new TextSearchFieldType(configHelper.getSupportedLanguages(), multiple, false);    //*****
     }
-
+*/
     public class SolrAttachmentFeeder implements ContentStream {
 
         private DomainObject attachment;

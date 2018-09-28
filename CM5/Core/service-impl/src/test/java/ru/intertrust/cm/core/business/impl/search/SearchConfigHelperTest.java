@@ -165,8 +165,9 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_B");
         when(config.getDoel()).thenReturn(null);
-        SearchFieldType type = testee.getFieldType(config, "Type_B");
-        assertEquals(type, new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
     }
 
     @Test
@@ -174,8 +175,9 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("Long_C");
         when(config.getDoel()).thenReturn(null);
-        SearchFieldType type = testee.getFieldType(config, "Type_C");
-        assertEquals(type, new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_C");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
     }
 
     @Test
@@ -183,8 +185,9 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("DateTime_A");
         when(config.getDoel()).thenReturn("Reference_B_A.DateTime_A");
-        SearchFieldType type = testee.getFieldType(config, "Type_B");
-        assertEquals(type, new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE));
     }
 
     @Test
@@ -192,8 +195,20 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("DateTimeZone_B");
         when(config.getDoel()).thenReturn("Reference_D_A.Type_B^Reference_B_A.DateTimeZone_B");
-        SearchFieldType type = testee.getFieldType(config, "Type_D");
-        assertEquals(type, new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_D");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true));
+    }
+
+    @Test
+    public void testGetFieldType_DoelDifferentTypes() {
+        //TODO implement
+        /*IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        when(config.getName()).thenReturn("DateTimeZone_B");
+        when(config.getDoel()).thenReturn("Reference_D_A.Type_B^Reference_B_A.DateTimeZone_B");
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_D");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true));*/
     }
 
     @Test
@@ -201,8 +216,9 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_Ca");
         when(config.getDoel()).thenReturn("String_Ca");
-        SearchFieldType type = testee.getFieldType(config, "Type_C");
-        assertEquals(type, new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_C");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
     }
 
     @Test
@@ -211,8 +227,9 @@ public class SearchConfigHelperTest {
         when(config.getName()).thenReturn("Calculated");
         when(config.getDoel()).thenReturn(null);
         when(config.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
-        SearchFieldType type = testee.getFieldType(config, "Type_B");
-        assertEquals(type, new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
     }
 
     @Test
@@ -221,8 +238,9 @@ public class SearchConfigHelperTest {
         when(config.getName()).thenReturn("String_Bc");
         when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.SUBSTRING);
         when(config.getDoel()).thenReturn(null);
-        SearchFieldType type = testee.getFieldType(config, "Type_B");
-        assertEquals(type, new TextSearchFieldType(Arrays.asList("ru", "en"), false, true));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, true));
     }
 
     @Test
@@ -231,8 +249,9 @@ public class SearchConfigHelperTest {
         when(config.getName()).thenReturn("String_Bc");
         when(config.getSolrPrefix()).thenReturn("spec");
         when(config.getDoel()).thenReturn(null);
-        SearchFieldType type = testee.getFieldType(config, "Type_B");
-        assertEquals(type, new CustomSearchFieldType("spec_"));
+        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
+        assertEquals(types.size(), 1);
+        assertEquals(types.iterator().next(), new CustomSearchFieldType("spec_"));
     }
 
     @Test
