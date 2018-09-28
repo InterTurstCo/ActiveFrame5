@@ -35,183 +35,172 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
  */
 public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
-    private HeaderPanel panel;
-    private EventBus eventBus;
-    private CollectionPlugin plugin;
-    private boolean embeddedDisplayCheckBoxes;
-    private boolean displayCheckBoxes;
-    private Widget emptyTableWidget;
+  private HeaderPanel panel;
+  private EventBus eventBus;
+  private CollectionPlugin plugin;
+  private boolean embeddedDisplayCheckBoxes;
+  private boolean displayCheckBoxes;
+  private Widget emptyTableWidget;
 
-    public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
-        super(pageNumber, resources);
-        this.plugin = plugin;
-        this.eventBus = eventBus;
-        panel = (HeaderPanel) getWidget();
-        panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
-        setAutoHeaderRefreshDisabled(false);
-        setHeaderBuilder(new HeaderBuilder<>(this, false));
-        setTableBuilder(new PlatformCellTableBuilder(this));
+  public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
+    super(pageNumber, resources);
+    this.plugin = plugin;
+    this.eventBus = eventBus;
+    panel = (HeaderPanel) getWidget();
+    panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
+    setAutoHeaderRefreshDisabled(false);
+    setHeaderBuilder(new HeaderBuilder<>(this, false));
+    setTableBuilder(new PlatformCellTableBuilder(this));
 
-        addStyleName("collection-plugin-view-container");
-        addCellPreviewHandler(new CollectionCellPreviewHandler());
-        addDomHandler(new CollectionRowOnDoubleClickHandler(), DoubleClickEvent.getType());
-        sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
+    addStyleName("collection-plugin-view-container");
+    addCellPreviewHandler(new CollectionCellPreviewHandler());
+    sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
+    initJs(panel.getContentWidget().getElement(),this);
+  }
 
+  public native void initJs(Element o,CollectionDataGrid inst)/*-{
+      o.addEventListener('dblclick',
+          function () {
+              $entry(inst.@ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid::doubleClicked()());
+          }
+      )
+  }-*/;
+
+  native void consoleLog( String message) /*-{
+      console.log(message );
+  }-*/;
+
+  private void doubleClicked() {
+    int rowIndex = getKeyboardSelectedRow();
+    CollectionRowItem doubleClickedRow = getVisibleItem(rowIndex);
+    if (doubleClickedRow != null) {
+      final Id id = doubleClickedRow.getId();
+      eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
+      consoleLog("Double click event on grid: id "+id);
+    } else {
+      consoleLog("Double click event on grid: doubleClickedRow is null ");
+    }
+  }
+
+
+  public ScrollPanel getScrollPanel() {
+    return (ScrollPanel) panel.getContentWidget();
+  }
+
+  public void setEmptyTableMessage(boolean displayMessage) {
+    String emptyTableText = displayMessage ? LocalizeUtil.get(LocalizationKeys.EMPTY_TABLE_KEY, BusinessUniverseConstants.EMPTY_TABLE)
+        : BusinessUniverseConstants.EMPTY_VALUE;
+    emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
+    this.setEmptyTableWidget(emptyTableWidget);
+
+  }
+
+  public void setEmptyTableWidgetWidth(int width) {
+    emptyTableWidget.setWidth(width + com.google.gwt.dom.client.Style.Unit.PX.getType());
+  }
+
+  public void setEmbeddedDisplayCheckBoxes(boolean embeddedDisplayCheckBoxes) {
+    this.embeddedDisplayCheckBoxes = embeddedDisplayCheckBoxes;
+  }
+
+  public void setDisplayCheckBoxes(boolean displayCheckBoxes) {
+    this.displayCheckBoxes = displayCheckBoxes;
+  }
+
+  private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
+
+    private Id clickedItemId;
+
+    @Override
+    public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
+      CollectionRowItem clickedItem = event.getValue();
+      EventTarget eventTarget = event.getNativeEvent().getEventTarget();
+      Element element = Element.as(eventTarget);
+      if (cancelSelection(clickedItem, element)) {
+        getSelectionModel().setSelected(clickedItem, false);
+        return;
+      }
+      final Id id = clickedItem.getId();
+      int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
+      switch (nativeEventType) {
+        case Event.ONCLICK:
+          if (CollectionRowItem.RowType.BUTTON.equals(clickedItem.getRowType())) {
+            eventBus.fireEvent(new CollectionRowMoreItemsEvent(clickedItem));
+            getSelectionModel().setSelected(clickedItem, false);
+          } else {
+            handleClickEvent(id);
+          }
+          break;
+        case Event.ONKEYDOWN:
+          handleKeyEvents(event);
+          break;
+      }
     }
 
-    public ScrollPanel getScrollPanel() {
-        return (ScrollPanel) panel.getContentWidget();
+    private boolean cancelSelection(CollectionRowItem clickedItem, Element element) {
+      return CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
+          || (displayCheckBoxes && "checkbox".equalsIgnoreCase(element.getPropertyString("type")));
     }
 
-    public void setEmptyTableMessage(boolean displayMessage) {
-        String emptyTableText = displayMessage ? LocalizeUtil.get(LocalizationKeys.EMPTY_TABLE_KEY, BusinessUniverseConstants.EMPTY_TABLE)
-                : BusinessUniverseConstants.EMPTY_VALUE;
-        emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
-        this.setEmptyTableWidget(emptyTableWidget);
+    private void handleKeyEvents(CellPreviewEvent<CollectionRowItem> event) {
+      NativeEvent nativeEvent = event.getNativeEvent();
+      int keyCode = nativeEvent.getKeyCode();
+      switch (keyCode) {
+        case KeyCodes.KEY_UP:
+        case KeyCodes.KEY_DOWN:
+          handleKeyArrowUpAndDown();
+          break;
 
+      }
     }
 
-    public void setEmptyTableWidgetWidth(int width) {
-        emptyTableWidget.setWidth(width + com.google.gwt.dom.client.Style.Unit.PX.getType());
+    private void handleKeyArrowUpAndDown() {
+      if (embeddedDisplayCheckBoxes) {
+        return;
+      }
+      int rowIndex = getKeyboardSelectedRow();
+      CollectionRowItem item = getVisibleItem(rowIndex);
+      getSelectionModel().setSelected(item, true);
+      eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
     }
 
-    public void setEmbeddedDisplayCheckBoxes(boolean embeddedDisplayCheckBoxes) {
-        this.embeddedDisplayCheckBoxes = embeddedDisplayCheckBoxes;
+    private void handleClickEvent(final Id id) {
+      if (checkDirtiness()) {
+        Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
+          @Override
+          public void onAffirmative() {
+            handleClick(id);
+          }
+
+          @Override
+          public void onCancel() {
+            clickedItemId = null;
+          }
+        });
+      } else {
+        handleClick(id);
+      }
     }
 
-    public void setDisplayCheckBoxes(boolean displayCheckBoxes) {
-        this.displayCheckBoxes = displayCheckBoxes;
+    private void handleClick(final Id id) {
+      if (id != clickedItemId) {
+        performOnClickAction(id);
+      }
+      clickedItemId = id;
     }
 
-    private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
-
-        private Id clickedItemId;
-
-        @Override
-        public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
-            CollectionRowItem clickedItem = event.getValue();
-            EventTarget eventTarget = event.getNativeEvent().getEventTarget();
-            Element element = Element.as(eventTarget);
-            if (cancelSelection(clickedItem, element)) {
-                getSelectionModel().setSelected(clickedItem, false);
-                return;
-            }
-            final Id id = clickedItem.getId();
-            int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
-            switch (nativeEventType) {
-                case Event.ONCLICK:
-                    if (CollectionRowItem.RowType.BUTTON.equals(clickedItem.getRowType())) {
-                        eventBus.fireEvent(new CollectionRowMoreItemsEvent(clickedItem));
-                        getSelectionModel().setSelected(clickedItem, false);
-                    } else {
-                        handleClickEvent(id);
-                    }
-                    break;
-                case Event.ONKEYDOWN:
-                    handleKeyEvents(event);
-                    break;
-            }
-        }
-
-        private boolean cancelSelection(CollectionRowItem clickedItem, Element element) {
-            return CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
-                    || (displayCheckBoxes && "checkbox".equalsIgnoreCase(element.getPropertyString("type")));
-        }
-
-        private void handleKeyEvents(CellPreviewEvent<CollectionRowItem> event) {
-            NativeEvent nativeEvent = event.getNativeEvent();
-            int keyCode = nativeEvent.getKeyCode();
-            switch (keyCode) {
-                case KeyCodes.KEY_UP:
-                case KeyCodes.KEY_DOWN:
-                    handleKeyArrowUpAndDown();
-                    break;
-
-            }
-        }
-
-        private void handleKeyArrowUpAndDown() {
-            if (embeddedDisplayCheckBoxes) {
-                return;
-            }
-            int rowIndex = getKeyboardSelectedRow();
-            CollectionRowItem item = getVisibleItem(rowIndex);
-            getSelectionModel().setSelected(item, true);
-            eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
-        }
-
-        private void handleClickEvent(final Id id) {
-            if (checkDirtiness()) {
-                Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
-                    @Override
-                    public void onAffirmative() {
-                        handleClick(id);
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        clickedItemId = null;
-                    }
-                });
-            } else {
-                handleClick(id);
-            }
-        }
-
-        private void handleClick(final Id id) {
-            if (id != clickedItemId) {
-                performOnClickAction(id);
-            }
-            clickedItemId = id;
-        }
-
-        public void performOnClickAction(Id id) {
-            final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
-            if (collectionViewerConfig.getTableBrowserParams() == null && !collectionViewerConfig.isEmbedded()) {
-                Application.getInstance().getHistoryManager().setSelectedIds(id);
-            }
-            eventBus.fireEvent(new CollectionRowSelectedEvent(id));
-        }
+    public void performOnClickAction(Id id) {
+      final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
+      if (collectionViewerConfig.getTableBrowserParams() == null && !collectionViewerConfig.isEmbedded()) {
+        Application.getInstance().getHistoryManager().setSelectedIds(id);
+      }
+      eventBus.fireEvent(new CollectionRowSelectedEvent(id));
     }
+  }
 
-    private class CollectionRowOnDoubleClickHandler implements DoubleClickHandler {
-
-        @Override
-        public void onDoubleClick(DoubleClickEvent doubleClickEvent) {
-            CollectionDataGrid grid = (CollectionDataGrid) doubleClickEvent.getSource();
-            int rowIndex = grid.getKeyboardSelectedRow();
-            CollectionRowItem doubleClickedRow = grid.getVisibleItem(rowIndex);
-            if (doubleClickedRow != null) {
-                final Id id = doubleClickedRow.getId();
-                handleDoubleClickEvent(id);
-            }
-        }
-
-        private void handleDoubleClickEvent(final Id id) {
-            if (checkDirtiness()) {
-                Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
-                    @Override
-                    public void onAffirmative() {
-                        performOnDoubleClickAction(id);
-                    }
-
-                    @Override
-                    public void onCancel() {
-                    }
-                });
-            } else {
-                performOnDoubleClickAction(id);
-            }
-        }
-
-        private void performOnDoubleClickAction(Id id) {
-            eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-        }
-    }
-
-    private boolean checkDirtiness() {
-        final DomainObjectSurferPlugin parentSurfer = plugin.getContainingDomainObjectSurferPlugin();
-        return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
-    }
+  private boolean checkDirtiness() {
+    final DomainObjectSurferPlugin parentSurfer = plugin.getContainingDomainObjectSurferPlugin();
+    return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
+  }
 
 }
