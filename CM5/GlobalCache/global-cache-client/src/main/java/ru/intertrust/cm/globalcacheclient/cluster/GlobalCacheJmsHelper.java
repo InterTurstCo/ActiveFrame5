@@ -21,8 +21,8 @@ import java.util.List;
 public class GlobalCacheJmsHelper {
     final static Logger logger = LoggerFactory.getLogger(GlobalCacheJmsHelper.class);
 
-    public static final String CLUSTER_NOTIFICATION_CONNECTION_FACTORY = "GlobalCacheClusteredConnectionFactory";
-    public static final String DELAY_QUEUE_CONNECTION_FACTORY = "GlobalCacheLocalConnectionFactory";
+    public static final String CLUSTER_NOTIFICATION_CONNECTION_FACTORY = "LocalConnectionFactory";
+  //  public static final String DELAY_QUEUE_CONNECTION_FACTORY = "LocalConnectionFactory";
     public static final String NOTIFICATION_TOPIC = "topic/ClusterNotificationTopic";
     public static final String DELAY_QUEUE = "queue/ClusterNotificationDelayQueue";
 
@@ -38,7 +38,7 @@ public class GlobalCacheJmsHelper {
         }
     }
 
-    public static void addToDelayQueue(CacheInvalidation message) {
+ /*   public static void addToDelayQueue(CacheInvalidation message) {
         try {
             send(message, true, DELAY_QUEUE_CONNECTION_FACTORY, DELAY_QUEUE);
         } catch (Throwable t) {
@@ -48,9 +48,9 @@ public class GlobalCacheJmsHelper {
         if (logger.isTraceEnabled()) {
             logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") added message to own delay queue: " + message);
         }
-    }
+    }*/
 
-    public static List<CacheInvalidation> readFromDelayQueue(int messages) {
+   /* public static List<CacheInvalidation> readFromDelayQueue(int messages) {
         Connection con = null;
         try {
             InitialContext initialContext = new InitialContext();
@@ -131,7 +131,7 @@ public class GlobalCacheJmsHelper {
         } finally {
             close(con);
         }
-    }
+    }*/
 
     private static void send(CacheInvalidation message, boolean appendNodeId, String factory, String destination) {
         Connection con = null;
