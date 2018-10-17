@@ -8,6 +8,7 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -55,33 +56,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     addStyleName("collection-plugin-view-container");
     addCellPreviewHandler(new CollectionCellPreviewHandler());
     sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
-    initJs(panel.getContentWidget().getElement(),this);
   }
-
-  public native void initJs(Element o,CollectionDataGrid inst)/*-{
-      o.addEventListener('dblclick',
-          function () {
-              $entry(inst.@ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid::doubleClicked()());
-          }
-      )
-  }-*/;
-
-  native void consoleLog( String message) /*-{
-      console.log(message );
-  }-*/;
-
-  private void doubleClicked() {
-    int rowIndex = getKeyboardSelectedRow();
-    CollectionRowItem doubleClickedRow = getVisibleItem(rowIndex);
-    if (doubleClickedRow != null) {
-      final Id id = doubleClickedRow.getId();
-      eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-      consoleLog("Double click event on grid: id "+id);
-    } else {
-      consoleLog("Double click event on grid: doubleClickedRow is null ");
-    }
-  }
-
 
   public ScrollPanel getScrollPanel() {
     return (ScrollPanel) panel.getContentWidget();
@@ -130,6 +105,9 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
           } else {
             handleClickEvent(id);
           }
+          break;
+        case Event.ONDBLCLICK:
+          eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
           break;
         case Event.ONKEYDOWN:
           handleKeyEvents(event);
@@ -196,6 +174,8 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
       }
       eventBus.fireEvent(new CollectionRowSelectedEvent(id));
     }
+
+
   }
 
   private boolean checkDirtiness() {
