@@ -3287,6 +3287,8 @@
         <xs:attribute type="xs:string" name="filter" use="required"/>
         <xs:attribute type="xs:string" name="domain-object-type-to-create" use="required"/>
         <xs:attribute type="xs:string" name="bread-crumb" use="optional"/>
+        <xs:attribute type="xs:string" name="breadCrumbColumn"/>
+        <xs:attribute type="xs:integer" name="breadCrumbMaxChars"/>
     </xs:complexType>
 
     <xs:complexType name="collectionMappingType">

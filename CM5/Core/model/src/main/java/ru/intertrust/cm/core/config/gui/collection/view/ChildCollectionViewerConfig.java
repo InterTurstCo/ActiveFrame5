@@ -24,6 +24,12 @@ public class ChildCollectionViewerConfig implements Dto {
     @Attribute(name="domain-object-type-to-create")
     private String domainObjectTypeToCreate;
 
+    @Attribute(name = "breadCrumbColumn", required = false)
+    private String breadCrumbColumn;
+
+    @Attribute(name = "breadCrumbMaxChars", required = false)
+    private Integer breadCrumbMaxChars;
+
     @Attribute(name="bread-crumb", required = false)
     @Localizable
     private String breadCrumb="Не определён";
@@ -51,6 +57,26 @@ public class ChildCollectionViewerConfig implements Dto {
         return collectionViewerConfig;
     }
 
+    public String getBreadCrumbColumn() {
+        return breadCrumbColumn;
+    }
+
+    public void setBreadCrumbColumn(String breadCrumbColumn) {
+        this.breadCrumbColumn = breadCrumbColumn;
+    }
+
+    public Integer getBreadCrumbMaxChars() {
+        return breadCrumbMaxChars;
+    }
+
+    public void setBreadCrumbMaxChars(Integer breadCrumbMaxChars) {
+        this.breadCrumbMaxChars = breadCrumbMaxChars;
+    }
+
+    public void setBreadCrumb(String breadCrumb) {
+        this.breadCrumb = breadCrumb;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,6 +90,8 @@ public class ChildCollectionViewerConfig implements Dto {
         if (domainObjectTypeToCreate != null ? !domainObjectTypeToCreate.equals(that.domainObjectTypeToCreate) : that.domainObjectTypeToCreate != null)
             return false;
         if (breadCrumb != null ? !breadCrumb.equals(that.breadCrumb) : that.breadCrumb != null) return false;
+        if (breadCrumbColumn != null ? !breadCrumbColumn.equals(that.breadCrumbColumn) : that.breadCrumbColumn != null) return false;
+        if (breadCrumbMaxChars != null ? !breadCrumbMaxChars.equals(that.breadCrumbMaxChars) : that.breadCrumbMaxChars != null) return false;
         if (collectionViewerConfig != null ? !collectionViewerConfig.equals(that.collectionViewerConfig) : that.collectionViewerConfig != null)
             return false;
 

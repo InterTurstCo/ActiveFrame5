@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerCon
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
+import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import java.util.List;
@@ -33,6 +34,9 @@ public class HierarchicalCollectionColumn extends TextCollectionColumn {
         if ("click".equals(event.getType())) {
             EventTarget eventTarget = event.getEventTarget();
             Element element = Element.as(eventTarget);
+            childCollectionViewerConfigs.get(0).setBreadCrumb(
+                LinkUtil.prepareBreadCrumb(childCollectionViewerConfigs.get(0),rowItem.getRow())
+            );
             if ("expand-arrow".equals(element.getClassName())) {
                 eventBus.fireEvent(new HierarchicalCollectionEvent(rowItem.getId(), childCollectionViewerConfigs));
             }

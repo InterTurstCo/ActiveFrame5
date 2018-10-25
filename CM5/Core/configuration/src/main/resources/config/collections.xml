@@ -123,7 +123,8 @@
                     drill-down-style="combined-link" search-filter="byName">
 
                 <child-collection-viewer filter="byDepartment"
-                                         domain-object-type-to-create="Employee" bread-crumb="Сотрудник">
+                                         domain-object-type-to-create="Employee" bread-crumb="Сотрудник"
+                breadCrumbColumn="name">
                     <collection-viewer>
                         <collection-ref name="Employees"/>
                         <default-sort-criteria column-field="name" order="desc"/>
@@ -463,7 +464,8 @@
                  это удобно для случая, когда текущая коллекция содержит элементы только одного типа -->
                 <!-- bread-crumb - название "хлебной крошки" для под-коллекции -->
                 <child-collection-viewer for-domain-object-type="Organization" filter="byOrganization"
-                                         domain-object-type-to-create="Department" bread-crumb="Подразделение">
+                                         domain-object-type-to-create="Department" bread-crumb="Подразделение"
+                breadCrumbColumn="name" breadCrumbMaxChars="10">
                     <collection-viewer>
                         <collection-ref name="Departments"/>
                         <collection-view-ref name="departments_default_view"/>
