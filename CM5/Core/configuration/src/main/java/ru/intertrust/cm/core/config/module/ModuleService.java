@@ -172,6 +172,10 @@ public class ModuleService {
                     throw new FatalException("Check dependenses import data files fail. Found cyclic on file "
                             + stack.toString());
                 } else {
+                    // Более понятная ошибка, если модуль не найден
+                    if (importFilesGraf.get(dependOn) == null) {
+                        throw new FatalException("Not found module " + dependOn);
+                    }
                     check(importFilesGraf.get(dependOn), stack);
                 }
             }

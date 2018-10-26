@@ -258,7 +258,7 @@ public class DoelResolver implements DoelEvaluator {
 
                 for (RdbmsId objId : sourceIds) {
                     List<DomainObject> children = domainObjectCacheService.getAll(objId, accessToken,
-                            childrenElem.getChildType(), childrenElem.getParentLink());
+                            childrenElem.getChildType(), childrenElem.getParentLink(), String.valueOf(false));
                     if (debugPrinter != null && children != null) {
                         debugPrinter.print(var("step", step), var("elem", element), var("objId", objId),
                                 str("got linked from tx cache:"), list(children));

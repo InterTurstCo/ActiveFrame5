@@ -996,7 +996,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     "'*' is not a valid Domain Object type");
         }
 
-        String[] cacheKey = new String[] {domainObjectType,
+        String[] cacheKey = new String[] {domainObjectType, String.valueOf(exactType),
                 String.valueOf(offset), String.valueOf(limit) };
         List<DomainObject> result = domainObjectCacheService.getAll(accessToken, cacheKey);
         if (result != null) {
@@ -1161,7 +1161,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         boolean linkedDomainObjectCacheEnabled = limit == 0 && offset == 0;
 
         if (linkedDomainObjectCacheEnabled) {
-            String[] cacheKey = new String[] {linkedType, linkedField };
+            String[] cacheKey = new String[] {linkedType, linkedField, String.valueOf(exactType) };
             List<DomainObject> domainObjects =
                     domainObjectCacheService.getAll(domainObjectId, accessToken, cacheKey);
 
@@ -1191,7 +1191,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<DomainObject> domainObjects = queryResult.getFirst();
 
         if (linkedDomainObjectCacheEnabled) {
-            String[] cacheKey = new String[] {linkedType, linkedField };
+            String[] cacheKey = new String[] {linkedType, linkedField, String.valueOf(exactType)};
             domainObjectCacheService.putAllOnRead(domainObjectId, domainObjects, accessToken, cacheKey);
             globalCacheClient.notifyLinkedObjectsRead(domainObjectId, linkedType, linkedField, exactType, domainObjects, queryResult.getSecond(), accessToken);
         } else { // putAllOnRead adds all objects to the cache
@@ -1252,7 +1252,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
             boolean exactType, int offset, int limit, AccessToken accessToken) {
         if (offset == 0 && limit == 0) {
-            String[] cacheKey = new String[] {linkedType, linkedField,
+            String[] cacheKey = new String[] {linkedType, linkedField, String.valueOf(exactType),
                     String.valueOf(offset), String.valueOf(limit) };
 
             List<DomainObject> domainObjects =

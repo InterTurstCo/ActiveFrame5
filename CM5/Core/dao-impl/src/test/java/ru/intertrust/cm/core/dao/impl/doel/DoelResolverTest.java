@@ -100,7 +100,7 @@ public class DoelResolverTest {
 
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        when(domainObjectCacheService.getAll(docId, accessToken, "Commission", "parent"))
+        when(domainObjectCacheService.getAll(docId, accessToken, "Commission", "parent", "false"))
                 .thenReturn(Arrays.asList((DomainObject) comm1, comm2));
 
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
