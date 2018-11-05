@@ -297,15 +297,15 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
         if (windowElement != null) {
             WindowRange windowRange = windowElement.getRange();
             if (windowRange != null) {
-                if (windowRange.getStart() != null) {
+                if (windowRange.getStart() != null && windowRange.getStart().getExpression() != null) {
                     windowRange.getStart().getExpression().accept(this);
                 }
 
-                if (windowRange.getEnd() != null) {
+                if (windowRange.getEnd() != null && windowRange.getEnd().getExpression() != null) {
                     windowRange.getEnd().getExpression().accept(this);
                 }
             }
-            if (windowElement.getOffset() != null) {
+            if (windowElement.getOffset() != null && windowElement.getOffset().getExpression() != null) {
                 windowElement.getOffset().getExpression().accept(this);
             }
         }
