@@ -42,6 +42,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
   private boolean embeddedDisplayCheckBoxes;
   private boolean displayCheckBoxes;
   private Widget emptyTableWidget;
+  private String collectionViewerStyleName;
 
   public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
     super(pageNumber, resources);
@@ -52,8 +53,12 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     setAutoHeaderRefreshDisabled(false);
     setHeaderBuilder(new HeaderBuilder<>(this, false));
     setTableBuilder(new PlatformCellTableBuilder(this));
-
+    collectionViewerStyleName = (((CollectionViewerConfig) plugin.getConfig()).getStyleName() != null) ?
+        ((CollectionViewerConfig) plugin.getConfig()).getStyleName() : null;
     addStyleName("collection-plugin-view-container");
+    if (collectionViewerStyleName != null) {
+      addStyleName(collectionViewerStyleName);
+    }
     addCellPreviewHandler(new CollectionCellPreviewHandler());
     sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
   }

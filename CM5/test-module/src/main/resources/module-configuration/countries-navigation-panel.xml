@@ -193,7 +193,7 @@
                     <plugin>
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
-                            <collection-viewer>
+                            <collection-viewer style-name="row-by-row">
                                 <!--act:tool-bar useDefault="true">
                                     <act:action name="oAction" componentName="ordinary.action"
                                                 text="Тест Ordinary Action"/>

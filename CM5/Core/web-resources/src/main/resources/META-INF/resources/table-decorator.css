@@ -1,0 +1,6 @@
+.row-by-row>div:nth-child(3) table>tbody>tr:nth-child(odd):not([class*=dataGridSelectedRow]) {
+    background: #fafafa;
+}
+.row-by-row>div:nth-child(3) table>tbody>tr[class*=dataGridSelectedRow] {
+    box-shadow: none;
+}

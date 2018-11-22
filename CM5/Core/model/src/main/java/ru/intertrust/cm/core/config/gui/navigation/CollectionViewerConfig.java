@@ -71,6 +71,9 @@ public class CollectionViewerConfig extends PluginConfig {
     @Attribute(name="hierarchical", required = false)
     private boolean isHierarchical;
 
+    @Attribute(name="style-name", required = false)
+    private String styleName;
+
     //Used for hierarchical collections. Not intended to be used in xml configs.
     //Marked as @Element to be able to serialize the value in DB (in bu_nav_link_collection.collection_viewer)
     @Element(name = "hierarchical-filters", required = false)
@@ -237,6 +240,14 @@ public class CollectionViewerConfig extends PluginConfig {
         this.childCollectionConfig = childCollectionConfig;
     }
 
+    public String getStyleName() {
+        return styleName;
+    }
+
+    public void setStyleName(String styleName) {
+        this.styleName = styleName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -280,7 +291,8 @@ public class CollectionViewerConfig extends PluginConfig {
             return false;
         if (hierarchicalFiltersConfig != null ? !hierarchicalFiltersConfig.equals(that.hierarchicalFiltersConfig) : that.hierarchicalFiltersConfig != null)
             return false;
-
+        if (styleName != null ? !styleName.equals(that.styleName) : that.styleName != null)
+            return false;
         return true;
     }
 
