@@ -270,6 +270,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         new LinkEditingNavigationHandler().handleNavigation(suggestBox, widgetDelegatedKeyDownHandler);
 
         display.setPositionRelativeTo(presenter);
+        if(display !=null && display.getLazyLoadPanel()!=null
+            && ((SuggestBoxState)state).getSuggestBoxConfig().getStyleName()!=null){
+            display.getLazyLoadPanel().
+                addStyleName(((SuggestBoxState)state).getSuggestBoxConfig().getStyleName());
+        }
         return presenter;
     }
 

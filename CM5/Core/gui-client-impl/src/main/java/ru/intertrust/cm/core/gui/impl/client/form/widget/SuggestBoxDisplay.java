@@ -74,4 +74,8 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
     public boolean isNotShown() {
         return !getSuggestionPopup().isShowing();
     }
+
+    public ScrollPanel getLazyLoadPanel() {
+        return lazyLoadPanel;
+    }
 }

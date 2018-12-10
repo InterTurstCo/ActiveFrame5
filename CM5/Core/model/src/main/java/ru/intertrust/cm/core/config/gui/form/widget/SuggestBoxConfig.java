@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Transient;
@@ -76,6 +77,10 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
 
     @Element(name = "collection-extra-filters",required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+
+    @Attribute(name = "style-name", required = false)
+    private String styleName;
+
     @Override
     public String getComponentName() {
         return "suggest-box";
@@ -92,6 +97,14 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
 
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
         this.collectionRefConfig = collectionRefConfig;
+    }
+
+    public String getStyleName() {
+        return styleName;
+    }
+
+    public void setStyleName(String styleName) {
+        this.styleName = styleName;
     }
 
     public DropdownPatternConfig getDropdownPatternConfig() {
@@ -299,6 +312,10 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         }
         if (selectionSortCriteriaConfig != null ? !selectionSortCriteriaConfig.equals(that.selectionSortCriteriaConfig) :
                 that.selectionSortCriteriaConfig != null) {
+            return false;
+        }
+        if (styleName != null ? !styleName.equals(that.styleName) :
+            that.styleName != null) {
             return false;
         }
         if (linkedFormConfig != null ? !linkedFormConfig.equals(that.linkedFormConfig) : that.linkedFormConfig != null) {
