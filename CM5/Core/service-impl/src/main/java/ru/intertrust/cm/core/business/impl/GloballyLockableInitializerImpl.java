@@ -66,6 +66,9 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
     @Resource private EJBContext ejbContext;
     @EJB private StatisticsGatherer statisticsGatherer;
+    
+    // CMFIVE-25095 Переменная, где запоминаем результат первого вызова clusterManager.isMainServer(), чтобы использовать его на всем протяжении инициализации
+    private boolean isMainServer = false;
 
     @Override
     public void start() throws Exception {
@@ -74,6 +77,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             if(!interserverLockingService.lock(LOCK_KEY)){
                 throw new FatalException("Current server marked as main but could not get lock");
             }
+            isMainServer = true;
         }else{
             interserverLockingService.waitUntilNotLocked(LOCK_KEY);
         }
@@ -85,7 +89,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Override
     public void finish() throws Exception {
         logger.info("on Finish");
-        if(clusterManager.isMainServer()){
+        if(isMainServer){
             interserverLockingService.unlock(LOCK_KEY);
         }
     }
@@ -94,7 +98,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private void init() throws Exception {
        logger.info("Run init");
         // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
-        if(clusterManager.isMainServer()){
+        if(isMainServer){
             logger.info("server is main");
             // если нет конфигукации предполагаем что необходимо создать все структуру базы.
             if(!configurationLoader.isConfigurationTableExist()){
