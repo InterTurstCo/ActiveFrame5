@@ -122,7 +122,12 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
             } catch (InterruptedException ex) {
                 logger.error("Task " + taskName + " abort by InterruptedException", ex);
                 if (inTransactionTask) {
-                    ejbContext.getUserTransaction().rollback();
+                    try {
+                        if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
+                            ejbContext.getUserTransaction().rollback();
+                        }
+                    } catch (Exception ignoreEx) {
+                    }
                 }
             } catch (Throwable ex) {
                 logger.error("Error on exec task " + taskName, ex);
@@ -131,7 +136,12 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 result = err.toString("utf8");
                 error = true;
                 if (inTransactionTask) {
-                    ejbContext.getUserTransaction().rollback();
+                    try {
+                        if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
+                            ejbContext.getUserTransaction().rollback();
+                        }
+                    } catch (Exception ignoreEx) {
+                    }
                 }
             }
 
