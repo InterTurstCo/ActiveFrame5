@@ -77,7 +77,7 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
 
     private void validate(DecimalFieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, ColumnInfo columnInfo) {
         if ((fieldConfig.getPrecision() == null && columnInfo.getPrecision() != null) ||
-                !fieldConfig.getPrecision().equals(columnInfo.getPrecision())) {
+                (fieldConfig.getPrecision() != null && !fieldConfig.getPrecision().equals(columnInfo.getPrecision()))) {
             if (fieldConfig.isNotNull() != columnInfo.isNotNull()) {
                 throw new ConfigurationValidationException("Validation against DB failed for field '" +
                         domainObjectTypeConfig.getName() + "." + fieldConfig.getName() +
@@ -87,7 +87,7 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
         }
 
         if ((fieldConfig.getScale() == null && columnInfo.getScale() != null) ||
-                (!fieldConfig.getScale().equals(columnInfo.getScale()))) {
+                (fieldConfig.getScale()!= null && !fieldConfig.getScale().equals(columnInfo.getScale()))) {
             if (fieldConfig.isNotNull() != columnInfo.isNotNull()) {
                 throw new ConfigurationValidationException("Validation against DB failed for field '" +
                         domainObjectTypeConfig.getName() + "." + fieldConfig.getName() +
