@@ -28,6 +28,8 @@ import java.util.*;
  */
 public class SearchConfigHelper {
 
+    public static final String ALL_TYPES = "*";
+
     private static final Logger logger = LoggerFactory.getLogger(SearchConfigHelper.class);
 
     @Autowired
@@ -738,10 +740,10 @@ public class SearchConfigHelper {
 
         if (SearchFilter.EVERYWHERE.equals(fieldName)) {
             //types = configHelper.findAllObjectTypes(areaNames, targetType);
-            result = Collections.singleton("*");
+            result = Collections.singleton(ALL_TYPES);
         } else if (SearchFilter.CONTENT.equals(fieldName)) {
             //types = configHelper.findObjectTypesWithContent(areaNames, targetType);
-            result = Collections.singleton("*");
+            result = Collections.singleton(ALL_TYPES);
         } else {
             result = findObjectTypesContainingField(fieldName, areaNames, targetType);
         }

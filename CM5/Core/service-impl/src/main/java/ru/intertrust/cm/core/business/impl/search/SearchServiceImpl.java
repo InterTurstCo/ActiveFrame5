@@ -160,6 +160,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     class ComplexQuery {
         private HashMap<String, StringBuilder> filterStrings = new HashMap<>();
+        private ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
         private ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
         CombiningFilter.Op combineOperation = CombiningFilter.AND;
         boolean negateResult = false;
@@ -200,6 +201,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
 
         private void addFilterValue(String type, String filterValue) {
+            if (SearchConfigHelper.ALL_TYPES.equals(type)) {
+                multiTypeFilterStrings.add(filterValue);
+                return;
+            }
             StringBuilder filterString;
             if (!filterStrings.containsKey(type)) {
                 filterString = new StringBuilder();
@@ -229,9 +234,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
             SolrDocumentList result;
             float clippingFactor = 1f;
-            /*if (combineOperation == CombiningFilter.AND) {
-                clippingFactor /= filterStrings.size();
-            }*/
             boolean clipped;
             do {
                 clipped = false;
@@ -248,18 +250,39 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .setQuery(entry.getValue().toString())
                             .addFilterQuery(SolrFields.AREA + ":" + areas)
                             .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
-                            //.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
+                            .addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
-                    if (!SearchFilter.EVERYWHERE.equals(entry.getKey())) {
+                    /*if (!SearchConfigHelper.ALL_TYPES.equals(entry.getKey())) {
                         solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
-                    }
+                    }*/
                     if (rows > 0) {
                         solrQuery.setRows(rows);
                     }
                     QueryResponse response = executeSolrQuery(solrQuery);
                     foundParts.add(response.getResults());
                     foundCache.put(entry.getKey(), response.getResults());
+                    clipped = clipped || rows > 0 && response.getResults().size() == rows;
+                }
+                for (String filterString : multiTypeFilterStrings) {
+                    SolrDocumentList cached = foundCache.get(":" + filterString);
+                    if (cached != null && (cached.size() >= cached.getNumFound() || cached.size() >= rows)) {
+                        foundParts.add(cached);
+                        continue;
+                    }
+
+                    SolrQuery solrQuery = new SolrQuery()
+                            .setQuery(filterString)
+                            .addFilterQuery(SolrFields.AREA + ":" + areas)
+                            .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                            .addField(SolrFields.MAIN_OBJECT_ID)
+                            .addField(SolrUtils.SCORE_FIELD);
+                    if (rows > 0) {
+                        solrQuery.setRows(rows);
+                    }
+                    QueryResponse response = executeSolrQuery(solrQuery);
+                    foundParts.add(response.getResults());
+                    foundCache.put(":" + filterString, response.getResults());
                     clipped = clipped || rows > 0 && response.getResults().size() == rows;
                 }
                 for (ComplexQuery nested : nestedQueries) {
