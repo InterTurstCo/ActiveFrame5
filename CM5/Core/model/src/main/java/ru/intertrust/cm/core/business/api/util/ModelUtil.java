@@ -28,7 +28,7 @@ public final class ModelUtil {
         result.append("Id = ").append(obj.getId()).append('\n');
         result.append("Fields: [").append('\n');
         for (String field : fields) {
-            result.append(TABULATOR).append(field).append(" = ").append(obj.getValue(field)).append('\n');
+            result.append(TABULATOR).append(field).append(" = ").append((Object)obj.getValue(field)).append('\n');
         }
         result.append(']').append('\n');
         return result.toString();

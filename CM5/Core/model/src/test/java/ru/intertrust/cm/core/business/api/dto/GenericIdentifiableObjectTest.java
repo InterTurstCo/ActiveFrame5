@@ -5,8 +5,11 @@ import org.junit.Before;
 import org.junit.Test;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
+import static org.junit.Assert.assertTrue;
+
 import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 
 public class GenericIdentifiableObjectTest {
 
@@ -94,6 +97,17 @@ public class GenericIdentifiableObjectTest {
         GenericDomainObject domainObject = new GenericDomainObject();
         domainObject.setId(createId());
         return domainObject;
+    }
+
+    @Test
+    public void testToString() {
+        GenericDomainObject domainObject = new GenericDomainObject();
+        domainObject.setId(createId());
+        domainObject.setString("str_field", "test1");
+        domainObject.setTimestamp("date_field", new Date(0));
+        String res = domainObject.toString();
+        assertTrue(res.contains("test1"));
+        assertTrue(res.contains("70"));
     }
 }
 
