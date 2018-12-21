@@ -45,9 +45,9 @@ public class SchemaTablesRowMapper implements ResultSetExtractor<Map<String, Map
             String nullable = rs.getString("nullable");
             columnInfo.setNotNull(nullable != null && (nullable.equals("N") || nullable.equals("NO")));
 
-            columnInfo.setLength(rs.getInt("length"));
-            columnInfo.setPrecision(rs.getInt("numeric_precision"));
-            columnInfo.setScale(rs.getInt("numeric_scale"));
+            columnInfo.setLength(rs.getString("length") != null ? Integer.valueOf(rs.getString("length")) : null);
+            columnInfo.setPrecision(rs.getString("numeric_precision") != null ? Integer.valueOf(rs.getString("numeric_precision")) : null );
+            columnInfo.setScale(rs.getString("numeric_scale") != null ? Integer.valueOf(rs.getString("numeric_scale")) : null);
         }
 
         return result;

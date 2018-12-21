@@ -11,8 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -32,6 +34,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -591,6 +595,64 @@ public class SearchServiceTest {
         verify(namedCollectionRetriever).queryCollection(compactedList.capture(), eq(20));
         assertEquals(4, compactedList.getValue().size());
         assertTrue(!compactedList.getValue().contains(doc2copy));
+    }
+
+    @Test    // CMFIVE-25472 test
+    public void testExtendedSearch_MultipleEverywhere() throws Exception {
+        // Подготовка данных
+        SearchQuery query = new SearchQuery();
+        query.addAreas(Arrays.asList("TestArea"));
+        query.setTargetObjectType("TargetType");
+        query.addFilter(new CombiningFilter(CombiningFilter.AND,
+                new TextSearchFilter(SearchFilter.EVERYWHERE, "one query"),
+                new TextSearchFilter(SearchFilter.EVERYWHERE, "another query")));
+
+        FilterAdapter<SearchFilter> adapterMock = mock(FilterAdapter.class);
+        when((FilterAdapter<SearchFilter>)searchFilterImplementorFactory
+                .createImplementorFor(TextSearchFilter.class)).thenReturn(adapterMock);
+        when(adapterMock.getFilterString(argThat(isA(TextSearchFilter.class)), any(SearchQuery.class)))
+                .thenAnswer(new Answer<String>() {
+                    @Override
+                    public String answer(InvocationOnMock invocation) throws Throwable {
+                        TextSearchFilter filter = invocation.getArgumentAt(0, TextSearchFilter.class);
+                        return "<" + filter.getText() + ">";
+                    }
+                });
+        when(configHelper.findApplicableTypes(eq(SearchFilter.EVERYWHERE), any(List.class), eq("TargetType")))
+                .thenReturn(Collections.singleton(SearchConfigHelper.ALL_TYPES));
+        // Поскольку адаптеры композитных фильтров работают в тесном взаимодействии с классом SearchServiceImpl,
+        // для этих фильтров используются реальные адаптеры
+        when((FilterAdapter<CombiningFilter>)searchFilterImplementorFactory
+                .createImplementorFor(CombiningFilter.class)).thenReturn(combAdapter);
+
+        IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
+        when(configMock.getType()).thenReturn("TargetType");
+
+        // Возвращаются пустые наборы документов, т.к. нужно проверить только правильность запросов к Solr
+        QueryResponse response = mock(QueryResponse.class);
+        when(solrServer.query(any(SolrParams.class))).thenReturn(response);
+        SolrDocumentList docList = new SolrDocumentList();
+        when(response.getResults()).thenReturn(docList);
+
+        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+
+        // Вызов проверяемого метода
+        service.search(query, "TestCollection", 20);
+
+        // Проверка правильности запросов к Solr
+        ArgumentCaptor<SolrQuery> params = ArgumentCaptor.forClass(SolrQuery.class);
+        verify(solrServer, times(2)).query(params.capture());
+        ArrayList<String> queries = new ArrayList<>(Arrays.asList("<one query>", "<another query>"));
+        for (SolrQuery q : params.getAllValues()) {
+            assertThat(q.getFilterQueries(), allOf(
+                    hasItemInArray("cm_area:(\"TestArea\")"),
+                    hasItemInArray("cm_type:\"TargetType\"")
+                    ));
+            assertEquals("cm_main,score", q.getFields());
+            assertEquals(20, q.getRows().intValue());
+            assertTrue(queries.contains(q.getQuery()));
+            queries.remove(q.getQuery());
+        }
     }
 /*
     @Test
