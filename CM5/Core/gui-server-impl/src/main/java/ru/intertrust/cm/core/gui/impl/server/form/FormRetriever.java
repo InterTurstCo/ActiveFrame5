@@ -68,11 +68,11 @@ public class FormRetriever extends FormProcessor {
   }
 
   public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
-    DomainObject root = crudService.find(domainObjectId);
+    DomainObject root = (domainObjectId!=null)?crudService.find(domainObjectId):null;
     if (root == null) {
       throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_EXIST,
           "Object with id: ${objectId} doesn't exist", new Pair("objectId",
-              domainObjectId.toStringRepresentation())));
+              (domainObjectId!=null)?domainObjectId.toStringRepresentation():"null")));
     }
     if (updaterComponentName != null) {
       DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
@@ -598,7 +598,7 @@ public class FormRetriever extends FormProcessor {
   }
 
   private String buildMessage(String message, String defaultValue) {
-    return MessageResourceProvider.getMessage(message, defaultValue, GuiContext.getUserLocale());
+    return MessageResourceProvider.getMessage(message,  GuiContext.getUserLocale(),defaultValue);
   }
 
   private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {

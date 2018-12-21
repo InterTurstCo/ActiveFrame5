@@ -13,6 +13,9 @@ public class SimpleActionData extends ActionData {
     private boolean contextSaved;
     private Id savedMainObjectId;
     private String urlToOpen;
+    private Boolean deleteAction = false;
+    private Id deletedObject;
+
 
     public FormPluginData getPluginData() {
         return pluginData;
@@ -44,5 +47,21 @@ public class SimpleActionData extends ActionData {
 
     public void setUrlToOpen(String urlToOpen) {
         this.urlToOpen = urlToOpen;
+    }
+
+    public Boolean getDeleteAction() {
+        return deleteAction;
+    }
+
+    public void setDeleteAction(Boolean deleteAction) {
+        this.deleteAction = deleteAction;
+    }
+
+    public Id getDeletedObject() {
+        return deletedObject;
+    }
+
+    public void setDeletedObject(Id deletedObject) {
+        this.deletedObject = deletedObject;
     }
 }

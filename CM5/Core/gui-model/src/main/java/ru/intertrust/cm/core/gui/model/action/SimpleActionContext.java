@@ -18,6 +18,7 @@ public class SimpleActionContext extends ActionContext {
     private FormPluginState pluginState;
     private Id confirmDomainObjectId;
     private boolean saved;
+    private String collectionName;
 
     public SimpleActionContext() {
     }
@@ -64,5 +65,13 @@ public class SimpleActionContext extends ActionContext {
 
     public void setContextSaved() {
         this.saved = true;
+    }
+
+    public String getCollectionName() {
+        return collectionName;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
     }
 }

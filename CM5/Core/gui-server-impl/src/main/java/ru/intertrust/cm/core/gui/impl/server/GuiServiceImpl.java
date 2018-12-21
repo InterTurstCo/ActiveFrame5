@@ -175,26 +175,28 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     public SimpleActionData executeSimpleAction(SimpleActionContext context) {
-        SimpleActionData result;
-        if (((SimpleActionConfig) context.getActionConfig()).reReadInSameTransaction()) {
-            result = executeSimpleActionImpl(context);
-        } else {
-            result = newTransactionGuiService.executeSimpleActionInNewTransaction(context, GuiContext.get().getUserInfo());
-        }
+      SimpleActionData result;
+      if (((SimpleActionConfig) context.getActionConfig()).reReadInSameTransaction()) {
+        result = executeSimpleActionImpl(context);
+      } else {
+        result = newTransactionGuiService.executeSimpleActionInNewTransaction(context, GuiContext.get().getUserInfo());
+      }
 
-        final SimpleActionConfig config = context.getActionConfig();
-        FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-        FormPluginConfig formPluginConfig = new FormPluginConfig(context.getRootObjectId());
-        formPluginConfig.setPluginState(context.getPluginState());
-        formPluginConfig.setFormViewerConfig(context.getViewerConfig());
+      final SimpleActionConfig config = context.getActionConfig();
+      FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
+      FormPluginConfig formPluginConfig = new FormPluginConfig(context.getRootObjectId());
+      formPluginConfig.setPluginState(context.getPluginState());
+      formPluginConfig.setFormViewerConfig(context.getViewerConfig());
+      if (!result.getDeleteAction()) {
         final FormPluginData formPluginData = handler.initialize(formPluginConfig);
         result.setPluginData(formPluginData);
         if (config.getAfterConfig() != null) {
-            result.setOnSuccessMessage(config.getAfterConfig().getMessageConfig() == null
-                    ? null
-                    : config.getAfterConfig().getMessageConfig().getText());
+          result.setOnSuccessMessage(config.getAfterConfig().getMessageConfig() == null
+              ? null
+              : config.getAfterConfig().getMessageConfig().getText());
         }
-        return result;
+      }
+      return result;
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

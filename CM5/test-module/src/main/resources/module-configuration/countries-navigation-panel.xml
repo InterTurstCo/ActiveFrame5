@@ -649,10 +649,13 @@
 
                 <link name="Letters2" display-text="Письма2">
                     <plugin>
-                        <domain-object-surfer domain-object-type-to-create="Letter">
+                        <domain-object-surfer domain-object-type-to-create="norefobject">
                             <collection-viewer>
-                                <act:tool-bar useDefault="true"/>
-                                <collection-ref name="Letters"/>
+                                <act:tool-bar useDefault="true">
+                                    <act:simple-action componentName="simple.action" action-handler="test.simple.action"
+                                                       text="Тест SimpleAction"/>
+                                </act:tool-bar>
+                                <collection-ref name="norefobjects"/>
                             </collection-viewer>
                         </domain-object-surfer>
                     </plugin>

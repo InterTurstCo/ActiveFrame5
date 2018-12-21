@@ -11,6 +11,12 @@
             <string name="category" length="500"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="norefobject" initial-status="Active">
+        <fields>
+            <string name="subject" length="128"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="letter_creator" initial-status="Active">
         <fields>
             <reference name="letter" type="letter"/>
@@ -121,6 +127,10 @@
 
 
     <form name="letter_form" domain-object-type="letter" is-default="true">
+        <act:tool-bar>
+            <act:simple-action componentName="simple.action" action-handler="test.simple.action"
+                               text="Тест SimpleAction"/>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
@@ -352,7 +362,7 @@
                     <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px"
                                  modal-width="800px" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"
-                                 multi-form-name="free_form"  multi-form-handler="TestFreeFormHandler"/>
+                                 multi-form-name="free_form" multi-form-handler="TestFreeFormHandler"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                 </linked-form-mapping>
                 <created-objects>
@@ -947,6 +957,51 @@
                 </created-objects>
 
             </table-viewer>
+        </widget-config>
+    </form>
+
+    <form name="norefobject_form" domain-object-type="norefobject" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="subject_label"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="subject"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="subject_label">
+                <field-path/>
+                <text>Тема:</text>
+            </label>
+            <text-box id="subject">
+                <field-path value="subject">
+                    <default-value>
+                        <field value="Тема по умолчанию (из widget-config)"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+
         </widget-config>
     </form>
 
@@ -1555,6 +1610,15 @@
             <column field="actual_end_period" name="Актуально по" editable="false" type="datetime" sortable="true"/>
         </display>
     </collection-view>
+
+    <collection-view name="norefobjects_default_view" collection="norefobjects" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="subject" name="Тема" editable="false" type="string" sortable="true"/>
+            <column field="created_date" name="Дата" editable="false" type="string" sortable="true"/>
+        </display>
+    </collection-view>
+
     <collection name="org_middle_collection" idField="id">
         <prototype>
             <![CDATA[
@@ -1635,6 +1699,21 @@
 
         <counting-prototype>
             select count(*) from letter l
+        </counting-prototype>
+    </collection>
+
+    <collection name="norefobjects" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                        n.id, n.subject, n.created_date
+                    from
+                        norefobject n
+                ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from norefobject n
         </counting-prototype>
     </collection>
 

@@ -43,6 +43,7 @@ public class SimpleActionConfig extends ActionConfig {
         return reReadInSameTransaction;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -56,5 +57,11 @@ public class SimpleActionConfig extends ActionConfig {
             return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = actionHandler != null ? actionHandler.hashCode() : 0;
+        return result;
     }
 }
