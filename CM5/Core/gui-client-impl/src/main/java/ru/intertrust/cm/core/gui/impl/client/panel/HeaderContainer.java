@@ -2,8 +2,10 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -23,6 +25,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.PlainTextUserExtraInfo;
 import ru.intertrust.cm.core.gui.model.UserExtraInfo;
+import ru.intertrust.cm.core.gui.model.VersionInfo;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
@@ -115,10 +118,18 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
         CurrentVersionInfo version = getVersion(initialization);
-        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) + " " + version.getCoreVersion()));
-        if (version.getProductVersion() != null) {
+        if (initialization.getLoginScreenConfig()!=null && initialization.getLoginScreenConfig().isDisplaycoreVersion() && version.getCoreVersion()!=null) {
+            infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) + " " + version.getCoreVersion()));
+        }
+        if (initialization.getLoginScreenConfig()!=null && initialization.getLoginScreenConfig().isDisplayProductVersion() && version.getProductVersion() != null) {
             infoPanel.add(new Label(LocalizeUtil.get(VERSION_KEY, VERSION) + " " + version.getProductVersion()));
         }
+        if (initialization.getLoginScreenConfig()!=null && initialization.getLoginScreenConfig().isDisplayVersionList() && initialization.getProductVersionList() != null){
+            for (VersionInfo productVersion : initialization.getProductVersionList()) {
+                infoPanel.add(new Label(productVersion.getComponent() + " : " + productVersion.getVersion()));
+            }
+        }
+        
         popupPanel.add(contentInfo);
 
         popupPanel.getElement().setClassName("applicationVersionWindows");

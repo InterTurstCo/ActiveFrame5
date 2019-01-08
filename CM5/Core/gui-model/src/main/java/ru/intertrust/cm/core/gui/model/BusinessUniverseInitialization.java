@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.LoginScreenConfig;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
@@ -38,6 +39,9 @@ public class BusinessUniverseInitialization implements Dto {
     private UserExtraInfo userExtraInfo;
     private String initialNavigationLink;
     private String applicationName;
+
+    private LoginScreenConfig loginScreenConfig;
+    private List<VersionInfo> productVersionList;
 
     public String getHelperLink() {
         return helperLink;
@@ -231,4 +235,19 @@ public class BusinessUniverseInitialization implements Dto {
         this.applicationName = applicationName;
     }
 
+    public List<VersionInfo> getProductVersionList() {
+        return productVersionList;
+    }
+
+    public void setProductVersionList(List<VersionInfo> productVersionList) {
+        this.productVersionList = productVersionList;
+    }
+
+    public LoginScreenConfig getLoginScreenConfig() {
+        return loginScreenConfig;
+    }
+
+    public void setLoginScreenConfig(LoginScreenConfig loginScreenConfig) {
+        this.loginScreenConfig = loginScreenConfig;
+    }
 }

@@ -28,11 +28,14 @@ import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Client;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.VersionInfo;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
+import ru.intertrust.common.versioncollector.ComponentVersion;
+import ru.intertrust.common.versioncollector.DiscoveryVersionCollectorService;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -138,6 +141,20 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                         businessUniverseConfig.getDefaultAppConfig().getValue():"undefined");
             }
         }
+
+        initialization.setLoginScreenConfig(businessUniverseConfig.getLoginScreenConfig());
+        if (businessUniverseConfig.getLoginScreenConfig().isDisplayVersionList()){
+            List<ComponentVersion> componentVersions = DiscoveryVersionCollectorService.INSTANCE.getAllVersions();
+            List<VersionInfo> versionInfos = new ArrayList<VersionInfo>();
+            for (ComponentVersion componentVersion : componentVersions) {
+                VersionInfo versionInfo = new VersionInfo();
+                versionInfo.setComponent(componentVersion.getComponent());
+                versionInfo.setVersion(componentVersion.getVersion());
+                versionInfos.add(versionInfo);
+            }
+            initialization.setProductVersionList(versionInfos);
+        }
+        
         return initialization;
     }
 
