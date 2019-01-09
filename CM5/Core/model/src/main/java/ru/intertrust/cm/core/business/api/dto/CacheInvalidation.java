@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import java.util.*;
 
+import ru.intertrust.cm.core.business.api.dto.globalcache.PingData;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 21.04.2016
@@ -19,6 +21,7 @@ public class CacheInvalidation implements Dto {
     private boolean clearCache;
     private long receiveTime;
     private Set<Id> usersAccessToInvalidate;
+    private PingData pingData;
 
     public CacheInvalidation() {
     }
@@ -127,5 +130,13 @@ public class CacheInvalidation implements Dto {
         }
         result.append('}');
         return result;
+    }
+
+    public PingData getPingData() {
+        return pingData;
+    }
+
+    public void setPingData(PingData pingData) {
+        this.pingData = pingData;
     }
 }

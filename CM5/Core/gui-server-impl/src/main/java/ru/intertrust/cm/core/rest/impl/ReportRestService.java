@@ -32,7 +32,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.FatalException;
@@ -59,9 +58,6 @@ public class ReportRestService {
     private CollectionsService collectionsService;
     @Autowired
     private TicketService ticketService;
-    @Autowired
-    private UserTransactionService transactionService;
-    
 
     @RequestMapping(value = "/report/generate", method = RequestMethod.POST)
     public Id generateReport(

@@ -1,15 +1,7 @@
 package ru.intertrust.cm.globalcacheclient.cluster;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.util.ObjectCloner;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
-import ru.intertrust.cm.globalcache.api.util.Size;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
@@ -19,8 +11,21 @@ import javax.interceptor.Interceptors;
 import javax.jms.BytesMessage;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.globalcache.PingResponse;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcacheclient.ping.GlobalCachePingService;
+import ru.intertrust.cm.globalcacheclient.ping.PingNodeInfo;
 
 /**
  * @author Denis Mitavskiy
@@ -34,6 +39,10 @@ import java.util.List;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ClusterNotificationReceiver implements MessageListener {
+    
+    @org.springframework.beans.factory.annotation.Value("${server.name:not_configured}")
+    private String nodeName;
+    
     @Autowired
     private GlobalCacheClient globalCacheClient;
 
@@ -48,11 +57,12 @@ public class ClusterNotificationReceiver implements MessageListener {
         try {
             final BytesMessage bytesMessage = (BytesMessage) message;
             final long nodeId = bytesMessage.readLong();
+            boolean ownMessage = false;
             if (nodeId == CacheInvalidation.NODE_ID) {
                 if (GlobalCacheJmsHelper.logger.isTraceEnabled()) {
                     GlobalCacheJmsHelper.logger.trace("Node " + CacheInvalidation.NODE_ID + " (\"this\") received its own message. Ignoring it. ");
                 }
-                return;
+                ownMessage = true;
             }
             final int messageLength = bytesMessage.readInt();
             if (GlobalCacheJmsHelper.logger.isTraceEnabled()) {
@@ -73,6 +83,40 @@ public class ClusterNotificationReceiver implements MessageListener {
             if (GlobalCacheJmsHelper.logger.isDebugEnabled()) {
                 GlobalCacheJmsHelper.logger.debug("Node " + CacheInvalidation.NODE_ID + " (\"this\") parsed message from cluster: " + invalidation);
             }
+            
+            //Проверка что это ping сообщение
+            if (invalidation.getPingData() != null) {
+                if (invalidation.getPingData().getResponse() != null) {
+                    // Это ping ответ
+                    GlobalCacheJmsHelper.logger.info("Reseive ping response message");
+                    
+                    // Формируем результат
+                    PingNodeInfo nodeInfo = new PingNodeInfo();
+                    nodeInfo.setNodeName(invalidation.getPingData().getResponse().getNodeName());
+                    nodeInfo.setTime(invalidation.getPingData().getResponse().getResponseTime() - invalidation.getPingData().getRequest().getSendTime());
+                    
+                    // Сохраняем результат
+                    GlobalCachePingService.setPingResult(invalidation.getPingData().getRequest().getRequestId(), nodeInfo);
+                }else {
+                    // Это ping запрос
+                    GlobalCacheJmsHelper.logger.info("Reseive ping request message");
+                    //Формируем ответ
+                    invalidation.getPingData().setResponse(new PingResponse());
+                    invalidation.getPingData().getResponse().setResponseTime(System.currentTimeMillis());
+                    invalidation.getPingData().getResponse().setNodeName(nodeName);
+                    
+                    //Отправляем ответ
+                    GlobalCacheJmsHelper.sendClusterNotification(invalidation);
+                    GlobalCacheJmsHelper.logger.info("Send ping response");
+                }
+                return;
+            }
+            
+            // Сообщения от самого себя интересны только в случае ping сообщений, остальные игнорируем
+            if (ownMessage) {
+                return;
+            }
+            
             if (invalidation.isClearCache()) {
                 globalCacheClient.clearCurrentNode();
                 return;

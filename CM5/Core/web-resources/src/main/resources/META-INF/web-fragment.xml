@@ -24,7 +24,6 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
-
     <servlet-mapping>
         <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/attachment-upload</url-pattern>
@@ -37,6 +36,7 @@
         <url-pattern>/json-extended-search-export-to-csv/*</url-pattern>
         <url-pattern>/image-preview</url-pattern>
         <url-pattern>/af5-ws/*</url-pattern>
+        <url-pattern>/af5-services/*</url-pattern>
         <url-pattern>/execAction</url-pattern>
     </servlet-mapping>
 
@@ -102,6 +102,7 @@
         <url-pattern>/configuration-export-to-file/*</url-pattern>
         <url-pattern>/upload-configuration/*</url-pattern>
         <url-pattern>/BusinessUniverse.html/*</url-pattern>
+        <url-pattern>/af5-services/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>
