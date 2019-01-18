@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.process;
 
-import javax.annotation.PostConstruct;
-
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
@@ -23,7 +21,6 @@ public class DeployModuleProcesses {
     @Autowired
     private ModuleService moduleService;
 
-    @PostConstruct
     public void load() {
         //Цикл по модулям
         for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {

@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
 import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.process.DeployModuleProcesses;
 
 /**
  * {@inheritDoc}
@@ -63,6 +64,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ApplicationContext context;
     @Autowired private ClusterManager clusterManager;
     @Autowired private InterserverLockingService interserverLockingService;
+    @Autowired private DeployModuleProcesses deployModuleProcesses;
 
     @Resource private EJBContext ejbContext;
     @EJB private StatisticsGatherer statisticsGatherer;
@@ -132,6 +134,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         logger.info("Finish init");
     }
 
+    /**
+     * Метод запускается только на ведущем сервере
+     * @throws Exception
+     */
     private void executeInitialLoadingTasks() throws Exception {
         domainObjectTypeIdCache.build();
 
@@ -148,6 +154,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
         migrationService.writeMigrationLog();
         pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);
+        
+        deployModuleProcesses.load();
     }
 
 
