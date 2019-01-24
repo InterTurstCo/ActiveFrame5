@@ -64,7 +64,8 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
             if (config != null && afterConfig != null) {
                 final DomainObject dobj = rootObjectId != null ? crudService.find(rootObjectId) : null;
                 final OnSuccessMessageConfig messageConfig = afterConfig.getMessageConfig();
-                final String successPattern = messageConfig == null ? null : messageConfig.getText();
+                String successPattern = (messageConfig == null) ? null : messageConfig.getText();
+                if (result.getOnSuccessMessage()!=null) successPattern = result.getOnSuccessMessage(); // перезаписываем дефолтное сообщение тем, которое приехало из реализации action
                 result.setOnSuccessMessage(parseMessage(successPattern, dobj));
             }
         }

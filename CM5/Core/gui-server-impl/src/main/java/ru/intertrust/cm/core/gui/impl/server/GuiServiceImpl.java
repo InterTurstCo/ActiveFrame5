@@ -190,7 +190,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
       if (!result.getDeleteAction()) {
         final FormPluginData formPluginData = handler.initialize(formPluginConfig);
         result.setPluginData(formPluginData);
-        if (config.getAfterConfig() != null) {
+        if (config.getAfterConfig() != null && result.getOnSuccessMessage()==null) {
           result.setOnSuccessMessage(config.getAfterConfig().getMessageConfig() == null
               ? null
               : config.getAfterConfig().getMessageConfig().getText());
