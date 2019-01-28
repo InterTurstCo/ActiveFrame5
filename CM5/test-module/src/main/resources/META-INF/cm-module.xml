@@ -109,7 +109,8 @@
         <configuration-path>module-configuration/crypto.xml</configuration-path>
         <!-- Настройки ссылок в сообщениях -->
         <configuration-path>module-configuration/url-config.xml</configuration-path>
-                
+        <configuration-path>module-configuration/atst_inherit.xml</configuration-path>
+
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">
@@ -125,6 +126,9 @@
         <import-file>importdata/e1.csv</import-file>
         <import-file>importdata/a1_f1.csv</import-file>
 
+        <import-file>importdata/atst_types.csv</import-file>
+        <import-file>importdata/atst_base_object.csv</import-file>
+        <import-file>importdata/atst_object.csv</import-file>
 
         <import-file>importdata/import-system-profile.csv</import-file>
         <import-file>importdata/import-person-profile.csv</import-file>

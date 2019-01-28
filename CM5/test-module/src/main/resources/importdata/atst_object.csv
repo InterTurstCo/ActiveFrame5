@@ -1,0 +1,3 @@
+TYPE_NAME=atst_object;KEYS=base_id;
+base_id;base_name;atst_type;description;obj_name;text_field
+3;base_name_3;"name=""c_type_3""";base_desc_3;obj_name_3;text_3

@@ -1,0 +1,4 @@
+TYPE_NAME=atst_base_object;KEYS=base_id;
+base_id;base_name;atst_type;description
+1;base_name_1;"name=""a_type_1""";base_desc_1
+3;base_name_2;"name=""b_type_2""";base_desc_2

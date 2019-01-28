@@ -1,0 +1,5 @@
+TYPE_NAME=atst_types;KEYS=name;
+name;description
+a_type_1;a_type_1_desc
+b_type_2;b_type_2_desc
+c_type_3;c_type_3_desc

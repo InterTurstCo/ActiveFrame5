@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- тест -->
+    <domain-object-type name="atst_types">
+        <fields>
+            <string name="name" length="64" not-null="true" />
+            <text name="description" />
+        </fields>
+        <uniqueKey>
+            <field name="name" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="atst_base_object">
+        <fields>
+            <string name="base_id" length="128" not-null="true" />
+            <string name="base_name" length="256" not-null="true" />
+            <reference name="atst_type" type="atst_types" not-null="true"/>
+            <text name="description" />
+        </fields>
+        <uniqueKey>
+            <field name="base_id" />
+            <field name="atst_type" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="atst_object" extends="atst_base_object">
+        <fields>
+            <string name="obj_name" length="256" not-null="true" />
+            <text name="text_field" />
+        </fields>
+    </domain-object-type>
+
+    <access-matrix type="atst_types" read-everybody="true" />
+    <access-matrix type="atst_base_object" read-everybody="true" />
+    <access-matrix type="atst_object" read-everybody="true" />
+
+
+</configuration>

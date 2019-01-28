@@ -1320,7 +1320,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (result == null) {
             final Pair<DomainObject, Long> queryResult = findByUniqueKeyInDB(domainObjectType, uniqueKeyValuesByName, accessToken, lock, logAccess);
             result = queryResult.getFirst();
-            globalCacheClient.notifyReadByUniqueKey(domainObjectType, uniqueKeyValuesByName, result, queryResult.getSecond(), accessToken);
+            // CMFIVE-27416
+            String domainObjectRealType = null;
+            if (result != null && !result.isAbsent() && (domainObjectRealType = getDOTypeName(result.getId())) != null && !domainObjectRealType.equalsIgnoreCase(domainObjectType)) {
+                long time = System.currentTimeMillis();
+                result = findInStorage(result.getId(), accessToken, lock);
+                globalCacheClient.notifyReadByUniqueKey(domainObjectType, uniqueKeyValuesByName, result, queryResult.getSecond(), accessToken);
+                globalCacheClient.notifyReadByUniqueKey(domainObjectRealType, uniqueKeyValuesByName, result, time, accessToken);
+            } else {
+                globalCacheClient.notifyReadByUniqueKey(domainObjectType, uniqueKeyValuesByName, result, queryResult.getSecond(), accessToken);
+            }
+            // CMFIVE-27416
         }
         if (GenericDomainObject.isAbsent(result)) {
             result = null;
@@ -2455,6 +2465,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private String getDOTypeName(Integer typeId) {
         return domainObjectTypeIdCache.getName(typeId);
     }
+
+    // CMFIVE-27416
+    private String getDOTypeName(Id id) {
+        if (id instanceof RdbmsId) {
+            return getDOTypeName(((RdbmsId)id).getTypeId());
+        }
+        return null;
+    }
+    // CMFIVE-27416
 
     private void applyOffsetAndLimitWithDefaultOrdering(StringBuilder query,
             String tableAlias, int offset, int limit) {

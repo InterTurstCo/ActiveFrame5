@@ -727,4 +727,52 @@ public class CrudServiceIT extends IntegrationTestBase {
 
         return crudService.save(employee);
     }
+
+    @Test
+    public void testFindByUniqueKeyInheritor() {
+
+        Map<String, Value> paramsRefKey1 = new HashMap<>();
+        paramsRefKey1.put("name", new StringValue("a_type_1"));
+
+        Map<String, Value> paramsRefKey3 = new HashMap<>();
+        paramsRefKey3.put("name", new StringValue("c_type_3"));
+
+        try {
+            DomainObject refDo1 = crudService.findByUniqueKey("atst_types", paramsRefKey1);
+            assertNotNull(refDo1);
+
+            DomainObject refDo3 = crudService.findByUniqueKey("atst_types", paramsRefKey3);
+            assertNotNull(refDo3);
+
+            Map<String, Value> paramsKey = new HashMap<>();
+            paramsKey.put("base_id", new StringValue("1"));
+            paramsKey.put("atst_type", new ReferenceValue(refDo1.getId()));
+
+            DomainObject do1 = crudService.findByUniqueKey("atst_base_object", paramsKey);
+            assertNotNull(do1);
+            assertTrue("atst_base_object".equalsIgnoreCase(do1.getTypeName()));
+
+            do1 = crudService.findByUniqueKey("atst_base_object", paramsKey);
+            assertNotNull(do1);
+            assertTrue("atst_base_object".equalsIgnoreCase(do1.getTypeName()));
+
+            paramsKey.clear();
+            paramsKey.put("base_id", new StringValue("3"));
+            paramsKey.put("atst_type", new ReferenceValue(refDo3.getId()));
+
+            DomainObject do3 = crudService.findByUniqueKey("atst_base_object", paramsKey);
+            assertNotNull(do3);
+            assertTrue("atst_object".equalsIgnoreCase(do3.getTypeName()));
+
+            do3 = crudService.findByUniqueKey("atst_base_object", paramsKey);
+            assertNotNull(do3);
+            assertTrue("atst_object".equalsIgnoreCase(do3.getTypeName()));
+
+            DomainObject do4 = crudService.find(do3.getId());
+            assertNotNull(do4);
+
+        } catch (ObjectNotFoundException e) {
+            assertTrue(false);
+        }
+    }
 }
