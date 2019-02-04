@@ -700,6 +700,25 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             domainObjectCacheService.evict(id);
             globalCacheClient.notifyDelete(id);
         }
+        
+        // Трассировка сохранения со стеком вызова. Нужна для поиска
+        // ObjectNotFoundException
+        if (logger.isTraceEnabled()) {
+            String message = "Delete domain objects:\n";
+            for (int q = 0; q < deletedObjects.length; q++) {
+                message += "DomainObject-" + q + ": " + deletedObjects[q].toString();
+            }
+            message += "\nCall stack:\n";
+            StackTraceElement[] stackElements = Thread.currentThread().getStackTrace();
+            // Начинать надо с первого, так как нулевой это метод
+            // getStackTrace()
+            for (int q = 1; q < stackElements.length; q++) {
+                StackTraceElement stackTraceElement = stackElements[q];
+                message += "\t" + stackTraceElement.toString() + "\n";
+            }
+
+            logger.trace(message);
+        }
 
         // Пишем в аудит лог
         for (DomainObject deletedObject : deletedObjects) {
