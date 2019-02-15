@@ -72,7 +72,7 @@ public class ClusterManagementPluginView extends PluginView {
                 fillNodesTable(clusterManagerPluginData.getAllNodes());
                 refreshMap(clusterManagerPluginData.getCurrentNodeInfo(), "currentNode");
                 refreshMap(clusterManagerPluginData.getManagerNodeInfo(), "managementNode");
-                Window.alert("Статистика обновленна.");
+                Window.alert("Статистика обновлена.");
             }
         });
     }
