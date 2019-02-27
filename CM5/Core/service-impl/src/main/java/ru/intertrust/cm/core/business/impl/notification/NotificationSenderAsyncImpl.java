@@ -168,7 +168,7 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
         Id senderId = getSender(domainObject, notificationConfig);
 
         List<NotificationAddressee> addresseeList = getAddresseeList(domainObject.getId(), notificationConfig.getNotificationTypeConfig());
-        logger.info("Sending notification: " + notificationType + " on event: " + eventType + " for Domain Object: " + domainObject);
+        logger.debug("Sending notification: " + notificationType + " on event: " + eventType + " for Domain Object: " + domainObject);
         notificationService.sendSync(notificationType, senderId,
                 addresseeList, priority, notificationContext);
     }

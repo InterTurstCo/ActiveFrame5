@@ -311,13 +311,13 @@ public class DoelResolver implements DoelEvaluator {
                 DoelExpression subExpr = expr.excludeCommonBeginning(expr.cutByCount(step));
                 Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, sourceIds, debugPrinter);
                 for (DoelTypes.Link subBranch : nextTypes) {
-                    if (groupedIds.containsKey(subBranch.getType())) {
+                    if (groupedIds.containsKey(subBranch.getType().toLowerCase())) {
                         if (debugPrinter != null) {
                             debugPrinter.print(var("step", step),
                                     str("evaluate subexpr " + subExpr + " for type" + subBranch.getType()),
-                                    list(groupedIds.get(subBranch.getType())));
+                                    list(groupedIds.get(subBranch.getType().toLowerCase())));
                         }
-                        evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken,
+                        evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType().toLowerCase()), result, accessToken,
                                 debugPrinter);
                     }
                 }
@@ -459,13 +459,13 @@ public class DoelResolver implements DoelEvaluator {
             DoelExpression subExpr = expr.excludeCommonBeginning(expr.cutByCount(step));
             Map<String, List<RdbmsId>> groupedIds = groupByType(nextTypes, values, debugPrinter);
             for (DoelTypes.Link subBranch : nextTypes) {
-                if (groupedIds.containsKey(subBranch.getType())) {
+                if (groupedIds.containsKey(subBranch.getType().toLowerCase())) {
                     if (debugPrinter != null) {
                         debugPrinter.print(var("step", step),
                                 str("evaluate subexpr " + subExpr + " for type" + subBranch.getType()),
-                                list(groupedIds.get(subBranch.getType())));
+                                list(groupedIds.get(subBranch.getType().toLowerCase())));
                     }
-                    evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType()), result, accessToken,
+                    evaluateBranch(subExpr, subBranch, groupedIds.get(subBranch.getType().toLowerCase()), result, accessToken,
                             debugPrinter);
                 }
             }
@@ -490,7 +490,7 @@ public class DoelResolver implements DoelEvaluator {
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids, DebugPrinter debugPrinter) {
         HashSet<String> typeSet = new HashSet<>();
         for (DoelTypes.Link link : types) {
-            typeSet.add(link.getType());
+            typeSet.add(link.getType().toLowerCase());
         }
         HashMap<String, List<RdbmsId>> result = new HashMap<>();
         idCycle: for (Object item : ids) {
@@ -509,11 +509,11 @@ public class DoelResolver implements DoelEvaluator {
             String[] hierarchyTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(idType);
 
             for (String type : hierarchyTypes) {
-                if (typeSet.contains(type)) {
-                    if (!result.containsKey(type)) {
-                        result.put(type, new ArrayList<RdbmsId>());
+                if (typeSet.contains(type.toLowerCase())) {
+                    if (!result.containsKey(type.toLowerCase())) {
+                        result.put(type.toLowerCase(), new ArrayList<RdbmsId>());
                     }
-                    result.get(type).add(id);
+                    result.get(type.toLowerCase()).add(id);
                     if (debugPrinter != null) {
                         debugPrinter.print(var("objId", id), var("type", idType), str("will be processed as " + type));
                     }
