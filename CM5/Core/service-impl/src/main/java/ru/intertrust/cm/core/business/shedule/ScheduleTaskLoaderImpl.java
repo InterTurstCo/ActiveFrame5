@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.ejb.Local;
@@ -333,6 +334,24 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         return result;
     }
 
+    public String getNextNodeId(List<String> taskNodeNames) {
+        String result = null;
+        Set<String> nodeIds = clusterManager.getNodesWithRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME);
+        List<String> filteredNodeIds = new ArrayList<>();
+        for (String nodeId: nodeIds) {
+            if (taskNodeNames.contains(clusterManager.getNodesInfo().get(nodeId).getNodeName())) {
+                filteredNodeIds.add(nodeId);
+            }
+        }
+        if (filteredNodeIds.size() == 1) {
+            result = filteredNodeIds.get(0);
+        } else 
+        if (filteredNodeIds.size()>1) {
+            result = filteredNodeIds.get(new Random().nextInt(filteredNodeIds.size()));
+        }
+        return result;
+    }
+    
     @Override
     public boolean taskNeedsTransaction(String className) {
         return !reestr.get(className).getConfiguration().taskTransactionalManagement();

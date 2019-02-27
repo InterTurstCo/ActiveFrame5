@@ -222,6 +222,8 @@
             <boolean name="bad_task"/>
             <!-- Флаг того, что данная задача сама будет управлять транзакцией -->
             <boolean name="task_transact_management"/>
+            <!-- Список имен нод кластера, на которых можно запускать данную задачу (через запятую) -->
+            <text name="nodes"/>
         </fields>
         <uniqueKey>
             <field name="name" />

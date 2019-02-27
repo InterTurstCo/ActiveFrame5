@@ -56,7 +56,7 @@ public interface ClusterManager {
      * Возвращает информацию о всех нодах в кластере
      * @return
      */
-    Map<String, ClusterNodeInfo> geNodesInfo();
+    Map<String, ClusterNodeInfo> getNodesInfo();
 
     /**
      * Возвращает информацию о текущем менеджере кластера

@@ -177,7 +177,7 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
-    public Map<String, ClusterNodeInfo> geNodesInfo() {
+    public Map<String, ClusterNodeInfo> getNodesInfo() {
        return clusterNodeInfoMap;
     }
 

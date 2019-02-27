@@ -6,14 +6,12 @@ import ru.intertrust.cm.core.business.api.dto.ClusterNodeInfo;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.cluster.ClusterManagementPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.cluster.ClusterNodeInfoViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @ComponentName("cluster.management.plugin")
@@ -43,7 +41,7 @@ public class ClusterManagementPluginHandler extends PluginHandler {
     public ClusterManagementPluginData refreshStatistics(Dto request){
         ClusterManagementPluginData clusterManagementPluginData = new ClusterManagementPluginData();
 
-        Map<String, ClusterNodeInfo> nodesInfo = clusterManager.geNodesInfo();
+        Map<String, ClusterNodeInfo> nodesInfo = clusterManager.getNodesInfo();
         ClusterNodeInfo currentNodeInfo = nodesInfo.get(clusterManager.getNodeId());
         ClusterNodeInfo managerNodeInfo = clusterManager.getClusterManagerNodeInfo();
         clusterManagementPluginData.setCurrentNodeInfo(convertInfo(currentNodeInfo));

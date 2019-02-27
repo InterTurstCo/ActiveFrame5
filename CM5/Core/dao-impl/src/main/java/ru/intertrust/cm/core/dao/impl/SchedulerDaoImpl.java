@@ -119,7 +119,17 @@ public class SchedulerDaoImpl implements SchedulerDao {
                 createNodeTaskExecution(task.getId(), node);
             }
         } else {
-            createNodeTaskExecution(task.getId(), scheduleTaskLoader.getNextNodeId());
+            String taskNodes = task.getString("nodes"); 
+            if (taskNodes!=null && !"".equals(taskNodes.trim())) {
+                List<String> taskNodesList = new ArrayList<>();
+                for (String s: taskNodes.split(",")) {
+                    if (!"".equals(s.trim())) 
+                        taskNodesList.add(s.trim());
+                }
+                createNodeTaskExecution(task.getId(), scheduleTaskLoader.getNextNodeId(taskNodesList));
+            } else {
+                createNodeTaskExecution(task.getId(), scheduleTaskLoader.getNextNodeId());
+            }
         }        
     }
     

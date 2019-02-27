@@ -52,4 +52,12 @@ public interface ScheduleTaskLoader {
      * @return
      */
     String getNextNodeId();
+
+    /**
+     * Получение следующей ноды из списка нод, прописанных в запускаемой задаче
+     * @param taskNodeNames
+     * @return
+     */
+    String getNextNodeId(List<String> taskNodeNames);
+    
 }
