@@ -1,13 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -16,7 +11,6 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -24,11 +18,9 @@ import com.google.gwt.view.client.SetSelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import org.springframework.http.converter.json.GsonBuilderUtils;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
@@ -65,7 +57,10 @@ import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
-import ru.intertrust.cm.core.gui.model.plugin.collection.*;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -80,6 +75,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 12:05 PM
  */
 public class CollectionPluginView extends PluginView {
+
   private static final String MSG_CONF_ERROR = "Ошибка конфигурации. ";
   private CollectionDataGrid tableBody;
   private List<CollectionRowItem> items;
@@ -799,24 +795,29 @@ public class CollectionPluginView extends PluginView {
     checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
       @Override
       public void update(int index, CollectionRowItem object, Boolean value) {
-        checkForMultiSelectionEnabled(value, object.getId());
-        Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
-        Id id = object.getId();
-        eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
-        changedRowsSelection.put(id, value);
-        tableBody.redraw();
-        fireCollectionRowCheckListener(object.getId(), value);
-
+          updateCheckboxSelection(object, value);
       }
     });
     createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
   }
 
-
   private void createTableColumnsWithCheckBoxes(CollectionColumn checkBoxColumn, List<ColumnHeaderBlock> columnHeaderBlocks) {
     ColumnFormatter.formatCheckBoxColumn(checkBoxColumn);
 
-    HeaderWidget headerWidget = new CheckBoxHeaderWidget();
+      HeaderWidget headerWidget = new CheckBoxHeaderWidget() {
+          @Override
+          public void processOnChange(Boolean isChecked) {
+              super.processOnChange(isChecked);
+
+              // обработаем все чекбоксы в колонке для видимых записей
+              final List<CollectionRowItem> visibleItems = tableBody.getVisibleItems();
+
+              for (CollectionRowItem item : visibleItems) {
+                  updateCheckboxSelection(item, isChecked);
+              }
+          }
+      };
+
     CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, checkBoxColumn, headerWidget, eventBus);
     ColumnHeaderBlock columnHeaderBlock = new ColumnHeaderBlock(collectionColumnHeader, checkBoxColumn);
     columnHeaderBlocks.add(columnHeaderBlock);
@@ -824,6 +825,20 @@ public class CollectionPluginView extends PluginView {
     createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
   }
 
+    /**
+     * Обновляет состояние выделения записи (колонка с чекбоксом).
+     * @param rowItem объект записи с данными
+     * @param value значение чекбокса для установки
+     */
+    private void updateCheckboxSelection(CollectionRowItem rowItem, Boolean value) {
+        checkForMultiSelectionEnabled(value, rowItem.getId());
+        Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
+        Id id = rowItem.getId();
+        eventBus.fireEvent(new CheckBoxFieldUpdateEvent(rowItem.getId(), !value));
+        changedRowsSelection.put(id, value);
+        tableBody.redraw();
+        fireCollectionRowCheckListener(rowItem.getId(), value);
+    }
 
   private void createTableColumnsWithoutCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
     for (String field : getPluginData().getDomainObjectFieldPropertiesMap().keySet()) {
