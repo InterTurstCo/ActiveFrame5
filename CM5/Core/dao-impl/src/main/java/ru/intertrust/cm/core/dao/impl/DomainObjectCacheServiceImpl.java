@@ -186,7 +186,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
                 }
                 sb.append(k);
             }
-            return sb.toString();
+            return sb.toString().toLowerCase();
         }
 
         private void clear() {
@@ -515,10 +515,10 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             if (!isEmptyDomainObjectNode(id, limitationType)) {
                 DomainObject dobj = isEmptyDomainObjectNode(id, limitationType) ? null : getOrCreateDomainObjectNode(id, limitationType).getDomainObject(domainEntitiesCloner);
                 if (dobj != null) {
-                    Map<String, Id> idMap = generateReferenceFieldsIdMap(dobj);
-                    for (Map.Entry<String, Id> ent : idMap.entrySet()) {
-                        DomainObjectNode parentDon = isEmptyDomainObjectNode(ent.getValue(), limitationType)
-                                ? null : getOrCreateDomainObjectNode(ent.getValue(), limitationType);
+                    Set<Id> idSet = generateReferenceFieldsIdMap(dobj);
+                    for (Id ent : idSet) {
+                        DomainObjectNode parentDon = isEmptyDomainObjectNode(ent, limitationType)
+                                ? null : getOrCreateDomainObjectNode(ent, limitationType);
                         if (parentDon != null) {
                             parentDon.removeChildNodeId(id);
                         }
@@ -568,12 +568,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         for (Map.Entry<AccessToken.AccessLimitationType, Map<String, DomainObjectNode>> cacheEntry : getAccessLimitationMap().entrySet()) {
-            if (cacheEntry.getKey().equals(accessLimitationType) ||
-                    cacheEntry.getKey().equals(AccessToken.AccessLimitationType.UNLIMITED)) {
-                updateParentLinks(dobj, cacheEntry);
-            } else {
-                clearParentLinks(dobj, cacheEntry);
-            }
+            updateLinks(dobj, cacheEntry);
         }
 
         return dobj.getId();
@@ -638,47 +633,32 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
     }
 
-    private void clearParentLinks(DomainObject dobj, Map.Entry<AccessToken.AccessLimitationType, Map<String, DomainObjectNode>> cacheEntry) {
+    /**
+     * Обновляет ссылки на родителя и очищает ссылки на дочки у родителя
+     * @param dobj
+     * @param cacheEntry
+     */
+    private void updateLinks(DomainObject dobj, Map.Entry<AccessToken.AccessLimitationType, Map<String, DomainObjectNode>> cacheEntry) {
         DomainObjectNode don = getOrCreateDomainObjectNode(dobj.getId(), cacheEntry.getKey());
 
-        Map<String, Id> newIdParentMap = generateReferenceFieldsIdMap(dobj);
+        // Новый список родителей
+        Set<Id> newIdParentSet = generateReferenceFieldsIdMap(dobj);
+        // Список родителей у ранее сохраненного в кэше доменного объекта
         Set<Id> prevIdParentSet = don.getParentDomainObjectIds();
 
-        for (Map.Entry<String, Id> ent : newIdParentMap.entrySet()) {
-            DomainObjectNode parentDon = getOrCreateDomainObjectNode(ent.getValue(), cacheEntry.getKey());
-            parentDon.clearChildNode(dobj.getTypeName(), ent.getKey());
-        }
-
+        // У старых родителей очищаем кэши, где в дочках есть обновляемый доменный объект
         for (Id id : prevIdParentSet) {
             DomainObjectNode parentDon = getOrCreateDomainObjectNode(id, cacheEntry.getKey());
             parentDon.clearAllChildNodesHavingId(dobj.getId());
         }
-
-        don.getParentDomainObjectIds().clear();
-    }
-
-    private void updateParentLinks(DomainObject dobj, Map.Entry<AccessToken.AccessLimitationType, Map<String, DomainObjectNode>> cacheEntry) {
-        DomainObjectNode don = getOrCreateDomainObjectNode(dobj.getId(), cacheEntry.getKey());
-
-        Map<String, Id> newIdParentMap = generateReferenceFieldsIdMap(dobj);
-        Set<Id> prevIdParentSet = don.getParentDomainObjectIds();
-        Set<Id> newIdParentSet = new HashSet<>((int) (newIdParentMap.size()/0.75 + 1));
-
-        for (Map.Entry<String, Id> ent : newIdParentMap.entrySet()) {
-            newIdParentSet.add(ent.getValue());
-            if (!prevIdParentSet.contains(ent.getValue()) && !isEmptyDomainObjectNode(ent.getValue(), cacheEntry.getKey())) {
-                DomainObjectNode parentDon = getOrCreateDomainObjectNode(ent.getValue(), cacheEntry.getKey());
-                parentDon.addChildNodeIdIfNotEmpty(dobj.getId(), dobj.getTypeName(), ent.getKey());
-            }
+        
+        // У новых родителей очищаем все кэши, это нужно делать потому что неизвестно в каком кэше (кэшах) появится обновляемый доменный объект
+        for (Id ent : newIdParentSet) {
+            DomainObjectNode parentDon = getOrCreateDomainObjectNode(ent, cacheEntry.getKey());
+            parentDon.clear();
         }
 
-        for (Id id : prevIdParentSet) {
-            if (!newIdParentSet.contains(id) && !isEmptyDomainObjectNode(id, cacheEntry.getKey())) {
-                DomainObjectNode parentDon = getOrCreateDomainObjectNode(id, cacheEntry.getKey());
-                parentDon.removeChildNodeId(dobj.getId());
-            }
-        }
-
+        // Обновляем список родителей 
         don.getParentDomainObjectIds().clear();
         don.getParentDomainObjectIds().addAll(newIdParentSet);
     }
@@ -693,15 +673,15 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         return cacheMap.get(DomainObjectNode.generateKey(id.toStringRepresentation())) == null;
     }
 
-    private Map<String, Id> generateReferenceFieldsIdMap(DomainObject dobj) {
+    private Set<Id> generateReferenceFieldsIdMap(DomainObject dobj) {
         //Возвращает карту зависимостей [ссылочное поле]-[иденификатор доменного объекта],
         //где поле - название ссылочного поля в доменном объекте, см. структуру для DomainObject
         Set<ReferenceFieldConfig> referenceFieldConfigs = configurationExplorer.getReferenceFieldConfigs(dobj.getTypeName());
-        Map<String, Id> ret = new HashMap<>((int) (referenceFieldConfigs.size()/0.75 + 1));
+        Set<Id> ret = new HashSet<Id>((int) (referenceFieldConfigs.size()/0.75 + 1));
         for (ReferenceFieldConfig referenceFieldConfig : referenceFieldConfigs) {
             Id id = dobj.getReference(referenceFieldConfig.getName());
             if (id != null) {
-                ret.put(referenceFieldConfig.getName(), id);
+                ret.add(id);
             }
         }
         return ret;
