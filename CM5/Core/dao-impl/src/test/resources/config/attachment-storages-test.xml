@@ -94,7 +94,6 @@
     <!-- Just for correct validation -->
     <global-settings>
         <audit-log enable="false"/>
-        <transaction-trace enable="false"/>
     </global-settings>
 
 </configuration>

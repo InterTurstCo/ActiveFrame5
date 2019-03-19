@@ -1,6 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -10,19 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.TransactionTrace;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author vmatsukevich
@@ -35,7 +41,7 @@ public class SqlLogger {
 
     private static final String NAMED_PARAMETER_PATTERN = ":\\w";
     private static final String PARAMETER_PATTERN = "\\?";
-
+    
     public static final ThreadLocal<Long> SQL_PREPARATION_TIME_CACHE = new ThreadLocal<>();
     
     private static final Logger logger = LoggerFactory.getLogger(SqlLogger.class);
@@ -51,14 +57,14 @@ public class SqlLogger {
     @org.springframework.beans.factory.annotation.Value("${sql.trace.output.transactionId:false}")
     private Boolean showTransactionId = false;
     @org.springframework.beans.factory.annotation.Value("${sql.trace.output.datasource:true}")
-    private Boolean showDatasource = true;
-    
+    private Boolean showDatasource = true;    
+    @org.springframework.beans.factory.annotation.Value("${transaction.trace.enable:false}")
+    private Boolean transactionTraceEnable;    
+    @org.springframework.beans.factory.annotation.Value("${transaction.trace.min.time:100}")
+    private Long transactionTraceMinTime;
 
     @Autowired
     private UserTransactionService userTransactionService;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
 
     @Autowired
     private SqlLoggerEnforcer sqlLoggerEnforcer;
@@ -81,7 +87,7 @@ public class SqlLogger {
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
                 "execution(* *(String, ..))")
     public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!logger.isTraceEnabled() && !logger.isWarnEnabled()) {
+        if (!logger.isTraceEnabled() && !logger.isDebugEnabled() && !sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             return joinPoint.proceed();
         }
 
@@ -99,25 +105,29 @@ public class SqlLogger {
 
         int rows = countSqlRows(returnValue, query);
         
+   
         boolean logWarn = executionTime >= minWarnTime || rows >= minRowsNum;
 
         if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             List<String> resolvedQueries = resolveParameters(query, joinPoint, true);
-            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint), 
+                    excelTableFormat, showTransactionId, showDatasource);
             for (String logEntry : resolvedQueries) {
                 logger.info(logEntry);
                 sqlStatisticLogger.log(query,executionTime,Thread.currentThread().getStackTrace());
             }
-        } else if (logWarn && logger.isWarnEnabled()) {
-            List<String> resolvedQueries = resolveParameters(query, joinPoint);
-            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
+        } else if (logWarn && logger.isDebugEnabled()) {
+            List<String> resolvedQueries = resolveParameters(query, joinPoint, resolveParams);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint), 
+                    excelTableFormat, showTransactionId, showDatasource);
             for (String logEntry : resolvedQueries) {
-                logger.warn(logEntry);
+                logger.debug(logEntry);
                 sqlStatisticLogger.log(query,executionTime,Thread.currentThread().getStackTrace());
             }
         } else if (logger.isTraceEnabled()){
-            List<String> resolvedQueries = resolveParameters(query, joinPoint);
-            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
+            List<String> resolvedQueries = resolveParameters(query, joinPoint, resolveParams);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint), 
+                    excelTableFormat, showTransactionId, showDatasource);
             for (String logEntry : resolvedQueries) {
                 logger.trace(logEntry);
                 sqlStatisticLogger.log(query,executionTime,Thread.currentThread().getStackTrace());
@@ -184,9 +194,12 @@ public class SqlLogger {
             "execution(* *(String, ..))")
     public Object logTransaction(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        TransactionTrace transactionTraceConf = configurationExplorer.getGlobalSettings().getTransactionTrace();
+        if (!SqlTransactionLogger.isDebugEnabled() && !SqlTransactionLogger.isTraceEnabled()){
+            return joinPoint.proceed();
+        }
 
-        if (transactionTraceConf == null || !transactionTraceConf.isEnable()) {
+        // Проверяем активность сервиса
+        if (transactionTraceEnable == null || !transactionTraceEnable) {
             return joinPoint.proceed();
         }
 
@@ -208,13 +221,14 @@ public class SqlLogger {
 
         int rows = countSqlRows(returnValue, query);
 
-        List<String> resolvedQueries = resolveParameters(query, joinPoint);
-        formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
+        List<String> resolvedQueries = resolveParameters(query, joinPoint, resolveParams);
+        formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, 
+                getDatasource(joinPoint), excelTableFormat, showTransactionId, showDatasource);
 
         LogTransactionListener listener = null;
         listener = userTransactionService.getListener(LogTransactionListener.class);
         if (listener == null) {
-            listener = new LogTransactionListener(startTime, transactionId, transactionTraceConf.getMinTime());
+            listener = new LogTransactionListener(startTime, transactionId, transactionTraceMinTime);
             userTransactionService.addListener(listener);
         }
 
@@ -234,11 +248,6 @@ public class SqlLogger {
         Long preparationTime = SQL_PREPARATION_TIME_CACHE.get();
         SQL_PREPARATION_TIME_CACHE.set(null);
         return preparationTime;
-    }
-
-
-    private List<String> resolveParameters(String query, ProceedingJoinPoint joinPoint) {
-        return resolveParameters(query, joinPoint, resolveParams);
     }
 
     private List<String> resolveParameters(String query, ProceedingJoinPoint joinPoint, boolean isResolve) {
@@ -279,7 +288,8 @@ public class SqlLogger {
         return resolvedQueries;
     }
 
-    public void formatLogEntries(List<String> queries, Long preparationTime, long executionTime, int rows, String datasource) {
+    private void formatLogEntries(List<String> queries, Long preparationTime, long executionTime, int rows, 
+            String datasource, Boolean excelTableFormat, Boolean showTransactionId, Boolean showDatasource) {
         if (queries == null || queries.isEmpty()) {
             return;
         }

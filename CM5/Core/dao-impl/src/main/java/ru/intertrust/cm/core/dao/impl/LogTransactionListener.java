@@ -46,7 +46,8 @@ public class LogTransactionListener implements ActionListener {
         long endTime = System.currentTimeMillis();
         long delay = endTime - startTime;
         
-        if (delay > minTime) {
+        
+        if (((delay > minTime) && SqlTransactionLogger.isDebugEnabled()) || SqlTransactionLogger.isTraceEnabled()) {
             SqlTransactionLogger.logTransactionTrace(this, isCommitted, startTime, endTime);
         }
     }

@@ -90,7 +90,6 @@
     <!-- Глобальные настройки -->
     <global-settings>
         <audit-log enable="false"/>
-        <transaction-trace enable="false"/>
         <search-languages>
             <language id="ru"/>
         </search-languages>

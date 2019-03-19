@@ -285,7 +285,6 @@
       <product title="Платформа CM Сочи"/>
       <product-version archive="test-module.jar"/>
       <audit-log enable="false"/>
-      <transaction-trace enable="true" minTime="0"/>
    </global-settings>
    <domain-object-type name="Incoming_Document">
       <fields>

@@ -170,10 +170,6 @@ public class ConfigurationLoadServiceImplTest {
         AuditLog auditLog = new AuditLog();
         globalSettings.setAuditLog(auditLog);
 
-        TransactionTrace transactionTrace = new TransactionTrace();
-        transactionTrace.setEnable(false);
-        globalSettings.setTransactionTrace(transactionTrace);
-
         configuration.getConfigurationList().add(createOutgoingDocument());
         configuration.getConfigurationList().add(createEmployee());
         configuration.getConfigurationList().add(globalSettings);

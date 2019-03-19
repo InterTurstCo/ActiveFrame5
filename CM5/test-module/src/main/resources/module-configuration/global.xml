@@ -4,7 +4,6 @@
         <product title="Платформа CM Сочи"/>
         <product-version archive="commons-codec.jar"/>
         <audit-log enable="false"/>
-        <transaction-trace enable="false" minTime="100"/>
         <search-languages>
             <language id="ru"/>
             <language id="en"/>
