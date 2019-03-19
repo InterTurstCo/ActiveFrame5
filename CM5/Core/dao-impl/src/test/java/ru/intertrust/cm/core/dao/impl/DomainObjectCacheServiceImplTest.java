@@ -22,6 +22,8 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -83,14 +85,20 @@ public class DomainObjectCacheServiceImplTest {
             when(result.getTransactionKey()).thenReturn("transaction-key");
 
             // putResource
-            doAnswer(e -> {
-                transactionResources.get().put(e.getArgumentAt(0, Object.class), e.getArgumentAt(1, Object.class));
-                return null;
+            doAnswer(new Answer() {
+                @Override
+                public Object answer(InvocationOnMock e) throws Throwable {
+                    transactionResources.get().put(e.getArgumentAt(0, Object.class), e.getArgumentAt(1, Object.class));
+                    return null;
+                }
             }).when(result).putResource(any(), any());
 
             // getResource
-            when(result.getResource(any())).then(e -> {
-                return transactionResources.get().get(e.getArgumentAt(0, Object.class));
+            when(result.getResource(any())).then(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock e) throws Throwable {
+                    return transactionResources.get().get(e.getArgumentAt(0, Object.class));
+                }
             });
             return result;
         }
@@ -98,21 +106,27 @@ public class DomainObjectCacheServiceImplTest {
         @Bean
         public ConfigurationExplorer configurationExplorer() {
             ConfigurationExplorer result = mock(ConfigurationExplorer.class);
-            when(result.getDomainObjectTypeConfig(anyString())).then(p -> {
-                DomainObjectTypeConfig config = new DomainObjectTypeConfig();
-                return config;
+            when(result.getDomainObjectTypeConfig(anyString())).then(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock p) throws Throwable {
+                    DomainObjectTypeConfig config = new DomainObjectTypeConfig();
+                    return config;
+                }
             });
 
-            when(result.getReferenceFieldConfigs(anyString())).then(p -> {
-                Set<ReferenceFieldConfig> configs = new HashSet<ReferenceFieldConfig>();
-                if (p.getArgumentAt(0, String.class).equalsIgnoreCase("type2") 
-                        || p.getArgumentAt(0, String.class).equalsIgnoreCase("type3")) {
-                    ReferenceFieldConfig config = new ReferenceFieldConfig();
-                    config.setName("type1");
-                    config.setType("type1");
-                    configs.add(config);
+            when(result.getReferenceFieldConfigs(anyString())).then(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock p) throws Throwable {
+                    Set<ReferenceFieldConfig> configs = new HashSet<ReferenceFieldConfig>();
+                    if (p.getArgumentAt(0, String.class).equalsIgnoreCase("type2") 
+                            || p.getArgumentAt(0, String.class).equalsIgnoreCase("type3")) {
+                        ReferenceFieldConfig config = new ReferenceFieldConfig();
+                        config.setName("type1");
+                        config.setType("type1");
+                        configs.add(config);
+                    }
+                    return configs;
                 }
-                return configs;
             });
 
             return result;
@@ -170,7 +184,7 @@ public class DomainObjectCacheServiceImplTest {
         assertNull(result);
 
         // Имитируем вызов findLinkedDomainObjects
-        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList(chdo1), getSystemAccessToken(), cacheKey);
+        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList((DomainObject)chdo1), getSystemAccessToken(), cacheKey);
 
         // Получаем связанные из кэша
         result = domainObjectCacheService.getAll(rdo1.getId(), getSystemAccessToken(), cacheKey);
@@ -190,7 +204,7 @@ public class DomainObjectCacheServiceImplTest {
         assertNull(result);
 
         // Имитируем чтение из базы
-        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList(chdo1, chdo2), getSystemAccessToken(), cacheKey);        
+        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList((DomainObject)chdo1, (DomainObject)chdo2), getSystemAccessToken(), cacheKey);        
 
         // Читаем из кэша, должны получить два
         result = domainObjectCacheService.getAll(rdo1.getId(), getSystemAccessToken(), cacheKey);
@@ -210,7 +224,7 @@ public class DomainObjectCacheServiceImplTest {
         assertNull(result);
 
         // Имитируем чтение из базы
-        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList(chdo1, chdo2, chdo3), getSystemAccessToken(), cacheKey);        
+        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList((DomainObject)chdo1, (DomainObject)chdo2, (DomainObject)chdo3), getSystemAccessToken(), cacheKey);        
 
         // Читаем из кэша, должны получить три
         result = domainObjectCacheService.getAll(rdo1.getId(), getSystemAccessToken(), cacheKey);
@@ -230,11 +244,11 @@ public class DomainObjectCacheServiceImplTest {
         assertNull(result);
         
         // Имитируем чтение из базы не строго определенного типа
-        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList(chdo1, chdo2, chdo3, chdo4), getSystemAccessToken(), cacheKey);        
+        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList((DomainObject)chdo1, (DomainObject)chdo2, (DomainObject)chdo3, (DomainObject)chdo4), getSystemAccessToken(), cacheKey);        
 
         // Имитируем чтение из базы строго определенного типа
         String[] exactTypeCacheKey = new String[] { "type2","type1",String.valueOf(true) };
-        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList(chdo1, chdo2, chdo3), getSystemAccessToken(), exactTypeCacheKey);        
+        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList((DomainObject)chdo1, (DomainObject)chdo2, (DomainObject)chdo3), getSystemAccessToken(), exactTypeCacheKey);        
 
         // Читаем из кэша не строго, должны получить четыре
         result = domainObjectCacheService.getAll(rdo1.getId(), getSystemAccessToken(), cacheKey);
@@ -271,8 +285,8 @@ public class DomainObjectCacheServiceImplTest {
         assertNull(result);
         
         // Имитируем чтение из базы для двух рутовых доменных объектов не строго
-        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList(chdo1, chdo2, chdo4), getSystemAccessToken(), cacheKey);        
-        domainObjectCacheService.putAllOnRead(rdo2.getId(), Arrays.asList(chdo3), getSystemAccessToken(), cacheKey);        
+        domainObjectCacheService.putAllOnRead(rdo1.getId(), Arrays.asList((DomainObject)chdo1, (DomainObject)chdo2, (DomainObject)chdo4), getSystemAccessToken(), cacheKey);        
+        domainObjectCacheService.putAllOnRead(rdo2.getId(), Arrays.asList((DomainObject)chdo3), getSystemAccessToken(), cacheKey);        
         
         // Проверяем обнуления ссылки на родителя у второго связанного
         chdo2.setReference("type1", (Id)null);
