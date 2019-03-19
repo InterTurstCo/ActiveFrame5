@@ -1,9 +1,38 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
@@ -16,17 +45,19 @@ import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.NamedCollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.QueryCollectionTypesKey;
-import ru.intertrust.cm.globalcache.api.*;
+import ru.intertrust.cm.globalcache.api.AbsentDomainObject;
+import ru.intertrust.cm.globalcache.api.AccessChanges;
+import ru.intertrust.cm.globalcache.api.CollectionSubKey;
+import ru.intertrust.cm.globalcache.api.GlobalCache;
+import ru.intertrust.cm.globalcache.api.NamedCollectionSubKey;
+import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
+import ru.intertrust.cm.globalcache.api.QueryCollectionSubKey;
+import ru.intertrust.cm.globalcache.api.UniqueKey;
 import ru.intertrust.cm.globalcache.api.util.Size;
-
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * @author Denis Mitavskiy
@@ -35,7 +66,6 @@ import java.util.concurrent.*;
  */
 public class GlobalCacheImpl implements GlobalCache {
     static final Logger logger = LoggerFactory.getLogger(GlobalCacheImpl.class);
-    private final Object READ_EXOTIC_VS_COMMIT_LOCK = new Object();
     public static final int COLLECTION_MAX_ROWS = 2000;
     public static final int COLLECTION_SUSPICIOUS_ROWS = 1000;
     public static final int KEY_ENTRIES_MAX_QTY = 50;
@@ -46,9 +76,6 @@ public class GlobalCacheImpl implements GlobalCache {
 
     @Autowired
     private DomainEntitiesCloner domainEntitiesCloner;
-
-    @Autowired
-    private DomainObjectDao domainObjectDao;
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
@@ -540,12 +567,20 @@ public class GlobalCacheImpl implements GlobalCache {
         userObjectAccess = new UserObjectAccess(16, size);
     }
 
-    protected void evictObjectAndCorrespondingEntries(Id id) {
+    private void evictObjectAndCorrespondingEntriesLocal(Id id) {
         cleaner.evictObjectAndItsAccessEntiresById(id);
     }
+    
+    protected void evictObjectAndCorrespondingEntries(Id id) {
+        evictObjectAndCorrespondingEntriesLocal(id);
+    }
 
-    protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
+    protected void evictObjectAndCorrespondingEntriesLocal(DomainObject domainObject) {
         cleaner.evictObjectAndItsAccessEntires(domainObject);
+    }
+    
+    protected void evictObjectAndCorrespondingEntries(DomainObject domainObject) {
+        evictObjectAndCorrespondingEntriesLocal(domainObject);
     }
 
     private boolean neverCache(String type) {
@@ -553,12 +588,17 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private static int __count;
-    @Override
-    public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
+
+    private DomainObject getDomainObjectLocal(String transactionId, Id id, AccessToken accessToken) {
         if (++__count % 10000 == 0) {
             logger.warn("------------------------------------------------- Cache size: " + new DecimalFormat("##########################0.00").format(((double) size.get()) / 1024 / 1024) + " MB");
         }
         return getClonedDomainObject(id, getUserSubject(accessToken));
+    }
+    
+    @Override
+    public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
+        return getDomainObjectLocal(transactionId, id, accessToken);
     }
 
     private DomainObject getClonedDomainObject(Id id, UserSubject userSubject) {
@@ -611,14 +651,14 @@ public class GlobalCacheImpl implements GlobalCache {
             }
         } else {
             accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
-            return getDomainObject(transactionId, id, accessToken);
+            return getDomainObjectLocal(transactionId, id, accessToken);
         }
     }
 
     public ArrayList<DomainObject> getDomainObjects(String transactionId, Collection<Id> ids, AccessToken accessToken) {
         ArrayList<DomainObject> result = new ArrayList<>(ids.size());
         for (Id id : ids) {
-            result.add(getDomainObject(transactionId, id, accessToken));
+            result.add(getDomainObjectLocal(transactionId, id, accessToken));
         }
         return result;
     }
@@ -1140,7 +1180,7 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private void clearDomainObjectNode(Id id, ObjectNode cachedNode) {
-        evictObjectAndCorrespondingEntries(id);
+        evictObjectAndCorrespondingEntriesLocal(id);
     }
 
     private void updateUniqueKeys(DomainObject object) {
