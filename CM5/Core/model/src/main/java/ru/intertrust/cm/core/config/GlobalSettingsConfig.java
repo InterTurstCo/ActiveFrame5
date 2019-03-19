@@ -32,9 +32,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "audit-log", required = true)
     private AuditLog auditLog;
 
-    @Element(name = "transaction-trace", required = false)
-    private TransactionTrace transactionTrace;
-
     @ElementList(name = "search-languages", entry = "language", required = false)
     private List<SearchLanguageConfig> searchLanguages;
 
@@ -81,14 +78,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     public void setAuditLog(AuditLog auditLog) {
         this.auditLog = auditLog;
-    }
-
-    public TransactionTrace getTransactionTrace() {
-        return transactionTrace;
-    }
-
-    public void setTransactionTrace(TransactionTrace transactionTrace) {
-        this.transactionTrace = transactionTrace;
     }
 
     public List<SearchLanguageConfig> getSearchLanguages() {
@@ -177,8 +166,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         if (productVersion != null ? !productVersion.equals(that.productVersion) : that.productVersion != null)
             return false;
         if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) return false;
-        if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
-            return false;
         if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null)
             return false;
         if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)

@@ -13,10 +13,17 @@ public class SqlTransactionLogger {
     private static final String TIME_PATTERN = "HH:mm:ss.SSS";
     private static final Logger logger = LoggerFactory.getLogger(SqlTransactionLogger.class);
 
+    public static boolean isDebugEnabled() {
+        return logger.isDebugEnabled();
+    }
+
+    public static boolean isTraceEnabled() {
+        return logger.isTraceEnabled();
+    }
 
     public static synchronized void logTransactionTrace(LogTransactionListener transactionListener, boolean isCommitted, long startTime, long endTime) {
-        if (logger.isWarnEnabled()) {
-            logger.warn(formatTransactionTrace(transactionListener, isCommitted, startTime, endTime));
+        if (logger.isDebugEnabled()) {
+            logger.debug(formatTransactionTrace(transactionListener, isCommitted, startTime, endTime));
         } else if (logger.isTraceEnabled()){
             logger.trace(formatTransactionTrace(transactionListener, isCommitted, startTime, endTime));
         }

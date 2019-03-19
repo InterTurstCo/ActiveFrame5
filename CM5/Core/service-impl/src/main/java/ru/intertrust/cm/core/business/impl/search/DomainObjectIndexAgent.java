@@ -247,7 +247,7 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
             } else if (config.getDoel() != null) {
                 DoelExpression doel = DoelExpression.parse(config.getDoel());
                 AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
-                List<? extends Value<?>> values = doelEvaluator.evaluate(doel, object.getId(), accessToken);
+                List<Value> values = doelEvaluator.evaluate(doel, object.getId(), accessToken);
                 if (values.size() == 0) {
                     return Collections.emptyMap();
                 }

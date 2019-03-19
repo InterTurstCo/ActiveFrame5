@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * @author Denis Mitavskiy
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 18:15
  */
 public class GlobalCacheSettings implements Dto {
+    private static final long serialVersionUID = -1755477697564714229L;
     private static final Logger logger = LoggerFactory.getLogger(GlobalCacheSettings.class);
     public static final long DEFAULT_SIZE_LIMIT = 10L * 1024 * 1024;
     public static final int DEFAULT_WAIT_LOCK_MILLIES = 1;
@@ -60,8 +62,53 @@ public class GlobalCacheSettings implements Dto {
             public String getBeanName() {
                 return "strictlyBlockingGlobalCache";
             }
-        };
+        },
+        OptimisticStamped {
+            @Override
+            public boolean isBlocking() {
+                return true;
+            }
 
+            @Override
+            public String toString() {
+                return "optimistic-stamped";
+            }
+
+            public String getBeanName() {
+                return "optimisticStamped";
+            }
+        },
+        Synchronized {
+            @Override
+            public boolean isBlocking() {
+                return true;
+            }
+
+            @Override
+            public String toString() {
+                return "synchronized";
+            }
+
+            public String getBeanName() {
+                return "synchronized";
+            }
+        },
+        Stamped {
+            @Override
+            public boolean isBlocking() {
+                return true;
+            }
+
+            @Override
+            public String toString() {
+                return "stamped";
+            }
+
+            public String getBeanName() {
+                return "stamped";
+            }
+        };
+        
         public abstract boolean isBlocking();
 
         public abstract String getBeanName();
@@ -70,13 +117,14 @@ public class GlobalCacheSettings implements Dto {
             if (mode == null) {
                 return Mode.Blocking;
             }
-            if (mode.equalsIgnoreCase(Mode.NonBlocking.toString())) {
-                return Mode.NonBlocking;
-            } if (mode.equalsIgnoreCase(Mode.Blocking.toString())) {
-                return Mode.Blocking;
-            } else {
-                return Mode.StrictlyBlocking;
+            
+            for (Mode enumItem : Mode.values()) {
+                if (enumItem.toString().equalsIgnoreCase(mode)) {
+                    return enumItem;
+                }
             }
+            
+            throw new FatalException("Not support global.cache.mode + " + mode + ". Please correct server.properties config file.");
         }
     }
 

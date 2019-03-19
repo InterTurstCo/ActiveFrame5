@@ -653,13 +653,6 @@
                     </xs:complexType>
                 </xs:element>
 
-                <xs:element name="transaction-trace" minOccurs="0">
-                    <xs:complexType>
-                        <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                        <xs:attribute name="minTime" use="optional" type="xs:integer"/>
-                    </xs:complexType>
-                </xs:element>
-
                 <xs:element name="search-languages" minOccurs="0">
                     <xs:complexType>
                         <xs:sequence>
