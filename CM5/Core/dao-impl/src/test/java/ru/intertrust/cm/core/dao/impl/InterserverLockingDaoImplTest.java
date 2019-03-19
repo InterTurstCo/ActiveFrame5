@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.dao.impl;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -11,13 +10,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.jdbc.core.JdbcOperations;
+
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 
 public class InterserverLockingDaoImplTest {
 
@@ -31,7 +30,7 @@ public class InterserverLockingDaoImplTest {
 
     @Before
     public void setUp() {
-        when(jdbcOperations.update(anyString(), anyVararg())).then(new Answer<Object>() {
+        when(jdbcOperations.update(anyString(), any(Object[].class))).then(new Answer<Object>() {
             @Override
             public Integer answer(InvocationOnMock invocation) throws Throwable {
                 CCJSqlParserUtil.parse(invocation.getArgumentAt(0, String.class));
