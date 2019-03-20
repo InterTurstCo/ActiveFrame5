@@ -117,7 +117,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     }
     
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private boolean transactionalLock(final String resourceId) {
+    boolean transactionalLock(final String resourceId) {
         Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
         Date lockTime = getInterserverLockingDao().getLastLockTime(resourceId);
         if (lockTime == null) {
@@ -147,7 +147,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
      *         блокировки)
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    private LockResult transactionalSelfSharedLock(final String resourceId) {
+    LockResult transactionalSelfSharedLock(final String resourceId) {
         Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
         ScheduledFutureEx future = heldLocks.get(resourceId);
         Date oldLockTime = future != null ? future.getLockTime() : null;
