@@ -3,12 +3,13 @@ package ru.intertrust.cm.core.business.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -60,14 +61,14 @@ public class ClusterManagerImpl implements ClusterManager{
 
     private String nodeId;
     private Boolean mainClusterManager = null;
-    private Set<String> activeRoles = new HashSet<String>(); 
-    private Map<String, Boolean> roleRegister = new HashMap<String, Boolean>();
+    private Set<String> activeRoles = new ConcurrentSkipListSet<String>(); 
+    private Map<String, Boolean> roleRegister = new ConcurrentHashMap<String, Boolean>();
     
     //Реестр ролей и нод, которые имееют данную роль
-    private Map<String, Set<String>> roleNodes = new HashMap<String, Set<String>>();
-    private Map<String, Set<String>> nodeRoles = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> roleNodes = new ConcurrentHashMap<String, Set<String>>();
+    private Map<String, Set<String>> nodeRoles = new ConcurrentHashMap<String, Set<String>>();
 
-    private Map<String, ClusterNodeInfo> clusterNodeInfoMap = new HashMap<>();
+    private Map<String, ClusterNodeInfo> clusterNodeInfoMap = new ConcurrentHashMap<String, ClusterNodeInfo>();
 
     @Resource
     private TimerService timerService;
@@ -81,10 +82,6 @@ public class ClusterManagerImpl implements ClusterManager{
     @Autowired
     private InterserverLockingService interserverLockingService;
 
-    private boolean isInternalLockUsed = false;
-
-    private boolean isInitMainCluster = false;
-
     @org.springframework.beans.factory.annotation.Value("${cluster.manager:false}")
     private boolean canBeClusterMaster;
 
@@ -96,25 +93,32 @@ public class ClusterManagerImpl implements ClusterManager{
     private String availableRoles;
 
     @PostConstruct
+    @Lock(LockType.WRITE)
     public void init() {
+        logger.trace("Start ClusterManager Timer initialized " + nodeId);
         nodeId = UUID.randomUUID().toString();
         timerService.createIntervalTimer(0, INTERVAL, new TimerConfig(TIMER_NAME, false));
-        logger.debug("ClusterManager Timer initialized " + nodeId);
+        logger.debug("End ClusterManager Timer initialized " + nodeId);
     }
 
     @PreDestroy
+    @Lock(LockType.WRITE)
     public void deinit() {
-        logger.debug("ClusterManager Timer uninitialize " + nodeId);
+        logger.debug("Start ClusterManager Timer uninitialize" + nodeId);
         //Удаляем информацию о ноде
         DomainObject nodeInfo = crudService.findAndLockByUniqueKey("cluster_node",
                 Collections.singletonMap("node_id", (Value) new StringValue(nodeId)));
         crudService.delete(nodeInfo.getId());
+        logger.debug("End ClusterManager Timer uninitialize" + nodeId);
     }
 
     @Override
     @Lock(LockType.READ)
     public boolean isMainServer() {
-        return !configurationLoader.isConfigurationTableExist() || isMainClusterManager();
+        logger.trace("Start isMainServer");
+        boolean result =  !configurationLoader.isConfigurationTableExist() || isMainClusterManager();
+        logger.trace("End isMainServer return {}", result);
+        return result;
     }
 
     /**
@@ -123,8 +127,9 @@ public class ClusterManagerImpl implements ClusterManager{
      * @param timer
      */
     @Timeout
-    @Lock(LockType.READ)
+    @Lock(LockType.WRITE)
     public void onTimeout(Timer timer) {
+        logger.trace("Start on timer");
 
         mainClusterManager = !isCanBeMaster() ? false : interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY);
 
@@ -161,6 +166,7 @@ public class ClusterManagerImpl implements ClusterManager{
             //Зачитываем роли в реестр
             readRoleNodes();
         }
+        logger.trace("End on timer");
     }
 
 
@@ -177,13 +183,21 @@ public class ClusterManagerImpl implements ClusterManager{
     }
 
     @Override
+    @Lock(LockType.READ)
     public Map<String, ClusterNodeInfo> getNodesInfo() {
-       return clusterNodeInfoMap;
+       logger.trace("Start getNodesInfo");
+       Map<String, ClusterNodeInfo> result = clusterNodeInfoMap;
+       logger.trace("End getNodesInfo {}", result);
+       return result;
     }
 
     @Override
+    @Lock(LockType.READ)
     public ClusterNodeInfo getClusterManagerNodeInfo() {
-        return clusterNodeInfoMap.get(getClusterManagerInfo().getString("node_id"));
+        logger.trace("Start getClusterManagerNodeInfo");
+        ClusterNodeInfo result = clusterNodeInfoMap.get(getClusterManagerInfo().getString("node_id"));
+        logger.trace("End getClusterManagerNodeInfo {}", result);
+        return result;
     }
 
     /**
@@ -325,14 +339,6 @@ public class ClusterManagerImpl implements ClusterManager{
     }       
     
     /**
-     * Немедленный повторный запуск по таймеру
-     */
-    private void reRunTimer() {
-        timerService.createTimer(0, TIMER_NAME);
-    }
-
-
-    /**
      * Получение информации о текущем менеджере кластера. Если нет ни одного то создание записи
      * @return
      */
@@ -367,12 +373,18 @@ public class ClusterManagerImpl implements ClusterManager{
     @Override
     @Lock(LockType.READ)
     public boolean hasRole(String roleName) {
-        return activeRoles.contains(roleName);
+        logger.trace("Start hasRole {}", roleName);
+        boolean result = activeRoles.contains(roleName);
+        logger.trace("End hasRole {} return {}", roleName, result);
+        return result;
     }
 
     @Override
+    @Lock(LockType.WRITE)
     public void regRole(String roleName, boolean singleton) {
-        roleRegister.put(roleName, singleton);        
+        logger.trace("Start regRole {} singleton {}", roleName, singleton);
+        roleRegister.put(roleName, singleton);
+        logger.trace("End regRole {} singleton {}", roleName, singleton);
     }
     
     private class ActiveNodeInfo{
@@ -405,10 +417,6 @@ public class ClusterManagerImpl implements ClusterManager{
             return availableRoles;
         }
 
-        public boolean isChanged(){
-            return changed;
-        }
-        
         private String getActiveRolesAsSting(){
             String result = null;
             for (String role : activeRoles) {
@@ -427,22 +435,24 @@ public class ClusterManagerImpl implements ClusterManager{
                 crudService.save(nodeDomainObject);
             }
         }
-        
-        public DomainObject getNodeDomainObject() {
-            return nodeDomainObject;
-        }
     }
 
     @Override
     @Lock(LockType.READ)
     public String getNodeId() {
-        return nodeId;
+        logger.trace("Start getNodeId");
+        String result = nodeId;
+        logger.trace("End getNodeId {}", result);
+        return result;
     }
 
     @Override
     @Lock(LockType.READ)
     public Set<String> getNodesWithRole(String roleName) {
-        return roleNodes.get(roleName) == null ? new HashSet<String>() : roleNodes.get(roleName);
+        logger.trace("Start getNodesWithRole {}", roleName);
+        Set<String> result = roleNodes.get(roleName) == null ? new HashSet<String>() : roleNodes.get(roleName);
+        logger.trace("End getNodesWithRole {} return {}", roleName, result);
+        return result;
     }
     
     private Set<String> toSet(String value){
@@ -458,7 +468,10 @@ public class ClusterManagerImpl implements ClusterManager{
 
     @Override
     @Lock(LockType.READ)
-    public Set<String> getNodeIds() {        
-        return nodeRoles.keySet();
+    public Set<String> getNodeIds() {
+        logger.trace("Start getNodeIds");
+        Set<String> result = nodeRoles.keySet();
+        logger.trace("End getNodeIds {}", result);
+        return result;
     }
 }
