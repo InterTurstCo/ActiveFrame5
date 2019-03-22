@@ -9,6 +9,8 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.ejb.Local;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Remote;
 import javax.ejb.Singleton;
 import javax.interceptor.Interceptors;
@@ -280,6 +282,8 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         return result;
     }
 
+    @Lock(LockType.READ)
+    @Override
     public List<SheduleTaskReestrItem> getSheduleTaskReestrItems(boolean singletonOnly) {
         List<SheduleTaskReestrItem> result = new ArrayList<SheduleTaskReestrItem>();
         for (SheduleTaskReestrItem item : reestr.values()) {
@@ -294,19 +298,25 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         return result;
     }
 
+    @Lock(LockType.READ)
+    @Override
     public SheduleTaskReestrItem getSheduleTaskReestrItem(String className) {
         return reestr.get(className);
     }
 
+    @Lock(LockType.READ)
+    @Override
     public ScheduleTaskHandle getSheduleTaskHandle(String className) {
         return reestr.get(className).getScheduleTask();
     }
 
+    @Lock(LockType.READ)
     @Override
     public boolean isLoaded() {
         return isLoaded;
     }
 
+    @Lock(LockType.READ)
     @Override
     public boolean isEnable() {
         return enable;
@@ -352,9 +362,9 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         return result;
     }
     
+    @Lock(LockType.READ)
     @Override
     public boolean taskNeedsTransaction(String className) {
         return !reestr.get(className).getConfiguration().taskTransactionalManagement();
     }
-
 }

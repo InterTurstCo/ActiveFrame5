@@ -377,7 +377,7 @@ public class GlobalCacheImpl implements GlobalCache {
 
     public void notifyCollectionCountRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                                           int count, long time, AccessToken accessToken) {
-        notifyCollectionRead(
+        notifyCollectionReadLocal(
                 new NamedCollectionTypesKey(name, filterNames),
                 new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, null, 0, 0),
                 domainObjectTypes, null, count, time, accessToken);
@@ -386,7 +386,7 @@ public class GlobalCacheImpl implements GlobalCache {
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                                      SortOrder sortOrder, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        notifyCollectionRead(
+        notifyCollectionReadLocal(
                 new NamedCollectionTypesKey(name, filterNames),
                 new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, sortOrder, offset, limit),
                 domainObjectTypes, collection, -1, time, accessToken);
@@ -395,7 +395,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyCollectionRead(String transactionId, String query, Set<String> domainObjectTypes, List<? extends Value> paramValues,
                                      int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        notifyCollectionRead(
+        notifyCollectionReadLocal(
                 new QueryCollectionTypesKey(query),
                 new QueryCollectionSubKey(getUserSubject(accessToken), paramValues, offset, limit),
                 domainObjectTypes, collection, -1, time, accessToken);
@@ -1252,6 +1252,11 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
+            IdentifiableObjectCollection collection, int count, long time, AccessToken accessToken) {
+        notifyCollectionReadLocal(key, subKey, domainObjectTypes, collection, count, time, accessToken);
+    }    
+    
+    protected void notifyCollectionReadLocal(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
                                         IdentifiableObjectCollection collection, int count, long time, AccessToken accessToken) {
         if (collectionKeyTooLarge(subKey)) {
             return;

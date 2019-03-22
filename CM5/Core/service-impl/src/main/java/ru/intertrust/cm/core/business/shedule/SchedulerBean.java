@@ -395,7 +395,7 @@ public class SchedulerBean {
         return result;
     }
 
-    public ru.intertrust.cm.core.business.api.schedule.Schedule getScheduleFromTask(IdentifiableObject task) {
+    private ru.intertrust.cm.core.business.api.schedule.Schedule getScheduleFromTask(IdentifiableObject task) {
         try {
             ru.intertrust.cm.core.business.api.schedule.Schedule result = new ru.intertrust.cm.core.business.api.schedule.Schedule();
             result.setDayOfMonth(task.getString(SCHEDULE_DAY_OF_MONTH));
