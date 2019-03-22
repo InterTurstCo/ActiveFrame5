@@ -52,4 +52,10 @@ public class ClusterNodeInfo implements Dto {
     public void setActiveRoles(Set<String> activeRoles) {
         this.activeRoles = activeRoles;
     }
+
+    @Override
+    public String toString() {
+        return "ClusterNodeInfo [nodeId=" + nodeId + ", nodeName=" + nodeName + ", lastAvailable=" + lastAvailable + ", availableRoles=" + availableRoles
+                + ", activeRoles=" + activeRoles + "]";
+    }
 }

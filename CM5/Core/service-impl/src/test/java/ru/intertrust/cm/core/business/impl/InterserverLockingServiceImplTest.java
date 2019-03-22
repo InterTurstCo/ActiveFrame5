@@ -5,37 +5,54 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Matchers.any;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.security.RunAs;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Local;
+import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
+import javax.ejb.Timer;
+import javax.ejb.TimerConfig;
+import javax.ejb.TimerService;
 import javax.interceptor.Interceptors;
+import javax.transaction.UserTransaction;
 
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 
 public class InterserverLockingServiceImplTest {
-
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
     private InterserverLockingServiceImpl first = testInstance();
 
     private InterserverLockingServiceImpl testInstance(final long overdue) {
-        return new InterserverLockingServiceImpl() {
+        InterserverLockingServiceImpl result = new InterserverLockingServiceImpl() {
             @Override
             protected InterserverLockingDao getInterserverLockingDao() {
                 return new FakeInterserverLockingDao();
@@ -46,10 +63,59 @@ public class InterserverLockingServiceImplTest {
                 return overdue > 0 ? overdue : super.getLockMaxOverdue();
             }
         };
+        
+        mockJ2eeObjects(result);
+        return result;        
+    }
+    
+    private void mockJ2eeObjects(final InterserverLockingServiceImpl service) {
+        UserTransaction userTransaction = mock(UserTransaction.class);
+        SessionContext sessionContext = mock(SessionContext.class);
+        when(sessionContext.getUserTransaction()).thenReturn(userTransaction);
+        
+        TimerService timerService = mock(TimerService.class);
+        when(timerService.createIntervalTimer(any(Date.class), any(Long.class), any(TimerConfig.class))).then(new Answer<Timer>() {
+
+            @Override
+            public Timer answer(InvocationOnMock invocation) throws Throwable {
+                final Timer timer = mock(Timer.class);
+                
+                // Timer.getInfo()
+                when(timer.getInfo()).thenReturn(invocation.getArgumentAt(2, TimerConfig.class).getInfo());
+
+                // onTimeout() имитация счетчика
+                final ScheduledFuture future = executorService.scheduleWithFixedDelay(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                ReflectionTestUtils.invokeMethod(service, "onTimeout", timer);
+                            }
+                        },
+                        invocation.getArgumentAt(0, Date.class).getTime() - System.currentTimeMillis(),
+                        invocation.getArgumentAt(1, Long.class), 
+                        TimeUnit.MILLISECONDS);
+
+                // Timer.cancel()
+                doAnswer(new Answer<Void>() {
+                    @Override
+                    public Void answer(InvocationOnMock invocation) throws Throwable {
+                        future.cancel(true);
+                        return null;
+                    }
+                }).when(timer).cancel();
+                
+                return timer;
+            }
+            
+        });
+        
+        ReflectionTestUtils.setField(service, "sessionContext", sessionContext);
+        ReflectionTestUtils.setField(service, "timerService", timerService);
+        
     }
 
     private InterserverLockingServiceImpl testInstance(final long overdue, final long refresh) {
-        return new InterserverLockingServiceImpl() {
+        InterserverLockingServiceImpl result = new InterserverLockingServiceImpl() {
             @Override
             protected InterserverLockingDao getInterserverLockingDao() {
                 return new FakeInterserverLockingDao();
@@ -65,6 +131,9 @@ public class InterserverLockingServiceImplTest {
                 return refresh;
             }
         };
+        
+        mockJ2eeObjects(result);
+        return result;
     }
 
     private InterserverLockingServiceImpl testInstance() {
@@ -194,6 +263,7 @@ public class InterserverLockingServiceImplTest {
             }
         };
         first.lock("abc");
+        assertTrue(second.isLocked("abc"));
         thread.start();
         second.waitUntilNotLocked("abc");
         assertFalse(second.isLocked("abc"));
