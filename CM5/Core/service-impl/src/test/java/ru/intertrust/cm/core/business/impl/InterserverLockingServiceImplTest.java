@@ -7,10 +7,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Matchers.any;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.security.RunAs;
@@ -30,6 +35,8 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -38,7 +45,7 @@ import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 
 public class InterserverLockingServiceImplTest {
-
+    private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -61,14 +68,46 @@ public class InterserverLockingServiceImplTest {
         return result;        
     }
     
-    private void mockJ2eeObjects(InterserverLockingServiceImpl service) {
+    private void mockJ2eeObjects(final InterserverLockingServiceImpl service) {
         UserTransaction userTransaction = mock(UserTransaction.class);
         SessionContext sessionContext = mock(SessionContext.class);
         when(sessionContext.getUserTransaction()).thenReturn(userTransaction);
         
         TimerService timerService = mock(TimerService.class);
-        Timer timer = mock(Timer.class);
-        when(timerService.createIntervalTimer(any(Date.class), any(Long.class), any(TimerConfig.class))).thenReturn(timer);
+        when(timerService.createIntervalTimer(any(Date.class), any(Long.class), any(TimerConfig.class))).then(new Answer<Timer>() {
+
+            @Override
+            public Timer answer(InvocationOnMock invocation) throws Throwable {
+                final Timer timer = mock(Timer.class);
+                
+                // Timer.getInfo()
+                when(timer.getInfo()).thenReturn(invocation.getArgumentAt(2, TimerConfig.class).getInfo());
+
+                // onTimeout() имитация счетчика
+                final ScheduledFuture future = executorService.scheduleWithFixedDelay(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                ReflectionTestUtils.invokeMethod(service, "onTimeout", timer);
+                            }
+                        },
+                        invocation.getArgumentAt(0, Date.class).getTime() - System.currentTimeMillis(),
+                        invocation.getArgumentAt(1, Long.class), 
+                        TimeUnit.MILLISECONDS);
+
+                // Timer.cancel()
+                doAnswer(new Answer<Void>() {
+                    @Override
+                    public Void answer(InvocationOnMock invocation) throws Throwable {
+                        future.cancel(true);
+                        return null;
+                    }
+                }).when(timer).cancel();
+                
+                return timer;
+            }
+            
+        });
         
         ReflectionTestUtils.setField(service, "sessionContext", sessionContext);
         ReflectionTestUtils.setField(service, "timerService", timerService);
@@ -209,7 +248,6 @@ public class InterserverLockingServiceImplTest {
     }
 
     @Test
-    @Ignore
     public void testWaitUntilNotLocked() {
         first = testInstance(1000, 300);
         second = testInstance(1000, 300);
@@ -225,6 +263,7 @@ public class InterserverLockingServiceImplTest {
             }
         };
         first.lock("abc");
+        assertTrue(second.isLocked("abc"));
         thread.start();
         second.waitUntilNotLocked("abc");
         assertFalse(second.isLocked("abc"));
