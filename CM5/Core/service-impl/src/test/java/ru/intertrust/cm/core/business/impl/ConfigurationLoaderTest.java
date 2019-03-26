@@ -1,14 +1,17 @@
 package ru.intertrust.cm.core.business.impl;
 
+import static org.mockito.Mockito.verify;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.DomainObjectLogicalValidator;
-
-import static org.mockito.Mockito.verify;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * @author vmatsukevich
@@ -19,12 +22,19 @@ import static org.mockito.Mockito.verify;
 public class ConfigurationLoaderTest {
 
     @InjectMocks
-    private ConfigurationLoader configurationLoader = new ConfigurationLoader();
+    private ConfigurationLoader configurationLoader;
     @Mock
     private ConfigurationLoadService configurationLoadService;
     @Mock
-    DomainObjectLogicalValidator logicalValidator;
+    private DomainObjectLogicalValidator logicalValidator;
+    @Mock
+    private SpringApplicationContext applicationContext;    
 
+    @Before
+    public void init() {
+        new SpringApplicationContext().setApplicationContext(null);
+    }
+    
     @Test
     public void testLoad() throws Exception {
         configurationLoader.load();
