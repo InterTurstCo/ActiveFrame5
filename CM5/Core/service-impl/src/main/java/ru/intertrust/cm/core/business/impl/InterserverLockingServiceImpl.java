@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
@@ -14,10 +15,6 @@ import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Local;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
-import javax.ejb.Timeout;
-import javax.ejb.Timer;
-import javax.ejb.TimerConfig;
-import javax.ejb.TimerService;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
@@ -40,14 +37,10 @@ import ru.intertrust.cm.core.model.FatalException;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class InterserverLockingServiceImpl implements InterserverLockingService {
-    
+
     @Resource
     private SessionContext sessionContext;
 
-    @Resource
-    private TimerService timerService;
-    
-    
     private static final long LOCK_OVERDUE_MS = 10000;
     private static final long LOCK_REFRESH_PERIOD_MS = 3000;
 
@@ -60,97 +53,6 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
 
     private final ConcurrentHashMap<String, ScheduledFutureEx> heldLocks = new ConcurrentHashMap<>();
 
-    public enum TimerType{
-        lock,
-        selfSharedLock,
-        waitUntilNotLocked
-    }
-    
-    public class TimerInfo implements Serializable{
-        private TimerType timerType;
-        private String resourceId;
-        private Semaphore semaphore;
-        
-        public TimerInfo(TimerType timerType, String resourceId) {
-            this.timerType = timerType;
-            this.resourceId = resourceId;
-        }
-
-        public TimerInfo(TimerType timerType, String resourceId, Semaphore semaphore) {
-            this.timerType = timerType;
-            this.resourceId = resourceId;
-            this.semaphore = semaphore;
-        }
-
-        public TimerType getTimerType() {
-            return timerType;
-        }
-
-        public String getResourceId() {
-            return resourceId;
-        }
-
-        public Semaphore getSemaphore() {
-            return semaphore;
-        }
-    }
-    
-    /**
-     * Метод обработки таймеров
-     * @param timer
-     */
-    @Timeout
-    public void onTimeout(Timer timer) {
-        TimerInfo timerInfo = (TimerInfo)timer.getInfo();
-        logger.trace("Start onTimeout type:{}; resourceId:{}", timerInfo.getTimerType(), timerInfo.getResourceId());
-        if (timerInfo.getTimerType().equals(TimerType.lock)) {
-            // Таймер блокировки lock
-            logger.debug("Start lock scheduler task");
-            try {
-                sessionContext.getUserTransaction().begin();
-                getInterserverLockingDao().updateLock(timerInfo.getResourceId(), new Date());
-                sessionContext.getUserTransaction().commit();
-            } catch (Exception ex) {
-                heldLocks.remove(timerInfo.getResourceId());
-                logger.error("Error while updating lock on resource " + timerInfo.getResourceId() + ". Lock released.", ex);
-                try {
-                    sessionContext.getUserTransaction().rollback();
-                } catch (Exception ignoreEx) {
-                    logger.warn("Error rollback transaction", ignoreEx);
-                }
-            }            
-        }else if (timerInfo.getTimerType().equals(TimerType.selfSharedLock)) {
-            // Таймер блокировки selfSharedLock
-            logger.debug("Start lock scheduler task");
-            try {
-                sessionContext.getUserTransaction().begin();
-                Date newDate = new Date();
-                ScheduledFutureEx future = heldLocks.get(timerInfo.getResourceId());
-                Date oldDate = future != null ? future.getLockTime() : null;
-                getInterserverLockingDao().updateLock(timerInfo.getResourceId(), oldDate, newDate);
-                if (future != null) {
-                    future.setLockTime(newDate);
-                }
-                sessionContext.getUserTransaction().commit();
-            } catch (Exception ex) {
-                heldLocks.remove(timerInfo.getResourceId());
-                logger.error("Error while updating lock on resource " + timerInfo.getResourceId() + ". Lock released.", ex);
-                try {
-                    sessionContext.getUserTransaction().rollback();
-                } catch (Exception ignoreEx) {
-                    logger.warn("Error rollback transaction", ignoreEx);
-                }                    
-            }
-        }else if (timerInfo.getTimerType().equals(TimerType.waitUntilNotLocked)) {
-            // Таймер блокировки waitUntilNotLocked
-            if (!isLocked(timerInfo.getResourceId())) {
-                timerInfo.getSemaphore().release();
-                logger.debug("Resource {} unlocked", timerInfo.getResourceId());
-            }
-        }
-        logger.trace("End onTimeout");
-    }    
-    
     @Override
     public synchronized boolean lock(final String resourceId) {
         logger.trace("Start lock {}", resourceId);
@@ -164,13 +66,30 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         }
 
         if (result) {
-            Timer timer = timerService.createIntervalTimer(new Date(System.currentTimeMillis() + getLockRefreshPeriod()),
-                    getLockRefreshPeriod(), new TimerConfig(new TimerInfo(TimerType.lock, resourceId), false));
-            ScheduledFutureEx future = new ScheduledFutureEx(timer);
+            ScheduledFutureEx future = new ScheduledFutureEx(getExecutorService().scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    logger.trace("Start lock scheduler task " + resourceId);
+                    try {
+                        sessionContext.getUserTransaction().begin();
+                        getInterserverLockingDao().updateLock(resourceId, new Date());
+                        sessionContext.getUserTransaction().commit();
+                    } catch (Exception ex) {
+                        heldLocks.remove(resourceId);
+                        logger.error("Error while updating lock on resource " + resourceId + ". Lock released.", ex);
+                        try {
+                            sessionContext.getUserTransaction().rollback();
+                        } catch (Exception ignoreEx) {
+                            logger.warn("Error rollback transaction", ignoreEx);
+                        }
+                    }
+                    logger.trace("End lock scheduler task " + resourceId);
+                }
+            }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS));
 
             future = heldLocks.put(resourceId, future);
             if (future != null) {
-                future.cancel();
+                future.cancel(true);
             }
         }
         logger.trace("End lock {} return {}", resourceId, result);
@@ -193,29 +112,51 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         } catch (DuplicateKeyException ex) {
             result = false;
         }
-        
+
         if (result && lockStatus != LOCK_STATUS.OWN_LOCK) {
-        
-            Timer timer = timerService.createIntervalTimer(new Date(System.currentTimeMillis() + getLockRefreshPeriod()), 
-                    getLockRefreshPeriod(), new TimerConfig(new TimerInfo(TimerType.selfSharedLock, resourceId), false));        
-            ScheduledFutureEx future = new ScheduledFutureEx(timer, lockTime);        
-    
+
+            ScheduledFutureEx future = new ScheduledFutureEx(getExecutorService().scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    logger.trace("Start selfSharedLock scheduler task " + resourceId);
+                    try {
+                        sessionContext.getUserTransaction().begin();
+                        Date newDate = new Date();
+                        ScheduledFutureEx future = heldLocks.get(resourceId);
+                        Date oldDate = future != null ? future.getLockTime() : null;
+                        getInterserverLockingDao().updateLock(resourceId, oldDate, newDate);
+                        if (future != null) {
+                            future.setLockTime(newDate);
+                        }
+                        sessionContext.getUserTransaction().commit();
+                    } catch (Exception ex) {
+                        heldLocks.remove(resourceId);
+                        logger.error("Error while updating lock on resource " + resourceId + ". Lock released.", ex);
+                        try {
+                            sessionContext.getUserTransaction().rollback();
+                        } catch (Exception ignoreEx) {
+                            logger.warn("Error rollback transaction", ignoreEx);
+                        }
+                    }
+                    logger.trace("End selfSharedLock scheduler task " + resourceId);
+                }
+            }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS), lockTime);
             future = heldLocks.put(resourceId, future);
             if (future != null) {
-                future.cancel();
+                future.cancel(true);
             }
         }
         logger.trace("End selfSharedLock {} return {}", resourceId, result);
         return result;
     }
-    
+
     private boolean transactionalLock(final String resourceId) {
         try {
             sessionContext.getUserTransaction().begin();
             Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
             Date lockTime = getInterserverLockingDao().getLastLockTime(resourceId);
             if (lockTime == null) {
-    
+
             } else if (lockTime.before(overdue)) {
                 if (!getInterserverLockingDao().unlock(resourceId, lockTime)) {
                     return false;
@@ -225,7 +166,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
             }
             if (!getInterserverLockingDao().lock(resourceId, new Date())) {
                 return false;
-            }            
+            }
             return true;
         } catch (Exception ex) {
             try {
@@ -234,17 +175,17 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                 logger.warn("Error rollback transaction", ignoreEx);
             }
             throw new FatalException("Error transactionalLock", ex);
-        }finally {
+        } finally {
             try {
                 if (sessionContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
                     sessionContext.getUserTransaction().commit();
                 }
             } catch (Exception ignoreEx) {
                 logger.warn("Error commit transaction", ignoreEx);
-            }            
+            }
         }
     }
-    
+
     /**
      * Попытка заблокировать ресурс, с учетом того, какой сервер пытается
      * наложить блокировку.
@@ -317,7 +258,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         logger.trace("Start unlock {}", resourceId);
         ScheduledFutureEx future = heldLocks.get(resourceId);
         if (future != null) {
-            future.cancel();
+            future.cancel(true);
             getInterserverLockingDao().unlock(resourceId);
             heldLocks.remove(resourceId);
             logger.trace("End unlock {}", resourceId);
@@ -343,45 +284,52 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         logger.trace("Start waitUntilNotLocked {}", resourceId);
 
         final Semaphore semaphore = new Semaphore(0);
-        
-        Timer timer = timerService.createIntervalTimer(new Date(System.currentTimeMillis() + getLockRefreshPeriod()), 
-                getLockRefreshPeriod(), new TimerConfig(new TimerInfo(TimerType.waitUntilNotLocked, resourceId, semaphore), false));           
-        
+
+        final ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                if (!isLocked(resourceId)) {
+                    semaphore.release();
+                    logger.debug("Resource {} unlocked", resourceId);
+                }
+            }
+        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS);
+
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        timer.cancel();
+        future.cancel(true);
         logger.trace("End waitUntilNotLocked {}", resourceId);
     }
 
     private class ScheduledFutureEx {
-        private final Timer timer;
+        private final ScheduledFuture<?> scheduledFuture;
         private Date lockTime;
-        
-        private ScheduledFutureEx(Timer timer) {
-            this(timer, null);
+
+        private ScheduledFutureEx(ScheduledFuture<?> scheduledFuture) {
+            this(scheduledFuture, null);
         }
 
-        private ScheduledFutureEx(Timer timer, Date lockTime) {
-            this.timer = timer;
+        private ScheduledFutureEx(ScheduledFuture<?> scheduledFuture, Date lockTime) {
+            this.scheduledFuture = scheduledFuture;
             this.lockTime = lockTime;
         }
-        
+
         private Date getLockTime() {
             return lockTime;
         }
-        
+
         private void setLockTime(Date lockTime) {
             this.lockTime = lockTime;
         }
-        
-        private void cancel() {
-            timer.cancel();
+
+        private void cancel(boolean mayInterruptIfRunning) {
+            scheduledFuture.cancel(mayInterruptIfRunning);
         }
     }
-    
+
     /**
      * Статус блокировки.
      * @author mike
@@ -397,7 +345,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         /** Нет блокировки */
         NO_LOCK
     }
-    
+
     /**
      * Результат попытки наложения блокировки.
      * @author mike
@@ -406,19 +354,19 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     private class LockResult {
         private final LOCK_STATUS lockStatus;
         private final Date lockTime;
-        
+
         private LockResult(LOCK_STATUS lockStatus, Date lockTime) {
             this.lockStatus = lockStatus;
             this.lockTime = lockTime;
         }
-        
+
         private Date getLockTime() {
             return lockTime;
         }
-        
+
         private LOCK_STATUS getLockStatus() {
             return lockStatus;
         }
-        
+
     }
 }
