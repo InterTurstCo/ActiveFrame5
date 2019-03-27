@@ -22,6 +22,7 @@ import javax.interceptor.Interceptors;
 import javax.transaction.UserTransaction;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,7 +37,14 @@ public class InterserverLockingServiceImplTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private InterserverLockingServiceImpl first = testInstance();
+    private InterserverLockingServiceImpl first;
+    private InterserverLockingServiceImpl second;
+    
+    @Before
+    public void init() {
+        first = testInstance();
+        second = testInstance();
+    }
 
     private InterserverLockingServiceImpl testInstance(final long overdue) {
         InterserverLockingServiceImpl result = new InterserverLockingServiceImpl() {
@@ -89,7 +97,6 @@ public class InterserverLockingServiceImplTest {
         return testInstance(0);
     }
 
-    private InterserverLockingServiceImpl second = testInstance();
 
     public static class FakeInterserverLockingDao implements InterserverLockingDao {
 
@@ -143,48 +150,48 @@ public class InterserverLockingServiceImplTest {
 
     @Test
     public void testLock() {
-        assertFalse(second.isLocked("abc"));
-        first.lock("abc");
-        assertTrue(second.isLocked("abc"));
+        assertFalse(second.isLocked("testLock"));
+        first.lock("testLock");
+        assertTrue(second.isLocked("testLock"));
     }
 
     @Test
     public void testUnlock() {
-        first.lock("abc");
-        first.unlock("abc");
-        assertFalse(second.isLocked("abc"));
+        first.lock("testUnlock");
+        first.unlock("testUnlock");
+        assertFalse(second.isLocked("testUnlock"));
     }
 
     @Test
     public void testUnlockAfterRelock() throws InterruptedException {
         first = testInstance(1000, 300);
-        first.lock("abc");
+        first.lock("testUnlockAfterRelock");
         Thread.sleep(1000);
-        first.unlock("abc");
+        first.unlock("testUnlockAfterRelock");
     }
 
     @Test
     public void testOnlyLockerCanUnlock() {
         thrown.expect(RuntimeException.class);
-        first.lock("abc");
-        second.unlock("abc");
+        first.lock("testOnlyLockerCanUnlock");
+        second.unlock("testOnlyLockerCanUnlock");
     }
 
     @Test
     public void testCantLockLocked() {
-        first.lock("abc");
-        assertFalse(second.lock("abc"));
+        first.lock("testCantLockLocked");
+        assertFalse(second.lock("testCantLockLocked"));
     }
 
     @Test
     public void testAutoUnlock() throws InterruptedException {
         first = testInstance(200);
         second = testInstance(200);
-        first.lock("abc");
+        first.lock("testAutoUnlock");
         first.getExecutorService().shutdownNow();
         first.getExecutorService().awaitTermination(5, TimeUnit.SECONDS);
         Thread.sleep(400);
-        second.lock("abc");
+        second.lock("testAutoUnlock");
     }
 
     @Test
@@ -208,14 +215,14 @@ public class InterserverLockingServiceImplTest {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                first.unlock("abc");
+                first.unlock("testWaitUntilNotLocked");
             }
         };
-        first.lock("abc");
-        assertTrue(second.isLocked("abc"));
+        first.lock("testWaitUntilNotLocked");
+        assertTrue(second.isLocked("testWaitUntilNotLocked"));
         thread.start();
-        second.waitUntilNotLocked("abc");
-        assertFalse(second.isLocked("abc"));
+        second.waitUntilNotLocked("testWaitUntilNotLocked");
+        assertFalse(second.isLocked("testWaitUntilNotLocked"));
     }
 
 }
