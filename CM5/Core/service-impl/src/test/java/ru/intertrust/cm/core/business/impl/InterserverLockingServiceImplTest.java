@@ -23,6 +23,7 @@ import javax.transaction.UserTransaction;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -204,6 +205,7 @@ public class InterserverLockingServiceImplTest {
     }
 
     @Test
+    @Ignore
     public void testWaitUntilNotLocked() {
         first = testInstance(1000, 300);
         second = testInstance(1000, 300);
