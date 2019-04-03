@@ -408,7 +408,7 @@ public class CollectionPluginView extends PluginView {
 
         }
         CollectionRowsRequest request = createCollectionRowsRequest();
-        collectionRowRequestCommand(request);
+        collectionRowRequestCommand(request, false);
       }
     }));
     //показать/спрятать панель поиска в таблицы
@@ -583,8 +583,12 @@ public class CollectionPluginView extends PluginView {
   }
 
   private void fetchData() {
+    fetchData(false);
+  }
+
+  private void fetchData(boolean isScrollEvent) {
     CollectionRowsRequest request = createRequest();
-    collectionRowRequestCommand(request);
+    collectionRowRequestCommand(request, isScrollEvent);
   }
 
   public CollectionRowsRequest createRequest() {
@@ -997,6 +1001,10 @@ public class CollectionPluginView extends PluginView {
   }
 
   private void collectionRowRequestCommand(final CollectionRowsRequest collectionRowsRequest) {
+    collectionRowRequestCommand(collectionRowsRequest, false);
+  }
+
+  private void collectionRowRequestCommand(final CollectionRowsRequest collectionRowsRequest, final boolean isScrollEvent) {
 
     clearScrollHandler();
     //(CollectionViewerConfig) plugin.getConfig();
@@ -1024,6 +1032,10 @@ public class CollectionPluginView extends PluginView {
         CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
         List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
         handleCollectionRowsResponse(collectionRowItems, false);
+        if (isScrollEvent) {
+          updateCheckBoxesForNewItems(collectionRowItems);
+        }
+        
         /**
          * Этот ивент обрабатывается только в TableViewer, когда CollectionViewer используется внутри него
          */
@@ -1065,6 +1077,26 @@ public class CollectionPluginView extends PluginView {
     columnHeaderController.setFocus();
   }
 
+  private boolean isHeaderCheckBoxChecked() {
+    if (tableBody.getHeader(0) instanceof CollectionColumnHeader) {
+      CollectionColumnHeader cch = (CollectionColumnHeader) tableBody.getHeader(0);
+      if (cch.getHeaderWidget() instanceof CheckBoxHeaderWidget) {
+        CheckBoxHeaderWidget check = (CheckBoxHeaderWidget) cch.getHeaderWidget();
+        return check.isChecked();
+      }
+    }
+    return false;
+  }
+  private void updateCheckBoxesForNewItems(List<CollectionRowItem> collectionRowItems) {
+    if (collectionRowItems!=null && collectionRowItems.size()>0) {
+      if (isHeaderCheckBoxChecked()) {
+        for (CollectionRowItem item : collectionRowItems) {
+          updateCheckboxSelection(item, true);
+        }
+      }
+    }
+  }
+  
   private void setUpScrollSelection() {
     Set<Id> selectedItems = prepareSelectedIds();
     if (WidgetUtil.containsOneElement(selectedItems)) {
@@ -1169,7 +1201,7 @@ public class CollectionPluginView extends PluginView {
           sortCollectionState.setResetCollection(false);
         }
 
-        fetchData();
+        fetchData(true);
       }
     }
 
