@@ -48,7 +48,9 @@ public class IndexesRowMapper implements ResultSetExtractor<Map<String, Map<Stri
                 indexInfo.setTableName(tableName);
             }
 
-            indexInfo.getColumnNames().add(rs.getString("column_name"));
+            if (rs.getString("column_name") != null) {
+                indexInfo.getColumnNames().add(rs.getString("column_name"));
+            }
         }
 
         return result;
