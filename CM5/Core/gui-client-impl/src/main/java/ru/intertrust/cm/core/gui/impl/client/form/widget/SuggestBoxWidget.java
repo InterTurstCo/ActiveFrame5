@@ -956,4 +956,21 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             return EMPTY_VALUE.equalsIgnoreCase(suggestBox.getText());
         }
     }
+
+    /**
+     * Устанавливает фокус на GWT-объект {@link com.google.gwt.user.client.ui.SuggestBox саджест-бокса}, лежащего в основе виджета.<br>
+     * У саджест-бокса есть свой метод для этого, кроме того, он не имплементирует {@link com.google.gwt.user.client.ui.FocusWidget FocusWidget},<br>
+     * поэтому метод переопределен.
+     *
+     * @return true - результат установки фокуса (в данном случае он устанавливается всегда).
+     */
+    @Override
+    public boolean focus() {
+        SuggestPresenter presenter = (SuggestPresenter) impl;
+        final SuggestBox gwtSuggestBox = presenter.suggestBox;
+
+        GuiUtil.focusSuggestBoxWidget(gwtSuggestBox);
+        return true;
+    }
+
 }

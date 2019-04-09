@@ -27,10 +27,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -433,4 +430,93 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     public String getFormIdentifier() {
         return formDisplayData.getFormState().getName();
     }
+
+    /**
+     * Проверяет есть ли хотя бы одна вкладка на форме.
+     *
+     * @return true - есть<br>
+     * false - ни одной вкладки нет
+     */
+    private boolean hasAnyTab() {
+        final TabBar tabBar = bodyTabPanel.getTabBar();
+        final int selectedTabIndex = tabBar.getSelectedTab();
+
+        boolean hasAnyTab = (selectedTabIndex == -1) ? false : true;
+        return hasAnyTab;
+    }
+
+    /**
+     * Возвращает набор идентификаторов виджетов, расположенных на вкладках<br>
+     *
+     * @return набор идентификаторов виджетов на вкладках;<br>
+     * пустой набор, если их нет (виджетов, либо самих вкладок как таковых)
+     */
+    public Set<String> getAllTabsWidgetIds() {
+        if (hasAnyTab()) {
+
+            Set<String> allTabsWidgetIdsSet = new HashSet<>();
+            final int tabsCount = tabs.size();
+
+            for (int index = 0; index < tabsCount; index++) {
+                final Set<String> tabWidgetIds = getTabWidgetIds(index);
+                allTabsWidgetIdsSet.addAll(tabWidgetIds);
+            }
+            return allTabsWidgetIdsSet;
+        }
+        return new HashSet<>();
+    }
+
+    /**
+     * Возвращает набор идентификаторов виджетов, расположенных на выбранной вкладке<br>
+     *
+     * @return набор идентификаторов виджетов на выбранной вкладке;<br>
+     * пустой набор, если их нет (виджетов, либо самих вкладок как таковых)
+     */
+    public Set<String> getSelectedTabWidgetIds() {
+        if (hasAnyTab()) {
+            final TabBar tabBar = bodyTabPanel.getTabBar();
+            final int selectedTabIndex = tabBar.getSelectedTab();
+
+            final Set<String> tabWidgetIds = getTabWidgetIds(selectedTabIndex);
+            return tabWidgetIds;
+        }
+        return new HashSet<>();
+    }
+
+    /**
+     * Возвращает набор идентификаторов виджетов, расположенных на вкладке с указанным индексом<br>
+     *
+     * @param tabIndex индекс вкладки
+     * @return набор идентификаторов виджетов на вкладке с указанным индексом;<br>
+     * пустой набор, если их нет (виджетов, либо самих вкладок как таковых)
+     */
+    private Set<String> getTabWidgetIds(int tabIndex) {
+        if (hasAnyTab()) {
+            Set<String> widgetIdsSet = new HashSet<>();
+            final TabConfig selectedTabConfig = tabs.get(tabIndex);
+
+            final TabGroupListConfig groupList = selectedTabConfig.getGroupList();
+            final List<TabGroupConfig> tabGroupConfigsList = groupList.getTabGroupConfigs();
+
+            for (TabGroupConfig tabGroupConfig : tabGroupConfigsList) {
+                final TableLayoutConfig layout = tabGroupConfig.getLayout();
+                final List<RowConfig> rowConfigsList = layout.getRows();
+
+                for (RowConfig rowConfig : rowConfigsList) {
+                    final List<CellConfig> cellConfigsList = rowConfig.getCells();
+
+                    for (CellConfig cellConfig : cellConfigsList) {
+
+                        final WidgetDisplayConfig widgetDisplayConfig = cellConfig.getWidgetDisplayConfig();
+                        final String widgetId = widgetDisplayConfig.getId();
+
+                        widgetIdsSet.add(widgetId);
+                    }
+                }
+            }
+            return widgetIdsSet;
+        }
+        return new HashSet<>();
+    }
+
 }
