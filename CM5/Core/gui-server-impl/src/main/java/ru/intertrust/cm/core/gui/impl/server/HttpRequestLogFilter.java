@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
@@ -10,7 +9,6 @@ import ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -42,7 +40,7 @@ public class HttpRequestLogFilter extends CommonsRequestLoggingFilter {
     @Value("${http.request.log.excluded.patterns:#{null}}")
     private String excludePatterns;
 
-    @EJB
+    @Inject
     private List<HttpRequestFilterUser> beanList;
 
     @PostConstruct
