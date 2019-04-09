@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
@@ -33,6 +34,7 @@ import java.util.Map;
  *         Time: 14:40
  */
 public abstract class BaseWidget extends BaseComponent implements IsWidget, CanBeValidated {
+
     protected static final String TEXT_BOX = "text-box_";
     protected static final String TEXT_AREA = "text-area_";
     protected static final String RADIO_BUTTON = "radio_button_";
@@ -254,6 +256,18 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     public void clearErrors() {
         impl.setTitle(null);
         impl.removeStyleName("validation-error");
+    }
+
+    /**
+     * Устанавливает фокус на лежащий в основе GWT-виджет, если это возможно<br>
+     * (виджет должен имплементировать интерфейс {@link com.google.gwt.user.client.ui.FocusWidget FocusWidget})
+     *
+     * @return true - фокус был установлен<br>
+     * false - не был
+     */
+    public boolean focus() {
+        final boolean isFocused = GuiUtil.focusWidget(impl);
+        return isFocused;
     }
 
     public WidgetsContainer getContainer() {

@@ -1,16 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Document;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.InlineHTML;
-import com.google.gwt.user.client.ui.InlineHyperlink;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -403,4 +402,106 @@ public final class GuiUtil {
         }
         return result;
     }
+
+    /**
+     * Устанавливает фокус на указанный в параметре GWT-виджет, если это возможно<br>
+     * (виджет должен имплементировать интерфейс {@link com.google.gwt.user.client.ui.FocusWidget FocusWidget})
+     *
+     * @param gwtWidget объект GWT-виджета
+     * @return true - фокус был установлен<br>
+     * false - не был
+     */
+    public static boolean focusWidget(Widget gwtWidget) {
+        if (gwtWidget instanceof FocusWidget) {
+            GuiUtil.focusWidget((FocusWidget) gwtWidget);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Устанавливает фокус на указанный в параметре GWT-виджет, если это возможно:<br>
+     * <ul>
+     * <li>виджет должен имплементировать интерфейс {@link com.google.gwt.user.client.ui.FocusWidget FocusWidget}</li>
+     * <li>виджет должен быть редактируемым: ({@link ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget#isEditable} == true)</li>
+     * </ul>
+     *
+     * @param widget объект виджета
+     * @return true - фокус был установлен<br>
+     * false - не был
+     */
+    public static boolean focusEditableWidget(BaseWidget widget) {
+        if (widget.isEditable()) {
+            final boolean isFocused = widget.focus();
+            return isFocused;
+        }
+        return false;
+    }
+
+    /**
+     * Устанавливает фокус на указанный в параметре GWT-виджет.
+     *
+     * @param focusWidget объект GWT-виджета, на который нужно установить фокус ({@link com.google.gwt.user.client.ui.FocusWidget FocusWidget}).
+     */
+    private static void focusWidget(final FocusWidget focusWidget) {
+        if (focusWidget.isAttached()) {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+                @Override
+                public void execute() {
+                    focusWidget.setFocus(true);
+                }
+            });
+        } else {
+            focusWidget.addAttachHandler(new AttachEvent.Handler() {
+
+                @Override
+                public void onAttachOrDetach(AttachEvent event) {
+                    if (event.isAttached()) {
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+                            @Override
+                            public void execute() {
+                                focusWidget.setFocus(true);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Устанавливает фокус на указанный в параметре GWT-виджет саджест-бокса.
+     *
+     * @param gwtSuggestBox объект GWT-виджета саджест-бокса, на который нужно установить фокус.
+     */
+    public static void focusSuggestBoxWidget(final SuggestBox gwtSuggestBox) {
+        if (gwtSuggestBox.isAttached()) {
+            Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+                @Override
+                public void execute() {
+                    gwtSuggestBox.setFocus(true);
+                }
+            });
+        } else {
+            gwtSuggestBox.addAttachHandler(new AttachEvent.Handler() {
+
+                @Override
+                public void onAttachOrDetach(AttachEvent event) {
+                    if (event.isAttached()) {
+                        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+
+                            @Override
+                            public void execute() {
+                                gwtSuggestBox.setFocus(true);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+
 }
