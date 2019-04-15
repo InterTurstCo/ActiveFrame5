@@ -262,3 +262,11 @@ td .gwt-SuggestBox {
     padding-right: 15px;
     min-height: 56px;
 }
+
+.letter-style-90-percent-width .item {
+    max-width: 90%;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
