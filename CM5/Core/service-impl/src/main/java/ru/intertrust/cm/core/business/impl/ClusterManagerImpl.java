@@ -345,7 +345,7 @@ public class ClusterManagerImpl implements ClusterManager{
     private DomainObject getClusterManagerInfo() {
         List<DomainObject> clusterManagerInfos = crudService.findAll("cluster_manager");
         DomainObject clusterManager = null;
-        if (clusterManagerInfos.size() == 0) {
+        if (clusterManagerInfos==null || clusterManagerInfos.size() == 0) {
             clusterManager = crudService.createDomainObject("cluster_manager");
             clusterManager.setString("node_id", nodeId);
             clusterManager.setTimestamp("last_available", new Date());
