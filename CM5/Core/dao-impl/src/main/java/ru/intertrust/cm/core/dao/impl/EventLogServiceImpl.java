@@ -5,15 +5,19 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
@@ -33,6 +37,12 @@ public class EventLogServiceImpl implements EventLogService {
     @Autowired
     private DomainObjectDao domainObjectDao;
 
+    @Autowired
+    private CollectionsDao collectionsDao;
+
+    @Autowired
+    private PersonManagementServiceDao personManagementServiceDao;
+    
     @Autowired
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
@@ -341,6 +351,38 @@ public class EventLogServiceImpl implements EventLogService {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
         return domainObject;
+    }
+
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void clearEventLogs() {
+        Id groupId = personManagementServiceDao.getGroupId("InfoSecAuditor");
+        Id personId = currentUserAccessor.getCurrentUserId();
+
+        if (!personManagementServiceDao.isPersonInGroup(groupId, personId)){
+            throw new IllegalStateException("Not permitted");
+        }
+        
+        AccessToken token = getSystemAccessToken();
+
+        IdentifiableObjectCollection col = collectionsDao.findCollectionByQuery("select id from object_access_log", 0, 0, token);
+        List<Id> alObjects = new ArrayList<>();
+        for (IdentifiableObject obj: col) 
+            alObjects.add(obj.getId());
+        domainObjectDao.delete(alObjects, token);
+
+        col = collectionsDao.findCollectionByQuery("select id from user_event_log", 0, 0, token);
+        List<Id> ueObjects = new ArrayList<>();
+        for (IdentifiableObject obj: col)
+            ueObjects.add(obj.getId());
+        domainObjectDao.delete(ueObjects, token);
+
+        UserEventLogBuilder userEventLogBuilder = new UserEventLogBuilder();
+        userEventLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
+        userEventLogBuilder.setDate(new Date());
+        userEventLogBuilder.setEventType(EventLogType.CLEAR_EVENT_LOG.name());
+        saveUserEventLog(userEventLogBuilder);
     }
 
     /**

@@ -18,7 +18,8 @@ public interface EventLogService {
         LOGIN,
         LOGOUT,
         DOWNLOAD_ATTACHMENT,
-        ACCESS_OBJECT
+        ACCESS_OBJECT,
+        CLEAR_EVENT_LOG
     }
 
     String ACCESS_OBJECT_READ = "R";
@@ -50,4 +51,7 @@ public interface EventLogService {
     void doLogDomainObjectAccess(Id objectId, String accessType, boolean success);
 
     boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success);
+
+    void clearEventLogs();
+
 }

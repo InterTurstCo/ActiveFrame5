@@ -5,3 +5,4 @@ LOGOUT;User Logout
 DOWNLOAD_ATTACHMENT;Download attachment
 ACCESS_OBJECT;Access object
 ACCESS_COLLECTION;Access collection
+CLEAR_EVENT_LOG;Clear event log
