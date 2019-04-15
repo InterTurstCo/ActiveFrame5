@@ -253,4 +253,17 @@
             <field name="ticket" />
         </uniqueKey>
     </domain-object-type>        
+	
+	<domain-object-type name="person_alt_uids">
+        <fields>
+            <reference name="person" type="person" />
+            <string name="alter_uid" length="256" not-null="true" />
+            <string name="alter_uid_type" length="16" not-null="true"/>
+			<long name="idx" not-null="true" />
+        </fields>
+        <uniqueKey>
+        	<field name="alter_uid" />
+        	<field name="alter_uid_type" />
+        </uniqueKey>
+    </domain-object-type>	
 </configuration>

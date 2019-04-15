@@ -1,30 +1,43 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import javax.ejb.EJB;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
-import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
+import ru.intertrust.cm.core.gui.api.server.authentication.AuthenticationProvider;
+import ru.intertrust.cm.core.gui.api.server.authentication.SecurityConfig;
 import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
-import ru.intertrust.cm.core.gui.model.Client;
-
-import javax.ejb.EJB;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.StringTokenizer;
 
 /**
  * Фильтр HTTP запросов, осуществляющий аутентификацию пользователей
@@ -36,33 +49,55 @@ public class AuthenticationFilter implements Filter {
 
     private static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
     private static final String REMOTE = "/remote";
+    private static final String AF5_STRONG_SECURITY_DOMAIN = "af5.strong.security.domain";
 
     private ExtensionService extensionService;
 
     @EJB
     private ConfigurationService configurationService;
 
-    private BusinessUniverseConfig businessUniverseConfig;
+    @EJB
+    private ApplicationSecurityManager applicationSecurityManager;
+
+    private List<AuthenticationProvider> authenticationProviders;
+
+    private SecurityConfig securityConfig;
+
+    /**
+     * Домен безопасности для строгой непосредственной аутентификации
+     */
+    private String strongSecurityDomain;
+
+    /**
+     * Домен безопасности для доверенной аутентификации, должен совпадать с тем,
+     * что мы указали в файле jboss-app.xml
+     */
+    private String trustSecurityDomain;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         ApplicationContext ctx = WebApplicationContextUtils
                 .getRequiredWebApplicationContext(filterConfig.getServletContext());
         this.extensionService = ctx.getBean(ExtensionService.class);
+
+        // Получение разрешенных способов аутентификации
+        authenticationProviders = applicationSecurityManager.getAuthenticationProviders();
+
+        securityConfig = applicationSecurityManager.getSecurityConfig();
+
+        strongSecurityDomain = ctx.getEnvironment().getProperty(AF5_STRONG_SECURITY_DOMAIN);
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
-                BusinessUniverseConfig.NAME);
 
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession();
         String requestURI = request.getRequestURI();
 
-
-        if (isLoginPageRequest(requestURI)) { // происходит авторизация. разрешить этот запрос
+        // происходит отображение формы логина, разрешить этот запрос
+        if (isLoginPageRequest(requestURI)) {
             filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
@@ -72,107 +107,206 @@ public class AuthenticationFilter implements Filter {
         AuthenticationExtentionHandler authExtHandler = extensionService.getExtentionPoint(AuthenticationExtentionHandler.class, null);
         authExtHandler.onBeforeAuthentication(request, response);
 
-        UserCredentials credentials = (UserCredentials) session.getAttribute(
-                LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+        // Получение данных аутентификации из сесии
+        UserCredentials credentials = (UserCredentials) session.getAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
+        // Если не аутентифицированы, или сессия завершена то выполняем аутентификацию 
         if (credentials == null || (credentials != null && session.isNew())) {
 
-            String authCredentials = request.getHeader("Authorization");
-            if(authCredentials != null && !authCredentials.trim().toString().isEmpty()){
+            // Поверяем разрешена ли basic аутентификация
+            if (securityConfig.getActiveProviders().contains(ApplicationSecurityManager.BASIC_AUTHENTICATION_TYPE)) {
+                String authCredentials = request.getHeader("Authorization");
+                if (authCredentials != null && !authCredentials.trim().toString().isEmpty()) {
 
-
-                try{
-                    final String encodedUserPassword = authCredentials.replaceFirst("Basic"
-                            + " ", "");
-                    String usernameAndPassword = null;
                     try {
-                        byte[] decodedBytes = Base64.decodeBase64(
-                                encodedUserPassword);
-                        usernameAndPassword = new String(decodedBytes, "UTF-8");
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        final String encodedUserPassword = authCredentials.replaceFirst("Basic"
+                                + " ", "");
+                        String usernameAndPassword = null;
+                        try {
+                            byte[] decodedBytes = Base64.decodeBase64(
+                                    encodedUserPassword);
+                            usernameAndPassword = new String(decodedBytes, "UTF-8");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        final StringTokenizer tokenizer = new StringTokenizer(usernameAndPassword, ":");
+                        final String username = tokenizer.nextToken();
+                        final String password = tokenizer.nextToken();
+
+                        // Выполяем реальную аутентификациию
+                        strongAuthentication(request, username, password);
+
+                        credentials = new UserUidWithPassword(username, password);
+                    } catch (Exception e) {
+                        // В случае ошибки basic аутентификации возвращаем 403
+                        response.setStatus(403);
+                        return;
                     }
-                    final StringTokenizer tokenizer = new StringTokenizer(usernameAndPassword, ":");
-                    final String username = tokenizer.nextToken();
-                    final String password = tokenizer.nextToken();
-
-                    LoginService loginService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
-                    loginService.login(request, new UserUidWithPassword(username, password));
-
-                    filterChain.doFilter(servletRequest, servletResponse);
-                    return;
-                }catch (Exception e){
-                    forwardToLogin(servletRequest, servletResponse);
                 }
             }
 
-            forwardToLogin(servletRequest, servletResponse);
-            return;
-        }
-        UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
+            // Возможно мы пришли от формы логина
+            if (securityConfig.getActiveProviders().contains(ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE)) {
+                UserUidWithPassword loginData = (UserUidWithPassword) session.getAttribute(ApplicationSecurityManager.LOGIN_FORM_DATA);
+                if (loginData != null) {
+                    session.setAttribute(ApplicationSecurityManager.LOGIN_FORM_DATA, null);
+                    try {
+                        // Выполяем реальную аутентификациию
+                        strongAuthentication(request, loginData.getUserUid(), loginData.getPassword());
 
+                        credentials = loginData;
+                    } catch (LoginException e) {
+                        forwardToLogin(servletRequest, servletResponse, true);
+                        return;
+                    }
+                }
+            }
+
+            if (credentials == null) {
+                for (AuthenticationProvider authenticationProvider : authenticationProviders) {
+                    credentials = authenticationProvider.login(request, response);
+                    if (credentials != null) {
+                        break;
+                    }
+                }
+            }
+
+            if (credentials == null) {
+                forwardToLogin(servletRequest, servletResponse, false);
+                return;
+            }
+        }
 
         //Вызов точки расширения после аутентификации. Точки расширения могут сохранить данные аутентификации для каких то последующих их использования
         //Например для использования в SSO
         //authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
 
+        LoginContext loginContext = null;
         if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
             try {
-                request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
-                //System.out.println(Thread.currentThread().getId() + " => no user principal. Log in");
-            } catch (ServletException e) {
-                forwardToLogin(servletRequest, servletResponse);
+                // Выполняем фейковую аутентификацию если задан trustSecurityDomain, или реальную аутентификацию если не задан
+                if (trustSecurityDomain != null) {
+                    loginContext = login(trustSecurityDomain, credentials.getUserUid(), credentials.getUserUid());
+                } else {
+                    request.login(credentials.getUserUid(), credentials.getUserUid());
+                }
+                session.setAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
+            } catch (Exception ex) {
+                forwardToLogin(servletRequest, servletResponse, true);
             }
         } else {
-            log.debug(Thread.currentThread().getId() + " => user principal is already in request");
+            log.debug("User principal is already in request");
         }
 
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
+            // TODO проработать необходимость logout при strong и trust доменов безопасности
             if (JeeServerFamily.isLogoutRequired(request)) {
                 try {
-                    request.logout();
-                    //System.out.println(Thread.currentThread().getId() + " => log out");
-                } catch (ServletException e) {
+                    if (trustSecurityDomain != null) {
+                        request.logout();
+                    } else {
+                        if (loginContext != null) {
+                            loginContext.logout();
+                        }
+                    }
+                } catch (Exception e) {
                     log.error("request logout failed", e);
                 }
             } else {
-                log.debug(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
+                log.debug("No user principal. Do NOT log out");
             }
         }
+    }
 
+    /**
+     * Метод выполняет аутентификацию на строго настроенном домене безопасности.
+     * Необходим для basic и form аутентификации. В случае если настроен
+     * отдельный строгий домен безопасности то используем его, если не настроен
+     * то используем домен безопасности по умолчанию
+     * @param login
+     * @param password
+     * @throws LoginException
+     * @throws ServletException
+     */
+    private void strongAuthentication(HttpServletRequest request, String login, String password) throws LoginException, ServletException {
+        if (strongSecurityDomain != null) {
+            // Выполяем реальную аутентификациию
+            LoginContext lc = login(strongSecurityDomain, login, password);
+            // Если все прошло успешно выполняем logout, потому что далее выполнится фейковая аутентификация
+            lc.logout();
+        } else {
+            request.login(login, password);
+        }
     }
 
     private boolean isLoginPageRequest(String requestUri) {
         return requestUri.contains(AUTHENTICATION_SERVICE_ENDPOINT);
     }
 
-    private void forwardToLogin(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
+    private void forwardToLogin(ServletRequest servletRequest, ServletResponse servletResponse, boolean authenticationError)
+            throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        StringBuilder loginPath = new StringBuilder(request.getContextPath()).append("/Login.html");
-        String requestURI = request.getRequestURI();
-        if (!requestURI.contains(REMOTE)) {
-            String targetPage = request.getRequestURI().substring(request.getContextPath().length());
-            if (targetPage.startsWith("/")) {
-                targetPage = targetPage.substring(1);
-            }
-            loginPath.append("?targetPage=").append(targetPage);
-            Map<String, String[]> parameterMap = servletRequest.getParameterMap();
-            for (String paramName : parameterMap.keySet()) {
-                if (!"targetPage".equals(paramName)) {
-                    String[] paramValues = parameterMap.get(paramName);
-                    for (String value : paramValues) {
-                        loginPath.append("&").append(paramName).append("=").append(value);
+        // Проверка, возможно form аутентификация запрещена, тогда отображаем нет доступа
+
+        if (securityConfig.getActiveProviders().contains(ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE)) {
+            StringBuilder loginPath = new StringBuilder(request.getContextPath()).append("/Login.html");
+            String requestURI = request.getRequestURI();
+            if (!requestURI.contains(REMOTE)) {
+                String targetPage = request.getRequestURI().substring(request.getContextPath().length());
+                if (targetPage.startsWith("/")) {
+                    targetPage = targetPage.substring(1);
+                }
+                loginPath.append("?targetPage=").append(targetPage);
+                Map<String, String[]> parameterMap = servletRequest.getParameterMap();
+                for (String paramName : parameterMap.keySet()) {
+                    if (!"targetPage".equals(paramName) && !"authenticationError".equals(paramName)) {
+                        String[] paramValues = parameterMap.get(paramName);
+                        for (String value : paramValues) {
+                            loginPath.append("&").append(paramName).append("=").append(value);
+                        }
                     }
                 }
-            }
-        }
 
-        ((HttpServletResponse) servletResponse).sendRedirect(loginPath.toString());
+                if (authenticationError) {
+                    loginPath.append("&").append("authenticationError").append("=").append(true);
+                }
+            }
+            ((HttpServletResponse) servletResponse).sendRedirect(loginPath.toString());
+        } else {
+            ((HttpServletResponse) servletResponse).sendRedirect(request.getContextPath() + "/AccessDeny.html");
+        }
     }
 
     @Override
     public void destroy() {
+    }
+
+    public LoginContext login(final String securityDomain, final String login, final String password) throws LoginException {
+        CallbackHandler cbh = new CallbackHandler() {
+
+            @Override
+            public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+
+                for (int i = 0; i < callbacks.length; i++) {
+                    if (callbacks[i] instanceof NameCallback) {
+                        NameCallback nc = (NameCallback) callbacks[i];
+                        nc.setName(login);
+                    } else if (callbacks[i] instanceof PasswordCallback) {
+                        PasswordCallback pc = (PasswordCallback) callbacks[i];
+                        pc.setPassword(login.toCharArray());
+                    } else {
+                        throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
+                    }
+                }
+            }
+        };
+
+        LoginContext lc = new LoginContext(securityDomain, cbh);
+        lc.login();
+
+        log.debug("Login success {}", lc.getSubject());
+        return lc;
     }
 }

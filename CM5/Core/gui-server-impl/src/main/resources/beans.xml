@@ -3,7 +3,9 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
     <bean class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader.PluginHandlerDefinitionsLoader"/>
-
+    
+    <bean name="headerAuthentication" class="ru.intertrust.cm.core.gui.impl.server.action.access.authentication.HeaderAuthenticationProvider"/>
+    
     <jee:local-slsb id="guiService"
                     jndi-name="java:module/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
                     business-interface="ru.intertrust.cm.core.gui.api.server.GuiService"/>
@@ -34,6 +36,11 @@
     <jee:local-slsb id="settingsUtilImpl"
                     jndi-name="java:module/settingsUtilImpl!ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil"
                     business-interface="ru.intertrust.cm.core.gui.impl.server.action.system.SettingsUtil"/>
+                    
+    <jee:local-slsb id="applicationSecurityManager"
+                    jndi-name="java:module/ApplicationSecurityManager!ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager"
+                    business-interface="ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager"/>
+                    
 
     <bean id="applicationVersion" class="ru.intertrust.cm.core.gui.impl.server.util.VersionUtil" scope="singleton" />
 

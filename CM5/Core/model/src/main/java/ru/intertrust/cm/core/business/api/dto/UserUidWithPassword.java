@@ -27,6 +27,7 @@ public class UserUidWithPassword implements UserCredentials {
         this.clientTimeZone = clientTimeZone;
     }
 
+    @Override
     public String getUserUid() {
         return userUid;
     }

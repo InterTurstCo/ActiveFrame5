@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="Pragma" content="no-cache">
+<title>Нет доступа</title>
+<link rel="stylesheet" href="BusinessUniverse.css" />
+<link rel="stylesheet" href="login.css" />
+<style>
+.parent {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: auto;
+	white-space: nowrap;
+	text-align: center;
+	font-size: 0; 
+}
+
+.parent:before {
+	height : 100%;
+	display: inline-block;
+	vertical-align: middle;
+	content: '';
+}
+
+.block {
+	display: inline-block;
+	white-space: normal;
+	vertical-align: middle;
+	text-align: left; 
+}
+</style>
+</head>
+<body>
+	<div class="parent">
+		<div class="gwt-DialogBox auth-DialogBox block"
+			style="overflow: visible; clip: rect(auto, auto, auto, auto);">
+			<div class="">
+				<table cellspacing="0" cellpadding="0" class="">
+					<tbody>
+						<tr class="dialogTop">
+							<td class="dialogTopLeft">
+								<div class="dialogTopLeftInner" />
+							</td>
+							<td class="dialogTopCenter">
+								<div class="dialogTopCenterInner">
+									<div class="Caption">
+										<div class="loginLogo">Платформа CM Сочи</div>
+									</div>
+								</div>
+							</td>
+							<td class="dialogTopRight">
+								<div class="dialogTopRightInner" />
+							</td>
+						</tr>
+						<tr class="dialogMiddle">
+							<td class="dialogMiddleLeft">
+								<div class="dialogMiddleLeftInner" />
+							</td>
+							<td class="dialogMiddleCenter">
+								<div class="dialogMiddleCenterInner dialogContent">
+									<div class="auth_LoginPage_wrapper"
+										style="position: relative; overflow: hidden;">
+										<div class="loginLogo" style="color: red;">Извинете, у Вас нет доступа!</div>
+									</div>
+								</div>
+							</td>
+							<td class="dialogMiddleRight">
+								<div class="dialogMiddleRightInner" />
+							</td>
+						</tr>
+						<tr class="dialogBottom">
+							<td class="dialogBottomLeft">
+								<div class="dialogBottomLeftInner" />
+							</td>
+							<td class="dialogBottomCenter"></td>
+							<td class="dialogBottomRight">
+								<div class="dialogBottomRightInner" />
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

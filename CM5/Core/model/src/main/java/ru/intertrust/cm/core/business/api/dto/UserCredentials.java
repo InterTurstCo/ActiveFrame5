@@ -6,4 +6,6 @@ package ru.intertrust.cm.core.business.api.dto;
  *         Time: 12:50
  */
 public interface UserCredentials extends Dto {
+    
+    String getUserUid();
 }

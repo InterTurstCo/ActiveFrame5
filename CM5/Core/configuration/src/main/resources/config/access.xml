@@ -620,6 +620,8 @@
         </create>
     </access-matrix>
 
+    <access-matrix type="person_alt_uids" read-everybody="true"/>
+
     <access-matrix type="Person_Task">
         <create>
             <permit-group name="AllPersons" />

@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
@@ -58,8 +59,7 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
 
     @Override
     public void login(UserCredentials userCredentials) throws AuthenticationException {
-        LoginService loginService = new ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl(); // todo - get rid
-        loginService.login(getThreadLocalRequest(), userCredentials);
+        getThreadLocalRequest().getSession().setAttribute(ApplicationSecurityManager.LOGIN_FORM_DATA, userCredentials);
     }
 
     public void logout() {

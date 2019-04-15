@@ -22,6 +22,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public void login(HttpServletRequest request, UserCredentials credentials) throws AuthenticationException {
+        
         UserUidWithPassword uidWithPassword = (UserUidWithPassword) credentials;
         String userUid = uidWithPassword.getUserUid();
         String password = uidWithPassword.getPassword();
@@ -54,6 +55,7 @@ public class LoginServiceImpl implements LoginService {
             e.printStackTrace();
         }
     }
+    
      private EventLogService getEventLogService(){
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(EventLogService.class);

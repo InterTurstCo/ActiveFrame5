@@ -21,5 +21,9 @@
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
+    
+    <welcome-file-list>
+        <welcome-file>BusinessUniverse.html</welcome-file>
+    </welcome-file-list>
 
 </web-app>

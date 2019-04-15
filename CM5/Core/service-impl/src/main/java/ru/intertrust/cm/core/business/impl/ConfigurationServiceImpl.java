@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -40,6 +41,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Autowired
     private CrudService crudService;

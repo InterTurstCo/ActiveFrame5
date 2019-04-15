@@ -84,9 +84,14 @@ public class LoginWindow implements Component {
         loginField.getElement().setId("id_login");
         loginField.setName("username");
         passwordField = new PasswordTextBox();
+
         //error message
         message = new Label();
         message.getElement().addClassName("auth-error-label");
+        if (Window.Location.getParameter("authenticationError") != null) {
+            message.setText(get(AUTHORIZATION_WRONG_PSW_ERROR_KEY, "Ошибка авторизации. Проверьте правильность введенных данных."));
+        }        
+        
         loginName = new Label();
         loginName.getElement().removeClassName(".gwt-Label");
         loginName.getElement().addClassName("auth-Label");
@@ -344,7 +349,7 @@ public class LoginWindow implements Component {
         final UserUidWithPassword credentials = new UserUidWithPassword(loginField.getText(), passwordField.getText());
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().login(credentials, callback);
     }
-
+    
     public void addClearUserSettingsButton() {
         FocusPanel clearUserSettingsButton = new FocusPanel();
         clearUserSettingsButton.setStyleName("lightButton");
