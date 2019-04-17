@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <global-settings>
+        <audit-log enable="false"/>
+    </global-settings>
+
+    <domain-object-type name="test_1">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+</configuration>

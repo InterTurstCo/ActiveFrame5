@@ -1640,8 +1640,8 @@ public class GlobalCacheImpl implements GlobalCache {
             int comparison = domainObject.getModifiedDate().compareTo(cachedDomainObject.getModifiedDate());
             if (comparison > 0) {
                 return NodeDomainObject.Set;
-            } else if (comparison == 0 && !domainObject.equals(cachedDomainObject)) {
-                return NodeDomainObject.Clear;
+            } else if (comparison == 0 && domainObject.equals(cachedDomainObject)) {
+                return NodeDomainObject.Nothing;
             } else {
                 return NodeDomainObject.Clear;
             }

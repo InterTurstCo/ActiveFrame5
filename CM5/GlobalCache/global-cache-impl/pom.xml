@@ -45,5 +45,12 @@
             <artifactId>spring-aspects</artifactId>
             <scope>test</scope>
         </dependency>        
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dao-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>        
     </dependencies>
 </project>
