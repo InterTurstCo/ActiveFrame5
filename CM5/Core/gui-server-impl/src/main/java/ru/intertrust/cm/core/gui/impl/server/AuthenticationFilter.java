@@ -155,7 +155,7 @@ public class AuthenticationFilter implements Filter {
                         strongAuthentication(request, loginData.getUserUid(), loginData.getPassword());
 
                         credentials = loginData;
-                    } catch (LoginException e) {
+                    } catch (LoginException | ServletException e) {
                         forwardToLogin(servletRequest, servletResponse, true);
                         return;
                     }
@@ -238,6 +238,7 @@ public class AuthenticationFilter implements Filter {
             lc.logout();
         } else {
             request.login(login, password);
+            request.logout();
         }
     }
 
