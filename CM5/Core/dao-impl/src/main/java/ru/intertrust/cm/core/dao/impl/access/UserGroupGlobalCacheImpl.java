@@ -23,10 +23,14 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
     
     private Map<Id, Boolean> personIdToIsSuperUserCache = new ConcurrentHashMap<Id, Boolean>();
     private Map<Id, Boolean> personIdToIsAdministratorCache = new ConcurrentHashMap<Id, Boolean>();
+    private Map<Id, Boolean> personIdToIsInfoSecAuditorCache = new ConcurrentHashMap<Id, Boolean>();
     
     private Id superUsersGroupId = null;
 
     private Id administratorsGroupId = null;
+    
+    private Id infoSecAuditorGroupId = null;
+    
 
     @Autowired    
     private PersonManagementServiceDao personManagementService;
@@ -48,6 +52,13 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
             superUsersGroupId = personManagementService.getGroupId(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
         }
         return superUsersGroupId;
+    }    
+    
+    private Id getInfoSecAuditorGroupId() {
+        if (infoSecAuditorGroupId == null) {
+            infoSecAuditorGroupId = personManagementService.getGroupId(GenericDomainObject.INFO_SEC_AUDITOR_GROUP);
+        }
+        return infoSecAuditorGroupId;
     }
 
     private Id getAdministratorsGroupId() {
@@ -85,6 +96,18 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
     public void cleanCache() {
         personIdToIsSuperUserCache.clear();
         personIdToIsAdministratorCache.clear();
+        personIdToIsInfoSecAuditorCache.clear();
+    }
+
+    @Override
+    public boolean isInfoSecAuditor(Id personId) {
+        final Boolean cached = personIdToIsInfoSecAuditorCache.get(personId);
+        if (cached != null) {
+            return cached;
+        }
+        final boolean isInfoSecAuditor = personManagementService.isPersonInGroup(getInfoSecAuditorGroupId(), personId);
+        personIdToIsInfoSecAuditorCache.put(personId, isInfoSecAuditor);
+        return isInfoSecAuditor;    
     }
 
 }

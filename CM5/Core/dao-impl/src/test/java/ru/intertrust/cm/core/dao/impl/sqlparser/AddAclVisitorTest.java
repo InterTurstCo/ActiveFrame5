@@ -100,6 +100,11 @@ public class AddAclVisitorTest {
         public void cleanCache() {
 
         }
+
+        @Override
+        public boolean isInfoSecAuditor(Id personId) {
+            return false;
+        }
     };
 
     private DomainObjectQueryHelper queryHelper = new DomainObjectQueryHelper();

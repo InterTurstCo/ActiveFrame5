@@ -130,6 +130,15 @@ public class AddAclVisitor extends BasicVisitor {
         if (isAdministratorWithAllPermissions) {
             return false;
         }
+        
+        // Проверка что это audit_log
+        if(configurationExplorer.isAuditLogType(DaoUtils.unwrap(table.getName()))) {
+            // Даем доступ дополнительно роли InfoSecAuditor
+            if (userGroupCache.isInfoSecAuditor(personId)) {
+                return false;
+            }            
+        }
+        
         // если ДО нет в конфигурации, значит это системный ДО и для него
         // проверка ACL не нужна.
         boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(table.getName())) != null;

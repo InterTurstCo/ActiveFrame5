@@ -71,7 +71,7 @@ public class PersonManagementClient extends ClientBase {
                     
                     DomainObject authInfo = service.createDomainObject("Authentication_Info");
                     authInfo.setString("User_Uid", arguments[0]);
-                    authInfo.setString("password", "");
+                    authInfo.setString("password", arguments[4]);
                     authInfo = service.save(authInfo);
                     
                     System.out.println("Create person success. Person id = " + person.getId() + ".");
@@ -87,7 +87,9 @@ public class PersonManagementClient extends ClientBase {
                 } else if (command.equals("create-group")) {
 
                 } else if (command.equals("add-person-to-group")) {
-
+                    DomainObject person = service.createDomainObject("group_member");
+                    //TODO
+                    person = service.save(person);
                 } else if (command.equals("remove-person-from-group")) {
 
                 } else if (command.equals("person-list")) {

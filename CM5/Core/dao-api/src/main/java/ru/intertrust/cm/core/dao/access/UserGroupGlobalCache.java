@@ -30,6 +30,13 @@ public interface UserGroupGlobalCache {
     boolean isAdministrator(Id personId);
     
     /**
+     * Проверка вхождения пользователя в статическую группу InfoSecAuditor и кэширование этого флага
+     * @param personId
+     * @return
+     */
+    boolean isInfoSecAuditor(Id personId);
+    
+    /**
      * Очищает глобальный кещ.
      */
     void cleanCache();

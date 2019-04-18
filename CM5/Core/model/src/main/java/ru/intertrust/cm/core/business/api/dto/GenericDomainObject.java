@@ -30,6 +30,8 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     public static final String ADMINISTRATORS_STATIC_GROUP = "Administrators";
 
     public static final String SUPER_USERS_STATIC_GROUP = "Superusers";
+    
+    public static final String INFO_SEC_AUDITOR_GROUP = "InfoSecAuditor";    
 
     public static final String ATTACHMENT_TEMPLATE = "Attachment";
     

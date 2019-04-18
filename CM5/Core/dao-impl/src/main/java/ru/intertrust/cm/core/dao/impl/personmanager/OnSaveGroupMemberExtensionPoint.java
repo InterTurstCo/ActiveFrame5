@@ -50,8 +50,8 @@ public class OnSaveGroupMemberExtensionPoint implements AfterSaveExtensionHandle
             DomainObject userGroup = domainObjectDao.find(usergroupId, accessToken);
 
             String groupName = userGroup.getString("group_name");
-            // если изменяется состав группы Superusers, нужно очищать кеш пользователей в AccessControlService
-            if (GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(groupName)) {
+            // если изменяется состав группы Superusers и InfoSecAuditor, нужно очищать кеш пользователей в AccessControlService
+            if (GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(groupName) || GenericDomainObject.INFO_SEC_AUDITOR_GROUP.equals(groupName)) {
                 userGroupGlobalCache.cleanCache();
             }
         }

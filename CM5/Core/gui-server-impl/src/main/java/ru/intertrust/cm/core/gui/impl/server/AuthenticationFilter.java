@@ -188,7 +188,7 @@ public class AuthenticationFilter implements Filter {
                 if (trustSecurityDomain != null) {
                     loginContext = login(trustSecurityDomain, credentials.getUserUid(), credentials.getUserUid());
                 } else {
-                    request.login(credentials.getUserUid(), credentials.getUserUid());
+                    request.login(credentials.getUserUid(), ((UserUidWithPassword)credentials).getPassword());
                 }
                 session.setAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
             } catch (Exception ex) {
