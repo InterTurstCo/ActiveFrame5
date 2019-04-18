@@ -296,7 +296,7 @@ public class AuthenticationFilter implements Filter {
                         nc.setName(login);
                     } else if (callbacks[i] instanceof PasswordCallback) {
                         PasswordCallback pc = (PasswordCallback) callbacks[i];
-                        pc.setPassword(login.toCharArray());
+                        pc.setPassword(password.toCharArray());
                     } else {
                         throw new UnsupportedCallbackException(callbacks[i], "Unrecognized Callback");
                     }
