@@ -1,13 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -22,8 +25,10 @@ import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Stateless
 @Local(EventLogService.class)
@@ -35,6 +40,10 @@ public class EventLogServiceImpl implements EventLogService {
     private static final String OBJECT_ACCESS_LOG = "object_access_log";
 
     @Autowired
+    @Qualifier("masterNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations masterJdbcTemplate;
+
+    @Autowired
     private DomainObjectDao domainObjectDao;
 
     @Autowired
@@ -42,7 +51,7 @@ public class EventLogServiceImpl implements EventLogService {
 
     @Autowired
     private PersonManagementServiceDao personManagementServiceDao;
-    
+
     @Autowired
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
@@ -254,7 +263,7 @@ public class EventLogServiceImpl implements EventLogService {
 
         return createObjectAccessLogDO(accessLogBuilder);
     }
-    
+
     private DomainObject saveObjectAccessLog(ObjectAccessLogBuilder objectAccessLogBuilder) {
         DomainObject objectAccessLog = createObjectAccessLogDO(objectAccessLogBuilder);
 
@@ -354,6 +363,9 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
 
+    /**
+     * Удаляет данные audit_log и event_log (CMFIVE-30153) 
+     */
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void clearEventLogs() {
@@ -364,25 +376,72 @@ public class EventLogServiceImpl implements EventLogService {
             throw new IllegalStateException("Not permitted");
         }
         
+        int deleteCount = 0;
+        
         AccessToken token = getSystemAccessToken();
 
+        // удаление всех записей object_access_log
         IdentifiableObjectCollection col = collectionsDao.findCollectionByQuery("select id from object_access_log", 0, 0, token);
-        List<Id> alObjects = new ArrayList<>();
-        for (IdentifiableObject obj: col) 
-            alObjects.add(obj.getId());
-        domainObjectDao.delete(alObjects, token);
+        List<Id> accessObjects = new ArrayList<>();
+        for (IdentifiableObject obj: col)
+            accessObjects.add(obj.getId());
+        deleteCount = deleteCount + domainObjectDao.delete(accessObjects, token);
 
+        // удаление всех записей user_event_log
         col = collectionsDao.findCollectionByQuery("select id from user_event_log", 0, 0, token);
         List<Id> ueObjects = new ArrayList<>();
         for (IdentifiableObject obj: col)
             ueObjects.add(obj.getId());
-        domainObjectDao.delete(ueObjects, token);
+        deleteCount = deleteCount + domainObjectDao.delete(ueObjects, token);
 
+        // удаление audit_log
+
+        Collection<DomainObjectTypeConfig> typeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        List<String> typeNamesToProcess = new ArrayList<>();
+
+        // собираем ДО, по котрым включен лог + нужно взять всех "дочерних" с включенным логом и обработать их родителей - т.е. таблицы, которые нужно чистить
+        // НЕ СРАБОТАЛО! т.к. влияют на включение лога еще и связанные объекты (по всей видимости) 
+//        for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
+//            if (domainObjectTypeConfig.isAuditLog()!=null && domainObjectTypeConfig.isAuditLog()) {
+//                if (!typeNamesToProcess.contains(domainObjectTypeConfig.getName())) {
+//                    typeNamesToProcess.add(domainObjectTypeConfig.getName());
+//                }
+//                DomainObjectTypeConfig currConfig = domainObjectTypeConfig;
+//                while ( currConfig.getExtendsAttribute()!=null && !"".equals(currConfig.getExtendsAttribute()) ) {
+//                    currConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, currConfig.getExtendsAttribute());
+//                    if (!typeNamesToProcess.contains(currConfig.getName())) {
+//                        typeNamesToProcess.add(currConfig.getName());
+//                    }
+//                }
+//            }
+//        }
+        // собираем все типы ДО, по которым можно удалить _al 
+        for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
+            if (domainObjectTypeConfig.isTemplate()!=null && !domainObjectTypeConfig.isTemplate() && !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
+                typeNamesToProcess.add(domainObjectTypeConfig.getName());
+            }
+        }
+
+        Map<String, Object> parameters = new java.util.HashMap();
+        String tables = "";
+        for (String doType : typeNamesToProcess) {
+            String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(doType);
+//            deleteCount = deleteCount + masterJdbcTemplate.update("delete from "+auditLogTableName, parameters); // - дает ошибку, т.к. таблицы _al могут быть связаны
+            tables = tables + auditLogTableName+ ",";
+//            System.out.println("DELETING "+auditLogTableName);
+        }
+        tables = tables.substring(0, tables.length()-1);
+        deleteCount = deleteCount + masterJdbcTemplate.update("TRUNCATE "+tables+" RESTRICT", parameters); // выполнение запроса TRUNCATE не возвращает количество удаленных записей77
+
+        // создание записи об очистке
         UserEventLogBuilder userEventLogBuilder = new UserEventLogBuilder();
         userEventLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
         userEventLogBuilder.setDate(new Date());
         userEventLogBuilder.setEventType(EventLogType.CLEAR_EVENT_LOG.name());
+        userEventLogBuilder.setSuccess(true);
         saveUserEventLog(userEventLogBuilder);
+        
+//        return deleteCount;
     }
 
     /**
