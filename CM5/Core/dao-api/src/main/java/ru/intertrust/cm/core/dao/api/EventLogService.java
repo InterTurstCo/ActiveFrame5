@@ -52,6 +52,9 @@ public interface EventLogService {
 
     boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success);
 
-    void clearEventLogs();
+    /**
+     * Удаляет данные audit_log и event_log (CMFIVE-30153) 
+     */
+    void clearEventLogs() throws Exception;
 
 }

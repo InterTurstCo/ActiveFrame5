@@ -64,7 +64,7 @@ public class DomainObjectTypeUtility {
             return null;
         }
 
-        String name = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        String name = config.getName().replaceAll(Configuration.AUDIT_LOG_SUFFIX + "$", "");
         return configurationExplorer.getDomainObjectTypeConfig(name);
     }
     

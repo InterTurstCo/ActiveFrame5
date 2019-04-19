@@ -29,11 +29,11 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
                     wrap(NAME_COLUMN) + ") values (?, ?)";
 
     protected static final String DELETE_QUERY =
-            "delete from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where name = ?";
+            "delete from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where lower(name) = ?";
 
     protected static final String SELECT_ID_BY_NAME_QUERY =
-            "select " + wrap(ID_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
-                    wrap(NAME_COLUMN) + " = ?";
+            "select " + wrap(ID_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where lower(" +
+                    wrap(NAME_COLUMN) + ") = ?";
 
     protected static final String SELECT_NAME_BY_ID_QUERY =
             "select " + wrap(NAME_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
@@ -96,7 +96,7 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
 
     @Override
     public Integer delete(DomainObjectTypeConfig config) {
-        int rowsDeleted = jdbcTemplate.update(DELETE_QUERY, config.getName());
+        int rowsDeleted = jdbcTemplate.update(DELETE_QUERY, config.getName().toLowerCase());
         if (rowsDeleted > 0) {
             return rowsDeleted;
         } else {
@@ -109,7 +109,7 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
      */
     @Override
     public Integer findIdByName(String configName) {
-        List<Integer> ids = jdbcTemplate.queryForList(SELECT_ID_BY_NAME_QUERY, Integer.class, configName);
+        List<Integer> ids = jdbcTemplate.queryForList(SELECT_ID_BY_NAME_QUERY, Integer.class, configName.toLowerCase());
         if (ids == null || ids.isEmpty()) {
             return null;
         }
