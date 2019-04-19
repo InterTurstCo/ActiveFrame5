@@ -66,6 +66,7 @@
                 <product-title style="text"/>
         </login-screen>
         <logo image="images/logo.png"/>
+        <!--top-panel/-->
         <base-url value="app"></base-url>
         <default-app value="geo"></default-app>
         <settings-popup>

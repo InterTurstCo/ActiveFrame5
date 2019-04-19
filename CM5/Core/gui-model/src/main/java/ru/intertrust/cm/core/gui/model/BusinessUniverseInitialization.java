@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.LoginScreenConfig;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.TopPanelConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
 
@@ -23,6 +24,7 @@ public class BusinessUniverseInitialization implements Dto {
     private String eMail;
     private String logoImagePath;
     private SettingsPopupConfig settingsPopupConfig;
+    private TopPanelConfig topPanelConfig;
     private String pageNamePrefix;
     private List<String> timeZoneIds;
     private Integer collectionCountersUpdatePeriod;
@@ -145,6 +147,14 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setSettingsPopupConfig(SettingsPopupConfig settingsPopupConfig) {
         this.settingsPopupConfig = settingsPopupConfig;
+    }
+
+    public TopPanelConfig getTopPanelConfig() {
+        return topPanelConfig;
+    }
+
+    public void setTopPanelConfig(TopPanelConfig topPanelConfig) {
+        this.topPanelConfig = topPanelConfig;
     }
 
     public Integer getCollectionCountersUpdatePeriod() {

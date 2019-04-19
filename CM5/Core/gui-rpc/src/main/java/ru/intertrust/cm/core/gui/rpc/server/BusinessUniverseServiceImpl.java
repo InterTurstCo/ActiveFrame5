@@ -128,6 +128,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
             addWidgetConfigs(businessUniverseConfig, initialization);
             addCollectionCountersUpdatePeriod(businessUniverseConfig, initialization);
             addHeaderNotificationPeriod(businessUniverseConfig, initialization);
+            addTopPanelConfig(businessUniverseConfig, initialization);
         }
         initialization.setSearchConfigured(isSearchConfigured());
         Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
@@ -268,6 +269,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         } else if (businessUniverseConfig != null) {
             businessUniverseInitialization.setSettingsPopupConfig(businessUniverseConfig.getSettingsPopupConfig());
         }
+    }
+
+    private void addTopPanelConfig(BusinessUniverseConfig businessUniverseConfig,
+                                   BusinessUniverseInitialization businessUniverseInitialization){
+        businessUniverseInitialization.setTopPanelConfig(businessUniverseConfig.getTopPanelConfig());
     }
 
     private UserInfo getUserInfo() {
