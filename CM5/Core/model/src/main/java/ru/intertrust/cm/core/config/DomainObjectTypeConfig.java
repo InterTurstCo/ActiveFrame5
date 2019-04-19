@@ -230,7 +230,8 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         if (extendsAttribute != null ? !extendsAttribute.equals(that.extendsAttribute) : that.extendsAttribute != null) {
             return false;
         }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (name != null && that.name != null ? !name.toLowerCase().equals(that.name.toLowerCase()) 
+                : name == null ? that.name != null : that.name == null) {
             return false;
         }
 
@@ -267,7 +268,7 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Override
     public int hashCode() {
         //TODO для одинаковых имен конфигураций но обсалютно разном содержании будет одинаковый hash
-        return name != null ? name.hashCode() : 0;
+        return name != null ? name.toLowerCase().hashCode() : 0;
     }
 
     public Boolean isAuditLog() {
