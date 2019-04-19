@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -19,6 +21,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 
@@ -35,6 +38,8 @@ import java.util.Map;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class EventLogServiceImpl implements EventLogService {
 
+    private final static Logger logger = LoggerFactory.getLogger(EventLogServiceImpl.class);
+    
     private static final String USER_EVENT_LOG = "user_event_log";
 
     private static final String OBJECT_ACCESS_LOG = "object_access_log";
@@ -66,6 +71,10 @@ public class EventLogServiceImpl implements EventLogService {
 
     @EJB
     private EventLogService newTransactionService;
+
+    @EJB
+    private EventLogCleaner eventLogCleaner;
+    
 
     @Override
     public void logLogInEvent(String login, String ip, boolean success) {
@@ -363,85 +372,9 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
 
-    /**
-     * Удаляет данные audit_log и event_log (CMFIVE-30153) 
-     */
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void clearEventLogs() {
-        Id groupId = personManagementServiceDao.getGroupId("InfoSecAuditor");
-        Id personId = currentUserAccessor.getCurrentUserId();
-
-        if (!personManagementServiceDao.isPersonInGroup(groupId, personId)){
-            throw new IllegalStateException("Not permitted");
-        }
-        
-        int deleteCount = 0;
-        
-        AccessToken token = getSystemAccessToken();
-
-        // удаление всех записей object_access_log
-        IdentifiableObjectCollection col = collectionsDao.findCollectionByQuery("select id from object_access_log", 0, 0, token);
-        List<Id> accessObjects = new ArrayList<>();
-        for (IdentifiableObject obj: col)
-            accessObjects.add(obj.getId());
-        deleteCount = deleteCount + domainObjectDao.delete(accessObjects, token);
-
-        // удаление всех записей user_event_log
-        col = collectionsDao.findCollectionByQuery("select id from user_event_log", 0, 0, token);
-        List<Id> ueObjects = new ArrayList<>();
-        for (IdentifiableObject obj: col)
-            ueObjects.add(obj.getId());
-        deleteCount = deleteCount + domainObjectDao.delete(ueObjects, token);
-
-        // удаление audit_log
-
-        Collection<DomainObjectTypeConfig> typeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
-        List<String> typeNamesToProcess = new ArrayList<>();
-
-        // собираем ДО, по котрым включен лог + нужно взять всех "дочерних" с включенным логом и обработать их родителей - т.е. таблицы, которые нужно чистить
-        // НЕ СРАБОТАЛО! т.к. влияют на включение лога еще и связанные объекты (по всей видимости) 
-//        for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
-//            if (domainObjectTypeConfig.isAuditLog()!=null && domainObjectTypeConfig.isAuditLog()) {
-//                if (!typeNamesToProcess.contains(domainObjectTypeConfig.getName())) {
-//                    typeNamesToProcess.add(domainObjectTypeConfig.getName());
-//                }
-//                DomainObjectTypeConfig currConfig = domainObjectTypeConfig;
-//                while ( currConfig.getExtendsAttribute()!=null && !"".equals(currConfig.getExtendsAttribute()) ) {
-//                    currConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, currConfig.getExtendsAttribute());
-//                    if (!typeNamesToProcess.contains(currConfig.getName())) {
-//                        typeNamesToProcess.add(currConfig.getName());
-//                    }
-//                }
-//            }
-//        }
-        // собираем все типы ДО, по которым можно удалить _al 
-        for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
-            if (domainObjectTypeConfig.isTemplate()!=null && !domainObjectTypeConfig.isTemplate() && !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
-                typeNamesToProcess.add(domainObjectTypeConfig.getName());
-            }
-        }
-
-        Map<String, Object> parameters = new java.util.HashMap();
-        String tables = "";
-        for (String doType : typeNamesToProcess) {
-            String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(doType);
-//            deleteCount = deleteCount + masterJdbcTemplate.update("delete from "+auditLogTableName, parameters); // - дает ошибку, т.к. таблицы _al могут быть связаны
-            tables = tables + auditLogTableName+ ",";
-//            System.out.println("DELETING "+auditLogTableName);
-        }
-        tables = tables.substring(0, tables.length()-1);
-        deleteCount = deleteCount + masterJdbcTemplate.update("TRUNCATE "+tables+" RESTRICT", parameters); // выполнение запроса TRUNCATE не возвращает количество удаленных записей77
-
-        // создание записи об очистке
-        UserEventLogBuilder userEventLogBuilder = new UserEventLogBuilder();
-        userEventLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
-        userEventLogBuilder.setDate(new Date());
-        userEventLogBuilder.setEventType(EventLogType.CLEAR_EVENT_LOG.name());
-        userEventLogBuilder.setSuccess(true);
-        saveUserEventLog(userEventLogBuilder);
-        
-//        return deleteCount;
+    public void clearEventLogs() throws Exception{
+        eventLogCleaner.clearEventLogs();
     }
 
     /**

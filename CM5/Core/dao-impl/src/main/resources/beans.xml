@@ -183,6 +183,9 @@
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
+    <jee:local-slsb id="eventLogCleaner"
+                    jndi-name="java:module/EventLogCleanerImpl!ru.intertrust.cm.core.dao.api.EventLogCleaner"
+                    business-interface="ru.intertrust.cm.core.dao.api.EventLogCleaner"/>
 
     <jee:local-slsb id="afterCommitExtensionPointService"
                     jndi-name="java:module/AfterCommitExtensionPointService!ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService"
