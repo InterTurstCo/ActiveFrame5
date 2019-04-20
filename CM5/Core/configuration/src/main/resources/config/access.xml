@@ -342,4 +342,25 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="user_event_log">
+        <status name="*">
+            <read>
+                <permit-group name="InfoSecAuditor"/>
+            </read>
+            <delete>
+                <permit-group name="InfoSecAuditor"/>
+            </delete>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="object_access_log">
+        <status name="*">
+            <read>
+                <permit-group name="InfoSecAuditor"/>
+            </read>
+            <delete>
+                <permit-group name="InfoSecAuditor"/>
+            </delete>
+        </status>
+    </access-matrix>
 </configuration>
