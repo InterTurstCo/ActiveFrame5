@@ -57,5 +57,212 @@
         </fields>
      </domain-object-type>
 
+    <domain-object-type name="Outgoing_Document" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
+        <fields>
+            <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
+            <date-time name="Registration_Date"/>
+            <string name="Name" length="128" />
+            <string name="Description" length="128" />
+            <reference name="Author" type="Employee"/> <!-- ID of employee in fact -->
+            <reference name="Negotiator" type="Employee"/> <!-- This means
+             Foreign Key to Employee and index are created automatically -->
+            <reference name="Signer" type="Employee"/>
+            <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
+            <decimal name="Decimal_Field" precision="10" scale="2" />
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation-->
+            <field name="Registration_Number"/>
+        </uniqueKey>
+        <indices>
+            <index type="btree">
+                <field name="Registration_Number" />
+                <field name="Name" />
+            </index>
+            <index>
+                <field name="Name" />
+            </index>
+            <index>
+                <field name="Description" />
+            </index>
+        </indices>
+    </domain-object-type>
+
+    <domain-object-type name="Internal_Document" initial-status="Draft"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Description" length="128" />
+            <long name="Stage" />
+            <string name="ReturnOnReject" length="3" />
+            <reference name="docAuthor" type="Employee" />
+            <reference name="Registrant" type="Employee" />
+            <reference name="Inspector" type="Employee" />
+            <reference name="Signer" type="Employee" />
+            <string name="RegNum" length="128" />
+            <string name="State" length="128" /> <!-- Не удалять строковой статус. Требуется для тестирования -->
+        </fields>
+        <attachment-types>
+            <attachment-type name="Internal_Document_Content" />
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="Negotiation_Card"  initial-status="Draft"> <!-- Negotiation_Card table -->
+        <fields>
+            <string name="Name" length="128" />
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Negotiator" type="Employee"/>
+            <reference name="Add_Negotiation_Card" type="Negotiation_Card" not-null="false"/>
+            <string name="State" length="128" />
+        </fields>
+    </domain-object-type>
+
+     <domain-object-type name="Examine_Card"  initial-status="Draft"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Examiner" type="Employee"/>
+            <string name="State" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Resolution_Card"  initial-status="Draft"> <!-- Internal_Document table -->
+        <fields>
+            <string name="Name" length="128" />
+            <reference name="Parent_Document" type="Internal_Document"/>
+            <reference name="Executor" type="Employee"/>
+            <string name="State" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Assignment"> <!-- ASSIGNMENT table -->
+        <fields>
+            <string name="Name" length="128" />
+            <string name="Description" length="128" />
+            <reference name="Signer" type="Employee"/>
+            <reference name="Parent_Document" type="Outgoing_Document"/>
+            <reference name="Executor" type="Employee"/> <!-- This means
+             Foreign Key to Employee and index are created automatically -->
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Employee" extends="Person" audit-log="true" initial-status="Active">
+        <fields>
+            <reference name="Department" type="Department" />
+            <string name="Name" length="64" not-null="true" />
+            <string name="Position" length="64" not-null="true" />
+            <string name="Phone" length="32" />
+            <string name="Certificate" length="4000" />
+            <string name="Fingerprint" length="128" />
+            <reference name="org_middle" type="org_middle"/>
+            <reference name="Organization" type="organization"/>
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Phone" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="org_middle"  >
+        <fields>
+
+            <string name="name" length="20"/>
+            <reference name="organization" type="Organization"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Tst_Employee" extends="Person" audit-log="true" initial-status="Active">
+        <fields>
+            <reference name="Department" type="*" not-null="true"/>
+            <string name="Name" length="64" not-null="true" />
+            <string name="Position" length="64" not-null="true" />
+            <string name="Phone" length="32" />
+            <string name="Certificate" length="4000" />
+            <string name="Fingerprint" length="128" />
+            <boolean name="HasChildren"/>
+            <dateTimeWithTimeZone name="DateOn" />
+            <date-time name="DateOff" />
+            <timelessDate name="DateAll"/>
+            <text name="description"/>
+            <boolean name="active"/>
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Phone" />
+        </uniqueKey>
+    </domain-object-type>
+
+   <domain-object-type name="Delegation" initial-status="Active">
+        <fields>
+            <reference name="person" type="Employee" not-null="true"/>
+            <reference name="delegate" type="Employee" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Department" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <reference name="Organization" type="Organization" not-null="true"/>
+            <reference name="Boss" type="Employee"/>
+            <reference name="ParentDepartment" type="Department" not-null="false"/>
+            <string name="Description" length="512" not-null="false" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Organization" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <string name="Description" length="128" />
+            <string name="www" length="128" />
+            <reference name="Boss" type="Employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_process_attachment" initial-status="Draft">
+        <fields>
+            <string name="test_text" length="512"/>
+            <date-time name="test_date"/>
+            <long name="test_long"/>
+            <decimal name="test_decimal" precision="10" scale="2"/>
+            <string name="new_field" length="512"/>
+            <reference name="author" type="Employee"/>
+            <reference name="signer" type="Employee"/>
+            <reference name="registrator" type="Employee"/>            
+        </fields>
+    </domain-object-type>
+
+    <!-- ДО для тестирования поиска по уникальному ключу -->
+    <domain-object-type name="EmployeeTestUniqueKey" extends="Employee" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="newField" length="128"/>
+            <boolean name="booleanField"/>
+            <string name="stringField" length="128"/>
+            <date-time name="dateTimeField"/>
+            <dateTimeWithTimeZone name="dateTimeWithTimeZoneField"/>
+            <decimal name="decimalField"/>
+            <long name="longField"/>
+            <reference name="referenceField" type="Organization"/>
+            <text name="textField"/>
+            <timelessDate name="timelessDateField"/>
+        </fields>
+
+        <uniqueKey>
+            <field name="newField" />
+        </uniqueKey>
+        <uniqueKey>
+            <field name="booleanField" />
+            <field name="stringField" />
+            <field name="dateTimeField" />
+            <field name="dateTimeWithTimeZoneField" />
+            <field name="decimalField" />
+            <field name="longField" />
+            <field name="referenceField" />
+            <field name="textField" />
+            <field name="timelessDateField" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="hierarchy_empty_type" audit-log="false">
+        <fields>
+            <string name="data" length="20" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
 
 </configuration>
