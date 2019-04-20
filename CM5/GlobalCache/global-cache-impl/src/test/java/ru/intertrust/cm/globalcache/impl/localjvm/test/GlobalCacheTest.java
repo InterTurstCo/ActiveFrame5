@@ -3,6 +3,7 @@ package ru.intertrust.cm.globalcache.impl.localjvm.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,19 +236,35 @@ public class GlobalCacheTest {
     }
 
     @Test
+    @Ignore
     public void testLinkedDomainObjectCache() {
-
+        // Получаем связанные доменные объекты которые еще не читали из кэша
+        String transactionId_1 = UUID.randomUUID().toString();
+        DomainObject domainObject_1_1 = generateDomainObject("test_1");
+        TestAccessToken accessToken_1 = new TestAccessToken(1);
+        List<DomainObject> domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_1);
+        assertNull(domainObjects);
+        
+        // имитируем чтение связанных из базы
+        DomainObject domainObject_2_1 = generateDomainObject("test_2");
+        DomainObject domainObject_2_2 = generateDomainObject("test_2");
+        DomainObject domainObject_2_3 = generateDomainObject("test_2");
+        List<DomainObject> domainObjects_1 = Arrays.asList(domainObject_2_1, domainObject_2_2, domainObject_2_3);
+        //globalCache.notifyLinkedObjectsRead(transactionId_1, domainObject_1.getId(), "test_2", "test_1", false, domainObjects_1, accessToken_1);
     }
 
-    /*@Test
+    @Test
+    @Ignore
     public void testStressNotifyRead() {
         testNotifyRead(10);
         testNotifyRead(100);
         testNotifyRead(1000);
         testNotifyRead(10000);
-        testNotifyRead(100000);
-        testNotifyRead(1000000);
-    }*/
+        testNotifyRead(20000);
+        testNotifyRead(30000);
+        testNotifyRead(40000);
+        testNotifyRead(50000);
+    }
     
     private void testNotifyRead(long count) {
         TestAccessToken accessToken_1 = new TestAccessToken(1);
