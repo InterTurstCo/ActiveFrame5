@@ -109,6 +109,10 @@ public class AuthenticationFilter implements Filter {
         // Получение данных аутентификации из сесии
         UserCredentials credentials = (UserCredentials) session.getAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
+        // Способ аутентификации текущего пользователя
+        String currentAuthenticationType = null;
+        AuthenticationProvider currentAuthenticationProvider = null;
+        
         // Если не аутентифицированы, или сессия завершена то выполняем аутентификацию 
         if (credentials == null || (credentials != null && session.isNew())) {
 
@@ -136,6 +140,7 @@ public class AuthenticationFilter implements Filter {
                         strongAuthentication(request, username, password);
 
                         credentials = new UserUidWithPassword(username, password);
+                        currentAuthenticationType =ApplicationSecurityManager.BASIC_AUTHENTICATION_TYPE;
                     } catch (Exception e) {
                         // В случае ошибки basic аутентификации возвращаем 403
                         response.setStatus(403);
@@ -154,6 +159,7 @@ public class AuthenticationFilter implements Filter {
                         strongAuthentication(request, loginData.getUserUid(), loginData.getPassword());
 
                         credentials = loginData;
+                        currentAuthenticationType = ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE;
                     } catch (LoginException | ServletException e) {
                         forwardToLogin(servletRequest, servletResponse, true);
                         return;
@@ -165,6 +171,8 @@ public class AuthenticationFilter implements Filter {
                 for (AuthenticationProvider authenticationProvider : authenticationProviders) {
                     credentials = authenticationProvider.login(request, response);
                     if (credentials != null) {
+                        currentAuthenticationType = ApplicationSecurityManager.PROVIDER_AUTHENTICATION_TYPE;
+                        currentAuthenticationProvider = authenticationProvider; 
                         break;
                     }
                 }
@@ -189,6 +197,7 @@ public class AuthenticationFilter implements Filter {
                     request.login(credentials.getUserUid(), ((UserUidWithPassword) credentials).getPassword());
                 }
                 session.setAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
+                session.setAttribute(ApplicationSecurityManager.HIDE_LOGOUT_BUTTON, isHideLogoutButton(currentAuthenticationType, currentAuthenticationProvider));
                 eventLogService.logLogInEvent(credentials.getUserUid(), request.getRemoteAddr(), true);
             } catch (Exception ex) {
                 forwardToLogin(servletRequest, servletResponse, true);
@@ -212,6 +221,16 @@ public class AuthenticationFilter implements Filter {
             } else {
                 log.debug("No user principal. Do NOT log out");
             }
+        }
+    }
+
+    private boolean isHideLogoutButton(String authenticationType, AuthenticationProvider provider) {
+        if (authenticationType.equals(ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE)) {
+            return false;
+        }else if (authenticationType.equals(ApplicationSecurityManager.BASIC_AUTHENTICATION_TYPE)) {
+            return true;
+        }else {
+            return provider.getLoginPage() == null;
         }
     }
 

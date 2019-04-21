@@ -148,16 +148,19 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
 
     headTable.setWidget(FIRST_ROW, 4, linksPanel);
     headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
-    HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
-    headTable.setWidget(FIRST_ROW, 5, logoutLink);
-    addSettingsClickHandler(decoratedSettings);
-
-    logoutLink.addDomHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        logout();
-      }
-    }, ClickEvent.getType());
-    headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
+    
+    if (!initialization.isHideLogoutButton()) {
+        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
+        headTable.setWidget(FIRST_ROW, 5, logoutLink);
+        addSettingsClickHandler(decoratedSettings);
+    
+        logoutLink.addDomHandler(new ClickHandler() {
+          public void onClick(ClickEvent event) {
+            logout();
+          }
+        }, ClickEvent.getType());
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
+    }
     head.add(headTable);
     setInfoPage(initialization.getHelperLink());
   }

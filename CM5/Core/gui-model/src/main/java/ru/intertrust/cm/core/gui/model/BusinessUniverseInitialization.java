@@ -41,6 +41,7 @@ public class BusinessUniverseInitialization implements Dto {
     private UserExtraInfo userExtraInfo;
     private String initialNavigationLink;
     private String applicationName;
+    private boolean hideLogoutButton;
 
     private LoginScreenConfig loginScreenConfig;
     private List<VersionInfo> productVersionList;
@@ -259,5 +260,13 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setLoginScreenConfig(LoginScreenConfig loginScreenConfig) {
         this.loginScreenConfig = loginScreenConfig;
+    }
+
+    public boolean isHideLogoutButton() {
+        return hideLogoutButton;
+    }
+
+    public void setHideLogoutButton(boolean hideLogoutButton) {
+        this.hideLogoutButton = hideLogoutButton;
     }
 }
