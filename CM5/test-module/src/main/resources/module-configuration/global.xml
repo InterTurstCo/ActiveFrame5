@@ -156,8 +156,8 @@
 
         <header-notification-limit limit="20"/>
         <!-- время сек. между посылкой запросов на обновление счётчиков, если значение < 0 таймер не активируется -->
-        <collection-count-refresh time="10"/>
+        <collection-count-refresh time="-10"/>
         <!-- время между обновлениями закэшированных значений счётчиков -->
-        <collection-count-cache-refresh time="10"/>
+        <collection-count-cache-refresh time="-10"/>
     </business-universe>
 </configuration>

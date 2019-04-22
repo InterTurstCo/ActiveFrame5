@@ -189,54 +189,67 @@
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="CountryUnions"
               tooltip="Вкладка 'География'">
             <child-links>
-                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран">
-                    <plugin>
-                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
-                        <domain-object-surfer domain-object-type-to-create="country">
-                            <collection-viewer style-name="row-by-row">
-                                <!--act:tool-bar useDefault="true">
-                                    <act:action name="oAction" componentName="ordinary.action"
-                                                text="Тест Ordinary Action"/>
-                                    <act:action-ref name-ref="aRefresh" order="10"/>
-                                    <act:action-separator order="20"/>
+                <link name="Countries2" display-text="Участники">
+                    <child-links>
+                        <link name="Cities3" display-text="Int. Solutions menu test">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="city">
+                                    <collection-viewer>
+                                        <collection-ref name="Cities"/>
+                                        <default-sort-criteria column-field="population" order="desc"/>
 
-                                    <act:action-group name="create.visual.parameters.objects" text="Новые обьекты"
-                                                      order="30" merged="true" imageClass="actionBar-create">
-                                        <act:action-ref name-ref="aCreate" text="Поле">
-                                            <act:action-params>
-                                                <act:action-param name="create.object.type" value="Department"/>
-                                                <act:action-param name="create.object.form" value="department_form2"/>
-                                            </act:action-params>
-                                        </act:action-ref>
-                                    </act:action-group>
-
-                                    <act:action-separator order="40"/>
-
-                                    <act:action-ref name-ref="aToggleEditOn" text="Редактировать" order="50"/>
-
-                                    <act:action-ref name-ref="aDelete" text="Удалить" order="60"/>
-
-                                    <act:action componentName="save-csv.action" order="70"
-                                                text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
-                                </act:tool-bar-->
-                                <collection-ref name="Countries"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
-                                <!--search-area-ref name="Countries-Search-Area"/>
-                                <search-collection-ref name="Countries"/>
-                                <filter-panel panel-state="open"/>
-                                <rows-selection default-state="empty" multi-selection="true"/>
-                                <user-settings save="true"/-->
-                            </collection-viewer>
-                            <!--form-viewer form-mapping-component="custom.mapping.component"/-->
-                            <!--form-viewer>
-                                <form-mapping domain-object-type="country" form="country_form"/>
-                                <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
-                            </form-viewer>
-                            <toggle-edit switch-to-read-mode-on-save="true">true</toggle-edit-->
-                        </domain-object-surfer>
-                    </plugin>
+                                        <child-collection name="Cities" group-object-type="city">
+                                            <collection-extra-filters>
+                                                <extra-filter name="byText">
+                                                    <param name="0" type="string" value="Москва"/>
+                                                </extra-filter>
+                                            </collection-extra-filters>
+                                            <expandable-objects>
+                                                <expandable-object object-name="city"/>
+                                            </expandable-objects>
+                                            <default-sort-criteria column-field="name" order="asc"/>
+                                        </child-collection>
+                                    </collection-viewer>
+                                    <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
+                                </domain-object-surfer>
+                            </plugin>
+                            <!--decorations>
+                                <collection-counter/>
+                            </decorations-->
+                        </link>
+                    </child-links>
                 </link>
-                <link name="Cities" display-text="Города, текст этого линка может не поместиться на весь экран">
+                <link name="Countries" display-text="Интеграционные решения">
+                    <child-links>
+                        <link name="Cities2" display-text="Int. Solutions menu test">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="city">
+                                    <collection-viewer>
+                                        <collection-ref name="Cities"/>
+                                        <default-sort-criteria column-field="population" order="desc"/>
+
+                                        <child-collection name="Cities" group-object-type="city">
+                                            <collection-extra-filters>
+                                                <extra-filter name="byText">
+                                                    <param name="0" type="string" value="Москва"/>
+                                                </extra-filter>
+                                            </collection-extra-filters>
+                                            <expandable-objects>
+                                                <expandable-object object-name="city"/>
+                                            </expandable-objects>
+                                            <default-sort-criteria column-field="name" order="asc"/>
+                                        </child-collection>
+                                    </collection-viewer>
+                                    <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
+                                </domain-object-surfer>
+                            </plugin>
+                            <!--decorations>
+                                <collection-counter/>
+                            </decorations-->
+                        </link>
+                    </child-links>
+                </link>
+                <link name="Cities" display-text="Города">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="city">
                             <collection-viewer>
@@ -258,9 +271,9 @@
                             <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
-                    <decorations>
+                    <!--decorations>
                         <collection-counter/>
-                    </decorations>
+                    </decorations-->
                 </link>
                 <link name="CountryUnions" display-text="Союзы">
                     <plugin>
@@ -396,7 +409,7 @@
             <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
 
 
-                <link name="Employee" display-text="Сотрудники" image="images/inbox.png" display-counter="true"
+                <link name="Employee" display-text="Сотрудники" image="images/inbox.png" display-counter="false"
                       counter-type="non-read">
                     <plugin>
                         <!-- DomainObjectSurferConfig и CustomPluginConfig должны наследоваться от PluginConfig -->
@@ -415,9 +428,9 @@
                         </domain-object-surfer>
                     </plugin>
 
-                    <decorations>
+                    <!--decorations>
                         <collection-counter/>
-                    </decorations>
+                    </decorations-->
                 </link>
 
                 <link name="Department" display-text="Отдел" image="images/docs.png">
@@ -432,9 +445,9 @@
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
-                    <decorations>
+                    <!--decorations>
                         <collection-counter/>
-                    </decorations>
+                    </decorations-->
                 </link>
 
                 <link name="Organization" display-text="Организация" image="images/inbox.png">
@@ -450,9 +463,9 @@
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
-                    <decorations>
+                    <!--decorations>
                         <collection-counter/>
-                    </decorations>
+                    </decorations-->
                 </link>
             </child-links>
         </link>
@@ -507,9 +520,9 @@
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
-                    <decorations>
+                    <!--decorations>
                         <collection-counter/>
-                    </decorations>
+                    </decorations-->
                 </link>
                 <link name="link_agent_esd" display-text="Агент СЭД">
                     <plugin>
