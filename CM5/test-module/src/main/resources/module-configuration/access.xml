@@ -4,10 +4,7 @@
     <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, т.к. они используются в матрицах доступа -->
     <static-group name="test-group-1"/>
 
-    <static-group name="Administrators" />
-    
     <static-group name="Administrators_Read_Only" />
-    
 
     <dynamic-group name="ManagementChain">
         <context>
