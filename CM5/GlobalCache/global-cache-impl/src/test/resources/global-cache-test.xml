@@ -11,4 +11,11 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="test_2">
+        <fields>
+            <string name="name" length="128" />
+            <reference name="test_1" type="test_1"/>
+        </fields>
+    </domain-object-type>
+
 </configuration>

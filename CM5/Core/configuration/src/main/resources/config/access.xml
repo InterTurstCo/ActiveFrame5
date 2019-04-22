@@ -2,15 +2,11 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
     <!-- Статические группы пользователей - мы вынуждены объявлять их здесь, т.к. они используются в матрицах доступа -->
-    <static-group name="Administrators" />
-
-    <static-group name="Administrators_Read_Only" />
-
     <static-group name="Superusers" />
 
-    <static-group name="test-group-1"/>
-
     <static-group name="InfoSecAuditor" />
+    
+    <static-group name="Administrators" />
     
     <!-- Динамические группы пользователей - вычисляются системой -->
     <!-- Безконтекстные группы не поддерживаются. Это статичная группа заполняемая точкой расширения на сохранение объектов -->
@@ -39,176 +35,6 @@
             </track-domain-objects>
         </members>
     </dynamic-group>
-
-    <dynamic-group name="PersonAndDelegates">
-        <!-- По одной группе на каждый объект "Person" (пользователь) в системе -->
-        <context>
-            <domain-object type="Employee" />
-        </context>
-        <members>
-            <!-- Отслеживаем сохранение/удаление объектов типа "Delegation" в статусе "active" -->
-            <track-domain-objects type="Delegation">
-                <!-- Указываем, какую именно группу (с каким контекстом) менять - берём пользователя из поля "person" -->
-                <bind-context>
-                    <doel>person</doel>
-                </bind-context>
-                <!-- Указываем, как получить пользователя, который войдёт в группу - берём его из поля "delegate" -->
-                <get-person>
-                    <doel>Delegation^person.delegate</doel>
-                </get-person>
-            </track-domain-objects>
-            <track-domain-objects>
-                <get-person>
-                    <doel>id</doel>
-                </get-person>
-            </track-domain-objects>
-        </members>
-        <!-- Также включаем всех членов группы "Пользователь" с тем же контекстом -->
-        <!-- include-group name="Пользователь" / -->
-        <!-- Вероятно, по соображениям эффективности выгоднее будет не включать здесь группу "Пользователь", а повторить тег trackObjects из
-            неё -->
-    </dynamic-group>
-
-    <dynamic-group name="DepartmentEmployees">
-        <context>
-            <domain-object type="Department" />
-        </context>
-        <members>
-            <track-domain-objects type="Employee">
-                <bind-context>
-                    <doel>Department</doel>
-                </bind-context>
-                <get-group name="PersonAndDelegates">
-                    <doel>Employee^Department</doel>
-                </get-group>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-    <dynamic-group name="AgentPersons">
-        <context>
-            <domain-object type="agent_person" />
-        </context>
-        <members>
-            <track-domain-objects type="agent_person">
-                <get-person>
-                    <doel>person</doel>
-                </get-person>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-    <dynamic-group name="OrganizationEmployees">
-        <context>
-            <domain-object type="Organization" />
-        </context>
-        <members>
-            <track-domain-objects type="Employee">
-                <bind-context>
-                    <doel>Department.Organization</doel>
-                </bind-context>
-                <get-group name="DepartmentEmployees">
-                    <!-- doel>Department^Organization.Employee^Department</doel -->
-                    <!-- Врепенное решение пока не починится DOEL -->
-                    <doel>Department^Organization</doel>
-                </get-group>
-            </track-domain-objects>
-            <track-domain-objects type="Department">
-                <bind-context>
-                    <doel>Organization</doel>
-                </bind-context>
-                <get-group name="DepartmentEmployees">
-                    <!-- doel>Department^Organization.Employee^Department</doel -->
-                    <!-- Врепенное решение пока не починится DOEL -->
-                    <doel>Department^Organization</doel>
-                </get-group>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-
-    <dynamic-group name="EmployeeDepartmentEmployees">
-        <!-- По одной группе на каждый объект "Employee" (сотрудник) в системе -->
-        <context>
-            <domain-object type="Employee" />
-        </context>
-        <members>
-            <track-domain-objects>
-                <get-group name="DepartmentEmployees">
-                    <doel>Department</doel>
-                </get-group>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-    <dynamic-group name="OrganizationBoss">
-        <context>
-            <domain-object type="Organization" />
-        </context>
-        <members>
-            <track-domain-objects>
-                <get-group name="PersonAndDelegates">
-                    <doel>Boss</doel>
-                </get-group>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-    <dynamic-group name="DepartmentBosses">
-        <context>
-            <domain-object type="Organization" />
-        </context>
-        <members>
-            <track-domain-objects type="Department">
-                <bind-context>
-                    <doel>Organization</doel>
-                </bind-context>
-                <get-group name="PersonAndDelegates">
-                    <doel>Department^Organization.Boss</doel>
-                </get-group>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-    <dynamic-group name="DepartmentBoss">
-        <context>
-            <domain-object type="Department" />
-        </context>
-        <members>
-            <track-domain-objects>
-                <get-group name="PersonAndDelegates">
-                    <doel>Boss</doel>
-                </get-group>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
-    <!-- Контекстные роли -->
-    <context-role name="DocumentAuthor">
-        <context>
-            <domain-object type="Outgoing_Document" />
-        </context>
-        <groups>
-            <track-domain-objects>
-                <get-group name="PersonAndDelegates">
-                    <doel>Author</doel>
-                </get-group>
-            </track-domain-objects>
-        </groups>
-    </context-role>
-
-    <context-role name="Author">
-        <context>
-            <domain-object type="Internal_Document" />
-        </context>
-        <groups>
-            <track-domain-objects>
-                <get-group name="PersonAndDelegates">
-                    <doel>docAuthor</doel>
-                </get-group>
-            </track-domain-objects>
-        </groups>
-    </context-role>
     
     <context-role name="report_result_owner">
         <context>
@@ -222,48 +48,6 @@
             </track-domain-objects>
         </groups>
     </context-role>    
-
-    <context-role name="AuthorBosses">
-        <context>
-            <domain-object type="Internal_Document" />
-        </context>
-        <groups>
-            <track-domain-objects>
-                <get-group name="DepartmentBosses">
-                    <doel>docAuthor.Department.Organization</doel>
-                </get-group>
-            </track-domain-objects>
-        </groups>
-    </context-role>
-
-    <context-role name="Registrator">
-        <context>
-            <domain-object type="Internal_Document" />
-        </context>
-        <groups>
-            <track-domain-objects>
-                <get-group name="PersonAndDelegates">
-                    <doel>Registrant</doel>
-                </get-group>
-            </track-domain-objects>
-        </groups>
-    </context-role>
-
-    <context-role name="Negotiator">
-        <context>
-            <domain-object type="Internal_Document" />
-        </context>
-        <groups>
-            <track-domain-objects type="Negotiation_Card">
-                <bind-context>
-                    <doel>Parent_Document</doel>
-                </bind-context>
-                <get-group name="PersonAndDelegates">
-                    <doel>Negotiation_Card^Parent_Document.Negotiator</doel>
-                </get-group>
-            </track-domain-objects>
-        </groups>
-    </context-role>
 
     <context-role name="task-addressee">
         <context>
@@ -351,99 +135,7 @@
         </groups>
     </context-role>
 
-    <!-- <dynamic-group name="Редактор Стран"> По одной группе на каждый объект "Person" (пользователь) в системе <context> <domain-object type="country"
-        /> </context> <members> Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е.
-        где контекст = объекту <track-domain-objects type="country" status="Active" /> </members> </dynamic-group> <context-role name="Редактор Стран">
-        <context> <domain-object type="country" /> </context> <groups> <track-domain-objects> <get-group name="Редактор Стран"> <doel>Author</doel> </get-group>
-        </track-domain-objects> </groups> </context-role> -->
-
     <!-- Матрицы доступа -->
-    <access-matrix type="Outgoing_Document">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-        <status name="Draft">
-            <read>
-                <permit-role name="DocumentAuthor" />
-            </read>
-            <write>
-                <permit-role name="DocumentAuthor" />
-            </write>
-            <delete>
-                <permit-role name="DocumentAuthor" />
-            </delete>
-            <create-child type="Employee">
-                <permit-role name="DocumentAuthor" />
-            </create-child>
-            <execute-action name="action1">
-                <permit-role name="DocumentAuthor" />
-            </execute-action>
-        </status>
-    </access-matrix>
-
-    <access-matrix type="Employee" read-everybody="true">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-        <status name="Active">
-
-            <!-- На чтение есть права у родителя read-everybody
-            <read>
-                <permit-group name="Administrators" />
-                <permit-group name="Administrators_Read_Only" />
-            </read-->
-            <write>
-                <permit-group name="Administrators" />
-            </write>
-            <delete>
-                <permit-group name="Administrators" />
-            </delete>
-            <execute-action name="action1">
-                <permit-group name="Administrators" />
-            </execute-action>
-        </status>
-    </access-matrix>
-
-
-    <access-matrix type="Department" read-everybody="true">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-        <status name="Active">
-
-            <write>
-                <permit-group name="Administrators" />
-            </write>
-            <delete>
-                <permit-group name="Administrators" />
-            </delete>
-            <execute-action name="action1">
-                <permit-group name="Administrators" />
-            </execute-action>
-        </status>
-    </access-matrix>
-
-    <access-matrix type="Organization">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-        <status name="Active">
-            <read>
-                <permit-group name="Administrators" />
-                <permit-group name="Administrators_Read_Only" />
-            </read>
-            <write>
-                <permit-group name="Administrators" />
-            </write>
-            <delete>
-                <permit-group name="Administrators" />
-            </delete>
-            <execute-action name="action1">
-                <permit-group name="Administrators" />
-            </execute-action>
-        </status>
-    </access-matrix>
-
     <access-matrix type="bu_user_settings">
         <create>
             <permit-group name="AllPersons" />
@@ -458,9 +150,6 @@
             <delete>
                 <permit-group name="AllPersons" />
             </delete>
-            <execute-action name="action1">
-                <permit-group name="Administrators" />
-            </execute-action>
         </status>
     </access-matrix>
 
@@ -478,9 +167,6 @@
             <delete>
                 <permit-group name="AllPersons" />
             </delete>
-            <execute-action name="action1">
-                <permit-group name="Administrators" />
-            </execute-action>
         </status>
     </access-matrix>
 
@@ -498,97 +184,9 @@
             <delete>
                 <permit-group name="AllPersons" />
             </delete>
-            <execute-action name="action1">
-                <permit-group name="Administrators" />
-            </execute-action>
         </status>
     </access-matrix>
 
-    <!-- Внутренний документ -->
-    <access-matrix type="Internal_Document">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-        <status name="Draft">
-            <read>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-                <permit-role name="Registrator" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-            </write>
-            <delete>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-            </delete>
-            <execute-action name="StartProcessAction">
-                <permit-role name="Author" />
-            </execute-action>
-            <execute-action name="ChangeStatusAction">
-                <permit-role name="Author" />
-            </execute-action>
-            <execute-action name="start-internal-document-process">
-                <permit-role name="Author" />
-            </execute-action>            
-        </status>
-        <status name="Negotiation">
-            <read>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-                <permit-role name="Registrator" />
-                <permit-role name="Negotiator" />                
-            </read>
-            <write>
-                <permit-role name="Author" />
-            </write>
-        </status>
-        <status name="Registration">
-            <read>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-                <permit-role name="Registrator" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-                <permit-role name="Registrator" />
-            </write>
-        </status>
-        <status name="Registred">
-            <read>
-                <permit-group name="AllPersons" />
-            </read>
-            <delete>
-                <permit-role name="Author" />
-            </delete>
-        </status>
-        <status name="OnRevision">
-            <read>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-                <permit-role name="Registrator" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-            </write>
-        </status>
-    </access-matrix>
-
-    <!-- Карточка согласования. Наследует права у родительского документа -->
-    <access-matrix type="Negotiation_Card" matrix-reference-field="Parent_Document" />
-
-    <access-matrix type="Examine_Card" >
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="Resolution_Card" >
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
 
     <access-matrix type="Status" read-everybody="true" >
         <create>
@@ -652,12 +250,6 @@
             </status>
     </access-matrix>
 
-    <access-matrix type="Assignment">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
     <access-matrix type="Authentication_Info">
         <create>
             <permit-group name="AllPersons" />
@@ -670,24 +262,6 @@
                 <permit-role name="authentification_info_owner"/>
             </write>
         </status>
-    </access-matrix>
-
-    <access-matrix type="org_middle">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="Tst_Employee">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
-
-    <access-matrix type="Delegation">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
     </access-matrix>
 
     <access-matrix type="report_template" read-everybody="true"/>
@@ -769,6 +343,26 @@
             </write>
         </status>
     </access-matrix>
+
+    <access-matrix type="user_event_log">
+        <status name="*">
+            <read>
+                <permit-group name="InfoSecAuditor"/>
+            </read>
+            <delete>
+                <permit-group name="InfoSecAuditor"/>
+            </delete>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="object_access_log">
+        <status name="*">
+            <read>
+                <permit-group name="InfoSecAuditor"/>
+            </read>
+            <delete>
+                <permit-group name="InfoSecAuditor"/>
+            </delete>
+        </status>
+    </access-matrix>
 </configuration>
-
-

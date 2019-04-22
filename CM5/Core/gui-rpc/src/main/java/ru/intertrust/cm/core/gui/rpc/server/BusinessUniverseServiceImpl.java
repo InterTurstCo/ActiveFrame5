@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
@@ -154,6 +155,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 versionInfos.add(versionInfo);
             }
             initialization.setProductVersionList(versionInfos);
+        }
+        
+        Boolean hideLogoutButton = (Boolean)getThreadLocalRequest().getSession().getAttribute(ApplicationSecurityManager.HIDE_LOGOUT_BUTTON);
+        if (hideLogoutButton != null) {
+            initialization.setHideLogoutButton(hideLogoutButton);
         }
         
         return initialization;

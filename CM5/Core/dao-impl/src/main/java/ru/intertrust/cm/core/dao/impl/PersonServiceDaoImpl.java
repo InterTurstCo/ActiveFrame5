@@ -39,15 +39,15 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
     public DomainObject findPersonByLogin(String login) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        Map<String, Value> uniqueKeyValuesByName = new HashMap<>();
-        uniqueKeyValuesByName.put("login", new StringValue(login));
+        List<Value> params = new ArrayList<Value>();
+        params.add(new StringValue(login.toLowerCase()));
 
-        DomainObject person = domainObjectDao.findByUniqueKey(GenericDomainObject.PERSON_DOMAIN_OBJECT, uniqueKeyValuesByName, accessToken);
-
-        if (person == null) {
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(login) = {0}", params, 0, 0, accessToken);
+        if (collection.size() == 0) {
             throw new IllegalArgumentException("Person not found: " + login);
         }
-
+        
+        DomainObject person = domainObjectDao.find(collection.get(0).getId(), accessToken);
         return person;
     }
 
@@ -75,10 +75,10 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
 
         String query = "select a.id, alter_uid from person_alt_uids a ";
         query += "join person p on p.id = a.person ";
-        query += "where p.login = {0} and a.alter_uid_type = {1}";
+        query += "where lower(p.login) = {0} and a.alter_uid_type = {1}";
         
         List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(login));
+        params.add(new StringValue(login.toLowerCase()));
         params.add(new StringValue(alterUidType));
         
         
@@ -96,10 +96,10 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
         String query = "select person from person_alt_uids ";
-        query += "where alter_uid = {0} and alter_uid_type = {1}";
+        query += "where lower(alter_uid) = {0} and alter_uid_type = {1}";
         
         List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(alterUid));
+        params.add(new StringValue(alterUid.toLowerCase()));
         params.add(new StringValue(alterUidType));        
         
         DomainObject result = null;

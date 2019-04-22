@@ -32,6 +32,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
@@ -63,16 +64,12 @@ public class AuthenticationFilter implements Filter {
 
     private SecurityConfig securityConfig;
 
+    private EventLogService eventLogService;
+
     /**
      * Домен безопасности для строгой непосредственной аутентификации
      */
     private String strongSecurityDomain;
-
-    /**
-     * Домен безопасности для доверенной аутентификации, должен совпадать с тем,
-     * что мы указали в файле jboss-app.xml
-     */
-    private String trustSecurityDomain;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -86,6 +83,8 @@ public class AuthenticationFilter implements Filter {
         securityConfig = applicationSecurityManager.getSecurityConfig();
 
         strongSecurityDomain = ctx.getEnvironment().getProperty(AF5_STRONG_SECURITY_DOMAIN);
+
+        eventLogService = ctx.getBean(EventLogService.class);
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -110,6 +109,10 @@ public class AuthenticationFilter implements Filter {
         // Получение данных аутентификации из сесии
         UserCredentials credentials = (UserCredentials) session.getAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
 
+        // Способ аутентификации текущего пользователя
+        String currentAuthenticationType = null;
+        AuthenticationProvider currentAuthenticationProvider = null;
+        
         // Если не аутентифицированы, или сессия завершена то выполняем аутентификацию 
         if (credentials == null || (credentials != null && session.isNew())) {
 
@@ -137,6 +140,7 @@ public class AuthenticationFilter implements Filter {
                         strongAuthentication(request, username, password);
 
                         credentials = new UserUidWithPassword(username, password);
+                        currentAuthenticationType =ApplicationSecurityManager.BASIC_AUTHENTICATION_TYPE;
                     } catch (Exception e) {
                         // В случае ошибки basic аутентификации возвращаем 403
                         response.setStatus(403);
@@ -155,6 +159,7 @@ public class AuthenticationFilter implements Filter {
                         strongAuthentication(request, loginData.getUserUid(), loginData.getPassword());
 
                         credentials = loginData;
+                        currentAuthenticationType = ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE;
                     } catch (LoginException | ServletException e) {
                         forwardToLogin(servletRequest, servletResponse, true);
                         return;
@@ -166,6 +171,8 @@ public class AuthenticationFilter implements Filter {
                 for (AuthenticationProvider authenticationProvider : authenticationProviders) {
                     credentials = authenticationProvider.login(request, response);
                     if (credentials != null) {
+                        currentAuthenticationType = ApplicationSecurityManager.PROVIDER_AUTHENTICATION_TYPE;
+                        currentAuthenticationProvider = authenticationProvider; 
                         break;
                     }
                 }
@@ -181,18 +188,20 @@ public class AuthenticationFilter implements Filter {
         //Например для использования в SSO
         //authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
 
-        LoginContext loginContext = null;
         if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
             try {
-                // Выполняем фейковую аутентификацию если задан trustSecurityDomain, или реальную аутентификацию если не задан
-                if (trustSecurityDomain != null) {
-                    loginContext = login(trustSecurityDomain, credentials.getUserUid(), credentials.getUserUid());
-                } else {
-                    request.login(credentials.getUserUid(), ((UserUidWithPassword)credentials).getPassword());
+                // Выполняем фейковую аутентификацию если задан strongSecurityDomain, или реальную аутентификацию если не задан
+                if (strongSecurityDomain != null) {
+                    request.login(credentials.getUserUid(), credentials.getUserUid());
+                }else {
+                    request.login(credentials.getUserUid(), ((UserUidWithPassword) credentials).getPassword());
                 }
                 session.setAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
+                session.setAttribute(ApplicationSecurityManager.HIDE_LOGOUT_BUTTON, isHideLogoutButton(currentAuthenticationType, currentAuthenticationProvider));
+                eventLogService.logLogInEvent(credentials.getUserUid(), request.getRemoteAddr(), true);
             } catch (Exception ex) {
                 forwardToLogin(servletRequest, servletResponse, true);
+                eventLogService.logLogInEvent(credentials.getUserUid(), request.getRemoteAddr(), false);
             }
         } else {
             log.debug("User principal is already in request");
@@ -201,15 +210,10 @@ public class AuthenticationFilter implements Filter {
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
-            // TODO проработать необходимость logout при strong и trust доменов безопасности
             if (JeeServerFamily.isLogoutRequired(request)) {
                 try {
-                    if (trustSecurityDomain != null) {
+                    if (strongSecurityDomain != null) {
                         request.logout();
-                    } else {
-                        if (loginContext != null) {
-                            loginContext.logout();
-                        }
                     }
                 } catch (Exception e) {
                     log.error("request logout failed", e);
@@ -217,6 +221,16 @@ public class AuthenticationFilter implements Filter {
             } else {
                 log.debug("No user principal. Do NOT log out");
             }
+        }
+    }
+
+    private boolean isHideLogoutButton(String authenticationType, AuthenticationProvider provider) {
+        if (authenticationType.equals(ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE)) {
+            return false;
+        }else if (authenticationType.equals(ApplicationSecurityManager.BASIC_AUTHENTICATION_TYPE)) {
+            return true;
+        }else {
+            return provider.getLoginPage() == null;
         }
     }
 
@@ -231,14 +245,19 @@ public class AuthenticationFilter implements Filter {
      * @throws ServletException
      */
     private void strongAuthentication(HttpServletRequest request, String login, String password) throws LoginException, ServletException {
-        if (strongSecurityDomain != null) {
-            // Выполяем реальную аутентификациию
-            LoginContext lc = login(strongSecurityDomain, login, password);
-            // Если все прошло успешно выполняем logout, потому что далее выполнится фейковая аутентификация
-            lc.logout();
-        } else {
-            request.login(login, password);
-            request.logout();
+        try {
+            if (strongSecurityDomain != null) {
+                // Выполяем реальную аутентификациию
+                LoginContext lc = login(strongSecurityDomain, login, password);
+                // Если все прошло успешно выполняем logout, потому что далее выполнится фейковая аутентификация
+                lc.logout();
+            } else {
+                request.login(login, password);
+                request.logout();
+            }
+        } catch (LoginException | ServletException ex) {
+            eventLogService.logLogInEvent(login, request.getRemoteAddr(), false);
+            throw ex;
         }
     }
 
