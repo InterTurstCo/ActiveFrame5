@@ -232,11 +232,9 @@ public class GlobalCacheTest {
         // Ищем в кэше после удаления
         domainObject = globalCache.getDomainObject(transactionId_1, domainObject_1.getId(), accessToken_2);
         assertNull(domainObject);
-
     }
 
     @Test
-    @Ignore
     public void testLinkedDomainObjectCache() {
         // Получаем связанные доменные объекты которые еще не читали из кэша
         String transactionId_1 = UUID.randomUUID().toString();
@@ -250,7 +248,62 @@ public class GlobalCacheTest {
         DomainObject domainObject_2_2 = generateDomainObject("test_2");
         DomainObject domainObject_2_3 = generateDomainObject("test_2");
         List<DomainObject> domainObjects_1 = Arrays.asList(domainObject_2_1, domainObject_2_2, domainObject_2_3);
-        //globalCache.notifyLinkedObjectsRead(transactionId_1, domainObject_1.getId(), "test_2", "test_1", false, domainObjects_1, accessToken_1);
+        globalCache.notifyLinkedObjectsRead(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, domainObjects_1, System.currentTimeMillis(), accessToken_1);
+        
+        // Проверяем кэш
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_1);
+        assertNotNull(domainObjects);
+        assertTrue(domainObjects.size() == 3);
+        
+        // Проверяем под другим пользователем
+        TestAccessToken accessToken_2 = new TestAccessToken(2);
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_2);
+        assertNull(domainObjects);
+        
+        // имитируем чтение одного ДО вторым пользователем
+        globalCache.notifyRead(transactionId_1, domainObject_2_1.getId(), domainObject_2_1, accessToken_2);
+        
+        // Проверяем получение коллекции, ничего не должно изменится под обоими пользователями
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_1);
+        assertNotNull(domainObjects);
+        assertTrue(domainObjects.size() == 3);
+
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_2);
+        assertNull(domainObjects);
+
+        // Имитируем чтение списка вторым пользователем
+        globalCache.notifyLinkedObjectsRead(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, domainObjects_1, System.currentTimeMillis(), accessToken_2);
+        
+        // Проверяем что в кэше появились данные у второго пользователя
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_2);
+        assertNotNull(domainObjects);
+        assertTrue(domainObjects.size() == 3);
+        
+        // И Что у первого не пропали
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_1);
+        assertNotNull(domainObjects);
+        assertTrue(domainObjects.size() == 3);
+        
+        // Меняем один ДО в списке
+        domainObject_2_1 = updateDomainObject(domainObject_2_1);
+        globalCache.notifyRead(transactionId_1, domainObject_2_1.getId(), domainObject_2_1, accessToken_1);
+        
+        // В кэше у обоих пользователей должны обновится данные этого ДО
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_1);
+        assertEquals(domainObjects.get(0), domainObject_2_1);
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_2);
+        assertEquals(domainObjects.get(0), domainObject_2_1);
+        
+        // Иметируем удаление доменного объекта
+        DomainObjectsModification domainObjectsModification = new DomainObjectsModification(transactionId_1);
+        domainObjectsModification.addDeletedDomainObject(domainObject_2_1);
+        globalCache.notifyCommit(domainObjectsModification, new PersonAccessChanges());
+        
+        // Кэши обоих пользователей должны очистится
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_1);
+        assertNull(domainObjects);
+        domainObjects = globalCache.getLinkedDomainObjects(transactionId_1, domainObject_1_1.getId(), "test_2", "test_1", false, accessToken_2);
+        assertNull(domainObjects);
     }
 
     @Test
