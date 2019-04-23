@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
+import ru.intertrust.cm.core.gui.model.Browser;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Client;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -43,6 +44,7 @@ import javax.ejb.EJBException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
@@ -56,7 +58,8 @@ import java.util.*;
 @WebServlet(name = "BusinessUniverseService",
         urlPatterns = "/remote/BusinessUniverseService")
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
-    private static final String CLIENT_INFO_SESSION_ATTRIBUTE = "_CLIENT_INFO";
+    private static final String CLIENT_INFO_USER_AGENT_COOKIE = "client.info.user.agent.cookie";
+    private static final String CLIENT_INFO_TIME_ZONE_COOKIE = "client.info.time.zone.cookie";
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
     private static final String APPLICATION_URI_ATTRIBUTE = "uri";
 
@@ -93,8 +96,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
-
-        getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
+        // Информацию user info теперь храним в куках, чтобы небыло ошибок после таймаута сесии
+        getThreadLocalResponse().addCookie(new Cookie(CLIENT_INFO_USER_AGENT_COOKIE, clientInfo.getDescriptor()));
+        getThreadLocalResponse().addCookie(new Cookie(CLIENT_INFO_TIME_ZONE_COOKIE, clientInfo.getTimeZoneId()));
+        
         UserInfo userInfo = getUserInfo();
         GuiContext.get().setUserInfo(userInfo);
 
@@ -283,11 +288,27 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private UserInfo getUserInfo() {
-        final Client client = (Client) this.getThreadLocalRequest().getSession().getAttribute(CLIENT_INFO_SESSION_ATTRIBUTE);
+        Client client = getClientInfo();
+        
         final UserInfo userInfo = new UserInfo();
         userInfo.setTimeZoneId(client.getTimeZoneId());
         userInfo.setLocale(profileService.getPersonLocale());
         return userInfo;
+    }
+    
+    private Client getClientInfo() {
+        final Browser client = new Browser();
+        Cookie[] cookies = getThreadLocalRequest().getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(CLIENT_INFO_TIME_ZONE_COOKIE)) {
+                    client.setTimeZoneId(cookie.getValue());
+                }else if(cookie.getName().equals(CLIENT_INFO_USER_AGENT_COOKIE)) {
+                    client.setDescriptor(cookie.getValue());
+                }
+            }
+        }                
+        return client;        
     }
 
     private List<String> getTimeZoneIds() {
