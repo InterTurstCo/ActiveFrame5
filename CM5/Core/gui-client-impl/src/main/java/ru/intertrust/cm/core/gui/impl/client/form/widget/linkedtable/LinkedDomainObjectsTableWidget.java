@@ -184,8 +184,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     final CreatedObjectsConfig createdObjectsConfig = currentState.getRestrictedCreatedObjectsConfig();
     if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
       if (createdObjectsConfig.getCreateObjectConfigs().size() == 1) {
-        String domainObjectType = createdObjectsConfig.getCreateObjectConfigs().get(0).getDomainObjectType();
-        return button.addClickHandler(new OpenFormClickHandler(domainObjectType, null));
+
+        final CreatedObjectConfig createdObjectConfig = createdObjectsConfig.getCreateObjectConfigs().get(0);
+        String domainObjectType = createdObjectConfig.getDomainObjectType();
+        String linkedFormName = createdObjectConfig.getLinkedFormName();
+
+        return button.addClickHandler(new OpenFormClickHandler(domainObjectType, linkedFormName, null));
       } else {
         return button.addClickHandler(new ClickHandler() {
           @Override
@@ -201,10 +205,12 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
   class OpenFormClickHandler implements ClickHandler {
     private String domainObjectType;
+    private String linkedFormName;
     private PopupPanel sourcePopup;
 
-    OpenFormClickHandler(String domainObjectType, PopupPanel sourcePopup) {
+    OpenFormClickHandler(String domainObjectType, String linkedFormName, PopupPanel sourcePopup) {
       this.domainObjectType = domainObjectType;
+      this.linkedFormName = linkedFormName;
       this.sourcePopup = sourcePopup;
     }
 
@@ -217,7 +223,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
           @Override
           public void onClick(ClickEvent event) {
             rewriteAlertDialog.hide();
-            showNewForm(domainObjectType);
+            showNewForm(domainObjectType, linkedFormName);
           }
         });
         rewriteAlertDialog.addCancelButtonClickHandler(new ClickHandler() {
@@ -228,7 +234,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         });
         rewriteAlertDialog.center();
       } else {
-        showNewForm(domainObjectType);
+        showNewForm(domainObjectType, linkedFormName);
       }
       if (sourcePopup != null) {
         sourcePopup.hide();
@@ -251,7 +257,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         final AbsolutePanel menuItemContainer = new AbsolutePanel();
         menuItemContainer.setStyleName("settingsItem");
         menuItemContainer.add(new Label(createdObjectConfig.getText()));
-        menuItemContainer.addDomHandler(new OpenFormClickHandler(createdObjectConfig.getDomainObjectType(), this), ClickEvent.getType());
+        final String domainObjectType = createdObjectConfig.getDomainObjectType();
+        final String linkedFormName = createdObjectConfig.getLinkedFormName();
+        menuItemContainer.addDomHandler(new OpenFormClickHandler(domainObjectType, linkedFormName, this), ClickEvent.getType());
         body.add(menuItemContainer);
       }
       container.add(header);
@@ -260,7 +268,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     }
   }
 
-  private void showNewForm(String domainObjectType) {
+  private void showNewForm(String domainObjectType, String linkedFormName) {
 
     LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
     DialogBoxAction saveAction = new DialogBoxAction() {
@@ -320,6 +328,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         .withHeight(GuiUtil.getModalHeight(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
         .withWidth(GuiUtil.getModalWidth(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
         .withObjectType(domainObjectType)
+        .withLinkedFormName(linkedFormName)
         .withLinkedFormMapping(clonedMappingConfig)
         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
         .withParentWidgetIds(currentState.getParentWidgetIdsForNewFormMap())

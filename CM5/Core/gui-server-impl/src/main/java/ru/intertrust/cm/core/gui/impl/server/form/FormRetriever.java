@@ -59,8 +59,10 @@ public class FormRetriever extends FormProcessor {
           .getBean(formPluginConfig.getDomainObjectUpdatorComponent());
       domainObjectUpdater.updateDomainObject(root, formPluginConfig.getUpdaterContext());
     }
-    return buildDomainObjectForm(root, formPluginConfig.getFormViewerConfig(), formPluginConfig.getParentFormState(),
-        formPluginConfig.getParentId());
+    final FormViewerConfig formViewerConfig = formPluginConfig.getFormViewerConfig();
+    final FormDisplayData formDisplayData = buildDomainObjectForm(root, formViewerConfig, formPluginConfig);
+
+    return formDisplayData;
   }
 
   public FormDisplayData getForm(Id domainObjectId, FormViewerConfig formViewerConfig) {
@@ -78,7 +80,7 @@ public class FormRetriever extends FormProcessor {
       DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
       domainObjectUpdater.updateDomainObject(root, updaterContext);
     }
-    return buildDomainObjectForm(root, formViewerConfig, null, null);
+    return buildDomainObjectForm(root, formViewerConfig, null);
   }
 
 
@@ -256,13 +258,14 @@ public class FormRetriever extends FormProcessor {
     return widgetComponents;
   }
 
-  private FormDisplayData buildDomainObjectForm(DomainObject root, FormViewerConfig formViewerConfig, FormState parentFormState, Id parentId) {
+  private FormDisplayData buildDomainObjectForm(DomainObject root, FormViewerConfig formViewerConfig, FormPluginConfig formPluginConfig) {
+    //, , FormState parentFormState, Id parentId
     // todo validate that constructions like A^B.C.D aren't allowed or A.B^C
     // allowed are such definitions only:
     // a.b.c.d - direct links
     // a^b - link defining 1:N relationship (widgets changing attributes can't have such field path)
     // a^b.c - link defining N:M relationship (widgets changing attributes can't have such field path)
-    FormConfig formConfig = loadFormConfig(root, formViewerConfig);
+    FormConfig formConfig = loadFormConfig(root, formViewerConfig, formPluginConfig);
     FormMappingConfig formViewerMappingConfig = findFormViewerMappingConfig(root, formViewerConfig);
     FormDefaultValueSetter formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig, formViewerMappingConfig);
 
@@ -275,8 +278,14 @@ public class FormRetriever extends FormProcessor {
     formObjects.setRootNode(ROOT_NODE);
     FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
         MessageResourceProvider.getMessages(GuiContext.getUserLocale()), formViewerConfig);
-    formState.setParentState(parentFormState);
-    formState.setParentId(parentId);
+
+    if (formPluginConfig != null) {
+      final FormState parentFormState = formPluginConfig.getParentFormState();
+      formState.setParentState(parentFormState);
+
+      final Id parentId = formPluginConfig.getParentId();
+      formState.setParentId(parentId);
+    }
 
     /*
      Если это свободный тип формы, филдпасы компонентов не проверяем, за их содержимое и дальнейшую
@@ -416,10 +425,10 @@ public class FormRetriever extends FormProcessor {
     return null;
   }
 
-  private FormConfig loadFormConfig(DomainObject root, FormViewerConfig formViewerConfig) {
+  private FormConfig loadFormConfig(DomainObject root, FormViewerConfig formViewerConfig, FormPluginConfig formPluginConfig) {
     FormConfig formConfig = null;
 
-    formConfig = findLinkedForm(formViewerConfig, root.getTypeName());
+    formConfig = findLinkedForm(formPluginConfig, formViewerConfig, root.getTypeName());
     if (formConfig != null) {
       return formConfig;
     }
@@ -443,7 +452,15 @@ public class FormRetriever extends FormProcessor {
     return formConfig;
   }
 
-  private FormConfig findLinkedForm(FormViewerConfig formViewerConfig, final String domainObjectType) {
+  private FormConfig findLinkedForm(FormPluginConfig formPluginConfig, FormViewerConfig formViewerConfig, final String domainObjectType) {
+
+    if(formPluginConfig != null) {
+      final String linkedFormName = formPluginConfig.getLinkedFormName();
+      if (linkedFormName != null) {
+        return getLocalizedFormConfig(linkedFormName);
+      }
+    }
+
     if (formViewerConfig != null && formViewerConfig instanceof LinkedFormViewerConfig) {
       LinkedFormViewerConfig linkedFormMappingConfig = (LinkedFormViewerConfig) formViewerConfig;
       List<LinkedFormConfig> linkedFormConfigs = linkedFormMappingConfig.getLinkedFormConfigs();

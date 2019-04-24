@@ -47,13 +47,16 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  * Created by andrey on 27.02.14.
  */
 public class LinkedFormDialogBoxBuilder  {
+
     private static final int MINIMAL_HEIGHT = 200;
     private static final int MINIMAL_WIDTH = 300;
+
     private DialogBoxAction saveAction;
     private DialogBoxAction cancelAction;
     private FormState formState;
     private Id id;
     private String objectTypeName;
+    private String linkedFormName;
     private FormPlugin formPlugin;
     private String height = "300px";
     private String width = "1000px";
@@ -96,6 +99,12 @@ public class LinkedFormDialogBoxBuilder  {
         this.objectTypeName = objectTypeName;
         return this;
     }
+
+    public LinkedFormDialogBoxBuilder withLinkedFormName(String linkedFormName) {
+        this.linkedFormName = linkedFormName;
+        return this;
+    }
+
     public LinkedFormDialogBoxBuilder withEditable(boolean editable) {
         this.editable = editable;
         return this;
@@ -145,7 +154,7 @@ public class LinkedFormDialogBoxBuilder  {
         if (id != null) {
             linkedFormPluginConfig = createLinkedFormPluginConfig(id, linkedFormMappingConfig);
         } else if (this.objectTypeName != null) {
-            linkedFormPluginConfig = createLinkedFormPluginConfig(this.objectTypeName, linkedFormMappingConfig);
+            linkedFormPluginConfig = createLinkedFormPluginConfig(this.objectTypeName, this.linkedFormName, linkedFormMappingConfig);
         } else {
             throw new IllegalArgumentException("Id or objectTypeName should be set");
         }
@@ -295,8 +304,8 @@ public class LinkedFormDialogBoxBuilder  {
         }
     }
 
-    private FormPluginConfig createLinkedFormPluginConfig(String objectTypeName, LinkedFormMappingConfig linkedFormMappingConfig) {
-        FormPluginConfig config = new FormPluginConfig(objectTypeName);
+    private FormPluginConfig createLinkedFormPluginConfig(String objectTypeName, String linkedFormName, LinkedFormMappingConfig linkedFormMappingConfig) {
+        FormPluginConfig config = new FormPluginConfig(objectTypeName, linkedFormName);
         addLinkedFormViewer(linkedFormMappingConfig, config);
         addPluginStateToConfig(config);
         addParentStateToConfig(objectTypeName, config);

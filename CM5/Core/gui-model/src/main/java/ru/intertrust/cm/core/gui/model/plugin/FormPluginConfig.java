@@ -12,8 +12,10 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
  *         Time: 20:21
  */
 public class FormPluginConfig extends PluginConfig {
+
     private Id domainObjectId;
     private String domainObjectTypeToCreate;
+    private String linkedFormName;
     private FormPluginState pluginState;
     private String domainObjectUpdatorComponent;
     private Dto updaterContext;
@@ -31,6 +33,11 @@ public class FormPluginConfig extends PluginConfig {
         this.domainObjectTypeToCreate = domainObjectTypeToCreate;
     }
 
+    public FormPluginConfig(String domainObjectTypeToCreate, String linkedFormName) {
+        this.domainObjectTypeToCreate = domainObjectTypeToCreate;
+        this.linkedFormName = linkedFormName;
+    }
+
     public Id getDomainObjectId() {
         return domainObjectId;
     }
@@ -45,6 +52,14 @@ public class FormPluginConfig extends PluginConfig {
 
     public void setDomainObjectTypeToCreate(String domainObjectTypeToCreate) {
         this.domainObjectTypeToCreate = domainObjectTypeToCreate;
+    }
+
+    public String getLinkedFormName() {
+        return linkedFormName;
+    }
+
+    public void setLinkedFormName(String linkedFormName) {
+        this.linkedFormName = linkedFormName;
     }
 
     public FormPluginState getPluginState() {

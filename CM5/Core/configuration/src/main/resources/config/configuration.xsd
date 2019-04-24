@@ -2127,7 +2127,7 @@
                     <!--Deprecated use con:linkedFormMappingType instead-->
                     <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
-                    <xs:element type="con:createdObjectsType" name="created-objects"
+                    <xs:element type="con:createdObjectsTypeWithLinkedForm" name="created-objects"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:summaryTableType" name="summary-table"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -3680,6 +3680,19 @@
             <xs:element type="con:createdObjectType" name="created-object" minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createdObjectsTypeWithLinkedForm">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element type="con:createdObjectTypeWithLinkedForm" name="created-object" minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="createdObjectTypeWithLinkedForm">
+        <xs:attribute type="xs:string" name="domain-object-type" use="required"/>
+        <xs:attribute type="xs:string" name="linked-form-name" use="optional"/>
+        <xs:attribute type="xs:string" name="text" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="createdObjectType">

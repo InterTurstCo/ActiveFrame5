@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.base.Localizable;
  */
 @Root(name = "created-object")
 public class CreatedObjectConfig implements Dto {
+
     @Attribute(name = "text")
     @Localizable
     private String text;
@@ -19,7 +20,8 @@ public class CreatedObjectConfig implements Dto {
     @Attribute(name = "domain-object-type")
     private String domainObjectType;
 
-
+    @Attribute(name = "linked-form-name", required = false)
+    private String linkedFormName;
 
     public String getText() {
         return text;
@@ -37,7 +39,13 @@ public class CreatedObjectConfig implements Dto {
         this.domainObjectType = domainObjectType;
     }
 
+    public String getLinkedFormName() {
+        return linkedFormName;
+    }
 
+    public void setLinkedFormName(String linkedFormName) {
+        this.linkedFormName = linkedFormName;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -53,6 +61,9 @@ public class CreatedObjectConfig implements Dto {
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
             return false;
         }
+        if (linkedFormName != null ? !linkedFormName.equals(that.linkedFormName) : that.linkedFormName != null) {
+            return false;
+        }
         if (text != null ? !text.equals(that.text) : that.text != null) {
             return false;
         }
@@ -64,6 +75,9 @@ public class CreatedObjectConfig implements Dto {
     public int hashCode() {
         int result = text != null ? text.hashCode() : 0;
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (linkedFormName != null ? linkedFormName.hashCode() : 0);
+
         return result;
     }
+
 }

@@ -974,6 +974,10 @@
                 </selection-sort-criteria>
                 <single-choice value="false"/>
 
+                <created-objects>
+                    <created-object domain-object-type="city" text="основная форма"/>
+                    <created-object domain-object-type="city" text="вторая форма" linked-form-name="city_second_form"/>
+                </created-objects>
             </linked-domain-objects-table>
 
             <template-based-widget  max-tooltip-height="500px" max-tooltip-width="500px" read-only="false" template-name="city-suggest-box-template">
@@ -1327,7 +1331,7 @@
                 </formatting>
             </label>
             <label id="titleNew">
-                <text>Coздание города</text>
+                <text>Создание города</text>
             </label>
         </widget-config>
       <!--  <widget-config-extension>
@@ -1374,6 +1378,312 @@
         </widget-groups-extension>-->
 
 
+    </form>
+
+    <form name="city_second_form" domain-object-type="city" is-default="false">
+        <markup>
+            <title>
+                <new-object label-widget-id="titleNew"/>
+                <existing-object label-widget-id="titleExisting"/>
+            </title>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="1"/>
+                        </td>
+                        <!-- label (Название) -->
+                        <td width="100%" h-align="left">
+                            <widget id="2"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="date"/>
+                        </td>
+                        <!-- text-box (Название) -->
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false"> <!-- в теле - только закладки -->
+                <tab name="Главная"> <!-- закладка состоит из групп с разметкой -->
+                    <single-entry-group> <!-- наследник от TabGroupsConfig -->
+                        <tab-group> <!-- вхождение в группу уже может содержать разметку -->
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="3"/>
+                                    </td>
+                                    <!-- label (Население) -->
+                                    <td h-align="left">
+                                        <widget id="4"/>
+                                    </td>
+                                    <!-- integer-box (Население) -->
+
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="5"/>
+                                    </td>
+                                    <!-- label (Год основания) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="6"/>
+                                    </td>
+                                    <!-- date-box (Год основания) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="city_category_label"/>
+                                    </td>
+                                    <td colspan="3" h-align="left">
+                                        <widget id="city_category"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Дополнительно">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="7"/>
+                                    </td>
+                                    <!-- label (Площадь) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="8"/>
+                                    </td>
+                                    <!-- decimal-box (Площадь) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="9"/>
+                                    </td>
+                                    <!-- label (Широта) -->
+                                    <td h-align="left">
+                                        <widget id="10"/>
+                                    </td>
+                                    <!-- decimal-box  (Широта) -->
+
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="11"/>
+                                    </td>
+                                    <!-- label (Долгота) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="12"/>
+                                    </td>
+                                    <!-- label (Долгота) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="countries"/>
+                                    </td>
+                                    <td colspan="3" h-align="left">
+                                        <widget id="super_countries"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="country_label"/>
+                                    </td>
+                                    <td colspan="3" h-align="left">
+                                        <widget id="country_table"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <widget-config>
+            <date-box id="date">
+                <field-path value="created_date"/>
+
+            </date-box>
+            <label id="1">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="2">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="3">
+                <text>Население:</text>
+                <relates-to widget-id="4"/>
+                <force-required-asterisk value="true"/>
+            </label>
+            <integer-box id="4">
+                <field-path value="population"/>
+            </integer-box>
+
+            <label id="5">
+                <text>Год основания:</text>
+            </label>
+            <integer-box id="6" read-only="true">
+                <field-path value="year_of_foundation"/>
+            </integer-box>
+
+            <label id="city_category_label">
+                <text>Категория:</text>
+            </label>
+            <enumeration-box id="city_category">
+                <field-path value="category"/>
+                <mapping>
+                    <map value="1" display-text="Туристический"/>
+                    <map value="2" display-text="Захолустье"/>
+                    <map value="3" display-text="Промышленный"/>
+                </mapping>
+            </enumeration-box>
+
+            <label id="7">
+                <text>Площадь:</text>
+            </label>
+            <decimal-box id="8">
+                <field-path value="square"/>
+            </decimal-box>
+
+            <label id="9">
+                <text>Широта:</text>
+            </label>
+            <decimal-box id="10">
+                <field-path value="latitude"/>
+            </decimal-box>
+
+            <label id="11">
+                <text>Долгота:</text>
+            </label>
+            <decimal-box id="12">
+                <field-path value="longitude"/>
+            </decimal-box>
+
+            <suggest-box id="countries">
+                <field-path value="country"/>
+
+                <collection-ref name="Countries"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name} {population}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} "/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
+            </suggest-box>
+            <suggest-box id="super_countries">
+                <field-path value="country"/>
+
+                <collection-ref name="SuperCountries"/>
+
+                <!-- паттерн отображения значений выпадающего списка -->
+                <drop-down-pattern value="{name} {population}"/>
+
+                <!-- паттерн отображения уже выбранных значений -->
+                <selection-pattern value="{name} {population} "/>
+
+                <!-- название фильтра по тексту, введённому пользователем -->
+                <input-text-filter name="byName"/>
+
+                <!-- количество элементов, показываемых на одной странице выпадающего списка -->
+                <page-size>30</page-size>
+
+                <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
+                    Если тэг отсутствует, то используется "inline"-вариант. -->
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
+            </suggest-box>
+
+            <label id="country_label">
+                <text>Страна:</text>
+            </label>
+            <linked-domain-objects-table id="country_table" modal-width="500px" modal-height="300px"
+                                         max-tooltip-width="300px">
+                <field-path value="country"/>
+                <linked-form name="country_form" inline="true">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new country"/>
+
+                        </new-object>
+                    </title>
+                </linked-form>
+                <collection-ref name="Countries"/>
+                <summary-table>
+                    <summary-table-column header="Название" widget-id="2">
+                        <!--<action component-name="download.attachment.table.action"-->
+                        <!--access-checker="download.attachment.access.checker"-->
+                        <!--new-objects-access-checker="upload.attachment.access.checker"-->
+                        <!--tooltip="Скачать">-->
+                        <!--<display position="before" tooltip="Скачать">-->
+                        <!--<image url="/images/icons/ico-save.gif"/>-->
+                        <!--<text value="Скачать"/>-->
+                        <!--</display>-->
+                        <!--</action>-->
+                        <action component-name="verify.signature.table.action"
+                                tooltip="ЭЦП">
+                            <display position="before" tooltip="ЭЦП">
+                                <image url="/images/icons/ico-save.gif"/>
+                                <text value="ЭЦП"/>
+                            </display>
+                        </action>
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+
+                    </summary-table-column>
+                    <summary-table-column header="Население" widget-id="3">
+                        <pattern value="{population}"/>
+
+                    </summary-table-column>
+                </summary-table>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
+                <single-choice value="false"/>
+
+            </linked-domain-objects-table>
+
+
+            <label id="titleExisting">
+                <text>Редактирование города (не основная форма)</text>
+            </label>
+            <label id="titleNew">
+                <text>Создание города (не основная форма)</text>
+            </label>
+        </widget-config>
+        <widget-groups>
+            <widget-group name="country-union-group" id="country-union-group">
+                <widget-ref id="100"/>
+                <widget-ref id="101"/>
+            </widget-group>
+        </widget-groups>
     </form>
 
     <form name="my-custom-form" domain-object-type="country" debug="false" min-width="900px">
