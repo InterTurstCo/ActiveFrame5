@@ -460,6 +460,10 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
                     getOrCreateDomainObjectNode(id, accessToken.getAccessLimitationType());
             if (don != null && don.getDomainObject(domainEntitiesCloner) != null) {
                 ret.add(don.getDomainObject(domainEntitiesCloner));
+            } else {
+                // локальный кеш изменен, нужно перечитать linked objects
+                ret.clear();
+                break;
             }
         }
         return ret.size() == 0 ? null : ret;
