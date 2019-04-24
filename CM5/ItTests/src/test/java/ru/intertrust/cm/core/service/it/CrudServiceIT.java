@@ -261,6 +261,22 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertNotNull(linkedObjectsIds);
         assertEquals(linkedObjectsIds.get(0), savedDepartment.getId());
 
+        // CMFIVE-30337
+        DomainObject tmpDepartment = createDepartmentDomainObject("department2", savedOrganization);
+        tmpDepartment = crudService.save(department);
+        List<DomainObject> tmpLinkedObjects1 =
+                crudService.findLinkedDomainObjects(savedOrganization.getId(), "Department", "Organization");
+        assertNotNull(tmpLinkedObjects1);
+        assertFalse(tmpLinkedObjects1.isEmpty());
+        DomainObject tmpEmployee = createEmployeeDomainObject(tmpLinkedObjects1.get(0));
+        tmpEmployee = crudService.save(tmpEmployee);
+        List<DomainObject> tmpLinkedObjects2 =
+                crudService.findLinkedDomainObjects(savedOrganization.getId(), "Department", "Organization");
+        assertNotNull(tmpLinkedObjects2);
+        assertFalse(tmpLinkedObjects2.isEmpty());
+        assertTrue(tmpLinkedObjects2.size() == tmpLinkedObjects1.size());
+        // CMFIVE-30337
+
         GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
         Boolean isAuditLogEnabled = false;
         if (globalSettings != null && globalSettings.getAuditLog() != null) {
@@ -548,8 +564,12 @@ public class CrudServiceIT extends IntegrationTestBase {
     }
 
     private DomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
+        return createDepartmentDomainObject("department1", savedOrganizationObject);
+    }
+
+    private DomainObject createDepartmentDomainObject(String depName, DomainObject savedOrganizationObject) {
         DomainObject departmentDomainObject = crudService.createDomainObject("Department");
-        departmentDomainObject.setString("Name", "department1");
+        departmentDomainObject.setString("Name", depName != null ? "department1" : depName);
         departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
         return departmentDomainObject;
     }
