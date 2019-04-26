@@ -743,4 +743,14 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         return getIdListFromDomainObjectList(persons);
     }
 
+    @Override
+    public void recalcGroup(String groupName, Id contextId) {
+        Id groupId = refreshUserGroup(groupName, contextId);
+        recalcGroup(groupId);
+    }
+
+    @Override
+    public List<DynamicGroupConfig> getTypeDynamicGroupConfigs(String typeName) {
+        return configsByContextType.get(Case.toLower(typeName));
+    }
 }
