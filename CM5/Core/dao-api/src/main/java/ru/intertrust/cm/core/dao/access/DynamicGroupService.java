@@ -6,6 +6,7 @@ import java.util.Set;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
 
 /**
  * Сервис по работе с динамическими группами пользователей. Выполняет пересчет/удаление динамических групп.
@@ -74,4 +75,19 @@ public interface DynamicGroupService {
      * @param groupId
      */
     void recalcGroup(Id groupId);
+
+    /**
+     * Пересчет состава динамической группы по имени и идентификатору контекста
+     * @param groupName Имя группы
+     * @param contextId Идентификатор контекста группы
+     */
+    void recalcGroup(String groupName, Id contextId);
+    
+    
+    /**
+     * Получение конфигураций всех динамических групп для типа
+     * @param typeName Имя типа, для которого получаем конфигурации групп
+     * @return
+     */
+    List<DynamicGroupConfig> getTypeDynamicGroupConfigs(String typeName);
 }
