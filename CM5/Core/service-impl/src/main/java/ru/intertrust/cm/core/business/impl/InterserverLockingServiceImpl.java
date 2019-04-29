@@ -56,14 +56,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     @Override
     public synchronized boolean lock(final String resourceId) {
         logger.trace("Start lock {}", resourceId);
-        boolean result = true;
-        try {
-            if (!transactionalLock(resourceId)) {
-                result = false;
-            }
-        } catch (DuplicateKeyException ex) {
-            result = false;
-        }
+        boolean result = transactionalLock(resourceId);
 
         if (result) {
             ScheduledFutureEx future = new ScheduledFutureEx(getExecutorService().scheduleWithFixedDelay(new Runnable() {
@@ -168,6 +161,13 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                 return false;
             }
             return true;
+        } catch (DuplicateKeyException ex) {
+            try {
+                sessionContext.getUserTransaction().rollback();
+            } catch (Exception ignoreEx) {
+                logger.warn("Error rollback transaction", ignoreEx);
+            }
+            return false;
         } catch (Exception ex) {
             try {
                 sessionContext.getUserTransaction().rollback();
