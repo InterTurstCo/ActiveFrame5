@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.attachment.AttachmentUploaderView;
+import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -112,7 +113,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     private AttachmentItem handleFileNameFromServer(String filePath) {
         AttachmentItem attachmentItem = new AttachmentItem();
-        String[] splitClearName = filePath.split("-_-");
+        String[] splitClearName = filePath.split(AttachmentUploaderServlet.FILE_NAME_PARAMS_DELIMITER);
         String clearName = splitClearName[1];
         attachmentItem.setTemporaryName(filePath);
         attachmentItem.setName(clearName);

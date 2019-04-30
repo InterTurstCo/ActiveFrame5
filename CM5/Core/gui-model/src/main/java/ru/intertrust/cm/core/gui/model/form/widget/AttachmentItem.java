@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentViewerRefConfig;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -62,7 +63,18 @@ public class AttachmentItem implements Dto {
     }
 
     public String getTitle() {
-        return contentLength == null ? name : name + " (" + contentLength + ")";
+        if (contentLength == null) {
+           return name;
+        } else {
+            try {
+                final long contentLengthLongValue = Long.parseLong(contentLength);
+                final String formattedFileSize = StringUtil.getFormattedFileSize(contentLengthLongValue);
+
+                String title = name + " (" + formattedFileSize + ")";
+                return title;
+            } catch (NumberFormatException ignored) {}
+        }
+        return name;
     }
 
     public String getDomainObjectType() {
