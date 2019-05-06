@@ -9,12 +9,9 @@ import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
@@ -31,6 +28,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.UploadProgressPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
+import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -430,11 +428,18 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
   private AttachmentItem handleFileNameFromServer(String filePath) {
     AttachmentItem attachmentItem = new AttachmentItem();
-    String[] splitClearName = filePath.split("-_-");
+    String[] splitClearName = filePath.split(AttachmentUploaderServlet.FILE_NAME_PARAMS_DELIMITER);
+
     if (splitClearName.length >= 2) {
       String clearName = splitClearName[1];
       attachmentItem.setName(clearName);
+
+      if (splitClearName.length >= 3) {
+        final String contentLength = splitClearName[2];
+        attachmentItem.setContentLength(contentLength);
+      }
     }
+
     attachmentItem.setTemporaryName(filePath);
     return attachmentItem;
   }

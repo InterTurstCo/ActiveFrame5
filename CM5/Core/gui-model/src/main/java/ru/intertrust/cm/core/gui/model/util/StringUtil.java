@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.util;
 
+import com.google.gwt.i18n.client.NumberFormat;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
@@ -14,6 +15,7 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.ARRAY_DELI
  *         Time: 17:14
  */
 public class StringUtil {
+
    private StringUtil() {} // un-instantiable
 
     public static String join(List<?> list, String delimiter) {
@@ -93,4 +95,52 @@ public class StringUtil {
         String raw = sizeString.replaceAll("px", "").trim();
         return Integer.parseInt(raw);
     }
+
+    /**
+     * Преобразует размер файла к читаемому виду:<br>
+     * <ul>
+     * <li>2 знака после запятой (кроме размера в байтах)</li>
+     * <li>единицы измерения в зависимости от размера : байты, килобайты, мегабайты, гигабайты</li>
+     * </ul>
+     *
+     * @param size размер файла в байтах
+     * @return отформатированную строку размера файла
+     */
+    public static String getFormattedFileSize(long size) {
+        float sizeKb = 1024.0f;
+        if (size < sizeKb) {
+            return size + " b";
+        }
+
+        float sizeMb = sizeKb * sizeKb;
+        if (size < sizeMb) {
+            return formatFloatWithTwoDecimals(size / sizeKb) + " Kb";
+        }
+
+        float sizeGb = sizeMb * sizeKb;
+        if (size < sizeGb) {
+            return formatFloatWithTwoDecimals(size / sizeMb) + " Mb";
+        }
+
+        float sizeTerra = sizeGb * sizeKb;
+        if (size < sizeTerra) {
+            return formatFloatWithTwoDecimals(size / sizeGb) + " Gb";
+        }
+
+        return "";
+    }
+
+    /**
+     * Приводит значение с дробной частью к строке с двумя знаками после запятой.
+     *
+     * @param floatValue значение с дробной частью
+     * @return отформатированная строка со значением
+     */
+    private static String formatFloatWithTwoDecimals(float floatValue) {
+        NumberFormat decimalFormat = NumberFormat.getFormat(".##");
+        final String formattedStrValue = decimalFormat.format(floatValue);
+
+        return formattedStrValue;
+    }
+
 }

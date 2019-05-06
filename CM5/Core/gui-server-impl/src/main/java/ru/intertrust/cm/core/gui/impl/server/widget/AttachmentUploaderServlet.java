@@ -41,9 +41,11 @@ import java.util.logging.Logger;
  */
 @Controller
 public class AttachmentUploaderServlet {
+
     private static final Logger log = Logger.getLogger(FileUpload.class.getName());
     private static final String SESSION_ATTRIBUTE_UPLOAD_PROGRESS = "uploadProgress";
     private static final int BUFFER_SIZE = 1024*64;
+    public static final String FILE_NAME_PARAMS_DELIMITER = "-_-";
 
     private String pathForTempFilesStore;
 
@@ -83,13 +85,14 @@ public class AttachmentUploaderServlet {
 
                 String filename = FilenameUtils.getName(item.getName());
                 long time = System.nanoTime();
-                savedFilename = time + "-_-" + filename;
+                final long fileSize = item.getSize();
+
+                savedFilename = time + FILE_NAME_PARAMS_DELIMITER + filename + FILE_NAME_PARAMS_DELIMITER + fileSize;
                 File fileToSave = new File(pathForTempFilesStore, savedFilename);
                 try (
                         InputStream inputStream = item.getInputStream();
                         OutputStream outputStream = new FileOutputStream(fileToSave)) {
                     stream(inputStream, outputStream);
-
                 }
                 savedFileNames = savedFileNames + savedFilename + "*";
             }
