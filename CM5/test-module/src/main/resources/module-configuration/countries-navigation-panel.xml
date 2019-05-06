@@ -470,22 +470,11 @@
             </child-links>
         </link>
 
-        <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Internal_Document">
-            <child-links group-name="Интеграция">
-                <link name="export_doc" display-text="Экспорт документов" child-to-open="Letters">
-                    <child-links>
-                        <link name="Letters" display-text="Письма">
-                            <plugin>
-                                <domain-object-surfer domain-object-type-to-create="letter">
-                                    <collection-viewer>
-                                        <collection-ref name="letters"/>
-
-                                    </collection-viewer>
-                                    <toggle-edit>true</toggle-edit>
-                                </domain-object-surfer>
-                            </plugin>
-                        </link>
-                        <link name="Org_Middle" display-text="Промежуточный Объект">
+        <link name="Documents" display-text="Настройки ИР" image="images/docs.png" child-to-open="export_doc">
+            <child-links>
+                <link name="export_doc" display-text="Участники" child-to-open="Org_Middle">
+                    <child-links >
+                        <link name="Org_Middle" display-text="Участники интеграции">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="org_middle">
                                     <collection-viewer>
@@ -495,8 +484,27 @@
                                 </domain-object-surfer>
                             </plugin>
                         </link>
+                        <link name="Letters" display-text="Корреспонденты" child-to-open="HierTest">
+                            <child-links>
+                                <link name="HierTest" display-text="Иерархия">
+                                <plugin>
+                                    <domain-object-surfer domain-object-type-to-create="Qual_Group_Qualifier">
+                                        <collection-viewer>
+                                            <collection-ref name="col_qual_group_qualifier"/>
+                                        </collection-viewer>
+                                        <toggle-edit>true</toggle-edit>
+                                    </domain-object-surfer>
+                                </plugin>
+                                </link>
+
+                            </child-links>
+                        </link>
+
                     </child-links>
                 </link>
+
+
+
             </child-links>
             <child-links>
 

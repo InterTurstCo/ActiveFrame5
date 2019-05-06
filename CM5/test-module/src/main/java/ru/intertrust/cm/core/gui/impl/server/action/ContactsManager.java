@@ -22,61 +22,63 @@ import java.util.List;
 @Configurable
 public class ContactsManager {
 
-    private static String DO_STATUS = "status";
-    private static String FIELD_NAME = "name";
-    private static String QUERY_STATUS_BY_ID = "select * from status where id = {0}";
+  private static String DO_STATUS = "status";
+  private static String FIELD_NAME = "name";
+  private static String QUERY_STATUS_BY_ID = "select * from status where id = {0}";
 
-    @Autowired
-    private AccessControlService accessControlService;
+  @Autowired
+  private AccessControlService accessControlService;
 
-    @Autowired
-    private DomainObjectDao domainObjectService;
+  @Autowired
+  private DomainObjectDao domainObjectService;
 
-    @Autowired
-    private DaoUtil daoUtil;
+  @Autowired
+  private DaoUtil daoUtil;
 
-    @Autowired
-    private CollectionsService collectionsService;
+  @Autowired
+  private CollectionsService collectionsService;
 
-    private static Logger logger = LoggerFactory.getLogger(ContactsManager.class);
+  private static Logger logger = LoggerFactory.getLogger(ContactsManager.class);
 
-    public boolean changeStatusForDo(Id doId, String status) {
-        DomainObject statusDomainObject;
-        statusDomainObject = getStatusByName(status);
-        DomainObject savedDomainObject;
-        AccessToken accessToken;
-        if (accessControlService != null && domainObjectService != null) {
-            if (statusDomainObject != null) {
-                accessToken = accessControlService.createSystemAccessToken(getClass().getName());
-                savedDomainObject = domainObjectService.setStatus(doId, statusDomainObject.getId(), accessToken);
-                domainObjectService.save(savedDomainObject, accessToken);
-                return (savedDomainObject != null) ? true : false;
-            } else {
-                logger.error("Can`t find status domain object by name: " + status);
-                return false;
-            }
-        } else {
-            logger.error("Required services accessControlService/domainObjectService are not initialized. Can`t proceed.");
-            return false;
+  public boolean changeStatusForDo(Id doId, String status) {
+    DomainObject statusDomainObject;
+    statusDomainObject = getStatusByName(status);
+    DomainObject savedDomainObject;
+    AccessToken accessToken;
+    if (accessControlService != null && domainObjectService != null) {
+      if (statusDomainObject != null) {
+        accessToken = accessControlService.createSystemAccessToken(getClass().getName());
+        savedDomainObject = domainObjectService.setStatus(doId, statusDomainObject.getId(), accessToken);
+        domainObjectService.save(savedDomainObject, accessToken);
+        return (savedDomainObject != null) ? true : false;
+      } else {
+        logger.error("Can`t find status domain object by name: " + status);
+        return false;
+      }
+    } else {
+      logger.error("Required services accessControlService/domainObjectService are not initialized. Can`t proceed.");
+      return false;
+    }
+  }
+
+  public DomainObject getStatusByName(String name) {
+    DomainObject status;
+    status = daoUtil.findDomainObjectByField(DO_STATUS, FIELD_NAME, name);
+    return status;
+  }
+
+  public String getStatusById(Id status) {
+    List<Value> params = new ArrayList<>();
+    Value statusIdValue = new ReferenceValue(status);
+    params.add(statusIdValue);
+    if (collectionsService != null) {
+      IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(QUERY_STATUS_BY_ID, params);
+      if (collection != null && collection.size() > 0) {
+        for (IdentifiableObject O : collection) {
+          return O.getString(FIELD_NAME);
         }
+      }
     }
-
-    public DomainObject getStatusByName(String name) {
-        DomainObject status;
-        status = daoUtil.findDomainObjectByField(DO_STATUS, FIELD_NAME, name);
-        return status;
-    }
-
-    public String getStatusById(Id status){
-        List<Value> params = new ArrayList<>();
-        Value statusIdValue = new ReferenceValue(status);
-        params.add(statusIdValue);
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(QUERY_STATUS_BY_ID,params);
-        if(collection!=null && collection.size()>0){
-            for(IdentifiableObject O : collection){
-                return O.getString(FIELD_NAME);
-            }
-        }
-        return null;
-    }
+    return null;
+  }
 }
