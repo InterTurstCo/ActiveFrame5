@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SuggestBox;
@@ -31,6 +32,29 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         lazyLoadPanel.add(suggestionList);
         return super.decorateSuggestionList(lazyLoadPanel);
     }
+
+    
+    @Override
+    protected void moveSelectionDown() {
+        super.moveSelectionDown();
+        scrollSelectedItemIntoView();
+    }
+
+    @Override
+    protected void moveSelectionUp() {
+        super.moveSelectionUp();
+        scrollSelectedItemIntoView();
+    }
+
+    private void scrollSelectedItemIntoView() {
+        getSelectedMenuItem().getElement().scrollIntoView();
+    }
+
+    private native MenuItem getSelectedMenuItem() /*-{
+        var menu = this.@com.google.gwt.user.client.ui.SuggestBox.DefaultSuggestionDisplay::suggestionMenu;
+        return menu.@com.google.gwt.user.client.ui.MenuBar::selectedItem;
+    }-*/;
+
 
     @Deprecated //use setLazyLoadPanelHeight(int height, int lastScrollPosition, boolean scrollable) instead
     public void setLazyLoadPanelHeight(int height) {
