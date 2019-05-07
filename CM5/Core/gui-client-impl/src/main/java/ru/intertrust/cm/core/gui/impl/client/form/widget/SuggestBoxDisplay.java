@@ -33,7 +33,7 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         return super.decorateSuggestionList(lazyLoadPanel);
     }
 
-    
+
     @Override
     protected void moveSelectionDown() {
         super.moveSelectionDown();
