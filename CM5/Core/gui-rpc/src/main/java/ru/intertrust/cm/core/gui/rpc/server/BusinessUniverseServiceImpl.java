@@ -36,6 +36,7 @@ import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.common.versioncollector.ComponentVersion;
 import ru.intertrust.common.versioncollector.DiscoveryVersionCollectorService;
 
@@ -47,7 +48,11 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import java.io.UnsupportedEncodingException;
 import java.lang.ref.SoftReference;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -97,7 +102,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
         // Информацию user info теперь храним в куках, чтобы небыло ошибок после таймаута сесии
-        getThreadLocalResponse().addCookie(new Cookie(CLIENT_INFO_USER_AGENT_COOKIE, clientInfo.getDescriptor()));
+        try {
+            getThreadLocalResponse().addCookie(new Cookie(CLIENT_INFO_USER_AGENT_COOKIE, URLEncoder.encode(clientInfo.getDescriptor(), "UTF-8")));
+        } catch (UnsupportedEncodingException ex) {
+            throw new FatalException("Error set client user agent", ex);
+        }
         getThreadLocalResponse().addCookie(new Cookie(CLIENT_INFO_TIME_ZONE_COOKIE, clientInfo.getTimeZoneId()));
         
         UserInfo userInfo = getUserInfo();
@@ -304,7 +313,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 if (cookie.getName().equals(CLIENT_INFO_TIME_ZONE_COOKIE)) {
                     client.setTimeZoneId(cookie.getValue());
                 }else if(cookie.getName().equals(CLIENT_INFO_USER_AGENT_COOKIE)) {
-                    client.setDescriptor(cookie.getValue());
+                    try {
+                        client.setDescriptor(URLDecoder.decode(cookie.getValue(), "UTF-8"));
+                    } catch (UnsupportedEncodingException ex) {
+                        throw new FatalException("Error get client user agent", ex);
+                    }
                 }
             }
         }                
