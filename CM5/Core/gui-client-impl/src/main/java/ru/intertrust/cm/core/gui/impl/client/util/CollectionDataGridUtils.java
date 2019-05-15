@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.gui.impl.client.util;
 
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
@@ -98,6 +100,11 @@ public class CollectionDataGridUtils {
                 widthMap.put(column, column.getMaxWidth());
 
                 tableWidth -= column.getMaxWidth();
+                processedColumnCount++;
+                it.remove();
+            } else {
+                widthMap.put(column, column.getUserWidth());
+                tableWidth -= column.getUserWidth();
                 processedColumnCount++;
                 it.remove();
             }
