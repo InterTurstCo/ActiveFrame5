@@ -120,8 +120,9 @@ public class CollectionDataGridUtils {
         for (Map.Entry<CollectionColumn, Integer> entry : widthMap.entrySet()) {
             CollectionColumn column = entry.getKey();
             int calculatedWidth = entry.getValue();
-            tableBody.setColumnWidth(column, calculatedWidth + "px");
+            tableBody.setColumnWidth(column, calculatedWidth + (tableWidth/widthMap.size()) +  "px");
             column.setDrawWidth(calculatedWidth);
+
         }
     }
     @Deprecated /*use List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
