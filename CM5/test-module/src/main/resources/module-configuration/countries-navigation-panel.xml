@@ -252,7 +252,7 @@
                 <link name="Cities" display-text="Города">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="city">
-                            <collection-viewer>
+                            <collection-viewer insert-top="true">
                                 <collection-ref name="Cities"/>
                                 <default-sort-criteria column-field="population" order="desc"/>
 

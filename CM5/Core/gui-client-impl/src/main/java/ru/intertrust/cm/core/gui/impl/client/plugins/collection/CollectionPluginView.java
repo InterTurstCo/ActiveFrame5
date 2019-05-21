@@ -354,7 +354,8 @@ public class CollectionPluginView extends PluginView {
          * иеррахический плагин коллекций это временный фикс. Для обычных коллекций это
          * не происходит.
          */
-        if (((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig() != null) {
+        if (((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig() != null &&
+            !((CollectionViewerConfig) plugin.getConfig()).getInsertTop()) {
           getPlugin().refresh();
         }
         if (event.getId() == null) {
@@ -799,7 +800,7 @@ public class CollectionPluginView extends PluginView {
     checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
       @Override
       public void update(int index, CollectionRowItem object, Boolean value) {
-          updateCheckboxSelection(object, value);
+        updateCheckboxSelection(object, value);
       }
     });
     createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
@@ -808,19 +809,19 @@ public class CollectionPluginView extends PluginView {
   private void createTableColumnsWithCheckBoxes(CollectionColumn checkBoxColumn, List<ColumnHeaderBlock> columnHeaderBlocks) {
     ColumnFormatter.formatCheckBoxColumn(checkBoxColumn);
 
-      HeaderWidget headerWidget = new CheckBoxHeaderWidget() {
-          @Override
-          public void processOnChange(Boolean isChecked) {
-              super.processOnChange(isChecked);
+    HeaderWidget headerWidget = new CheckBoxHeaderWidget() {
+      @Override
+      public void processOnChange(Boolean isChecked) {
+        super.processOnChange(isChecked);
 
-              // обработаем все чекбоксы в колонке для видимых записей
-              final List<CollectionRowItem> visibleItems = tableBody.getVisibleItems();
+        // обработаем все чекбоксы в колонке для видимых записей
+        final List<CollectionRowItem> visibleItems = tableBody.getVisibleItems();
 
-              for (CollectionRowItem item : visibleItems) {
-                  updateCheckboxSelection(item, isChecked);
-              }
-          }
-      };
+        for (CollectionRowItem item : visibleItems) {
+          updateCheckboxSelection(item, isChecked);
+        }
+      }
+    };
 
     CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, checkBoxColumn, headerWidget, eventBus);
     ColumnHeaderBlock columnHeaderBlock = new ColumnHeaderBlock(collectionColumnHeader, checkBoxColumn);
@@ -829,20 +830,21 @@ public class CollectionPluginView extends PluginView {
     createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
   }
 
-    /**
-     * Обновляет состояние выделения записи (колонка с чекбоксом).
-     * @param rowItem объект записи с данными
-     * @param value значение чекбокса для установки
-     */
-    private void updateCheckboxSelection(CollectionRowItem rowItem, Boolean value) {
-        checkForMultiSelectionEnabled(value, rowItem.getId());
-        Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
-        Id id = rowItem.getId();
-        eventBus.fireEvent(new CheckBoxFieldUpdateEvent(rowItem.getId(), !value));
-        changedRowsSelection.put(id, value);
-        tableBody.redraw();
-        fireCollectionRowCheckListener(rowItem.getId(), value);
-    }
+  /**
+   * Обновляет состояние выделения записи (колонка с чекбоксом).
+   *
+   * @param rowItem объект записи с данными
+   * @param value   значение чекбокса для установки
+   */
+  private void updateCheckboxSelection(CollectionRowItem rowItem, Boolean value) {
+    checkForMultiSelectionEnabled(value, rowItem.getId());
+    Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
+    Id id = rowItem.getId();
+    eventBus.fireEvent(new CheckBoxFieldUpdateEvent(rowItem.getId(), !value));
+    changedRowsSelection.put(id, value);
+    tableBody.redraw();
+    fireCollectionRowCheckListener(rowItem.getId(), value);
+  }
 
   private void createTableColumnsWithoutCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
     for (String field : getPluginData().getDomainObjectFieldPropertiesMap().keySet()) {
@@ -1035,7 +1037,7 @@ public class CollectionPluginView extends PluginView {
         if (isScrollEvent) {
           updateCheckBoxesForNewItems(collectionRowItems);
         }
-        
+
         /**
          * Этот ивент обрабатывается только в TableViewer, когда CollectionViewer используется внутри него
          */
@@ -1087,8 +1089,9 @@ public class CollectionPluginView extends PluginView {
     }
     return false;
   }
+
   private void updateCheckBoxesForNewItems(List<CollectionRowItem> collectionRowItems) {
-    if (collectionRowItems!=null && collectionRowItems.size()>0) {
+    if (collectionRowItems != null && collectionRowItems.size() > 0) {
       if (isHeaderCheckBoxChecked()) {
         for (CollectionRowItem item : collectionRowItems) {
           updateCheckboxSelection(item, true);
@@ -1096,7 +1099,7 @@ public class CollectionPluginView extends PluginView {
       }
     }
   }
-  
+
   private void setUpScrollSelection() {
     Set<Id> selectedItems = prepareSelectedIds();
     if (WidgetUtil.containsOneElement(selectedItems)) {
@@ -1147,8 +1150,10 @@ public class CollectionPluginView extends PluginView {
         if (!collectionRowItems.isEmpty()) {
           CollectionRowItem item = collectionRowItems.get(0);
           int index = getIndex(item.getId());
-          if (index < 0) {
+          if (index < 0 && !((CollectionViewerConfig) plugin.getConfig()).getInsertTop()) {
             items.add(item);
+          } else if (index < 0 && ((CollectionViewerConfig) plugin.getConfig()).getInsertTop()) {
+            items.add(0, item);
           } else {
             items.set(index, item);
           }

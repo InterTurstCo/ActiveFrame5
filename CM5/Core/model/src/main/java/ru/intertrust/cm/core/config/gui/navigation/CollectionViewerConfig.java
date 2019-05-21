@@ -74,6 +74,9 @@ public class CollectionViewerConfig extends PluginConfig {
     @Attribute(name="style-name", required = false)
     private String styleName;
 
+    @Attribute(name="insert-top", required = false)
+    private Boolean insertTop = false;
+
     //Used for hierarchical collections. Not intended to be used in xml configs.
     //Marked as @Element to be able to serialize the value in DB (in bu_nav_link_collection.collection_viewer)
     @Element(name = "hierarchical-filters", required = false)
@@ -81,6 +84,14 @@ public class CollectionViewerConfig extends PluginConfig {
 
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
+    }
+
+    public Boolean getInsertTop() {
+        return insertTop;
+    }
+
+    public void setInsertTop(Boolean insertTop) {
+        this.insertTop = insertTop;
     }
 
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
@@ -292,6 +303,8 @@ public class CollectionViewerConfig extends PluginConfig {
         if (hierarchicalFiltersConfig != null ? !hierarchicalFiltersConfig.equals(that.hierarchicalFiltersConfig) : that.hierarchicalFiltersConfig != null)
             return false;
         if (styleName != null ? !styleName.equals(that.styleName) : that.styleName != null)
+            return false;
+        if (insertTop != null ? !insertTop.equals(that.insertTop) : that.insertTop != null)
             return false;
         return true;
     }
