@@ -102,7 +102,9 @@ public class CollectionDataGridUtils {
                 tableWidth -= column.getMaxWidth();
                 processedColumnCount++;
                 it.remove();
-            } else {
+            }
+
+            else {
                 widthMap.put(column, column.getUserWidth());
                 tableWidth -= column.getUserWidth();
                 processedColumnCount++;
@@ -121,8 +123,7 @@ public class CollectionDataGridUtils {
             CollectionColumn column = entry.getKey();
             int calculatedWidth = entry.getValue();
             tableBody.setColumnWidth(column, calculatedWidth + (tableWidth/widthMap.size()) +  "px");
-            column.setDrawWidth(calculatedWidth);
-
+            column.setDrawWidth(calculatedWidth + (tableWidth/widthMap.size()));
         }
     }
     @Deprecated /*use List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
