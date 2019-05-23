@@ -196,12 +196,14 @@ public abstract class PluginView implements IsWidget {
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.LEFT)) {
             leftMenuBar.addActionItem(context);
         }
+        leftMenuBar.setFocusOnHoverEnabled(false);
         actionToolBar.add(leftMenuBar);
         final MenuBarExt rightMenuBar = new MenuBarExt();
         rightMenuBar.setStyleName("action-bar-right-side");
         for (ActionContext context : rightContexts) {
             rightMenuBar.addActionItem(context);
         }
+        rightMenuBar.setFocusOnHoverEnabled(false);
         actionToolBar.add(rightMenuBar);
         addHanler(this);
     }
