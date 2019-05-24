@@ -60,5 +60,11 @@ public class IndicesConfig implements Dto {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "IndicesConfig [indices=" + indices + "]";
+    }
+    
     
 }

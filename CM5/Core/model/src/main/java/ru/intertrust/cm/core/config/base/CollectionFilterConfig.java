@@ -75,4 +75,9 @@ public class CollectionFilterConfig implements Serializable {
         result = 31 * result + (filterReference != null ? filterReference.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "CollectionFilterConfig [name=" + name + ", filterReference=" + filterReference + ", filterCriteria=" + filterCriteria + "]";
+    }
 }

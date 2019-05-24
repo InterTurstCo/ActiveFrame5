@@ -53,4 +53,11 @@ public class UniqueKeyConfig implements Serializable {
     public int hashCode() {
         return uniqueKeyFieldConfigs != null ? uniqueKeyFieldConfigs.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "UniqueKeyConfig [uniqueKeyFieldConfigs=" + uniqueKeyFieldConfigs + "]";
+    }
+    
+    
 }

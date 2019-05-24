@@ -274,4 +274,12 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     public Boolean isAuditLog() {
         return auditLog;
     }
+
+    @Override
+    public String toString() {
+        return "DomainObjectTypeConfig [id=" + id + ", name=" + name + ", dbId=" + dbId + ", initialStatus=" + initialStatus + ", extendsAttribute="
+                + extendsAttribute + ", auditLog=" + auditLog + ", globallyCached=" + globallyCached + ", isTemplate=" + isTemplate + ", attachmentTypesConfig="
+                + attachmentTypesConfig + ", attachmentStorageConfig=" + attachmentStorageConfig + ", domainObjectFieldsConfig=" + domainObjectFieldsConfig
+                + ", uniqueKeyConfigs=" + uniqueKeyConfigs + ", indicesConfig=" + indicesConfig + "]";
+    }
 }

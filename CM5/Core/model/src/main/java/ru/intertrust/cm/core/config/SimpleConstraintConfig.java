@@ -53,4 +53,11 @@ public class SimpleConstraintConfig extends ConstraintConfig {
         params.put(Constraint.PARAM_PATTERN, value);
         return new Constraint(Constraint.Type.SIMPLE, params);
     }
+
+    @Override
+    public String toString() {
+        return "SimpleConstraintConfig [value=" + value + "]";
+    }
+    
+    
 }

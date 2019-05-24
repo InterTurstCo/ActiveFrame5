@@ -55,4 +55,11 @@ public class ConstraintsConfig implements Serializable {
     public int hashCode() {
         return constraintConfigs != null ? constraintConfigs.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "ConstraintsConfig [constraintConfigs=" + constraintConfigs + "]";
+    }
+    
+    
 }

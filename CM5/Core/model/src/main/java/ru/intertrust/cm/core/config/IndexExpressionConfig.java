@@ -53,6 +53,9 @@ public class IndexExpressionConfig extends BaseIndexExpressionConfig {
         }
         return true;
     }
-    
 
+    @Override
+    public String toString() {
+        return "IndexExpressionConfig [value=" + value + "]";
+    }
 }

@@ -60,7 +60,7 @@ public class IndexConfig implements Serializable {
     
     @Override
     public String toString() {
-        return "IndexConfig [type=" + type + ", indexFieldConfigs=" + indexExspressionConfigs + "]";
+        return "IndexConfig [type=" + type + ", indexExspressionConfigs=" + indexExspressionConfigs + "]";
     }
 
     @Override
@@ -93,4 +93,6 @@ public class IndexConfig implements Serializable {
     public int hashCode() {
         return indexExspressionConfigs != null ? indexExspressionConfigs.hashCode() : 0;
     }
+    
+    
 }

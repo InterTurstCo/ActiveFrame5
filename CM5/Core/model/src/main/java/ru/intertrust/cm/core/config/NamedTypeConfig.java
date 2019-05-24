@@ -52,4 +52,8 @@ public abstract class NamedTypeConfig implements Dto {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "NamedTypeConfig [name=" + name + "]";
+    }
 }

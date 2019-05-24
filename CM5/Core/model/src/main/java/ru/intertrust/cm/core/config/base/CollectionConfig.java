@@ -185,4 +185,13 @@ public class CollectionConfig implements TopLevelConfig {
         result = 31 * result + (transactionCache == TransactionCacheType.enabled ? 71 : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "CollectionConfig [name=" + name + ", replacementPolicy=" + replacementPolicy + ", idField=" + idField + ", useClone=" + useClone
+                + ", transactionCache=" + transactionCache + ", prototype=" + prototype + ", countingPrototype=" + countingPrototype + ", filters=" + filters
+                + ", generator=" + generator + "]";
+    }
+    
+    
 }

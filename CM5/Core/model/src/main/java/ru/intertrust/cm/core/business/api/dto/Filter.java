@@ -272,4 +272,9 @@ public class Filter implements Dto, Cloneable {
             throw new UnsupportedOperationException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "Filter [filter=" + filter + ", parameterMap=" + parameterMap + ", isSingleParameterMap=" + isSingleParameterMap + "]";
+    }
 }

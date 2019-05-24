@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -41,6 +43,7 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
  * @author apirozhkov
  */
 public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
+    private static final Logger logger = LoggerFactory.getLogger(PostgresDatabaseAccessAgent.class);
 
     private static final String ALL_PERSONS_GROUP = "*";
 
@@ -673,6 +676,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
         AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
+        logger.trace("Access matrix to {}: {}", objectType, accessMatrix);
 
         String checkType = null;
         if (accessMatrix != null && (accessMatrix.getBorrowPermissisons() == null || accessMatrix.getBorrowPermissisons() == BorrowPermissisonsMode.all)) {
@@ -683,6 +687,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         } else {
             checkType = objectType;
         }
+        logger.trace("Check type is {}", checkType);
 
         return isAllowedToCreateObjectType(userId, checkType);
     }
@@ -690,6 +695,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, DomainObject domainObject) {
         AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObject.getTypeName());
+        logger.trace("Access matrix to {}: {}", domainObject.getTypeName(), accessMatrix);
 
         String checkType = null;
         if (accessMatrix != null && (accessMatrix.getBorrowPermissisons() == null || accessMatrix.getBorrowPermissisons() == BorrowPermissisonsMode.all)) {
@@ -701,6 +707,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         } else {
             checkType = domainObject.getTypeName();
         }
+        logger.trace("Check type is {}", checkType);
 
         return isAllowedToCreateObjectType(userId, checkType);
     }
@@ -716,8 +723,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      */
     public String getMatrixReferenceActualFieldType(DomainObject domainObject) {
         DomainObjectTypeConfig childDomainObjectTypeConfig = childDomainObjectTypeMap.get(domainObject.getTypeName());
+        logger.trace("Child Domain Object Type Config from map {}", childDomainObjectTypeConfig);        
         if (childDomainObjectTypeConfig == null) {
             childDomainObjectTypeConfig = findChildDomainObjectTypeConfig(domainObject.getTypeName());
+            logger.trace("Child Domain Object Type Config from find {}", childDomainObjectTypeConfig);        
         }
 
         if (NullValues.isNull(childDomainObjectTypeConfig)) {
@@ -725,6 +734,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         }
 
         AccessMatrixConfig matrixConfig = accessMatrixConfigMap.get(domainObject.getTypeName());
+        logger.trace("Access matrix config {}", matrixConfig);        
 
         String result = null;
 
@@ -732,6 +742,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             // Получаем имя типа на которого ссылается martix-reference-field
             String matrixReferenceField = matrixConfig.getMatrixReference();
             Id parentId = domainObject.getReference(matrixReferenceField);
+            logger.trace("Parent id is {}", parentId);
             if (parentId == null) {
                 throw new RuntimeException("Matrix referenece field: " + matrixReferenceField +
                         " is not a reference field in " + childDomainObjectTypeConfig.getName());
@@ -741,7 +752,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             // поле martix-reference-field
 
             String parentTypeName = domainObjectTypeIdCache.getName(parentId);
+            logger.trace("Parent type is {}", parentTypeName);
+            
             AccessMatrixConfig parentMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(parentTypeName);
+            logger.trace("Parent matrix config is {}", parentMatrixConfig);
 
             if (parentMatrixConfig != null && parentMatrixConfig.getMatrixReference() != null) {
                 AccessToken systemAccessToken = accessControlService.createSystemAccessToken(getClass().getName());
@@ -755,6 +769,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             }
 
         }
+        
+        logger.trace("Get Matrix Reference ActualField Type return {}", result);        
         return result;
     }
 
@@ -787,6 +803,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private boolean isAllowedToCreateObjectType(Id userId, String checkType) {
         List<String> userGroups = configurationExplorer.getAllowedToCreateUserGroups(checkType);
+        logger.trace("Allowed To Create User Groups {}", userGroups);
 
         if (userGroups.size() == 0) {
             return false;
@@ -808,7 +825,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(getClass().getName());
         IdentifiableObjectCollection persons = collectionsDao.findCollection("IsPersonInGroups",
                 Collections.singletonList(filter), null, 0, 1, systemAccessToken);
-
+        logger.trace("PersonInGroups collection size: {}", persons != null ? persons.size() : null);
+        
         return persons != null && persons.size() > 0;
     }
 

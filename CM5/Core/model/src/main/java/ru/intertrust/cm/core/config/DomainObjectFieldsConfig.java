@@ -73,4 +73,11 @@ public class DomainObjectFieldsConfig implements Serializable {
     public int hashCode() {
         return fieldConfigs != null ? fieldConfigs.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "DomainObjectFieldsConfig [fieldConfigs=" + fieldConfigs + ", includeGroups=" + includeGroups + "]";
+    }
+    
+    
 }
