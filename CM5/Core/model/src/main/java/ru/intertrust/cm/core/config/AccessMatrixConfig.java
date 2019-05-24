@@ -157,8 +157,11 @@ public class AccessMatrixConfig implements TopLevelConfig {
     public void setBorrowPermissisons(BorrowPermissisonsMode borrowPermissisons) {
         this.borrowPermissisons = borrowPermissisons;
     }
-    
-    
-    
-    
+
+    @Override
+    public String toString() {
+        return "AccessMatrixConfig [type=" + type + ", readEverybody=" + readEverybody + ", status=" + status + ", matrixReference=" + matrixReference
+                + ", borrowPermissisons=" + borrowPermissisons + ", accessMatrixCreateConfig=" + accessMatrixCreateConfig + ", matrixReferenceMappingConfig="
+                + matrixReferenceMappingConfig + "]";
+    }
 }

@@ -50,4 +50,11 @@ public class BasePermit implements Dto{
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "BasePermit [name=" + name + "]";
+    }
+    
+    
 }

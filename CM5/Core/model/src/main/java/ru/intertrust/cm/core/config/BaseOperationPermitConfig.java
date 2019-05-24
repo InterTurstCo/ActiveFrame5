@@ -59,4 +59,11 @@ public abstract class BaseOperationPermitConfig implements Dto {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "BaseOperationPermitConfig [permitConfigs=" + permitConfigs + "]";
+    }
+    
+    
+
 }

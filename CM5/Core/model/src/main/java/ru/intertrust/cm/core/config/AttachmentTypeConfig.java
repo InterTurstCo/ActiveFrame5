@@ -90,4 +90,11 @@ public class AttachmentTypeConfig implements Dto{
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "AttachmentTypeConfig [name=" + name + ", template=" + template + ", storage=" + storage + ", parentReference=" + parentReference + "]";
+    }
+    
+    
 }

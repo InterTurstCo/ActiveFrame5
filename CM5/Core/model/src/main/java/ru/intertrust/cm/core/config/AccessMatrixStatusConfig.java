@@ -73,4 +73,11 @@ public class AccessMatrixStatusConfig implements Dto {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return "AccessMatrixStatusConfig [name=" + name + ", permissions=" + permissions + "]";
+    }
+
+    
+    
 }

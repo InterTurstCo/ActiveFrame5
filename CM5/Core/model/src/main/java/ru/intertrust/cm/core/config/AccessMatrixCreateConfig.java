@@ -53,5 +53,10 @@ public class AccessMatrixCreateConfig implements Dto {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "AccessMatrixCreateConfig [permitGroups=" + permitGroups + "]";
+    }
+
    
 }

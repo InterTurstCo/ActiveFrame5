@@ -112,4 +112,11 @@ public abstract class FieldConfig implements Serializable {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "FieldConfig [constraintsConfig=" + constraintsConfig + ", name=" + name + ", notNull=" + notNull + ", immutable=" + immutable + "]";
+    }
+    
+    
 }

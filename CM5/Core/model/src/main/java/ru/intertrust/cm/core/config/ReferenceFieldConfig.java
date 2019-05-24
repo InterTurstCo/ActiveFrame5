@@ -55,4 +55,9 @@ public class ReferenceFieldConfig extends FieldConfig {
         result = 31 * result + (type != null ? type.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "ReferenceFieldConfig [type=" + type + "]";
+    }
 }

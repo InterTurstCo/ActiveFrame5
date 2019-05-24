@@ -182,12 +182,16 @@ public class CollectionsDaoImpl implements CollectionsDao {
             List<? extends Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         long start = System.nanoTime();
+        logger.trace("Find collection {}, filters {}, sorts {}, offset {}, limit {}", collectionName, filterValues, sortOrder, offset, limit);
 
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        logger.trace("Collection config for collection {}: {}", collectionName, collectionConfig);
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
+            logger.trace("Collection transaction cache is enable");
             IdentifiableObjectCollection fromCache = collectionsCacheService.getCollectionFromCache(collectionName, filterValues, sortOrder, offset, limit);
             if (fromCache != null) {
+                logger.trace("Result retun from transaction cache. Rows {}", fromCache.size());
                 return fromCache;
             }
         }
@@ -196,6 +200,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
                                                        // aren't supported by
                                                        // global cache yet
             String collectionGeneratorComponent = collectionConfig.getGenerator().getClassName();
+
+            logger.trace("Collection generate from generator {}", collectionGeneratorComponent);
+
             return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
         }
 
@@ -205,6 +212,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, processedFilterValues, sortOrder, offset, limit,
                 accessToken);
         if (fromGlobalCache != null) {
+            logger.trace("Result reurn from global cache. Rows {}", fromGlobalCache.size());
             return validateCache(collectionName, processedFilterValues, sortOrder, offset, limit, accessToken, start, fromGlobalCache);
         }
 
@@ -212,6 +220,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 limit,
                 accessToken);
         final IdentifiableObjectCollection collection = dbResultAndStart.getFirst();
+        logger.trace("Result reurn from database. Rows {}", collection.size());
+
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
             collectionsCacheService.putCollectionToCache(collection, collectionName, processedFilterValues, sortOrder, offset, limit);

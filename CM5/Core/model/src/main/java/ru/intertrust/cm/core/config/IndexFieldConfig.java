@@ -58,5 +58,6 @@ public class IndexFieldConfig extends BaseIndexExpressionConfig {
     public int hashCode() {
         return name != null ? name.hashCode() : 0;
     }
-   
+ 
+    
 }

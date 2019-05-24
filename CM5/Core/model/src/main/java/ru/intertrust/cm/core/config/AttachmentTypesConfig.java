@@ -49,4 +49,11 @@ public class AttachmentTypesConfig implements Dto  {
     public int hashCode() {
         return attachmentTypeConfigs != null ? attachmentTypeConfigs.hashCode() : 0;
     }
+
+    @Override
+    public String toString() {
+        return "AttachmentTypesConfig [attachmentTypeConfigs=" + attachmentTypeConfigs + "]";
+    }
+    
+    
 }
