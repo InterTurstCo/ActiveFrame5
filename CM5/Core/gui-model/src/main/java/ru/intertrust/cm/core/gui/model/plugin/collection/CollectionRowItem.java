@@ -10,13 +10,15 @@ import java.util.Map;
 
 /**
  * @author Yaroslav Bondacrhuk
- *         Date: 17/9/13
- *         Time: 12:05 PM
+ * Date: 17/9/13
+ * Time: 12:05 PM
  */
-public class CollectionRowItem implements Dto{
-    public enum RowType{
+public class CollectionRowItem implements Dto {
+
+    public enum RowType {
         DATA, FILTER, BUTTON;
     }
+
     private Id id;
     private HashMap<String, Value> row;
     private Map<String, List<String>> filters;
@@ -26,6 +28,10 @@ public class CollectionRowItem implements Dto{
     private Id parentId;
     private RowType rowType;
     private int nestingLevel;
+    /**
+     * Карта данных в зависимости от поля дочерней коллекции (так как подобных полей может быть больше одного)
+     */
+    private Map<String, ChildCollectionColumnData> childCollectionColumnFieldDataMap;
 
     public CollectionRowItem() {
     }
@@ -36,6 +42,14 @@ public class CollectionRowItem implements Dto{
 
     public void setNestingLevel(int nestingLevel) {
         this.nestingLevel = nestingLevel;
+    }
+
+    public Map<String, ChildCollectionColumnData> getChildCollectionColumnFieldDataMap() {
+        return childCollectionColumnFieldDataMap;
+    }
+
+    public void setChildCollectionColumnFieldDataMap(Map<String, ChildCollectionColumnData> childCollectionColumnFieldDataMap) {
+        this.childCollectionColumnFieldDataMap = childCollectionColumnFieldDataMap;
     }
 
     public Id getId() {
@@ -55,24 +69,24 @@ public class CollectionRowItem implements Dto{
         this.filters = filters;
     }
 
-    public void putFilterValues(String field, List<String> value){
-        if(filters == null){
+    public void putFilterValues(String field, List<String> value) {
+        if (filters == null) {
             filters = new HashMap<>();
         }
         filters.put(field, value);
     }
 
-    public String getFilterValue(String field){
+    public String getFilterValue(String field) {
         StringBuilder sb = new StringBuilder();
-        if(filters != null){
-        List<String> filterValues = filters.get(field);
+        if (filters != null) {
+            List<String> filterValues = filters.get(field);
 
-        if(filters != null){
-            for (String filterValue : filterValues) {
-                sb.append(filterValue);
-                sb.append(" ");
+            if (filters != null) {
+                for (String filterValue : filterValues) {
+                    sb.append(filterValue);
+                    sb.append(" ");
+                }
             }
-        }
         }
         return sb.toString();
     }
@@ -89,7 +103,7 @@ public class CollectionRowItem implements Dto{
         this.row = row;
     }
 
-    public HashMap<String, Value> getRow () {
+    public HashMap<String, Value> getRow() {
         return row;
     }
 
@@ -164,4 +178,19 @@ public class CollectionRowItem implements Dto{
     public void setHaveChild(boolean haveChild) {
         this.haveChild = haveChild;
     }
+
+    /**
+     * Кладет в карту объект данных в зависимости от поля дочерней коллекции.<br>
+     * Если объекта карты еще нет - он будет создан.
+     *
+     * @param field                     поле дочерней коллекции
+     * @param childCollectionColumnData объект данных дочерней коллекции
+     */
+    public void putChildCollectionColumnData(String field, ChildCollectionColumnData childCollectionColumnData) {
+        if (childCollectionColumnFieldDataMap == null) {
+            childCollectionColumnFieldDataMap = new HashMap<>();
+        }
+        childCollectionColumnFieldDataMap.put(field, childCollectionColumnData);
+    }
+
 }

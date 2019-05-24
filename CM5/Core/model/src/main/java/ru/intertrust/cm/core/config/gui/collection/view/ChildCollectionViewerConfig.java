@@ -34,6 +34,18 @@ public class ChildCollectionViewerConfig implements Dto {
     @Localizable
     private String breadCrumb="Не определён";
 
+    /**
+     * Атрибут скрытия показа стрелки дочерней коллекции, если последняя пустая (не содержит ни одного дочернего элемента)
+     */
+    @Attribute(name = "hide-arrow-if-empty", required = false)
+    private Boolean hideArrowIfEmpty = false;
+
+    /**
+     * Атрибут показа количества элементов дочерней коллекции (не зависимо от того имеются они или нет)
+     */
+    @Attribute(name = "show-childs-count", required = false)
+    private Boolean showChildsCount = false;
+
     @Element(name = "collection-viewer")
     private CollectionViewerConfig collectionViewerConfig;
 
@@ -77,6 +89,22 @@ public class ChildCollectionViewerConfig implements Dto {
         this.breadCrumb = breadCrumb;
     }
 
+    public Boolean getHideArrowIfEmpty() {
+        return hideArrowIfEmpty;
+    }
+
+    public void setHideArrowIfEmpty(Boolean hideArrowIfEmpty) {
+        this.hideArrowIfEmpty = hideArrowIfEmpty;
+    }
+
+    public Boolean getShowChildsCount() {
+        return showChildsCount;
+    }
+
+    public void setShowChildsCount(Boolean showChildsCount) {
+        this.showChildsCount = showChildsCount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -84,6 +112,8 @@ public class ChildCollectionViewerConfig implements Dto {
 
         ChildCollectionViewerConfig that = (ChildCollectionViewerConfig) o;
 
+        if (hideArrowIfEmpty != that.hideArrowIfEmpty) return false;
+        if (showChildsCount != that.showChildsCount) return false;
         if (forDomainObjectType != null ? !forDomainObjectType.equals(that.forDomainObjectType) : that.forDomainObjectType != null)
             return false;
         if (filter != null ? !filter.equals(that.filter) : that.filter != null) return false;
@@ -100,6 +130,15 @@ public class ChildCollectionViewerConfig implements Dto {
 
     @Override
     public int hashCode() {
-        return forDomainObjectType != null ? forDomainObjectType.hashCode() : 0;
+        int result = forDomainObjectType != null ? forDomainObjectType.hashCode() : 0;
+        result = 31 * result + (filter != null ? filter.hashCode() : 0);
+        result = 31 * result + (domainObjectTypeToCreate != null ? domainObjectTypeToCreate.hashCode() : 0);
+        result = 31 * result + (breadCrumb != null ? breadCrumb.hashCode() : 0);
+        result = 31 * result + (hideArrowIfEmpty ? 1 : 0);
+        result = 31 * result + (showChildsCount ? 1 : 0);
+        result = 31 * result + (collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 0);
+
+        return result;
     }
+
 }

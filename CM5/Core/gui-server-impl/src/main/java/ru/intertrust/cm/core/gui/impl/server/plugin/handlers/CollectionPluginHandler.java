@@ -6,10 +6,9 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -46,6 +45,7 @@ import java.util.*;
  */
 @ComponentName(CollectionPluginHandler.COMPONENT_NAME)
 public class CollectionPluginHandler extends ActivePluginHandler {
+
     static final String COMPONENT_NAME = "collection.plugin";
 
     @Autowired
@@ -265,8 +265,137 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         item.setRow(row);
         item.setRowType(CollectionRowItem.RowType.DATA);
         item.setHaveChild(typeIsExpandable);
-        return item;
 
+        setChildCollectionColumnData(item, identifiableObject, columnPropertiesMap);
+
+        return item;
+    }
+
+    /**
+     * Установка данных для колонок с дочерними коллекциями (см. {@link ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig}),<br>
+     * если они (колонки иерархии) имеются.
+     *
+     * @param item                объект данных строки коллекции
+     * @param identifiableObject  Id записи данных
+     * @param columnPropertiesMap карта свойств колонок
+     */
+    private void setChildCollectionColumnData(CollectionRowItem item, IdentifiableObject identifiableObject, Map<String, CollectionColumnProperties> columnPropertiesMap) {
+        for (Map.Entry<String, CollectionColumnProperties> entry : columnPropertiesMap.entrySet()) {
+
+            final CollectionColumnProperties collectionColumnProperties = entry.getValue();
+            List<ChildCollectionViewerConfig> childCollectionsConfigs =
+                    (List<ChildCollectionViewerConfig>) collectionColumnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG);
+
+            // производим действия только при наличии колонок дочерних коллекций
+            if (childCollectionsConfigs != null) {
+                final ChildCollectionViewerConfig childCollectionViewerConfig = childCollectionsConfigs.get(0);
+
+                // параметры конфигурации колонки
+                final boolean hideArrowIfEmpty = childCollectionViewerConfig.getHideArrowIfEmpty();
+                final boolean showChildsCount = childCollectionViewerConfig.getShowChildsCount();
+
+                // проверим не посчитано ли уже количество дочерних элементов в коллекции (отдельной колонкой с COUNT)
+                final String field = entry.getKey();
+                final Long calculatedChildsCount = getCalculatedChildsCount(item, field);
+                boolean isChildsCountAlreadyCalculated = (calculatedChildsCount != null);
+
+                final ChildCollectionColumnData childCollectionColumnData = new ChildCollectionColumnData();
+                childCollectionColumnData.setHasChildsCountAlreadyCalculated(isChildsCountAlreadyCalculated);
+
+                // производим действия, если установлен хотя бы один флаг в конфигурации дочерней коллекции, иначе в этом нет надобности
+                if (showChildsCount) {
+                    // устанавливаем количество дочерних элементов : либо уже вычисленное ранее, если нет, то вычисляем его предварительно
+                    final long childCollectionItemsCount = isChildsCountAlreadyCalculated ?
+                            calculatedChildsCount : calculateChildCollectionItemsCount(identifiableObject, childCollectionViewerConfig);
+
+                    childCollectionColumnData.setChildCollectionItemsCount((int) childCollectionItemsCount);
+                    childCollectionColumnData.setHasCollectionAnyChild(childCollectionItemsCount > 0);
+
+                    // выполняется в случае, если флаг показа количества == false, а скрытия стрелки в пустых дочерних коллекциях == true
+                    // потому что в противном случае количество либо уже посчитано (и вопрос с наличием/отсутствием дочерних элементов отпадает автоматически),
+                    // либо это вообще не нужно когда оба флага не установлены
+                } else if (hideArrowIfEmpty) {
+                    // устанавливаем флаг наличия дочерних элементов : если их количество уже было посчитано ранее, то определяем по нему,
+                    // если нет - делаем запрос проверки, что дочерняя коллекция не пустая
+                    final boolean hasCollectionAnyChild = isChildsCountAlreadyCalculated ?
+                            (calculatedChildsCount > 0) : hasCollectionAnyChild(identifiableObject, childCollectionViewerConfig);
+                    childCollectionColumnData.setHasCollectionAnyChild(hasCollectionAnyChild);
+                }
+                item.putChildCollectionColumnData(field, childCollectionColumnData);
+            }
+        }
+    }
+
+    /**
+     * Возвращает значение количества посчитанных дочерних элементов:<br>
+     * берется значение из колонки, если она имеет числовой тип и не пустая.<br>
+     *
+     * @param item             объект данных строки коллекции
+     * @param childColumnField имя поля колонки дочерней коллекции
+     * @return значение количества посчитанных дочерних элементов;<br>
+     * null - если тип значения не числовой, либо значение отсутствует
+     */
+    private Long getCalculatedChildsCount(CollectionRowItem item, String childColumnField) {
+        final HashMap<String, Value> columnValuesMap = item.getRow();
+        final Value childColumnValue = columnValuesMap.get(childColumnField);
+
+        final Object valueObj = childColumnValue.get();
+        if (valueObj != null) {
+
+            if (childColumnValue instanceof LongValue) {
+                return (Long) valueObj;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Подсчитывает количество дочерних элементов коллекции
+     *
+     * @param identifiableObject          Id фильтрации
+     * @param childCollectionViewerConfig объект конфигурации дочерней коллекции
+     * @return количество элементов дочерней коллекции
+     */
+    private int calculateChildCollectionItemsCount(IdentifiableObject identifiableObject, ChildCollectionViewerConfig childCollectionViewerConfig) {
+        final CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
+        final CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
+
+        final Id filterParamId = identifiableObject.getId();
+        final String filterName = childCollectionViewerConfig.getFilter();
+        final String collectionName = collectionRefConfig.getName();
+
+        List<Filter> filtersList = new ArrayList<>();
+        final ReferenceValue filterRefValue = new ReferenceValue(filterParamId);
+        final Filter filter = Filter.create(filterName, 0, filterRefValue);
+        filtersList.add(filter);
+
+        final int childCollectionCount = collectionsService.findCollectionCount(collectionName, filtersList);
+        return childCollectionCount;
+    }
+
+    /**
+     * Определяет есть ли элементы у дочерней коллекции (не пустая ли она)
+     *
+     * @param identifiableObject          Id фильтрации
+     * @param childCollectionViewerConfig объект конфигурации дочерней коллекции
+     * @return true - дочерние элементы есть;<br>
+     * false - их нет (количество == 0)
+     */
+    private boolean hasCollectionAnyChild(IdentifiableObject identifiableObject, ChildCollectionViewerConfig childCollectionViewerConfig) {
+        final CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
+        final CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
+
+        final Id filterParamId = identifiableObject.getId();
+        final String filterName = childCollectionViewerConfig.getFilter();
+        final String collectionName = collectionRefConfig.getName();
+
+        List<Filter> filtersList = new ArrayList<>();
+        final ReferenceValue filterRefValue = new ReferenceValue(filterParamId);
+        final Filter filter = Filter.create(filterName, 0, filterRefValue);
+        filtersList.add(filter);
+
+        final boolean isCollectionEmpty = collectionsService.isCollectionEmpty(collectionName, filtersList);
+        return !isCollectionEmpty;
     }
 
     public ArrayList<CollectionRowItem> getRows(String collectionName, int offset, int count, List<Filter> filters,

@@ -143,4 +143,21 @@ public class StringUtil {
         return formattedStrValue;
     }
 
+    /**
+     * Проверяет, что объект строки null, путой ("") или содержит только пробелы<br>
+     * <br>
+     * StringUtil.isNullOrBlank(null)      = true<br>
+     * StringUtil.isNullOrBlank("")        = true<br>
+     * StringUtil.isNullOrBlank(" ")       = true<br>
+     * StringUtil.isNullOrBlank("abc")     = false<br>
+     * StringUtil.isNullOrBlank("  abc  ") = false<br>
+     *
+     * @param string строка для проверки, может быть null
+     * @return true, если строка null, путая ("") или содержит только пробелы;<br>
+     * false - в противном случае
+     */
+    public static boolean isNullOrBlank(String string) {
+        return (string == null) || string.trim().isEmpty();
+    }
+
 }
