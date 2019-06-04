@@ -220,7 +220,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 limit,
                 accessToken);
         final IdentifiableObjectCollection collection = dbResultAndStart.getFirst();
-        logger.trace("Result reurn from database. Rows {}", collection.size());
+        if (collection != null) {
+            logger.trace("Result reurn from database. Rows {}", collection.size());
+        }
 
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
