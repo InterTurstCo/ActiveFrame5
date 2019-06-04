@@ -375,7 +375,7 @@ public class TestLageDomainObject {
 
     private long getNextId() {
         String query = "select nextval('test_lage_table_sq')";
-        long result = jdbcTemplate.queryForLong(query, (Map) null);
+        Long result = jdbcTemplate.queryForObject(query, (Map) null, Long.class);
         ids.add(result);
         return result;
     }
