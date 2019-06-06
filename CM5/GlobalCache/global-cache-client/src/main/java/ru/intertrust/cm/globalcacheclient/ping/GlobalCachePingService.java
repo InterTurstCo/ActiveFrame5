@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.dto.globalcache.PingData;
 import ru.intertrust.cm.core.business.api.dto.globalcache.PingRequest;
+import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.globalcacheclient.cluster.GlobalCacheJmsHelper;
 
@@ -29,7 +30,11 @@ public class GlobalCachePingService {
     private static final Logger logger = LoggerFactory.getLogger(GlobalCachePingService.class);
     
     @Autowired
-    private Environment environment;
+    private ClusterManagerDao clusterManagerDao;
+
+    @Autowired
+    private GlobalCacheJmsHelper jmsHelper;
+    
     
     private static Map<String, PingResult> pingResults = new Hashtable<String, PingResult>();
     
@@ -42,7 +47,7 @@ public class GlobalCachePingService {
         try {
             logger.info("Ping start");
 
-            String nodeName = environment.getProperty("server.name");
+            String nodeName = clusterManagerDao.getNodeName();
             if (nodeName == null) {
                 nodeName = "not_config";
             }
@@ -62,7 +67,7 @@ public class GlobalCachePingService {
             pingMessage.getPingData().getRequest().setRequestId(requestId);
 
             //Отправляем ping запрос
-            GlobalCacheJmsHelper.sendClusterNotification(pingMessage);
+            jmsHelper.sendClusterNotification(pingMessage);
             
             // Ожидаем ответы не более заданного таймаута
             Thread.currentThread().sleep(timeout);

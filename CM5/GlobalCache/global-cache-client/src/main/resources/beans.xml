@@ -12,6 +12,8 @@
     <bean id="perGroupGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerGroupGlobalCacheClient"/>
     <bean id="perPersonGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerPersonGlobalCacheClient"/>
     <bean id="globalCacheSettings" class="ru.intertrust.cm.globalcacheclient.GlobalCacheSettings"/>
+    <bean id="globalCacheJmsHelper" class="ru.intertrust.cm.globalcacheclient.impl.GlobalCacheJmsHelperImpl"/>
+    <bean id="сlusterTransactionStampServiceImpl" class="ru.intertrust.cm.globalcacheclient.impl.ClusterTransactionStampServiceImpl"/>
 
     <jee:local-slsb id="personAccessHelper" jndi-name="java:module/PersonAccessHelper!ru.intertrust.cm.globalcacheclient.PersonAccessHelper"
             business-interface="ru.intertrust.cm.globalcacheclient.PersonAccessHelper"/>

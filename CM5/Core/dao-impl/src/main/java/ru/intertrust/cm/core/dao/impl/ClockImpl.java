@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.business.api.Stamp;
 import ru.intertrust.cm.core.dao.api.Clock;
-import ru.intertrust.cm.core.dao.api.Stamp;
 
 public class ClockImpl implements Clock{
     private StampImpl lastStamp;

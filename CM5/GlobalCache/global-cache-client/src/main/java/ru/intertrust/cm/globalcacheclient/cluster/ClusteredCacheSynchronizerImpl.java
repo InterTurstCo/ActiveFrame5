@@ -2,6 +2,7 @@ package ru.intertrust.cm.globalcacheclient.cluster;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
@@ -27,6 +28,9 @@ import java.util.Set;
 public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronizer {
     final static Logger logger = LoggerFactory.getLogger(ClusteredCacheSynchronizerImpl.class);
 
+    @Autowired
+    private GlobalCacheJmsHelper jmsHelper;
+    
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void notifyCommit(DomainObjectsModification modification, PersonAccessChanges personAccessChanges) {
@@ -46,12 +50,12 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
         ids.addAll(deletedIds);
         ids.addAll(modifiedAutoDomainObjectIds);
 
-        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(createdIdsSet, ids, clearFullAccessLog, personsWhosGroupsChanged));
+        jmsHelper.sendClusterNotification(new CacheInvalidation(createdIdsSet, ids, clearFullAccessLog, personsWhosGroupsChanged));
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public void notifyClear() {
-        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(true));
+        jmsHelper.sendClusterNotification(new CacheInvalidation(true));
     }
 }

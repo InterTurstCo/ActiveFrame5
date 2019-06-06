@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.dao.api;
+package ru.intertrust.cm.core.business.api;
 
 /**
  * Метка времени

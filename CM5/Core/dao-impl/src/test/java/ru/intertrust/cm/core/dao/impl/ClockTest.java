@@ -4,7 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import ru.intertrust.cm.core.dao.api.Stamp;
+import ru.intertrust.cm.core.business.api.Stamp;
 
 public class ClockTest {
     

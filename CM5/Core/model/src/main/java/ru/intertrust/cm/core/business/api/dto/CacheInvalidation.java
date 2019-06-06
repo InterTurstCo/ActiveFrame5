@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import java.util.*;
 
+import ru.intertrust.cm.core.business.api.Stamp;
 import ru.intertrust.cm.core.business.api.dto.globalcache.PingData;
 
 /**
@@ -14,6 +15,7 @@ public class CacheInvalidation implements Dto {
     private static final StringBuilder NULL_STR = new StringBuilder("null");
 
     private long senderId;
+    private String senderNodeId;
     private List<DomainObject> createdDomainObjectsToInvalidate;
     private Set<Id> createdIdsToInvalidate;
     private Set<Id> idsToInvalidate;
@@ -22,6 +24,7 @@ public class CacheInvalidation implements Dto {
     private long receiveTime;
     private Set<Id> usersAccessToInvalidate;
     private PingData pingData;
+    private Stamp stamp;
 
     public CacheInvalidation() {
     }
@@ -53,6 +56,7 @@ public class CacheInvalidation implements Dto {
     public long getSenderId() {
         return senderId;
     }
+
 
     public long setSenderId() {
         return senderId = NODE_ID;
@@ -138,5 +142,21 @@ public class CacheInvalidation implements Dto {
 
     public void setPingData(PingData pingData) {
         this.pingData = pingData;
+    }
+
+    public String getSenderNodeId() {
+        return senderNodeId;
+    }
+
+    public void setSenderNodeId(String senderNodeId) {
+        this.senderNodeId = senderNodeId;
+    }
+
+    public Stamp getStamp() {
+        return stamp;
+    }
+
+    public void setStamp(Stamp stamp) {
+        this.stamp = stamp;
     }
 }

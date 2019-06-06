@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import ru.intertrust.cm.core.dao.api.Stamp;
+import ru.intertrust.cm.core.business.api.Stamp;
 
 /**
  * Имплементация метки времени. Метка хранится в двух long числах. 

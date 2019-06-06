@@ -36,6 +36,7 @@ import ru.intertrust.cm.core.business.api.dto.ClusterNodeInfo;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
@@ -82,12 +83,11 @@ public class ClusterManagerImpl implements ClusterManager{
     @Autowired
     private InterserverLockingService interserverLockingService;
 
+    @Autowired
+    private ClusterManagerDao clusterManagerDao;
+
     @org.springframework.beans.factory.annotation.Value("${cluster.manager:false}")
     private boolean canBeClusterMaster;
-
-    @org.springframework.beans.factory.annotation.Value("${server.name:#{null}}")
-    private String nodeName;
-
 
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
     private String availableRoles;
@@ -96,7 +96,7 @@ public class ClusterManagerImpl implements ClusterManager{
     @Lock(LockType.WRITE)
     public void init() {
         logger.trace("Start ClusterManager Timer initialized " + nodeId);
-        nodeId = UUID.randomUUID().toString();
+        nodeId = clusterManagerDao.getNodeId();
         timerService.createIntervalTimer(0, INTERVAL, new TimerConfig(TIMER_NAME, false));
         logger.debug("End ClusterManager Timer initialized " + nodeId);
     }
@@ -140,7 +140,7 @@ public class ClusterManagerImpl implements ClusterManager{
             if (nodeInfo == null) {
                 nodeInfo = crudService.createDomainObject("cluster_node");
                 nodeInfo.setString("node_id", nodeId);
-                nodeInfo.setString("node_name", nodeName);
+                nodeInfo.setString("node_name", clusterManagerDao.getNodeName());
             }
             nodeInfo.setString("available_roles", availableRoles);
             nodeInfo.setTimestamp("last_available", new Date());
