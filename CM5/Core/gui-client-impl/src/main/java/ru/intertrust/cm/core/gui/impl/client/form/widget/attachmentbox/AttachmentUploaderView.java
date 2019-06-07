@@ -44,7 +44,7 @@ import java.util.List;
 public class AttachmentUploaderView extends Composite implements AttachmentElementsContainer {
 
   private static final BusinessUniverseServiceAsync SERVICE = BusinessUniverseServiceAsync.Impl.getInstance();
-
+  private static final String FILE_NAME_PARAMS_DELIMITER = "-_-";
   private Panel mainBoxPanel;
   private Panel controlPanel;
   private Panel root;
@@ -428,7 +428,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
   private AttachmentItem handleFileNameFromServer(String filePath) {
     AttachmentItem attachmentItem = new AttachmentItem();
-    String[] splitClearName = filePath.split(AttachmentUploaderServlet.FILE_NAME_PARAMS_DELIMITER);
+    String[] splitClearName = filePath.split(FILE_NAME_PARAMS_DELIMITER);
 
     if (splitClearName.length >= 2) {
       String clearName = splitClearName[1];
