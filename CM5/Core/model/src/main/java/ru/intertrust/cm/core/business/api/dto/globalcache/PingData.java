@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.api.dto.globalcache;
 
-public class PingData {
+public class PingData extends DiagnosticData {
     private PingRequest request;
     private PingResponse response;
     

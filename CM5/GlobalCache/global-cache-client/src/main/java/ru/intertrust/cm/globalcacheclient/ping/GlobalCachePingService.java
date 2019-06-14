@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -60,11 +59,12 @@ public class GlobalCachePingService {
             
             // Формируем ping запрос
             CacheInvalidation pingMessage = new CacheInvalidation();
-            pingMessage.setPingData(new PingData());
-            pingMessage.getPingData().setRequest(new PingRequest());
-            pingMessage.getPingData().getRequest().setNodeName(nodeName);
-            pingMessage.getPingData().getRequest().setSendTime(System.currentTimeMillis());
-            pingMessage.getPingData().getRequest().setRequestId(requestId);
+            PingData pingData = new PingData();
+            pingData.setRequest(new PingRequest());
+            pingData.getRequest().setNodeName(nodeName);
+            pingData.getRequest().setSendTime(System.currentTimeMillis());
+            pingData.getRequest().setRequestId(requestId);
+            pingMessage.setDiagnosticData(pingData);
 
             //Отправляем ping запрос
             jmsHelper.sendClusterNotification(pingMessage);
@@ -94,5 +94,6 @@ public class GlobalCachePingService {
             result.getNodeInfos().add(nodeInfo);
         }
     }
+
 
 }

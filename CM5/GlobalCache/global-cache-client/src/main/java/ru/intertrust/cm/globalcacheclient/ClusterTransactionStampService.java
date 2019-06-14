@@ -1,8 +1,7 @@
 package ru.intertrust.cm.globalcacheclient;
 
-import java.util.Map;
-
 import ru.intertrust.cm.core.business.api.Stamp;
+import ru.intertrust.cm.globalcacheclient.impl.ClusterCommitStampsInfo;
 
 /**
  * Сервис, обеспечивающий хранение информации о метках времени крайних транзакций на всех узлах кластера
@@ -15,7 +14,7 @@ public interface ClusterTransactionStampService {
      * Получение локальной информации о временных метках транзакций кластера
      * @return
      */
-    Map<String, Stamp> getInvalidationCacheInfo();
+    ClusterCommitStampsInfo getInvalidationCacheInfo();
 
     /**
      * Установка временной метки транзакции определенного сервера
@@ -28,5 +27,10 @@ public interface ClusterTransactionStampService {
      * Установка временной метки транзакции локального сервера
      * @param serverStamp
      */
-    void setLocalInvalidationCacheInfo();
+    void setLocalInvalidationCacheInfo(Stamp serverStamp);
+    
+    /**
+     * Сброс данных о временных метках
+     */
+    void resetInvalidationCacheInfo();
 }

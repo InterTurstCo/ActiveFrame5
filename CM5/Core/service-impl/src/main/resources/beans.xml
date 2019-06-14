@@ -145,6 +145,11 @@
     <jee:local-slsb id="clusterManager"
                     jndi-name="java:module/ClusterManager!ru.intertrust.cm.core.business.api.ClusterManager"
                     business-interface="ru.intertrust.cm.core.business.api.ClusterManager"/>
+                    
+    <jee:local-slsb id="diagnosticMessageProcessor"
+                    jndi-name="java:module/DiagnosticMessageProcessor!ru.intertrust.cm.core.business.diagnostic.DiagnosticMessageProcessor"
+                    business-interface="ru.intertrust.cm.core.business.diagnostic.DiagnosticMessageProcessor"/>
+                    
 
 
     <bean id="transactionalCrudService"

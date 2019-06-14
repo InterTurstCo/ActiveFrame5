@@ -13,6 +13,7 @@ import javax.annotation.security.RunAs;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Local;
+import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
 import javax.ejb.TransactionManagement;
@@ -23,17 +24,22 @@ import javax.transaction.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
+import ru.intertrust.cm.globalcacheclient.impl.ClusterCommitStampsInfo;
 
 @Singleton
 @RunAs("system")
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Local(InterserverLockingService.class)
+@Remote(InterserverLockingService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class InterserverLockingServiceImpl implements InterserverLockingService {
@@ -50,6 +56,18 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
 
     @Autowired
     private InterserverLockingDao interserverLockingDao;
+
+    @Autowired
+    private ClusterTransactionStampService clusterTransactionStampService;
+
+    @Autowired
+    private GlobalCacheClient globalCacheClient;
+    
+    @Value("${interserver.locking.service.actual.data.timeout:60000}")
+    private long actualDataTimeout;
+
+    @Value("${interserver.locking.service.check.invalidation.cache.refresh.period:1000}")
+    private long checkInvalidationCacheRefreshPeriod;
 
     private final ConcurrentHashMap<String, ScheduledFutureEx> heldLocks = new ConcurrentHashMap<>();
 
@@ -84,6 +102,44 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
             if (future != null) {
                 future.cancel(true);
             }
+
+            // Проверка все ли данные прилетели с других нод
+            String stampInfo = getInterserverLockingDao().getStampInfo(resourceId);
+            ClusterCommitStampsInfo parentLockerStampsInfo = ClusterCommitStampsInfo.decode(stampInfo);
+            ClusterCommitStampsInfo currentNodeStampsInfo = getClusterTransactionStampService().getInvalidationCacheInfo();
+
+            if (!currentNodeStampsInfo.equalsOrGreater(parentLockerStampsInfo)) {
+                // Если данные не актуальные ждем
+                final Semaphore semaphore = new Semaphore(0);
+                long start = System.currentTimeMillis();
+                final ScheduledFuture<?> futureActualisationCache = getExecutorService().scheduleWithFixedDelay(() -> {
+                        if (getClusterTransactionStampService().getInvalidationCacheInfo().equalsOrGreater(parentLockerStampsInfo)) {
+                            // Проверка что данные уже актуальны
+                            semaphore.release();
+                            logger.debug("Data is actual for resource {}", resourceId);
+                        }else if (System.currentTimeMillis() - start > actualDataTimeout) {
+                            // Проверка что ждем не более разрешенного таймаута
+                            semaphore.release();
+                            logger.error("No up-to-date data from other cluster nodes was received during the timeout {} ms", actualDataTimeout);
+                            
+                            //Не дождались, сбрасываем кэш и данные временных меток
+                            globalCacheClient.clearCurrentNode();
+                            getClusterTransactionStampService().resetInvalidationCacheInfo();
+                        }
+                }, checkInvalidationCacheRefreshPeriod, checkInvalidationCacheRefreshPeriod, TimeUnit.MILLISECONDS);
+
+                try {
+                    logger.debug("Start wait actual data {}", resourceId);
+                    semaphore.acquire();
+                    logger.debug("End wait actual data {}", resourceId);
+                    if (futureActualisationCache != null) {
+                        futureActualisationCache.cancel(true);
+                    }
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
         }
         logger.trace("End lock {} return {}", resourceId, result);
         return result;
@@ -252,6 +308,10 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     protected InterserverLockingDao getInterserverLockingDao() {
         return interserverLockingDao;
     }
+    
+    protected ClusterTransactionStampService getClusterTransactionStampService() {
+        return clusterTransactionStampService;
+    }    
 
     @Override
     public synchronized void unlock(String resourceId) {
@@ -259,7 +319,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         ScheduledFutureEx future = heldLocks.get(resourceId);
         if (future != null) {
             future.cancel(true);
-            getInterserverLockingDao().unlock(resourceId);
+            getInterserverLockingDao().unlock(resourceId, getClusterTransactionStampService().getInvalidationCacheInfo().encode());
             heldLocks.remove(resourceId);
             logger.trace("End unlock {}", resourceId);
         } else {

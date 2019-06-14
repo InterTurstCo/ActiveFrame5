@@ -7,5 +7,4 @@ package ru.intertrust.cm.core.business.api;
  * @param <T>
  */
 public interface Stamp <T extends Stamp<?>> extends  Comparable<T>{
-
 }

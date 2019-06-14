@@ -19,4 +19,5 @@
             business-interface="ru.intertrust.cm.globalcacheclient.PersonAccessHelper"/>
     <jee:local-slsb id="clusteredCacheSynchronizer" jndi-name="java:module/ClusteredCacheSynchronizer!ru.intertrust.cm.globalcacheclient.cluster.ClusteredCacheSynchronizer"
             business-interface="ru.intertrust.cm.globalcacheclient.cluster.ClusteredCacheSynchronizer"/>
+            
 </beans>

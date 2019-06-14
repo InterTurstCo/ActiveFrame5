@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.Stamp;
-import ru.intertrust.cm.core.dao.api.Clock;
 import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
 
@@ -15,14 +14,11 @@ public class ClusterTransactionStampServiceImpl implements ClusterTransactionSta
     public final Map<String, Stamp> nodesStamp = new ConcurrentHashMap<String, Stamp>();
 
     @Autowired
-    private Clock clock;
-
-    @Autowired
     private ClusterManagerDao clusterManagerDao;
 
     @Override
-    public Map<String, Stamp> getInvalidationCacheInfo() {
-        return nodesStamp;
+    public ClusterCommitStampsInfo getInvalidationCacheInfo() {
+        return new ClusterCommitStampsInfo(nodesStamp);
     }
 
     @Override
@@ -32,8 +28,13 @@ public class ClusterTransactionStampServiceImpl implements ClusterTransactionSta
     }
 
     @Override
-    public void setLocalInvalidationCacheInfo() {
-        nodesStamp.merge(clusterManagerDao.getNodeName(), clock.nextStamp(), (prevStamp, newStamp) -> newStamp.compareTo(prevStamp) > 0 ? newStamp : prevStamp);
+    public void setLocalInvalidationCacheInfo(Stamp serverStamp) {
+        nodesStamp.merge(clusterManagerDao.getNodeId(), serverStamp, (prevStamp, newStamp) -> newStamp.compareTo(prevStamp) > 0 ? newStamp : prevStamp);
+    }
+
+    @Override
+    public void resetInvalidationCacheInfo() {
+        nodesStamp.clear();
     }
 
 }

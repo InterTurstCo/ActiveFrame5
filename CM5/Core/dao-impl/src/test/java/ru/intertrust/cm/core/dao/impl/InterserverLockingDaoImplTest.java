@@ -51,7 +51,7 @@ public class InterserverLockingDaoImplTest {
         Date time = new Date();
         interserverLockingDaoImpl.lock("abc", time);
         verify(jdbcOperations).execute(
-                "create table if not exists locks (resource_id varchar(256), lock_time timestamp, constraint pk_locks primary key (resource_id))");
+                "create table if not exists locks (resource_id varchar(256), lock_time timestamp, stamp_info text, constraint pk_locks primary key (resource_id))");
         verify(jdbcOperations).update("insert into locks values(?, ?)", "abc", time);
     }
 
@@ -61,22 +61,22 @@ public class InterserverLockingDaoImplTest {
         interserverLockingDaoImpl.lock("abc", time);
         interserverLockingDaoImpl.lock("def", time);
         verify(jdbcOperations, times(1)).execute(
-                "create table if not exists locks (resource_id varchar(256), lock_time timestamp, constraint pk_locks primary key (resource_id))");
+                "create table if not exists locks (resource_id varchar(256), lock_time timestamp, stamp_info text, constraint pk_locks primary key (resource_id))");
         verify(jdbcOperations).update("insert into locks values(?, ?)", "abc", time);
         verify(jdbcOperations).update("insert into locks values(?, ?)", "def", time);
     }
 
     @Test
     public void testUnlock() {
-        interserverLockingDaoImpl.unlock("abc");
-        verify(jdbcOperations).update("delete from locks where resource_id = ?", "abc");
+        interserverLockingDaoImpl.unlock("abc", "def");
+        verify(jdbcOperations).update("update locks set stamp_info = ?, lock_time = null where resource_id = ?", "def", "abc");
     }
 
     @Test
     public void testUnlockWithDateSpecified() {
         Date time = new Date();
         interserverLockingDaoImpl.unlock("abc", time);
-        verify(jdbcOperations).update("delete from locks where resource_id = ? and lock_time = ?", "abc", time);
+        verify(jdbcOperations).update("update locks set lock_time = null where resource_id = ? and lock_time = ?", "abc", time);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class InterserverLockingDaoImplTest {
     public void testGetLastLockTime() {
         interserverLockingDaoImpl.getLastLockTime("abc");
         verify(jdbcOperations).execute(
-                "create table if not exists locks (resource_id varchar(256), lock_time timestamp, constraint pk_locks primary key (resource_id))");
-        verify(jdbcOperations).queryForObject("select max(lock_time) from locks where resource_id = ?", Date.class, "abc");
+                "create table if not exists locks (resource_id varchar(256), lock_time timestamp, stamp_info text, constraint pk_locks primary key (resource_id))");
+        verify(jdbcOperations).queryForObject("select max(lock_time) from locks where resource_id = ? and lock_time is not null", Date.class, "abc");
     }
 }

@@ -28,6 +28,9 @@ package ru.intertrust.cm.core.business.api;
  */
 public interface InterserverLockingService {
 
+    public interface Remote extends InterserverLockingService {
+    }
+    
     /**
      * Попытаться заблокировать ресурс
      * @param resourceId

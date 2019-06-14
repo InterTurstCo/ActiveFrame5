@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.business.api.dto;
 import java.util.*;
 
 import ru.intertrust.cm.core.business.api.Stamp;
-import ru.intertrust.cm.core.business.api.dto.globalcache.PingData;
+import ru.intertrust.cm.core.business.api.dto.globalcache.DiagnosticData;
 
 /**
  * @author Denis Mitavskiy
@@ -23,7 +23,7 @@ public class CacheInvalidation implements Dto {
     private boolean clearCache;
     private long receiveTime;
     private Set<Id> usersAccessToInvalidate;
-    private PingData pingData;
+    private DiagnosticData diagnosticData;
     private Stamp stamp;
 
     public CacheInvalidation() {
@@ -136,14 +136,6 @@ public class CacheInvalidation implements Dto {
         return result;
     }
 
-    public PingData getPingData() {
-        return pingData;
-    }
-
-    public void setPingData(PingData pingData) {
-        this.pingData = pingData;
-    }
-
     public String getSenderNodeId() {
         return senderNodeId;
     }
@@ -158,5 +150,13 @@ public class CacheInvalidation implements Dto {
 
     public void setStamp(Stamp stamp) {
         this.stamp = stamp;
+    }
+
+    public DiagnosticData getDiagnosticData() {
+        return diagnosticData;
+    }
+
+    public void setDiagnosticData(DiagnosticData diagnosticData) {
+        this.diagnosticData = diagnosticData;
     }
 }

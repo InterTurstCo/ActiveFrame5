@@ -6,7 +6,9 @@ public interface InterserverLockingDao {
 
     boolean lock(String resourceId, Date lockTime);
 
-    void unlock(String resourceId);
+    void unlock(String resourceId, String stampInfo);
+
+    String getStampInfo(String resourceId);
 
     Date getLastLockTime(String resourceId);
 
