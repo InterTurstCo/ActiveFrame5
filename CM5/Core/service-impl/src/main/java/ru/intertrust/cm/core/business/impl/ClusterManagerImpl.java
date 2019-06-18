@@ -400,13 +400,11 @@ public class ClusterManagerImpl implements ClusterManager{
         }
         
         public void addActiveRole(String newRole){
-            activeRoles.add(newRole);
-            changed = true;
+            changed = activeRoles.add(newRole);
         }
         
         public void removeActiveRole(String oldRole){
-            activeRoles.remove(oldRole);
-            changed = true;
+            changed = activeRoles.remove(oldRole);
         }
 
         public Set<String> getActiveRoles(){
