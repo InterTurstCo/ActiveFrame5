@@ -49,6 +49,7 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void logout(HttpServletRequest request) {
         try {
+            request.getSession().setAttribute(LOGOUT_IP_SESSION_ATTRIBUTE, request.getRemoteAddr());
             request.getSession().invalidate();
             request.logout();
         } catch (ServletException e) {

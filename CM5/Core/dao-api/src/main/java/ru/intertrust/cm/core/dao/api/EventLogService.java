@@ -32,9 +32,9 @@ public interface EventLogService {
 
     void doLogLogInEvent(String login, String ip, boolean success);
 
-    void logLogOutEvent(String login);
+    void logLogOutEvent(String login, String ip);
 
-    void doLogLogOutEvent(String login);
+    void doLogLogOutEvent(String login, String ip);
 
     void logDownloadAttachmentEvent(Id attachment);
 
