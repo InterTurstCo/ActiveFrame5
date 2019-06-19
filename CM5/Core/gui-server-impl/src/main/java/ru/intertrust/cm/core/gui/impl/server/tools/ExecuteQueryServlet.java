@@ -44,12 +44,19 @@ public class ExecuteQueryServlet extends HttpServlet {
 
     private void execute(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
         String query = req.getParameter("query");
+        String collectionName = req.getParameter("collection");
         IdentifiableObjectCollection collection = null;
         Exception executionError = null;
 
-        if (query != null) {
+        if (query != null && !query.isEmpty()) {
             try {
                 collection = collectionsService.findCollectionByQuery(query);
+            } catch (Exception ex) {
+                executionError = ex;
+            }
+        }else if(collectionName != null && !collectionName.isEmpty()) {
+            try {
+                collection = collectionsService.findCollection(collectionName);
             } catch (Exception ex) {
                 executionError = ex;
             }
@@ -70,6 +77,10 @@ public class ExecuteQueryServlet extends HttpServlet {
         out.print("<tr>");
         String queryText = query == null ? "" : query;
         out.print("<td><textarea name='query' cols=200 rows=10>" + queryText + "</textarea></td>");
+        out.print("</tr>");
+        out.print("<tr>");
+        String collectionText = collectionName == null ? "" : collectionName;
+        out.print("<td><div>Имя коллекции</div><input type='text' name='collection' value='" + collectionText + "'/></td>");
         out.print("</tr>");
         out.print("<tr>");
         out.print("<td><input type='submit' value='Выполнить'/></td>");
