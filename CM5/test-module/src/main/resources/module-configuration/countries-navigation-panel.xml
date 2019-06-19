@@ -1538,6 +1538,12 @@
                     </plugin>
                 </link>
 
+                <link name="check_collections_plugin" display-text="Проверка коллекций">
+                    <plugin>
+                        <custom name="configuration.check.collection.plugin"/>
+                    </plugin>
+                </link>
+
                 <link name="Resources" display-text="Управление ресурсами">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="string_resources">

@@ -10,7 +10,9 @@ import com.google.gwt.event.shared.GwtEvent;
  * To change this template use File | Settings | File and Code Templates.
  */
 public class BreadCrumbNavigationEvent extends GwtEvent<BreadCrumbNavigationEventHandler> {
+
     public static Type<BreadCrumbNavigationEventHandler> TYPE = new Type<BreadCrumbNavigationEventHandler>();
+
     @Override
     public Type<BreadCrumbNavigationEventHandler> getAssociatedType() {
         return TYPE;

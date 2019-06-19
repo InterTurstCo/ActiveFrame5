@@ -1,0 +1,6 @@
+.collectionCheckTextArea {
+margin: 10px;
+width: calc(100% - 20px);
+height: calc(100vh - 250px);
+overflow: auto;
+}
