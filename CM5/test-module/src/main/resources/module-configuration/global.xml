@@ -11,7 +11,7 @@
         <default-locale name="ru"/>
         <event-logs>
             <login enable="true"/>
-            <logout enable="false"/>
+            <logout enable="true"/>
             <download-attachment enable="true"/>
             <domain-object-access enable="true">
                 <!-- настройка для всех типов ДО включающая логгировае на запись-->

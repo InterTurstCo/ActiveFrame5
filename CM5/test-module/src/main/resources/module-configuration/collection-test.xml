@@ -194,4 +194,23 @@
         </counting-prototype>
     </collection>
     
+    <collection name="test_placeholder" idField="id" replace="runtime">
+        <prototype>
+            <![CDATA[
+                select id, ::modify_date_placeholder 
+                from person
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from country WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+
+    <collection-placeholder name="modify_date_placeholder" replace="runtime">
+        <![CDATA[
+            to_char(updated_date, 'DD.MM.YYYY') as modify_date
+        ]]>
+    </collection-placeholder>
+    
 </configuration>

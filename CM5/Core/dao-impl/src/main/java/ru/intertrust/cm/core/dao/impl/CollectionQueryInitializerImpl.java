@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.CollectionPlaceholderConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
@@ -330,7 +331,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
             prototypeQuery = prototypeQuery.replace(PLACEHOLDER_PREFIX + placeholder, placeholderValue);
         }
 
-        prototypeQuery = removeUnFilledPlaceholders(prototypeQuery);
+        prototypeQuery = applyGlobalPlaceholders(prototypeQuery);
 
         return prototypeQuery;
     }
@@ -347,19 +348,25 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Удаляет не заполненные placeholders в прототипе запроса.
+     * Не заполненные placeholders ищет в глобальных настройках, если не находит удаляет из запроса
      * @param prototypeQuery
      *            исходный запрос
      * @return измененный запрос
      */
-    private String removeUnFilledPlaceholders(String prototypeQuery) {
+    private String applyGlobalPlaceholders(String prototypeQuery) {
         Pattern pattern = Pattern.compile("::(?!timestamp)[\\w\\d_\\-]+");
         Matcher matcher = pattern.matcher(prototypeQuery);
-        // Check all occurrences
+        String result = prototypeQuery;
         while (matcher.find()) {
-            prototypeQuery = matcher.replaceAll("");
+            String placeholderName = matcher.group().substring(2);
+            CollectionPlaceholderConfig collectionPlaceholder = configurationExplorer.getConfig(CollectionPlaceholderConfig.class, placeholderName);
+            if (collectionPlaceholder != null) {
+                result = result.replaceAll(matcher.group(), collectionPlaceholder.getBody());
+            } else {
+                result = result.replaceAll(matcher.group(), "");
+            }
         }
-        return prototypeQuery;
+        return result;
     }
 
     private String applySortOrder(SortOrder sortOrder, Select select) {

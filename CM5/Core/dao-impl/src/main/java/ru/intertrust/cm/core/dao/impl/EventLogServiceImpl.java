@@ -100,26 +100,27 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    public void logLogOutEvent(String login) {
+    public void logLogOutEvent(String login, String ip) {
         if (!isLogoutEventEnabled()) {
             return;
         }
 
-        newTransactionService.doLogLogOutEvent(login);
+        newTransactionService.doLogLogOutEvent(login, ip);
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void doLogLogOutEvent(String login) {
-        UserEventLogBuilder logoutEventLogBuilder = createLogoutEventLogBuilder(login);
+    public void doLogLogOutEvent(String login, String ip) {
+        UserEventLogBuilder logoutEventLogBuilder = createLogoutEventLogBuilder(login, ip);
         saveUserEventLog(logoutEventLogBuilder);
     }
 
-    private UserEventLogBuilder createLogoutEventLogBuilder(String login) {
+    private UserEventLogBuilder createLogoutEventLogBuilder(String login, String ip) {
         UserEventLogBuilder userEventLogBuilder = new UserEventLogBuilder();
         userEventLogBuilder.setUserId(login);
         userEventLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
         userEventLogBuilder.setDate(new Date()).setEventType(EventLogType.LOGOUT.name()).setSuccess(true);
+        userEventLogBuilder.setClientIp(ip);
         return userEventLogBuilder;
     }
 

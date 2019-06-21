@@ -29,7 +29,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
@@ -44,6 +46,7 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import ru.intertrust.cm.core.config.CollectionPlaceholderConfig;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -285,6 +288,7 @@ public class CollectionsDaoImplTest {
                 );
 
         personsCollectionConfig = createCollectionConfig("Persons", PERSONS_PROROTYPE, PERSONS_COUNTING_PROTOTYPE);
+        
         configuration
                 .getConfigurationList()
                 .addAll(asList(
@@ -311,9 +315,14 @@ public class CollectionsDaoImplTest {
                                 filterConfig("byName", null, where("Login = {0}"))
                         ),
 
+                        createCollectionConfig("PersonsWithGlobalPlaceholder", 
+                                "select id, ::modify_date_placeholder, ::create_date_placeholder from person ::not_configured_placeholder", null),
+
                         collectionConfig,
                         complexCollectionConfig,
-                        personsCollectionConfig
+                        personsCollectionConfig,
+                        createCollectionPlaceholderConfig("modify_date_placeholder", "to_char(updated_date, 'DD.MM.YYYY') as modify_date"),
+                        createCollectionPlaceholderConfig("create_date_placeholder", "to_char(created_date, 'DD.MM.YYYY') as create_date")
                         ));
 
         GlobalSettingsConfig globalSettingsConfig = new GlobalSettingsConfig();
@@ -327,6 +336,13 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
         collectionQueryCache.setConfigurationExplorer(configurationExplorer);
 
+    }
+
+    private CollectionPlaceholderConfig createCollectionPlaceholderConfig(String name, String value) {
+        CollectionPlaceholderConfig result = new CollectionPlaceholderConfig();
+        result.setName(name);
+        result.setBody(value);
+        return result;
     }
 
     private CollectionConfig createCollectionConfig(String name, String generator) {
@@ -801,6 +817,16 @@ public class CollectionsDaoImplTest {
                 createMockSystemAccessToken());
         verify(jdbcTemplate).query(
                 eq("SELECT \"name\", min(\"created_date\") OVER (PARTITION BY \"boss\" ) FROM \"person\" p"),
+                eq(new HashMap<String, Object>()), any(CollectionRowMapper.class));
+    }
+
+    @Test
+    public void testGlobalPlaceholder() {
+        AccessToken accessToken = createMockSystemAccessToken();
+
+        collectionsDaoImpl.findCollection("PersonsWithGlobalPlaceholder", null, null, 0, 0, accessToken);
+
+        verify(jdbcTemplate).query(eq("SELECT \"id\", \"id_type\", to_char(\"updated_date\", 'DD.MM.YYYY') \"modify_date\", to_char(\"created_date\", 'DD.MM.YYYY') \"create_date\" FROM \"person\""),
                 eq(new HashMap<String, Object>()), any(CollectionRowMapper.class));
     }
 
