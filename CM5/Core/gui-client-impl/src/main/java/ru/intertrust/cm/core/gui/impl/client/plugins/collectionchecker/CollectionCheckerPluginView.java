@@ -1,7 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collectionchecker;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -64,9 +68,18 @@ public class CollectionCheckerPluginView extends PluginView {
     tabPanel.getWidget(0).getParent().getElement().getParentElement()
         .addClassName("gwt-TabLayoutPanel-wrapper");
     rootContainer.add(tabPanel);
+    area.setReadOnly(true);
     rootContainer.add(area);
     return rootContainer;
   }
+
+  private static native void actuator() /*-{
+      txt = $doc.querySelector(".collectionCheckTextArea");
+      txt.scrollTo({
+          top: txt.scrollHeight,
+          behavior: "smooth"
+      });
+  }-*/;
 
   private void buildShortStatPanel() {
 
@@ -108,10 +121,12 @@ public class CollectionCheckerPluginView extends PluginView {
   }
 
   public void putMessage(String msg){
-    area.setValue(area.getValue()+msg+"\n");
+    area.setText(area.getValue()+msg+"\n");
+    actuator();
   }
 
   public void addMessage(String msg){
-    area.setValue(area.getValue()+msg);
+    area.setText(area.getValue()+msg);
+    actuator();
   }
 }

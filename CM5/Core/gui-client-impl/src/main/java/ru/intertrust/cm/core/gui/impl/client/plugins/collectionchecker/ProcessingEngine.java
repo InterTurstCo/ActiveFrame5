@@ -23,15 +23,19 @@ public class ProcessingEngine {
   private static final String MSG_ERROR = "...Error";
   private static Iterator<CollectionConfig> iterator;
   private static CollectionCheckerPluginView pView;
+  private static CollectionCheckerPluginData pData;
+  private static Long successProcessed = 0L;
+  private static Long errorProcessed = 0L;
 
   public static void start(CollectionCheckerPluginView view, CollectionCheckerPluginData data) {
     if (!checkStarted) {
       pView = view;
+      pData = data;
       checkStarted = true;
       view.clearConsole();
       view.putMessage(MSG_STARTED);
-      if (data.getCollections().size() > 0) {
-        iterator = data.getCollections().iterator();
+      if (pData.getCollections().size() > 0) {
+        iterator = pData.getCollections().iterator();
         iterate();
       }
     }
@@ -41,6 +45,8 @@ public class ProcessingEngine {
     if (checkStarted) {
       checkStarted = false;
       view.putMessage(MSG_STOPPED);
+      successProcessed = 0L;
+      errorProcessed = 0L;
     }
   }
 
@@ -48,8 +54,11 @@ public class ProcessingEngine {
     if (iterator.hasNext() && checkStarted) {
       check(iterator.next());
     } else {
-      pView.putMessage(MSG_COMPLETED);
+      pView.putMessage(MSG_COMPLETED+" Collections amount: "
+          +pData.getCollectionsCount()+" successfully processed "+successProcessed+" Processed with errors "+errorProcessed);
       checkStarted=false;
+      successProcessed = 0L;
+      errorProcessed = 0L;
     }
   }
 
@@ -66,6 +75,7 @@ public class ProcessingEngine {
         caught.printStackTrace();
         pView.putMessage(MSG_ERROR);
         pView.putMessage(caught.getMessage());
+        errorProcessed++;
         iterate();
       }
 
@@ -73,10 +83,12 @@ public class ProcessingEngine {
       public void onSuccess(Dto result) {
         if (((CollectionCheckResult) result).getSuccess()) {
           pView.putMessage(MSG_OK);
+          successProcessed++;
           iterate();
         } else {
           pView.putMessage(MSG_ERROR);
-          pView.putMessage(((CollectionCheckResult) result).getException().getMessage());
+          pView.putMessage(((CollectionCheckResult) result).getException());
+          errorProcessed++;
           iterate();
         }
       }

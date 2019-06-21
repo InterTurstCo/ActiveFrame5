@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 
 public class CollectionCheckResult implements Dto {
   private CollectionConfig config;
-  private Exception exception;
+  private String exception;
   private Boolean success = false;
 
   public CollectionConfig getConfig() {
@@ -16,11 +16,11 @@ public class CollectionCheckResult implements Dto {
     this.config = config;
   }
 
-  public Exception getException() {
+  public String getException() {
     return exception;
   }
 
-  public void setException(Exception exception) {
+  public void setException(String exception) {
     this.exception = exception;
   }
 
