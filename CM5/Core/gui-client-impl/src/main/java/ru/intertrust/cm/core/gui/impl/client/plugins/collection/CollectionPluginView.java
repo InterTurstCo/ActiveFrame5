@@ -110,6 +110,7 @@ public class CollectionPluginView extends PluginView {
     tableWidth = plugin.getOwner().getVisibleWidth();
     columnHeaderController =
         new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
+    tableBody.setColumnHeaderController(columnHeaderController);
   }
 
   private void updateSizes() {
@@ -432,6 +433,12 @@ public class CollectionPluginView extends PluginView {
         } else if (!filterCanceled && !remote) {
           onKeyEnterPressed();
         }
+        //// при применении фильтра сбрасываем чекбокс "Выделить всё" (CMFIVE-29712) 
+        CheckBoxHeaderWidget check = getCheckBoxHeaderWidget();
+        if (check!=null && check.isChecked()) {
+          check.processOnChange(false);
+        }
+        ////
         updateFilterConfig();
         clearAllTableData();
       }
@@ -801,6 +808,7 @@ public class CollectionPluginView extends PluginView {
       @Override
       public void update(int index, CollectionRowItem object, Boolean value) {
         updateCheckboxSelection(object, value);
+          columnHeaderController.updateFilterValues(); //// попытка решить проблему с пропаданием значений фильтров после нажатия чекбокса (к задаче CMFIVE-29712)
       }
     });
     createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
@@ -820,6 +828,7 @@ public class CollectionPluginView extends PluginView {
         for (CollectionRowItem item : visibleItems) {
           updateCheckboxSelection(item, isChecked);
         }
+              columnHeaderController.updateFilterValues(); //// попытка решить проблему с пропаданием значений фильтров после нажатия чекбокса (к задаче CMFIVE-29712)
       }
     };
 
@@ -1079,13 +1088,20 @@ public class CollectionPluginView extends PluginView {
     columnHeaderController.setFocus();
   }
 
-  private boolean isHeaderCheckBoxChecked() {
+  private CheckBoxHeaderWidget getCheckBoxHeaderWidget() {
     if (tableBody.getHeader(0) instanceof CollectionColumnHeader) {
       CollectionColumnHeader cch = (CollectionColumnHeader) tableBody.getHeader(0);
       if (cch.getHeaderWidget() instanceof CheckBoxHeaderWidget) {
         CheckBoxHeaderWidget check = (CheckBoxHeaderWidget) cch.getHeaderWidget();
-        return check.isChecked();
+        return check;
       }
+    }
+    return null;
+  }
+  private boolean isHeaderCheckBoxChecked() {
+    CheckBoxHeaderWidget check = getCheckBoxHeaderWidget();
+    if (check!=null) {
+        return check.isChecked();
     }
     return false;
   }
