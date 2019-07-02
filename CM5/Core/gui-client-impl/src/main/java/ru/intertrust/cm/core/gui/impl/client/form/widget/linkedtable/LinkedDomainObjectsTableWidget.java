@@ -12,7 +12,6 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import org.apache.commons.lang.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
@@ -40,7 +39,6 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Arrays;
@@ -292,7 +290,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }, true);
         String[] formHandler = isFreeFormAndHadHandler(formState);
 
-        if (StringUtils.EMPTY.equals(formHandler[1])) {
+        if ("".equals(formHandler[1])) {
           convertFormStateAndFillRowItem(formState);
         } else {
           convertFreeFormStateAndFillRowItems(formState,substitutedFormName,formHandler[1]);
@@ -381,7 +379,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }
       }
     }
-    return new String[]{StringUtils.EMPTY,StringUtils.EMPTY};
+    return new String[]{"",""};
   }
 
   private boolean isFormResizable(String domainObjectType) {
