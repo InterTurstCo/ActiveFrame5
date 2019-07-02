@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowMoreItemsEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.builder.PlatformCellTableBuilder;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
@@ -43,6 +44,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
   private boolean displayCheckBoxes;
   private Widget emptyTableWidget;
   private String collectionViewerStyleName;
+  private CollectionColumnHeaderController columnHeaderController;
 
   public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
     super(pageNumber, resources);
@@ -96,8 +98,11 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
       CollectionRowItem clickedItem = event.getValue();
       EventTarget eventTarget = event.getNativeEvent().getEventTarget();
       Element element = Element.as(eventTarget);
-      if (cancelSelection(clickedItem, element)) {
+      if (cancelSelection(clickedItem, element)) { 
+////              && !(Event.ONMOUSEMOVE == nativeEventType) && !(Event.ONMOUSEOVER == nativeEventType) && !(Event.ONMOUSEOUT == nativeEventType) ) { //// дополнительная проверка - убирает срабатывание при наведении указателя на чекбокс 
         getSelectionModel().setSelected(clickedItem, false);
+        if (columnHeaderController!=null) // при выполнении операции выше, происходит очистка полей фильтра, поэтому добавлено восстановление значений (к задаче CMFIVE-29712): 
+          columnHeaderController.updateFilterValues();
         return;
       }
       final Id id = clickedItem.getId();
@@ -188,4 +193,8 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
   }
 
+  public void setColumnHeaderController(CollectionColumnHeaderController columnHeaderController) {
+    this.columnHeaderController = columnHeaderController;
+  }
+  
 }
