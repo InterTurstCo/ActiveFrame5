@@ -7,13 +7,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SolrUpdateRequestQueue {
+
+    @Autowired
+    private SolrSearchConfiguration solrSearchConfiguration;
 
     private Queue<AbstractUpdateRequest> requestQueue = new ConcurrentLinkedQueue<>();
 
     public void addRequest(AbstractUpdateRequest request) {
-        requestQueue.add(request);
+        if(solrSearchConfiguration.isSolrEnable()) {
+            requestQueue.add(request);
+        }
     }
 
     public void addDocuments(Collection<SolrInputDocument> documents) {
