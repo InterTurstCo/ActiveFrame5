@@ -22,6 +22,8 @@ public class FormPluginConfig extends PluginConfig {
     private FormViewerConfig formViewerConfig;
     private FormState parentFormState;
     private Id parentId;
+    private Id lastCollectionRowSelectedId;
+
     public FormPluginConfig() {
     }
 
@@ -111,6 +113,14 @@ public class FormPluginConfig extends PluginConfig {
 
     public void setParentFormState(FormState parentFormState) {
         this.parentFormState = parentFormState;
+    }
+
+    public Id getLastCollectionRowSelectedId() {
+        return lastCollectionRowSelectedId;
+    }
+
+    public void setLastCollectionRowSelectedId(Id lastCollectionRowSelectedId) {
+        this.lastCollectionRowSelectedId = lastCollectionRowSelectedId;
     }
 
     @Override

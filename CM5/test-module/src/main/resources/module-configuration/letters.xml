@@ -1005,7 +1005,7 @@
         </widget-config>
     </form>
 
-    <form name="employee_form" domain-object-type="Employee" is-default="true">
+    <form name="employee_form" domain-object-type="Employee" is-default="true" default-value-setter="employee.form.default.value.setter">
         <markup>
             <header>
                 <table>
@@ -1030,7 +1030,7 @@
                                         <widget id="Department-Label"/>
                                     </td>
                                     <td h-align="left">
-                                        <widget id="Department"/>
+                                        <widget id="Department_value"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -1066,10 +1066,10 @@
             </text-box>
 
             <label id="Department-Label">
-                <relates-to widget-id="Department"/>
+                <relates-to widget-id="Department_value"/>
                 <text>Департамент:</text>
             </label>
-            <combo-box id="Department">
+            <combo-box id="Department_value">
                 <field-path value="Department"/>
                 <pattern value="{Name}"/>
             </combo-box>

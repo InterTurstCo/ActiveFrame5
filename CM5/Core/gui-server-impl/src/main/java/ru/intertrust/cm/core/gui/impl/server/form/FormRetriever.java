@@ -41,6 +41,7 @@ import java.util.*;
  *         Time: 13:03
  */
 public class FormRetriever extends FormProcessor {
+
   private static Logger log = LoggerFactory.getLogger(FormRetriever.class);
 
   @Autowired
@@ -59,10 +60,8 @@ public class FormRetriever extends FormProcessor {
           .getBean(formPluginConfig.getDomainObjectUpdatorComponent());
       domainObjectUpdater.updateDomainObject(root, formPluginConfig.getUpdaterContext());
     }
-    final FormViewerConfig formViewerConfig = formPluginConfig.getFormViewerConfig();
-    final FormDisplayData formDisplayData = buildDomainObjectForm(root, formViewerConfig, formPluginConfig);
-
-    return formDisplayData;
+    return buildDomainObjectForm(root, formPluginConfig.getFormViewerConfig(), formPluginConfig, formPluginConfig.getParentFormState(),
+        formPluginConfig.getParentId(), formPluginConfig.getLastCollectionRowSelectedId());
   }
 
   public FormDisplayData getForm(Id domainObjectId, FormViewerConfig formViewerConfig) {
@@ -80,7 +79,7 @@ public class FormRetriever extends FormProcessor {
       DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
       domainObjectUpdater.updateDomainObject(root, updaterContext);
     }
-    return buildDomainObjectForm(root, formViewerConfig, null);
+    return buildDomainObjectForm(root, formViewerConfig, null, null, null, null);
   }
 
 
@@ -258,7 +257,12 @@ public class FormRetriever extends FormProcessor {
     return widgetComponents;
   }
 
-  private FormDisplayData buildDomainObjectForm(DomainObject root, FormViewerConfig formViewerConfig, FormPluginConfig formPluginConfig) {
+    private FormDisplayData buildDomainObjectForm(DomainObject root,
+                                                  FormViewerConfig formViewerConfig,
+                                                  FormPluginConfig formPluginConfig,
+                                                  FormState parentFormState,
+                                                  Id parentId,
+                                                  Id lastCollectionRowSelectedId) {
     //, , FormState parentFormState, Id parentId
     // todo validate that constructions like A^B.C.D aren't allowed or A.B^C
     // allowed are such definitions only:
@@ -279,13 +283,9 @@ public class FormRetriever extends FormProcessor {
     FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
         MessageResourceProvider.getMessages(GuiContext.getUserLocale()), formViewerConfig);
 
-    if (formPluginConfig != null) {
-      final FormState parentFormState = formPluginConfig.getParentFormState();
-      formState.setParentState(parentFormState);
-
-      final Id parentId = formPluginConfig.getParentId();
-      formState.setParentId(parentId);
-    }
+    formState.setParentState(parentFormState);
+    formState.setParentId(parentId);
+    formState.setLastCollectionRowSelectedId(lastCollectionRowSelectedId);
 
     /*
      Если это свободный тип формы, филдпасы компонентов не проверяем, за их содержимое и дальнейшую

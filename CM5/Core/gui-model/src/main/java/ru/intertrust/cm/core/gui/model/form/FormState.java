@@ -16,6 +16,7 @@ import java.util.Map;
  *         Time: 18:18
  */
 public class FormState implements Dto {
+
     private String name;
     private Map<String, WidgetState> widgetStateMap;
     private FormObjects objects;
@@ -24,6 +25,7 @@ public class FormState implements Dto {
     private Map<String, String> widgetComponents;
     private FormState parentState;
     private Id parentId;
+    private Id lastCollectionRowSelectedId;
     private FormViewerConfig formViewerConfig;
     /**
      * Конструктор по умолчанию.
@@ -138,5 +140,13 @@ public class FormState implements Dto {
 
     public void setFormViewerConfig(FormViewerConfig formViewerConfig) {
         this.formViewerConfig = formViewerConfig;
+    }
+
+    public Id getLastCollectionRowSelectedId() {
+        return lastCollectionRowSelectedId;
+    }
+
+    public void setLastCollectionRowSelectedId(Id lastCollectionRowSelectedId) {
+        this.lastCollectionRowSelectedId = lastCollectionRowSelectedId;
     }
 }

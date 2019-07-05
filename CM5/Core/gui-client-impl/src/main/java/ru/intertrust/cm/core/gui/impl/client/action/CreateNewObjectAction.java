@@ -1,26 +1,32 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Denis Mitavskiy
- *         Date: 23.09.13
- *         Time: 20:03
+ * Date: 23.09.13
+ * Time: 20:03
  */
 @ComponentName("create.new.object.action")
 public class CreateNewObjectAction extends Action {
+
     private static final String OBJECT_TYPE_PROP = "create.object.type";
     private static final String OBJECT_FORM_PROP = "create.object.form";
 
@@ -71,9 +77,39 @@ public class CreateNewObjectAction extends Action {
             formPlugin.setDisplayActionToolBar(true);
             formPlugin.setLocalEventBus(plugin.getLocalEventBus());
             state.setInCentralPanel(true); //CMFIVE-2252
+
+            setLastSelectedHierarchyCollectionRow(editor, formPluginConfig);
+
             getPlugin().getOwner().openChild(formPlugin);
         } else {
             editor.replaceForm(formPluginConfig);
+        }
+    }
+
+    /**
+     * Устанавливает, если это возможно Id последнего выбранного элемента в иерархической коллекции в объект конфигурации плагина для последующей передачи в объект состояния формы.
+     *
+     * @param editor           объект плагина {@link DomainObjectSurferPlugin}
+     * @param formPluginConfig объект конфигурации плагина формы
+     */
+    private void setLastSelectedHierarchyCollectionRow(IsDomainObjectEditor editor, FormPluginConfig formPluginConfig) {
+        if (editor instanceof DomainObjectSurferPlugin) {
+
+            final PluginConfig dosPluginConfig = ((DomainObjectSurferPlugin) editor).getConfig();
+            final Object linkHistoryObject = dosPluginConfig.getHistoryValue(UserSettingsHelper.LINK_KEY);
+
+            if (linkHistoryObject != null) {
+                String linkHistory = (String) linkHistoryObject;
+
+                if (!linkHistory.isEmpty()) {
+                    final String lastIdStr = StringUtil.getLastIdStrFromHistoryLink(linkHistory);
+                    if (lastIdStr != null) {
+
+                        Id lastSelectedId = new RdbmsId(lastIdStr);
+                        formPluginConfig.setLastCollectionRowSelectedId(lastSelectedId);
+                    }
+                }
+            }
         }
     }
 
@@ -81,4 +117,5 @@ public class CreateNewObjectAction extends Action {
     public CreateNewObjectAction createNew() {
         return new CreateNewObjectAction();
     }
+
 }

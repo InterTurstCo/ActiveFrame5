@@ -11,12 +11,13 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.ARRAY_DELI
 
 /**
  * @author Lesia Puhova
- *         Date: 17.02.14
- *         Time: 17:14
+ * Date: 17.02.14
+ * Time: 17:14
  */
 public class StringUtil {
 
-   private StringUtil() {} // un-instantiable
+    private StringUtil() {
+    } // un-instantiable
 
     public static String join(List<?> list, String delimiter) {
         StringBuilder sb = new StringBuilder();
@@ -46,7 +47,8 @@ public class StringUtil {
         if (idAsStr != null && !idAsStr.trim().isEmpty()) {
             try {
                 result = new RdbmsId(idAsStr.trim());
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         return result;
     }
@@ -55,7 +57,8 @@ public class StringUtil {
         Boolean result = defaultValue;
         try {
             result = Boolean.valueOf(booleanAsStr);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return result;
     }
 
@@ -91,7 +94,8 @@ public class StringUtil {
         }
         return builder.length() == 0 ? null : builder.toString();
     }
-    public static int getIntValue(String sizeString){
+
+    public static int getIntValue(String sizeString) {
         String raw = sizeString.replaceAll("px", "").trim();
         return Integer.parseInt(raw);
     }
@@ -158,6 +162,35 @@ public class StringUtil {
      */
     public static boolean isNullOrBlank(String string) {
         return (string == null) || string.trim().isEmpty();
+    }
+
+    /**
+     * Извлекает последнее строковое представление идентификатора объекта ({@link ru.intertrust.cm.core.business.api.dto.Id}) из строки исторической ссылки<br>
+     * Строку истории генерирует система при переходах по иерархической коллекции. В нее может входить идентификатор при клике на конкретный элемент иерархии<br>
+     *
+     * @param linkHistory строка исторической ссылки
+     * @return строковое представление последнего идентификатора в исторической строке;<br>
+     * null, если историческая строка пустая или идентификатор в ней не найден
+     */
+    public static String getLastIdStrFromHistoryLink(String linkHistory) {
+        if (!StringUtil.isNullOrBlank(linkHistory)) {
+
+            final String linkHistoryWithNonDigitReplacement = linkHistory.replaceAll("\\D+", "-");
+            if (!StringUtil.isNullOrBlank(linkHistoryWithNonDigitReplacement)) {
+
+                final String[] digitsArray = linkHistoryWithNonDigitReplacement.split("-");
+                final int size = digitsArray.length;
+
+                for (int i = (size - 1); i >= 0; i--) {
+                    String digitStr = digitsArray[i];
+
+                    if (digitStr.length() == 16) {
+                        return digitStr;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
 }
