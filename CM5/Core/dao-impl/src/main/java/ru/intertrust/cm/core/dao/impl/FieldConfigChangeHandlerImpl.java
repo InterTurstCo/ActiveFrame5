@@ -42,11 +42,23 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
             handle((ReferenceFieldConfig) newFieldConfig, (ReferenceFieldConfig) oldFieldConfig, domainObjectTypeConfig, configurationExplorer);
         } else if (newFieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof DecimalFieldConfig) {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
+        } else if (newFieldConfig instanceof DateTimeWithTimeZoneFieldConfig && oldFieldConfig instanceof DateTimeFieldConfig) {
+            handle((DateTimeWithTimeZoneFieldConfig) newFieldConfig, (DateTimeFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
     }
 
+    /**
+     * Конвертация поля дата+время в дата+время с таймзоной
+     * @param newFieldConfig
+     * @param oldFieldConfig
+     * @param domainObjectTypeConfig
+     */
+    private void handle(DateTimeWithTimeZoneFieldConfig newFieldConfig, DateTimeFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+        dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
+    }
+
     private void handle(TextFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
-        dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
+        dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
     }
 
     private void handle(StringFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -54,7 +66,7 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
             int length = schemaCache.getColumnLength(domainObjectTypeConfig, newFieldConfig);
             if (length != newFieldConfig.getLength()) {
                 if (length < newFieldConfig.getLength()) {
-                    dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
+                    dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
                 } else {
                     throw new ConfigurationException("Configuration loading aborted: cannot decrease length of " +
                             domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
@@ -67,7 +79,7 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         if (newFieldConfig.getLength() != oldFieldConfig.getLength()) {
             int length = schemaCache.getColumnLength(domainObjectTypeConfig, newFieldConfig);
             if (length < newFieldConfig.getLength()) {
-                dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
+                dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
             } else {
                 throw new ConfigurationException("Configuration loading aborted: cannot decrease length of " +
                         domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());

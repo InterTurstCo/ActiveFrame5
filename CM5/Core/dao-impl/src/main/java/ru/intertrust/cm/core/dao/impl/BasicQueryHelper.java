@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.TimeZone;
 
 import static ru.intertrust.cm.core.dao.api.ConfigurationDao.*;
 import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
@@ -780,6 +781,20 @@ public abstract class BasicQueryHelper {
         }
     }
 
+    public String generateAddTimeZoneColumnQuery(String domainObjectConfigName, FieldConfig fieldConfig) {
+        String tableName = getSqlName(domainObjectConfigName);
+        StringBuilder query = new StringBuilder("alter table ").append(wrap(tableName)).append(" ");
+        query.append("add column ");
+        query.append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
+        append(getTimeZoneIdSqlType());
+        if (fieldConfig.isNotNull()) {
+            query.append(" not null");
+        }
+        query.append(" default '").append(TimeZone.getDefault().getID()).append("'");
+        
+        return query.toString();
+    }
+    
     private void appendAuditLogColumnsQueryPart(StringBuilder query, List<FieldConfig> fieldConfigList,
             boolean isAlterQuery) {
         int size = fieldConfigList.size();

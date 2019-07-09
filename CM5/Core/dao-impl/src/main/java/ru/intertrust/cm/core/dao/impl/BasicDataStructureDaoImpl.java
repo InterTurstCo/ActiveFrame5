@@ -307,10 +307,14 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#updateColumnType(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
      */
     @Override
-    public void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
-        final List<String> queries = getQueryHelper().generateUpdateColumnTypeQueries(config, fieldConfig);
+    public void updateColumnType(DomainObjectTypeConfig config, FieldConfig oldFieldConfig, FieldConfig newFieldConfig) {
+        final List<String> queries = getQueryHelper().generateUpdateColumnTypeQueries(config, newFieldConfig);
         for (String query : queries) {
             jdbcTemplate.update(query);
+        }
+        
+        if (oldFieldConfig instanceof DateTimeFieldConfig && newFieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+            jdbcTemplate.update(getQueryHelper().generateAddTimeZoneColumnQuery(config.getName(), newFieldConfig));
         }
     }
 

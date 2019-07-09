@@ -157,9 +157,10 @@ public interface DataStructureDao {
     /**
      * Изменяет тип колонки
      * @param config конфигурация типа доменного объекта
-     * @param fieldConfig конфигурация поля типа доменного объекта
+     * @param oldFieldConfig старая конфигурация поля типа доменного объекта
+     * @param newFieldConfig новая конфигурация поля типа доменного объекта
      */
-    void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+    void updateColumnType(DomainObjectTypeConfig config, FieldConfig oldFieldConfig, FieldConfig newFieldConfig);
 
     /**
      * Физически удаляет колонку типа ДО

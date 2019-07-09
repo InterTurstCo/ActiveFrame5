@@ -262,7 +262,7 @@ public class MigrationService {
                         " is not supported");
             }
 
-            dataStructureDao.updateColumnType(domainObjectTypeConfig, fieldConfig);
+            dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, fieldConfig);
         }
     }
 
