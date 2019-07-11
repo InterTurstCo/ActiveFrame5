@@ -52,14 +52,14 @@ public class DomainObjectQueryHelperTest {
     @Test
     public void testGenerateFindQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"id\"=:id" + ACCESS_RIGHTS_PART;
+        String expectedQuery = WITH_PART + "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" from \"person\" person where person.\"id\"=:id" + ACCESS_RIGHTS_PART;
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, false));
     }
 
     @Test
     public void testGenerateFindQueryWithLock() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"id\"=:id"
+        String expectedQuery = WITH_PART + "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" from \"person\" person where person.\"id\"=:id"
                 + ACCESS_RIGHTS_PART + " for update";
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, true));
     }
@@ -67,7 +67,7 @@ public class DomainObjectQueryHelperTest {
     @Test
     public void testGenerateFindByUniqueKeyQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
+        String expectedQuery = WITH_PART + "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
                 ACCESS_RIGHTS_PART;
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person",
                 domainObjectTypeConfig.getUniqueKeyConfigs().get(0), accessToken, false));
@@ -76,7 +76,7 @@ public class DomainObjectQueryHelperTest {
     @Test
     public void testGenerateFindByUniqueKeyQueryWithLock() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
+        String expectedQuery = WITH_PART + "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
                 ACCESS_RIGHTS_PART + " for update";
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person",
                 domainObjectTypeConfig.getUniqueKeyConfigs().get(0), accessToken, true));

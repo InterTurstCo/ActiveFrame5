@@ -386,24 +386,28 @@ public class DomainObjectQueryHelper {
         return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
     }
 
-    private void appendTableNameQueryPart(StringBuilder query, String typeName) {
+    public void appendTableNameQueryPart(StringBuilder query, String typeName) {
         String tableName = getSqlName(typeName);
         query.append(wrap(tableName)).append(" ").append(getSqlAlias(tableName));
         appendParentTable(query, typeName);
     }
 
-    private void appendColumnsQueryPart(StringBuilder query, String typeName) {
+    public void appendColumnsQueryPart(StringBuilder query, String typeName) {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
 
-        query.append(getSqlAlias(typeName)).append(".*");
+        appendIdColumn(query, config);
 
         if (isDerived(config)) {
             appendParentColumns(query, config);
+        }else {
+            appendSystemColumns(query, config);
         }
+        
+        appendColumns(query, config);
     }
 
-    private void appendParentTable(StringBuilder query, String typeName) {
+    public void appendParentTable(StringBuilder query, String typeName) {
         DomainObjectTypeConfig config = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, typeName);
 
@@ -425,37 +429,46 @@ public class DomainObjectQueryHelper {
         appendParentTable(query, config.getExtendsAttribute());
     }
 
-    private void appendParentColumns(StringBuilder query,
+    public void appendParentColumns(StringBuilder query,
                                      DomainObjectTypeConfig config) {
         DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(
                 DomainObjectTypeConfig.class, config.getExtendsAttribute());
 
-        appendColumnsExceptId(query, parentConfig);
-
-        if (parentConfig.getExtendsAttribute() != null) {
+        if (isDerived(parentConfig)) {
             appendParentColumns(query, parentConfig);
         } else {
-            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
-            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
-            query.append(", ").append(wrap(CREATED_BY));
-            query.append(", ").append(wrap(CREATED_BY_TYPE_COLUMN));
-            query.append(", ").append(wrap(UPDATED_BY));
-            query.append(", ").append(wrap(UPDATED_BY_TYPE_COLUMN));
-
-            query.append(", ").append(wrap(STATUS_FIELD_NAME));
-            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
-
-            query.append(", ").append(wrap(ACCESS_OBJECT_ID));
+            appendSystemColumns(query, parentConfig);
         }
+        
+        appendColumns(query, parentConfig);
     }
 
-    private void appendColumnsExceptId(StringBuilder query, DomainObjectTypeConfig domainObjectTypeConfig) {
+    public void appendIdColumn(StringBuilder query, DomainObjectTypeConfig domainObjectTypeConfig) {
         String tableAlias = getSqlAlias(domainObjectTypeConfig.getName());
+        
+        query.append(tableAlias).append(".").append(wrap(ID_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(TYPE_COLUMN));
+    }
+    
+    public void appendSystemColumns(StringBuilder query, DomainObjectTypeConfig domainObjectTypeConfig) {
+        String tableAlias = getSqlAlias(domainObjectTypeConfig.getName());
+        
+        query.append(", ").append(tableAlias).append(".").append(wrap(CREATED_DATE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(UPDATED_DATE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(CREATED_BY));
+        query.append(", ").append(tableAlias).append(".").append(wrap(CREATED_BY_TYPE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(UPDATED_BY));
+        query.append(", ").append(tableAlias).append(".").append(wrap(UPDATED_BY_TYPE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(STATUS_FIELD_NAME));
+        query.append(", ").append(tableAlias).append(".").append(wrap(STATUS_TYPE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(ACCESS_OBJECT_ID));
+    }
+    
+    public void appendColumns(StringBuilder query, DomainObjectTypeConfig domainObjectTypeConfig) {
+        String tableAlias = getSqlAlias(domainObjectTypeConfig.getName());
+        
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if (ID_COLUMN.equals(fieldConfig.getName())) {
-                continue;
-            }
-
+            
             query.append(", ").append(tableAlias).append(".")
                     .append(wrap(getSqlName(fieldConfig)));
 
@@ -468,7 +481,12 @@ public class DomainObjectQueryHelper {
             }
         }
     }
-
+    
+    /**
+     * Проверяет наследуется ли данный тип от другого
+     * @param domainObjectTypeConfig
+     * @return true если наследуется, false если это корнево тип
+     */
     private boolean isDerived(DomainObjectTypeConfig domainObjectTypeConfig) {
         return domainObjectTypeConfig.getExtendsAttribute() != null;
     }

@@ -1204,7 +1204,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(linkedType));
         }
 
-        String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
+        //String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
         final Pair<List<DomainObject>, Long> queryResult = findLinkedDomainObjectsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit,
                 accessToken);
         List<DomainObject> domainObjects = queryResult.getFirst();
@@ -1571,14 +1571,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("select ");
-        appendColumnsQueryPart(query, typeName);
+        domainObjectQueryHelper.appendColumnsQueryPart(query, typeName);
         if (!exactType) {
             appendChildColumns(query, typeName);
         }
 
         query.append(" from ");
 
-        appendTableNameQueryPart(query, typeName);
+        domainObjectQueryHelper.appendTableNameQueryPart(query, typeName);
         if (!exactType) {
             appendChildTables(query, typeName);
         }
@@ -2003,14 +2003,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder(200);
         query.append("select ");
-        appendColumnsQueryPart(query, linkedType);
+        domainObjectQueryHelper.appendColumnsQueryPart(query, linkedType);
         if (!exactType) {
             appendChildColumns(query, linkedType);
         }
 
         query.append(" from ");
 
-        appendTableNameQueryPart(query, linkedType);
+        domainObjectQueryHelper.appendTableNameQueryPart(query, linkedType);
         if (!exactType) {
             appendChildTables(query, linkedType);
         }
@@ -2351,45 +2351,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return update(parentObjects, accessToken, isUpdateStatus, changedFields);
     }
 
-    private void appendTableNameQueryPart(StringBuilder query, String typeName) {
-        String tableName = getSqlName(typeName);
-        query.append(wrap(tableName)).append(" ").append(getSqlAlias(tableName));
-        appendParentTable(query, typeName);
-    }
-
-    private void appendColumnsQueryPart(StringBuilder query, String typeName) {
-        DomainObjectTypeConfig config = configurationExplorer.getConfig(
-                DomainObjectTypeConfig.class, typeName);
-
-        query.append(getSqlAlias(typeName)).append(".*");
-
-        if (isDerived(config)) {
-            appendParentColumns(query, config);
-        }
-    }
-
-    private void appendParentTable(StringBuilder query, String typeName) {
-        DomainObjectTypeConfig config = configurationExplorer.getConfig(
-                DomainObjectTypeConfig.class, typeName);
-
-        if (config.getExtendsAttribute() == null) {
-            return;
-        }
-
-        String tableAlias = getSqlAlias(typeName);
-
-        String parentTableName = getSqlName(config.getExtendsAttribute());
-        String parentTableAlias = getSqlAlias(config.getExtendsAttribute());
-
-        query.append(" inner join ").append(wrap(parentTableName)).append(" ")
-                .append(parentTableAlias);
-        query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN))
-                .append(" = ");
-        query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
-
-        appendParentTable(query, config.getExtendsAttribute());
-    }
-
     private void appendChildTables(StringBuilder query, String typeName) {
         Collection<DomainObjectTypeConfig> childConfigs = configurationExplorer.findChildDomainObjectTypes(typeName, true);
 
@@ -2411,29 +2372,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    private void appendParentColumns(StringBuilder query,
-            DomainObjectTypeConfig config) {
-        DomainObjectTypeConfig parentConfig = configurationExplorer.getConfig(
-                DomainObjectTypeConfig.class, config.getExtendsAttribute());
-
-        appendColumnsExceptId(query, parentConfig);
-
-        if (parentConfig.getExtendsAttribute() != null) {
-            appendParentColumns(query, parentConfig);
-        } else {
-            query.append(", ").append(wrap(CREATED_DATE_COLUMN));
-            query.append(", ").append(wrap(UPDATED_DATE_COLUMN));
-            query.append(", ").append(wrap(CREATED_BY));
-            query.append(", ").append(wrap(CREATED_BY_TYPE_COLUMN));
-            query.append(", ").append(wrap(UPDATED_BY));
-            query.append(", ").append(wrap(UPDATED_BY_TYPE_COLUMN));
-
-            query.append(", ").append(wrap(STATUS_FIELD_NAME));
-            query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
-            query.append(", ").append(wrap(ACCESS_OBJECT_ID));
-        }
-    }
-
     private void appendChildColumns(StringBuilder query, String typeName) {
         Collection<DomainObjectTypeConfig> childConfigs = configurationExplorer.findChildDomainObjectTypes(typeName, true);
 
@@ -2442,27 +2380,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         for (DomainObjectTypeConfig childConfig : childConfigs) {
-            appendColumnsExceptId(query, childConfig);
-        }
-    }
-
-    private void appendColumnsExceptId(StringBuilder query, DomainObjectTypeConfig domainObjectTypeConfig) {
-        String tableAlias = getSqlAlias(domainObjectTypeConfig.getName());
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if (ID_COLUMN.equals(fieldConfig.getName())) {
-                continue;
-            }
-
-            query.append(", ").append(tableAlias).append(".")
-                    .append(wrap(getSqlName(fieldConfig)));
-
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-                query.append(", ").append(tableAlias).append(".")
-                        .append(wrap(getReferenceTypeColumnName(fieldConfig.getName())));
-            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
-                query.append(", ").append(tableAlias).append(".")
-                        .append(wrap(getTimeZoneIdColumnName(fieldConfig.getName())));
-            }
+            domainObjectQueryHelper.appendColumns(query, childConfig);
         }
     }
 
