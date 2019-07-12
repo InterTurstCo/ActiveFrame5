@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 
 import javax.annotation.Resource;
@@ -78,6 +79,9 @@ public class EventLogCleanerImpl implements EventLogCleaner {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private GlobalCacheClient globalCacheClient;
 
 
     private DomainObject saveUserEventLog(String eventType, Id person, Date date, boolean isSuccess) {
@@ -149,26 +153,19 @@ public class EventLogCleanerImpl implements EventLogCleaner {
             throw new IllegalStateException("Not permitted");
         }
 
-        int deleteCount = 0;
+        // планировалось сделать запись о том, сколько записей лога удалено, но оказалось не так просто
+//        int deleteCount = 0;
 
         try {
             ejbContext.getUserTransaction().begin();
 
-            AccessToken token = getSystemAccessToken();
+            Map<String, Object> parameters = new java.util.HashMap();
 
-            // удаление всех записей object_access_log
-            IdentifiableObjectCollection col = collectionsDao.findCollectionByQuery("select id from object_access_log", 0, 0, token);
-            List<Id> accessObjects = new ArrayList<>();
-            for (IdentifiableObject obj: col)
-                accessObjects.add(obj.getId());
-            deleteCount = deleteCount + domainObjectDao.delete(accessObjects, token);
+            // удаление всех записей object_access_log - их может быть очень много, поэтому используем "быстрое" удаление
+            masterJdbcTemplate.update("TRUNCATE object_access_log_read,object_access_log_acl,object_access_log_al,object_access_log RESTRICT", parameters); // выполнение запроса TRUNCATE не возвращает количество удаленных записей
 
             // удаление всех записей user_event_log
-            col = collectionsDao.findCollectionByQuery("select id from user_event_log", 0, 0, token);
-            List<Id> ueObjects = new ArrayList<>();
-            for (IdentifiableObject obj: col)
-                ueObjects.add(obj.getId());
-            deleteCount = deleteCount + domainObjectDao.delete(ueObjects, token);
+            masterJdbcTemplate.update("TRUNCATE user_event_log_read,user_event_log_acl,user_event_log_al,user_event_log RESTRICT", parameters);
 
             // удаление audit_log
 
@@ -183,7 +180,7 @@ public class EventLogCleanerImpl implements EventLogCleaner {
                 }
             }
 
-            Map<String, Object> parameters = new java.util.HashMap();
+            parameters = new java.util.HashMap();
             String tables = "";
             for (String doType : typeNamesToProcess) {
                 String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(doType);
@@ -192,12 +189,14 @@ public class EventLogCleanerImpl implements EventLogCleaner {
 //            System.out.println("DELETING "+auditLogTableName);
             }
             tables = tables.substring(0, tables.length()-1);
-            deleteCount = deleteCount + masterJdbcTemplate.update("TRUNCATE "+tables+" RESTRICT", parameters); // выполнение запроса TRUNCATE не возвращает количество удаленных записей
-
+            masterJdbcTemplate.update("TRUNCATE "+tables+" RESTRICT", parameters); // выполнение запроса TRUNCATE не возвращает количество удаленных записей
+            
             // создание записи об успешной очистке
             saveUserEventLog(EventLogService.EventLogType.CLEAR_EVENT_LOG.name(), currentUserAccessor.getCurrentUserId(), new Date(), true);
             
             ejbContext.getUserTransaction().commit();
+            
+            globalCacheClient.clear();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE || ejbContext.getUserTransaction().getStatus() == Status.STATUS_MARKED_ROLLBACK) {
