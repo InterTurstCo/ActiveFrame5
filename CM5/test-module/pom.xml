@@ -61,6 +61,12 @@
         </dependency>
 
         <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>nbr-base</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>

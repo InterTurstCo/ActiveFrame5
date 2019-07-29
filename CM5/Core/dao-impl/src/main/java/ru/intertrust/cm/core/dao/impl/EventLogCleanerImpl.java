@@ -126,6 +126,7 @@ public class EventLogCleanerImpl implements EventLogCleaner {
             logger.error(ex.getMessage(), ex);
             // создание записи об очистке
             recordClearLogsFailure();
+            throw ex;
         }
     }
 

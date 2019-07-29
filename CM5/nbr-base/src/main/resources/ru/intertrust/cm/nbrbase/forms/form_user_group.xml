@@ -1,0 +1,82 @@
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="form_user_group" domain-object-type="user_group" is-default="true" debug="false"
+          min-width="600px">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSaveAndClose" text="Сохранить" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)" visibility-checker="admin.visibility.checker" order="2"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false" order="1"/>
+            <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview" visibility-checker="admin.visibility.checker" order="3" />
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel" width="100px"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <widget id="headerInfoLabel" width="100px" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Описание">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="MemberTableLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="MemberTableWidget"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+
+        <widget-config>
+            <!-- Шапка формы -->
+            <label id="headerLabel" >
+                <field-path value="group_name" />
+                <pattern value="Группа доступа: {group_name}" />
+            </label>
+
+            <template-based-widget id="headerInfoLabel" template-name="widgetTemplateUpdateInfo" />
+
+            <!-- Область формы без закладок -->
+            <label id="MemberTableLbl">
+                <text>Состав группы</text>
+            </label>
+
+            <linked-domain-objects-table id="MemberTableWidget" modal-width="500px" modal-height="300px">
+                <field-path value="group_member^usergroup" on-root-delete="unlink"/>
+                <linked-form name="form_user_group_person"  inline="true" resizable="true"/>
+                <summary-table>
+                    <summary-table-column header="Логин" widget-id="PortsWidget_List2">
+                        <action type="view"/>
+                        <pattern value="{person_id.login}" />
+                    </summary-table-column>
+                    <summary-table-column header="ФИО" widget-id="PortsWidget_List2">
+                        <action type="view"/>
+                        <pattern value="{person_id.lastname} {person_id.firstname}" />
+                    </summary-table-column>
+                    <summary-table-actions-column>
+                        <action type="delete" />
+                    </summary-table-actions-column>
+                </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+
+        </widget-config>
+        <form-save-extension before-save-component="user.group.save.interceptor"/>
+    </form>
+</configuration>

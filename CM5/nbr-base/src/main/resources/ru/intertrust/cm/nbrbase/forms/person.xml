@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="person_form" domain-object-type="person" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSaveAndClose" text="Сохранить" order="4" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
+            <act:action-ref name-ref="aToggleEditOff" order="1"  merged="false" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)"/>
+            <act:action-ref name-ref="aToggleEditOn" order="2" merged="false" rendered="toggle-edit and preview" visibility-checker="active.person.visibility.checker"/>
+            <act:action name="aRestorePerson" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
+                        text="Восстановить" merged="false" permissions="Write" rendered="toggle-edit and preview"
+                        visibility-checker="inactive.person.visibility.checker" visible-when-new="false">
+                <act:before-execution>
+                    <act:confirmation-message text="Вы действительно хотите восстановить доступ пользователя к системе?"/>
+                </act:before-execution>
+            </act:action>
+            <act:action-ref name-ref="aCreate" text="Пользователь" merged="false" rendered="toggle-edit">
+                <act:action-params>
+                    <act:action-param name="create.object.type" value="person" />
+                </act:action-params>
+            </act:action-ref>
+            <act:action-ref name-ref="aDeleteCustomForNbr" rendered="toggle-edit" merged="false" visibility-checker="active.person.visibility.checker" order="6" visible-when-new="false" />
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel" width="100px"/>
+                        </td>
+                        <td h-align="right">
+                            <widget id="isActiveLabel" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <widget id="headerInfoLabel" width="100px" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="LastNameLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="LastNameField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="FirstNameLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="FirstNameField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="LoginLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="LoginField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="fakeWidget"/></td>
+                                    <td><widget id="LoginFieldDescription"/></td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="auth_info_Lable"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="auth_info"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="fakeWidget"/></td>
+                                    <td><widget id="auth_info_desc"/></td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="GroupTableLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="GroupTableWidget"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <widget-config>
+            <!-- Шапка формы -->
+            <label id="headerLabel">
+                <text>Пользователь</text>
+            </label>
+            <label id="isActiveLabel">
+                <field-path value="lastname"/>
+                <renderer component-name="person.is.active.render"/>
+            </label>
+            <template-based-widget id="headerInfoLabel" template-name="widgetTemplateCreateUpdateInfo" />
+
+            <!-- Область формы без закладок -->
+            <label id="LastNameLbl">
+                <field-path/>
+                <relates-to widget-id="LastNameField"/>
+                <text>Фамилия</text>
+            </label>
+            <text-box id="LastNameField">
+                <field-path value="lastname"/>
+            </text-box>
+
+            <label id="FirstNameLbl">
+                <field-path/>
+                <relates-to widget-id="FirstNameField"/>
+                <text>Имя</text>
+            </label>
+            <text-box id="FirstNameField">
+                <field-path value="firstname"/>
+            </text-box>
+
+            <label id="LoginLbl">
+                <field-path/>
+                <relates-to widget-id="LoginField"/>
+                <text>Логин / AD-имя</text>
+            </label>
+            <text-box id="LoginField">
+                <field-path value="login"/>
+            </text-box>
+            <label id="LoginFieldDescription">
+                <text>При использовании аутентификации по SSO указывайте AD-имя пользователя</text>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="11px"/>
+            </label>
+            <label id="LoginLbl">
+                <field-path/>
+                <relates-to widget-id="LoginField"/>
+                <text>Логин / AD-имя</text>
+            </label>
+            <text-box id="LoginField">
+                <field-path value="login"/>
+            </text-box>
+
+            <label id="auth_info_Lable">
+                <text>Пароль</text>
+            </label>
+            <text-box id="auth_info" handler="auth_info.password.handler">
+                <field-path value="password"/>
+            </text-box>
+            <label id="auth_info_desc">
+                <text>Пароль не указывается при использовании аутентификации по SSO</text>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="11px"/>
+            </label>
+
+            <label id="GroupTableLbl">
+                <text>Группы доступа</text>
+            </label>
+            <table-viewer id="GroupTableWidget" read-only="true" show-workflow-menu="false" show-actions-menu="false">
+
+                <collection-viewer>
+                    <collection-view-ref name="view_user_group_for_person" />
+                    <collection-ref name="col_user_group_for_person" />
+
+                    <collection-extra-filters>
+                        <extra-filter name="byFormPerson" null-value-filter-name="byEmpty">
+                            <param name="0" set-base-object="true" />
+                        </extra-filter>
+                    </collection-extra-filters>
+
+                    <act:tool-bar useDefault="false"/>
+                    <default-sort-criteria column-field="grName" order="asc"/>
+                </collection-viewer>
+
+                <linked-form-mapping>
+                    <linked-form name="form_user_group" domain-object-type="user_group" resizable="true"  />
+                </linked-form-mapping>
+
+                <ignore-form-read-only-state value="true" />
+                <page-size>50</page-size>
+
+            </table-viewer>
+
+            <label id="fakeWidget">
+                <text></text>
+            </label>
+        </widget-config>
+        <form-objects-remover handler="person.delete.handler"/>
+        <form-save-extension before-save-component="person.save.handler" after-save-component="person.save.handler"/>
+    </form>
+        
+</configuration>

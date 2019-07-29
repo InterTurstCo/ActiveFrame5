@@ -846,20 +846,26 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         lock();
         try {
             formConfig = getConfig(FormConfig.class, name);
-
-            if (plainFormBuilder.isRaw(formConfig)) {
-                FormConfig formConfigFromCash = configStorage.collectedFormConfigMap.get(name);
-                if (formConfigFromCash != null) {
-                    return convertNull(formConfigFromCash);
+            
+            if (formConfig != null) {
+                if (plainFormBuilder.isRaw(formConfig)) {
+                    FormConfig formConfigFromCash = configStorage.collectedFormConfigMap.get(name);
+                    if (formConfigFromCash != null) {
+                        return convertNull(formConfigFromCash);
+                    }
+                } else {
+                    return convertNull(formConfig);
                 }
-            } else {
-                return convertNull(formConfig);
             }
         } finally {
             unlock();
         }
-
-        return convertNull(configurationStorageBuilder.fillPlainFormConfigMap(formConfig, plainFormBuilder));
+        
+        if (formConfig != null) {
+            return convertNull(configurationStorageBuilder.fillPlainFormConfigMap(formConfig, plainFormBuilder));
+        }else {
+            return null;
+        }
     }
 
     @Override

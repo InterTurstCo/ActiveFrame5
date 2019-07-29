@@ -38,4 +38,11 @@ public interface AuditLogServiceDao {
      */
     DomainObjectVersion findLastVersion(Id domainObjectId);
 
+    /**
+     * Получение предыдущей версии доменного объекта
+     * @param versionId
+     * @return
+     */
+    DomainObjectVersion findPreviousVersion(Id versionId);
+
 }

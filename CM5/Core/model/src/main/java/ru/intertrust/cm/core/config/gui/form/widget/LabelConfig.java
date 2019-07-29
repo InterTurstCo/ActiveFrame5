@@ -46,6 +46,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
     @Element(name = "text-decoration", required = false)
     private TextDecorationConfig textDecorationConfig;
 
+    @Element(name = "background-color", required = false)
+    private BackgroundColorConfig backgroundColorConfig;
+
     @Override
     public boolean isReadOnly() {
         return true;
@@ -139,6 +142,14 @@ public class LabelConfig extends WidgetConfig implements Dto {
         this.textDecorationConfig = textDecorationConfig;
     }
 
+    public BackgroundColorConfig getBackgroundColorConfig() {
+        return backgroundColorConfig;
+    }
+
+    public void setBackgroundColorConfig(BackgroundColorConfig backgroundColorConfig) {
+        this.backgroundColorConfig = backgroundColorConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -185,9 +196,12 @@ public class LabelConfig extends WidgetConfig implements Dto {
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null) {
             return false;
         }
-
         if (textDecorationConfig != null ? !textDecorationConfig.equals(that.textDecorationConfig)
                 : that.textDecorationConfig != null) {
+            return false;
+        }
+        if (backgroundColorConfig != null ? !backgroundColorConfig.equals(that.backgroundColorConfig)
+                : that.backgroundColorConfig != null) {
             return false;
         }
         return true;

@@ -17,10 +17,15 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DefaultFields;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleVersionRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SingleVersionRowMapper;
+import ru.intertrust.cm.core.model.FatalException;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
@@ -66,6 +71,30 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
     }
 
     @Override
+    public DomainObjectVersion findPreviousVersion(@NotNull Id versionId) {
+        String typeName = domainObjectTypeIdCache.getName(versionId);
+        RdbmsId rdbmsId = (RdbmsId) versionId;
+        
+        //String auditedTypeName = typeName.substring(0, typeName.length() - 3);
+        String rootTypeName = configurationExplorer.getDomainObjectRootType(typeName);
+        
+        //Получение списка версий отсортированных по id
+        List<Long> previousVersionId = switchableJdbcTemplate.queryForList(
+                "select id from " + rootTypeName + " department "
+                        + "where domain_object_id in ("
+                        + "select domain_object_id from " + rootTypeName + " "
+                                + "where id = :id) and id < :id "
+                                + "order by id desc limit 1", 
+                Collections.singletonMap("id", rdbmsId.getId()), Long.class);
+        
+        DomainObjectVersion result = null;
+        if (previousVersionId.size() > 0) {
+            result = findVersion(new RdbmsId(rdbmsId.getTypeId(), previousVersionId.get(0)));
+        }
+        return result;
+    }
+
+    @Override
     public DomainObjectVersion findVersion(Id versionId) {
         if (versionId == null) {
             throw new IllegalArgumentException("Object domainObjectId can not be null");
@@ -76,7 +105,12 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
         RdbmsId rdbmsId = (RdbmsId) versionId;
         String typeName = domainObjectTypeIdCache.getName(versionId);
+        if (!configurationExplorer.isAuditLogType(typeName)) {
+            throw new FatalException(versionId.toStringRepresentation() + " is not version id");
+        }
 
+        typeName = typeName.substring(0, typeName.length()  - 3);
+        
         String query = generateVersionFindQuery(typeName);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
@@ -183,6 +217,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(UPDATED_BY)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");        
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(DOMAIN_OBJECT_ID_COLUMN)).append(", ");
+        query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(DOMAIN_OBJECT_ID_TYPE_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(COMPONENT_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(IP_ADDRESS_COLUMN)).append(", ");
         query.append(DaoUtils.wrap(rootAlias)).append(".").append(DaoUtils.wrap(INFO_COLUMN)).append(" ");

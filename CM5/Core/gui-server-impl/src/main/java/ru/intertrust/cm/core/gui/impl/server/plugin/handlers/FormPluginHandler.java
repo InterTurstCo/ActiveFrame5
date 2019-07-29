@@ -63,8 +63,10 @@ public class FormPluginHandler extends ActivePluginHandler {
         FormPluginData pluginData = new FormPluginData();
         pluginData.setFormDisplayData(form);
         pluginData.setPluginState(formPluginConfig.getPluginState());
-        ToolbarContext toolbarContext = getActionContexts(formPluginConfig, form);
-        pluginData.setToolbarContext(toolbarContext);
+        if (!configurationExplorer.isAuditLogType(rootDomainObjectType)){
+            ToolbarContext toolbarContext = getActionContexts(formPluginConfig, form);
+            pluginData.setToolbarContext(toolbarContext);
+        }
         return pluginData;
     }
 

@@ -47,6 +47,26 @@ public class ActionRefConfig extends BaseActionConfig {
         return merged;
     }
 
+    public void setNameRef(String nameRef) {
+        this.nameRef = nameRef;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setShowText(boolean showText) {
+        this.showText = showText;
+    }
+
+    public void setShowImage(boolean showImage) {
+        this.showImage = showImage;
+    }
+
+    public void setMerged(Boolean merged) {
+        this.merged = merged;
+    }
+
     @Override
     public String toString() {
         return new StringBuilder(ActionRefConfig.class.getSimpleName())
