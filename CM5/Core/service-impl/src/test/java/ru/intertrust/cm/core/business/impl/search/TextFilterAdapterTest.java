@@ -97,7 +97,7 @@ public class TextFilterAdapterTest {
         when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList("ru", "en", "fr"));
 
         String result = adapter.getFilterString(filter, query);
-        assertTrue(result.matches("^\\(cm_text[_\\w]*:\\(Test string\\)( OR cm_text[_\\w]*:\\(Test string\\)){3,3}\\)$"));
+        assertTrue(result.matches("^\\(cm_text[_\\w]*:\\(\"Test string\"\\)( OR cm_text[_\\w]*:\\(\"Test string\"\\)){3,3}\\)$"));
         assertTrue(result.contains("cm_text:"));
         assertTrue(result.contains("cm_text_ru:"));
         assertTrue(result.contains("cm_text_en:"));
