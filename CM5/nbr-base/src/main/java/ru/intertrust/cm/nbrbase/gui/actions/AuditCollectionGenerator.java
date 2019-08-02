@@ -1,5 +1,6 @@
 package ru.intertrust.cm.nbrbase.gui.actions;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -7,10 +8,14 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
@@ -31,17 +36,60 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
         String query = generateRowQuery();
         
         // Применяем фильтр
+        String where = "";
+        int filterIndex = 0;
         
-        return collectionsService.findCollectionByQuery(query, offset, limit);
+        List<Value> params = new ArrayList<Value>();
+        
+        if (filters != null) {
+            for (Filter filter : filters) {
+                if (where.isEmpty()) {
+                    where += " where ";
+                }else {
+                    where += " and ";
+                }
+                
+                if (filter.getFilter().equals("byDate")) {
+                    where += " updateddate between {" + filterIndex++ + "} and {" + filterIndex++ + "}";
+                    params.add(filter.getParameterMap().get(0).get(0));
+                    params.add(filter.getParameterMap().get(1).get(0));
+                }else if(filter.getFilter().equals("byOperator")) {
+                    where += " operator like {" + filterIndex++ + "}";
+                    params.add(filter.getParameterMap().get(0).get(0));
+                }else if(filter.getFilter().equals("byEventName")) {
+                    where += " eventname like {" + filterIndex++ + "}";
+                    params.add(filter.getParameterMap().get(0).get(0));
+                }else if(filter.getFilter().equals("byDescription")) {
+                    where += " description like {" + filterIndex++ + "}";
+                    params.add(filter.getParameterMap().get(0).get(0));
+                }
+            }
+        }
+        
+        // Применяем сортировку
+        String sort = "";
+        if (sortOrder != null) {
+            for (SortCriterion sortCriterion : sortOrder) {
+                if (sort.isEmpty()) {
+                    sort += " order by ";
+                }else {
+                    sort += " , ";
+                }
+                sort += sortCriterion.getField() + 
+                        (sortCriterion.getOrder() == null || sortCriterion.getOrder().equals(Order.DESCENDING) ? " desc " : " asc ");
+            }
+        }
+        
+        return collectionsService.findCollectionByQuery(query + where + sort, params, offset, limit);
     }
 
     private String generateRowQuery() {
         String result = "SELECT\r\n" + 
-                "  tmp.\"id\" AS id,\r\n" + 
-                "  tmp.\"eventname\" AS EventName,\r\n" + 
-                "  tmp.\"description\" as Description,\r\n" + 
-                "  tmp.\"updateddate\" as UpdatedDate,\r\n" + 
-                "  tmp.\"operator\" as Operator\r\n" + 
+                "  q.\"id\" AS id,\r\n" + 
+                "  q.\"eventname\" AS EventName,\r\n" + 
+                "  q.\"description\" as Description,\r\n" + 
+                "  q.\"updateddate\" as UpdatedDate,\r\n" + 
+                "  q.\"operator\" as Operator\r\n" + 
                 "FROM(\r\n" + 
                 "SELECT\r\n" + 
                 "  log1.\"id\"                                                                                                AS id,\r\n" + 
@@ -84,7 +132,7 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
                     + "join domain_object_type_id dt on dt.id = tCred.domain_object_id_type\r\n";
         }
         
-        result +=") tmp";
+        result +=") q";
         
         return result;
     }
