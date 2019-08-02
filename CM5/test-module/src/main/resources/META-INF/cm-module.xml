@@ -4,7 +4,7 @@
     <name>test-sed</name>
     <description>Тестовый модуль системы электронного документооборота</description>
     <depends>
-        <depend>core</depend>
+        <depend>nbr-base</depend>
     </depends>
     <extension-points-packages>
         <extension-points-package>ru/intertrust/cm/test</extension-points-package>
@@ -111,6 +111,8 @@
         <configuration-path>module-configuration/url-config.xml</configuration-path>
         <configuration-path>module-configuration/atst_inherit.xml</configuration-path>
 
+        <!-- NBR Base -->
+        <configuration-path>module-configuration/nbr-base-navigation.xml</configuration-path>
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">

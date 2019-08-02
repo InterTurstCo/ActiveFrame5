@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <collection name="user_group_for_person" idField="id" >
+        <prototype>
+            <![CDATA[
+                SELECT
+                    tUserGroup.id as id,
+                    tUserGroup.group_name as grName
+                FROM
+                    group_member tGroupLinks
+                    join person tPerson on tPerson.id = tGroupLinks.person_id
+					join user_group tUserGroup on tUserGroup.id = tGroupLinks.usergroup
+                    ::from-clause
+                WHERE
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            SELECT
+            COUNT(*)
+            FROM
+            group_member tGroupLinks
+            ::from-clause
+            WHERE
+            1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(tUserGroup.group_name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byEmpty">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    1<>1
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byFormPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    tPerson.id = ({0})
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="user_group_for_person" collection="user_group_for_person" is-default="true" replace="runtime">
+        <display>
+            <column field="grName" name="Имя группы" type="string" sortable="true" min-width="80px" resizable="true" />
+        </display>
+    </collection-view>
+
+    <collection name="person_for_group" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                    tPerson.id as id,
+                    tPerson.login as persLogin,
+                    tPerson.firstname as persFirstname,
+                    tPerson.lastname as persLastname
+                FROM
+                    person tPerson
+                    ::from-clause
+                WHERE
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            SELECT
+            COUNT(*)
+            FROM
+            person tPerson
+            ::from-clause
+            WHERE
+            1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(persLogin) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+
+
+
+    </collection>
+
+
+
+    <collection name="user_group_all" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                    tGroup.id as id,
+                    tGroup.group_name as groupName,
+                    (SELECT string_agg(CONCAT(person.lastname, ' ', person.firstname), ', ')
+                	FROM person left JOIN group_member pgp ON (pgp.person_id) = person.id
+                	WHERE pgp.usergroup=tGroup.id) as membersList
+                FROM
+                    user_group tGroup
+                    ::from-clause
+                WHERE
+                    (tGroup.object_id is null) ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            SELECT
+            COUNT(*)
+            FROM
+            user_group tGroup
+            ::from-clause
+            WHERE
+            1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(groupName) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byMembersList">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower((SELECT string_agg(CONCAT(person.lastname, ' ', person.firstname), ', ')
+                	FROM person left JOIN group_member pgp ON (pgp.person_id) = person.id
+                	WHERE pgp.usergroup=tGroup.id)) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(tGroup.group_name) like lower({0}) || '%'
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="user_group_all" collection="user_group_all" is-default="true" replace="runtime">
+        <display>
+            <column field="groupName" name="Группа доступа" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byName"/>
+            <column field="membersList" name="Состав группы" type="string" sortable="false" min-width="80px" resizable="true" search-filter="byMembersList"/>
+        </display>
+    </collection-view>
+
+</configuration>

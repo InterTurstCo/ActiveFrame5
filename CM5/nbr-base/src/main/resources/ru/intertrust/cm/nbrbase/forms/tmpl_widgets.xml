@@ -1,0 +1,25 @@
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <widget-template name="create_update_info_template">
+        <label id="tCreateUpdateInfoField" >
+            <field-path value="created_date, created_by.firstname, created_by.lastname, updated_date, updated_by.firstname, updated_by.lastname" />
+            <font-weight value="normal"/>
+            <font-style value="normal"/>
+            <font-size value="10px"/>
+            <renderer component-name="nbrbase.createdby.updatedby.info.renderer" />
+        </label>
+    </widget-template>
+
+    <widget-template name="update_info_template">
+        <label id="tUpdateInfoField" >
+            <field-path value="updated_date, updated_by.firstname, updated_by.lastname" />
+            <font-weight value="normal"/>
+            <font-style value="normal"/>
+            <font-size value="10px"/>
+            <renderer component-name="cmi.updatedby.info.renderer" />
+        </label>
+    </widget-template>
+
+
+</configuration>

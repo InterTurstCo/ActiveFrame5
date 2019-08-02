@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <act:simple-action name="schedule_task_execute" componentName="simple.action" action-handler="schedule-task-execute"
+                       text="Запустить сейчас" dirtySensitivity="true" merged="true" image="images/icons/favorite-panel-off.png">
+        <act:after-execution>
+            <act:on-success-message text="Задача будет запущена в течение минуты"/>
+        </act:after-execution>
+    </act:simple-action>
+
+    <act:simple-action name="disable_person" componentName="simple.action"
+                       action-handler="disable.person.handler"
+                       imageClass="actionBar-delete"
+                       text="Удалить" tooltip="Удалить"  order="200"
+                       dirtySensitivity="true"  merged="true">
+        <act:before-execution>
+            <act:confirmation-message text="Удалить выделенные объекты в представлении?"/>
+            <act:save-context value="false"/>
+        </act:before-execution>
+    </act:simple-action>
+
+    <act:action name="delete_with_confirm" componentName="delete.action" order="300"
+                text="Удалить" imageClass="actionBar-delete" dirtySensitivity="true"
+                permissions="Delete">
+        <act:before-execution>
+            <act:confirmation-message text="Удалить карточку?"/>
+        </act:before-execution>
+    </act:action>
+
+
+</configuration>

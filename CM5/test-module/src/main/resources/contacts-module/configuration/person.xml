@@ -74,7 +74,7 @@
 		</widget-config>
 	</form> 
 	
-	<form name="tmpPerson_Form" domain-object-type="Person" is-default="true" debug="false" min-width="900px">
+	<form name="tmpPerson_Form" domain-object-type="Person" is-default="false" debug="false" min-width="900px">
 		<markup>
 			<header>
 				<table>

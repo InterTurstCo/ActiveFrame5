@@ -1,0 +1,236 @@
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="shedule" domain-object-type="schedule" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td><widget id="header_label"/></td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Main">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="name_label"/></td>
+                                    <td colspan="6"><widget id="name"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="class_label"/></td>
+                                    <td colspan="4"><widget id="class"></widget></td>
+                                    <td h-align="right"><widget id="active_label"/></td>
+                                    <td><widget id="active"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="schedule_label"/></td>
+                                    <td><widget id="year_label"/></td>
+                                    <td><widget id="month_label"/></td>
+                                    <td><widget id="date_label"/></td>
+                                    <td><widget id="day_label"/></td>
+                                    <td><widget id="hour_label"/></td>
+                                    <td><widget id="minute_label"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="empty"/></td>
+                                    <td><widget id="year"/></td>
+                                    <td><widget id="month"/></td>
+                                    <td><widget id="date"/></td>
+                                    <td><widget id="day"/></td>
+                                    <td><widget id="hour"/></td>
+                                    <td><widget id="minute"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="empty"/></td>
+                                    <td colspan="3"><widget id="priority_label"/></td>
+                                    <td colspan="3"><widget id="timeout_label"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="empty"/></td>
+                                    <td colspan="3"><widget id="priority"/></td>
+                                    <td colspan="3"><widget id="timeout"/></td>
+                                </tr>
+                                <tr>
+                                    <td v-align="top"><widget id="parameters_label"/></td>
+                                    <td colspan="6"><widget id="parameters" width="100%" height="80px"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Журнал выполнения">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget width="1200px" id="journal"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+
+            <label id="header_label">
+                <field-path/>
+                <text>Периодическая задача</text>
+            </label>
+
+            <label id="name_label">
+                <field-path/>
+                <relates-to widget-id="name"/>
+                <text>Наименование задачи</text>
+            </label>
+            <label id="class_label">
+                <field-path/>
+                <relates-to widget-id="class"/>
+                <text>Класс задачи</text>
+            </label>
+            <label id="active_label">
+                <field-path/>
+                <relates-to widget-id="active"/>
+                <text>Включена</text>
+            </label>
+            <label id="schedule_label">
+                <field-path/>
+                <text>Расписание</text>
+            </label>
+            <label id="year_label">
+                <field-path/>
+                <relates-to widget-id="year"/>
+                <text>Год</text>
+            </label>
+            <label id="month_label">
+                <field-path/>
+                <relates-to widget-id="month"/>
+                <text>Месяц</text>
+            </label>
+            <label id="date_label">
+                <field-path/>
+                <relates-to widget-id="date"/>
+                <text>День</text>
+            </label>
+            <label id="day_label">
+                <field-path/>
+                <relates-to widget-id="day"/>
+                <text>День недели</text>
+            </label>
+            <label id="hour_label">
+                <field-path/>
+                <relates-to widget-id="hour"/>
+                <text>Час</text>
+            </label>
+            <label id="minute_label">
+                <field-path/>
+                <relates-to widget-id="minute"/>
+                <text>Минута</text>
+            </label>
+            <label id="priority_label">
+                <field-path/>
+                <relates-to widget-id="priority"/>
+                <text>Приоритет</text>
+            </label>
+            <label id="timeout_label">
+                <field-path/>
+                <relates-to widget-id="timeout"/>
+                <text>Время ожидания</text>
+            </label>
+            <label id="parameters_label">
+                <field-path/>
+                <relates-to widget-id="parameters"/>
+                <text>Параметры</text>
+            </label>
+
+            <text-box id="name">
+                <field-path value="name"/>
+            </text-box>
+            <enumeration-box id="class">
+                <field-path value="task_class"/>
+                <map-provider component="ScheduledTaskEnumerator"/>
+            </enumeration-box>
+            <check-box id="active">
+                <field-path value="active"/>
+            </check-box>
+
+            <text-box id="year">
+                <field-path value="year">
+                    <default-value>
+                        <field value="*"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+            <text-box id="month">
+                <field-path value="month">
+                    <default-value>
+                        <field value="*"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+            <text-box id="date">
+                <field-path value="day_of_month">
+                    <default-value>
+                        <field value="*"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+            <text-box id="day">
+                <field-path value="day_of_week">
+                    <default-value>
+                        <field value="*"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+            <text-box id="hour">
+                <field-path value="hour">
+                    <default-value>
+                        <field value="*"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+            <text-box id="minute">
+                <field-path value="minute">
+                    <default-value>
+                        <field value="*"/>
+                    </default-value>
+                </field-path>
+            </text-box>
+
+            <integer-box id="priority">
+                <field-path value="priority"/>
+            </integer-box>
+            <integer-box id="timeout">
+                <field-path value="timeout"/>
+            </integer-box>
+
+            <text-area id="parameters">
+                <field-path value="parameters"/>
+            </text-area>
+
+            <label id="empty">
+                <field-path/>
+                <text></text>
+            </label>
+
+            <table-viewer id="journal">
+                <page-size>50</page-size>
+                <collection-viewer>
+                    <collection-ref name="schedule_execution_collection"/>
+                    <collection-view-ref name="schedule_execution_collectiont_view"/>
+                    <default-sort-criteria column-field="redy_date" order="desc"/>
+                    <collection-extra-filters>
+                        <extra-filter name="bySchedule">
+                            <param name="0" set-base-object="true"/>
+                        </extra-filter>
+                    </collection-extra-filters>
+                </collection-viewer>
+            </table-viewer>
+
+        </widget-config>
+    </form>
+
+</configuration>

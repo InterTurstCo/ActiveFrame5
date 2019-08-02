@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="https://cm5.intertrust.ru/config/module"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <name>nbr-base</name>
+    <description>Базовый модуль НБР приложения</description>
+
+    <depends>
+        <depend>core</depend>
+    </depends>
+
+    <gui-components-packages>
+        <gui-components-package>ru.intertrust.cm.nbrbase.widget.renderers</gui-components-package>
+    </gui-components-packages>
+
+    <configuration-paths>
+        <!-- Коллекции -->
+        <configuration-path>ru/intertrust/cm/nbrbase/collections/person.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/collections/user_group.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/collections/shedule.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/collections/audit.xml</configuration-path>
+        
+        <!-- Формы -->
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/tmpl_widgets.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/person.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/form_shedule.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/form_user_group_person.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/form_user_group.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/form_event_log.xml</configuration-path>
+        
+        <!-- Действия -->
+        <configuration-path>ru/intertrust/cm/nbrbase/actions.xml</configuration-path>
+        
+    </configuration-paths>
+   
+</module>

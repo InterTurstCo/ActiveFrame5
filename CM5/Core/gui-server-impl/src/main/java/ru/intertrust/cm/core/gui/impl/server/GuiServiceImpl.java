@@ -1,21 +1,63 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.AuditService;
 import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.UserExtraInfoConfig;
+import ru.intertrust.cm.core.config.gui.form.BodyConfig;
+import ru.intertrust.cm.core.config.gui.form.CellConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.HeaderConfig;
+import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
+import ru.intertrust.cm.core.config.gui.form.RowConfig;
+import ru.intertrust.cm.core.config.gui.form.SingleEntryGroupListConfig;
+import ru.intertrust.cm.core.config.gui.form.TabConfig;
+import ru.intertrust.cm.core.config.gui.form.TabGroupConfig;
+import ru.intertrust.cm.core.config.gui.form.TableLayoutConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -35,16 +77,15 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 
 /**
  * Базовая реализация сервиса GUI
@@ -63,6 +104,15 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @EJB
     private GuiService newTransactionGuiService;
+    
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+    
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
+    private AuditService auditService;
 
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
@@ -129,7 +179,182 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Override
     public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
                                    FormViewerConfig formViewerConfig) {
-        return getFormRetriever(userInfo).getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
+        String typeName = domainObjectTypeIdCache.getName(domainObjectId);
+        
+        if (configurationExplorer.isAuditLogType(typeName)) {
+            return getAuditForm(domainObjectId);
+        }else {
+            return getFormRetriever(userInfo).getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
+        }
+    }
+
+    private FormDisplayData getAuditForm(Id versionId) {
+        String typeName = domainObjectTypeIdCache.getName(versionId);
+        String auditedTypeName = typeName.substring(0, typeName.length() - 3);
+        // Получение информации о версиях
+        DomainObjectVersion domainObjectVersion = auditService.findVersion(versionId);
+        DomainObjectVersion previousDomainObjectVersion = auditService.findPreviousVersion(versionId);
+        FormDisplayData result = new FormDisplayData();
+        ToolBarConfig toolBarConfig = new ToolBarConfig();
+        toolBarConfig.setUseDefault(false);
+        result.setToolBarConfig(toolBarConfig);
+        List<AbstractActionConfig> actions = new ArrayList<AbstractActionConfig>();
+        toolBarConfig.setActions(actions);
+        
+        // Кнопка закрыть
+        ActionRefConfig closeAction = new ActionRefConfig();
+        closeAction.setNameRef("aToggleEditOff");
+        closeAction.setRendered("(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)");
+        closeAction.setMerged(false);
+        closeAction.setOrder(1);
+        actions.add(closeAction);
+
+        // Данные, пустой доменный объект, иначе падаем
+        FormObjects formObjects = new FormObjects();
+        GenericDomainObject fakeDomainObject = new GenericDomainObject(typeName);
+        fakeDomainObject.setId(versionId);
+        formObjects.setRootNode(new SingleObjectNode(fakeDomainObject));
+        
+        List<String> showFields = getShowFields(domainObjectVersion.getFields());
+        
+        // Настройка виджетов
+        Map<String, WidgetState> widgetStateMap = new HashMap<String, WidgetState>();
+        widgetStateMap.put("type_name", new LabelState(auditedTypeName));
+        
+        // Маппинг типов виджетов
+        Map<String, String> widgetComponents = new HashMap<String, String>();
+        widgetComponents.put("type_name", "label");
+        
+        // Разметка body
+        BodyConfig bodyConfig = new BodyConfig();
+        TabConfig tabConfig = new TabConfig();
+        tabConfig.setGroupList(new SingleEntryGroupListConfig());
+        TabGroupConfig tabGroupConfig = new TabGroupConfig();
+        tabGroupConfig.setLayout(new TableLayoutConfig());
+
+        RowConfig headerRowConfig = new RowConfig();
+        tabGroupConfig.getLayout().getRows().add(headerRowConfig);
+        addFieldWidgets("header_name", "Атрибут", widgetStateMap, widgetComponents, headerRowConfig.getCells(), null, "underline");
+        if (domainObjectVersion.getLong("operation") == 2 || domainObjectVersion.getLong("operation") == 3) {
+            addFieldWidgets("header_old", "Старое значение", widgetStateMap, widgetComponents, headerRowConfig.getCells(), null, "underline");
+        }
+        if (domainObjectVersion.getLong("operation") == 2 || domainObjectVersion.getLong("operation") == 1) {
+            addFieldWidgets("header_new", "Новое значение", widgetStateMap, widgetComponents, headerRowConfig.getCells(), null, "underline");
+        }
+        
+        for (String field : showFields) {
+            // Имя атрибута
+            RowConfig fieldRowConfig = new RowConfig();
+            tabGroupConfig.getLayout().getRows().add(fieldRowConfig);
+
+            addFieldWidgets(field + "_label", field, widgetStateMap, widgetComponents, fieldRowConfig.getCells(), null, null);
+            
+            Set<String> changedFields = new HashSet<String>();
+            // Изменение, и удаление формируем значения из предыдущей версии
+            if (domainObjectVersion.getLong("operation") == 2 || domainObjectVersion.getLong("operation") == 3) {
+                String value = "Данные удалены";
+                if (previousDomainObjectVersion != null) {
+                    value = previousDomainObjectVersion.getValue(field).toString();
+                    if (domainObjectVersion.getLong("operation") == 2 && 
+                            ((previousDomainObjectVersion.getValue(field) == null && domainObjectVersion.getValue(field) != null)
+                            || (previousDomainObjectVersion.getValue(field) != null 
+                                && !previousDomainObjectVersion.getValue(field).equals(domainObjectVersion.getValue(field))))) {
+                        changedFields.add(field);
+                    }
+                }
+                String textDecoration = null;
+                String backgroundColor = null;
+                if (changedFields.contains(field)) {
+                    textDecoration = "line-through";
+                    backgroundColor = "#FFBFAE";
+                }
+                
+                addFieldWidgets(field + "_old", value, widgetStateMap, widgetComponents, fieldRowConfig.getCells(), backgroundColor, textDecoration);
+            }
+            
+            // Создание и изменение, отображаем текущие данные
+            if (domainObjectVersion.getLong("operation") == 1 || domainObjectVersion.getLong("operation") == 2) {
+                String backgroundColor = null;
+                if (changedFields.contains(field)) {
+                    backgroundColor = "#DAF7A6";
+                }
+                addFieldWidgets(field + "_new", domainObjectVersion.getValue(field).toString(), widgetStateMap, widgetComponents, fieldRowConfig.getCells(), backgroundColor, null);
+            }
+        }
+        
+        tabConfig.getGroupList().getTabGroupConfigs().add(tabGroupConfig);
+        bodyConfig.getTabs().add(tabConfig);
+        
+        // Разметка header
+        HeaderConfig headerConfig = new HeaderConfig();
+        headerConfig.setTableLayout(new TableLayoutConfig());
+        
+        // Имя типа
+        RowConfig rowConfig = new RowConfig();
+        headerConfig.getTableLayout().getRows().add(rowConfig);
+        addFieldWidgets("type_name", "Тип: " + typeName, widgetStateMap, widgetComponents, rowConfig.getCells(), null, null);
+
+        // Операция
+        rowConfig = new RowConfig();
+        headerConfig.getTableLayout().getRows().add(rowConfig);
+        addFieldWidgets("operation", "Действие: " + getOperation(domainObjectVersion.getLong("operation")), widgetStateMap, widgetComponents, rowConfig.getCells(), null, null);
+        
+        // Идентификатор
+        rowConfig = new RowConfig();
+        headerConfig.getTableLayout().getRows().add(rowConfig);
+        addFieldWidgets("id", "ID: " + domainObjectVersion.getReference("domain_object_id").toStringRepresentation(), 
+                widgetStateMap, widgetComponents, rowConfig.getCells(), null, null);
+        
+
+        // Формирование результата
+        FormState formState = new FormState("universal_audit_form", widgetStateMap, formObjects, widgetComponents, null, null);
+        result.setFormState(formState);
+
+        MarkupConfig markupConfig = new MarkupConfig();
+        markupConfig.setBody(bodyConfig);
+        markupConfig.setHeader(headerConfig);
+        result.setMarkup(markupConfig);
+        
+        return result;
+    }
+
+    private String getOperation(Long operation) {
+        if (operation == 1) {
+            return "Создание";
+        }else if (operation == 2) {
+            return "Изменение";
+        }else {
+            return "Удаление";
+        }
+    }
+
+    private void addFieldWidgets(String field, String value, Map<String, WidgetState> widgetStateMap, Map<String, String> widgetComponents, 
+            List<CellConfig> cels, String backgroundColor, String textDecoration) {
+        String oldValueWidgetId = field + "_old";
+        
+        LabelState label = new LabelState(value);
+        label.setTextDecoration(textDecoration);
+        label.setBackgroundColor(backgroundColor);
+        
+        widgetStateMap.put(oldValueWidgetId, label);         
+
+        widgetComponents.put(oldValueWidgetId, "label");
+
+        CellConfig cellConfig = new CellConfig();
+        cellConfig.setWidgetDisplayConfig(new WidgetDisplayConfig());
+        cellConfig.getWidgetDisplayConfig().setId(oldValueWidgetId);
+        cels.add(cellConfig);                        
+    }
+    
+    private List<String> getShowFields(ArrayList<String> fields) {
+        List<String> result = new ArrayList<String>();
+        for (String field : fields) {
+            if (!field.equalsIgnoreCase("operation")
+                    && !field.equalsIgnoreCase("domain_object_id")) {
+                result.add(field);
+            }
+        }
+        return result;
     }
 
     @Override

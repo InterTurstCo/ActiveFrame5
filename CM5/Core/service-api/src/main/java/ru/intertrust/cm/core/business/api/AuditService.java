@@ -56,4 +56,10 @@ public interface AuditService {
      */
     VersionComparisonResult compare(Id baseVersionId, Id comparedVersionId);
 
+    /**
+     * Получение предыдущей версии
+     * @param versionId
+     * @return
+     */
+    DomainObjectVersion findPreviousVersion(Id versionId);
 }
