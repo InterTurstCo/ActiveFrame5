@@ -1,7 +1,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
-    <form name="form_shedule" domain-object-type="schedule" is-default="true">
+    <form name="shedule" domain-object-type="schedule" is-default="true">
         <markup>
             <header>
                 <table>
@@ -233,11 +233,4 @@
         </widget-config>
     </form>
 
-    <collection-view name="Schedule_View" collection="Schedule_Collection"
-                     is-default="true">
-        <display>
-            <column field="name" name="Название" type="string" sortable="true" />
-            <column field="active" name="Активна" type="boolean" sortable="false" />
-        </display>
-    </collection-view>
 </configuration>

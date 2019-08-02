@@ -2,7 +2,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
-    <form name="person_form" domain-object-type="person" is-default="true">
+    <form name="person" domain-object-type="person" is-default="true">
         <act:tool-bar useDefault="false">
             <act:action-ref name-ref="aSaveAndClose" text="Сохранить" order="4" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
             <act:action-ref name-ref="aToggleEditOff" order="1"  merged="false" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)"/>
@@ -19,7 +19,7 @@
                     <act:action-param name="create.object.type" value="person" />
                 </act:action-params>
             </act:action-ref>
-            <act:action-ref name-ref="aDeleteCustomForNbr" rendered="toggle-edit" merged="false" visibility-checker="active.person.visibility.checker" order="6" visible-when-new="false" />
+            <act:action-ref name-ref="delete_with_confirm" rendered="toggle-edit" merged="false" visibility-checker="active.person.visibility.checker" order="6" visible-when-new="false" />
         </act:tool-bar>
         <markup>
             <header>
@@ -108,7 +108,7 @@
                 <field-path value="lastname"/>
                 <renderer component-name="person.is.active.render"/>
             </label>
-            <template-based-widget id="headerInfoLabel" template-name="widgetTemplateCreateUpdateInfo" />
+            <template-based-widget id="headerInfoLabel" template-name="create_update_info_template" />
 
             <!-- Область формы без закладок -->
             <label id="LastNameLbl">
@@ -171,8 +171,8 @@
             <table-viewer id="GroupTableWidget" read-only="true" show-workflow-menu="false" show-actions-menu="false">
 
                 <collection-viewer>
-                    <collection-view-ref name="view_user_group_for_person" />
-                    <collection-ref name="col_user_group_for_person" />
+                    <collection-view-ref name="user_group_for_person" />
+                    <collection-ref name="user_group_for_person" />
 
                     <collection-extra-filters>
                         <extra-filter name="byFormPerson" null-value-filter-name="byEmpty">
@@ -185,7 +185,7 @@
                 </collection-viewer>
 
                 <linked-form-mapping>
-                    <linked-form name="form_user_group" domain-object-type="user_group" resizable="true"  />
+                    <linked-form name="user_group" domain-object-type="user_group" resizable="true"  />
                 </linked-form-mapping>
 
                 <ignore-form-read-only-state value="true" />

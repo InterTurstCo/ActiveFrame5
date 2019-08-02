@@ -34,7 +34,7 @@
         </filter>
     </collection>
 
-    <collection-view name="view_audit_journal" collection="audit_journal" is-default="true" replace="runtime">
+    <collection-view name="audit_journal" collection="audit_journal" is-default="true" replace="runtime">
         <display>
             <column field="UpdatedDate" name="Дата" time-pattern="HH:mm" type="datetime" search-filter="byDate" sortable="true" min-width="80px" resizable="true"/>
             <column field="Operator" name="Оператор" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byOperator"/>

@@ -26,12 +26,12 @@
                                                     </act:action-params>
                                                 </act:action-ref>
                                             </act:action-group>
-                                            <act:action-ref name-ref="disablePersonAction" visibility-checker="admin.visibility.checker" order="6"/>
+                                            <act:action-ref name-ref="disable_person" visibility-checker="admin.visibility.checker" order="6"/>
                                         </act:tool-bar>
                                         <rows-selection default-state="empty" multi-selection="true"/>
                                     </collection-viewer>
                                     <form-viewer>
-                                        <form-mapping domain-object-type="person" form="person_form"/>
+                                        <form-mapping domain-object-type="person" form="person"/>
                                     </form-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -40,7 +40,7 @@
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="user_group">
                                     <collection-viewer>
-                                        <collection-ref name="col_user_group_all"/>
+                                        <collection-ref name="user_group_all"/>
                                         <default-sort-criteria column-field="groupName" order="asc"/>
 
                                         <act:tool-bar useDefault="false">
@@ -50,12 +50,12 @@
                                         <rows-selection default-state="empty" multi-selection="true"/>
                                     </collection-viewer>
                                     <form-viewer>
-                                        <form-mapping domain-object-type="user_group" form="form_user_group" />
+                                        <form-mapping domain-object-type="user_group" form="user_group" />
                                     </form-viewer>
                                 </domain-object-surfer>
                             </plugin>
                         </link>
-                        <link name="lnk_nbr_person_sleep" display-text="Не активные">
+                        <link name="lnk_nbr_person_inactive" display-text="Не активные">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="person">
                                     <collection-viewer>
@@ -66,7 +66,7 @@
                                         </act:tool-bar>
                                     </collection-viewer>
                                     <form-viewer>
-                                        <form-mapping domain-object-type="person" form="person_form"/>
+                                        <form-mapping domain-object-type="person" form="person"/>
                                     </form-viewer>
                                 </domain-object-surfer>
                             </plugin>
@@ -77,16 +77,16 @@
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="schedule">
                             <collection-viewer>
-                                <collection-ref name="allSchedule" />
+                                <collection-ref name="all_schedule" />
                                 <default-sort-criteria column-field="name" order="asc"/>
                                 <act:tool-bar useDefault="false">
-                                    <act:action-ref name-ref="scheduleTaskExecuteAction" />
+                                    <act:action-ref name-ref="schedule_task_execute" />
                                     <act:action-ref name-ref="aRefresh" />
                                 </act:tool-bar>
                                 <rows-selection default-state="empty" multi-selection="true"/>
                             </collection-viewer>
                             <form-viewer>
-                                <form-mapping domain-object-type="schedule" form="form_shedule" />
+                                <form-mapping domain-object-type="schedule" form="shedule" />
                             </form-viewer>
                         </domain-object-surfer>
                     </plugin>
@@ -175,7 +175,7 @@
                                 </act:tool-bar>
                             </collection-viewer>
                             <form-viewer>
-                                <form-mapping domain-object-type="user_event_log" form="form_event_log" />
+                                <form-mapping domain-object-type="user_event_log" form="event_log" />
                             </form-viewer>
                         </domain-object-surfer>
                     </plugin>

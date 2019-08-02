@@ -1,7 +1,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
-    <form name="form_user_group" domain-object-type="user_group" is-default="true" debug="false"
+    <form name="user_group" domain-object-type="user_group" is-default="true" debug="false"
           min-width="600px">
         <act:tool-bar useDefault="false">
             <act:action-ref name-ref="aSaveAndClose" text="Сохранить" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)" visibility-checker="admin.visibility.checker" order="2"/>
@@ -50,7 +50,7 @@
                 <pattern value="Группа доступа: {group_name}" />
             </label>
 
-            <template-based-widget id="headerInfoLabel" template-name="widgetTemplateUpdateInfo" />
+            <template-based-widget id="headerInfoLabel" template-name="update_info_template" />
 
             <!-- Область формы без закладок -->
             <label id="MemberTableLbl">
@@ -59,7 +59,7 @@
 
             <linked-domain-objects-table id="MemberTableWidget" modal-width="500px" modal-height="300px">
                 <field-path value="group_member^usergroup" on-root-delete="unlink"/>
-                <linked-form name="form_user_group_person"  inline="true" resizable="true"/>
+                <linked-form name="user_group_person"  inline="true" resizable="true"/>
                 <summary-table>
                     <summary-table-column header="Логин" widget-id="PortsWidget_List2">
                         <action type="view"/>

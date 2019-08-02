@@ -63,7 +63,7 @@
 
     </collection>
 
-    <collection-view name="view_person_active" collection="person_active" is-default="true" replace="runtime">
+    <collection-view name="person_active" collection="person_active" is-default="true" replace="runtime">
         <display>
             <column search-filter="bylogin" field="login" name="Логин" type="string" sortable="true" min-width="80px" resizable="true"/>
             <column search-filter="byfio" field="fio" name="ФИО" type="string" sortable="true" min-width="80px" resizable="true"/>
@@ -132,7 +132,7 @@
 
     </collection>
 
-    <collection-view name="view_person_inactive" collection="person_inactive" is-default="true" replace="runtime">
+    <collection-view name="person_inactive" collection="person_inactive" is-default="true" replace="runtime">
         <display>
             <column search-filter="bylogin" field="login" name="Логин" type="string" sortable="true" min-width="80px" resizable="true"/>
             <column search-filter="byfio" field="fio" name="ФИО" type="string" sortable="true" min-width="80px" resizable="true"/>

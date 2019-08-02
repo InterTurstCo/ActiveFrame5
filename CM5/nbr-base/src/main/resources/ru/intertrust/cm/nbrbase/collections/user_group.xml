@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
 
-    <collection name="col_user_group_for_person" idField="id" >
+    <collection name="user_group_for_person" idField="id" >
         <prototype>
             <![CDATA[
                 SELECT
@@ -53,13 +53,13 @@
 
     </collection>
 
-    <collection-view name="view_user_group_for_person" collection="col_user_group_for_person" is-default="true" replace="runtime">
+    <collection-view name="user_group_for_person" collection="user_group_for_person" is-default="true" replace="runtime">
         <display>
             <column field="grName" name="Имя группы" type="string" sortable="true" min-width="80px" resizable="true" />
         </display>
     </collection-view>
 
-    <collection name="col_person_for_group" idField="id">
+    <collection name="person_for_group" idField="id">
         <prototype>
             <![CDATA[
                 SELECT
@@ -99,7 +99,7 @@
 
 
 
-    <collection name="col_user_group_all" idField="id">
+    <collection name="user_group_all" idField="id">
         <prototype>
             <![CDATA[
                 SELECT
@@ -154,7 +154,7 @@
 
     </collection>
 
-    <collection-view name="view_user_group_all" collection="col_user_group_all" is-default="true" replace="runtime">
+    <collection-view name="user_group_all" collection="user_group_all" is-default="true" replace="runtime">
         <display>
             <column field="groupName" name="Группа доступа" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byName"/>
             <column field="membersList" name="Состав группы" type="string" sortable="false" min-width="80px" resizable="true" search-filter="byMembersList"/>

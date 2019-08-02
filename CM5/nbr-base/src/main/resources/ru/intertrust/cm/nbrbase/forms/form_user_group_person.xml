@@ -1,7 +1,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
-    <form name="form_user_group_person" domain-object-type="group_member" is-default="true" debug="false" min-width="600px">
+    <form name="user_group_person" domain-object-type="group_member" is-default="true" debug="false" min-width="600px">
         <act:tool-bar useDefault="false">
             <act:action-ref name-ref="aSave" merged="true" rendered="not toggle-edit or (toggle-edit and not preview)"/>
             <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false"/>
@@ -39,7 +39,7 @@
             </label>
             <suggest-box id="PersonField" read-only="false" >
                 <field-path value="person_id" />
-                <collection-ref name="col_person_for_group" />
+                <collection-ref name="person_for_group" />
                 <display-values-as-links value="true" modal-window="false"/>
                 <drop-down-pattern value="{persLastname} {persFirstname} ({persLogin})" />
                 <selection-pattern value="{persLastname} {persFirstname} ({persLogin})" />

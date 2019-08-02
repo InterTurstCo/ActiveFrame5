@@ -1,7 +1,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
-    <form name="form_event_log" domain-object-type="user_event_log" is-default = "false">
+    <form name="event_log" domain-object-type="user_event_log" is-default = "false">
         <act:tool-bar useDefault="false">
             <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false" order="1"/>
         </act:tool-bar>
