@@ -231,7 +231,6 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         }
     }
 
-
     private IsWidget buildTabContent(TabConfig tabConfig) {
         FlowPanel panel = new FlowPanel();
 
@@ -517,6 +516,15 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
             return widgetIdsSet;
         }
         return new HashSet<>();
+    }
+
+    /**
+     * Выделяет первую вкладку на панели формы, если они (вкладки) имеются.
+     */
+    public void selectFirstTab() {
+        if (hasAnyTab()) {
+            bodyTabPanel.selectTab(DEFAULT_TAB);
+        }
     }
 
 }
