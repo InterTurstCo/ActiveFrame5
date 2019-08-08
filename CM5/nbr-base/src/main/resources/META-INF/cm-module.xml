@@ -12,6 +12,10 @@
         <gui-components-package>ru.intertrust.cm.nbrbase.widget.renderers</gui-components-package>
     </gui-components-packages>
 
+    <server-components-packages>
+        <server-components-package>ru.intertrust.cm.nbrbase</server-components-package>
+    </server-components-packages>	
+
     <configuration-paths>
         <!-- Коллекции -->
         <configuration-path>ru/intertrust/cm/nbrbase/collections/person.xml</configuration-path>
