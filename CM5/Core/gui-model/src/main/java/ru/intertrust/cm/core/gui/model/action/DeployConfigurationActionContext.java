@@ -12,6 +12,8 @@ import java.util.List;
  */
 public class DeployConfigurationActionContext extends ToggleActionContext {
     private List<AttachmentItem> attachmentItems;
+    private String configType;
+    
     public DeployConfigurationActionContext() {
     }
 
@@ -25,5 +27,13 @@ public class DeployConfigurationActionContext extends ToggleActionContext {
 
     public void setAttachmentItems(List<AttachmentItem> attachmentItems) {
         this.attachmentItems = attachmentItems;
+    }
+
+    public String getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(String configType) {
+        this.configType = configType;
     }
 }

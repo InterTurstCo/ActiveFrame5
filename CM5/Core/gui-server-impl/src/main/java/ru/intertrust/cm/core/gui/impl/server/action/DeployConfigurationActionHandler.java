@@ -1,28 +1,21 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
-import ru.intertrust.cm.core.business.api.ConfigurationControlService;
+
 import ru.intertrust.cm.core.business.api.dto.ConfigurationDeployedItem;
-import ru.intertrust.cm.core.business.api.plugin.PluginService;
-import ru.intertrust.cm.core.business.api.plugin.PluginStorage;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.api.server.action.ConfigurationDeployer;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.DeployConfigurationActionContext;
 import ru.intertrust.cm.core.gui.model.action.DeployConfigurationActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
-
-import javax.ejb.EJBException;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -32,20 +25,20 @@ import java.util.List;
 @ComponentName("deploy.configuration.action")
 public class DeployConfigurationActionHandler
         extends ActionHandler<DeployConfigurationActionContext, DeployConfigurationActionData> {
-    @Autowired
-    private ConfigurationControlService configurationControlService;
 
     @Autowired
     private PropertyResolver propertyResolver;
     
     @Autowired
-    private PluginStorage pluginStorage;
+    private List<ConfigurationDeployer> deployers;    
 
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
     @Override
     public DeployConfigurationActionData executeAction(DeployConfigurationActionContext deployContext) {
 
+        ConfigurationDeployer deployer = getConfigurationDeployer(deployContext.getConfigType());
+        
         List<AttachmentItem> attachmentItems = deployContext.getAttachmentItems();
         List<ConfigurationDeployedItem> configurationDeployedItems = new ArrayList<>();
         String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
@@ -54,22 +47,11 @@ public class DeployConfigurationActionHandler
             ConfigurationDeployedItem  configurationDeployedItem = new ConfigurationDeployedItem();
             configurationDeployedItem.setFileName(attachmentItem.getName());
             try {
-                if (file.getName().toLowerCase().endsWith(".jar")){
-                    //Установка плагина
-                    pluginStorage.deployPluginPackage(file.getPath());                    
-                }else{
-                    //Установка конфигурации
-                    Charset charset = (file.getName().toLowerCase().endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
-                    String configAsString = readFileAsString(file.getPath(), charset);
-                    configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
-                    configurationDeployedItem.setSuccess(true);
-                }
-            } catch (EJBException ejbException){
+                deployer.deploy(attachmentItem.getName(), file);
+                configurationDeployedItem.setSuccess(true);
+            } catch (Exception ex){
                 configurationDeployedItem.setSuccess(false);
-                configurationDeployedItem.setMessage(ejbException.getLocalizedMessage());
-            } catch (IOException e) {
-                configurationDeployedItem.setSuccess(false);
-                configurationDeployedItem.setMessage(e.getLocalizedMessage());
+                configurationDeployedItem.setMessage(ex.getLocalizedMessage());
             }finally {
                 configurationDeployedItems.add(configurationDeployedItem);
             }
@@ -79,15 +61,18 @@ public class DeployConfigurationActionHandler
         return deployConfigurationActionData;
     }
 
+    private ConfigurationDeployer getConfigurationDeployer(String configType) {
+        for (ConfigurationDeployer configurationDeployer : deployers) {
+            if (configurationDeployer.getDeployConfigType().getType().equals(configType)) {
+                return configurationDeployer;
+            }
+        }
+        throw new FatalException("Deployer fore type " + configType + " not found");
+    }
+
     @Override
     public DeployConfigurationActionContext getActionContext(final ActionConfig actionConfig) {
         return new DeployConfigurationActionContext(actionConfig);
     }
 
-    private String readFileAsString(String path, Charset encoding)
-            throws IOException
-    {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
-    }
 }

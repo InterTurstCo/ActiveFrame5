@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
-    <form name="gui_extension" domain-object-type="configuration_extension" is-default="true">
+    <form name="gui_extension" domain-object-type="configuration_extension" is-default="true" replace="runtime">
         <act:tool-bar useDefault="false">
             <act:action-ref name-ref="aCreate" merged="true"
                             rendered="(not toggle-edit and not preview)  or (toggle-edit and preview)"/>
@@ -76,7 +76,7 @@
                 <tab name="Черновик">
                     <single-entry-group>
                         <tab-group>
-                            <table>
+                            <table width="100%" height="100%">
                                 <tr>
                                     <td>
                                         <widget id="draftXMLArea" width="100%" height="100%"/>
@@ -95,10 +95,10 @@
             <label id="TypeLabel">
                 <text>Тип</text>
             </label>
-            <text-box id="NameValue" read-only="true">
+            <text-box id="NameValue" read-only="false">
                 <field-path value="name"/>
             </text-box>
-            <text-box id="TypeValue" read-only="true">
+            <text-box id="TypeValue" read-only="false">
                 <field-path value="type"/>
             </text-box>
 
@@ -111,7 +111,7 @@
                 <field-path value="current_xml"/>
             </text-area>
 
-            <text-area id="draftXMLArea">
+            <text-area id="draftXMLArea" >
                 <field-path value="config_extension_tooling|configuration_extension.draft_xml"/>
             </text-area>
             <label id="isActive">

@@ -30,6 +30,7 @@ public class DeployConfigurationAction extends SimpleServerAction {
         DeployConfigurationActionContext context = (DeployConfigurationActionContext) initialContext;
         ConfigurationDeployerPlugin plugin = (ConfigurationDeployerPlugin) getPlugin();
         context.setAttachmentItems(plugin.getAttachmentItems());
+        context.setConfigType(plugin.getConfigType());
         return context;
     }
 

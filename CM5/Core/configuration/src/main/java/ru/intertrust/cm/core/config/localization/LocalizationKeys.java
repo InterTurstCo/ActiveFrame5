@@ -73,6 +73,8 @@ public class LocalizationKeys {
 
     public static final String NO_NEW_NOTIFICATIONS_KEY = "NoNewNotifications";
     public static final String ADD_CONFIG_FILES_KEY = "AddConfigFiles";
+    public static final String SELECT_CONFIG_TYPE_KEY = "SelectConfigType";
+    public static final String CONFIG_FILES_TYPE_KEY = "ConfigFilesType";
     public static final String ADD_REPORT_FILES_KEY = "AddReportFiles";
 
     public static final String MONTH_SWITCH_BUTTON_KEY = "MonthSwitchButton";
