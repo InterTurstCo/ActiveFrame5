@@ -774,7 +774,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return result;
     }
 
-    private DomainObjectTypeConfig findChildDomainObjectTypeConfig(String domainObjectTypeName) {
+    /**
+     * Получение конфигурации доменного объекта где определена матрица с учетом иерархии.
+     * В методе инициализируется кэш конфигураций, поэтому он синхронный
+     * @param domainObjectTypeName
+     * @return
+     */
+    private synchronized DomainObjectTypeConfig findChildDomainObjectTypeConfig(String domainObjectTypeName) {
         String childTypeName = domainObjectTypeName;
         // Получаем матрицу и смотрим атрибут matrix_reference_field
         DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
