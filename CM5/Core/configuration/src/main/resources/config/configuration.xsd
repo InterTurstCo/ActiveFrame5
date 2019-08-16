@@ -3049,6 +3049,20 @@
         </xs:complexContent>
     </xs:complexType>
 
+    
+    <!-- конфигурация виджета, написанного для Архиватора Протоколов (CMFIVE-33321), т.к. сходу сделать все правильно не получилось, решено оставить ее здесь, но обязательно нужно перенести на место! --> 
+    <xs:element type="con:changedFieldViewerType" name="changed-field-viewer" substitutionGroup="con:widget"/>
+    <xs:complexType name="changedFieldViewerType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:choice maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="text"/>
+                </xs:choice>
+                <xs:attribute type="xs:string" name="id"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
     <xs:element name="action-executor" type="con:actionExecutorType" substitutionGroup="con:widget"/>
     <xs:complexType name="actionExecutorType">
         <xs:complexContent>
