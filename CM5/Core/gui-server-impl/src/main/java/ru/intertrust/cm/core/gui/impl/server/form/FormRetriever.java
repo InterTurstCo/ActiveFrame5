@@ -176,6 +176,7 @@ public class FormRetriever extends FormProcessor {
         }
       }
       WidgetState initialState = componentHandler.getInitialState(widgetContext);
+      fillSubscriptionAndRules(initialState,widgetContext);
       WidgetContext context = new WidgetContext(config, formState.getObjects(), widgetConfigsById); // why don't we re-use widgetContext?
 
       context.setFormType(formConfig.getType());
@@ -316,18 +317,23 @@ public class FormRetriever extends FormProcessor {
           fieldPathConfig.setValue("fakeFieldPath");
         }
           WidgetState initialState = widgetHandler.getInitialState(widgetContext);
+          fillSubscriptionAndRules(initialState,widgetContext);
           if (initialState != null) {
             boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
             widgetComponents.put(widgetId, config.getComponentName());
+            if(config.getTranslateId()){
+              initialState.setTranslateId(config.getTranslateId());
+              initialState.setWidgetId(config.getId());
+            }
           }
 
         continue;
       }
 
 
-      // field path config can point to multiple paths
+      // field path config can point to multiple paths`
       boolean readOnly = config.isReadOnly();
       FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
       final ExactTypesConfig exactTypesConfig = fieldPathConfig.getExactTypesConfig();
@@ -359,10 +365,15 @@ public class FormRetriever extends FormProcessor {
       }
 
       WidgetState initialState = widgetHandler.getInitialState(widgetContext);
+      fillSubscriptionAndRules(initialState,widgetContext);
       List<Constraint> constraints = buildConstraints(widgetContext);
       initialState.setConstraints(constraints);
       initialState.setWidgetProperties(buildWidgetProps(constraints, formConfig.getType()));
       initialState.setEditable(!readOnly);
+      if(config.getTranslateId()){
+        initialState.setTranslateId(config.getTranslateId());
+        initialState.setWidgetId(config.getId());
+      }
       widgetStateMap.put(widgetId, initialState);
       widgetComponents.put(widgetId, config.getComponentName());
     }
@@ -372,6 +383,7 @@ public class FormRetriever extends FormProcessor {
     final FormDisplayData result = new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
         formConfig.getMinWidth(), formConfig.getDebug());
     result.setToolBarConfig(formConfig.getToolbarConfig());
+    result.setScriptFileConfig(formConfig.getScriptFileConfig());
     return result;
   }
 
@@ -624,5 +636,17 @@ public class FormRetriever extends FormProcessor {
       paramsMap.put(pair.getFirst(), pair.getSecond());
     }
     return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);
+  }
+
+  private void fillSubscriptionAndRules(WidgetState state, WidgetContext context){
+    if(context.getWidgetConfig().getEventsTypeConfig()!=null){
+      for( SubscribedTypeConfig sType : context.getWidgetConfig().
+          getEventsTypeConfig().getSubscriberTypeConfig().getSubscribedTypeConfigs()){
+        state.getSubscription().add(sType.getToId());
+      }
+    }
+    if(context.getWidgetConfig().getRulesTypeConfig()!=null){
+      state.setRules(context.getWidgetConfig().getRulesTypeConfig());
+    }
   }
 }

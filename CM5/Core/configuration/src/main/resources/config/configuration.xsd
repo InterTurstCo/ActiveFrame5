@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
            targetNamespace="https://cm5.intertrust.ru/config" xmlns:con="https://cm5.intertrust.ru/config"
-           xmlns:act="https://cm5.intertrust.ru/config/action" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:act="https://cm5.intertrust.ru/config/action" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules">
 
     <xs:import namespace="https://cm5.intertrust.ru/config/action" schemaLocation="actions.xsd"/>
+    <xs:import namespace="https://cm5.intertrust.ru/config/event" schemaLocation="events.xsd"/>
+    <xs:import namespace="https://cm5.intertrust.ru/config/rules" schemaLocation="rules.xsd"/>
 
     <xs:element name="configuration" type="con:configurationType"/>
 
@@ -16,12 +19,20 @@
 
     <xs:element name="widget" type="con:abstractWidgetType"/>
     <xs:complexType name="abstractWidgetType" abstract="true">
+        <xs:sequence>
+            <xs:element name="events" type="evt:eventsType" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="rules" type="rul:rulesType" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
         <xs:attribute name="read-only" use="optional" type="xs:boolean"/>
         <xs:attribute type="xs:string" name="handler" use="optional"/>
         <xs:attribute type="xs:string" name="max-tooltip-width" use="optional"/>
         <xs:attribute type="xs:string" name="max-tooltip-height" use="optional"/>
         <xs:attribute type="xs:boolean" name="persist" use="optional"/>
+        <xs:attribute type="xs:boolean" name="translate-id" use="optional"/>
     </xs:complexType>
+
 
     <xs:element name="pluginConfig" type="con:abstractPluginConfigType"/>
     <xs:complexType name="abstractPluginConfigType" abstract="true"/>
@@ -1721,6 +1732,9 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:widgetGroupsExtensionType" name="widget-groups-extension" minOccurs="0" maxOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:scriptFileType" name="script-file" minOccurs="0"
+                        maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name"/>
         <xs:attribute type="xs:string" name="domain-object-type"/>
@@ -1735,6 +1749,10 @@
         <xs:attribute type="con:replacementPolicyType" name="replace" use="optional"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
 
+    </xs:complexType>
+
+    <xs:complexType name="scriptFileType">
+        <xs:attribute type="xs:string" name="url"/>
     </xs:complexType>
 
     <xs:simpleType name="formTypeType">
@@ -3793,6 +3811,7 @@
         <xs:attribute name="set-base-object" type="xs:boolean" use="optional"/>
         <xs:attribute name="name" type="xs:integer" use="required"/>
         <xs:attribute name="time-zone-id" type="xs:string" use="optional"/>
+        <xs:attribute name="expression-value" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="complicatedParamType" abstract="true">

@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.ScriptInjector;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -7,6 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 import java.util.ArrayList;
 
@@ -153,6 +157,9 @@ public class PluginPanel implements IsWidget {
         this.plugins.add(plugin);
         beforePluginOpening();
         impl.setWidget(plugin.getView());
+
+
+
     }
 
     @Override

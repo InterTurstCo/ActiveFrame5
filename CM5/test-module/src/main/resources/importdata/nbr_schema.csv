@@ -1,0 +1,9 @@
+TYPE_NAME=nbr_schema;KEYS=name;
+name;is_system
+String;false
+SOBeard;true
+SOStructure;true
+Integer;false
+Boolean;false
+Date;false
+SOUnit;true

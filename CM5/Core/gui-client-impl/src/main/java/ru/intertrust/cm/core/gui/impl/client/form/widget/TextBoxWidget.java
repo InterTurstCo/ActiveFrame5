@@ -4,7 +4,9 @@ import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.event.WidgetBroadcastEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -25,6 +27,31 @@ public class TextBoxWidget extends BaseWidget {
     @Override
     public Component createNew() {
         return new TextBoxWidget();
+    }
+
+    @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        setTrimmedText((HasText) impl, null);
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
     }
 
     public void setCurrentState(WidgetState currentState) {
@@ -147,5 +174,6 @@ public class TextBoxWidget extends BaseWidget {
     public Object getValue() {
         return ((HasText) impl).getText().trim();
     }
+
 
 }

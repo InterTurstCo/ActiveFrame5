@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -63,6 +64,11 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
                 .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
         eventBus.addHandler(FormSavedEvent.TYPE, this);
 
+
+        if (formDisplayData.getScriptFileConfig() != null) {
+            ScriptInjector.fromUrl(GWT.getHostPageBaseURL()+formDisplayData.getScriptFileConfig().
+                getUrl()).setWindow(ScriptInjector.TOP_WINDOW).inject();
+        }
     }
 
     @Override

@@ -5,7 +5,7 @@
     <act:action name="aRefresh" componentName="refresh.action" display="button"
                 text="Обновить" imageClass="actionBar-refresh" tooltip="Обновить данные"
                 order="10" merged="false" dirtySensitivity="true"/>
-    <act:action name="aCreate" componentName="create.new.object.action"
+    <act:action name="aCreate" componentName="create.new.object.action" jsid="aCreateOriginal"
                 text="Создать" tooltip="Создать новый" imageClass="actionBar-create" order="100"
                 dirtySensitivity="true" permissions="Create"/>
     <act:action name="aSave" componentName="save.action" order="200" dirtySensitivity="false"

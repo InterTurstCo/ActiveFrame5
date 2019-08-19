@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.ListBoxState;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -66,7 +67,8 @@ public class ListBoxHandler extends ListWidgetHandler {
 
         ArrayList<ArrayList<Id>> allIds = context.getObjectIds();
         result.setSelectedIds(allIds);
-
+        result.setOriginalObjects(domainObjectsToDisplay);
         return result;
     }
+
 }

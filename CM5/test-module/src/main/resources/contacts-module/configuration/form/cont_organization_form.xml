@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules">
 
     <form name="cont_organization_form" domain-object-type="cont_organization" is-default="true">
         <markup>
@@ -114,7 +115,7 @@
                 <field-path/>
                 <text>Название</text>
             </label>
-            <text-box id="name_value">
+            <text-box id="name_value" translate-id="true">
                 <field-path value="name"/>
             </text-box>
 
@@ -131,16 +132,36 @@
                 <text>Ранг</text>
             </label>
 
-            <suggest-box id="rank_value">
+            <!--suggest-box id="rank_value" translate-id="true">
                 <field-path value="rank"/>
                 <collection-ref name="rank_collection"/>
+                <collection-extra-filters>
+                    <extra-filter name="byTitle" null-value-filter-name="nullValueFilter">
+                        <param name="0" widget-id="name_value" />
+                    </extra-filter>
+                </collection-extra-filters>
                 <drop-down-pattern value="{title}"/>
                 <selection-pattern value="{title}"/>
                 <input-text-filter name="byText"/>
                 <page-size>30</page-size>
                 <selection-style name="inline"/>
                 <single-choice value="true"/>
-            </suggest-box>
+            </suggest-box-->
+            <combo-box id="rank_value" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="name_value"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:filter>
+                        <rul:rule apply-expression="name_value.value!='' or name_value.value==''" field="Title" value="name_value.value"/>
+                    </rul:filter>
+                </rules>
+                <field-path value="rank"/>
+                <pattern value="{Title}"/>
+            </combo-box>
+
 
             <label id="parent_org_label">
                 <field-path/>

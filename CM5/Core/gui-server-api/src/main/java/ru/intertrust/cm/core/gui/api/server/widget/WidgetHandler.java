@@ -112,4 +112,5 @@ public abstract class WidgetHandler implements ComponentHandler {
         String parentType = context.getFormObjects().getParentNode(fieldPath).getType();
         return configurationService.getFieldConfig(parentType, fieldPath.getFieldName());
     }
+
 }

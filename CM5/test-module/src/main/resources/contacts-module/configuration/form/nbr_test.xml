@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <!-- Обьекты для выпадающего списка -->
+    <domain-object-type name="nbr_schema" initial-status="Active">
+        <fields>
+            <!-- Наименование -->
+            <string name="name" length="250"/>
+            <boolean name="is_system"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="nbr_schema_properties" initial-status="Active">
+        <fields>
+            <!-- Наименование -->
+            <string name="name" length="250" not-null="true"/>
+            <boolean name="is_system"/>
+            <boolean name="is_required"/>
+            <boolean name="is_array"/>
+            <reference name="schema" type="nbr_schema"/>
+
+            <boolean name="customer_format_supported"/>
+            <boolean name="not_save_in_document"/>
+
+            <string name="field" length="250"/>
+            <string name="field_id" length="250"/>
+            <string name="field_open_name" length="250"/>
+            <string name="field_access_subject" length="250"/>
+            <string name="field_access_auditor" length="250"/>
+
+            <string name="onopen_calculated_value" length="250"/>
+            <string name="saved_value" length="250"/>
+        </fields>
+    </domain-object-type>
+
+
+
+</configuration>

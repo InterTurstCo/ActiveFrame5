@@ -46,6 +46,31 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         return new LinkedDomainObjectHyperlinkWidget();
     }
 
+    @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
     public void setCurrentState(WidgetState currentState) {
         LinkedDomainObjectHyperlinkState state = (LinkedDomainObjectHyperlinkState) currentState;
         config = ((LinkedDomainObjectHyperlinkState) currentState).getWidgetConfig();
@@ -55,6 +80,11 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         HyperlinkNoneEditablePanel panel = (HyperlinkNoneEditablePanel) impl;
         panel.displayHyperlinks(listValues, WidgetUtil.shouldDrawTooltipButton(state));
 
+    }
+
+    @Override
+    public Object getValue() {
+        return null;
     }
 
     @Override

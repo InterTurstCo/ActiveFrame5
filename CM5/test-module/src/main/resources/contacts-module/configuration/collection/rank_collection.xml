@@ -24,7 +24,7 @@
         <filter name="byTitle">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    lower(r.title) like lower({0})
+                    lower(r.title) like lower('%'||{0}||'%')
                 ]]>
             </criteria>
         </filter>
@@ -46,6 +46,13 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     lower(r.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="nullValueFilter">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    r.title is not null
                 ]]>
             </criteria>
         </filter>

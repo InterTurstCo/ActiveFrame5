@@ -20,10 +20,40 @@ public class CheckBoxWidget extends BaseWidget {
         return new CheckBoxWidget();
     }
 
+    @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        ((CheckBox)impl).setValue(false);
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
     public void setCurrentState(WidgetState currentState) {
         CheckBoxState checkBoxState = (CheckBoxState) currentState;
         ((CheckBox)impl).setValue(checkBoxState.isSelected());
 
+    }
+
+    @Override
+    public Object getValue() {
+        return ((CheckBoxState)getCurrentState()).isSelected();
     }
 
     @Override

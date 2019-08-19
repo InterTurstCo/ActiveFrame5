@@ -22,6 +22,31 @@ public class AttachmentViewerWidget extends BaseWidget implements ShowAttachment
     private Panel panel;
 
     @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
+    @Override
     public void setCurrentState(WidgetState currentState) {
         widgetState = (AttachmentViewerState) currentState;
         if (widgetState.isCommonUsage())
@@ -31,6 +56,11 @@ public class AttachmentViewerWidget extends BaseWidget implements ShowAttachment
             panel.add(new HTML("<embed src='" + com.google.gwt.core.client.GWT.getHostPageBaseURL()
                     + widgetState.getUrl() + "' width='" + widgetState.getCurrentWidth()
                     + "' height='" + widgetState.getCurrentHeight() + "'></embed>"));
+    }
+
+    @Override
+    public Object getValue() {
+        return null;
     }
 
     @Override

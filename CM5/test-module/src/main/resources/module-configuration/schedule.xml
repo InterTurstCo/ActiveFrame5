@@ -154,15 +154,21 @@
             <text-box id="name">
                 <field-path value="name"/>
             </text-box>
-            <enumeration-box id="class">
+            <enumeration-box id="class" translate-id="true">
                 <field-path value="task_class"/>
                 <map-provider component="ScheduledTaskEnumerator"/>
             </enumeration-box>
-            <check-box id="active">
+            <check-box id="active" translate-id="true">
                 <field-path value="active"/>
             </check-box>
 
-            <text-box id="year">
+            <text-box id="year" translate-id="true">
+                <events>
+                    <subscriber>
+                        <subscribed to-id="active" type="onValueChanged"/>
+                        <subscribed to-id="class" type="onValueChanged"/>
+                    </subscriber>
+                </events>
                 <field-path value="year">
                     <default-value>
                         <field value="*"/>

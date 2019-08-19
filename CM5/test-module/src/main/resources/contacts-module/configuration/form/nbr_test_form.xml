@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:act="https://cm5.intertrust.ru/config/action" xmlns:rul="https://cm5.intertrust.ru/config/rules">
+
+    <form name="nbr_schema_properties_form" domain-object-type="nbr_schema_properties" is-default="true">
+
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td><widget id="header"/></td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Основная информация" >
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="lbName"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbName"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" h-align="left">
+                                        <widget id="chbSystem"/>
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" h-align="left">
+                                        <widget id="chbRequired"/>
+                                    </td>
+
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" h-align="left">
+                                        <widget id="chbArray"/>
+                                    </td>
+
+                                </tr>
+
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbSchema"/>
+                                    </td>
+                                    <td>
+                                        <widget id="cbSchema"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" h-align="left">
+                                        <widget id="lbValue"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" h-align="left">
+                                        <widget id="chbСustomerFormat"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td colspan="2" h-align="left">
+                                        <widget id="chbNotSave"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbField"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbField"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbFieldId"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbFieldId"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbOpenName"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbOpenName"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbSubject"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbSubject"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbAuditor"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbAuditor"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbCalculated"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbCalculated"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbSaved"/>
+                                    </td>
+                                    <td>
+                                        <widget id="tbSaved"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Тестовая экранная форма «Свойство схемы» для НР.
+                    Поля «Поле», «Поле для id», «Поле для открытого имени», «Поле доступа для субъекта и замещающих», «Поле доступа для аудиторов субъекта»
+                    должны отображаться только при установленном признаке «Поддерживается пользовательский формат хранения данных».
+                    Если признак не установлен, эти поля не имеют смысла.
+
+                    Причем поля «Поле для id», «Поле для открытого имени», «Поле доступа для субъекта и замещающих», «Поле доступа для аудиторов субъекта»
+                    кроме того должны отображаться только для Свойств схем с типом «SOBeard»,
+                    для других схем эти поля не нужны, и их отображение на форме только усложняет настройку.
+                    Также производится фильтрация списка схем в зависимости от признака Системное поле или нет.
+
+                </text>
+            </label>
+            <label id="lbName">
+                <text>Название</text>
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="tbName"/>
+            </label>
+            <text-box id="tbName">
+                <field-path value="name"/>
+            </text-box>
+
+            <check-box id="chbSystem" translate-id="true" text="Системное">
+                <field-path value="is_system"/>
+            </check-box>
+
+            <check-box id="chbRequired" translate-id="true" text="Обязательное">
+                <field-path value="is_required"/>
+            </check-box>
+
+            <check-box id="chbArray" translate-id="true" text="Массив">
+                <field-path value="is_array"/>
+            </check-box>
+
+            <label id="lbSchema">
+                <text>Схема</text>
+                <force-required-asterisk value="true"/>
+                <relates-to widget-id="tbName"/>
+            </label>
+
+            <combo-box id="cbSchema" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbSystem"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:filter>
+                        <rul:rule field="is_system" value="chbSystem.value"/>
+                    </rul:filter>
+                </rules>
+                <field-path value="schema"/>
+                <pattern value="{name}"/>
+            </combo-box>
+
+            <label id="lbValue">
+                <text>Значение</text>
+            </label>
+
+            <check-box id="chbСustomerFormat" translate-id="true" text="Поддерживается пользовательский формат хранения данных">
+                <field-path value="customer_format_supported"/>
+            </check-box>
+
+            <check-box id="chbNotSave" translate-id="true" text="Не сохранять в документе">
+                <field-path value="not_save_in_document"/>
+            </check-box>
+
+
+            <label id="lbField" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true"/>
+                    </rul:hide>
+                </rules>
+                <text>Поле</text>
+            </label>
+            <text-box id="tbField" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true"/>
+                    </rul:hide>
+                </rules>
+                <field-path value="field"/>
+            </text-box>
+
+            <label id="lbFieldId" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <text>Поле для Id</text>
+            </label>
+            <text-box id="tbFieldId" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <field-path value="field_id"/>
+            </text-box>
+
+
+            <label id="lbOpenName" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <text>Поле для открытого имени</text>
+            </label>
+            <text-box id="tbOpenName" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <field-path value="field_open_name"/>
+            </text-box>
+
+
+            <label id="lbSubject" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <text>Поле доступа для субъекта и замещающих</text>
+            </label>
+            <text-box id="tbSubject" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <field-path value="field_access_subject"/>
+            </text-box>
+
+            <label id="lbAuditor" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <text>Поле доступа для аудиторов субъекта</text>
+            </label>
+            <text-box id="tbAuditor" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="cbSchema"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="chbСustomerFormat.value!=true or cbSchema.value!='SOBeard'"/>
+                    </rul:hide>
+                </rules>
+                <field-path value="field_access_auditor"/>
+            </text-box>
+
+            <label id="lbCalculated">
+                <text>Значение, вычисляемое при открытии</text>
+            </label>
+            <text-box id="tbCalculated" >
+                <field-path value="onopen_calculated_value"/>
+            </text-box>
+
+            <label id="lbSaved">
+                <text>Сохраняемое значение</text>
+            </label>
+            <text-box id="tbSaved" >
+                <field-path value="saved_value"/>
+            </text-box>
+        </widget-config>
+    </form>
+</configuration>

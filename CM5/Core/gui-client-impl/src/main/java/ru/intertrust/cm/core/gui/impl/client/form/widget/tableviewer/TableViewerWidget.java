@@ -89,6 +89,31 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private boolean stretch = false;
 
     @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
+    @Override
     public void setCurrentState(WidgetState currentState) {
         state = (TableViewerState) currentState;
 
@@ -108,6 +133,11 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             }
         }
 
+    }
+
+    @Override
+    public Object getValue() {
+        return null;
     }
 
     @Override

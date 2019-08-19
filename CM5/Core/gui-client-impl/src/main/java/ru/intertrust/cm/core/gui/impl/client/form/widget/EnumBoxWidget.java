@@ -29,6 +29,31 @@ public class EnumBoxWidget extends BaseWidget  {
     private Map<String, Value> displayTextToValue;
 
     @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
+    @Override
     public void setCurrentState(WidgetState currentState) {
         EnumBoxState enumBoxState = (EnumBoxState)currentState;
         displayTextToValue = enumBoxState.getDisplayTextToValue();

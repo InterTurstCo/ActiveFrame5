@@ -14,6 +14,12 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     private static final String MAX_DEFAULT_TOOLTIP_WIDTH = "400px";
     private static final String MAX_DEFAULT_TOOLTIP_HEIGHT = "300px";
 
+    @Element(name = "events",required = false)
+    EventsTypeConfig eventsTypeConfig;
+
+    @Element(name = "rules",required = false)
+    RulesTypeConfig rulesTypeConfig;
+
     @NotNullLogicalValidation
     @Attribute(name = "id", required = false)
     protected String id;
@@ -27,6 +33,8 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     protected String maxTooltipHeight;
     @Attribute(name = "persist", required = false)
     protected Boolean persist;
+    @Attribute(name = "translate-id", required = false)
+    protected Boolean translateId;
 
     //TODO: "questionlist","solutionslist" should be removed after hierarchywidget implementation		
     @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer", "coordination", "questionlist", "solutionslist", "hierarchywidget", "cases-widget","list-cell","editable-table-browser"})
@@ -94,6 +102,30 @@ public abstract class WidgetConfig implements IdentifiedConfig {
         this.maxTooltipHeight = maxTooltipHeight;
     }
 
+    public Boolean getTranslateId() {
+        return  translateId == null ? false : translateId;
+    }
+
+    public void setTranslateId(Boolean translateId) {
+        this.translateId = translateId;
+    }
+
+    public EventsTypeConfig getEventsTypeConfig() {
+        return eventsTypeConfig;
+    }
+
+    public void setEventsTypeConfig(EventsTypeConfig eventsTypeConfig) {
+        this.eventsTypeConfig = eventsTypeConfig;
+    }
+
+    public RulesTypeConfig getRulesTypeConfig() {
+        return rulesTypeConfig;
+    }
+
+    public void setRulesTypeConfig(RulesTypeConfig rulesTypeConfig) {
+        this.rulesTypeConfig = rulesTypeConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -124,6 +156,15 @@ public abstract class WidgetConfig implements IdentifiedConfig {
             return false;
         }
         if (persist != null ? !persist.equals(that.persist) : that.persist != null) {
+            return false;
+        }
+        if (translateId != null ? !translateId.equals(that.translateId) : that.translateId != null) {
+            return false;
+        }
+        if (eventsTypeConfig != null ? !eventsTypeConfig.equals(that.eventsTypeConfig) : that.eventsTypeConfig != null) {
+            return false;
+        }
+        if (rulesTypeConfig != null ? !rulesTypeConfig.equals(that.rulesTypeConfig) : that.rulesTypeConfig != null) {
             return false;
         }
         return true;

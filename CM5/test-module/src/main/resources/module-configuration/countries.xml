@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:act="https://cm5.intertrust.ru/config/action">
+               xmlns:act="https://cm5.intertrust.ru/config/action" xmlns:evt="https://cm5.intertrust.ru/config/event">
     <domain-object-type name="SO_Beard">
 
         <fields>
@@ -231,7 +231,7 @@
     <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
         <act:tool-bar useDefault="true">
 
-            <act:action-ref name-ref="aCreate" text="Создать город">
+            <act:action-ref name-ref="aCreate" text="Создать город" jsid="createCity">
                 <act:action-params>
                     <act:action-param name="create.object.type" value="city"/>
                 </act:action-params>
