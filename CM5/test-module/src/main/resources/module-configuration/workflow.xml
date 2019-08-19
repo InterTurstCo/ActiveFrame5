@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:act="https://cm5.intertrust.ru/config/action">
+               xmlns:act="https://cm5.intertrust.ru/config/action"
+               xmlns:evt="https://cm5.intertrust.ru/config/event"
+>
 
     <collection name="Tasks" idField="mainattachment">
         <prototype>
@@ -210,7 +212,8 @@
                 <field-path/>
                 <text>Возвращать при первой отрицательной визе:</text>
             </label>
-            <text-box id="ReturnOnReject">
+            <text-box id="ReturnOnReject" translate-id="true">
+
                 <field-path value="ReturnOnReject"/>
             </text-box>
 
@@ -222,7 +225,12 @@
                      value="Negotiation_Card^Parent_Document.Negotiator" />
                  <pattern value="{Login}" />
              </list-box>-->
-            <suggest-box id="4">
+            <suggest-box id="4" translate-id="true">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="ReturnOnReject"/>
+                    </evt:subscriber>
+                </events>
                 <field-path value="Negotiation_Card^Parent_Document.Negotiator"/>
                 <collection-ref name="Persons"/>
                 <drop-down-pattern value="{login} {firstname}"/>

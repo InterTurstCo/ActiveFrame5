@@ -4,7 +4,7 @@
     <name>test-sed</name>
     <description>Тестовый модуль системы электронного документооборота</description>
     <depends>
-        <depend>nbr-base</depend>
+        <depend>core</depend>
     </depends>
     <extension-points-packages>
         <extension-points-package>ru/intertrust/cm/test</extension-points-package>
@@ -111,8 +111,11 @@
         <configuration-path>module-configuration/url-config.xml</configuration-path>
         <configuration-path>module-configuration/atst_inherit.xml</configuration-path>
 
-        <!-- NBR Base -->
-        <configuration-path>module-configuration/nbr-base-navigation.xml</configuration-path>
+        <!-- Обьекты и формы для тестирования динамического поведения виджетов -->
+        <configuration-path>contacts-module/configuration/form/nbr_test.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/nbr_test_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/nbr_test_collection.xml</configuration-path>
+
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">
@@ -175,6 +178,8 @@
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-rvz.csv</import-file>
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-org-addresses.csv</import-file>
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-pos-appointments.csv</import-file>
+
+        <import-file>importdata/nbr_schema.csv</import-file>
     </import-files>
 
     <import-reports>

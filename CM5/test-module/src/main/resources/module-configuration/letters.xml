@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action"
+               xmlns:rul="https://cm5.intertrust.ru/config/rules" xmlns:evt="https://cm5.intertrust.ru/config/event">
     <domain-object-type name="letter" initial-status="Active">
         <fields>
             <string name="subject" length="128"/>
@@ -1395,9 +1397,12 @@
                 <text>Статус:</text>
             </label>
             <suggest-box id="status" read-only="true">
+
+
                 <field-path value="status"/>
 
                 <collection-ref name="Statuses"/>
+
                 <selection-filters row-limit="1"></selection-filters>
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name}"/>
@@ -1421,11 +1426,12 @@
                     <sort-criterion field="name" order="asc"/>
                 </selection-sort-criteria>
 
+
             </suggest-box>
             <label id="description_label">
                 <text>Описание:</text>
             </label>
-            <text-box id="description">
+            <text-box id="description" translate-id="true">
                 <field-path value="description"/>
             </text-box>
             <label id="boss_label">

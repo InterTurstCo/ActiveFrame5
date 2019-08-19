@@ -1,12 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration
             xmlns="https://cm5.intertrust.ru/config"
-            xmlns:act="https://cm5.intertrust.ru/config/action"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:act="https://cm5.intertrust.ru/config/action">
 
+    <collection name="allSchedule" idField="id">
+        <prototype>
+            SELECT job.id, job.name, st.name as status_name,
+                   job.year, job.month, job.day_of_month, job.day_of_week, job.hour, job.minute,
+                   job.priority
+            FROM schedule job
+            JOIN status st ON job.status=st.id
+            WHERE 1=1
+        </prototype>
+    </collection>
 
+    <collection-view name="allSchedule" collection="allSchedule" is-default="true">
+        <display>
+            <column name="Наименование" type="string" field="name" min-width="250"></column>
+            <column name="Статус" type="string" field="status_name" min-width="80"></column>
+            <column name="Год" type="string" field="year" min-width="40"></column>
+            <column name="Мес" type="string" field="month" min-width="40"></column>
+            <column name="День" type="string" field="day_of_month" min-width="40"></column>
+            <column name="Д/н" type="string" field="day_of_week" min-width="40"></column>
+            <column name="Час" type="string" field="hour" min-width="40"></column>
+            <column name="Мин" type="string" field="minute" min-width="40"></column>
+            <column name="Приоритет" type="integer" field="priority" min-width="40"></column>
+        </display>
+    </collection-view>
 
-    <form name="scheduleForm" domain-object-type="schedule" is-default="false">
+    <form name="scheduleForm" domain-object-type="schedule" is-default="true">
+        <act:tool-bar useDefault="true">
+            <act:action-ref name-ref="aCreate" text="Создать город" jsid="createCity" merged="true">
+                <act:action-params>
+                    <act:action-param name="create.object.type" value="city"/>
+                </act:action-params>
+                <act:events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="active"/>
+                    </evt:subscriber>
+                </act:events>
+                <act:rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="some.expression"/>
+                    </rul:hide>
+                </act:rules>
+            </act:action-ref>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
@@ -151,7 +191,7 @@
                 <text>Параметры</text>
             </label>
 
-            <text-box id="name">
+            <text-box id="name" translate-id="true">
                 <field-path value="name"/>
             </text-box>
             <enumeration-box id="class" translate-id="true">
@@ -164,11 +204,16 @@
 
             <text-box id="year" translate-id="true">
                 <events>
-                    <subscriber>
-                        <subscribed to-id="active" type="onValueChanged"/>
-                        <subscribed to-id="class" type="onValueChanged"/>
-                    </subscriber>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="name"/>
+                        <evt:subscribed to-id="priority"/>
+                    </evt:subscriber>
                 </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="priority.value=='100' or  name.value=='Test' "/>
+                    </rul:hide>
+                </rules>
                 <field-path value="year">
                     <default-value>
                         <field value="*"/>
@@ -211,7 +256,7 @@
                 </field-path>
             </text-box>
 
-            <integer-box id="priority">
+            <integer-box id="priority" translate-id="true">
                 <field-path value="priority"/>
             </integer-box>
             <integer-box id="timeout">
@@ -227,18 +272,48 @@
                 <text></text>
             </label>
             
-            <table-viewer id="journal">
+            <table-viewer id="journal" translate-id="true">
                 <collection-ref name="schedule_execution_collection"/>
                 <collection-view-ref name="schedule_execution_collectiont_view"/>
                 <default-sort-criteria column-field="redy_date" order="desc"/>
                 <collection-extra-filters>
                     <extra-filter name="bySchedule">
-                        <param name="0" set-base-object="true"/>
+                        <param name="0" set-base-object="true" />
                     </extra-filter>
                 </collection-extra-filters>
             </table-viewer>                                        
 
         </widget-config>
+        <!--script-file url="/js/testscript.js"/-->
     </form>
+
+    <collection name="schedule_execution_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select ex.id, ex.redy_date, ex.complete_date, ex.result, ex.result_description, st.description as status_name
+                from schedule_execution ex
+                join status st on st.id=ex.status
+                where 1=1 ::where-clause
+            ]]>
+        </prototype>
+        <filter name="bySchedule">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ex.schedule = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="schedule_execution_collectiont_view" collection="schedule_execution_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" hidden="true"/>
+            <column field="redy_date" name="Старт" editable="false" type="datetime" date-pattern="dd.MM.yyyy HH:mm:ss" sortable="true"/>
+            <column field="complete_date" name="Финиш" editable="false" type="datetime" date-pattern="dd.MM.yyyy HH:mm:ss" sortable="true"/>
+            <column field="status_name" name="Статус" editable="false" type="string" sortable="true"/>
+            <column field="result" name="Код работы" type="string" editable="false" sortable="true"/>
+            <column field="result_description" name="Результат" type="string" editable="false" sortable="true" width="400pt"/>
+        </display>
+    </collection-view>
 
 </configuration>
