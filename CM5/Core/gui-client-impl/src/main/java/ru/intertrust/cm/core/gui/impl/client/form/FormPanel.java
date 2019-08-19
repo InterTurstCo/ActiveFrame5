@@ -243,6 +243,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     }
   }
 
+
   private IsWidget buildTabContent(TabConfig tabConfig) {
     FlowPanel panel = new FlowPanel();
 
@@ -385,28 +386,28 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
       }
       ++rowIndex;
     }
+    return table;
+  }
 
   private HasHorizontalAlignment.HorizontalAlignmentConstant getHorizontalAlignmentForCurrentCell(String cellAlignment) {
     HasHorizontalAlignment.HorizontalAlignmentConstant horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
     if (cellAlignment == null || cellAlignment.equals("left")) {
       horizontalAllignment = HasHorizontalAlignment.ALIGN_LEFT;
     }
-    return table;
-  }
     if (cellAlignment != null && cellAlignment.equals("right")) {
       horizontalAllignment = HasHorizontalAlignment.ALIGN_RIGHT;
     }
     if (cellAlignment != null && cellAlignment.equals("center")) {
       horizontalAllignment = HasHorizontalAlignment.ALIGN_CENTER;
     }
+    return horizontalAllignment;
+  }
 
   private HasVerticalAlignment.VerticalAlignmentConstant getVerticalAlignmentForCurrentCell(String cellAlignment) {
     HasVerticalAlignment.VerticalAlignmentConstant verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
     if (cellAlignment == null || cellAlignment.equals("middle")) {
       verticalAlligment = HasVerticalAlignment.ALIGN_MIDDLE;
     }
-    return horizontalAllignment;
-  }
     if (cellAlignment != null && cellAlignment.equals("top")) {
       verticalAlligment = HasVerticalAlignment.ALIGN_TOP;
     }
@@ -527,6 +528,8 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
       }
       return widgetIdsSet;
     }
+    return new HashSet<>();
+  }
 
     /**
      * Выделяет первую вкладку на панели формы, если они (вкладки) имеются.
@@ -536,7 +539,4 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
             bodyTabPanel.selectTab(DEFAULT_TAB);
         }
     }
-    return new HashSet<>();
-  }
-
 }

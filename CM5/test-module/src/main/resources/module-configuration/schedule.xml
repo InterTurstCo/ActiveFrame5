@@ -29,7 +29,7 @@
         </display>
     </collection-view>
 
-    <form name="scheduleForm" domain-object-type="schedule" is-default="true">
+    <form name="scheduleForm" domain-object-type="schedule" is-default="false">
         <act:tool-bar useDefault="true">
             <act:action-ref name-ref="aCreate" text="Создать город" jsid="createCity" merged="true">
                 <act:action-params>
@@ -273,8 +273,8 @@
             </label>
             
             <table-viewer id="journal" translate-id="true">
-                <collection-ref name="schedule_execution_collection"/>
-                <collection-view-ref name="schedule_execution_collectiont_view"/>
+                <collection-ref name="schedule_execution_collectionn"/>
+                <collection-view-ref name="schedule_execution_collectionnt_view"/>
                 <default-sort-criteria column-field="redy_date" order="desc"/>
                 <collection-extra-filters>
                     <extra-filter name="bySchedule">
@@ -287,7 +287,7 @@
         <!--script-file url="/js/testscript.js"/-->
     </form>
 
-    <collection name="schedule_execution_collection" idField="id">
+    <collection name="schedule_execution_collectionn" idField="id">
         <prototype>
             <![CDATA[
                 select ex.id, ex.redy_date, ex.complete_date, ex.result, ex.result_description, st.description as status_name
@@ -305,7 +305,7 @@
         </filter>
     </collection>
 
-    <collection-view name="schedule_execution_collectiont_view" collection="schedule_execution_collection" is-default="true">
+    <collection-view name="schedule_execution_collectionnt_view" collection="schedule_execution_collectionn" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false" hidden="true"/>
             <column field="redy_date" name="Старт" editable="false" type="datetime" date-pattern="dd.MM.yyyy HH:mm:ss" sortable="true"/>
