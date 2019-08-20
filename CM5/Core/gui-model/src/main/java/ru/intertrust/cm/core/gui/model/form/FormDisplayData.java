@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
@@ -19,6 +20,7 @@ public class FormDisplayData implements Dto {
     private ScriptFileConfig scriptFileConfig;
     private boolean debug;
     private String minWidth;
+    private DomainObject status;
 
     public FormDisplayData() {
     }
@@ -89,5 +91,13 @@ public class FormDisplayData implements Dto {
 
     public void setScriptFileConfig(ScriptFileConfig scriptFileConfig) {
         this.scriptFileConfig = scriptFileConfig;
+    }
+
+    public DomainObject getStatus() {
+        return status;
+    }
+
+    public void setStatus(DomainObject status) {
+        this.status = status;
     }
 }

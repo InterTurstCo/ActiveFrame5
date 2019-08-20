@@ -365,9 +365,29 @@
             </text-box>
 
             <label id="lbSaved">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="AnyEvent"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="form.document.status=='Active'"/>
+                    </rul:hide>
+                </rules>
                 <text>Сохраняемое значение</text>
             </label>
             <text-box id="tbSaved" >
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="AnyEvent"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:hide>
+                        <rul:rule apply-expression="form.document.status=='Active'"/>
+                    </rul:hide>
+                </rules>
                 <field-path value="saved_value"/>
             </text-box>
         </widget-config>
