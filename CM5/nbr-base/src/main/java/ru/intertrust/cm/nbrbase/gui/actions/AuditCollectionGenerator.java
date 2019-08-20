@@ -1,10 +1,6 @@
 package ru.intertrust.cm.nbrbase.gui.actions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -30,6 +26,8 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
     
     @Autowired
     private CollectionsService collectionsService;
+
+    private final Set<String> EXCLUDE_TYPES_SET = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("attachment")));
     
     @Override
     public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
@@ -138,7 +136,7 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
     }
 
     /**
-     * Метод возвращает все рутовые типы у которых включен аудит.
+     * Метод возвращает все рутовые типы у которых включен аудит, кроме набора исключений.
      * Аудит включен или непосредственно у рута или у наследника
      * @return
      */
@@ -147,9 +145,19 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
         
         Collection<DomainObjectTypeConfig> typeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
+
             // Проверяем включена ли глобальная настройка аудита
-            if (isAuditLogEnable(domainObjectTypeConfig) && !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
-                result.add(configurationExplorer.getDomainObjectRootType(domainObjectTypeConfig.getName()).toLowerCase());
+            final String domainObjectType = domainObjectTypeConfig.getName();
+
+            final boolean isAuditLogEnable = isAuditLogEnable(domainObjectTypeConfig);
+            final boolean isAuditLogType = configurationExplorer.isAuditLogType(domainObjectType);
+
+            if (isAuditLogEnable && !isAuditLogType) {
+                final String rootDomainObjectType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
+
+                if (!EXCLUDE_TYPES_SET.contains(rootDomainObjectType)) {
+                    result.add(rootDomainObjectType);
+                }
             }
         }
         return result;
