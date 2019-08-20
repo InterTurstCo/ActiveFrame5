@@ -182,12 +182,8 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
     
     @Override
     public int findCollectionCount(List<? extends Filter> filterValues) {
-        String query = generateCountQuery();
-        
-        // Применяем фильтр
-        
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query);
-        return collection.get(0).getLong("cnt").intValue();
+        // TODO Оптимизировать запрос
+        return findCollection(filterValues, null, 0, 0).size();
     }
 
     private String generateCountQuery() {
