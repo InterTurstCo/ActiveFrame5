@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules">
+<configuration xmlns="https://cm5.intertrust.ru/config">
 
     <form name="cont_organization_form" domain-object-type="cont_organization" is-default="true">
         <markup>
@@ -148,16 +147,6 @@
                 <single-choice value="true"/>
             </suggest-box-->
             <combo-box id="rank_value" translate-id="true">
-                <events>
-                    <evt:subscriber>
-                        <evt:subscribed to-id="name_value"/>
-                    </evt:subscriber>
-                </events>
-                <rules>
-                    <rul:filter>
-                        <rul:rule apply-expression="name_value.value!='' or name_value.value==''" field="Title" value="name_value.value"/>
-                    </rul:filter>
-                </rules>
                 <field-path value="rank"/>
                 <pattern value="{Title}"/>
             </combo-box>

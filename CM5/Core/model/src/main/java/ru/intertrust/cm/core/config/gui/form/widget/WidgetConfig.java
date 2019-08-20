@@ -161,12 +161,6 @@ public abstract class WidgetConfig implements IdentifiedConfig {
         if (translateId != null ? !translateId.equals(that.translateId) : that.translateId != null) {
             return false;
         }
-        if (eventsTypeConfig != null ? !eventsTypeConfig.equals(that.eventsTypeConfig) : that.eventsTypeConfig != null) {
-            return false;
-        }
-        if (rulesTypeConfig != null ? !rulesTypeConfig.equals(that.rulesTypeConfig) : that.rulesTypeConfig != null) {
-            return false;
-        }
         return true;
     }
 

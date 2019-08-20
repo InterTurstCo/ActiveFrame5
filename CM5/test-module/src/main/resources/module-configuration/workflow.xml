@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:act="https://cm5.intertrust.ru/config/action"
-               xmlns:evt="https://cm5.intertrust.ru/config/event"
->
+               xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <collection name="Tasks" idField="mainattachment">
         <prototype>
@@ -226,11 +224,6 @@
                  <pattern value="{Login}" />
              </list-box>-->
             <suggest-box id="4" translate-id="true">
-                <events>
-                    <evt:subscriber>
-                        <evt:subscribed to-id="ReturnOnReject"/>
-                    </evt:subscriber>
-                </events>
                 <field-path value="Negotiation_Card^Parent_Document.Negotiator"/>
                 <collection-ref name="Persons"/>
                 <drop-down-pattern value="{login} {firstname}"/>

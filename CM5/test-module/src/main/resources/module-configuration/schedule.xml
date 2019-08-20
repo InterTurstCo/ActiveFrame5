@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration
             xmlns="https://cm5.intertrust.ru/config"
-            xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <collection name="allSchedule" idField="id">
@@ -35,16 +34,6 @@
                 <act:action-params>
                     <act:action-param name="create.object.type" value="city"/>
                 </act:action-params>
-                <act:events>
-                    <evt:subscriber>
-                        <evt:subscribed to-id="active"/>
-                    </evt:subscriber>
-                </act:events>
-                <act:rules>
-                    <rul:hide>
-                        <rul:rule apply-expression="some.expression"/>
-                    </rul:hide>
-                </act:rules>
             </act:action-ref>
         </act:tool-bar>
         <markup>
@@ -203,17 +192,6 @@
             </check-box>
 
             <text-box id="year" translate-id="true">
-                <events>
-                    <evt:subscriber>
-                        <evt:subscribed to-id="name"/>
-                        <evt:subscribed to-id="priority"/>
-                    </evt:subscriber>
-                </events>
-                <rules>
-                    <rul:hide>
-                        <rul:rule apply-expression="priority.value=='100' or  name.value=='Test' "/>
-                    </rul:hide>
-                </rules>
                 <field-path value="year">
                     <default-value>
                         <field value="*"/>
@@ -284,7 +262,6 @@
             </table-viewer>                                        
 
         </widget-config>
-        <!--script-file url="/js/testscript.js"/-->
     </form>
 
     <collection name="schedule_execution_collectionn" idField="id">
