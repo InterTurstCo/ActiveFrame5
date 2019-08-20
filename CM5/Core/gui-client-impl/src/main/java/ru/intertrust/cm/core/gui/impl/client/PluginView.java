@@ -516,7 +516,7 @@ public abstract class PluginView implements IsWidget {
     @Override
     public void onEventReceived(WidgetBroadcastEvent e) {
       if ((getActionToolBar().hashCode()==e.getInitiatorToolBarHashCode()
-          && subscribedOn(e.getWidgetId())) || (itemConfig.getEventsTypeConfig() != null && e.getBroadcast())) {
+          && subscribedOn(e.getWidgetId()) && e.getWidgetId()!=null) || (itemConfig.getEventsTypeConfig() != null && e.getBroadcast())) {
         try {
           if (itemConfig.getRulesTypeConfig().getHideRulesTypeConfig() != null) {
             // Если правил сокрытия несколько то их суммарный результат должен быть true
