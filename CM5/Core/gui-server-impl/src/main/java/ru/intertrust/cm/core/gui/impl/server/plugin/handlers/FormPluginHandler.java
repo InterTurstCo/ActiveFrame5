@@ -65,7 +65,7 @@ public class FormPluginHandler extends ActivePluginHandler {
             formPluginConfig.getPluginState().setEditable(false);
         }
         FormPluginData pluginData = new FormPluginData();
-        if(domainObjectId!=null){
+        if(!configurationExplorer.isAuditLogType(rootDomainObjectType) && domainObjectId!=null){
             DomainObject rootObject = crudService.find(domainObjectId);
             if(rootObject.getStatus()!=null){
                 form.setStatus(crudService.find(rootObject.getStatus()));
