@@ -26,9 +26,11 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.FormPluginView;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
@@ -502,6 +504,19 @@ public final class GuiUtil {
                 }
             });
         }
+    }
+
+    /**
+     * Программно выделяет первую вкладку на панели формы, которая открывается при создании представления.
+     *
+     * @param source объект события создания представления ({@link ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent})
+     */
+    public static void selectFirstTab(PluginViewCreatedEvent source) {
+        FormPlugin sourceFormPlugin = (FormPlugin) source.getPlugin();
+        FormPluginView formPluginView = (FormPluginView) sourceFormPlugin.getView();
+
+        final FormPanel formPanel = (FormPanel) formPluginView.getViewWidget();
+        formPanel.selectFirstTab();
     }
 
 }

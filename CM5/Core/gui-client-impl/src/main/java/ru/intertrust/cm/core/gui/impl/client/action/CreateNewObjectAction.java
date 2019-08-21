@@ -8,11 +8,10 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.FormPluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
-import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -100,23 +99,10 @@ public class CreateNewObjectAction extends Action {
         PluginViewCreatedEventListener listener = new PluginViewCreatedEventListener() {
             @Override
             public void onViewCreation(PluginViewCreatedEvent source) {
-                selectFirstTab(source);
+                GuiUtil.selectFirstTab(source);
             }
         };
         formPlugin.addViewCreatedListener(listener);
-    }
-
-    /**
-     * Программно выделяет первую вкладку на панели формы, которая открывается после срабатывания экшена создания нового объекта
-     *
-     * @param source объект события создания представления ({@link ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent})
-     */
-    private void selectFirstTab(PluginViewCreatedEvent source) {
-        FormPlugin sourceFormPlugin = (FormPlugin) source.getPlugin();
-        FormPluginView formPluginView = (FormPluginView) sourceFormPlugin.getView();
-
-        final FormPanel formPanel = (FormPanel) formPluginView.getViewWidget();
-        formPanel.selectFirstTab();
     }
 
     /**
