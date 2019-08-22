@@ -28,38 +28,58 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
     private CollectionsService collectionsService;
 
     private final Set<String> EXCLUDE_TYPES_SET = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("attachment")));
-    
+
+    private final String BY_DATE_FILTER = "byDate";
+    private final String BY_OPERATOR_FILTER = "byOperator";
+    private final String BY_EVENT_NAME_FILTER = "byEventName";
+    private final String BY_DESCRIPTION_FILTER = "byDescription";
+
+    private final Set<String> COLLECTION_VIEW_FILTERS_SET = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(BY_DATE_FILTER, BY_OPERATOR_FILTER, BY_EVENT_NAME_FILTER, BY_DESCRIPTION_FILTER)));
+
     @Override
     public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
         String query = generateRowQuery();
         
         // Применяем фильтр
-        String where = "";
+        StringBuilder whereSb = new StringBuilder(" WHERE 1=1 ");
         int filterIndex = 0;
         
         List<Value> params = new ArrayList<Value>();
-        
+
         if (filters != null) {
             for (Filter filter : filters) {
-                if (where.isEmpty()) {
-                    where += " where ";
-                }else {
-                    where += " and ";
-                }
-                
-                if (filter.getFilter().equals("byDate")) {
-                    where += " updateddate between {" + filterIndex++ + "} and {" + filterIndex++ + "}";
-                    params.add(filter.getParameterMap().get(0).get(0));
-                    params.add(filter.getParameterMap().get(1).get(0));
-                }else if(filter.getFilter().equals("byOperator")) {
-                    where += " operator like {" + filterIndex++ + "}";
-                    params.add(filter.getParameterMap().get(0).get(0));
-                }else if(filter.getFilter().equals("byEventName")) {
-                    where += " eventname like {" + filterIndex++ + "}";
-                    params.add(filter.getParameterMap().get(0).get(0));
-                }else if(filter.getFilter().equals("byDescription")) {
-                    where += " description like {" + filterIndex++ + "}";
-                    params.add(filter.getParameterMap().get(0).get(0));
+                final String filterName = filter.getFilter();
+                whereSb.append(" AND ");
+
+                if (COLLECTION_VIEW_FILTERS_SET.contains(filterName)) {
+                    if (filterName.equals(BY_DATE_FILTER)) {
+                        whereSb.append(" updateddate BETWEEN {");
+                        whereSb.append(filterIndex++);
+                        whereSb.append("} AND {");
+                        whereSb.append(filterIndex++);
+                        whereSb.append("}");
+
+                        params.add(filter.getParameterMap().get(0).get(0));
+                        params.add(filter.getParameterMap().get(1).get(0));
+                    } else if (filterName.equals(BY_OPERATOR_FILTER)) {
+                        whereSb.append(" LOWER(operator) LIKE LOWER({");
+                        whereSb.append(filterIndex++);
+                        whereSb.append("})");
+
+                        params.add(filter.getParameterMap().get(0).get(0));
+                    } else if (filterName.equals(BY_EVENT_NAME_FILTER)) {
+                        whereSb.append(" LOWER(eventname) LIKE LOWER({");
+                        whereSb.append(filterIndex++);
+                        whereSb.append("})");
+
+                        params.add(filter.getParameterMap().get(0).get(0));
+                    } else if (filterName.equals(BY_DESCRIPTION_FILTER)) {
+                        whereSb.append(" LOWER(description) LIKE LOWER({");
+                        whereSb.append(filterIndex++);
+                        whereSb.append("})");
+
+                        params.add(filter.getParameterMap().get(0).get(0));
+                    }
                 }
             }
         }
@@ -77,7 +97,8 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
                         (sortCriterion.getOrder() == null || sortCriterion.getOrder().equals(Order.DESCENDING) ? " desc " : " asc ");
             }
         }
-        
+
+        final String where = whereSb.toString();
         return collectionsService.findCollectionByQuery(query + where + sort, params, offset, limit);
     }
 
