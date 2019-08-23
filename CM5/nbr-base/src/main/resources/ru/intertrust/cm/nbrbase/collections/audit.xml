@@ -8,8 +8,6 @@
         <filter name="byOperator"/>
         <filter name="byDescription"/>
         <filter name="byDate"/>
-        <!-- Фильтр по доменным объектам, по которым будут отобраны данные аудита в коллекции, остальные будут проигнорированы (кроме логин/выход) -->
-        <filter name="includeSpecificAuditDomainObjectsOnly"/>
     </collection>
 
     <collection-view name="audit_journal_view" collection="audit_journal" is-default="true" replace="runtime">

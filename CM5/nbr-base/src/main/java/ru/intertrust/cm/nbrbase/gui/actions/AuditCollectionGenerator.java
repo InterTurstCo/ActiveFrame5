@@ -1,7 +1,6 @@
 package ru.intertrust.cm.nbrbase.gui.actions;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
@@ -10,7 +9,6 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.api.component.ServerComponent;
-import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 
 import java.util.*;
 
@@ -19,7 +17,7 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-    
+
     @Autowired
     private CollectionsService collectionsService;
 
@@ -30,20 +28,17 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
     private final String BY_EVENT_NAME_FILTER = "byEventName";
     private final String BY_DESCRIPTION_FILTER = "byDescription";
 
-    // Фильтр по доменным объектам, по которым будут отобраны данные аудита в коллекции, остальные будут проигнорированы (кроме логин/выход)
-    private final String INCLUDE_SPECIFIC_AUDIT_DOMAIN_OBJECTS_ONLY_FILTER = "includeSpecificAuditDomainObjectsOnly";
-
     // набор фильтров с представления, которые может применить пользователь
     private final Set<String> COLLECTION_VIEW_FILTERS_SET = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(BY_DATE_FILTER, BY_OPERATOR_FILTER, BY_EVENT_NAME_FILTER, BY_DESCRIPTION_FILTER)));
 
     @Override
     public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
         String query = generateRowQuery(filters);
-        
+
         // Применяем фильтр
         StringBuilder whereSb = new StringBuilder(" WHERE 1=1 ");
         int filterIndex = 0;
-        
+
         List<Value> params = new ArrayList<Value>();
 
         if (filters != null) {
@@ -89,88 +84,100 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
                 }
             }
         }
-        
+
         // Применяем сортировку
-        String sort = "";
+        StringBuilder sortSb = new StringBuilder();
         if (sortOrder != null) {
             for (SortCriterion sortCriterion : sortOrder) {
-                if (sort.isEmpty()) {
-                    sort += " order by ";
-                }else {
-                    sort += " , ";
+                if (sortSb.length() == 0) {
+                    sortSb.append(" ORDER BY ");
+                } else {
+                    sortSb.append(" , ");
                 }
-                sort += sortCriterion.getField() + 
-                        (sortCriterion.getOrder() == null || sortCriterion.getOrder().equals(Order.DESCENDING) ? " desc " : " asc ");
+                sortSb.append(sortCriterion.getField()).append(sortCriterion.getOrder() == null || sortCriterion.getOrder().equals(Order.DESCENDING) ? " DESC " : " ASC ");
             }
         }
 
         final String where = whereSb.toString();
+        final String sort = sortSb.toString();
         return collectionsService.findCollectionByQuery(query + where + sort, params, offset, limit);
     }
 
     private String generateRowQuery(List<? extends Filter> filters) {
-        String result = "SELECT\r\n" + 
-                "  q.\"id\" AS id,\r\n" + 
-                "  q.\"eventname\" AS EventName,\r\n" + 
-                "  q.\"description\" as Description,\r\n" + 
-                "  q.\"updateddate\" as UpdatedDate,\r\n" + 
-                "  q.\"operator\" as Operator\r\n" + 
-                "FROM(\r\n" + 
-                "SELECT\r\n" + 
-                "  log1.\"id\"                                                                                                AS id,\r\n" + 
-                "  log1.\"updated_date\"                                                                                      AS UpdatedDate,\r\n" + 
-                "  (CASE WHEN log1.\"person\" IS NOT NULL THEN\r\n" + 
-                "    pr2.\"login\" || ' (' || trim(COALESCE(pr2.\"lastname\", '') || ' ' || COALESCE(pr2.\"firstname\", '')) ||')'\r\n" + 
-                "   WHEN pr1.\"login\" is NOT NULL THEN pr1.\"login\" || ' (' || trim(COALESCE(pr1.\"lastname\", '') || ' ' || COALESCE(pr1.\"firstname\", '')) ||')'\r\n" + 
-                "   else log1.\"user_id\" END)                                                                                              AS Operator,\r\n" + 
-                "  log1.\"event_type\"                                                                                        AS EventName,\r\n" + 
-                "  (CASE WHEN log1.\"success\" = 1 and (log1.\"person\" IS NOT NULL OR log1.\"event_type\" = 'LOGOUT')\r\n" + 
-                "    THEN 'Успешно'\r\n" + 
-                "   ELSE 'Не успешно' END) || COALESCE(' (ip: ' || log1.\"client_ip_address\" || ')','')                      AS Description\r\n" + 
-                "FROM\r\n" + 
-                "  user_event_log log1\r\n" + 
-                "  LEFT JOIN person pr2 ON pr2.\"id\" = log1.\"person\"\r\n" + 
-                "  LEFT JOIN person pr1 on pr1.\"login\" = log1.\"user_id\"\r\n";
-        
+        StringBuilder resultSb = new StringBuilder();
+        resultSb.append("SELECT\r\n");
+        resultSb.append("  q.\"id\" AS id,\r\n");
+        resultSb.append("  q.\"eventname\" AS EventName,\r\n");
+        resultSb.append("  q.\"description\" AS Description,\r\n");
+        resultSb.append("  q.\"updateddate\" AS UpdatedDate,\r\n");
+        resultSb.append("  q.\"operator\" AS Operator\r\n");
+        resultSb.append("FROM(\r\n");
+        resultSb.append("SELECT\r\n");
+        resultSb.append("  log1.\"id\"                                                                                                AS id,\r\n");
+        resultSb.append("  log1.\"updated_date\"                                                                                      AS UpdatedDate,\r\n");
+        resultSb.append("  (CASE WHEN log1.\"person\" IS NOT NULL THEN\r\n");
+        resultSb.append("    pr2.\"login\" || ' (' || trim(COALESCE(pr2.\"lastname\", '') || ' ' || COALESCE(pr2.\"firstname\", '')) ||')'\r\n");
+        resultSb.append("   WHEN pr1.\"login\" is NOT NULL THEN pr1.\"login\" || ' (' || trim(COALESCE(pr1.\"lastname\", '') || ' ' || COALESCE(pr1.\"firstname\", '')) ||')'\r\n");
+        resultSb.append("   else log1.\"user_id\" END)                                                                                              AS Operator,\r\n");
+        resultSb.append("  log1.\"event_type\"                                                                                        AS EventName,\r\n");
+        resultSb.append("  (CASE WHEN log1.\"success\" = 1 AND (log1.\"person\" IS NOT NULL OR log1.\"event_type\" = 'LOGOUT')\r\n");
+        resultSb.append("    THEN 'Успешно'\r\n");
+        resultSb.append("   ELSE 'Не успешно' END) || COALESCE(' (ip: ' || log1.\"client_ip_address\" || ')','')                      AS Description\r\n");
+        resultSb.append("FROM\r\n");
+        resultSb.append("  user_event_log log1\r\n");
+        resultSb.append("  LEFT JOIN person pr2 ON pr2.\"id\" = log1.\"person\"\r\n");
+        resultSb.append("  LEFT JOIN person pr1 ON pr1.\"login\" = log1.\"user_id\"\r\n");
+
         // Получаем все типы, у которых включен аудит
         Set<String> typeWithAudit = getAllTypesWithAudit(filters);
-        
+
         // Генерим UNION
         for (String typeName : typeWithAudit) {
-            result += "union\r\n";
-            result += "  SELECT\r\n" + 
-                    "    tCred.\"id\"                                                                                                 AS id,\r\n" + 
-                    "    tCred.\"updated_date\"                                                                                       AS UpdatedDate,\r\n" + 
-                    "    pr2.\"login\" || ' (' || trim(COALESCE(pr2.\"lastname\", '') || ' ' || COALESCE(pr2.\"firstname\", '')) ||\r\n" + 
-                    "    ')'                                                                                                      AS Operator,\r\n" + 
-                    "    (CASE WHEN tCred.\"operation\" = 1\r\n" + 
-                    "      THEN 'Создание'\r\n" + 
-                    "     WHEN tCred.\"operation\" = 2\r\n" + 
-                    "       THEN 'Изменение'\r\n" + 
-                    "     WHEN tCred.\"operation\" = 3\r\n" + 
-                    "       THEN 'Удаление'\r\n" + 
-                    "     END)                                                                                                    AS EventName,\r\n" + 
-                    "     dt.name                                                      AS Description\r\n" + 
-                    "  FROM\r\n" + 
-                    "    " + typeName + "_al tCred\r\n" + 
-                    "    LEFT JOIN person pr2 ON pr2.\"id\" = tCred.\"updated_by\"\r\n "
-                    + "join domain_object_type_id dt on dt.id = tCred.domain_object_id_type\r\n";
+            resultSb.append("UNION\r\n");
+            resultSb.append("  SELECT\r\n");
+            resultSb.append("    tCred.\"id\"                                                                                                 AS id,\r\n");
+            resultSb.append("    tCred.\"updated_date\"                                                                                       AS UpdatedDate,\r\n");
+            resultSb.append("    pr2.\"login\" || ' (' || trim(COALESCE(pr2.\"lastname\", '') || ' ' || COALESCE(pr2.\"firstname\", '')) ||\r\n");
+            resultSb.append("    ')'                                                                                                          AS Operator,\r\n");
+            resultSb.append("    (CASE WHEN tCred.\"operation\" = 1\r\n");
+            resultSb.append("      THEN 'Создание'\r\n");
+            resultSb.append("     WHEN tCred.\"operation\" = 2\r\n");
+            resultSb.append("       THEN 'Изменение'\r\n");
+            resultSb.append("     WHEN tCred.\"operation\" = 3\r\n");
+            resultSb.append("       THEN 'Удаление'\r\n");
+            resultSb.append("     END)                                                                                                         AS EventName,\r\n");
+            resultSb.append(getDescriptionQueryPart(typeName));
+            resultSb.append("  FROM\r\n");
+            resultSb.append("    ");
+            resultSb.append(typeName);
+            resultSb.append("_al tCred\r\n");
+            resultSb.append("    LEFT JOIN person pr2 ON pr2.\"id\" = tCred.\"updated_by\"\r\n ");
+            resultSb.append("    INNER JOIN domain_object_type_id dt ON dt.id = tCred.domain_object_id_type\r\n");
+            resultSb.append(getJoinQueryPart(typeName));
         }
-        
-        result +=") q";
-        
+        resultSb.append(") q");
+
+        final String result = resultSb.toString();
         return result;
+    }
+
+    protected String getDescriptionQueryPart(String typeName) {
+        return " dt.name AS Description\r\n";
+    }
+
+    protected String getJoinQueryPart(String typeName) {
+        return "";
     }
 
     /**
      * Метод возвращает все рутовые типы у которых включен аудит, кроме набора исключений.
      * Аудит включен или непосредственно у рута или у наследника
+     *
      * @return
      */
-    private Set<String> getAllTypesWithAudit(List<? extends Filter> filters) {
-        final Set<String> includeSpecificAuditDOsSet = getIncludeSpecificDosSet(filters);
+    protected Set<String> getAllTypesWithAudit(List<? extends Filter> filters) {
         Set<String> result = new HashSet<String>();
-        
+
         Collection<DomainObjectTypeConfig> typeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig domainObjectTypeConfig : typeConfigs) {
 
@@ -185,16 +192,7 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
 
                 // исключаем некоторые типы без аудита
                 if (!EXCLUDE_TYPES_SET.contains(rootDomainObjectType)) {
-
-                    // включаем для аудита только типы, указанные в фильтре, если он был задействован
-                    if (!CollectionUtils.isEmpty(includeSpecificAuditDOsSet)) {
-                        if (includeSpecificAuditDOsSet.contains(rootDomainObjectType)) {
-                            result.add(rootDomainObjectType);
-                        }
-                        // иначе добавляем сразу
-                    } else {
-                        result.add(rootDomainObjectType);
-                    }
+                    result.add(rootDomainObjectType);
                 }
             }
         }
@@ -202,42 +200,8 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
     }
 
     /**
-     * Возвращает список специфичных типов, по которым нужно показать данные аудита в коллекции.<br>
-     * Список берется из фильтра 'includeSpecificAuditDomainObjectsOnly', если он был задействован.
-     *
-     * @param filters список всех фильтров
-     * @return регистронезависимый набор имен доменных объектов для аудита из фильтра,<br>
-     * либо null, если фильтр не был применен или список параметров в нем пуст.
-     */
-    private Set<String> getIncludeSpecificDosSet(List<? extends Filter> filters) {
-        final Filter includeSpecificAuditDomainObjectsOnlyFilter = FilterBuilderUtil.getFilterByName(INCLUDE_SPECIFIC_AUDIT_DOMAIN_OBJECTS_ONLY_FILTER, filters);
-        if (includeSpecificAuditDomainObjectsOnlyFilter != null) {
-
-            final HashMap<Integer, List<Value>> parameterMap = includeSpecificAuditDomainObjectsOnlyFilter.getParameterMap();
-            final Collection<List<Value>> valuesListsCollection = parameterMap.values();
-
-            final int parametersCount = valuesListsCollection.size();
-            if (parametersCount > 0) {
-
-                // делаем набор регистронезависимым
-                Set<String> parametersSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
-
-                valuesListsCollection.forEach(valuesList -> {
-                    final StringValue stringValue = (StringValue) valuesList.get(0);
-                    final String includeDoNameFilterValue = stringValue.get();
-
-                    // обрезаем символы '%' в параметрах, добавляемые автоматически в строковые значения фильтра
-                    final String includeDoName = FilterBuilderUtil.cutPercentsCharacters(includeDoNameFilterValue);
-                    parametersSet.add(includeDoName);
-                });
-                return parametersSet;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Проверка включен ли аудит для типа
+     *
      * @param domainObjectTypeConfig
      * @return
      */
@@ -259,8 +223,8 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
             }
         }
         return result;
-    }    
-    
+    }
+
     @Override
     public int findCollectionCount(List<? extends Filter> filterValues) {
         // TODO Оптимизировать запрос

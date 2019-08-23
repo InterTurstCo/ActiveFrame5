@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import org.springframework.util.CollectionUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
@@ -369,26 +370,29 @@ public class FilterBuilderUtil {
      * Для остальных возвращает только в случае полного совпадения с учетом регистра.
      *
      * @param filterName имя фильтра для поиска
-     * @param list       список всех фильтров
+     * @param filtersList       список всех фильтров
      * @return объект {@link ru.intertrust.cm.core.business.api.dto.Filter фильтра}
      */
-    public static Filter getFilterByName(String filterName, List<? extends Filter> list) {
-        if (filterName.startsWith(INCLUDED_IDS_FILTER)) {
-            for (Filter filter : list) {
-                if (filter instanceof IdsIncludedFilter) {
-                    return filter;
+    public static Filter getFilterByName(String filterName, List<? extends Filter> filtersList) {
+        if (!CollectionUtils.isEmpty(filtersList)) {
+
+            if (filterName.startsWith(INCLUDED_IDS_FILTER)) {
+                for (Filter filter : filtersList) {
+                    if (filter instanceof IdsIncludedFilter) {
+                        return filter;
+                    }
                 }
-            }
-        } else if (filterName.startsWith(EXCLUDED_IDS_FILTER)) {
-            for (Filter filter : list) {
-                if (filter instanceof IdsExcludedFilter) {
-                    return filter;
+            } else if (filterName.startsWith(EXCLUDED_IDS_FILTER)) {
+                for (Filter filter : filtersList) {
+                    if (filter instanceof IdsExcludedFilter) {
+                        return filter;
+                    }
                 }
-            }
-        } else {
-            for (Filter filter : list) {
-                if (filterName.equals(filter.getFilter())) {
-                    return filter;
+            } else {
+                for (Filter filter : filtersList) {
+                    if (filterName.equals(filter.getFilter())) {
+                        return filter;
+                    }
                 }
             }
         }
