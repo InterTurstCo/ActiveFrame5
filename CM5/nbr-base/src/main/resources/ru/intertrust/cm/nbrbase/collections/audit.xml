@@ -4,37 +4,15 @@
     <collection name="audit_journal" idField="id">
         <generator class-name="audit.collection"/>
 
-        <filter name="byEventName">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    lower(tmp."eventname") like lower({0})
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byOperator">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    lower(tmp."operator") like lower({0})
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byDescription">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    lower(tmp."description") like lower({0})
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byDate">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    tmp."updateddate" BETWEEN {0} AND {1}
-                ]]>
-            </criteria>
-        </filter>
+        <filter name="byEventName" />
+        <filter name="byOperator"/>
+        <filter name="byDescription"/>
+        <filter name="byDate"/>
+        <!-- Фильтр по доменным объектам, по которым будут отобраны данные аудита в коллекции, остальные будут проигнорированы (кроме логин/выход) -->
+        <filter name="includeSpecificAuditDomainObjectsOnly"/>
     </collection>
 
-    <collection-view name="audit_journal" collection="audit_journal" is-default="true" replace="runtime">
+    <collection-view name="audit_journal_view" collection="audit_journal" is-default="true" replace="runtime">
         <display>
             <column field="UpdatedDate" name="Дата" time-pattern="HH:mm" type="datetime" search-filter="byDate" sortable="true" min-width="80px" resizable="true"/>
             <column field="Operator" name="Оператор" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byOperator"/>

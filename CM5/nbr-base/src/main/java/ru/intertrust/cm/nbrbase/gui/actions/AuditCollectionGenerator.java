@@ -1,25 +1,21 @@
 package ru.intertrust.cm.nbrbase.gui.actions;
 
-import java.util.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-
+import org.springframework.util.CollectionUtils;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.api.component.ServerComponent;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
+
+import java.util.*;
 
 @ServerComponent(name = "audit.collection")
-public class AuditCollectionGenerator implements CollectionDataGenerator{
+public class AuditCollectionGenerator implements CollectionDataGenerator {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -34,11 +30,15 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
     private final String BY_EVENT_NAME_FILTER = "byEventName";
     private final String BY_DESCRIPTION_FILTER = "byDescription";
 
+    // Фильтр по доменным объектам, по которым будут отобраны данные аудита в коллекции, остальные будут проигнорированы (кроме логин/выход)
+    private final String INCLUDE_SPECIFIC_AUDIT_DOMAIN_OBJECTS_ONLY_FILTER = "includeSpecificAuditDomainObjectsOnly";
+
+    // набор фильтров с представления, которые может применить пользователь
     private final Set<String> COLLECTION_VIEW_FILTERS_SET = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(BY_DATE_FILTER, BY_OPERATOR_FILTER, BY_EVENT_NAME_FILTER, BY_DESCRIPTION_FILTER)));
 
     @Override
     public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
-        String query = generateRowQuery();
+        String query = generateRowQuery(filters);
         
         // Применяем фильтр
         StringBuilder whereSb = new StringBuilder(" WHERE 1=1 ");
@@ -49,36 +49,42 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
         if (filters != null) {
             for (Filter filter : filters) {
                 final String filterName = filter.getFilter();
-                whereSb.append(" AND ");
 
                 if (COLLECTION_VIEW_FILTERS_SET.contains(filterName)) {
-                    if (filterName.equals(BY_DATE_FILTER)) {
-                        whereSb.append(" updateddate BETWEEN {");
-                        whereSb.append(filterIndex++);
-                        whereSb.append("} AND {");
-                        whereSb.append(filterIndex++);
-                        whereSb.append("}");
+                    whereSb.append(" AND ");
 
-                        params.add(filter.getParameterMap().get(0).get(0));
-                        params.add(filter.getParameterMap().get(1).get(0));
-                    } else if (filterName.equals(BY_OPERATOR_FILTER)) {
-                        whereSb.append(" LOWER(operator) LIKE LOWER({");
-                        whereSb.append(filterIndex++);
-                        whereSb.append("})");
+                    switch (filterName) {
+                        case BY_DATE_FILTER:
+                            whereSb.append(" updateddate BETWEEN {");
+                            whereSb.append(filterIndex++);
+                            whereSb.append("} AND {");
+                            whereSb.append(filterIndex++);
+                            whereSb.append("}");
 
-                        params.add(filter.getParameterMap().get(0).get(0));
-                    } else if (filterName.equals(BY_EVENT_NAME_FILTER)) {
-                        whereSb.append(" LOWER(eventname) LIKE LOWER({");
-                        whereSb.append(filterIndex++);
-                        whereSb.append("})");
+                            params.add(filter.getParameterMap().get(0).get(0));
+                            params.add(filter.getParameterMap().get(1).get(0));
+                            break;
+                        case BY_OPERATOR_FILTER:
+                            whereSb.append(" LOWER(operator) LIKE LOWER({");
+                            whereSb.append(filterIndex++);
+                            whereSb.append("})");
 
-                        params.add(filter.getParameterMap().get(0).get(0));
-                    } else if (filterName.equals(BY_DESCRIPTION_FILTER)) {
-                        whereSb.append(" LOWER(description) LIKE LOWER({");
-                        whereSb.append(filterIndex++);
-                        whereSb.append("})");
+                            params.add(filter.getParameterMap().get(0).get(0));
+                            break;
+                        case BY_EVENT_NAME_FILTER:
+                            whereSb.append(" LOWER(eventname) LIKE LOWER({");
+                            whereSb.append(filterIndex++);
+                            whereSb.append("})");
 
-                        params.add(filter.getParameterMap().get(0).get(0));
+                            params.add(filter.getParameterMap().get(0).get(0));
+                            break;
+                        case BY_DESCRIPTION_FILTER:
+                            whereSb.append(" LOWER(description) LIKE LOWER({");
+                            whereSb.append(filterIndex++);
+                            whereSb.append("})");
+
+                            params.add(filter.getParameterMap().get(0).get(0));
+                            break;
                     }
                 }
             }
@@ -102,7 +108,7 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
         return collectionsService.findCollectionByQuery(query + where + sort, params, offset, limit);
     }
 
-    private String generateRowQuery() {
+    private String generateRowQuery(List<? extends Filter> filters) {
         String result = "SELECT\r\n" + 
                 "  q.\"id\" AS id,\r\n" + 
                 "  q.\"eventname\" AS EventName,\r\n" + 
@@ -127,7 +133,7 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
                 "  LEFT JOIN person pr1 on pr1.\"login\" = log1.\"user_id\"\r\n";
         
         // Получаем все типы, у которых включен аудит
-        Set<String> typeWithAudit = getAllTypesWithAudit(); 
+        Set<String> typeWithAudit = getAllTypesWithAudit(filters);
         
         // Генерим UNION
         for (String typeName : typeWithAudit) {
@@ -161,7 +167,8 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
      * Аудит включен или непосредственно у рута или у наследника
      * @return
      */
-    private Set<String> getAllTypesWithAudit() {
+    private Set<String> getAllTypesWithAudit(List<? extends Filter> filters) {
+        final Set<String> includeSpecificAuditDOsSet = getIncludeSpecificDosSet(filters);
         Set<String> result = new HashSet<String>();
         
         Collection<DomainObjectTypeConfig> typeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
@@ -176,12 +183,57 @@ public class AuditCollectionGenerator implements CollectionDataGenerator{
             if (isAuditLogEnable && !isAuditLogType) {
                 final String rootDomainObjectType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
 
+                // исключаем некоторые типы без аудита
                 if (!EXCLUDE_TYPES_SET.contains(rootDomainObjectType)) {
-                    result.add(rootDomainObjectType);
+
+                    // включаем для аудита только типы, указанные в фильтре, если он был задействован
+                    if (!CollectionUtils.isEmpty(includeSpecificAuditDOsSet)) {
+                        if (includeSpecificAuditDOsSet.contains(rootDomainObjectType)) {
+                            result.add(rootDomainObjectType);
+                        }
+                        // иначе добавляем сразу
+                    } else {
+                        result.add(rootDomainObjectType);
+                    }
                 }
             }
         }
         return result;
+    }
+
+    /**
+     * Возвращает список специфичных типов, по которым нужно показать данные аудита в коллекции.<br>
+     * Список берется из фильтра 'includeSpecificAuditDomainObjectsOnly', если он был задействован.
+     *
+     * @param filters список всех фильтров
+     * @return регистронезависимый набор имен доменных объектов для аудита из фильтра,<br>
+     * либо null, если фильтр не был применен или список параметров в нем пуст.
+     */
+    private Set<String> getIncludeSpecificDosSet(List<? extends Filter> filters) {
+        final Filter includeSpecificAuditDomainObjectsOnlyFilter = FilterBuilderUtil.getFilterByName(INCLUDE_SPECIFIC_AUDIT_DOMAIN_OBJECTS_ONLY_FILTER, filters);
+        if (includeSpecificAuditDomainObjectsOnlyFilter != null) {
+
+            final HashMap<Integer, List<Value>> parameterMap = includeSpecificAuditDomainObjectsOnlyFilter.getParameterMap();
+            final Collection<List<Value>> valuesListsCollection = parameterMap.values();
+
+            final int parametersCount = valuesListsCollection.size();
+            if (parametersCount > 0) {
+
+                // делаем набор регистронезависимым
+                Set<String> parametersSet = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+
+                valuesListsCollection.forEach(valuesList -> {
+                    final StringValue stringValue = (StringValue) valuesList.get(0);
+                    final String includeDoNameFilterValue = stringValue.get();
+
+                    // обрезаем символы '%' в параметрах, добавляемые автоматически в строковые значения фильтра
+                    final String includeDoName = FilterBuilderUtil.cutPercentsCharacters(includeDoNameFilterValue);
+                    parametersSet.add(includeDoName);
+                });
+                return parametersSet;
+            }
+        }
+        return null;
     }
 
     /**
