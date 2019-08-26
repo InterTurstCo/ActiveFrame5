@@ -1,4 +1,4 @@
-package ru.intertrust.cm.nbrbase.gui.actions;
+package ru.intertrust.cm.nbrbase.gui.collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -161,10 +161,23 @@ public class AuditCollectionGenerator implements CollectionDataGenerator {
         return result;
     }
 
+    /**
+     * Возвращает часть запроса, определяющего описание. Может быть переопределена в зависимости от типа доменного объекта<br>
+     * (в случае, если нужен какой-то иной вывод)
+     *
+     * @param typeName имя типа доменного объекта
+     * @return часть запроса, генерирующего описание
+     */
     protected String getDescriptionQueryPart(String typeName) {
         return " dt.name AS Description\r\n";
     }
 
+    /**
+     * Возвращает часть запроса с дополнительными JOIN'ами. Может быть переопределена в зависимости от типа доменного объекта<br>
+     *
+     * @param typeName имя типа доменного объекта
+     * @return часть запроса с дополнительными JOIN'ами
+     */
     protected String getJoinQueryPart(String typeName) {
         return "";
     }
