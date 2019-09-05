@@ -240,7 +240,7 @@
                 <attachment-type-ref name="person_document"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
-                <single-choice value="true"/>
+                <single-choice value="false"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
             </attachment-box>
