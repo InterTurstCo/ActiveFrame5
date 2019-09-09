@@ -64,6 +64,7 @@ public class ChildLinksConfig implements Dto {
         this.tooltip = tooltip;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -79,7 +80,6 @@ public class ChildLinksConfig implements Dto {
                 that.getLinkConfigList() != null) {
             return false;
         }
-
         if (groupName != null ? !groupName.equals(that.getGroupName()) : that.getGroupName() != null) {
             return false;
         }

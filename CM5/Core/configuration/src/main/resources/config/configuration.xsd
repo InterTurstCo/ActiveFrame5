@@ -504,6 +504,8 @@
             <xs:element name="collection-placeholder"
                 type="con:CollectionPlaceholderType" maxOccurs="unbounded"
                 minOccurs="0" />
+            <xs:element type="con:linkType" name="link" maxOccurs="unbounded"
+                        minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
 
@@ -1183,7 +1185,12 @@
         <xs:attribute type="xs:string" name="child-to-open" use="optional"/>
         <xs:attribute type="xs:boolean" name="auto-cut" use="optional"/>
         <xs:attribute type="xs:string" name="tooltip" use="optional"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional"
+                      xmlns:con="https://cm5.intertrust.ru/config"/>
+        <xs:attribute type="xs:string" name="ref-link-name" use="optional"/>
+
     </xs:complexType>
+
 
     <!-- ###############  CMFIVE-4743 Внешние ссылки в навигационной панели ##### -->
 
@@ -1250,6 +1257,7 @@
             <xs:element type="con:linkType" name="link" maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
+
         </xs:sequence>
         <xs:attribute type="xs:string" name="group-name" use="optional"/>
         <xs:attribute type="xs:boolean" name="auto-cut" use="optional"/>

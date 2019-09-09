@@ -8,9 +8,11 @@
                 application="main"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
 
 
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="refToCalendar4">
             <child-links>
-                <link name="Calendar1" display-text="Календарь1">
+                <link name="refToCalendar4" ref-link-name="Calendar4"/>
+
+                <!--link name="Calendar1" display-text="Календарь1">
                     <plugin>
                         <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
                             <calendar-view>
@@ -42,7 +44,7 @@
                             </calendar-view>
                         </calendar>
                     </plugin>
-                </link>
+                </link-->
 
                 <!--
       Ссылка на внешний адрес. Адрес может быть в пределах текущего приложения
@@ -69,6 +71,8 @@
                         <url-configuration is-absolute="false" property-with-base-url="base.url.1"/>
                     </outer>
                 </link>
+
+                <link name="refToCities1" ref-link-name="Cities"/>
             </child-links>
         </link>
         <!--
@@ -250,32 +254,7 @@
                         </link>
                     </child-links>
                 </link>
-                <link name="Cities" display-text="Города">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="city">
-                            <collection-viewer insert-top="true">
-                                <collection-ref name="Cities"/>
-                                <default-sort-criteria column-field="population" order="desc"/>
-
-                                <child-collection name="Cities" group-object-type="city">
-                                    <collection-extra-filters>
-                                        <extra-filter name="byText">
-                                            <param name="0" type="string" value="Москва"/>
-                                        </extra-filter>
-                                    </collection-extra-filters>
-                                    <expandable-objects>
-                                        <expandable-object object-name="city"/>
-                                    </expandable-objects>
-                                    <default-sort-criteria column-field="name" order="asc"/>
-                                </child-collection>
-                            </collection-viewer>
-                            <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                    <!--decorations>
-                        <collection-counter/>
-                    </decorations-->
-                </link>
+                <link name="refToCities2" ref-link-name="Cities"/>
                 <link name="CountryUnions" display-text="Союзы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="country_union">

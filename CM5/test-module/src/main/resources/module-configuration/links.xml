@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <link name="Calendar4" display-text="Календарь1">
+        <plugin>
+            <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
+                <calendar-view>
+                    <collection-ref name="letters"/>
+                    <date-field-path value="actual_start_period"/>
+                    <date-field-filter name="byActualStartPeriod" type="datetime"/>
+                    <sort-criteria>
+                        <sort-criterion field="created_date" order="asc"/>
+                    </sort-criteria>
+                    <month-item type="link">
+                        <pattern
+                                value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                    </month-item>
+                    <day-items>
+                        <day-item type="link">
+                            <pattern
+                                    value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                        </day-item>
+                        <day-item type="label">
+                            <pattern
+                                    value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                        </day-item>
+                    </day-items>
+                    <image-field name="letter_image">
+                        <image-mappings imageWidth="10px" imageHeight="10px">
+                            <mapping value="" image="cancel.png"/>
+                        </image-mappings>
+                    </image-field>
+                </calendar-view>
+            </calendar>
+        </plugin>
+    </link>
+
+    <link name="Cities" display-text="Города">
+        <plugin>
+            <domain-object-surfer domain-object-type-to-create="city">
+                <collection-viewer insert-top="true">
+                    <collection-ref name="Cities"/>
+                    <default-sort-criteria column-field="population" order="desc"/>
+
+                    <child-collection name="Cities" group-object-type="city">
+                        <collection-extra-filters>
+                            <extra-filter name="byText">
+                                <param name="0" type="string" value="Москва"/>
+                            </extra-filter>
+                        </collection-extra-filters>
+                        <expandable-objects>
+                            <expandable-object object-name="city"/>
+                        </expandable-objects>
+                        <default-sort-criteria column-field="name" order="asc"/>
+                    </child-collection>
+                </collection-viewer>
+                <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
+            </domain-object-surfer>
+        </plugin>
+        <!--decorations>
+            <collection-counter/>
+        </decorations-->
+    </link>
+
+</configuration>
