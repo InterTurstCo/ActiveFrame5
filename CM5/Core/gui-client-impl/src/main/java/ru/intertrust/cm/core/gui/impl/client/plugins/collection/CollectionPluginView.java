@@ -74,7 +74,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class CollectionPluginView extends PluginView {
+public class CollectionPluginView extends PluginView implements LeftPanelAttachedEventHandler {
 
   private static final String MSG_CONF_ERROR = "Ошибка конфигурации. ";
   private CollectionDataGrid tableBody;
@@ -100,6 +100,7 @@ public class CollectionPluginView extends PluginView {
   private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
   private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
   private boolean filteredByUser;
+  private final EventBus applicationEventBus = Application.getInstance().getEventBus();
 
   protected CollectionPluginView(CollectionPlugin plugin) {
     super(plugin);
@@ -111,6 +112,8 @@ public class CollectionPluginView extends PluginView {
     columnHeaderController =
         new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
     tableBody.setColumnHeaderController(columnHeaderController);
+
+    applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE,this);
   }
 
   private void updateSizes() {
@@ -1187,6 +1190,15 @@ public class CollectionPluginView extends PluginView {
   public void sideBarFixPositionEvent(SideBarResizeEvent event) {
     if (getPluginData().getTableBrowserParams() == null) {
       columnHeaderController.sideBarFixPositionEvent(event);
+    }
+  }
+
+  @Override
+  public void onLeftPanelAttachedEvent(LeftPanelAttachedEvent event) {
+    if(event.getAttached()){
+      root.addStyleName("collection-plugin-view-container-with-left-panel");
+    } else {
+      root.removeStyleName("collection-plugin-view-container-with-left-panel");
     }
   }
 
