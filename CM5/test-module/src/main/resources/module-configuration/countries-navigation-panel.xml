@@ -1908,6 +1908,14 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                
+                <link name="SingleRowPlugin" display-text="Плагин SingleRow">
+                    <plugin>
+                        <custom name="single.row.plugin">
+                            <attribute name="type" value="test_single_row"/>
+                        </custom>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 

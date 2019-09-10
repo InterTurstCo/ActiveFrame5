@@ -117,6 +117,9 @@
         <configuration-path>contacts-module/configuration/form/nbr_test_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/nbr_test_collection.xml</configuration-path>
 
+        <!-- Плагин SingleRow -->
+        <configuration-path>module-configuration/single-row-plugin.xml</configuration-path>
+
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">
