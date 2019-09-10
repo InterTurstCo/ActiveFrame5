@@ -1916,6 +1916,9 @@
                         </custom>
                     </plugin>
                 </link>
+                
+                <link name="lnk_audit-ref" ref-link-name="lnk_audit"/>
+                
             </child-links>
         </link>
 

@@ -34,6 +34,8 @@
         <!-- Действия -->
         <configuration-path>ru/intertrust/cm/nbrbase/actions.xml</configuration-path>
         
+        <configuration-path>ru/intertrust/cm/nbrbase/links.xml</configuration-path>
+        
     </configuration-paths>
    
 </module>

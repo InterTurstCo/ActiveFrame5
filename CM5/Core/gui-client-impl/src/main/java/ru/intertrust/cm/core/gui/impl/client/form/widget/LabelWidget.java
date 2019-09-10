@@ -139,7 +139,7 @@ public class LabelWidget extends BaseWidget {
             style.setProperty("textDecoration", textDecoration);
         }
         if (backgroundColor != null) {
-            style.setProperty("background-color", backgroundColor);
+            style.setProperty("backgroundColor", backgroundColor);
         }
     }
 
