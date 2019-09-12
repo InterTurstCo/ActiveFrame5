@@ -57,6 +57,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
 
     public static final String CLUSTER_NOTIFICATION_CONNECTION_FACTORY = "LocalConnectionFactory";
     public static final String NOTIFICATION_TOPIC = "ClusterNotificationTopic";
+    public static final String CLUSTER_NODE_ID_PROPERTY = "Af5ClusterNodeId";
 
     @Autowired
     private ClusterManagerDao clusterManagerDao;
@@ -262,6 +263,9 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
             bm.writeInt(messageBytes.length);
             bm.writeBytes(messageBytes);
 
+            // Добавляем информацию о ноде
+            bm.setStringProperty(CLUSTER_NODE_ID_PROPERTY, clusterManagerDao.getNodeId());
+
             // отправляем сообщение
             producer.send(sendTopic, bm);
 
@@ -370,6 +374,18 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
         public void onMessage(Message message) {
             try {
                 final BytesMessage bytesMessage = (BytesMessage) message;
+
+                // Проверка ид ноды
+                String senderNodeId = message.getStringProperty(CLUSTER_NODE_ID_PROPERTY);
+                if (senderNodeId == null){
+                    logger.debug("Message not has node id info in header. Ignoring it.");
+                    return;
+                }
+
+                if (!clusterManagerDao.hasNode(senderNodeId)){
+                    logger.debug("Message node id not found in clustar info. Ignoring it.");
+                    return;
+                }
 
                 // Определяем собственное это сообщение или нет
                 final long nodeId = bytesMessage.readLong();
