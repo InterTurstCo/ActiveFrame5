@@ -137,6 +137,15 @@
                                         <widget id="tbSaved"/>
                                     </td>
                                 </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lbEnumTest"/>
+                                    </td>
+                                    <td>
+                                        <widget id="enumboxTest"/>
+                                    </td>
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -215,12 +224,12 @@
             <label id="lbField" translate-id="true">
                 <events>
                     <evt:subscriber>
-                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="enumboxTest"/>
                     </evt:subscriber>
                 </events>
                 <rules>
                     <rul:hide>
-                        <rul:rule apply-expression="chbСustomerFormat.value!=true"/>
+                        <rul:rule apply-expression="enumboxTest.value=='по SQL-запросу'"/>
                     </rul:hide>
                 </rules>
                 <text>Поле</text>
@@ -228,16 +237,29 @@
             <text-box id="tbField" translate-id="true">
                 <events>
                     <evt:subscriber>
-                        <evt:subscribed to-id="chbСustomerFormat"/>
+                        <evt:subscribed to-id="enumboxTest"/>
                     </evt:subscriber>
                 </events>
                 <rules>
                     <rul:hide>
-                        <rul:rule apply-expression="chbСustomerFormat.value!=true"/>
+                        <rul:rule apply-expression="enumboxTest.value=='по SQL-запросу'"/>
                     </rul:hide>
                 </rules>
                 <field-path value="field"/>
             </text-box>
+
+            <label id="lbEnumTest">
+                <text>Тест Enum Box</text>
+            </label>
+
+            <enumeration-box id="enumboxTest" translate-id="true">
+                <field-path value="enum_test"/>
+                <mapping>
+                    <map display-text="по Lotus view" value="1"/>
+                    <map display-text="по SQL-запросу" value="2"/>
+                    <map display-text="по элементу конфигурации" value="3"/>
+                </mapping>
+            </enumeration-box>
 
             <label id="lbFieldId" translate-id="true">
                 <events>

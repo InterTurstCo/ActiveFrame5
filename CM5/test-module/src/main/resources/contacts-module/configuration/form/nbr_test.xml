@@ -29,6 +29,7 @@
 
             <string name="onopen_calculated_value" length="250"/>
             <string name="saved_value" length="250"/>
+            <long name="enum_test"/>
         </fields>
     </domain-object-type>
 

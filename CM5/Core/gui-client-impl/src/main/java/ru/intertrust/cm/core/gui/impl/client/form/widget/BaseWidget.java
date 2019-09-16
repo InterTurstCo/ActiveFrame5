@@ -96,7 +96,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
   public void onEventReceived(WidgetBroadcastEvent e) {
     if ((!initialData.getSubscription().isEmpty()
         && initialData.getSubscription().contains(e.getWidgetId())
-        && (getContainer().hashCode() == e.getInitiatorHashCode())
+        //&& (getContainer().hashCode() == e.getInitiatorHashCode())
     ) || (!initialData.getSubscription().isEmpty() && e.getBroadcast())) {
       if (e.getCascade() && e.getPublicatorsChain().contains(initialData.getWidgetId())) {
         return;

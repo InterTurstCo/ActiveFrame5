@@ -9,7 +9,7 @@ public class WidgetBroadcastEvent extends GwtEvent<WidgetBroadcastEventHandler> 
   private String widgetId;
   private String value;
   private Boolean cascade = false;
-  private Boolean isBroadcast;
+  private Boolean isBroadcast = false;
   private Set<String> publicatorsChain;
   private int initiatorHashCode;
   private int initiatorToolBarHashCode;
