@@ -204,7 +204,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         // Кнопка закрыть
         ActionRefConfig closeAction = new ActionRefConfig();
         closeAction.setNameRef("aToggleEditOff");
-        closeAction.setRendered("(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)");
+        closeAction.setRendered("(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)");        
         closeAction.setMerged(false);
         closeAction.setOrder(1);
         actions.add(closeAction);
@@ -292,7 +292,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         // Имя типа
         RowConfig rowConfig = new RowConfig();
         headerConfig.getTableLayout().getRows().add(rowConfig);
-        addFieldWidgets("type_name", "Тип: " + typeName, widgetStateMap, widgetComponents, rowConfig.getCells(), null, null);
+        addFieldWidgets("type_name", "Тип: " + auditedTypeName, widgetStateMap, widgetComponents, rowConfig.getCells(), null, null);
 
         // Операция
         rowConfig = new RowConfig();

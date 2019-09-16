@@ -80,6 +80,11 @@ public class InterserverLockingServiceImplTest {
                         }
 
                         @Override
+                        public boolean hasNode(String nodeId) {
+                            return false;
+                        }
+
+                        @Override
                         public String getNodeId() {
                             return "node-1-id";
                         }

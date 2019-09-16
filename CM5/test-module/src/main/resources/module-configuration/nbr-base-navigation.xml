@@ -148,38 +148,14 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                
                 <link name="CacheControl" display-text="Управление кэшем">
                     <plugin>
                         <global-cache-control statistics-only="false"/>
                     </plugin>
                 </link>
                 
-                <link name="lnk_audit" display-text="Журнал аудита">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="user_event_log">
-                            <collection-viewer>
-                                <collection-ref name="audit_journal" />
-                                <default-sort-criteria column-field="UpdatedDate" order="desc"/>
-                                <act:tool-bar useDefault="false">
-                                    <act:action-ref name-ref="aRefresh" />
-                                    <act:simple-action name="CleanAuditLog" componentName="simple.action"
-                                                       action-handler="clean.audit.log.action"
-                                                       imageClass="actionBar-delete"
-                                                       text="Очистить журнал" tooltip="Очистить журнал"  order="200"
-                                                       dirtySensitivity="true"  merged="true">
-                                        <act:before-execution>
-                                            <act:confirmation-message text="Вы уверены, что хотите очистить журнал аудита?"/>
-                                            <act:save-context value="false"/>
-                                        </act:before-execution>
-                                    </act:simple-action>
-                                </act:tool-bar>
-                            </collection-viewer>
-                            <form-viewer>
-                                <form-mapping domain-object-type="user_event_log" form="event_log" />
-                            </form-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
+                <link name="lnk_audit" ref-link-name="lnk_audit"></link>
                 
             </child-links>
         </link>

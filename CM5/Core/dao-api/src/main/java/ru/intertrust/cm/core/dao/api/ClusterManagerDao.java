@@ -11,11 +11,18 @@ public interface ClusterManagerDao {
      * Получение идентификатора узла кластера
      * @return
      */
-    public String getNodeId();
+    String getNodeId();
     
     /**
      * Получение имени узла кластера
      * @return
      */
-    public String getNodeName();
+    String getNodeName();
+
+    /**
+     * Проверка является ли узел с переданным идентификатором активным узлом текущего кластера.
+     * @param nodeId
+     * @return
+     */
+    boolean hasNode(String nodeId);
 }
