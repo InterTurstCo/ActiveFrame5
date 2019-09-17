@@ -134,6 +134,9 @@ public class GlobalCacheSettings implements Dto {
     @Value("${global.cache.max.size:#{null}}")
     private volatile String sizeLimit;
 
+    @Value("${global.cache.max.item.size:#{null}}")
+    private volatile String sizeItemLimit;
+
     @Value("${global.cache.wait.lock.millies:#{1}}")
     private volatile String waitLockMilliesStr;
 
@@ -144,6 +147,7 @@ public class GlobalCacheSettings implements Dto {
     private volatile boolean inCluster;
 
     private volatile Long sizeLimitBytes = null;
+    private volatile Long sizeItemLimitBytes = null;
     private volatile Integer waitLockMillies = null;
 
     public Mode getMode() {
@@ -182,13 +186,39 @@ public class GlobalCacheSettings implements Dto {
             sizeLimitBytes = DEFAULT_SIZE_LIMIT;
             return sizeLimitBytes;
         }
-        final String limitStr = sizeLimit.trim();
+
+        sizeLimitBytes = sizeFromString("Global cache size", sizeLimit, DEFAULT_SIZE_LIMIT);
+        return sizeLimitBytes;
+    }
+
+    public void setSizeItemLimitBytes(long bytes) {
+        sizeItemLimitBytes = bytes;
+    }
+
+    public long getSizeItemLimitBytes() {
+        if (sizeItemLimitBytes != null) {
+            return sizeItemLimitBytes;
+        }
+        // По умолчанию значение одного объекта в кэшэ не может превышать 1% размера кэша
+        long defaultValue = getSizeLimitBytes() / 100;
+        if (sizeItemLimit == null || sizeItemLimit.trim().isEmpty()) {
+            sizeItemLimitBytes = defaultValue;
+            return sizeItemLimitBytes;
+        }
+
+        sizeItemLimitBytes = sizeFromString("Global cache item size", sizeItemLimit, defaultValue);
+        return sizeItemLimitBytes;
+    }
+
+    private Long sizeFromString(String desc, String size, long defaultValue){
+        Long result = null;
+        final String limitStr = size.trim();
         char lastSymbol = limitStr.charAt(limitStr.length() - 1);
         String digits;
         if (Character.isDigit(lastSymbol)) {
             lastSymbol = 'M';
             digits = limitStr;
-            logger.warn("Global cache size unit is not set, number will be treated as Megabytes");
+            logger.warn(desc + " size unit is not set, number will be treated as Megabytes");
         } else {
             digits = limitStr.substring(0, limitStr.length() - 1);
         }
@@ -196,28 +226,28 @@ public class GlobalCacheSettings implements Dto {
         try {
             limitNumber = Long.parseLong(digits);
         } catch (NumberFormatException e) {
-            sizeLimitBytes = DEFAULT_SIZE_LIMIT;
-            logger.error("Wrong global cache size format: " + limitStr + "; set to default: 10 Megabytes");
-            return sizeLimitBytes;
+            result = defaultValue;
+            logger.error(desc + " wrong size format: " + limitStr + "; set to default: " + defaultValue + " bytes");
+            return result;
         }
         switch (lastSymbol) {
             case 'M':
             case 'm':
             case 'М':
             case 'м':
-                sizeLimitBytes = limitNumber * 1024 * 1024;
+                result = limitNumber * 1024 * 1024;
                 break;
             case 'G':
             case 'g':
             case 'Г':
             case 'г':
-                sizeLimitBytes = limitNumber * 1024 * 1024 * 1024;
+                result = limitNumber * 1024 * 1024 * 1024;
                 break;
             default:
-                sizeLimitBytes = DEFAULT_SIZE_LIMIT;
-                logger.error("Wrong global cache size format: " + limitStr + "; set to default: 10 Megabytes");
+                result = defaultValue;
+                logger.error(desc + " wrong size format: " + limitStr + "; set to default: " + defaultValue + " bytes");
         }
-        return sizeLimitBytes;
+        return result;
     }
 
     public Integer getWaitLockMillies() {

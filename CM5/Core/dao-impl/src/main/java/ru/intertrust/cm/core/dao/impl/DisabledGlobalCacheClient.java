@@ -43,6 +43,7 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
         final HashMap<String, Serializable> settings = new HashMap<>();
         settings.put("global.cache.mode", globalCacheSettings.getMode().toString());
         settings.put("global.cache.max.size", globalCacheSettings.getSizeLimitBytes());
+        settings.put("global.cache.max.item.size", globalCacheSettings.getSizeItemLimitBytes());
         settings.put("global.cache.cluster.mode", globalCacheSettings.isInCluster());
         settings.put("global.cache.wait.lock.millies", globalCacheSettings.getWaitLockMillies());
         return settings;

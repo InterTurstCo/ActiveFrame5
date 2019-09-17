@@ -87,6 +87,8 @@ public interface GlobalCache {
 
     void setSizeLimitBytes(long bytes);
 
+    void setSizeItemLimitBytes(long bytes);
+
     long getSizeLimitBytes();
 
     void clearCacheCleanStatistics();
