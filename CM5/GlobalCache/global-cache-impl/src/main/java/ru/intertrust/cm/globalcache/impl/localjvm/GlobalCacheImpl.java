@@ -1284,7 +1284,7 @@ public class GlobalCacheImpl implements GlobalCache {
         CollectionNode collectionNode = count == -1 ? new CollectionNode(domainEntitiesCloner.fastCloneCollection(collection), time) : new CollectionNode(count, time);
 
         // Проверка на то что размер данных в коллекции не превышает определенного парога
-        if (collectionNode.getSize().get() > sizeitemLimit){
+        if (collection != null && collectionNode.getSize().get() > sizeitemLimit){
             baseNode.removeCollectionNode(subKey);
             logger.warn(collection.getClass().getName() + " is not cached. Maximum memory exceeded: " + collectionNode.getSize().get());
             return;
