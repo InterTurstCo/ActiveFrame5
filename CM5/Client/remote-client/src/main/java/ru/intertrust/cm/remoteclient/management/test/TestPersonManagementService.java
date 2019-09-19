@@ -8,10 +8,6 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;

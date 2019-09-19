@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.config.form;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.impl.TableTemplateProcessor;
