@@ -105,44 +105,48 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
 
             // Проверка все ли данные прилетели с других нод
             String stampInfo = getInterserverLockingDao().getStampInfo(resourceId);
-            ClusterCommitStampsInfo parentLockerStampsInfo = ClusterCommitStampsInfo.decode(stampInfo);
-            ClusterCommitStampsInfo currentNodeStampsInfo = getClusterTransactionStampService().getInvalidationCacheInfo();
-
-            if (!currentNodeStampsInfo.equalsOrGreater(parentLockerStampsInfo)) {
-                // Если данные не актуальные ждем
-                final Semaphore semaphore = new Semaphore(0);
-                long start = System.currentTimeMillis();
-                final ScheduledFuture<?> futureActualisationCache = getExecutorService().scheduleWithFixedDelay(() -> {
-                        if (getClusterTransactionStampService().getInvalidationCacheInfo().equalsOrGreater(parentLockerStampsInfo)) {
-                            // Проверка что данные уже актуальны
-                            semaphore.release();
-                            logger.debug("Data is actual for resource {}", resourceId);
-                        }else if (System.currentTimeMillis() - start > actualDataTimeout) {
-                            // Проверка что ждем не более разрешенного таймаута
-                            semaphore.release();
-                            logger.error("No up-to-date data from other cluster nodes was received during the timeout {} ms", actualDataTimeout);
-                            
-                            //Не дождались, сбрасываем кэш и данные временных меток
-                            globalCacheClient.clearCurrentNode();
-                            getClusterTransactionStampService().resetInvalidationCacheInfo();
-                        }
-                }, checkInvalidationCacheRefreshPeriod, checkInvalidationCacheRefreshPeriod, TimeUnit.MILLISECONDS);
-
-                try {
-                    logger.debug("Start wait actual data {}", resourceId);
-                    semaphore.acquire();
-                    logger.debug("End wait actual data {}", resourceId);
-                    if (futureActualisationCache != null) {
-                        futureActualisationCache.cancel(true);
-                    }
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
+            waitUntilActualData(resourceId, stampInfo);
         }
         logger.trace("End lock {} return {}", resourceId, result);
         return result;
+    }
+
+    @Override
+    public void waitUntilActualData(String resourceId, String stampInfo){
+        ClusterCommitStampsInfo parentLockerStampsInfo = ClusterCommitStampsInfo.decode(stampInfo);
+        ClusterCommitStampsInfo currentNodeStampsInfo = getClusterTransactionStampService().getInvalidationCacheInfo();
+
+        if (!currentNodeStampsInfo.equalsOrGreater(parentLockerStampsInfo)) {
+            // Если данные не актуальные ждем
+            final Semaphore semaphore = new Semaphore(0);
+            long start = System.currentTimeMillis();
+            final ScheduledFuture<?> futureActualisationCache = getExecutorService().scheduleWithFixedDelay(() -> {
+                if (getClusterTransactionStampService().getInvalidationCacheInfo().equalsOrGreater(parentLockerStampsInfo)) {
+                    // Проверка что данные уже актуальны
+                    semaphore.release();
+                    logger.debug("Data is actual for resource {}", resourceId);
+                }else if (System.currentTimeMillis() - start > actualDataTimeout) {
+                    // Проверка что ждем не более разрешенного таймаута
+                    semaphore.release();
+                    logger.error("No up-to-date data from other cluster nodes was received during the timeout {} ms", actualDataTimeout);
+
+                    //Не дождались, сбрасываем кэш и данные временных меток
+                    globalCacheClient.clearCurrentNode();
+                    getClusterTransactionStampService().resetInvalidationCacheInfo();
+                }
+            }, checkInvalidationCacheRefreshPeriod, checkInvalidationCacheRefreshPeriod, TimeUnit.MILLISECONDS);
+
+            try {
+                logger.debug("Start wait actual data {}", resourceId);
+                semaphore.acquire();
+                logger.debug("End wait actual data {}", resourceId);
+                if (futureActualisationCache != null) {
+                    futureActualisationCache.cancel(true);
+                }
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @Override

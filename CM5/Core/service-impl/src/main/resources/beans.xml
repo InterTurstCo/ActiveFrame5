@@ -149,8 +149,10 @@
     <jee:local-slsb id="diagnosticMessageProcessor"
                     jndi-name="java:module/DiagnosticMessageProcessor!ru.intertrust.cm.core.business.diagnostic.DiagnosticMessageProcessor"
                     business-interface="ru.intertrust.cm.core.business.diagnostic.DiagnosticMessageProcessor"/>
-                    
 
+    <jee:local-slsb id="ClusteredLockService"
+                    jndi-name="java:module/ClusteredLockService!ru.intertrust.cm.core.business.api.ClusteredLockService"
+                    business-interface="ru.intertrust.cm.core.business.api.ClusteredLockService"/>
 
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>

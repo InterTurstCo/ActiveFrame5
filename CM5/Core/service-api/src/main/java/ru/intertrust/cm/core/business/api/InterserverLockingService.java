@@ -62,6 +62,8 @@ public interface InterserverLockingService {
      */
     void waitUntilNotLocked(String resourceId);
 
+    void waitUntilActualData(String resourceId, String stampInfo);
+
     /**
      * Попытка заблокировать ресурс, с учетом того, какой объект пытается
      * наложить блокировку.

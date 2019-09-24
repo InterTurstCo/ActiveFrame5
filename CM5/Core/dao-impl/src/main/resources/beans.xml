@@ -184,6 +184,8 @@
     
     <bean id="сlusterManagerDao"  class="ru.intertrust.cm.core.dao.impl.ClusterManagerDaoImpl"/>
 
+    <bean id="clusteredLockDaoImpl"  class="ru.intertrust.cm.core.dao.impl.clusterlock.ClusteredLockDaoImpl"/>
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>

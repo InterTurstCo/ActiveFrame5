@@ -48,4 +48,10 @@ public interface ClusteredLock {
      * момент разблокировки.
      */
     String getTag();
+
+    /**
+     * Временная метка блокировки
+     * @return
+     */
+    String getStampInfo();
 }

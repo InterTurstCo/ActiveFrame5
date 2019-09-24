@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
+import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.model.FatalException;
@@ -65,6 +66,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ClusterManager clusterManager;
     @Autowired private InterserverLockingService interserverLockingService;
     @Autowired private DeployModuleProcesses deployModuleProcesses;
+    @Autowired private ClusteredLockDao clusteredLockDao;
 
     @Resource private EJBContext ejbContext;
     @EJB private StatisticsGatherer statisticsGatherer;
@@ -139,6 +141,9 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
      * @throws Exception
      */
     private void executeInitialLoadingTasks() throws Exception {
+
+        clusteredLockDao.init();
+
         domainObjectTypeIdCache.build();
 
         initialDataLoader.load();
