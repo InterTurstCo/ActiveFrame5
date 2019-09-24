@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -15,6 +17,7 @@ import java.util.HashSet;
 public class ListBoxState extends ListWidgetState {
     private ArrayList<ArrayList<Id>> selectedIds;
     private HashMap<Id, Integer> idFieldPathIndexMapping;
+    private List<DomainObject> originalObjects;
     private FieldPath[] fieldPaths;
 
     public ArrayList<ArrayList<Id>> getSelectedIds() {
@@ -59,6 +62,14 @@ public class ListBoxState extends ListWidgetState {
 
     public Integer getFieldPathIndex(Id id) {
         return idFieldPathIndexMapping.get(id);
+    }
+
+    public List<DomainObject> getOriginalObjects() {
+        return originalObjects;
+    }
+
+    public void setOriginalObjects(List<DomainObject> originalObjects) {
+        this.originalObjects = originalObjects;
     }
 
     public HashSet<Id> getSelectedIdsSet() {

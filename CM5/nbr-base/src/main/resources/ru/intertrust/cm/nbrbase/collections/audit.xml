@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" >
+
+    <collection name="audit_journal" idField="id">
+        <generator class-name="audit.collection"/>
+
+        <filter name="byEventName" />
+        <filter name="byOperator"/>
+        <filter name="byDescription"/>
+        <filter name="byDate"/>
+    </collection>
+
+    <collection-view name="audit_journal_view" collection="audit_journal" is-default="true" replace="runtime">
+        <display>
+            <column field="UpdatedDate" name="Дата" time-pattern="HH:mm" type="datetime" search-filter="byDate" sortable="true" min-width="80px" resizable="true"/>
+            <column field="Operator" name="Оператор" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byOperator"/>
+            <column field="EventName" name="Событие" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byEventName"/>
+            <column field="Description" name="Описание" type="string" sortable="true" min-width="80px" resizable="true" search-filter="byDescription"/>
+        </display>
+    </collection-view>
+
+</configuration>

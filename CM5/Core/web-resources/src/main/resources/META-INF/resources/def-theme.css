@@ -297,6 +297,13 @@ h1 {
     background: #ffffff;
 }
 
+/*Баг с зафиксированной навигационной панелью*/
+
+.collection-plugin-view-container-with-left-panel .collection-plugin-view-container>
+.GNMSARGHI-ru-intertrust-cm-core-gui-impl-client-themes-CommonCssResource-columnSettingsButton {
+   margin-right: 200px;
+}
+
 .collection-plugin-view-container table {
     width: 100% !important;
 }

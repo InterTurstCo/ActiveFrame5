@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -48,6 +50,8 @@ public class FormPluginHandler extends ActivePluginHandler {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
+    private CrudService crudService;
+    @Autowired
     private AccessVerificationService accessVerificationService;
 
     public FormPluginData initialize(Dto initialData) {
@@ -61,6 +65,13 @@ public class FormPluginHandler extends ActivePluginHandler {
             formPluginConfig.getPluginState().setEditable(false);
         }
         FormPluginData pluginData = new FormPluginData();
+        if(!configurationExplorer.isAuditLogType(rootDomainObjectType) && domainObjectId!=null){
+            DomainObject rootObject = crudService.find(domainObjectId);
+            if(rootObject.getStatus()!=null){
+                form.setStatus(crudService.find(rootObject.getStatus()));
+            }
+
+        }
         pluginData.setFormDisplayData(form);
         pluginData.setPluginState(formPluginConfig.getPluginState());
         ToolbarContext toolbarContext = getActionContexts(formPluginConfig, form);

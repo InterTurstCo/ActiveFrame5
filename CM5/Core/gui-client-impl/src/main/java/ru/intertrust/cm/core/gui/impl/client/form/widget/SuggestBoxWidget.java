@@ -19,8 +19,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.WidgetNavigator;
+import ru.intertrust.cm.core.gui.api.client.event.WidgetBroadcastEvent;
 import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
@@ -76,6 +78,31 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private Set<Id> initiallySelectedIds = new HashSet<>();
     private SuggestPresenter presenter;
     protected SuggestBox suggestBox;
+
+    @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        presenter.clearAll();
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -252,7 +279,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 String representation = selectedItem.getReplacementString();
                 insertItem(id, representation);
                 suggestBox.refreshSuggestionList();
-
+                Application.getInstance().getEventBus().fireEvent(new WidgetBroadcastEvent(getContainer(),initialData.getWidgetId(),
+                    getContainer().hashCode()
+                    ,getContainer().getPlugin().getView().getActionToolBar().hashCode()));
             }
         });
         Event.sinkEvents(suggestBox.getElement(), Event.ONBLUR);
@@ -411,6 +440,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
          * Метод для расширения в наследниках, обработка события удаления
          * айтема из выбраных
          */
+        Application.getInstance().getEventBus().fireEvent(new WidgetBroadcastEvent(getContainer(),initialData.getWidgetId(),
+            getContainer().hashCode()
+            ,getContainer().getPlugin().getView().getActionToolBar().hashCode()));
     }
 
     @Override

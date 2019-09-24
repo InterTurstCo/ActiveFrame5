@@ -147,4 +147,9 @@ public class AuditServiceImpl implements AuditService {
         return result;
     }
 
+    @Override
+    public DomainObjectVersion findPreviousVersion(Id versionId) {
+        return auditLogServiceDao.findPreviousVersion(versionId);
+    }
+
 }

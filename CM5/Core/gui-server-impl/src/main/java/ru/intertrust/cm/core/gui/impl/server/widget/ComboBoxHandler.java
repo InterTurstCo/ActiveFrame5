@@ -51,6 +51,7 @@ public class ComboBoxHandler extends ListWidgetHandler {
                 appendDisplayMappings(listToDisplay, widgetConfig.getPatternConfig().getValue(), idDisplayMapping);
                 Id selectedId = context.getFieldPlainValue();
                 widgetState.setSelectedId(selectedId);
+                widgetState.setOriginalObjects(listToDisplay);
             }
         }
     }

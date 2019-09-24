@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration
             xmlns="https://cm5.intertrust.ru/config"
-            xmlns:act="https://cm5.intertrust.ru/config/action"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <collection name="allSchedule" idField="id">
         <prototype>
@@ -29,7 +28,14 @@
         </display>
     </collection-view>
 
-    <form name="scheduleForm" domain-object-type="schedule" is-default="true">
+    <form name="scheduleForm" domain-object-type="schedule" is-default="false">
+        <act:tool-bar useDefault="true">
+            <act:action-ref name-ref="aCreate" text="Создать город" jsid="createCity" merged="true">
+                <act:action-params>
+                    <act:action-param name="create.object.type" value="city"/>
+                </act:action-params>
+            </act:action-ref>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
@@ -174,18 +180,18 @@
                 <text>Параметры</text>
             </label>
 
-            <text-box id="name">
+            <text-box id="name" translate-id="true">
                 <field-path value="name"/>
             </text-box>
-            <enumeration-box id="class">
+            <enumeration-box id="class" translate-id="true">
                 <field-path value="task_class"/>
                 <map-provider component="ScheduledTaskEnumerator"/>
             </enumeration-box>
-            <check-box id="active">
+            <check-box id="active" translate-id="true">
                 <field-path value="active"/>
             </check-box>
 
-            <text-box id="year">
+            <text-box id="year" translate-id="true">
                 <field-path value="year">
                     <default-value>
                         <field value="*"/>
@@ -228,7 +234,7 @@
                 </field-path>
             </text-box>
 
-            <integer-box id="priority">
+            <integer-box id="priority" translate-id="true">
                 <field-path value="priority"/>
             </integer-box>
             <integer-box id="timeout">
@@ -244,13 +250,13 @@
                 <text></text>
             </label>
             
-            <table-viewer id="journal">
-                <collection-ref name="schedule_execution_collection"/>
-                <collection-view-ref name="schedule_execution_collectiont_view"/>
+            <table-viewer id="journal" translate-id="true">
+                <collection-ref name="schedule_execution_collectionn"/>
+                <collection-view-ref name="schedule_execution_collectionnt_view"/>
                 <default-sort-criteria column-field="redy_date" order="desc"/>
                 <collection-extra-filters>
                     <extra-filter name="bySchedule">
-                        <param name="0" set-base-object="true"/>
+                        <param name="0" set-base-object="true" />
                     </extra-filter>
                 </collection-extra-filters>
             </table-viewer>                                        
@@ -258,7 +264,7 @@
         </widget-config>
     </form>
 
-    <collection name="schedule_execution_collection" idField="id">
+    <collection name="schedule_execution_collectionn" idField="id">
         <prototype>
             <![CDATA[
                 select ex.id, ex.redy_date, ex.complete_date, ex.result, ex.result_description, st.description as status_name
@@ -276,7 +282,7 @@
         </filter>
     </collection>
 
-    <collection-view name="schedule_execution_collectiont_view" collection="schedule_execution_collection" is-default="true">
+    <collection-view name="schedule_execution_collectionnt_view" collection="schedule_execution_collectionn" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false" hidden="true"/>
             <column field="redy_date" name="Старт" editable="false" type="datetime" date-pattern="dd.MM.yyyy HH:mm:ss" sortable="true"/>

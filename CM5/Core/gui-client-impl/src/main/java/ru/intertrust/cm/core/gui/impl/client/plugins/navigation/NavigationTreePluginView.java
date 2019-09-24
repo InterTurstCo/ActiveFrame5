@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.LeftPanelAttachedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
@@ -194,7 +195,7 @@ public class NavigationTreePluginView extends PluginView {
 
     private void onPinButtonClick() {
         final EventBus eventBus = Application.getInstance().getEventBus();
-        if (!pinButtonPressed) {
+        if (!pinButtonPressed) { // закрепляем панель
             pinButtonPressed = true;
             pinButton.setStyleName(BUTTON_PINNED_STYLE);
             // in case tree panel is in process of hiding, reopen it
@@ -210,13 +211,15 @@ public class NavigationTreePluginView extends PluginView {
             navigationTreesPanel.setStyleName("navigation-dynamic-panel-expanded");
             eventBus.fireEvent(new SideBarResizeEvent(Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth(),
                     LEFT_SECTION_ACTIVE_STYLE, CENTRAL_SECTION_ACTIVE_STYLE));
+            eventBus.fireEvent(new LeftPanelAttachedEvent(true));
 
-        } else {
+        } else { //открепляем панель
             pinButtonPressed = false;
             pinButton.setStyleName(BUTTON_UNPINNED_STYLE);
             eventBus.fireEvent(new SideBarResizeEvent(START_WIDGET_WIDTH, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
             navigationTreesPanel.setStyleName("navigation-dynamic-panel");
             animatedTreePanelIsOpened = true;
+            eventBus.fireEvent(new LeftPanelAttachedEvent(false));
         }
         Application.getInstance().getCompactModeState().setNavigationTreePanelExpanded(pinButtonPressed);
         UserSettingsUtil.storeNavigationPanelState(pinButtonPressed);

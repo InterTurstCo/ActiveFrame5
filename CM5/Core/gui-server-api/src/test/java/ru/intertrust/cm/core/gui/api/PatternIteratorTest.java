@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.api;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import ru.intertrust.cm.core.gui.impl.server.widget.PatternIterator;
 

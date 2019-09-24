@@ -20,20 +20,45 @@ import java.util.Map;
 
 /**
  * @author Lesia Puhova
- *         Date: 03.10.14
- *         Time: 19:35
+ * Date: 03.10.14
+ * Time: 19:35
  */
 @ComponentName("enumeration-box")
-public class EnumBoxWidget extends BaseWidget  {
+public class EnumBoxWidget extends BaseWidget {
 
     private Map<String, Value> displayTextToValue;
 
     @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
+    @Override
     public void setCurrentState(WidgetState currentState) {
-        EnumBoxState enumBoxState = (EnumBoxState)currentState;
+        EnumBoxState enumBoxState = (EnumBoxState) currentState;
         displayTextToValue = enumBoxState.getDisplayTextToValue();
         if (!isEditable()) {
-            ((Label)impl).setText(enumBoxState.getSelectedText());
+            ((Label) impl).setText(enumBoxState.getSelectedText());
         } else {
             ListBox listBox = (ListBox) impl;
             listBox.clear();
@@ -54,12 +79,12 @@ public class EnumBoxWidget extends BaseWidget  {
     protected boolean isChanged() {
         String currentText;
         if (!isEditable()) {
-            currentText = ((Label)impl).getText();
+            currentText = ((Label) impl).getText();
         } else {
             ListBox listBox = (ListBox) impl;
             currentText = listBox.getValue(listBox.getSelectedIndex());
         }
-        return !currentText.equals(((EnumBoxState)getInitialData()).getSelectedText());
+        return !currentText.equals(((EnumBoxState) getInitialData()).getSelectedText());
     }
 
     @Override
@@ -67,7 +92,7 @@ public class EnumBoxWidget extends BaseWidget  {
         final EnumBoxState state = new EnumBoxState();
         state.setDisplayTextToValue(displayTextToValue);
         if (!isEditable()) {
-            state.setSelectedText(((Label)impl).getText());
+            state.setSelectedText(((Label) impl).getText());
             return state;
         }
         ListBox listBox = (ListBox) impl;
@@ -89,7 +114,7 @@ public class EnumBoxWidget extends BaseWidget  {
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
-        return  new Label();
+        return new Label();
     }
 
     @Override
@@ -100,8 +125,10 @@ public class EnumBoxWidget extends BaseWidget  {
 
     @Override
     public Object getValue() {
-        ListBox listBox = (ListBox) impl;
-        return listBox.getValue(listBox.getSelectedIndex());
+        if (impl instanceof ListBox) {
+            ListBox listBox = (ListBox) impl;
+            return listBox.getSelectedValue();
+        } return ((Label)impl).getText();
     }
 
     @Override

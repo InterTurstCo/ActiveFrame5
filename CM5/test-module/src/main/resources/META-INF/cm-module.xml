@@ -54,6 +54,7 @@
         <configuration-path>module-configuration/form-templates.xml</configuration-path>
         <configuration-path>module-configuration/actions.xml</configuration-path>
         <configuration-path>module-configuration/form-unlinked-from-do.xml</configuration-path>
+        <configuration-path>module-configuration/links.xml</configuration-path>
 
         <!-- Тестовые обьекты для иерархического плагина  -->
         <configuration-path>hierarchy-plugin-test-data/domain-objects.xml</configuration-path>
@@ -110,6 +111,14 @@
         <!-- Настройки ссылок в сообщениях -->
         <configuration-path>module-configuration/url-config.xml</configuration-path>
         <configuration-path>module-configuration/atst_inherit.xml</configuration-path>
+
+        <!-- Обьекты и формы для тестирования динамического поведения виджетов -->
+        <configuration-path>contacts-module/configuration/form/nbr_test.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/nbr_test_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/nbr_test_collection.xml</configuration-path>
+
+        <!-- Плагин SingleRow -->
+        <configuration-path>module-configuration/single-row-plugin.xml</configuration-path>
 
     </configuration-paths>
     
@@ -173,6 +182,8 @@
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-rvz.csv</import-file>
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-org-addresses.csv</import-file>
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-pos-appointments.csv</import-file>
+
+        <import-file>importdata/nbr_schema.csv</import-file>
     </import-files>
 
     <import-reports>

@@ -204,6 +204,15 @@ public class ActionConfigBuilder {
         }
         final ActionConfig result = PluginHandlerHelper.cloneActionConfig(config);
         PluginHandlerHelper.fillActionConfigFromRefConfig(result, actionRefConfig);
+        if(actionRefConfig.getJsid()!=null){
+            result.setJsid(actionRefConfig.getJsid());
+        }
+        if(actionRefConfig.getEventsTypeConfig()!=null){
+            result.setEventsTypeConfig(actionRefConfig.getEventsTypeConfig());
+        }
+        if(actionRefConfig.getRulesTypeConfig()!=null){
+            result.setRulesTypeConfig(actionRefConfig.getRulesTypeConfig());
+        }
         return result;
     }
 

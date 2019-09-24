@@ -81,6 +81,7 @@ public class GlobalCacheImpl implements GlobalCache {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private volatile long sizeLimit = 10 * 1024 * 1024;
+    private volatile long sizeitemLimit = 1 * 1024 * 1024;
     protected volatile int waitLockMillies = 1;
     private CacheEntriesAccessSorter accessSorter;
     private Cleaner cleaner;
@@ -175,6 +176,13 @@ public class GlobalCacheImpl implements GlobalCache {
         sizeLimit = bytes;
         logger.info("Cache size limit is set to: " + bytes + " bytes");
     }
+
+    @Override
+    public void setSizeItemLimitBytes(long bytes){
+        sizeitemLimit = bytes;
+        logger.info("Cache item size limit is set to: " + bytes + " bytes");
+    }
+
 
     @Override
     public long getSizeLimitBytes() {
@@ -1274,6 +1282,14 @@ public class GlobalCacheImpl implements GlobalCache {
 
         subKeyClone = subKey.getCopy(domainEntitiesCloner);
         CollectionNode collectionNode = count == -1 ? new CollectionNode(domainEntitiesCloner.fastCloneCollection(collection), time) : new CollectionNode(count, time);
+
+        // Проверка на то что размер данных в коллекции не превышает определенного парога
+        if (collection != null && collectionNode.getSize().get() > sizeitemLimit){
+            baseNode.removeCollectionNode(subKey);
+            logger.warn(collection.getClass().getName() + " is not cached. Maximum memory exceeded: " + collectionNode.getSize().get());
+            return;
+        }
+
         baseNode.setCollectionNode(subKeyClone, collectionNode);
         accessSorter.logAccess(new CollectionAccessKey(key, subKeyClone));
         assureCacheSizeLimit();

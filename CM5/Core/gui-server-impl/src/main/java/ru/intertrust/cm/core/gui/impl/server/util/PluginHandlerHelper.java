@@ -207,20 +207,22 @@ public class PluginHandlerHelper {
         //Simple Server Validation
         ConfigurationExplorer explorer = (ConfigurationExplorer) applicationContext.getBean("configurationExplorer");
         FormConfig formConfig = explorer.getPlainFormConfig(formState.getName());
-        final CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById = formConfig.getWidgetConfigsById();
-        List<Constraint> constraints = new ArrayList<>();
-        for (WidgetState state : formState.getFullWidgetsState().values()) {
-            constraints.addAll(state.getConstraints());
-        }
         List<String> errorMessages = new ArrayList<String>();
-        for (Constraint constraint : constraints) {
-            Value valueToValidate = getValueToValidate(constraint, formState, widgetConfigsById, applicationContext);
-            ServerValidator validator = createValidator(constraint);
-            if (validator != null) {
-                validator.init(formState);
-                ValidationResult validationResult = validator.validate(valueToValidate);
-                if (validationResult.hasErrors()) {
-                    errorMessages.addAll(getMessages(validationResult, constraint.getParams(), locale));
+        if (formConfig != null) {
+            final CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById = formConfig.getWidgetConfigsById();
+            List<Constraint> constraints = new ArrayList<>();
+            for (WidgetState state : formState.getFullWidgetsState().values()) {
+                constraints.addAll(state.getConstraints());
+            }
+            for (Constraint constraint : constraints) {
+                Value valueToValidate = getValueToValidate(constraint, formState, widgetConfigsById, applicationContext);
+                ServerValidator validator = createValidator(constraint);
+                if (validator != null) {
+                    validator.init(formState);
+                    ValidationResult validationResult = validator.validate(valueToValidate);
+                    if (validationResult.hasErrors()) {
+                        errorMessages.addAll(getMessages(validationResult, constraint.getParams(), locale));
+                    }
                 }
             }
         }

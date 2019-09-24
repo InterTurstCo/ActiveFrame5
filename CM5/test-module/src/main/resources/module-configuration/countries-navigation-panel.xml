@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
+
     <navigation name="panel" level2-panel-width="220px" margin-size="default"
                 text-auto-cut="false"
                 is-default="true"
                 application="main"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
 
 
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="refToCalendar4">
             <child-links>
-                <link name="Calendar1" display-text="Календарь1">
+                <link name="refToCalendar4" ref-link-name="Calendar4"/>
+
+                <!--link name="Calendar1" display-text="Календарь1">
                     <plugin>
                         <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
                             <calendar-view>
@@ -41,7 +44,7 @@
                             </calendar-view>
                         </calendar>
                     </plugin>
-                </link>
+                </link-->
 
                 <!--
       Ссылка на внешний адрес. Адрес может быть в пределах текущего приложения
@@ -68,6 +71,8 @@
                         <url-configuration is-absolute="false" property-with-base-url="base.url.1"/>
                     </outer>
                 </link>
+
+                <link name="refToCities1" ref-link-name="Cities"/>
             </child-links>
         </link>
         <!--
@@ -249,32 +254,7 @@
                         </link>
                     </child-links>
                 </link>
-                <link name="Cities" display-text="Города">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="city">
-                            <collection-viewer insert-top="true">
-                                <collection-ref name="Cities"/>
-                                <default-sort-criteria column-field="population" order="desc"/>
-
-                                <child-collection name="Cities" group-object-type="city">
-                                    <collection-extra-filters>
-                                        <extra-filter name="byText">
-                                            <param name="0" type="string" value="Москва"/>
-                                        </extra-filter>
-                                    </collection-extra-filters>
-                                    <expandable-objects>
-                                        <expandable-object object-name="city"/>
-                                    </expandable-objects>
-                                    <default-sort-criteria column-field="name" order="asc"/>
-                                </child-collection>
-                            </collection-viewer>
-                            <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                    <!--decorations>
-                        <collection-counter/>
-                    </decorations-->
-                </link>
+                <link name="refToCities2" ref-link-name="Cities"/>
                 <link name="CountryUnions" display-text="Союзы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="country_union">
@@ -1916,12 +1896,35 @@
                         </hierarchy-surfer>
                     </plugin>
                 </link>
+
+                <link name="NBRTest" display-text="Тест формы с динамическими элементами">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="nbr_schema_properties">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="true"/>
+                                <collection-ref name="col_nbr_properties"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                
+                <link name="SingleRowPlugin" display-text="Плагин SingleRow">
+                    <plugin>
+                        <custom name="single.row.plugin">
+                            <attribute name="type" value="test_single_row"/>
+                        </custom>
+                    </plugin>
+                </link>
+                
+                <link name="lnk_audit-ref" ref-link-name="lnk_audit"/>
+                
             </child-links>
         </link>
 
     </navigation>
 
-    <navigation name="panel_1" is-default="true" application="geo">
+    <navigation name="panel_1" is-default="false">
 
         <link name="ClusterManager" display-text="Менеджер кластера" >
             <plugin>
@@ -1993,33 +1996,9 @@
     </navigation>
 
 
-    <navigation name="panel_2" is-default="false" merge="true" application="geo2">
-        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
+    <navigation name="panel_2" is-default="false">
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="CountryUnions">
             <child-links>
-                <link name="Countries" display-text="Страны" counter-type="non-read">
-                    <plugin>
-                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
-                        <domain-object-surfer domain-object-type-to-create="country">
-                            <collection-viewer>
-                                <collection-ref name="Countries"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
-                                <search-area-ref name="Countries-Search-Area"/>
-                                <search-collection-ref name="Countries"/>
-                                <filter-panel panel-state="open"/>
-                                <initial-filters>
-                                    <initial-filter name="byName">
-                                        <param name="0" value="Яп%" type="string"/>
-                                    </initial-filter>
-                                </initial-filters>
-                            </collection-viewer>
-                            <!--form-viewer form-mapping-component="custom.mapping.component"/-->
-                            <form-viewer>
-                                <form-mapping domain-object-type="country" form="country_form"/>
-                                <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
-                            </form-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
                 <link name="CountryUnions" display-text="Союзы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="country_union">
@@ -2358,18 +2337,20 @@
         </navigation-panel-mapping>
 
 
-        <navigation-panel-mapping name="panel_1">
-
+        <navigation-panel-mapping name="panel_2">
+            <users>
+                <user uid="person2"/>
+            </users>
             <!-- <groups>
                  <group-name value="test-group-1" priority="10"/>
              </groups>-->
+
         </navigation-panel-mapping>
     </navigation-panel-mappings>
 
     <navigation-panel-mappings name="nav-panel-map3">
-        <navigation-panel-mapping name="panel_2">
+        <navigation-panel-mapping name="panel_8">
             <users>
-                <user uid="person2"/>
                 <user uid="person5"/>
             </users>
             <groups>

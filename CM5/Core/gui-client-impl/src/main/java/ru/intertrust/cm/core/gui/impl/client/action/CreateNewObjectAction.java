@@ -8,7 +8,10 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -60,7 +63,6 @@ public class CreateNewObjectAction extends Action {
             formPluginConfig.setFormViewerConfig(editor.getFormViewerConfig());
         }
 
-
         //CMFIVE-4330
         /**
          * Это просто временное решение т.к. прямой возможности передать Id в DefailtValueSetter отсюда
@@ -80,10 +82,27 @@ public class CreateNewObjectAction extends Action {
 
             setLastSelectedHierarchyCollectionRow(editor, formPluginConfig);
 
+            addPluginViewCreatedEventListener(formPlugin);
             getPlugin().getOwner().openChild(formPlugin);
         } else {
             editor.replaceForm(formPluginConfig);
         }
+
+    }
+
+    /**
+     * Добавляет слушатель события создания представления, который выделит первую вкладку на форме, если они имеются.
+     *
+     * @param formPlugin объект плагина формы
+     */
+    private void addPluginViewCreatedEventListener(FormPlugin formPlugin) {
+        PluginViewCreatedEventListener listener = new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                GuiUtil.selectFirstTab(source);
+            }
+        };
+        formPlugin.addViewCreatedListener(listener);
     }
 
     /**

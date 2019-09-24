@@ -21,3 +21,4 @@ TYPE_NAME=Status; KEYS=Name
 "Run	";Запущен
 Fault;Ошибка
 Terminate;Остановлен
+Inactive;Не активный

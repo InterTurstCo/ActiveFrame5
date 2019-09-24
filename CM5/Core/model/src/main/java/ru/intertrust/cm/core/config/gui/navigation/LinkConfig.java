@@ -3,8 +3,11 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.Localizable;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.counters.CounterType;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +17,10 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "link")
-public class  LinkConfig implements Dto {
+public class  LinkConfig implements Dto,TopLevelConfig {
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
 
     @Attribute(name = "name")
     private String name;
@@ -34,6 +40,9 @@ public class  LinkConfig implements Dto {
 
     @Attribute(name = "child-to-open", required = false)
     private String childToOpen;
+
+    @Attribute(name = "ref-link-name", required = false)
+    private String refLinkName;
 
     @Attribute(name = "auto-cut", required = false)
     private Boolean autoCut;
@@ -63,8 +72,19 @@ public class  LinkConfig implements Dto {
     @Transient
     private transient ChildLinksConfig parentChildLinksConfig;
 
+    @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -167,6 +187,14 @@ public class  LinkConfig implements Dto {
         this.tooltip = tooltip;
     }
 
+    public String getRefLinkName() {
+        return refLinkName;
+    }
+
+    public void setRefLinkName(String refLinkName) {
+        this.refLinkName = refLinkName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -182,6 +210,10 @@ public class  LinkConfig implements Dto {
         if (childToOpen != null ? !childToOpen.equals(that.childToOpen) : that.childToOpen != null) return false;
         if (autoCut != null ? !autoCut.equals(that.autoCut) : that.autoCut != null) return false;
         if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) return false;
+        if (refLinkName != null ? !refLinkName.equals(that.refLinkName) : that.refLinkName != null) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
+            return false;
+        }
         if (pluginDefinition != null ? !pluginDefinition.equals(that.pluginDefinition) : that.pluginDefinition != null)
             return false;
         if (defaultSearchAreasConfig != null ? !defaultSearchAreasConfig.equals(that.defaultSearchAreasConfig) : that.defaultSearchAreasConfig != null)

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="https://cm5.intertrust.ru/config/event" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:evt="https://cm5.intertrust.ru/config/event">
+
+    <xs:element name="events" type="evt:eventsType"/>
+    <xs:complexType name="eventsType">
+        <xs:sequence>
+            <xs:element name="subscriber" minOccurs="1" maxOccurs="1"
+                        type="evt:subscriberType"
+                        xmlns:evt="https://cm5.intertrust.ru/config/event"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="subscriber" type="evt:subscriberType"/>
+    <xs:complexType name="subscriberType">
+        <xs:sequence>
+            <xs:element name="subscribed" minOccurs="1" maxOccurs="unbounded"
+                        type="evt:subscribedType"
+                        xmlns:evt="https://cm5.intertrust.ru/config/event"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="subscribed" type="evt:subscribedType"/>
+    <xs:complexType name="subscribedType">
+        <xs:attribute name="to-id" use="required" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>

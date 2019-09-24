@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import org.springframework.util.CollectionUtils;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
@@ -26,6 +27,7 @@ import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareTimeZon
  *         Time: 13:15
  */
 public class FilterBuilderUtil {
+
     public static final String EXCLUDED_IDS_FILTER = "idsExcluded";
     public static final String INCLUDED_IDS_FILTER = "idsIncluded";
 
@@ -361,4 +363,51 @@ public class FilterBuilderUtil {
         }
         return result;
     }
+
+    /**
+     * Возвращает объект фильтра из списка по его имени.<br>
+     * Для фильтров 'idsExcluded' и 'idsIncluded' берется совпадение по началу имени.<br>
+     * Для остальных возвращает только в случае полного совпадения с учетом регистра.
+     *
+     * @param filterName имя фильтра для поиска
+     * @param filtersList       список всех фильтров
+     * @return объект {@link ru.intertrust.cm.core.business.api.dto.Filter фильтра}
+     */
+    public static Filter getFilterByName(String filterName, List<? extends Filter> filtersList) {
+        if (!CollectionUtils.isEmpty(filtersList)) {
+
+            if (filterName.startsWith(INCLUDED_IDS_FILTER)) {
+                for (Filter filter : filtersList) {
+                    if (filter instanceof IdsIncludedFilter) {
+                        return filter;
+                    }
+                }
+            } else if (filterName.startsWith(EXCLUDED_IDS_FILTER)) {
+                for (Filter filter : filtersList) {
+                    if (filter instanceof IdsExcludedFilter) {
+                        return filter;
+                    }
+                }
+            } else {
+                for (Filter filter : filtersList) {
+                    if (filterName.equals(filter.getFilter())) {
+                        return filter;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Убирает из строки все символы '%'.
+     *
+     * @param string строка для обработки.
+     * @return результирующую строку с убранными символами '%'
+     */
+    public static String cutPercentsCharacters(String string) {
+        final String stringWithNoPercentCharacters = string.replaceAll("%", "");
+        return stringWithNoPercentCharacters;
+    }
+
 }

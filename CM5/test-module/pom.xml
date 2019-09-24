@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.8.0-14-SNAPSHOT</version>
+        <version>0.8.0-20-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -57,6 +57,12 @@
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>service-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>nbr-base</artifactId>
             <version>${project.version}</version>
         </dependency>
 

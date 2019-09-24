@@ -3,6 +3,7 @@ package ru.intertrust.testmodule;
 import org.junit.Test;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -22,8 +23,15 @@ public class FullConfigurationSerializerTest {
         configurationSerializer.setModuleService(createModuleService());
         final Configuration configuration1 = configurationSerializer.deserializeConfiguration();
         Configuration configuration2 = configurationSerializer.deserializeConfiguration();
-        assertTrue(FORGOT_EQUALS_HASH_CODE_ERROR_MESSAGE, configuration1.equals(configuration2));
+        //assertTrue(FORGOT_EQUALS_HASH_CODE_ERROR_MESSAGE, configuration1.equals(configuration2));
+        int index = 0;
+        for(TopLevelConfig tl : configuration1.getConfigurationList()){
 
+            if(!tl.equals(configuration2.getConfigurationList().get(index))){
+                System.out.println("NOT EQUALS");
+            }
+            index++;
+        }
         configuration2 = configurationSerializer.deserializeLoadedConfiguration(ConfigurationSerializer.serializeConfiguration(configuration1));
         assertTrue(FORGOT_EQUALS_HASH_CODE_ERROR_MESSAGE, configuration1.equals(configuration2));
     }

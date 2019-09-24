@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Коллекция для отображения Контакных лиц -->
+    <collection name="col_nbr_properties" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  nsp.id as id,
+                  nsp.name as name,
+                  nsp.is_system as is_system,
+                  nsp.is_required as is_required,
+                  ns.name as schema
+                FROM
+                  nbr_schema_properties nsp
+                  left join nbr_schema ns on ns.id=nsp.schema
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            SELECT
+            nsp.id as id,
+            nsp.name as name,
+            nsp.is_system as is_system,
+            nsp.is_required as is_required,
+            ns.name as schema
+            FROM
+            nbr_schema_properties nsp
+            left join nbr_schema ns on ns.id=nsp.schema
+            ::from-clause
+            where
+            1=1 ::where-clause
+        </counting-prototype>
+
+
+    </collection>
+
+    <collection-view name="col_nbr_properties_view" collection="col_nbr_properties" is-default="true">
+        <display>
+            <column field="name" name="Название" type="string" resizable="true"/>
+            <column field="is_required" name="Обязательное" type="boolean" resizable="true"/>
+            <column field="is_system" name="Системное" type="boolean" sortable="true" resizable="true"/>
+            <column field="schema" name="Имя схемы" type="string" sortable="true" resizable="true"/>
+        </display>
+    </collection-view>
+</configuration>

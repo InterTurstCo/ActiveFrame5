@@ -28,6 +28,31 @@ public class LabelWidget extends BaseWidget {
     }
 
     @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
+    @Override
     public void setCurrentState(WidgetState currentState) {
         LabelState labelState = (LabelState) currentState;
         Panel panel = (Panel) impl;
@@ -40,6 +65,11 @@ public class LabelWidget extends BaseWidget {
         boolean showRedAsterisk = labelState.isAsteriskRequired() && isEditable;
         redAsteriskLabel.setText(showRedAsterisk ? "*" : "");
         applyFontStyle(redAsteriskLabel, labelState);
+    }
+
+    @Override
+    public Object getValue() {
+        return null;
     }
 
     @Override
@@ -62,6 +92,7 @@ public class LabelWidget extends BaseWidget {
         state.setFontStyle(initialState.getFontStyle());
         state.setFontSize(initialState.getFontSize());
         state.setTextDecoration(initialState.getTextDecoration());
+        state.setBackgroundColor(initialState.getBackgroundColor());
         return state;
     }
 
@@ -92,6 +123,8 @@ public class LabelWidget extends BaseWidget {
         final String fontStyle = state.getFontStyle();
         final String fontSize = state.getFontSize();
         final String textDecoration = state.getTextDecoration();
+        final String backgroundColor = state.getBackgroundColor();
+                
         final Style style = label.getElement().getStyle();
         if (fontWeight != null) {
             style.setProperty("fontWeight", fontWeight);
@@ -104,6 +137,9 @@ public class LabelWidget extends BaseWidget {
         }
         if (textDecoration != null) {
             style.setProperty("textDecoration", textDecoration);
+        }
+        if (backgroundColor != null) {
+            style.setProperty("backgroundColor", backgroundColor);
         }
     }
 

@@ -21,6 +21,31 @@ public class AttachmentTextBoxWidget extends BaseWidget {
         return new AttachmentTextBoxWidget();
     }
 
+    @Override
+    public void setValue(Object value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void disable(Boolean isDisabled) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void reset() {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public void applyFilter(String value) {
+        //TODO: Implementation required
+    }
+
+    @Override
+    public Object getValueTextRepresentation() {
+        return getValue();
+    }
+
     public void setCurrentState(WidgetState currentState) {
         setTrimmedText((HasText) impl, ((AttachmentTextState) currentState).getText());
     }

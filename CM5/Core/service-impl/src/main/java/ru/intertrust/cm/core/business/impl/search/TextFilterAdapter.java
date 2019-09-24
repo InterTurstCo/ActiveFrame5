@@ -40,7 +40,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
                 if (type instanceof TextSearchFieldType) {
                     ((TextSearchFieldType) type).addLanguage("");
                 }
-                if (type instanceof TextSearchFieldType && ((TextSearchFieldType) type).isSearchBySubstring()) {
+                if (type instanceof SpecialTextSearchFieldType || (type instanceof TextSearchFieldType && ((TextSearchFieldType) type).isSearchBySubstring())) {
                     if (searchString.length() >=2 && searchString.startsWith("\"") && searchString.endsWith("\"")) {
                         searchString = searchString.substring(1, searchString.length() - 1);
                     }

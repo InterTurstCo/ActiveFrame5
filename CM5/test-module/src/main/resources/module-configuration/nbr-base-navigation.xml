@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <navigation name="panel_nbr" is-default="false" application="nbr">
+    
+        <!-- Навигация для NBRBase -->
+        <link name="nbr_Administration" display-text="Базовые компоненты НБР" image="images/tasks.png"
+              child-to-open="nbr_access_control">
+            <child-links>
+                <link name="nbr_access_control" display-text="Управление доступом" child-to-open="lnk_nbr_person">
+                    <child-links>
+                        <link name="lnk_nbr_person" display-text="Пользователи">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="person">
+                                    <collection-viewer>
+                                        <collection-ref name="person_active" />
+                                        <default-sort-criteria column-field="fio" order="asc"/>
+                                        <act:tool-bar useDefault="false">
+                                            <act:action-ref name-ref="aRefresh" order="1"/>
+                                            <act:action-ref name-ref="aToggleEditOn" order="2"/>
+                                            <act:action-group name="createSystemGroup" text="Создать" imageClass="actionBar-create" order="5" visibility-checker="admin.visibility.checker">
+                                                <act:action-ref name-ref="aCreate" text="Пользователь">
+                                                    <act:action-params>
+                                                        <act:action-param name="create.object.type" value="Person" />
+                                                    </act:action-params>
+                                                </act:action-ref>
+                                            </act:action-group>
+                                            <act:action-ref name-ref="disable_person" visibility-checker="admin.visibility.checker" order="6"/>
+                                        </act:tool-bar>
+                                        <rows-selection default-state="empty" multi-selection="true"/>
+                                    </collection-viewer>
+                                    <form-viewer>
+                                        <form-mapping domain-object-type="person" form="person"/>
+                                    </form-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="link_user_group" display-text="Группы доступа">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="user_group">
+                                    <collection-viewer>
+                                        <collection-ref name="user_group_all"/>
+                                        <default-sort-criteria column-field="groupName" order="asc"/>
+
+                                        <act:tool-bar useDefault="false">
+                                            <act:action-ref name-ref="aRefresh" order="1"/>
+                                        </act:tool-bar>
+
+                                        <rows-selection default-state="empty" multi-selection="true"/>
+                                    </collection-viewer>
+                                    <form-viewer>
+                                        <form-mapping domain-object-type="user_group" form="user_group" />
+                                    </form-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="lnk_nbr_person_inactive" display-text="Не активные">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="person">
+                                    <collection-viewer>
+                                        <collection-ref name="person_inactive" />
+                                        <default-sort-criteria column-field="fio" order="asc"/>
+                                        <act:tool-bar useDefault="false">
+                                            <act:action-ref name-ref="aRefresh" order="1"/>
+                                        </act:tool-bar>
+                                    </collection-viewer>
+                                    <form-viewer>
+                                        <form-mapping domain-object-type="person" form="person"/>
+                                    </form-viewer>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
+                </link>
+                <link name="lnk_nbr_shedule" display-text="Задания">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="schedule">
+                            <collection-viewer>
+                                <collection-ref name="all_schedule" />
+                                <default-sort-criteria column-field="name" order="asc"/>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="schedule_task_execute" />
+                                    <act:action-ref name-ref="aRefresh" />
+                                </act:tool-bar>
+                                <rows-selection default-state="empty" multi-selection="true"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="schedule" form="shedule" />
+                            </form-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Configuration_upload" display-text="Загрузка конфигурации">
+                    <plugin>
+                        <custom name="configuration.deployer.plugin"/>
+                    </plugin>
+                </link>
+                <link name="GlobalSettings" display-text="Глобальные параметры">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="string_settings">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                    <act:action-ref name-ref="aDelete"/>
+                                    <act:action-ref name-ref="aToggleEditOn"/>
+                                    <act:action-group name="createSetting" text="Создать" order="99"
+                                                      imageClass="actionBar-create">
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Число"
+                                                    tooltip="Создать числовой параметр"
+                                                    imageClass="actionBar-create" order="100"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="long_settings"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Строка"
+                                                    tooltip="Создать строковый параметр"
+                                                    imageClass="actionBar-create" order="101"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="string_settings"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Логический"
+                                                    tooltip="Создать логический парметр"
+                                                    imageClass="actionBar-create" order="102"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="boolean_settings"/>
+                                            </act:action-params>
+                                        </act:action>
+                                    </act:action-group>
+                                </act:tool-bar>
+                                <rows-selection default-state="empty" multi-selection="true"/>
+                                <collection-ref name="global_settings_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="long_settings" form="long_parameter_form"/>
+                                <form-mapping domain-object-type="string_settings" form="string_parameter_form"/>
+                                <form-mapping domain-object-type="boolean_settings" form="boolean_parameter_form"/>
+                            </form-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                
+                <link name="CacheControl" display-text="Управление кэшем">
+                    <plugin>
+                        <global-cache-control statistics-only="false"/>
+                    </plugin>
+                </link>
+                
+                <link name="lnk_audit" ref-link-name="lnk_audit"></link>
+                
+            </child-links>
+        </link>
+    
+    </navigation>
+</configuration>

@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.tools;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

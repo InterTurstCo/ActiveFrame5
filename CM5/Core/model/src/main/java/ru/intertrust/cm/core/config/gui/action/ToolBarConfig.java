@@ -96,6 +96,18 @@ public class ToolBarConfig extends BaseAttributeConfig implements LocalizableCon
         return ExtensionPolicy.Runtime;
     }
 
+    public void setUseDefault(boolean useDefault) {
+        this.useDefault = useDefault;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setReplacementPolicy(String replacementPolicy) {
+        this.replacementPolicy = replacementPolicy;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

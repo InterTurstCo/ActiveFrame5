@@ -69,6 +69,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     public void activate(boolean isInitialActivation) {
         GlobalCache globalCache = (GlobalCache) context.getBean(globalCacheSettings.getMode().getBeanName());
         globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
+        globalCache.setSizeItemLimitBytes(globalCacheSettings.getSizeItemLimitBytes());
         globalCache.setWaitLockMillies(globalCacheSettings.getWaitLockMillies());
         globalCache.activate();
 
@@ -86,10 +87,12 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     public void applySettings(Map<String, Serializable> newSettings) {
         final String newModeStr = (String) newSettings.get("global.cache.mode");
         final Long maxSize = (Long) newSettings.get("global.cache.max.size");
+        final Long maxItemSize = (Long) newSettings.get("global.cache.max.item.size");
         final Integer waitLockMillies = (Integer) newSettings.get("global.cache.wait.lock.millies");
         final GlobalCacheSettings.Mode prevMode = globalCacheSettings.getMode();
         final GlobalCacheSettings.Mode newMode = GlobalCacheSettings.Mode.getMode(newModeStr);
         globalCacheSettings.setSizeLimitBytes(maxSize);
+        globalCacheSettings.setSizeItemLimitBytes(maxItemSize);
         globalCacheSettings.setWaitLockMillies(waitLockMillies);
         if (prevMode != newMode) {
             globalCacheSettings.setMode(newMode);
@@ -98,6 +101,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             prevCache.deactivate();
         } else {
             this.globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
+            this.globalCache.setSizeItemLimitBytes(globalCacheSettings.getSizeItemLimitBytes());
             this.globalCache.setWaitLockMillies(globalCacheSettings.getWaitLockMillies());
         }
     }
@@ -107,6 +111,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
         final HashMap<String, Serializable> settings = new HashMap<>();
         settings.put("global.cache.mode", globalCacheSettings.getMode().toString());
         settings.put("global.cache.max.size", globalCacheSettings.getSizeLimitBytes());
+        settings.put("global.cache.max.item.size", globalCacheSettings.getSizeItemLimitBytes());
         settings.put("global.cache.cluster.mode", globalCacheSettings.isInCluster());
         settings.put("global.cache.wait.lock.millies", globalCacheSettings.getWaitLockMillies());
         return settings;

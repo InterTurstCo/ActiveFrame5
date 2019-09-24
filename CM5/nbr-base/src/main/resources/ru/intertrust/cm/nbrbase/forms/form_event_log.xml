@@ -1,0 +1,109 @@
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="event_log" domain-object-type="user_event_log" is-default = "false">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false" order="1"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel" width="100px"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Пользовательское событие">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="UserLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="UserField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="IPLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="IPField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="DateLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="DateField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="ResultLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="ResultField"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <!-- Шапка формы -->
+            <label id="headerLabel" >
+                <field-path value="event_type" />
+                <renderer component-name="cmi.log.event.type.renderer" />
+            </label>
+
+            <!-- Область формы без закладок -->
+            <label id="UserLbl">
+                <text>Пользователь</text>
+            </label>
+            <label id="UserField">
+                <field-path value="person.login, person.lastname, person.firstname" />
+                <pattern value="{person.login} ({person.lastname} {person.firstname})" />
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+            </label>
+
+            <label id="IPLbl">
+                <field-path value="client_ip_address" />
+                <renderer component-name="cmi.log.event.iplbl.renderer"/>
+            </label>
+            <label id="IPField">
+                <field-path value="client_ip_address" />
+                <renderer component-name="cmi.log.event.ip.renderer"/>
+            </label>
+
+            <label id="DateLbl">
+                <text>Дата и время</text>
+            </label>
+            <date-box id="DateField" read-only="true">
+                <field-path value="date" />
+                <pattern>dd.MM.yyyy hh:mm:ss</pattern>
+            </date-box>
+
+            <label id="ResultLbl">
+                <text>Результат</text>
+            </label>
+            <label id="ResultField">
+                <field-path value="success" />
+                <renderer component-name="cmi.log.event.result.renderer" />
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+            </label>
+
+        </widget-config>
+    </form>
+
+</configuration>

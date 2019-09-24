@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -27,6 +28,7 @@ import ru.intertrust.cm.core.model.RemoteSuitableException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -163,10 +165,32 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             List<DomainObject> foundAttachments = new ArrayList<>();
 
             collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
-            return foundAttachments;
+
+            return sortById(foundAttachments);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
+    }
+
+    /**
+     * CMFIVE-35254
+     * В некоторых случаях список вложений возвращается не в том порядке в каком они добавлены в документ.
+     * Предположительно, связано с поведением Postgres. В связи с этим сортируем по Id принудительно.
+     * @param objectsToSort
+     * @return
+     */
+    private List<DomainObject> sortById(List<DomainObject> objectsToSort){
+        if(objectsToSort!=null){
+            Collections.sort(objectsToSort, (o1, o2) -> {
+                RdbmsId obj1 = new RdbmsId(o1.getId());
+                RdbmsId obj2 = new RdbmsId(o2.getId());
+                if(obj1.getId() == (obj2.getId())){
+                    return 0;
+                }
+                return (obj1.getId()<obj2.getId())?-1:1;
+            });
+        }
+        return objectsToSort;
     }
 
     private void collectAttachmentsForDOAndParentDO(Id domainObjectId, String domainObjectTypeName,
@@ -211,7 +235,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
-            return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attachmentLinkedField, accessToken);
+            return sortById(domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attachmentLinkedField, accessToken));
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }

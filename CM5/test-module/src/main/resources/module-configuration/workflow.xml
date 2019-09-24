@@ -210,7 +210,8 @@
                 <field-path/>
                 <text>Возвращать при первой отрицательной визе:</text>
             </label>
-            <text-box id="ReturnOnReject">
+            <text-box id="ReturnOnReject" translate-id="true">
+
                 <field-path value="ReturnOnReject"/>
             </text-box>
 
@@ -222,7 +223,7 @@
                      value="Negotiation_Card^Parent_Document.Negotiator" />
                  <pattern value="{Login}" />
              </list-box>-->
-            <suggest-box id="4">
+            <suggest-box id="4" translate-id="true">
                 <field-path value="Negotiation_Card^Parent_Document.Negotiator"/>
                 <collection-ref name="Persons"/>
                 <drop-down-pattern value="{login} {firstname}"/>

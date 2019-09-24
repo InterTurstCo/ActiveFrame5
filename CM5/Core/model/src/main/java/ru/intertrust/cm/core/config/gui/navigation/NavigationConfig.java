@@ -70,7 +70,7 @@ public class NavigationConfig implements LocalizableConfig {
 
     private String baseUrlTwo;
 
-    //Used for history and breadcrumbs support in hierarchical collections
+      //Used for history and breadcrumbs support in hierarchical collections
     //Not shown in navigation tree.
     private List<LinkConfig> hierarchicalLinkList = new ArrayList<LinkConfig>();
 

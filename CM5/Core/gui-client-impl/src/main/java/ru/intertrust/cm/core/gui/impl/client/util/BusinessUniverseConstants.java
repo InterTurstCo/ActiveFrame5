@@ -155,6 +155,8 @@ public class BusinessUniverseConstants {
     public static final String COLUMNS_WIDTH_TOOLTIP = "Отобразить все колонки на экране";
     public static final String NO_NEW_NOTIFICATIONS = "Новых уведомлений нет";
     public static final String ADD_CONFIG_FILES = "Добавьте файлы конфигурации:";
+    public static final String SELECT_CONFIG_TYPE = "Выберите тип конфигурации";
+    public static final String CONFIG_FILES_TYPE = "Тип конфигурации:";
     public static final String ADD_REPORT_FILES = "Добавьте файлы шаблона отчета:";
 
     public static final String MONTH_SWITCH_BUTTON = "Задачи дня";

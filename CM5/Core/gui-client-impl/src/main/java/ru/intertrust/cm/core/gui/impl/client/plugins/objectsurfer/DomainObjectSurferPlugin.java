@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFo
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -318,6 +319,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     if (pluginCloseListener != null) {
       formPlugin.addPluginCloseListener(pluginCloseListener);
     }
+    addPluginViewCreatedEventListener(formPlugin);
     Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
   }
 
@@ -362,5 +364,20 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
       UserSettingsUtil.storeCurrentNavigationLink();
     }
   }
+
+    /**
+     * Добавляет слушатель события создания представления, который выделит первую вкладку на форме, если они имеются.
+     *
+     * @param formPlugin объект плагина формы
+     */
+    private void addPluginViewCreatedEventListener(FormPlugin formPlugin) {
+        PluginViewCreatedEventListener listener = new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                GuiUtil.selectFirstTab(source);
+            }
+        };
+        formPlugin.addViewCreatedListener(listener);
+    }
 
 }

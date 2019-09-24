@@ -3,6 +3,9 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationPanelSecondLevelDefaultState;
@@ -15,6 +18,7 @@ import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
+import java.util.Collection;
 import java.util.List;
 
 @ComponentName("navigation.tree")
@@ -25,6 +29,9 @@ public class NavigationTreePluginHandler extends PluginHandler {
 
     @Autowired
     private UserSettingsFetcher userSettingsFetcher;
+
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
 
     @org.springframework.beans.factory.annotation.Value("${base.url.1:http://localhost:8080}")
     private String baseUrlOne;
@@ -41,6 +48,8 @@ public class NavigationTreePluginHandler extends PluginHandler {
         } else {
              navigationConfig = guiService.getNavigationConfiguration();
         }
+        replaceReferences(navigationConfig);
+
         navigationConfig.setBaseUrlOne(baseUrlOne);
         navigationConfig.setBaseUrlTwo(baseUrlTwo);
 
@@ -64,6 +73,41 @@ public class NavigationTreePluginHandler extends PluginHandler {
         boolean hasSecondLevelNavigationPanel = hasSecondLevelNavigationPanel(navigationConfig.getLinkConfigList());
         navigationTreePluginData.setHasSecondLevelNavigationPanel(hasSecondLevelNavigationPanel);
         return navigationTreePluginData;
+    }
+
+    private void replaceReferences(NavigationConfig navigationConfig){
+        processListForReferences(navigationConfig.getLinkConfigList());
+    }
+
+    private void processListForReferences(List<LinkConfig> list){
+        for(LinkConfig config : list){
+            if(config.getRefLinkName()!=null){
+                LinkConfig referencedConfig =  configurationExplorer.getConfig(LinkConfig.class,config.getRefLinkName());
+                if(referencedConfig!=null){
+                    config.setDisplayText(referencedConfig.getDisplayText());
+                    config.setAutoCut(referencedConfig.isAutoCut());
+                    config.setChildLinksConfigList(referencedConfig.getChildLinksConfigList());
+                    config.setChildToOpen(referencedConfig.getChildToOpen());
+                    config.setCounterType(referencedConfig.getCounterType());
+                    config.setDecorationsConfig(referencedConfig.getDecorationsConfig());
+                    config.setDefaultSearchAreasConfig(referencedConfig.getDefaultSearchAreasConfig());
+                    config.setImage(referencedConfig.getImage());
+                    config.setDisplayCounter(referencedConfig.isDisplayCounter());
+                    config.setOuterTypeConfig(referencedConfig.getOuterTypeConfig());
+                    config.setParentChildLinksConfig(referencedConfig.getParentChildLinksConfig());
+                    config.setParentLinkConfig(referencedConfig.getParentLinkConfig());
+                    config.setPluginDefinition(referencedConfig.getPluginDefinition());
+                    config.setRefLinkName(referencedConfig.getRefLinkName());
+                    config.setTooltip(referencedConfig.getTooltip());
+                }
+            }
+            if(config.getChildLinksConfigList()!=null){
+                for(ChildLinksConfig cList : config.getChildLinksConfigList()){
+                    processListForReferences(cList.getLinkConfigList());
+                }
+            }
+        }
+
     }
 
     public PluginData rootNodeSelected(Dto param) {

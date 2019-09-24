@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema targetNamespace="https://cm5.intertrust.ru/config/action" elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:act="https://cm5.intertrust.ru/config/action">
+           xmlns:act="https://cm5.intertrust.ru/config/action"
+           xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules">
+
+    <xs:import namespace="https://cm5.intertrust.ru/config/event" schemaLocation="events.xsd"/>
+    <xs:import namespace="https://cm5.intertrust.ru/config/rules" schemaLocation="rules.xsd"/>
+
     <xs:simpleType name="replacementPolicyType">
         <xs:restriction base="xs:string">
             <xs:enumeration value="runtime"/>
@@ -73,11 +78,14 @@
             <xs:extension base="act:abstractActionType">
                 <xs:sequence>
                     <xs:element name="action-params" type="act:actionParamsType" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="events" type="evt:eventsType" maxOccurs="1" minOccurs="0"/>
+                    <xs:element name="rules" type="rul:rulesType" maxOccurs="1" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="visible-when-new" type="xs:boolean" default="true" use="optional"/>
                 <xs:attribute name="visibility-state-condition" type="xs:string" use="optional"/>
                 <xs:attribute name="visibility-checker" type="xs:string" use="optional"/>
                 <xs:attribute name="permissions" type="xs:string" use="optional"/>
+                <xs:attribute name="jsid" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

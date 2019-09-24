@@ -15,6 +15,7 @@ public class LabelState extends WidgetState {
     private String fontSize;
     private String relatedWidgetId;
     private String textDecoration;
+    private String backgroundColor;
 
     public LabelState() {
     }
@@ -97,5 +98,13 @@ public class LabelState extends WidgetState {
 
     public void setRelatedWidgetId(String relatedWidgetId) {
         this.relatedWidgetId = relatedWidgetId;
+    }
+
+    public String getBackgroundColor() {
+        return backgroundColor;
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 }

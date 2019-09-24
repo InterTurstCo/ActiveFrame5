@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" 
+    xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <domain-object-type name="test_single_row" initial-status="Active">
+        <fields>
+            <string name="name" length="128" not-null="true" />
+            <text name="description"/>
+        </fields>
+    </domain-object-type>
+    
+    <form name="test_single_row" domain-object-type="test_single_row" is-default="true" replace="runtime">
+        <act:tool-bar useDefault="false">
+             <act:action-ref name-ref="aSave"/>
+        </act:tool-bar>
+    
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="left">
+                            <widget id="label"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="name_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="name_widget"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="description_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="description_widget"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="label">
+                <text>Плагин SingleRow</text>
+            </label>
+
+            <label id="name_label">
+                <text>Имя:</text>
+            </label>
+            <text-box id="name_widget">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="description_label">
+                <text>Описание:</text>
+            </label>
+            <text-area id="description_widget">
+                <field-path value="description"/>
+            </text-area>
+        </widget-config>
+    </form>    
+    
+</configuration>

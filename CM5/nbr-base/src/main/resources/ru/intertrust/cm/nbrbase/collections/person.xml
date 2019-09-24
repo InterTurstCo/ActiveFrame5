@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <collection name="person_active" idField="id">
+        <prototype>
+            <![CDATA[
+            select
+                p."id" as id,
+                p."login" as login,
+                trim(COALESCE(p.lastname, '') || ' ' || COALESCE(p.firstname, '')) as fio,
+                (select string_agg(group_name,', ')
+                        from user_group grp left join group_member gm on grp.id = gm.usergroup
+                        where gm.person_id = p.id) as persongroups
+            FROM
+                person p
+                join status s on p.status = s.id
+                ::from-clause
+                WHERE
+                    (s.name = 'Active') ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            SELECT
+            COUNT(*)
+            FROM
+            person p
+              join status s on s.id = p.status
+            WHERE
+              (s.name = 'Inactive') ::where-clause
+        </counting-prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(Name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="bylogin">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(p."login") like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byfio">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(trim(COALESCE(p.lastname, '') || ' ' || COALESCE(p.firstname, ''))) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="bypersongroups">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower((select string_agg(group_name,', ')
+                            from user_group grp left join group_member gm on grp.id = gm.usergroup
+                            where gm.person_id = p.id)) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="person_active" collection="person_active" is-default="true" replace="runtime">
+        <display>
+            <column search-filter="bylogin" field="login" name="Логин" type="string" sortable="true" min-width="80px" resizable="true"/>
+            <column search-filter="byfio" field="fio" name="ФИО" type="string" sortable="true" min-width="80px" resizable="true"/>
+            <column search-filter="bypersongroups" field="persongroups" name="Группы доступа" type="string" sortable="false" min-width="80px" resizable="true"/>
+        </display>
+    </collection-view>
+
+    <collection name="person_inactive" idField="id">
+        <prototype>
+            <![CDATA[
+            select
+              p."id" as id,
+              p."login" as login,
+              trim(COALESCE(p.lastname, '') || ' ' || COALESCE(p.firstname, '')) as fio,
+              (select string_agg(group_name,', ')
+               from user_group grp left join group_member gm on grp.id = gm.usergroup
+               where gm.person_id = p.id) as persongroups
+            FROM
+              person p
+              join status s on s.id = p.status
+            WHERE
+            (s.name = 'Inactive') ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            SELECT
+            COUNT(*)
+            FROM
+              person p
+              join status s on s.id = p.status
+            WHERE
+              (s.name = 'Inactive') ::where-clause
+        </counting-prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(Name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="bylogin">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(p."login") like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byfio">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(trim(COALESCE(p.lastname, '') || ' ' || COALESCE(p.firstname, ''))) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="bypersongroups">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower((select string_agg(group_name,', ')
+                            from user_group grp left join group_member gm on grp.id = gm.usergroup
+                            where gm.person_id = p.id)) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="person_inactive" collection="person_inactive" is-default="true" replace="runtime">
+        <display>
+            <column search-filter="bylogin" field="login" name="Логин" type="string" sortable="true" min-width="80px" resizable="true"/>
+            <column search-filter="byfio" field="fio" name="ФИО" type="string" sortable="true" min-width="80px" resizable="true"/>
+        </display>
+    </collection-view>
+</configuration>

@@ -30,6 +30,9 @@ public abstract class ParamConfig implements Dto{
     @Attribute(name = "time-zone-id", required = false)
     private String timeZoneId;
 
+    @Attribute(name = "expression-value", required = false)
+    private String expressionValue;
+
     public String getValue() {
         return value;
     }
@@ -86,6 +89,14 @@ public abstract class ParamConfig implements Dto{
         this.timeZoneId = timeZoneId;
     }
 
+    public String getExpressionValue() {
+        return expressionValue;
+    }
+
+    public void setExpressionValue(String expressionValue) {
+        this.expressionValue = expressionValue;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -118,7 +129,9 @@ public abstract class ParamConfig implements Dto{
         if (timeZoneId!= null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
             return false;
         }
-
+        if (expressionValue!= null ? !expressionValue.equals(that.expressionValue) : that.expressionValue != null) {
+            return false;
+        }
         return true;
     }
 
@@ -131,6 +144,7 @@ public abstract class ParamConfig implements Dto{
         result = 31 * result + (setBaseObject ? 1 : 0);
         result = 31 * result + (setCurrentMoment ? 1 : 0);
         result = 31 * result + (setCurrentUser ? 1 : 0);
+        result = 31 * result + (expressionValue != null ? expressionValue.hashCode() : 0);
         return result;
     }
 }

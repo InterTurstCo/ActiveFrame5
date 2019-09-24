@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>0.8.0-14-SNAPSHOT</version>
+    <version>0.8.0-20-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -16,6 +16,7 @@
         <module>Ear</module>
         <module>Client</module>
         <module>GlobalCache</module>
+		<module>nbr-base</module>		
         <module>test-module</module>
         <module>deployment-tool</module>
         <module>crypto-pro-service</module>

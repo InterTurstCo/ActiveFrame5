@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 public class ComboBoxState extends ListWidgetState {
 
     private Id selectedId;
+    private List<DomainObject> originalObjects;
 
     public Id getSelectedId() {
         return selectedId;
@@ -25,6 +28,14 @@ public class ComboBoxState extends ListWidgetState {
     @Override
     public boolean isSingleChoice() {
         return true;
+    }
+
+    public List<DomainObject> getOriginalObjects() {
+        return originalObjects;
+    }
+
+    public void setOriginalObjects(List<DomainObject> originalObjects) {
+        this.originalObjects = originalObjects;
     }
 
     @Override

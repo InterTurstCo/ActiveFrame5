@@ -94,4 +94,10 @@
     <bean id="filtersBuilder" class="ru.intertrust.cm.core.gui.impl.server.FilterBuilderImpl"/>
 
     <bean id="sortOrderHelper" class="ru.intertrust.cm.core.gui.impl.server.SorOrderHelperImpl" lazy-init="true"/>
+    
+    <bean id="activityDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ActivityDeployerImpl" lazy-init="true"/>
+    <bean id="configDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ConfigDeployerImpl" lazy-init="true"/>
+    <bean id="importDataDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ImportDataDeployerImpl" lazy-init="true"/>
+    <bean id="pluginDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.PluginDeployerImpl" lazy-init="true"/>
+    
 </beans>

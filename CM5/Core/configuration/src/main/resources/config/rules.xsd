@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="https://cm5.intertrust.ru/config/rules" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:rul="https://cm5.intertrust.ru/config/rules">
+
+    <xs:element name="rules" type="rul:rulesType"/>
+    <xs:complexType name="rulesType">
+        <xs:sequence>
+            <xs:element name="hide" minOccurs="0" maxOccurs="1"
+                        type="rul:hideRulesType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+            <xs:element name="filter" minOccurs="0" maxOccurs="1"
+                        type="rul:filterRulesType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+            <xs:element name="access" minOccurs="0" maxOccurs="unbounded"
+                        type="rul:accessRulesType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+            <xs:element name="reset" minOccurs="0" maxOccurs="unbounded"
+                        type="rul:resetRulesType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+            <xs:element name="value" minOccurs="0" maxOccurs="1"
+                        type="rul:valueRulesType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ruleType">
+        <xs:attribute name="apply-expression" type="xs:string" use="optional"/>
+        <xs:attribute name="field" type="xs:string" use="optional"/>
+        <xs:attribute name="value" type="xs:string" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="hideRulesType">
+        <xs:sequence>
+            <xs:element name="rule" minOccurs="1" maxOccurs="unbounded"
+                        type="rul:ruleType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="filterRulesType">
+        <xs:sequence>
+            <xs:element name="rule" minOccurs="1" maxOccurs="unbounded"
+                        type="rul:ruleType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="accessRulesType">
+        <xs:sequence>
+            <xs:element name="rule" minOccurs="1" maxOccurs="unbounded"
+                        type="rul:ruleType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="resetRulesType">
+        <xs:sequence>
+            <xs:element name="rule" minOccurs="1" maxOccurs="unbounded"
+                        type="rul:ruleType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="valueRulesType">
+        <xs:sequence>
+            <xs:element name="rule" minOccurs="1" maxOccurs="unbounded"
+                        type="rul:ruleType"
+                        xmlns:rul="https://cm5.intertrust.ru/config/rules"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>

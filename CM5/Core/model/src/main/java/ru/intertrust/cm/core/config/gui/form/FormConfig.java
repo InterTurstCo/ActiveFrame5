@@ -92,6 +92,9 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     @Element(name = "default-value-setter", required = false)
     private DefaultValueSetterConfig defaultValueSetterConfig;
 
+    @Element(name = "script-file", required = false)
+    private ScriptFileConfig scriptFileConfig;
+
     public String getType() {
         return type != null ? type : TYPE_EDIT;
     }
@@ -169,6 +172,14 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
 
     public WidgetConfigurationConfig getWidgetConfigurationConfig() {
         return widgetConfigurationConfig;
+    }
+
+    public ScriptFileConfig getScriptFileConfig() {
+        return scriptFileConfig;
+    }
+
+    public void setScriptFileConfig(ScriptFileConfig scriptFileConfig) {
+        this.scriptFileConfig = scriptFileConfig;
     }
 
     public void setWidgetConfigurationConfig(WidgetConfigurationConfig widgetConfigurationConfig) {
@@ -347,6 +358,10 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
         }
         if (defaultValueSetterConfig != null ? !defaultValueSetterConfig.equals(that.defaultValueSetterConfig) :
                 that.defaultValueSetterConfig != null) {
+            return false;
+        }
+        if (scriptFileConfig != null ? !scriptFileConfig.equals(that.scriptFileConfig) :
+            that.scriptFileConfig != null) {
             return false;
         }
         return true;
