@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.business.api;
 import java.time.Duration;
 import java.util.Set;
 
-import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLock;
+import ru.intertrust.cm.core.business.api.dto.ClusteredLock;
 
 /**
  * Cервис распределенных блокировок
@@ -11,6 +11,9 @@ import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLock;
  *
  */
 public interface ClusteredLockService {
+
+    public interface Remote extends ClusteredLockService {
+    }
     /**
      * Список захваченных блокировок определённой категории, т.е. у всех isLocked()==true
      * @param category категория блокировки

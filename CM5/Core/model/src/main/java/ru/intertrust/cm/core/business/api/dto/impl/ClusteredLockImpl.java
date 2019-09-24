@@ -1,13 +1,13 @@
-package ru.intertrust.cm.core.dao.impl.clusterlock;
+package ru.intertrust.cm.core.business.api.dto.impl;
+
+import ru.intertrust.cm.core.business.api.dto.ClusteredLock;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
-import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLock;
-
-public class ClusteredLockImpl implements ClusteredLock{
+public class ClusteredLockImpl implements ClusteredLock {
     private String name;
     private String category; 
     private boolean locked; 

@@ -1,4 +1,6 @@
-package ru.intertrust.cm.core.dao.api.clusterlock;
+package ru.intertrust.cm.core.business.api.dto;
+
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -9,7 +11,8 @@ import java.util.Optional;
  * @author larin
  *
  */
-public interface ClusteredLock {
+public interface ClusteredLock extends Dto {
+
     /**
      * Имя блокировки
      */

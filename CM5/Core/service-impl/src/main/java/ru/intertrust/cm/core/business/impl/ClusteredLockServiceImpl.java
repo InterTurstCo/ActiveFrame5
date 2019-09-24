@@ -8,7 +8,8 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ClusteredLockService;
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
-import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLock;
+import ru.intertrust.cm.core.business.api.dto.ClusteredLock;
+import ru.intertrust.cm.core.business.api.dto.impl.ClusteredLockImpl;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
@@ -20,12 +21,14 @@ import javax.interceptor.Interceptors;
 import javax.transaction.Status;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.*;
 
 @Stateless(name = "ClusteredLockService")
 @RunAs("system")
 @Local(ClusteredLockService.class)
+@Remote(ClusteredLockService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ClusteredLockServiceImpl implements ClusteredLockService {
@@ -50,12 +53,11 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
 
     @Override
     public Set<ClusteredLock> list(String category) {
-        return clusteredLockDao.findAll(category);
+        return new HashSet<>(clusteredLockDao.findAll(category));
     }
 
     @Override
     public ClusteredLock lock(String category, String name, String owner, Duration autoUnlockTimeout) throws InterruptedException {
-        ClusteredLock result = null;
         // Пытаемся создать блокировку
         final CreateOrFindLockResult lockResult = createOrFindLock(category, name, owner, autoUnlockTimeout);
 
@@ -83,9 +85,9 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
 
             future.cancel(true);
             logger.debug("End wait unlock {} {}", category, name);
-        }else{
-            result = lockResult.lock;
         }
+
+        ClusteredLock result = lockResult.lock;
 
         // Блокировку установили, теперь проверяем актуальность данных. Ждем если не актуальны
         String resourceId = category + "-" + name;
@@ -108,7 +110,7 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
         try {
             sessionContext.getUserTransaction().begin();
             // Ищем блокировку
-            ClusteredLock lock = clusteredLockDao.find(category, name, true);
+            ClusteredLockImpl lock = clusteredLockDao.find(category, name, true);
             if (lock == null) {
                 // Не нашли, создаем
                 result.lock = clusteredLockDao.create(category, name, null, owner, Instant.now(), autoUnlockTimeout, null);
@@ -169,6 +171,8 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
                             // Проверяем таймаут
                             if (System.currentTimeMillis() > start + (waitingTime.getSeconds() * 1000)) {
                                 logger.warn("Finish wait loc {} {} by timeout.", category, name);
+                                lockResult.lock = secondLockResult.lock;
+                                lockResult.lock.setLocked(false);
                                 // Отпускаем семафор
                                 semaphore.release();
                             }
@@ -182,10 +186,12 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
 
                 future.cancel(true);
                 logger.debug("End wait unlock {} {}", category, name);
+            }else{
+                lockResult.lock.setLocked(false);
             }
-        }else{
-            result = lockResult.lock;
         }
+
+        result = lockResult.lock;
 
         // Блокировку установили, теперь проверяем актуальность данных. Ждем если не актуальны
         String resourceId = category + "-" + name;
@@ -210,7 +216,7 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
     }
 
     public static class CreateOrFindLockResult{
-        ClusteredLock lock;
+        ClusteredLockImpl lock;
         boolean grabed;
     }
 

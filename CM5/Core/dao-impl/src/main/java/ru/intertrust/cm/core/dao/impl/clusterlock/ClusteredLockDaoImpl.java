@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
-import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLock;
+import ru.intertrust.cm.core.business.api.dto.impl.ClusteredLockImpl;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 
 import java.sql.ResultSet;
@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,52 +38,58 @@ public class ClusteredLockDaoImpl implements ClusteredLockDao {
     }
 
     @Override
-    public ClusteredLock create(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo) {
+    public ClusteredLockImpl create(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo) {
         String query = "insert into clustered_lock ";
         query += "(category, name, tag, owner, lock_time, duration, stamp_info)";
         query += " values";
         query += "(?, ?, ?, ?, ?, ?, ?)";
 
-        jdbcOperations.update(query, category, name, tag, owner, lockTime, duration.toMillis(), stampInfo);
+        jdbcOperations.update(query, category, name, tag, owner,
+                lockTime == null ? null : new Date(lockTime.toEpochMilli()),
+                duration == null ? null : duration.toMillis(),
+                stampInfo);
 
         return new ClusteredLockImpl(name, category, lockTime != null, owner, lockTime, duration, tag, stampInfo);
     }
 
     @Override
-    public ClusteredLock update(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo) {
+    public ClusteredLockImpl update(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo) {
         String query = "update clustered_lock ";
         query += "set tag=?, owner=?, lock_time=?, duration=?, stamp_info=?";
         query += " where ";
         query += "category=? and name=?";
 
-        jdbcOperations.update(query, tag, owner, lockTime, duration, stampInfo, category, name);
+        jdbcOperations.update(query, tag, owner,
+                lockTime == null ? null : new Date(lockTime.toEpochMilli()),
+                duration == null ? null : duration.toMillis(),
+                stampInfo, category, name);
 
         return new ClusteredLockImpl(name, category, lockTime != null, owner, lockTime, duration, tag, stampInfo);
     }
 
     @Override
-    public ClusteredLock find(String category, String name, boolean lock) {
+    public ClusteredLockImpl find(String category, String name, boolean lock) {
         String query = "select category, name, tag, owner, lock_time, duration, stamp_info ";
         query += "from clustered_lock";
         query += " where ";
         query += "category=? and name=?";
-        if (lock){
+        if (lock) {
             query += " for update";
         }
 
-        List<ClusteredLock> result = jdbcOperations.query(query, new ClusteredLockRowMapper(), category, name);
+        List<ClusteredLockImpl> result = jdbcOperations.query(query, new ClusteredLockRowMapper(), category, name);
         return result.size() > 0 ? result.get(0) : null;
     }
 
     @Override
-    public Set<ClusteredLock> findAll(String category) {
+    public Set<ClusteredLockImpl> findAll(String category) {
         String query = "select category, name, tag, owner, lock_time, duration, stamp_info ";
         query += "from clustered_lock";
         query += " where ";
         query += "category=?";
 
-        List<ClusteredLock> result = jdbcOperations.query(query, new ClusteredLockRowMapper(), category);
-        return new HashSet<ClusteredLock>(result);
+        List<ClusteredLockImpl> result = jdbcOperations.query(query, new ClusteredLockRowMapper(), category);
+        return new HashSet<ClusteredLockImpl>(result);
     }
 
     @Override
@@ -94,10 +101,10 @@ public class ClusteredLockDaoImpl implements ClusteredLockDao {
         jdbcOperations.update(query, category, name);
     }
 
-    public static class ClusteredLockRowMapper implements RowMapper<ClusteredLock> {
+    public static class ClusteredLockRowMapper implements RowMapper<ClusteredLockImpl> {
 
         @Override
-        public ClusteredLock mapRow(ResultSet rs, int rowNum) throws SQLException {
+        public ClusteredLockImpl mapRow(ResultSet rs, int rowNum) throws SQLException {
             ClusteredLockImpl result = new ClusteredLockImpl();
             result.setName(rs.getString("name"));
             result.setCategory(rs.getString("category"));
@@ -106,7 +113,11 @@ public class ClusteredLockDaoImpl implements ClusteredLockDao {
             Timestamp lockTime = rs.getTimestamp("lock_time");
             if (lockTime != null) {
                 result.setLockTime(Instant.ofEpochMilli(lockTime.getTime()));
-                result.setLocked(true);
+                if (result.getLockTime().get().plusMillis(result.getAutoUnlockTimeout().toMillis()).compareTo(Instant.now()) > 0) {
+                    result.setLocked(true);
+                } else {
+                    result.setLocked(false);
+                }
             } else {
                 result.setLocked(false);
             }

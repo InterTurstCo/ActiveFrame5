@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.api.clusterlock;
 
+import ru.intertrust.cm.core.business.api.dto.impl.ClusteredLockImpl;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
@@ -13,13 +15,13 @@ public interface ClusteredLockDao {
      */
     void init();
 
-    ClusteredLock create(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo);
+    ClusteredLockImpl create(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo);
 
-    ClusteredLock update(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo);
+    ClusteredLockImpl update(String category, String name, String tag, String owner, Instant lockTime, Duration duration, String stampInfo);
 
-    ClusteredLock find(String category, String name, boolean lock);
+    ClusteredLockImpl find(String category, String name, boolean lock);
 
-    Set<ClusteredLock> findAll(String category);
+    Set<ClusteredLockImpl> findAll(String category);
 
     void delete(String category, String name);
 }

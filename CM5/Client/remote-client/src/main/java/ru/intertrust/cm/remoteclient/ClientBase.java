@@ -51,6 +51,7 @@ public abstract class ClientBase {
     protected String user;
     protected String password;
     protected String logPath;
+    protected boolean hasError;
     /**
      * Контекст должен быть обязательно членам класса, и жить все время пока живет процесс. Инициализируется при получение первого сервиса и используется все
      * время только один экземпляр
@@ -153,11 +154,11 @@ public abstract class ClientBase {
      * @throws NamingException
      * @throws NotSupportedException 
      */
-    protected Object getService(String serviceName, Class remoteInterfaceClass) throws NamingException {
-        return getService(serviceName, remoteInterfaceClass, this.user, this.password);
+    protected <T> T getService(String serviceName, Class<T> remoteInterfaceClass) throws NamingException {
+        return (T)getService(serviceName, remoteInterfaceClass, this.user, this.password);
     }
 
-    protected Object getService(String serviceName, Class remoteInterfaceClass, String login, String password) throws NamingException {
+    protected <T> T getService(String serviceName, Class<T> remoteInterfaceClass, String login, String password) throws NamingException {
         if (!login.equals(ctxLogin) && ctx != null){
             ctx.close();
             ctx = null;
@@ -169,8 +170,7 @@ public abstract class ClientBase {
             ctxLogin = login;
         }
         Object service = ctx.lookup(getLookupString(serviceName, remoteInterfaceClass));
-        return service;
-
+        return (T)service;
     }    
 
     protected String getLookupString(String serviceName, Class remoteInterfaceClass){
@@ -280,16 +280,20 @@ public abstract class ClientBase {
 
     protected void assertTrue(String message, boolean param) throws Exception {
         if (!param) {
-            //throw new AssertExeption("[" + new Date() + "] " + message);
+            log(message + ": ERROR");
+            hasError = true;
+        }else{
+            log(message + ": OK");
         }
-        log(message + ": OK");
     }
 
     protected void assertFalse(String message, boolean param) throws Exception {
         if (param) {
-            throw new AssertExeption("[" + new Date() + "] " + message);
+            log(message + ": ERROR");
+            hasError = true;
+        }else {
+            log(message + ": OK");
         }
-        log(message + ": OK");
     }
 
     /**
