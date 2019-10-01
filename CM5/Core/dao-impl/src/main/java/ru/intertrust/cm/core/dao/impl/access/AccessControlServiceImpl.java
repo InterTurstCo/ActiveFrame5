@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Реализация службы контроля доступа.
@@ -529,9 +530,10 @@ public class AccessControlServiceImpl implements AccessControlService {
                 if (this.type instanceof CreateObjectAccessType && type instanceof CreateObjectAccessType) {
                     CreateObjectAccessType originalAccessType = (CreateObjectAccessType) this.type;
                     CreateObjectAccessType checkAccessType = (CreateObjectAccessType) type;
-                    if (originalAccessType.getObjectType().equals(checkAccessType.getObjectType())) {
+                    Set<String> parentTypes = originalAccessType.getParentTypes().stream().map(String::toLowerCase).collect(Collectors.toSet());
+                    if (originalAccessType.getObjectType().equalsIgnoreCase(checkAccessType.getObjectType())) {
                         return true;
-                    } else if (originalAccessType.getParentTypes().contains(checkAccessType.getObjectType())) {
+                    } else if (parentTypes.contains(checkAccessType.getObjectType().toLowerCase())) {
                         return true;
                     }
                 }

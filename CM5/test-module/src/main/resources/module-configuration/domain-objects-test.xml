@@ -518,6 +518,19 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="Test_type_36" initial-status="Active">
+        <fields>
+            <string name="name" length="128" not-null="true" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_Type_37" initial-status="Active">
+        <fields>
+            <string name="name" length="128" not-null="true" />
+            <reference name="Owner" type="Test_Type_36" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
@@ -707,5 +720,13 @@
             </delete>
         </status>
     </access-matrix>
+
+    <access-matrix type="Test_Type_36">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
+    <access-matrix type="Test_Type_37" matrix-reference-field="Owner"/>
 
 </configuration>

@@ -678,8 +678,25 @@ public class TestPermission extends ClientBase {
                 assertTrue("Correct exception", ex != null);
             }
             log("CMFIVE-8450 OK");
-            
-            log("Test complete");
+
+            // CMFIVE-35534
+            DomainObject test36 = notAdminCrudservice.createDomainObject("TEST_TYPE_36");
+            test36.setString("name", "_" + System.currentTimeMillis());
+            test36 = notAdminCrudservice.save(test36);
+
+            DomainObject test37 = notAdminCrudservice.createDomainObject("Test_Type_37");
+            test37.setString("name", "_" + System.currentTimeMillis());
+            test37.setReference("owner", test36.getId());
+            notAdminCrudservice.save(test37);
+            log("CMFIVE-35534 OK");
+
+            if (hasError) {
+                log("Test ERROR");
+            }else{
+                log("Test OK");
+            }
+        } catch(Throwable ex) {
+            ex.printStackTrace();
         } finally {
             writeLog();
         }
