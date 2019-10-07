@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -55,6 +56,9 @@ public class TestAttachments extends ClientBase {
             DomainObject secondAttachment = setAttachment(person, new File(file));
             System.out.println("Save OK " + saveContent.length);
 
+            List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(person.getId());
+            assertTrue("findAttachmentDomainObjectsFor", attachments.size() == 2);
+
             byte[] loadContent = getAttachmentContent(firstAttachment);
             boolean compareResult = compareContent(saveContent, loadContent);
             assertTrue("Contents equals", compareResult);
@@ -62,6 +66,10 @@ public class TestAttachments extends ClientBase {
 
             attachmentService.deleteAttachment(secondAttachment.getId());
             System.out.println("Delete OK");
+
+            attachments = attachmentService.findAttachmentDomainObjectsFor(person.getId());
+            assertTrue("findAttachmentDomainObjectsFor", attachments.size() == 1);
+
 
             //Проверка распознования типа файла (mimetype)
             DomainObject testTypeDo = setAttachment(person, new File(file));
@@ -102,6 +110,10 @@ public class TestAttachments extends ClientBase {
 
             testTypeDo = setAttachment(person, new File("test.xlsx"));
             assertTrue("XLSX", testTypeDo.getString("mimetype").equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+            attachments = attachmentService.findAttachmentDomainObjectsFor(person.getId());
+            assertTrue("findAttachmentDomainObjectsFor", attachments.size() == 14);
+
 
             log("Tset OK");
             testTime();

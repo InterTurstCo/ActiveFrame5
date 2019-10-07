@@ -235,7 +235,23 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
-            return sortById(domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attachmentLinkedField, accessToken));
+            // Так как нам здесь важна сортировка результата по ID (CMFIVE-21464) вызываем метод с limit итерационно, затем складываем в один контейнер
+            List<DomainObject> result = new ArrayList<>();
+            // Размер пачки данных
+            int batchSize = 100;
+            // пачка с данными
+            List<DomainObject> batch = null;
+            // Номер пачкиы
+            int batchNum = 0;
+            do {
+                batch = domainObjectDao.findLinkedDomainObjects(
+                        domainObjectId, attachmentType, attachmentLinkedField, batchNum * batchSize, batchSize, accessToken);
+                result.addAll(batch);
+                batchNum++;
+                // Если количество записей в пачке совпадает с переденным limit значит есть еще данные в хранилище, получаем итерационно
+            }while(batch.size() == batchSize);
+
+            return sortById(result);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }

@@ -2414,12 +2414,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void applyOffsetAndLimitWithDefaultOrdering(StringBuilder query,
             String tableAlias, int offset, int limit) {
-        //if (limit != 0) {     CMFIVE-21464:
-            // Ordering is now applied ALWAYS as it doesn't violate the service's contract and but a little affects
-            // a load of DB servers due to (generally) small amount of linked objects and indexing of ID fields 
+        // При решении задачи CMFIVE-21464 обязательно добавлялась сортировка всегда,
+        // По задаче CMFIVE-36708 эта сортировка удалена для ускорения.
+        // В интересов вложений порядок сортировки будет соблюден добавлением лимита (limit != 0).
+        if (limit != 0) {
             query.append(" order by ").append(tableAlias).append(".").append(wrap(ID_COLUMN));
             DaoUtils.applyOffsetAndLimit(query, offset, limit);
-        //}
+        }
     }
 
     private List<Id> extractIds(List<DomainObject> domainObjectList) {

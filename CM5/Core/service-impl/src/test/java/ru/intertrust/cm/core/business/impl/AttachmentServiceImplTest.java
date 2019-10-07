@@ -481,6 +481,11 @@ public class AttachmentServiceImplTest {
         when(domainObjectDao.findLinkedDomainObjects(any(Id.class), eq("Person_Attachment"), eq("Person"),
                 any(AccessToken.class))).
                 thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
+
+        when(domainObjectDao.findLinkedDomainObjects(any(Id.class), eq("Person_Attachment"), eq("Person"), any(Integer.class), any(Integer.class),
+                any(AccessToken.class))).
+                thenReturn(Arrays.asList(new DomainObject[]{domainObject1, domainObject2}));
+
         doAnswer(new Answer() {
             public Object answer(InvocationOnMock invocation) {
                 DomainObject domainObject = (DomainObject) invocation.getArguments()[0];
