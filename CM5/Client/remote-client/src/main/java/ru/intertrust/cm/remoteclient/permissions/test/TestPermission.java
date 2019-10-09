@@ -690,6 +690,39 @@ public class TestPermission extends ClientBase {
             notAdminCrudservice.save(test37);
             log("CMFIVE-35534 OK");
 
+            // CMFIVE-33965
+            DomainObject test38 = getCrudService().createDomainObject("test_type_38");
+            test38.setString("name", "_" + System.currentTimeMillis());
+            test38 = getCrudService().save(test38);
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Write);
+            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
+            checkPermissions(test38.getId(), etalon, "Test 38");
+
+            DomainObject test39 = getCrudService().createDomainObject("test_type_39");
+            test39.setString("name", "_" + System.currentTimeMillis());
+            test39 = getCrudService().save(test39);
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Write);
+            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
+            checkPermissions(test39.getId(), etalon, "Test 39");
+
+            DomainObject test40 = getCrudService().createDomainObject("test_type_40");
+            test40.setString("name", "_" + System.currentTimeMillis());
+            test40 = getCrudService().save(test40);
+
+            etalon = new EtalonPermissions();
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Write);
+            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
+            checkPermissions(test40.getId(), etalon, "Test 40");
+
+
+
             if (hasError) {
                 log("Test ERROR");
             }else{
