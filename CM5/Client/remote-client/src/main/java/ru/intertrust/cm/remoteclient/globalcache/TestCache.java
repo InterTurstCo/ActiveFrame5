@@ -29,8 +29,8 @@ public class TestCache extends ClientBase {
             collectionService = (CollectionsService.Remote) getService(
                     "CollectionsServiceImpl", CollectionsService.Remote.class);
 
-            for (int i = 0; i < 2; i++) {
-                String query = "select t.*, '_" + rnd.nextLong() + "' from notification_text t, person, group_member ";
+            for (int i = 0; i < 100000; i++) {
+                String query = "select t.*, '_" + rnd.nextLong() + "' from notification_text t ";
                 IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
                 log("Execute " + i);
             }

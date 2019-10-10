@@ -1383,6 +1383,12 @@ public class GlobalCacheImpl implements GlobalCache {
                     logger.warn("After " + i + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB");
                 }
             }
+
+            if (size.get() > sizeLimit) {
+                // Не смогли очистить за CLEAN_ATTEMPTS итераций, сбрасываем кэш полностью
+                logger.warn("After " + CLEAN_ATTEMPTS + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB. Clear all global cache");
+                clear();
+            }
         }
         // background -> cleaner.deleteEldest
         public void deleteEldest() {
