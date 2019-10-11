@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Collectors;
 
 import static ru.intertrust.cm.core.config.NullValues.isNull;
 
@@ -738,15 +739,8 @@ public class ConfigurationStorageBuilder {
      * @return
      */
     private List<String> getChildTypes(String typeName) {
-        List<String> result = new ArrayList<String>();
-        Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
-        for (DomainObjectTypeConfig domainObjectTypeConfig : allTypes) {
-            if (domainObjectTypeConfig.getExtendsAttribute() != null && domainObjectTypeConfig.getExtendsAttribute().equalsIgnoreCase(typeName)) {
-                result.add(domainObjectTypeConfig.getName());
-                result.addAll(getChildTypes(domainObjectTypeConfig.getName()));
-            }
-        }
-        return result;
+        return new ArrayList<String>(configurationExplorer.findChildDomainObjectTypes(typeName, true).
+                stream().map(DomainObjectTypeConfig::getName).collect(Collectors.toList()));
     }
 
     private void removeTopLevelConfigFromMap(TopLevelConfig config) {
