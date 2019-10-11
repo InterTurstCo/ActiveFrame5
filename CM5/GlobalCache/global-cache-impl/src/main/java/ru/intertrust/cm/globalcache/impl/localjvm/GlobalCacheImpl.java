@@ -1387,7 +1387,7 @@ public class GlobalCacheImpl implements GlobalCache {
             if (size.get() > sizeLimit) {
                 // Не смогли очистить за CLEAN_ATTEMPTS итераций, сбрасываем кэш полностью
                 logger.warn("After " + CLEAN_ATTEMPTS + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB. Clear all global cache");
-                clear();
+                init();
             }
         }
         // background -> cleaner.deleteEldest
