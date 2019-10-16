@@ -46,7 +46,7 @@ public class PluginManagerPluginHandler extends PluginHandler {
         String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
         for (AttachmentItem attachmentItem : attachmentItems) {
             File file = new File(pathForTempFilesStore, attachmentItem.getTemporaryName());
-            if (file.getName().toLowerCase().endsWith(".jar")) {
+            if (attachmentItem.getName().toLowerCase().endsWith(".jar")) {
                 //Установка плагина
                 context.getBean(PluginStorage.class).deployPluginPackage(file.getPath());
             }
