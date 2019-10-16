@@ -139,7 +139,9 @@ public class TestReportService extends ClientBase {
             outStream = new FileOutputStream(file);
             outStream.write(content);
         } finally {
-            outStream.close();
+            if (outStream != null) {
+                outStream.close();
+            }
         }
     }
 

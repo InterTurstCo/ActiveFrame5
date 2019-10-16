@@ -323,8 +323,12 @@ public class TestProcess extends ClientBase {
 
             return out.toByteArray();
         } finally {
-            stream.close();
-            out.close();
+            if (stream != null) {
+                stream.close();
+            }
+            if (out != null) {
+                out.close();
+            }
         }
     }
 

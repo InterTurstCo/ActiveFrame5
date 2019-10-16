@@ -34,8 +34,11 @@ public class TestAllNodeTask extends ClientBase{
                 break;
             }
         }
-        
-        schedulerService.run(allNodeTask.getId());
+        if (allNodeTask != null) {
+            schedulerService.run(allNodeTask.getId());
+        } else {
+            log("allNodeTask is null");
+        }
         log("Test complete");
         
     }

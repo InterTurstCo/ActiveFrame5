@@ -47,7 +47,7 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
 
                 if (dateStrings.size() == 2) {
                     String endDateString = dateStrings.get(1);
-                    if (startDateString != null && startDateString.equalsIgnoreCase(endDateString)) {
+                    if (startDate != null && startDateString != null && startDateString.equalsIgnoreCase(endDateString)) {
                         endDate = (Date) startDate.clone();
                     } else {
                         endDate = endDateString == null || endDateString.isEmpty() ? null

@@ -38,7 +38,7 @@ public class TreeItemCounterDecorator implements CounterDecorator {
 		Label counterLabel = new Label("");
 		counterLabel.setStyleName("treeItemCounter");
 		container.add(counterLabel);
-        if (counterValue != null || counterValue != 0) {
+        if (counterValue != null && counterValue != 0) {
             counterLabel.setText(counterValue.toString());
         
         }

@@ -831,7 +831,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                     if (filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter) {
                         parameterName = filter.getFilter() + key + REFERENCE_TYPE_POSTFIX;
                         ReferenceValue referenceValue = (ReferenceValue) criterion;
-                        parameters.put(parameterName, ((RdbmsId) referenceValue.get()).getTypeId());
+                        parameters.put(parameterName, referenceValue != null ? ((RdbmsId) referenceValue.get()).getTypeId() : null);
                     }
                 }
             }

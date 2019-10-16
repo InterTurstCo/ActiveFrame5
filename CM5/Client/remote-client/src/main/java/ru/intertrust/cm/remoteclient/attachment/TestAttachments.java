@@ -236,7 +236,9 @@ public class TestAttachments extends ClientBase {
                 if (contentStream != null){
                     contentStream.close();
                 }
-                inputStream.close(true);
+                if (inputStream != null) {
+                    inputStream.close(true);
+                }
             } catch (IOException ignoreEx) {
             }
         }

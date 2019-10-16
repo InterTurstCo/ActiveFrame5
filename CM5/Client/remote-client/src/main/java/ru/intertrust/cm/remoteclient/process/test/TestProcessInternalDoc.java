@@ -316,8 +316,12 @@ public class TestProcessInternalDoc extends ClientBase {
 
             return out.toByteArray();
         } finally {
-            stream.close();
-            out.close();
+            if (stream != null) {
+                stream.close();
+            }
+            if (out != null) {
+                out.close();
+            }
         }
     }
     private DomainObject createEmployee() throws NamingException{

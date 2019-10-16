@@ -165,6 +165,10 @@ public class StretchyTextArea extends TextArea {
             }
             for (int i=charSize; i<textLength; i++) {
                 char c = getText().charAt(i);
+                // Sonar
+                if (getLastLine() == null) {
+                    break;
+                }
                 if (lineLength == getLastLine().inc() || c == '\n') {
                     if (canAddNewVisibleLine()){
                         lineArray.add(new Line(true));
@@ -177,7 +181,7 @@ public class StretchyTextArea extends TextArea {
         } else if (textLength < charSize) {
             int diff = charSize - textLength;
             while (true) {
-                if (lineArray.isEmpty()) {
+                if (lineArray.isEmpty() || getLastLine() == null) {
                     break;
                 }
                 int count = getLastLine().getCount();

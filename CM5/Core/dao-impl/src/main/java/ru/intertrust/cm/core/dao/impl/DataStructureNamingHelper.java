@@ -123,6 +123,9 @@ public class DataStructureNamingHelper {
     }
 
     public static String getSqlName(String name, boolean isAl) {
+        if (name == null) {
+            throw new IllegalArgumentException("Name is null");
+        }
         return convertToSqlFormat(getName(name, isAl));
     }
 
@@ -182,7 +185,7 @@ public class DataStructureNamingHelper {
         List<String> uniqueKeyFields = new ArrayList<>(uniqueKeyConfig.getUniqueKeyFieldConfigs().size());
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
             FieldConfig fieldConfig = getFieldConfig(uniqueKeyFieldConfig.getName(), config);
-            uniqueKeyFields.add(getSqlName(fieldConfig.getName()));
+            uniqueKeyFields.add(getSqlName(fieldConfig != null ? fieldConfig.getName() : null));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 uniqueKeyFields.add(getReferenceTypeColumnName(fieldConfig.getName()));

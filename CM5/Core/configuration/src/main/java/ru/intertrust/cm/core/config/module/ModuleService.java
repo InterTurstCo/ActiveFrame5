@@ -54,7 +54,7 @@ public class ModuleService {
             }
 
         } catch (Exception ex) {
-            throw new FatalException("Cannot load module: " + url.toString(), ex);
+            throw new FatalException("Cannot load module: " + (url != null ? url.toString() : "null"), ex);
         }
     }
 
@@ -86,7 +86,9 @@ public class ModuleService {
             throw new FatalException("Can not load cm module " + moduleConfigUrl, ex);
         } finally {
             try {
-                source.close();
+                if (source != null) {
+                    source.close();
+                }
             } catch (Exception ignoreEx) {
             }
         }
@@ -205,7 +207,9 @@ public class ModuleService {
                     break;
                 }
             }
-            result.isLoad = true;
+            if (result != null) {
+                result.isLoad = true;
+            }
             return result;
         }
 

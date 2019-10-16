@@ -316,7 +316,9 @@ public abstract class ClientBase {
             }
             return out.toByteArray();
         } finally {
-            input.close();
+            if (input != null) {
+                input.close();
+            }
         }
     }
 

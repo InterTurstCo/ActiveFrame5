@@ -26,11 +26,11 @@ public class ConfigChange {
         this.before = before;
         this.after = after;
         if (before == null) {
-            this.configClass = after.getClass();
-            this.configName = after.getName();
+            this.configClass = after != null ? after.getClass() : null;
+            this.configName = after != null ? after.getName() : null;
         } else {
             this.configClass = before.getClass();
-            this.configName = after.getName();
+            this.configName = before.getName();
         }
     }
 

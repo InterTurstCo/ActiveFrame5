@@ -188,14 +188,24 @@ public class TestPermission extends ClientBase {
                 checkPermissions(negotiationId, etalon, "Status Registration");
             }            
             //Сотрудником 3 редактируем документ и карточку согласования
-            changeObject(internalDocument.getId(), getEmployee("Сотрудник 3").getString("login"), "Name", "Тестовый документ " + System.nanoTime());
+            DomainObject tmpEmp = getEmployee("Сотрудник 3");
+            if (tmpEmp == null) {
+                throw new AssertExeption("Can't find \"Сотрудник 3\" employee.");
+            }
+            changeObject(internalDocument.getId(), tmpEmp.getString("login"), "Name", "Тестовый документ " + System.nanoTime());
             internalDocument = getCrudService().find(internalDocument.getId());
-            changeObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"), "Name", "Карточка согласующего " + System.nanoTime());
-            
+            changeObject(negotiationCards.get(0), tmpEmp.getString("login"), "Name", "Карточка согласующего " + System.nanoTime());
+
             //Пытаемся удалить под сотрудником 5 карточку согласования, должны получить ошибку
             try{
-                deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 7").getString("login"));
+                tmpEmp = getEmployee("Сотрудник 7");
+                if (tmpEmp == null) {
+                    throw new AssertExeption("Can't find \"Сотрудник 7\" employee.");
+                }
+
+                deleteObject(negotiationCards.get(0), tmpEmp.getString("login"));
                 assertTrue("Не должно быть прав на удаление", false);
+
             }catch(AssertExeption assertException){
                 throw assertException;
             }catch(Exception ignoreException){
@@ -203,7 +213,11 @@ public class TestPermission extends ClientBase {
             }
 
             //Пытаемся удалить под пользователем 3 должно удалится, так как должен отработать мапинг прав
-            deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
+            tmpEmp = getEmployee("Сотрудник 3");
+            if (tmpEmp == null) {
+                throw new AssertExeption("Can't find \"Сотрудник 3\" employee.");
+            }
+            deleteObject(negotiationCards.get(0), tmpEmp.getString("login"));
             negotiationCards.remove(0);
             
             internalDocument.setString("ServerState", "Registred");
@@ -222,7 +236,11 @@ public class TestPermission extends ClientBase {
             }
             
             //Удаляем карточку согласования. Должно удалится без ошибок
-            deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 3").getString("login"));
+            tmpEmp = getEmployee("Сотрудник 3");
+            if (tmpEmp == null) {
+                throw new AssertExeption("Can't find \"Сотрудник 3\" employee.");
+            }
+            deleteObject(negotiationCards.get(0), tmpEmp.getString("login"));
             negotiationCards.remove(0);
 
             internalDocument.setString("ServerState", "OnRevision");

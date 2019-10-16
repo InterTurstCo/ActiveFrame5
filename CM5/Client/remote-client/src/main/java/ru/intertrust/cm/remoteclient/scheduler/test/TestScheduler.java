@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
+import ru.intertrust.cm.remoteclient.AssertExeption;
 import ru.intertrust.cm.remoteclient.ClientBase;
 import ru.intertrust.cm.test.schedule.TestScheduleParameters;
 
@@ -125,6 +126,9 @@ public class TestScheduler extends ClientBase {
             assertTrue("Chech chenge task schedule timeout", newTimeout == task6.getLong(ScheduleService.SCHEDULE_TIMEOUT));
 
             //Проверка загрузки параметров
+            if (task2 == null) {
+                throw new AssertExeption("task2 is null");
+            }
             TestScheduleParameters loadParams = (TestScheduleParameters) schedulerService.getTaskParams(task2.getId());
             log("parent param: " + loadParams.getResult());
             assertTrue("Load params", loadParams != null);

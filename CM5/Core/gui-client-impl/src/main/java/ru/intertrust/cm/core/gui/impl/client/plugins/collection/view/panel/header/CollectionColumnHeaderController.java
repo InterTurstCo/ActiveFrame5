@@ -298,15 +298,17 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         Column movedColumn = event.getMovedByUser();
         Column evicted = event.getEvicted();
         ColumnHeaderBlock columnHeader = findColumnHeaderBlock(movedColumn);
-        int listIndexTo = findColumnHeaderBlockIndex(evicted);
-        columnHeaderBlocks.remove(columnHeader);
-        columnHeaderBlocks.add(listIndexTo, columnHeader);
-        saveFilterValues();
-        int gridIndexTo = dataGrid.getColumnIndex(event.getEvicted());
-        dataGrid.removeColumn(movedColumn);
-        dataGrid.insertColumn(gridIndexTo, movedColumn, columnHeader.getHeader());
-        updateFilterValues();
-        updateOrderSettings();
+        if (columnHeader != null) {
+            int listIndexTo = findColumnHeaderBlockIndex(evicted);
+            columnHeaderBlocks.remove(columnHeader);
+            columnHeaderBlocks.add(listIndexTo, columnHeader);
+            saveFilterValues();
+            int gridIndexTo = dataGrid.getColumnIndex(event.getEvicted());
+            dataGrid.removeColumn(movedColumn);
+            dataGrid.insertColumn(gridIndexTo, movedColumn, columnHeader.getHeader());
+            updateFilterValues();
+            updateOrderSettings();
+        }
     }
 
     private ColumnHeaderBlock findColumnHeaderBlock(Column column) {

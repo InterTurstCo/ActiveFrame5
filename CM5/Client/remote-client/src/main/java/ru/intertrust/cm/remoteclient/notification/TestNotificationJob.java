@@ -29,7 +29,11 @@ public class TestNotificationJob extends ClientBase {
             DomainObject notificationTask = getTaskByName(scheduleService, "NotificationScheduleTask2");
             
             //Schedule schedule = scheduleService.getTaskSchedule(notificationTask.getId());
-            scheduleService.run(notificationTask.getId());
+            if (notificationTask != null) {
+                scheduleService.run(notificationTask.getId());
+            } else {
+                System.out.println("notificationTask is null");
+            }
             
             System.out.println("Test End");
         } finally {

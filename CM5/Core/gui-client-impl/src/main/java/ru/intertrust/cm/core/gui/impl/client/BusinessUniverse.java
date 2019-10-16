@@ -297,7 +297,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 Application.getInstance().lockScreen();
                 PluginConfig pluginConfig = event.getPluginConfig();
                 if (pluginConfig == null) {
-                    if (selectedLinkConfig.getChildToOpen() != null) {
+                    if (selectedLinkConfig != null && selectedLinkConfig.getChildToOpen() != null) {
                         for (ChildLinksConfig cfg : selectedLinkConfig.getChildLinksConfigList()) {
                             for (LinkConfig lCfg : cfg.getLinkConfigList()) {
                                 if (lCfg.getName().equals(selectedLinkConfig.getChildToOpen())) {
@@ -307,15 +307,18 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                         }
                     }
                 }
-                String pluginName = pluginConfig.getComponentName();
-                final Plugin plugin = ComponentRegistry.instance.get(pluginName);
-                plugin.setConfig(pluginConfig);
-                manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
-                        .setLink(event.getLinkName());
-                plugin.setDisplayActionToolBar(true);
-                plugin.setNavigationConfig(event.getNavigationConfig());
-                navigationTreePlugin.setNavigationConfig(event.getNavigationConfig());
-                centralPluginPanel.open(plugin);
+                if (pluginConfig != null) {
+                    String pluginName = pluginConfig.getComponentName();
+                    final Plugin plugin = ComponentRegistry.instance.get(pluginName);
+                    plugin.setConfig(pluginConfig);
+                    manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName()).setLink(event.getLinkName());
+                    plugin.setDisplayActionToolBar(true);
+                    plugin.setNavigationConfig(event.getNavigationConfig());
+                    navigationTreePlugin.setNavigationConfig(event.getNavigationConfig());
+                    centralPluginPanel.open(plugin);
+                } else {
+                    History.fireCurrentHistoryState();
+                }
             } else {
                 History.fireCurrentHistoryState();
             }

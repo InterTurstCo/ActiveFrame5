@@ -408,23 +408,26 @@ public class NavigationTreePluginView extends PluginView {
         }
         SelectionHandler<TreeItem> handler = createSelectionHandler();
         Tree.Resources resources = GWT.create(MyTreeImages.class);
-        List<ChildLinksConfig> childLinksConfigs = selectedRootLinkConfig.getChildLinksConfigList();
-        int linkTextMargin = NavigationPanelSecondLevelMarginSize.DEFAULT.equals(data.getNavigationConfig().getMarginSize())
-                ? LINK_TEXT_MARGIN + FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN : LINK_TEXT_MARGIN;
-        int visibleCharsLength = (int) ((Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth()
+        if (selectedRootLinkConfig != null) {
+            List<ChildLinksConfig> childLinksConfigs = selectedRootLinkConfig.getChildLinksConfigList();
+            int linkTextMargin = NavigationPanelSecondLevelMarginSize.DEFAULT
+                .equals(data.getNavigationConfig().getMarginSize()) ?
+                LINK_TEXT_MARGIN + FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN :
+                LINK_TEXT_MARGIN;
+            int visibleCharsLength = (int) ((Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth()
                 - linkTextMargin) / ONE_CHAR_WIDTH);
-        for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
-            NavigationTreeBuilder navigationTreeBuilder = new NavigationTreeBuilder(childLinksConfig);
-            navigationTreeBuilder
-                    .addSelectionHandler(handler)
-                    .setChildToOpenName(childToOpen == null ? selectedRootLinkConfig.getChildToOpen() : childToOpen)
-                    .setResources(resources)
-                    .setVisibleCharsLength(visibleCharsLength)
+            for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
+                NavigationTreeBuilder navigationTreeBuilder = new NavigationTreeBuilder(
+                    childLinksConfig);
+                navigationTreeBuilder.addSelectionHandler(handler).setChildToOpenName(
+                    childToOpen == null ? selectedRootLinkConfig.getChildToOpen() : childToOpen)
+                    .setResources(resources).setVisibleCharsLength(visibleCharsLength)
                     .setBaseAutoCut(data.getNavigationConfig().isTextAutoCut());
-            Tree tree = navigationTreeBuilder.toTree();
-            counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
-            verticalPanel.add(tree);
+                Tree tree = navigationTreeBuilder.toTree();
+                counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
+                verticalPanel.add(tree);
 
+            }
         }
         navigationTreesPanel.add(verticalPanel);
 

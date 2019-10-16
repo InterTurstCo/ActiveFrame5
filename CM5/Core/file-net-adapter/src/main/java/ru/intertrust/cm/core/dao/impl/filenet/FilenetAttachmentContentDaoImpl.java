@@ -44,7 +44,9 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
             throw new DaoException("Error save content", ex);
         } finally {
             try {
-                output.close();
+                if (output != null) {
+                    output.close();
+                }
             } catch (Exception ignoreEx) {
             }
         }

@@ -105,7 +105,7 @@ public class TableViewerToobar {
                                                  if (deleteComponent != null) {
                                                      deleteComponent.delete(selectedId, eventBus);
                                                  } else {
-                                                     Window.alert("Невозможно получить компонент для удаления:" + config.getDeleteComponent());
+                                                     Window.alert("Невозможно получить компонент для удаления:" + (config != null ? config.getDeleteComponent() : "null"));
                                                  }
                                              }
 
