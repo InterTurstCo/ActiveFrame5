@@ -26,9 +26,6 @@ import java.util.Map;
 @ComponentName("enumeration-box")
 public class EnumBoxHandler extends ValueEditingWidgetHandler {
 
-    @Autowired
-    protected ApplicationContext applicationContext;
-
     @Override
     public EnumBoxState getInitialState(WidgetContext context) {
         EnumBoxState enumBoxState = new EnumBoxState();

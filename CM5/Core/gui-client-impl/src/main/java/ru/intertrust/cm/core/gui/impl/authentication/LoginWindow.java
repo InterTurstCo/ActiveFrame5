@@ -265,7 +265,7 @@ public class LoginWindow implements Component {
                 }
 
                 loginName.setText(get(USER_NAME_KEY, "Имя пользователя"));
-                passwordLabel.setText(get(PASSWORD_KEY, "Пароль"));
+                passwordLabel.setText(get(PSSWD_KEY, getDefaultPasswordLabel()));
                 titleLogin.setText(get(SIGN_ON_KEY, "Войти"));
                 if (titleClearUserSettings != null) {
                     titleClearUserSettings.setText(get(RESET_SETTINGS_KEY, "Очистить настройки"));
@@ -278,6 +278,10 @@ public class LoginWindow implements Component {
             }
         };
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().getLoginWindowInitialization(callback);
+    }
+
+    protected String getDefaultPasswordLabel(){
+        return "Пароль";
     }
 
     public static native String getActiveElement() /*-{

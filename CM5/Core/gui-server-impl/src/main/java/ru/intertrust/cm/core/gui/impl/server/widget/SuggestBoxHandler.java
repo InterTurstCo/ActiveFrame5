@@ -47,9 +47,6 @@ public class SuggestBoxHandler extends ListWidgetHandler {
     @Autowired
     private FilterBuilder filterBuilder;
 
-    @Autowired
-    private WidgetItemsHandler widgetItemsHandler;
-
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
         SuggestBoxState state = new SuggestBoxState();

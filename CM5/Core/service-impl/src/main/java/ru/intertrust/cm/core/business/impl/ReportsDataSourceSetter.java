@@ -28,22 +28,19 @@ public class ReportsDataSourceSetter {
         Object lastParameter = ctx.getParameters()[ctx.getParameters().length - 1];
         if (lastParameter instanceof DataSourceContext) {
             DataSourceContext dataSource = (DataSourceContext) lastParameter;
-            switch (dataSource) {
-                case MASTER: {
-                    try {
-                        currentDataSourceContext.setToMaster();
-                        return ctx.proceed();
-                    } finally {
-                        currentDataSourceContext.reset();
-                    }
+            if (dataSource.equals(DataSourceContext.MASTER)) {
+                try {
+                    currentDataSourceContext.setToMaster();
+                    return ctx.proceed();
+                } finally {
+                    currentDataSourceContext.reset();
                 }
-                case CLONE: {
-                    try {
-                        currentDataSourceContext.setToReports();
-                        return ctx.proceed();
-                    } finally {
-                        currentDataSourceContext.reset();
-                    }
+            } else if (dataSource.equals(DataSourceContext.CLONE)) {
+                try {
+                    currentDataSourceContext.setToReports();
+                    return ctx.proceed();
+                } finally {
+                    currentDataSourceContext.reset();
                 }
             }
         }

@@ -145,9 +145,12 @@ public class ListCellWidget extends BaseWidget {
             ProvidesKey<CollectionRowItem> keyProvider = new ProvidesKey<CollectionRowItem>() {
                 public Object getKey(CollectionRowItem item) {
                     // Always do a null check.
-                    RdbmsId rId = new  RdbmsId(item.getId());
-                    return (item == null) ? null : rId.getId();
-
+                    if (item == null){
+                        return null;
+                    }else{
+                        RdbmsId rId = new RdbmsId(item.getId());
+                        return rId.getId();
+                    }
                 }
             };
 

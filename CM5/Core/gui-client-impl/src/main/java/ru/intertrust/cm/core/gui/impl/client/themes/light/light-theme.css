@@ -22,7 +22,7 @@ body, table td, select {
     background: -o-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* Opera11.10+ */
     background: -ms-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE10+ */
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#bfdfea', endColorstr='#c2e7f0', GradientType=0)"); /* IE6-9 */
-    background: linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
+    background: linear-gradient(to top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
     height: 35px;
     padding-top: 2px;
 }
@@ -726,7 +726,7 @@ div.gwt-Good-Label {
     background: -o-linear-gradient(top, #ffffff 0%, #ececec 100%);
     background: -ms-linear-gradient(top, #ffffff 0%, #ececec 100%);
     filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#ececec", GradientType\= 0 \);
-    background: linear-gradient(top, #ffffff 0%, #ececec 100%);
+    background: linear-gradient(to top, #ffffff 0%, #ececec 100%);
 }
 
 .right-div {
@@ -862,7 +862,7 @@ a[href='#login'] {
     background: -o-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
     background: -ms-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
     filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#c2e7f0", endColorstr\= "#b4c1d4", GradientType\= 0 \);
-    background: linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
+    background: linear-gradient(to top, #c2e7f0 0%, #b4c1d4 100%);
 }
 
 .form-panel-header {

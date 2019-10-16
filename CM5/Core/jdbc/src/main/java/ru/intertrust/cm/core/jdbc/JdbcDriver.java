@@ -26,7 +26,7 @@ public class JdbcDriver implements Driver {
     private static final String DRIVER_PREFIX_LOCAL = DRIVER_PREFIX + "-local";
     private static final String DRIVER_PREFIX_REMOTING = DRIVER_PREFIX + "-remoting";
     private static final String LOGIN_PROPERY = "user";
-    private static final String PASSWORD_PROPERY = "password";
+    private static final String PSSWD_PROPERY = "password";
 
     public enum ConnectMode {
         Local,
@@ -60,7 +60,7 @@ public class JdbcDriver implements Driver {
             if (DRIVER_PREFIX_REMOTING.equals(urlObject.getScheme())) {
                 mode = ConnectMode.Remoting;
                 login = info.getProperty(LOGIN_PROPERY);
-                password = info.getProperty(PASSWORD_PROPERY);
+                password = info.getProperty(PSSWD_PROPERY);
                 host = urlObject.getHost();
                 port = String.valueOf(urlObject.getPort());
                 String[] path = urlObject.getPath().split("/");

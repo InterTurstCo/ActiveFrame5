@@ -100,7 +100,7 @@ public class TextBoxWidget extends BaseWidget {
         if (confirmation == null && confirmationFor == null) {
             validate();
         }
-        if (confirmationFor != null & confirmation != null) {
+        if (confirmationFor != null && confirmation != null) {
             clearErrors();
             if (!validateConfirmation()) {
                 showPasswordErrors(confirmation, confirmationFor);

@@ -1,6 +1,8 @@
 package ru.intertrust.cm.performance.dataset.generatefields;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
@@ -39,7 +41,7 @@ public class GenerateStringField {
      *
      * */
     public void generateField(StringType stringType, List<TemplateType> templateList, String type,
-            DatasetGenerationServiceImpl dgsi) throws IOException {
+            DatasetGenerationServiceImpl dgsi) throws IOException, NoSuchAlgorithmException {
         if (stringType.getName() != null) {
             field = stringType.getName();
         } else {
@@ -76,7 +78,7 @@ public class GenerateStringField {
         }
     }
 
-    public void generateField(String stringFieldName, int length) throws IOException {
+    public void generateField(String stringFieldName, int length) throws IOException, NoSuchAlgorithmException {
 
         field = stringFieldName;
 
@@ -96,7 +98,7 @@ public class GenerateStringField {
         return lgth;
     }
 
-    private String randomString(int length) {
+    private String randomString(int length) throws NoSuchAlgorithmException {
 
         String tempString = String.valueOf(System.nanoTime());
         if (tempString.length() > length) {
@@ -111,7 +113,7 @@ public class GenerateStringField {
 
             StringBuilder randomName = new StringBuilder("");
 
-            Random random = new Random();
+            Random random = SecureRandom.getInstanceStrong();
 
             for (int i = tempString.length(); i < length; i++) {
                 randomName.append(signsSet[random.nextInt(rightLimit)]);

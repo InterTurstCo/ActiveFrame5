@@ -112,8 +112,9 @@ public class ClusteredLockDaoImpl implements ClusteredLockDao {
             result.setAutoUnlockTimeout(Duration.ofMillis(rs.getLong("duration")));
             Timestamp lockTime = rs.getTimestamp("lock_time");
             if (lockTime != null) {
-                result.setLockTime(Instant.ofEpochMilli(lockTime.getTime()));
-                if (result.getLockTime().get().plusMillis(result.getAutoUnlockTimeout().toMillis()).compareTo(Instant.now()) > 0) {
+                Instant lockTimeValue = Instant.ofEpochMilli(lockTime.getTime());
+                result.setLockTime(lockTimeValue);
+                if (lockTimeValue.plusMillis(result.getAutoUnlockTimeout().toMillis()).compareTo(Instant.now()) > 0) {
                     result.setLocked(true);
                 } else {
                     result.setLocked(false);

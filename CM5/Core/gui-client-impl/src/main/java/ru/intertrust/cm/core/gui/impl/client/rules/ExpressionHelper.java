@@ -37,7 +37,7 @@ public class ExpressionHelper {
         String[] expressions = splitExpressionByLogicalOperation(expression.toLowerCase(), AND);
         Boolean firstExpression = calculate(expressions[0], container);
         Boolean secondExpression = calculate(expressions[1], container);
-        return firstExpression & secondExpression;
+        return firstExpression && secondExpression;
       } else if (expression.toLowerCase().contains(OR)) {
         String[] expressions = splitExpressionByLogicalOperation(expression.toLowerCase(), OR);
         Boolean firstExpression = calculate(expressions[0], container);

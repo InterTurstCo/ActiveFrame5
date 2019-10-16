@@ -19,9 +19,6 @@ public class ActivateClassifierHandler extends ActionHandler<SimpleActionContext
     private static final String STATUS_ACTIVATED = "Active";
 
     @Autowired
-    private CrudService crudService;
-
-    @Autowired
     private ContactsManager contactsManager;
 
     @Override

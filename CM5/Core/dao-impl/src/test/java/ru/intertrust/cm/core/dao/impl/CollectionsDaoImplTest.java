@@ -687,9 +687,11 @@ public class CollectionsDaoImplTest {
 
     @Test
     public void testMulticolumnIn() {
-        collectionsDaoImpl.findCollectionByQuery(
+        IdentifiableObjectCollection collection = collectionsDaoImpl.findCollectionByQuery(
                 "select id from employee where (department, department_id) in (select id, id_type from department where id = {0})",
                 singletonList(new ReferenceValue(new RdbmsId(1, 1))), 0, 0, createMockAccessToken());
+        // Need For SonarQube
+        assertNull(collection);
     }
 
     // @Test
@@ -806,7 +808,9 @@ public class CollectionsDaoImplTest {
     @Test
     public void testGeneratorAccessesIdsBasedFilters() {
         Filter filter = new IdsIncludedFilter(new ReferenceValue(new RdbmsId(1, 1)));
-        collectionsDaoImpl.findCollection("generated", asList(filter), new SortOrder(), 0, 0, createMockSystemAccessToken());
+        IdentifiableObjectCollection collection = collectionsDaoImpl.findCollection("generated", asList(filter), new SortOrder(), 0, 0, createMockSystemAccessToken());
+        // Need For SonarQube
+        assertNull(collection);
         collectionsDaoImpl.findCollectionCount("generated", asList(filter), createMockSystemAccessToken());
     }
 

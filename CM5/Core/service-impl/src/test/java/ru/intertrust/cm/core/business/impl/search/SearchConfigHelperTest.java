@@ -201,17 +201,6 @@ public class SearchConfigHelperTest {
     }
 
     @Test
-    public void testGetFieldType_DoelDifferentTypes() {
-        //TODO implement
-        /*IndexedFieldConfig config = mock(IndexedFieldConfig.class);
-        when(config.getName()).thenReturn("DateTimeZone_B");
-        when(config.getDoel()).thenReturn("Reference_D_A.Type_B^Reference_B_A.DateTimeZone_B");
-        Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_D");
-        assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true));*/
-    }
-
-    @Test
     public void testGetFieldType_DoelChildType() {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_Ca");
@@ -326,12 +315,6 @@ public class SearchConfigHelperTest {
         assertTrue("Поле для связи с родительским объектом во вложении Attach_C, индексируемом внутри объекта Type_Ca, "
                 + "должно иметь имя Type_C, а не " + linkName,
                 "Type_C".equalsIgnoreCase(linkName));
-    }
-
-    @Test
-    public void testGetTargetObjectType() {
-        //TODO: Implement unit tests
-        //testee.getTargetObjectType("");
     }
 
     @Test

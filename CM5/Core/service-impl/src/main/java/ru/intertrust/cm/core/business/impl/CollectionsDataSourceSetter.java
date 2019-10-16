@@ -29,16 +29,14 @@ public class CollectionsDataSourceSetter {
         Object lastParameter = joinPoint.getParameters()[joinPoint.getParameters().length - 1];
         if (lastParameter instanceof DataSourceContext) {
             DataSourceContext dataSource = (DataSourceContext) lastParameter;
-            switch (dataSource) {
-                case MASTER: {
-                    try {
-                        currentDataSourceContext.setToMaster();
-                        return joinPoint.proceed();
-                    } finally {
-                        currentDataSourceContext.reset();
-                    }
+            if(dataSource.equals(DataSourceContext.MASTER)) {
+                try {
+                    currentDataSourceContext.setToMaster();
+                    return joinPoint.proceed();
+                } finally {
+                    currentDataSourceContext.reset();
                 }
-                case CLONE: {
+            }else if(dataSource.equals(DataSourceContext.CLONE)){
                     try {
                         currentDataSourceContext.setToCollections();
                         return joinPoint.proceed();
@@ -47,7 +45,7 @@ public class CollectionsDataSourceSetter {
                     }
                 }
             }
-        }
+
         if (joinPoint.getMethod().getName().contains("ByQuery")) {
             return joinPoint.proceed();
         }

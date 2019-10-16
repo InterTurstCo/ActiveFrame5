@@ -29,6 +29,8 @@ import ru.intertrust.cm.core.config.NotificationAddresseConfig;
 import ru.intertrust.cm.core.service.it.IntegrationTestBase;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
+import static org.junit.Assert.assertNotNull;
+
 /**
  * Интеграционный тест сервиса отправки сообщений
  * @author larin
@@ -290,7 +292,7 @@ public class NotificationSeviceIT extends IntegrationTestBase {
             DomainObject savedOrganization = crudService.save(organization);
             DomainObject department = createDepartmentDomainObject(savedOrganization);
             DomainObject savedDepartment = crudService.save(department);
-            
+            assertNotNull(savedDepartment);
         } finally {
             loginContext.logout();
         }

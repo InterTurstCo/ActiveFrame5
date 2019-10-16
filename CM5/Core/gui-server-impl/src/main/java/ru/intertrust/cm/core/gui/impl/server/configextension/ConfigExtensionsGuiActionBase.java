@@ -20,9 +20,6 @@ public abstract class ConfigExtensionsGuiActionBase extends ActionHandler<Simple
     @Autowired
     protected ConfigurationControlService configurationControlService;
 
-    @Autowired
-    protected CrudService crudService;
-
     protected List<DomainObject> getToolingDos(Id configurationDO){
         return crudService.findLinkedDomainObjects(configurationDO,"config_extension_tooling","configuration_extension");
     }

@@ -41,7 +41,7 @@ public class PlatformCommandLineWebService {
 
 
     @ResponseBody
-    @RequestMapping(value = "/execAction")
+    @RequestMapping(value = "/execAction", method = RequestMethod.POST)
     public ResponseEntity<PlatformWebServiceResult> upload(HttpServletRequest req, HttpSession session)
             throws IOException, ServletException, FileUploadException {
         PlatformWebServiceResult result = null;

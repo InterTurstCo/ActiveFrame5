@@ -95,7 +95,7 @@ public class CreateTestData
         return status;
     }
 
-    private DomainObject createEmployee(String name, String login, DomainObject department) {
+    private DomainObject createEmployee(String name, String login, DomainObject department) throws IOException {
         DomainObject employee = findDomainObject("Employee", "Name", name);
         if (employee == null) {
             employee = crudService
@@ -114,7 +114,8 @@ public class CreateTestData
             authInfo = crudService
                     .createDomainObject("Authentication_Info");
             authInfo.setString("User_Uid", login);
-            authInfo.setString("Password", "c4ca4238a0b923820dcc509a6f75849b");
+            String psswd = getAppPropery("person.password");
+            authInfo.setString("Password", psswd);
             authInfo = crudService.save(authInfo);
             log("Создан объект " + authInfo.getTypeName() + " " + authInfo.getId());
         }
@@ -122,7 +123,7 @@ public class CreateTestData
         return employee;
     }
 
-    private DomainObject createPerson(String login) {
+    private DomainObject createPerson(String login) throws IOException {
         DomainObject person = findDomainObject("Person", "Login", login);
         if (person == null) {
             person = crudService
@@ -137,7 +138,8 @@ public class CreateTestData
             authInfo = crudService
                     .createDomainObject("Authentication_Info");
             authInfo.setString("User_Uid", login);
-            authInfo.setString("Password", "21232f297a57a5a743894a0e4a801fc3");
+            String psswd = getAppPropery("admin.password");
+            authInfo.setString("Password", psswd);
             authInfo = crudService.save(authInfo);
             log("Создан объект " + authInfo.getTypeName() + " " + authInfo.getId());
         }

@@ -99,7 +99,7 @@ public class HierarchySurferPluginView extends PluginView {
     }
 
     private void addSplitterWidgetResizeHandler() {
-        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+        eventBus.addHandler(SplitterWidgetResizerEvent.EVENT_TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
 
@@ -158,9 +158,9 @@ public class HierarchySurferPluginView extends PluginView {
         //final Integer splitterSize = pluginData.getSplitterPosition();
         final Integer splitterSize = 459;
         if (isVertical) {
-            dockLayoutPanel.addWest(northRootWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
+            dockLayoutPanel.addWest(northRootWidget, splitterSize);
         } else {
-            dockLayoutPanel.addNorth(northRootWidget, splitterSize == null ? surferHeight / 2 : splitterSize - dockLayoutPanel.getSplitterSize());
+            dockLayoutPanel.addNorth(northRootWidget, splitterSize - dockLayoutPanel.getSplitterSize());
         }
         splitterSetSize();
         dockLayoutPanel.add(southRootWidget);

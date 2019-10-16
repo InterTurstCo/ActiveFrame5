@@ -523,7 +523,7 @@ public abstract class PluginView implements IsWidget {
             // Если правил сокрытия несколько то их суммарный результат должен быть true
             Boolean shouldByHidden = true;
             for (RuleTypeConfig rule : itemConfig.getRulesTypeConfig().getHideRulesTypeConfig().getRuleTypeConfigs()) {
-              shouldByHidden = shouldByHidden & ExpressionHelper.applyExpression(rule.getApplyExpression(), (WidgetsContainer) e.getEventPayload());
+              shouldByHidden = shouldByHidden && ExpressionHelper.applyExpression(rule.getApplyExpression(), (WidgetsContainer) e.getEventPayload());
             }
             this.setVisible(!shouldByHidden);
           }

@@ -111,7 +111,7 @@ public class LocalizationKeys {
     public static final String GUI_EXCEPTION_FILE_IS_UPLOADING_KEY = "GuiException.FileIsUploading";
 
     public static final String USER_NAME_KEY = "UserName";
-    public static final String PASSWORD_KEY = "Password";
+    public static final String PSSWD_KEY = "Password";
     public static final String SIGN_ON_KEY = "SignOn";
     public static final String REMEMBER_ME_KEY = "RememberMe";
     public static final String AUTHORIZATION_ERROR_KEY = "AuthorizationError";

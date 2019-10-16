@@ -13,6 +13,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.cert.CRLException;
 import java.security.cert.CertPathBuilderException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertificateParsingException;
@@ -21,6 +22,7 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -33,6 +35,8 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
@@ -236,34 +240,14 @@ public class CertificateVerifier {
     public HashSet<X509Certificate> getTrustedCertificates() throws CertificateException {
         try {
             HashSet<X509Certificate> result = new HashSet<X509Certificate>();
-            // Load the JDK's cacerts keystore file
-            String filename = System.getProperty("java.home") + "/lib/security/cacerts".replace('/', File.separatorChar);
-            ;
-            if (System.getProperty("javax.net.ssl.trustStore") != null) {
-                filename = System.getProperty("javax.net.ssl.trustStore");
-            }
 
-            FileInputStream is = new FileInputStream(filename);
-            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore) null);
+            Arrays.asList(trustManagerFactory.getTrustManagers()).stream().forEach(t -> {
+                result.addAll(Arrays.asList(((X509TrustManager) t).getAcceptedIssuers()));
+            });
 
-            String password = "changeit";
-            if (System.getProperty("javax.net.ssl.trustStorePassword") != null) {
-                password = System.getProperty("javax.net.ssl.trustStorePassword");
-            }
-
-            keystore.load(is, password.toCharArray());
-
-            // This class retrieves the most-trusted CAs from the keystore
-            PKIXParameters params = new PKIXParameters(keystore);
-
-            // Get the set of trust anchors, which contain the most-trusted CA certificates
-            Iterator it = params.getTrustAnchors().iterator();
-            while (it.hasNext()) {
-                TrustAnchor ta = (TrustAnchor) it.next();
-                // Get certificate
-                X509Certificate cert = ta.getTrustedCert();
-                result.add(cert);
-            }
             return result;
         } catch (Exception ex) {
             throw new CertificateException("Error get trusted Certificates", ex);

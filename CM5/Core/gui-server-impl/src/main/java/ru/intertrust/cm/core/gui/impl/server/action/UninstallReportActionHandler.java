@@ -27,10 +27,6 @@ public class UninstallReportActionHandler extends ActionHandler {
     @Autowired
     ReportServiceAdmin reportServiceAdmin;
 
-
-    @Autowired
-    CrudService crudService;
-
     @Override
     public SimpleActionData executeAction(ActionContext context) {
         Id rootObject = context.getRootObjectId();

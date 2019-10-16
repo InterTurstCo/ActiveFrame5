@@ -337,7 +337,7 @@ public class AccessControlServiceImpl implements AccessControlService {
             if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
                 String message = String.format(
                         MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
-                        login,type,objectIds.toString());
+                        login, type, Arrays.toString(objectIds));
                 String childType = "";
                 if (type instanceof CreateChildAccessType) {
                     childType = ((CreateChildAccessType) type).getChildType();
@@ -379,7 +379,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         if (requireAll ? ids.size() < objectIds.length : ids.size() == 0) {
             String message = String.format(
                     MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
-                    login, types.toString(), objectIds.toString());
+                    login, Arrays.toString(types), Arrays.toString(objectIds));
             String childType = "";
             if (types[0] instanceof CreateChildAccessType) {
                 for (AccessType type : types) {

@@ -216,9 +216,9 @@ public class ExportAttachmentsServlet extends HttpServlet {
                 String errorText = ExceptionUtils.getStackTrace(ex);
                 String prefix = ThreadSafeDateFormat.format(new Date(), "yyyy-MM-dd_HH-mm-ss");
                 File tempFile = File.createTempFile("export-error-" + prefix + "-", ".txt");
-                FileOutputStream fos = new FileOutputStream(tempFile);
-                StreamUtils.copy(errorText, Charset.forName("utf-8"), fos);
-                fos.close();
+                try(FileOutputStream fos = new FileOutputStream(tempFile)) {
+                    StreamUtils.copy(errorText, Charset.forName("utf-8"), fos);
+                }
                 return tempFile.getName();
             }catch(Exception ignoreEx){
                 logger.error("Error export attachments", ex);

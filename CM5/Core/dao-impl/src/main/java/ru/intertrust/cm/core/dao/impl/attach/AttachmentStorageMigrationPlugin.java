@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.attach;
 
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -229,10 +230,11 @@ public class AttachmentStorageMigrationPlugin implements PluginHandler {
     private void moveAttachment(Id attachmentId, AttachmentStorage targetStorage, AttachmentStorage sourceStorage,
             String relativePath, Params params, Stats stats, EJBContext ejbContext, final AccessToken accessToken,
             final String parentRefFieldName) {
+        InputStream content = null;
         try {
             ejbContext.getUserTransaction().begin();
             final DomainObject attachment = domainObjectDao.find(attachmentId, accessToken);
-            InputStream content;
+
             if (sourceStorage != null) {
                 content = sourceStorage.getContent(relativePath);
             } else {
@@ -282,6 +284,11 @@ public class AttachmentStorageMigrationPlugin implements PluginHandler {
                 ejbContext.getUserTransaction().rollback();
             } catch (Exception ee) {
                 logger.error("Transaction rollback failed", ee);
+            }
+        }finally {
+            try {
+                content.close();
+            } catch (IOException ignoreEx) {
             }
         }
     }

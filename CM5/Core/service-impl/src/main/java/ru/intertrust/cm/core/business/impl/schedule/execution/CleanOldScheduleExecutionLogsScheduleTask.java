@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ScheduleException;
 
 import javax.ejb.EJBContext;
@@ -167,20 +168,17 @@ public class CleanOldScheduleExecutionLogsScheduleTask implements ScheduleTaskHa
                         ejbContext.getUserTransaction().begin();
                     }
                 }
+
+                if (Status.STATUS_ACTIVE == ejbContext.getUserTransaction().getStatus()) {
+                    ejbContext.getUserTransaction().commit();
+                }
             }
         } catch (NotSupportedException | SystemException | HeuristicRollbackException | HeuristicMixedException | RollbackException e) {
             try {
                 ejbContext.getUserTransaction().rollback();
-            } finally {
-                throw new ScheduleException(e);
-            }
-        } finally {
-            try {
-                if (Status.STATUS_ACTIVE == ejbContext.getUserTransaction().getStatus()) {
-                    ejbContext.getUserTransaction().commit();
-                }
-            } catch (SystemException | HeuristicRollbackException | HeuristicMixedException | RollbackException e) {
-                throw new ScheduleException(e);
+                throw new FatalException("Error deleteOldScheduleExecutions", e);
+            } catch (SystemException ex) {
+                log.warn("Error rollback transaction", ex);
             }
         }
         return totalCount;

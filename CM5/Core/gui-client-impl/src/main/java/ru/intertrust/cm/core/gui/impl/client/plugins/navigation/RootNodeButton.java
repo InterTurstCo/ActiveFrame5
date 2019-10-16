@@ -30,7 +30,7 @@ public class RootNodeButton extends HTML {
      */
     @Deprecated //use RootNodeButton(LinkConfig linkConfig) instead
     public RootNodeButton(final Long collectionCount, final String name, final String image, final String displayText) {
-        super(getHtml(image, displayText, collectionCount, true, true));
+        super(getHtmlTemplate(image, displayText, collectionCount, true, true));
         this.name = name;
         this.image = image;
         this.displayText = displayText;
@@ -41,7 +41,7 @@ public class RootNodeButton extends HTML {
         }
     }
     public RootNodeButton(LinkConfig linkConfig, boolean baseAutoCut){
-        super(getHtml(linkConfig, baseAutoCut));
+        super(getHtmlTemplate(linkConfig, baseAutoCut));
         this.name = linkConfig.getName();
         this.image = linkConfig.getImage();
         this.displayText = linkConfig.getDisplayText();
@@ -68,14 +68,14 @@ public class RootNodeButton extends HTML {
     }
 
     public void updateCollectionCount(Long collectionCount) {
-        super.setHTML(getHtml(image, displayText, collectionCount, autoCut, baseAutoCut));
+        super.setHTML(getHtmlTemplate(image, displayText, collectionCount, autoCut, baseAutoCut));
     }
 
-    private static String getHtml(LinkConfig linkConfig, boolean baseAutoCut){
-        return getHtml(linkConfig.getImage(), linkConfig.getDisplayText(), null, linkConfig.isAutoCut(), baseAutoCut);
+    private static String getHtmlTemplate(LinkConfig linkConfig, boolean baseAutoCut){
+        return getHtmlTemplate(linkConfig.getImage(), linkConfig.getDisplayText(), null, linkConfig.isAutoCut(), baseAutoCut);
     }
 
-    private static String getHtml(final String image, final String displayText, final Long collectionCount, Boolean linkAutoCut,
+    private static String getHtmlTemplate(final String image, final String displayText, final Long collectionCount, Boolean linkAutoCut,
                                   boolean baseAutoCut) {
         boolean autoCut = (linkAutoCut != null && linkAutoCut) || (linkAutoCut == null && baseAutoCut);
         String styleForWordsAutoCut = autoCut ? " style = \"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\"" : "";

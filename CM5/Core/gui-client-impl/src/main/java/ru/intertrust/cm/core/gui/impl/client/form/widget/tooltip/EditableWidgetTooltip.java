@@ -22,15 +22,15 @@ public class EditableWidgetTooltip extends PopupPanel {
     private EventBus eventBus;
     private WidgetItemsView widgetItemsView;
     private boolean displayAsHyperlinks;
-    private HasLinkedFormMappings widget;
+    private HasLinkedFormMappings hasLinkedFormMappings;
 
     public EditableWidgetTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-            boolean displayAsHyperlinks, Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
+            boolean displayAsHyperlinks, Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings hasLinkedFormMappings) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
-        this.widget = widget;
+        this.hasLinkedFormMappings = hasLinkedFormMappings;
         init(selectionStyleConfig, typeTitleMap);
         eventBus.addHandler(WidgetItemRemoveEvent.TYPE, new WidgetItemRemoveEventHandler() {
             @Override
@@ -43,7 +43,7 @@ public class EditableWidgetTooltip extends PopupPanel {
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig, Map<String, PopupTitlesHolder> typeTitleMap) {
-        widgetItemsView = new WidgetItemsView(selectionStyleConfig, typeTitleMap, widget, eventBus);
+        widgetItemsView = new WidgetItemsView(selectionStyleConfig, typeTitleMap, hasLinkedFormMappings, eventBus);
         this.add(widgetItemsView);
         this.setStyleName("tooltipPopup");
 

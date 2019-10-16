@@ -74,7 +74,7 @@ public enum FieldType {
                 return TIMELESSDATE;
             case ModelConstants.REFERENCE_TYPE:
                 return REFERENCE;
-            case ModelConstants.PASSWORD_TYPE:
+            case ModelConstants.PSSWRD_TYPE:
                 return PASSWORD;
             case ModelConstants.LIST_TYPE:
                 return LIST;

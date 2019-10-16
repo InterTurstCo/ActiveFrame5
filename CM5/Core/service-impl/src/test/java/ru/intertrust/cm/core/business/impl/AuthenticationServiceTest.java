@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.business.impl;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -51,16 +54,6 @@ public class AuthenticationServiceTest {
         testAuthenticationInfo.setId(1);
         testAuthenticationInfo.setUserUid(ADMIN_LOGIN);
         testAuthenticationInfo.setPassword(ADMIN_PASSWORD);
-    }
-
-    @Test
-    public void testInsertAuthenticationInfo() {
-        //authenticationService.insertAuthenticationInfoAndRole(testAuthenticationInfo);
-//        when(domainObjectDao.create(anyObject(), anyObject())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
-//        when(md5ServiceMock.getMD5AsHex(ADMIN_PASSWORD)).thenReturn(ADMIN_PASSWORD);
-
-//        verify(md5ServiceMock).getMD5AsHex(ADMIN_PASSWORD);
-
     }
 
     @Test

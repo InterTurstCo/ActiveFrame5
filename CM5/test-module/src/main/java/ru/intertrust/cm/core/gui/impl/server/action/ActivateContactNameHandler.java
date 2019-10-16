@@ -20,9 +20,6 @@ public class ActivateContactNameHandler extends ActionHandler<SimpleActionContex
     private static final String STATUS_ACTIVATED = "Актуальный";
 
     @Autowired
-    private CrudService crudService;
-
-    @Autowired
     private ContactsManager contactsManager;
 
     @Override

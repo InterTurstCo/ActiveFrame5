@@ -26,12 +26,6 @@ import java.util.regex.Pattern;
 @ComponentName("label")
 public class LabelHandler extends ValueEditingWidgetHandler {
 
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private FormatHandler formatHandler;
-
     @Override
     public LabelState getInitialState(WidgetContext context) {
         FieldPath[] fieldPaths = context.getFieldPaths();

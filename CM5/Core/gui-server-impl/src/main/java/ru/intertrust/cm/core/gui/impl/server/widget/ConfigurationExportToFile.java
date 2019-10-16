@@ -38,17 +38,18 @@ public class ConfigurationExportToFile {
         OutputStreamWriter writer = new OutputStreamWriter(buffer, Charset.forName(DEFAULT_ENCODING));
         try {
             configurationControlService.exportActiveExtensions(confTemporary);
-            FileInputStream fis = new FileInputStream(confTemporary);
-            BufferedReader br =
-                    new BufferedReader( new InputStreamReader(fis, DEFAULT_ENCODING ));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while(( line = br.readLine()) != null ) {
-                sb.append( line );
-                sb.append( '\n' );
+            try(FileInputStream fis = new FileInputStream(confTemporary)) {
+                try(BufferedReader br = new BufferedReader(new InputStreamReader(fis, DEFAULT_ENCODING))){
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line);
+                        sb.append('\n');
+                    }
+                    writer.append(sb.toString());
+                    writer.close();
+                }
             }
-            writer.append(sb.toString());
-            writer.close();
         } catch(ConfigurationException e){
             writer.append(e.getMessage());
             writer.close();

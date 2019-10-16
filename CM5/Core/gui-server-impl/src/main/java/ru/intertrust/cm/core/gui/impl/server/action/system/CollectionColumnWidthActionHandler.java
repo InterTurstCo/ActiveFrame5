@@ -39,9 +39,7 @@ public class CollectionColumnWidthActionHandler extends ActionHandler<Collection
     private static Logger log = LoggerFactory.getLogger(CollectionColumnWidthActionHandler.class);
 
     @Autowired private ConfigurationExplorer configurationService;
-    @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
     @EJB
     SettingsUtil settingsUtil;
     @Override

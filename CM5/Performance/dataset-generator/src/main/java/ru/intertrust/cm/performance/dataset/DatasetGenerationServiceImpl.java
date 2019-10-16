@@ -2,6 +2,7 @@ package ru.intertrust.cm.performance.dataset;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -114,6 +115,9 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
         StreamSource schemaSource = new StreamSource(getClass().getResourceAsStream(
                 "/dataset-generator-configuration.xsd"));
         SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+        /*factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");*/
+
         Schema schema = factory.newSchema(schemaSource);
         validator = schema.newValidator();
         generators = RandomGenerators.getInstance();
@@ -239,7 +243,7 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
     }
 
     public DomainObject addOfMissingFields(DomainObject domainObject, DomainObject parentDomainObject)
-            throws IOException {
+            throws IOException, NoSuchAlgorithmException {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
                 domainObject.getTypeName());
 
@@ -350,7 +354,7 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
      * доменных объектов
      * */
     public DomainObject generateObject(List<TemplateType> templateList, ObjectType objectType,
-            DomainObject parentDomainObject) throws IOException {
+            DomainObject parentDomainObject) throws IOException, NoSuchAlgorithmException {
         // Сохраним ссылку на объект, для работы с доменными объектами, в
         // глобальную переменную класса
         // Создаем объект, для заполнения его полями

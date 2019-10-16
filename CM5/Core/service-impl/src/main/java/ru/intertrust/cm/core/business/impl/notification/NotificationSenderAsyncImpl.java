@@ -54,21 +54,6 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
     @EJB
     protected NotificationService notificationService;
 
-    @Autowired
-    protected CurrentUserAccessor currentUserAccessor;
-
-    @Autowired
-    private CollectionsDao collectionsDao;
-
-    @Autowired
-    private DoelEvaluator doelEvaluator;
-
-    @Autowired
-    private AccessControlService accessService;
-
-    @Autowired
-    private ScriptService scriptService;
-
     @Override
     @Asynchronous
     public void sendNotifications(List<SendNotificationInfo> sendNotificationInfos) {

@@ -301,8 +301,10 @@ public class CrudServiceIT extends IntegrationTestBase {
         lc.login();
         Id domainObjectId = new RdbmsId(1, 1);
         // Проверка на выполнимость SQL запросов для случая иерархии наследования и подключения проверки прав
-        crudService.findLinkedDomainObjects(domainObjectId, "test_DO_5", "ref_DO_1");
-        crudService.findLinkedDomainObjectsIds(domainObjectId, "test_DO_5", "ref_DO_1");
+        List<DomainObject> resultDo = crudService.findLinkedDomainObjects(domainObjectId, "test_DO_5", "ref_DO_1");
+        assertNotNull(resultDo);
+        List<Id> resultId = crudService.findLinkedDomainObjectsIds(domainObjectId, "test_DO_5", "ref_DO_1");
+        assertNotNull(resultId);
         lc.logout();
     }
     

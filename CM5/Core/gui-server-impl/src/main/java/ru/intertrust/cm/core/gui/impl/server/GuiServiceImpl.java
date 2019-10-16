@@ -106,9 +106,6 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     private GuiService newTransactionGuiService;
     
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    
-    @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired

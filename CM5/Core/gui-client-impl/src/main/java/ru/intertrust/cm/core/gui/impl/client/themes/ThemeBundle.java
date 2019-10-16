@@ -150,7 +150,7 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/comment.png")
     ImageResource comment();
 	
-    @Source("common.css")
+    @Source("common.csst")
     public CommonCssResource commonCss();
 
 }

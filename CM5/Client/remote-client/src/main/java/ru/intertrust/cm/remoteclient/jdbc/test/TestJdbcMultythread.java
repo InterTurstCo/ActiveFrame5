@@ -68,62 +68,62 @@ public class TestJdbcMultythread extends ClientBase {
             try {
                 Class.forName(JdbcDriver.class.getName());
 
+                String pswd = getAppPropery("jdbc.password");;
                 connection =
-                        DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
+                        DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", pswd);
 
                 String query = "select t.name, t.created_date, t.author, t.long_field ";
                 query += "from Outgoing_Document t ";
                 String queryWhere = "where created_date between ? and ? and Name = ? and Author = ? and Long_Field = ?";
 
-                PreparedStatement prepareStatement =
-                        connection.prepareStatement(query + queryWhere);
+                try(PreparedStatement prepareStatement = connection.prepareStatement(query + queryWhere)) {
 
-                Calendar fromDate = Calendar.getInstance();
-                fromDate.set(2000, 1, 1);
-                prepareStatement.setDate(1, new java.sql.Date(fromDate.getTime().getTime()));
-                prepareStatement.setDate(2, new java.sql.Date(System.currentTimeMillis()));
-                prepareStatement.setString(3, "Outgoing_Document");
-                prepareStatement.setObject(4, outgoingDocument.getReference("Author"));
-                prepareStatement.setLong(5, 10);
-                ResultSet resultset = prepareStatement.executeQuery();
+                    Calendar fromDate = Calendar.getInstance();
+                    fromDate.set(2000, 1, 1);
+                    prepareStatement.setDate(1, new java.sql.Date(fromDate.getTime().getTime()));
+                    prepareStatement.setDate(2, new java.sql.Date(System.currentTimeMillis()));
+                    prepareStatement.setString(3, "Outgoing_Document");
+                    prepareStatement.setObject(4, outgoingDocument.getReference("Author"));
+                    prepareStatement.setLong(5, 10);
+                    try(ResultSet resultset = prepareStatement.executeQuery()) {
 
-                int rowCount = 0;
-                while (resultset.next()) {
-                    System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
-                            + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                    rowCount++;
-                }
-                resultset.close();
-                prepareStatement.close();
-
-                Statement statement = connection.createStatement();
-                if (statement.execute(query)) {
-                    resultset = statement.getResultSet();
-
-                    rowCount = 0;
-                    while (resultset.next()) {
-                        System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
-                                + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                        rowCount++;
+                        int rowCount = 0;
+                        while (resultset.next()) {
+                            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
+                                    + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
+                            rowCount++;
+                        }
                     }
-                    resultset.close();
-                    statement.close();
-
                 }
 
-                statement = connection.createStatement();
-                if (statement.execute(query)) {
-                    resultset = statement.getResultSet();
+                try (Statement statement = connection.createStatement()) {
+                    if (statement.execute(query)) {
+                        try(ResultSet resultset = statement.getResultSet()) {
 
-                    rowCount = 0;
-                    while (resultset.next()) {
-                        System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
-                                + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                        rowCount++;
+                            int rowCount = 0;
+                            while (resultset.next()) {
+                                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
+                                        + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
+                                rowCount++;
+                            }
+                        }
                     }
-                    resultset.close();
-                    statement.close();
+                }
 
+                try (Statement statement = connection.createStatement()) {
+                    if (statement.execute(query)) {
+                        try(ResultSet resultset = statement.getResultSet()) {
+
+                            int rowCount = 0;
+                            while (resultset.next()) {
+                                System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
+                                        + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
+                                rowCount++;
+                            }
+                        }
+
+
+                    }
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();

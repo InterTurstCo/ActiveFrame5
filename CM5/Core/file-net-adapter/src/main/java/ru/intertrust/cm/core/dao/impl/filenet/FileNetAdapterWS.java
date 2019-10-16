@@ -103,15 +103,15 @@ public class FileNetAdapterWS implements FileNetAdapter{
     @Override
     public InputStream load(String path) throws Exception {
         File tempFile = File.createTempFile("filenet_", "_temp");
-        FileOutputStream out = new FileOutputStream(tempFile);
-        Fragment fragment = null;
-        int loadByte = 0;
-        while(fragment == null || fragment.fullSize > loadByte){
-            fragment = loadFragment(path, fragment == null ? null : fragment.continueFrom);
-            out.write(fragment.body);
-            loadByte += fragment.body.length;
+        try(FileOutputStream out = new FileOutputStream(tempFile)) {
+            Fragment fragment = null;
+            int loadByte = 0;
+            while (fragment == null || fragment.fullSize > loadByte) {
+                fragment = loadFragment(path, fragment == null ? null : fragment.continueFrom);
+                out.write(fragment.body);
+                loadByte += fragment.body.length;
+            }
         }
-        out.close();
         
         TempFileInputStream in = new TempFileInputStream(tempFile);
         return in;

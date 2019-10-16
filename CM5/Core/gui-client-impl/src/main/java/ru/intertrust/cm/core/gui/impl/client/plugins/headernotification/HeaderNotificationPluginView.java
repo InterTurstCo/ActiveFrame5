@@ -38,7 +38,6 @@ public class HeaderNotificationPluginView extends PluginView {
 
 
     private FlowPanel container;
-    private Plugin plugin;
     private HeaderNotificationPluginData headerNotificationPluginData;
     private ArrayList<HeaderNotificationItem> listNotificationItem;
     private FormPlugin oldFormPlugin;

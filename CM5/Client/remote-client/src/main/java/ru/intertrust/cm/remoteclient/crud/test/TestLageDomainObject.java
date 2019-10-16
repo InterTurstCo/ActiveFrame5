@@ -1,5 +1,6 @@
 package ru.intertrust.cm.remoteclient.crud.test;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -203,20 +204,25 @@ public class TestLageDomainObject {
         }
         query += " where id = ?";
 
-        PreparedStatement ps = null;
-        if (countFields > 0){
-            ps = dataSource.getConnection().prepareStatement(query);
-            for (int i = 1; i < countFields + 1; i++) {
-                ps.setNull(i, Types.VARCHAR);
+
+
+        try(Connection connection = dataSource.getConnection()){
+            try(PreparedStatement ps = connection.prepareStatement(query)){
+                if (countFields > 0){
+                    for (int i = 1; i < countFields + 1; i++) {
+                        ps.setNull(i, Types.VARCHAR);
+                    }
+                    ps.setLong(countFields + 1, getRndId());
+                }
+
+                long start = System.currentTimeMillis();
+                if (countFields > 0) {
+                    ps.execute();
+                }
+                return System.currentTimeMillis() - start;
             }
-            ps.setLong(countFields + 1, getRndId());
         }
 
-        long start = System.currentTimeMillis();
-        if (countFields > 0) {
-            ps.execute();
-        }
-        return System.currentTimeMillis() - start;
     }
     
     private long updateUsingJdbcOperation(int countFields) throws SQLException {
@@ -298,16 +304,19 @@ public class TestLageDomainObject {
         }
         query += ")";
 
-        PreparedStatement ps = null;
-        ps = dataSource.getConnection().prepareStatement(query);
-        ps.setLong(1, getNextId());
-        for (int i = 2; i < countFields + 2; i++) {
-            ps.setNull(i, Types.VARCHAR);
-        }
 
-        long start = System.currentTimeMillis();
-        ps.execute();
-        return System.currentTimeMillis() - start;
+        try(Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setLong(1, getNextId());
+                for (int i = 2; i < countFields + 2; i++) {
+                    ps.setNull(i, Types.VARCHAR);
+                }
+
+                long start = System.currentTimeMillis();
+                ps.execute();
+                return System.currentTimeMillis() - start;
+            }
+        }
     }
     
     private long insertUsingJdbcOperation(int countFields) throws SQLException {

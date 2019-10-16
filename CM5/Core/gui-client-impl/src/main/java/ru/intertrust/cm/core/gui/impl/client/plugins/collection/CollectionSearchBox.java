@@ -191,11 +191,11 @@ public class CollectionSearchBox extends Composite implements IsWidget {
     }
 
     public FlowPanel getContainer() {
-        return boxContainer;
+        return container;
     }
 
     public void setContainer(FlowPanel container) {
-        this.boxContainer = container;
+        this.container = container;
     }
 
     public TextBox getTextBox() {

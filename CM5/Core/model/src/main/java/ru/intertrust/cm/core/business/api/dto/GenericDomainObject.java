@@ -36,7 +36,7 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     public static final String ATTACHMENT_TEMPLATE = "Attachment";
     
     public static final String ADMINISTRATOR_LOGIN = "administrator";
-    public static final String ADMINISTRATOR_PASSWORD = "administrator";
+    public static final String ADMINISTRATOR_PSSWRD = "administrator";
 
     /**
      * Создаёт доменный объект
@@ -169,12 +169,6 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     @Override
     public boolean isNew() {
         return (getId() == null);
-    }
-
-    @Override
-    @GwtIncompatible
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     @Override

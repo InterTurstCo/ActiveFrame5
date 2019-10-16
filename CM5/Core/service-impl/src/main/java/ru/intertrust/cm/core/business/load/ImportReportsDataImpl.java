@@ -73,14 +73,15 @@ public class ImportReportsDataImpl implements ImportReportsData, ImportReportsDa
                 templateFolderPath = templateFolderPath + "/";
             }
             try {
-                ZipInputStream zip = new ZipInputStream(new FileInputStream(moduleUrl.getPath()));
-                List<String> filePaths = new ArrayList<String>();
-                for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-                    if(!entry.isDirectory() && entry.getName().startsWith(templateFolderPath)) {
-                        filePaths.add(entry.getName());
+                try(ZipInputStream zip = new ZipInputStream(new FileInputStream(moduleUrl.getPath()))) {
+                    List<String> filePaths = new ArrayList<String>();
+                    for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+                        if (!entry.isDirectory() && entry.getName().startsWith(templateFolderPath)) {
+                            filePaths.add(entry.getName());
+                        }
                     }
+                    deployReportFiles(filePaths, moduleUrl);
                 }
-                deployReportFiles(filePaths, moduleUrl);
             } catch (Exception e) {
                 throw new FatalException("Cannot deploy report: module=" + moduleName + "; template path=" + templateFolderPath, e);
             }

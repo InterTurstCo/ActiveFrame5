@@ -36,11 +36,7 @@ public class ResetPluginSettingsActionHandler extends ActionHandler<ResetPluginS
         {
 
     @Autowired
-    private CrudService crudService;
-    @Autowired
     private CollectionsService collectionsService;
-    @Autowired
-    private CurrentUserAccessor currentUserAccessor;
 
     @EJB
     SettingsUtil settingsUtil;

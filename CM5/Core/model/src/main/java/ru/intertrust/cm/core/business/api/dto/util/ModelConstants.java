@@ -16,7 +16,7 @@ public class ModelConstants {
     public static final String TIMELESS_DATE_TYPE = "timelessDate";
     public static final String DATE_TIME_TYPE = "datetime";
     public static final String DATE_TIME_WITH_TIME_ZONE_TYPE = "dateTimeWithTimeZone";
-    public static final String PASSWORD_TYPE = "password";
+    public static final String PSSWRD_TYPE = "password";
     public static final String LIST_TYPE = "list";
     // calculating values for collection plugin
     public static final int INIT_ROWS_NUMBER = 55;

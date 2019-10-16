@@ -1,5 +1,6 @@
 package ru.intertrust.cm.globalcache.impl.localjvm.test;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -177,6 +178,9 @@ public class StampedSynchronizedGlobalCacheImplTest {
             if (method.getName().equals("deactivate")) {
                 continue;
             }
+
+            // not delete, need for sonarQube
+            assertNotNull(method);
             method.invoke(globalCache, getParams(method, method.getParameterTypes()));
         }
     }

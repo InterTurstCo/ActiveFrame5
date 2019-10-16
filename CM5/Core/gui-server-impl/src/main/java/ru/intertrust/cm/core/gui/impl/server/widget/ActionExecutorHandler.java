@@ -32,8 +32,6 @@ public class ActionExecutorHandler extends LabelHandler {
 
     @Autowired
     private ActionService actionService;
-    @Autowired
-    private ApplicationContext applicationContext;
 
     @Override
     public ActionExecutorState getInitialState(WidgetContext context) {

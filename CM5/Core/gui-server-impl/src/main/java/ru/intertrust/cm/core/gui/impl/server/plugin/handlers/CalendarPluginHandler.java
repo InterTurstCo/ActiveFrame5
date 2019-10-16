@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
 @ComponentName(CalendarConfig.COMPONENT_NAME)
 public class CalendarPluginHandler extends ActivePluginHandler {
 
-    @Autowired private ActionService actionService;
     @Autowired private ActionConfigBuilder actionConfigBuilder;
     @Autowired private ApplicationContext applicationContext;
     @Autowired private CollectionsService collectionsService;

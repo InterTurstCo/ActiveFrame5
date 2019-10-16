@@ -41,7 +41,7 @@ import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.USER_GR
 public class InitialDataLoaderImpl implements InitialDataLoader {
 
     private static final String ADMIN_LOGIN = "admin";
-    private static final String ADMIN_PASSWORD = "admin";
+    private static final String ADMIN_PSSWRD = "admin";
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -224,7 +224,7 @@ public class InitialDataLoaderImpl implements InitialDataLoader {
     private void insertSuperUserAuthenticationInfo() {
         AuthenticationInfoAndRole superUser = new AuthenticationInfoAndRole();
         superUser.setUserUid(ADMIN_LOGIN);
-        superUser.setPassword(ADMIN_PASSWORD);
+        superUser.setPassword(ADMIN_PSSWRD);
         superUser.setRole("admin");
         
         Id superUsersGroupId = personManagementServiceDao.getGroupId(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
@@ -237,7 +237,7 @@ public class InitialDataLoaderImpl implements InitialDataLoader {
 
         AuthenticationInfoAndRole administratorAuthInfo = new AuthenticationInfoAndRole();
         administratorAuthInfo.setUserUid(GenericDomainObject.ADMINISTRATOR_LOGIN);
-        administratorAuthInfo.setPassword(GenericDomainObject.ADMINISTRATOR_PASSWORD);
+        administratorAuthInfo.setPassword(GenericDomainObject.ADMINISTRATOR_PSSWRD);
         administratorAuthInfo.setRole("admin");
       
         authenticationService.insertAuthenticationInfoAndRole(administratorAuthInfo, administratorsGroupId);

@@ -12,6 +12,7 @@ import org.xml.sax.SAXParseException;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.xml.XMLConstants;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -127,7 +128,6 @@ public class ConfigurationSchemaValidator {
                 "org.apache.xerces.jaxp.validation.XMLSchema11Factory");
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
-
         try {
             if (configurationSchemaInputStreams == null) {
                 configurationSchemaInputStreams = new InputStream[]{getFileInputStream(configurationSchemaPath)};
@@ -138,6 +138,13 @@ public class ConfigurationSchemaValidator {
                 schemaSources[i] = new StreamSource(configurationSchemaInputStreams[i]);
             }
             factory.setResourceResolver(new LSResourceResolverImpl());
+            /*factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+            factory.setProperty(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setProperty("http://apache.org/xml/features/disallow-doctype-decl", true);*/
+
             final Schema schema = factory.newSchema(schemaSources);
             final Validator validator = schema.newValidator();
 

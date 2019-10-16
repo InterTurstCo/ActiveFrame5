@@ -40,8 +40,7 @@ import static org.mockito.Mockito.when;
  * базу тестовыми данными.
  * @author atsvetkov
  */
-@RunWith(MockitoJUnitRunner.class)
-public class BaseDaoTest {
+public abstract class BaseDaoTest {
 
     private static String CONFIGURATION_SCHEMA_PATH = "config/configuration.xsd";
     private static String DOMAIN_OBJECTS_CONFIG_PATH = "config/domain-objects-test.xml";
@@ -279,10 +278,6 @@ public class BaseDaoTest {
       delegationDomainObject.setReference("delegate", delegateId);
       delegationDomainObject.setStatus(statusId);
       return delegationDomainObject;
-  }
-
-  @Test
-  public void testDraft() {
   }
 
   private static GenericDomainObject createEmployeeDomainObject(Id statusId, DomainObject savedDepartmentDomainObject) {

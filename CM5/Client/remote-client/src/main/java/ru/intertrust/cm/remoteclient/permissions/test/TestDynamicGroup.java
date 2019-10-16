@@ -57,8 +57,6 @@ public class TestDynamicGroup extends ClientBase {
     }
 
     public void testDynamicGroups() throws Exception {
-        InputStream fis = null;
-        BufferedReader br = null;
         // Таблица с иденификаторами, для мепинга между объектами и их
         // идентификаторами
         Hashtable<String, Id> ids = new Hashtable<String, Id>();
@@ -68,32 +66,34 @@ public class TestDynamicGroup extends ClientBase {
         try {
             // Зачитываем конфигурацию
             String line;
-            fis = new FileInputStream("test_dynamic_groups.csv");
-            br = new BufferedReader(new InputStreamReader(fis, Charset.forName("windows-1251")));
-            boolean start = false;
-            while ((line = br.readLine()) != null) {
-                // Делаем что то между START и END
-                if (line.startsWith("START")) {
-                    start = true;
-                    continue;
-                } else if (line.startsWith("STOP")) {
-                    break;
-                } else if (line.startsWith("OWNER")) {
-                    owners = line.split(";");
-                    continue;
-                } else if (line.startsWith("ROLE")) {
-                    roles = line.split(";");
-                    continue;
-                } else if (line.startsWith("ENTRIES")) {
-                    entries = line.split(";");
-                    continue;
-                } else if (line.startsWith("MAPPING_GROUP")) {
-                    initRoleMapping(line);
-                    continue;
-                }
+            try(InputStream fis = new FileInputStream("test_dynamic_groups.csv")) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("windows-1251")))) {
+                    boolean start = false;
+                    while ((line = br.readLine()) != null) {
+                        // Делаем что то между START и END
+                        if (line.startsWith("START")) {
+                            start = true;
+                            continue;
+                        } else if (line.startsWith("STOP")) {
+                            break;
+                        } else if (line.startsWith("OWNER")) {
+                            owners = line.split(";");
+                            continue;
+                        } else if (line.startsWith("ROLE")) {
+                            roles = line.split(";");
+                            continue;
+                        } else if (line.startsWith("ENTRIES")) {
+                            entries = line.split(";");
+                            continue;
+                        } else if (line.startsWith("MAPPING_GROUP")) {
+                            initRoleMapping(line);
+                            continue;
+                        }
 
-                if (start) {
-                    doOneLine(line, ids, owners, roles, entries);
+                        if (start) {
+                            doOneLine(line, ids, owners, roles, entries);
+                        }
+                    }
                 }
             }
             
@@ -125,12 +125,6 @@ public class TestDynamicGroup extends ClientBase {
                 deleteBossInfo();
                 deleteParentDepartmentInfo();
                 deleteCreatedObjects();
-                if (fis != null) {
-                    fis.close();
-                }
-                if (br != null) {
-                    br.close();
-                }
             } catch (Exception ex) {
                 ex.printStackTrace();
                 // Игнорируем ошибку в finally чтобы не потерять ошибку в try
@@ -433,10 +427,12 @@ public class TestDynamicGroup extends ClientBase {
     }
 
     /**
-     * Сравнение списка идентификаторов
-     * 
-     * @param roles
-     * @param string
+     *
+     * @param description
+     * @param keyPrefix
+     * @param compareIds
+     * @param roleKeysAsString
+     * @param ids
      * @throws Exception
      */
     private void compareList(String description, String keyPrefix, List<Id> compareIds, String roleKeysAsString, Hashtable<String, Id> ids) throws Exception {

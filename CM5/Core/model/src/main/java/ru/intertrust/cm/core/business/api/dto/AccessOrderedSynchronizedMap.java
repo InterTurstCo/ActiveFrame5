@@ -113,7 +113,7 @@ public class AccessOrderedSynchronizedMap<K, V> extends LinkedHashMap<K, V> {
 
     @Override
     public synchronized Object clone() {
-        return super.clone();
+        return new AccessOrderedSynchronizedMap(this);
     }
 
     @Override

@@ -39,10 +39,6 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
         }
     }
 
-    private String getColumnName(Column column) {
-        return DaoUtils.unwrap(Case.toLower(column.getColumnName()));
-    }
-
     /**
      * Замена имени конфигурации колонки с имени колонки на алиас
      * @param selectExpressionItem

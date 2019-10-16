@@ -1,21 +1,5 @@
 package ru.intertrust.cm.remoteclient;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.resource.NotSupportedException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -28,6 +12,21 @@ import org.jboss.ejb.client.EJBClientConfiguration;
 import org.jboss.ejb.client.EJBClientContext;
 import org.jboss.ejb.client.PropertiesBasedEJBClientConfiguration;
 import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.resource.NotSupportedException;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Базовый класс для удаленного клиента. Содержит методы для парсинга командной строки, получения удаленных сервисов и вывода в лог. Для использования
@@ -36,6 +35,7 @@ import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
  * 
  */
 public abstract class ClientBase {
+    private static final Logger logger = LoggerFactory.getLogger(ClientBase.class);
     public static final String APP_NAME = "appName";
     public static final String MODULE_NAME = "moduleName";
     public static final String CLIENT = "client";
@@ -58,6 +58,8 @@ public abstract class ClientBase {
      */
     private InitialContext ctx = null;
     private String ctxLogin = null;
+
+    private Properties appProperties;
     
 
     /**
@@ -98,7 +100,7 @@ public abstract class ClientBase {
      * @param message
      */
     protected void log(String message) {
-        System.out.println(message);
+        logger.info(message);
         log.append(message);
         log.append("\n");
     }
@@ -316,5 +318,17 @@ public abstract class ClientBase {
         } finally {
             input.close();
         }
+    }
+
+    protected String getAppPropery(String name, String defaultValue) throws IOException {
+        if (appProperties == null){
+            appProperties = new Properties();
+            appProperties.load(getClass().getClassLoader().getResourceAsStream("app.properties"));
+        }
+        return appProperties.getProperty(name, defaultValue);
+    }
+
+    protected String getAppPropery(String name) throws IOException {
+        return getAppPropery(name, null);
     }
 }

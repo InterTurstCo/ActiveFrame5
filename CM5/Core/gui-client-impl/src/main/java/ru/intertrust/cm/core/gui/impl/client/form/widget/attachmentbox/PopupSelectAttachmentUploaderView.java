@@ -47,10 +47,10 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
         super(state, eventBus, parent);
         presenterFactory = new EditableNonDeletablePresenterFactory(state.getActionLinkConfig(),
                 state.getImagesConfig(), state.getDigitalSignaturesConfig());
-        init();
+        initPopupSelectAttachmentUploaderView();
     }
 
-    private void init() {
+    private void initPopupSelectAttachmentUploaderView() {
         Button showPopupButton = new Button("...");
         showPopupButton.getElement().setClassName("lightButton selectionButton");
         showPopupButton.addClickHandler(new ClickHandler() {
@@ -177,7 +177,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
         if (isSingleChoice()) {
             tmpSelectedAttachments.clear();
         }
-        if (!tmpSelectedAttachments.contains((tmpSelectedAttachments))) {
+        if (!tmpSelectedAttachments.contains((attachment))) {
             tmpSelectedAttachments.add(attachment);
         }
     }

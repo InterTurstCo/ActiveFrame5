@@ -87,31 +87,27 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
     }
 
     private DBCheck checkDatabase() {
-        Connection con = null;
-        Statement stm = null;
         try {
             final long t1 = System.currentTimeMillis();
-            con = ((DataSource) new InitialContext().lookup(datasourceJndiName)).getConnection();
-            final long t2 = System.currentTimeMillis();
-            stm = con.createStatement();
-            final long t3 = System.currentTimeMillis();
-            final ResultSet rs = stm.executeQuery("SELECT active FROM schedule WHERE name = 'LongRunningMethodAnalysisTask'");
-            final long t4 = System.currentTimeMillis();
-            final boolean next = rs.next();
-            boolean active;
-            if (!next) {
-                active = false;
-            } else {
-                active = 1 == rs.getInt(1);
+            try(Connection con = ((DataSource) new InitialContext().lookup(datasourceJndiName)).getConnection()) {
+                final long t2 = System.currentTimeMillis();
+                try(Statement stm = con.createStatement()) {
+                    final long t3 = System.currentTimeMillis();
+                    try(ResultSet rs = stm.executeQuery("SELECT active FROM schedule WHERE name = 'LongRunningMethodAnalysisTask'")) {
+                        final long t4 = System.currentTimeMillis();
+                        final boolean next = rs.next();
+                        boolean active;
+                        if (!next) {
+                            active = false;
+                        } else {
+                            active = 1 == rs.getInt(1);
+                        }
+                        return new DBCheck(active, t2 - t1, t4 - t3);
+                    }
+                }
             }
-            return new DBCheck(active, t2 - t1, t4 - t3);
         } catch (NamingException | SQLException e) {
             logger.error("Exception while checking DB Connectivity", e);
-        } finally {
-            try (Connection c = con; Statement s = stm) {
-            } catch (SQLException e) {
-                logger.error("Exception while checking DB Connectivity", e);
-            }
         }
         return DBCheck.INACTIVE;
     }

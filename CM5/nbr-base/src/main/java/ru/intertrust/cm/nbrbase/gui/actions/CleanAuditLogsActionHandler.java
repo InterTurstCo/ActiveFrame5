@@ -16,9 +16,6 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 public class CleanAuditLogsActionHandler extends ActionHandler<SimpleActionContext, SimpleActionData> {
 
     @Autowired
-    CrudService crudService;
-
-    @Autowired
     EventLogService eventLogService;
 
     protected static Logger log = LoggerFactory.getLogger(CleanAuditLogsActionHandler.class);

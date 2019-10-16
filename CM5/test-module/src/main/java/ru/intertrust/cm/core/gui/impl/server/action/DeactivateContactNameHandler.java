@@ -19,9 +19,6 @@ public class DeactivateContactNameHandler extends ActionHandler<SimpleActionCont
     private static final String STATUS_DEACTIVATED = "Аннулирован";
 
     @Autowired
-    private CrudService crudService;
-
-    @Autowired
     private ContactsManager contactsManager;
 
     @Override

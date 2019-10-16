@@ -194,18 +194,6 @@ public class EditableTableBrowserViewsBuilder {
         if (createLinkedItemButton != null) {
             root.addHeaderWidget(createLinkedItemButton);
         }
-        ConfiguredButton clearButton = createClearButton();
-        if (clearButton != null) {
-            clearButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    state.clearState();
-                    itemsWidget.clearContent();
-
-                }
-            });
-            root.addHeaderWidget(clearButton);
-        }
 
         return root;
     }
@@ -217,18 +205,6 @@ public class EditableTableBrowserViewsBuilder {
         root.addBodyWidget(collection);
         if (createLinkedItemButton != null) {
             root.addHeaderWidget(createLinkedItemButton);
-        }
-        ConfiguredButton clearButton = createClearButton();
-        if (clearButton != null) {
-            clearButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new CollectionChangeSelectionEvent(state.getIds(), false));
-                    state.clearState();
-                    itemsView.clearContent();
-                }
-            });
-            root.addHeaderWidget(clearButton);
         }
 
         return root;
@@ -251,12 +227,5 @@ public class EditableTableBrowserViewsBuilder {
     private ConfiguredButton createOpenButton() {
         EditableTableBrowserConfig tableBrowserConfig = state.getEditableTableBrowserConfig();
         return  new OpenCollectionConfiguredButton(tableBrowserConfig.getDefaultButtonConfig());
-    }
-
-    private ConfiguredButton createClearButton() {
-        EditableTableBrowserConfig tableBrowserConfig = state.getEditableTableBrowserConfig();
-
-        return null;
-
     }
 }

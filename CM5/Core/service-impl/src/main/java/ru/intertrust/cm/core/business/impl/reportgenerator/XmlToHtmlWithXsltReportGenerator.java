@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Map;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -26,8 +27,13 @@ public abstract class XmlToHtmlWithXsltReportGenerator implements ReportGenerato
             InputStream xmlData = getXmlData(reportMetadata, templateFolder, parameters);
 
             //Выполняем Xslt преобразования
-            TransformerFactory factory = TransformerFactory.newInstance();
             Source xslt = new StreamSource(new File(templateFolder, (String)parameters.get(XSLT_TEMPLATE)));
+
+            TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
             Transformer transformer = factory.newTransformer(xslt);
 
             Source source = new StreamSource(xmlData);

@@ -29,12 +29,9 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
  */
 @ComponentName("test.simple.action")
 public class TestSimpleActionHandler extends ActionHandler<SimpleActionContext, SimpleActionData> {
-    @Autowired
-    CrudService crudService;
 
     @Autowired
     CollectionsService collectionsService;
-
 
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {

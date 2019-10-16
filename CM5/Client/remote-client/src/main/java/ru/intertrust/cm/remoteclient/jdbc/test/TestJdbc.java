@@ -44,97 +44,88 @@ public class TestJdbc extends ClientBase {
 
         //Выполняем запрос с помощью JDBC
         Class.forName(JdbcDriver.class.getName());
+        String pswd = getAppPropery("jdbc.password");
+        try(Connection connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", pswd)) {
 
-        Connection connection = DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
+            String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
+            query += "from Outgoing_Document t ";
+            query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Author = ? and t.Long_Field = ?";
 
-        String query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
-        query += "from Outgoing_Document t ";
-        query += "where t.created_date between ? and ? and t.Name = ? and t.Author = ? and t.Author = ? and t.Long_Field = ?";
+            try(PreparedStatement prepareStatement = connection.prepareStatement(query)) {
 
-        PreparedStatement prepareStatement =
-                connection.prepareStatement(query);
+                Calendar fromDate = Calendar.getInstance();
+                fromDate.set(2000, 0, 1);
+                Calendar toDate = Calendar.getInstance();
+                toDate.set(toDate.get(Calendar.YEAR) + 1, 0, 1);
+                prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
+                prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
+                prepareStatement.setString(3, "Outgoing_Document");
+                prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
+                prepareStatement.setObject(5, outgoingDocument.getReference("Author"));
+                prepareStatement.setLong(6, 10);
+                try(ResultSet resultset = prepareStatement.executeQuery()) {
+                    printResultSet(query, resultset);
+                }
+            }
 
-        Calendar fromDate = Calendar.getInstance();
-        fromDate.set(2000, 0, 1);
-        Calendar toDate = Calendar.getInstance();
-        toDate.set(toDate.get(Calendar.YEAR) + 1, 0, 1);
-        prepareStatement.setTimestamp(1, new java.sql.Timestamp(fromDate.getTime().getTime()));
-        prepareStatement.setTimestamp(2, new java.sql.Timestamp(toDate.getTime().getTime()));
-        prepareStatement.setString(3, "Outgoing_Document");
-        prepareStatement.setString(4, outgoingDocument.getReference("Author").toStringRepresentation());
-        prepareStatement.setObject(5, outgoingDocument.getReference("Author"));
-        prepareStatement.setLong(6, 10);
-        ResultSet resultset = prepareStatement.executeQuery();
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            /// Null long поля
+            createOutgoingDocument(true);
 
-        printResultSet(query, resultset);
+            query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
+            query += "from Outgoing_Document t ";
 
-        resultset.close();
-        prepareStatement.close();
+            try(PreparedStatement prepareStatement = connection.prepareStatement(query)){
+                try (ResultSet resultset = prepareStatement.executeQuery()){
+                    printResultSet(query, resultset, Types.JAVA_OBJECT, Types.VARCHAR, Types.TIMESTAMP, Types.JAVA_OBJECT, Types.NUMERIC, Types.JAVA_OBJECT);
+                }
+            }
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// Null long поля
-        createOutgoingDocument(true);
-        
-        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
-        query += "from Outgoing_Document t ";
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        prepareStatement =
-                connection.prepareStatement(query);
-        resultset = prepareStatement.executeQuery();
-        printResultSet(query, resultset, Types.JAVA_OBJECT, Types.VARCHAR, Types.TIMESTAMP, Types.JAVA_OBJECT, Types.NUMERIC, Types.JAVA_OBJECT);
-        resultset.close();
-        prepareStatement.close();
+            query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status, t.description ";
+            query += "from Outgoing_Document t ";
+            query += "where (CAST(? AS VARCHAR) is null or t.description = ?)";
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            try(PreparedStatement prepareStatement =
+                    connection.prepareStatement(query)){
 
-        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status, t.description ";
-        query += "from Outgoing_Document t ";
-        query += "where (CAST(? AS VARCHAR) is null or t.description = ?)";
+                prepareStatement.setString(1, "xx");
+                prepareStatement.setString(2, "xx");
+                try(ResultSet resultset = prepareStatement.executeQuery()){
+                    printResultSet(query, resultset);
+                }
 
-        prepareStatement =
-                connection.prepareStatement(query);
+                prepareStatement.setNull(1, Types.VARCHAR);
+                prepareStatement.setNull(2, Types.VARCHAR);
+                try(ResultSet resultset = prepareStatement.executeQuery()) {
+                    printResultSet(query, resultset);
+                }
+            }
 
-        prepareStatement.setString(1, "xx");
-        prepareStatement.setString(2, "xx");
-        resultset = prepareStatement.executeQuery();
-        printResultSet(query, resultset);
-        resultset.close();
+            query = "select t.name, t.created_date, t.author, t.long_field, t.status, t.id ";
+            query += "from Outgoing_Document t ";
+            try (Statement statement = connection.createStatement()) {
+                if (statement.execute(query)) {
+                    try (ResultSet resultset = statement.getResultSet()) {
+                        printResultSet(query, resultset);
+                    }
+                }
+            }
 
-        prepareStatement.setNull(1, Types.VARCHAR);
-        prepareStatement.setNull(2, Types.VARCHAR);
-        resultset = prepareStatement.executeQuery();
-        printResultSet(query, resultset);
-        resultset.close();
+            try (Statement statement = connection.createStatement()) {
+                if (statement.execute(query)) {
+                    try (ResultSet resultset = statement.getResultSet()) {
+                        printResultSet(query, resultset);
+                    }
+                }
+            }
 
-        prepareStatement.close();
-
-        query = "select t.name, t.created_date, t.author, t.long_field, t.status, t.id ";
-        query += "from Outgoing_Document t ";
-        Statement statement = connection.createStatement();
-        if (statement.execute(query)) {
-            resultset = statement.getResultSet();
-
-            printResultSet(query, resultset);
-            resultset.close();
-            statement.close();
+            try (ResultSet tablesRS = connection.getMetaData().getTableTypes()) {
+                printResultSet(query, tablesRS);
+            }
 
         }
-
-        statement = connection.createStatement();
-        if (statement.execute(query)) {
-            resultset = statement.getResultSet();
-
-            printResultSet(query, resultset);
-
-            resultset.close();
-            statement.close();
-        }
-
-        ResultSet tablesRS = connection.getMetaData().getTableTypes();
-        printResultSet(query, tablesRS);
-        tablesRS.close();
-
-        connection.close();
 
     }
 

@@ -34,8 +34,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 @ComponentName("generate-report.action")
 public class GenerateReportActionHandler extends ActionHandler<GenerateReportActionContext, GenerateReportActionData> {
     @Autowired
-    private ApplicationContext applicationContext;
-    @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     @Override

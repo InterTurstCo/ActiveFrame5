@@ -126,9 +126,10 @@ public class LocalizationLoaderImpl implements LocalizationLoader, LocalizationL
         Properties moduleProps = new Properties();
         try {
             URL fileUrl = new URL(path);
-            InputStream inputStream = fileUrl.openStream();
-            Reader reader = new InputStreamReader(inputStream, "UTF-8");
-            moduleProps.load(reader);
+            try(InputStream inputStream = fileUrl.openStream()) {
+                Reader reader = new InputStreamReader(inputStream, "UTF-8");
+                moduleProps.load(reader);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

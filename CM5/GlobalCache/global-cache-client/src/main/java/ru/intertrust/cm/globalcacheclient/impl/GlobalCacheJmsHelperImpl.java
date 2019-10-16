@@ -354,10 +354,11 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                 globalCacheClient.clearCurrentNode();
 
                 // Слушаем сообщения
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     onMessage(consumer.receive());
                 }
 
+                receiveContext.close();
             } catch (Exception ex) {
                 if (Thread.currentThread().isInterrupted()) {
                     receiveContext.close();

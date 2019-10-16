@@ -40,10 +40,10 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
         super(state, eventBus, parent);
         presenterFactory = new EditableNonDeletablePresenterFactory(state.getActionLinkConfig(),
                 state.getImagesConfig(), state.getDigitalSignaturesConfig());
-        init();
+        initPopupAttachmentUploaderView();
     }
 
-    private void init() {
+    private void initPopupAttachmentUploaderView() {
         Button showPopupButton = new Button("...");
         showPopupButton.getElement().setClassName("lightButton selectionButton");
         showPopupButton.addClickHandler(new ClickHandler() {

@@ -89,7 +89,8 @@ public class ConfigurationSerializerTest {
     public void testDeserializeLoadedConfigurationInvalid() throws Exception {
         String serializedConfiguration = readTextFile(INVALID_SERIALIZED_CONFIGURATION_PATH);
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
-        configurationSerializer.deserializeLoadedConfiguration(serializedConfiguration);
+        Configuration conf = configurationSerializer.deserializeLoadedConfiguration(serializedConfiguration);
+        assertNotNull(conf);
     }
 
     @Test

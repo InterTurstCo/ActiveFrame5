@@ -50,11 +50,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     @Autowired
     private PropertyResolver propertyResolver;
     @Autowired
-    private AccessVerificationService accessVerificationService;
-    @Autowired
     private CrudService crudService;
-    @Autowired
-    private ConfigurationService configurationService;
 
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {

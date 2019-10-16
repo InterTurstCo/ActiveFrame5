@@ -136,7 +136,7 @@ public class ClusteredLockServiceImpl implements ClusteredLockService {
                     sessionContext.getUserTransaction().rollback();
                 }
             } catch (Exception ex) {
-                throw new FatalException("Error rollback transaction in create lock method", ex);
+                logger.warn("Error rollback transaction in create lock method", ex);
             }
         }
         return result;

@@ -92,7 +92,7 @@ public class DomainObjectSurferPluginView extends PluginView {
     }
 
     private void addSplitterWidgetResizeHandler() {
-        eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
+        eventBus.addHandler(SplitterWidgetResizerEvent.EVENT_TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
 

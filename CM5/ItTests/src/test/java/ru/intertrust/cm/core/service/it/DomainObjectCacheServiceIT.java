@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.service.it;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +112,7 @@ public class DomainObjectCacheServiceIT  extends IntegrationTestBase {
         long start = System.currentTimeMillis();
         
         IdentifiableObjectCollection testCollection = collectionService.findCollection("Employees_Test", sortOrder, filterValues, 0, 0);
+        assertNotNull(testCollection);
         long end = System.currentTimeMillis();
         System.out.println("Time to fetch collection Employees_Test : " + (end - start) + " ms");
 

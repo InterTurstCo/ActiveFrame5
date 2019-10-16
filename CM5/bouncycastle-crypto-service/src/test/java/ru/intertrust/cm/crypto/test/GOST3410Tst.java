@@ -54,7 +54,7 @@ import org.bouncycastle.util.test.SimpleTest;
 import org.bouncycastle.util.test.TestRandomBigInteger;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
-public class GOST3410Test
+public class GOST3410Tst
     extends SimpleTest
 {
     private void ecGOST3410Test()
@@ -826,6 +826,6 @@ public class GOST3410Test
     {
         Security.addProvider(new BouncyCastleProvider());
 
-        runTest(new GOST3410Test());
+        runTest(new GOST3410Tst());
     }
 }

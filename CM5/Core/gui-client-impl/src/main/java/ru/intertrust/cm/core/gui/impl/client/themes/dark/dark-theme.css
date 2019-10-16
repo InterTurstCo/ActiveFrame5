@@ -11,14 +11,13 @@
 }
 
 .gwt-TabBar {
-    background: #bfdfea; /* Old browsers */
     background: -moz-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #bfdfea), color-stop(100%, #c2e7f0)); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* Chrome10+,Safari5.1+ */
     background: -o-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* Opera11.10+ */
     background: -ms-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE10+ */
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#bfdfea', endColorstr='#c2e7f0', GradientType=0)"); /* IE6-9 */
-    background: linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
+    background: linear-gradient(to top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
     height: 35px;
     padding-top: 2px;
 }
@@ -276,7 +275,7 @@
 *  def-theme gwt styles
 **/
 .H_td_user .gwt-Hyperlink a {
-    font: bold 14px Arial;
+    font: bold 14px Arial,sans-serif;
     cursor: pointer;
     text-decoration: underline;
     color: black !important;
@@ -651,14 +650,13 @@ div.gwt-Good-Label {
 }
 
 .theme-popup {
-    background: #aeb9ac; /* Old browsers */
     background: -moz-linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #aeb9ac), color-stop(70%, #2A2C2A), color-stop(100%, #4d564c)); /* Chrome,Safari4+ */
     background: -webkit-linear-gradient(top, #aeb9ac 0, #2a2c2a 70%, #4d564c 100%); /* Chrome10+,Safari5.1+ */
     background: -o-linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* Opera11.10+ */
     background: -ms-linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* IE10+ */
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#aeb9ac', endColorstr='#4d564c', GradientType=0)"); /* IE6-9 */
-    background: linear-gradient(top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* W3C */
+    background: linear-gradient(to top, #aeb9ac 0%, #2A2C2A 70%, #4d564c 100%); /* W3C */
 }
 
 .central-div-panel-test {
@@ -666,14 +664,13 @@ div.gwt-Good-Label {
 }
 
 .action-bar {
-    background: #ffffff;
     background: -moz-linear-gradient(top, #ffffff 0%, #DBE0DA 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #DBE0DA));
     background: -webkit-linear-gradient(top, #ffffff 0%, #DBE0DA 100%);
     background: -o-linear-gradient(top, #ffffff 0%, #DBE0DA 100%);
     background: -ms-linear-gradient(top, #ffffff 0%, #DBE0DA 100%);
     filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#ffffff", endColorstr\= "#DBE0DA", GradientType\= 0 \);
-    background: linear-gradient(top, #ffffff 0%, #DBE0DA 100%);
+    background: linear-gradient(to top, #ffffff 0%, #DBE0DA 100%);
 }
 
 .right-div {
@@ -749,7 +746,7 @@ a.action-bar-button:hover {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-.lightButton:not\(\.ldotCreate\):not\(\.selectionButton\):not\(\.uploadButton\) {
+.lightButton:not(.ldotCreate):not(.selectionButton):not(.uploadButton) {
     background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
     border: 1px solid #B4AEA3;
     color: #3e3434;
@@ -763,7 +760,7 @@ a.action-bar-button:hover {
     text-shadow: none;
 }
 
-.lightButton:not\(\.ldotCreate\):not\(\.selectionButton\):not\(\.uploadButton\):hover {
+.lightButton:not(.ldotCreate):not(.selectionButton):not(.uploadButton):hover {
     background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
     border: 1px solid #B4AEA3;
     color: #3e3434;
@@ -777,7 +774,7 @@ a.action-bar-button:hover {
     color: rgba(255, 255, 255, 0.8);
 }
 
-.lightButton:not\(\.ldotCreate\):not\(\.selectionButton\):not\(\.uploadButton\):active {
+.lightButton:not(.ldotCreate):not(.selectionButton):not(.uploadButton):active {
     background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
     border: 1px solid #B4AEA3;
     color: #3e3434;
@@ -1042,7 +1039,7 @@ div.dialogBoxBody .widget-wrapper {
     margin-left: -20px;
 }
 
-.group-tree>div:nth-child\(2\) table {
+.group-tree>div:nth-child(2) table {
     margin-left: 20px !important;
 }
 

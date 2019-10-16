@@ -71,8 +71,9 @@ public class ReportResourceServlet extends HttpServlet{
         
         resp.setContentType(resourceFile.toURL().openConnection().getContentType());
         resp.setContentLength(new Long(resourceFile.length()).intValue());
-        
-        StreamUtils.copy(new FileInputStream(resourceFile), resp.getOutputStream());
+        try(FileInputStream fs = new FileInputStream(resourceFile)) {
+            StreamUtils.copy(fs, resp.getOutputStream());
+        }
         
         resp.flushBuffer();
     }

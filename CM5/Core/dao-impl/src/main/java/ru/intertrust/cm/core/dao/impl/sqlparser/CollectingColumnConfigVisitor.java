@@ -110,7 +110,7 @@ public class CollectingColumnConfigVisitor extends BasicVisitor implements Expre
         }
     }
 
-    private String getColumnName(Column column) {
+    protected String getColumnName(Column column) {
         return DaoUtils.unwrap(Case.toLower(column.getColumnName()));
     }
 }

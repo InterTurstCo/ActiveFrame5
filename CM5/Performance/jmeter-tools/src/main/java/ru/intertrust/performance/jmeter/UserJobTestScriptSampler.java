@@ -1,5 +1,6 @@
 package ru.intertrust.performance.jmeter;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -55,7 +56,6 @@ public class UserJobTestScriptSampler extends AbstractSampler {
     public static final int PAGE_COUNT=10;
     @Override
     public SampleResult sample(Entry e) {
-        Random randomGenerator = new Random();
         int randomInt = 0;
         IdentifiableObject element = null;
         SampleResult res = new SampleResult();
@@ -75,6 +75,8 @@ public class UserJobTestScriptSampler extends AbstractSampler {
         jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
         jndiProps.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
         try {
+            Random randomGenerator = SecureRandom.getInstanceStrong();
+
             res.sampleStart();
             // Инициализация контекста
             Context ctx = new InitialContext(jndiProps);

@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.EJBContext;
 
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -113,6 +114,8 @@ public class ConfigurationLoadServiceImplTest {
         when(context.getBean("recursiveConfigurationLoader")).thenReturn(recursiveConfigurationLoader);
         when(crudService.createDomainObject(anyString())).thenReturn(new GenericDomainObject());
         configurationService.loadConfiguration();
+
+        assertNotNull(configExplorer.getConfig(DomainObjectTypeConfig.class, "Outgoing_Document"));
     }
 
     @Test

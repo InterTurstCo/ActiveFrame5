@@ -74,10 +74,11 @@ public class PdfServiceImpl implements PdfService {
                 byte[] buffer = new byte[sourceStream.available()];
                 sourceStream.read(buffer);
                 File targetFile = new File(tmpFilePath);
-                OutputStream outStream = new FileOutputStream(targetFile);
-                outStream.write(buffer);
+                try (OutputStream outStream = new FileOutputStream(targetFile)) {
+                    outStream.write(buffer);
+                }
+                // TODO Поток тут не открываем, соответственно и закрывать здесь некорректно.
                 sourceStream.close();
-                outStream.close();
             } catch (java.io.IOException e) {
                 throw new DefaultPdfConverterException(String.format(DefaultPdfConverterException.TMP_FILE_CREATION_ERROR, tmpFilePath), e);
             }

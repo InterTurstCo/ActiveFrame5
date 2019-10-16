@@ -105,9 +105,9 @@ public class UniqueKey {
         private final K k2;
         private final V v1;
         private final V v2;
-        private transient Set<K> keySet = null;
+        private transient Set<K> localKeySet = null;
         private transient Set<Map.Entry<K, V>> entrySet = null;
-        private transient Collection<V> values = null;
+        private transient Collection<V> localValues = null;
 
         PairMap(K key1, V value1, K key2, V value2) {
             k1 = key1;
@@ -143,13 +143,13 @@ public class UniqueKey {
         }
 
         public Set<K> keySet() {
-            if (keySet == null) {
-                keySet = new HashSet<>();
-                keySet.add(k1);
-                keySet.add(k2);
-                keySet = Collections.unmodifiableSet(keySet);
+            if (localKeySet == null) {
+                localKeySet = new HashSet<>();
+                localKeySet.add(k1);
+                localKeySet.add(k2);
+                localKeySet = Collections.unmodifiableSet(localKeySet);
             }
-            return keySet;
+            return localKeySet;
         }
 
         public Set<Map.Entry<K, V>> entrySet() {
@@ -163,13 +163,13 @@ public class UniqueKey {
         }
 
         public Collection<V> values() {
-            if (values == null) {
+            if (localValues == null) {
                 ArrayList<V> values = new ArrayList<V>(2);
                 values.add(v1);
                 values.add(v2);
-                this.values = Collections.unmodifiableList(values);
+                this.localValues = Collections.unmodifiableList(values);
             }
-            return values;
+            return localValues;
         }
 
     }

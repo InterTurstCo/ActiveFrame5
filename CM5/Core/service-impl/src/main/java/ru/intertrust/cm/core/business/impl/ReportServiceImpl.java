@@ -256,8 +256,9 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 @Override
                 public Void extractData(ClientHttpResponse response) throws IOException {
                     File tempFile = File.createTempFile("report_", "_file");
-                    FileOutputStream out = new FileOutputStream(tempFile);
-                    StreamUtils.copy(response.getBody(), out);
+                    try(FileOutputStream out = new FileOutputStream(tempFile)) {
+                        StreamUtils.copy(response.getBody(), out);
+                    }
                     reportResult.setReport(getReportStream(new FileInputStream(tempFile)));
                     return null;
                 }

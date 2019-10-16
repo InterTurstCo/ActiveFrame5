@@ -20,20 +20,20 @@ public class NoneEditableTooltip extends PopupPanel {
     private EventBus eventBus;
     private HyperlinkNoneEditablePanel hyperlinkNoneEditablePanel;
     private boolean displayAsHyperlinks;
-    private HasLinkedFormMappings widget;
+    private HasLinkedFormMappings hasLinkedFormMappings;
 
     public NoneEditableTooltip(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean displayAsHyperlinks,
-                               Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
+                               Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings hasLinkedFormMappings) {
 
         super(true);
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlinks;
-        this.widget = widget;
+        this.hasLinkedFormMappings = hasLinkedFormMappings;
         init(selectionStyleConfig, typeTitleMap);
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig, Map<String, PopupTitlesHolder> typeTitleMap) {
-        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true, typeTitleMap, widget);
+        hyperlinkNoneEditablePanel = new HyperlinkNoneEditablePanel(selectionStyleConfig, eventBus, true, typeTitleMap, hasLinkedFormMappings);
         this.add(hyperlinkNoneEditablePanel);
         this.setStyleName("tooltipPopup");
 

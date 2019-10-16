@@ -114,7 +114,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         // Если правил сокрытия несколько то их суммарный результат должен быть true
         Boolean shouldByHidden = true;
         for (RuleTypeConfig rule : initialData.getRules().getHideRulesTypeConfig().getRuleTypeConfigs()) {
-          shouldByHidden = shouldByHidden & ExpressionHelper.applyExpression(rule.getApplyExpression(), getContainer());
+          shouldByHidden = shouldByHidden && ExpressionHelper.applyExpression(rule.getApplyExpression(), getContainer());
         }
         hide(!shouldByHidden);
       }

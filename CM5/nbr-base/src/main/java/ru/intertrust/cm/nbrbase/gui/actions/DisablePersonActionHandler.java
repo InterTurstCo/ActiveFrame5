@@ -28,9 +28,6 @@ import java.util.Map;
 public class DisablePersonActionHandler extends ActionHandler<SimpleActionContext, SimpleActionData> {
 
     @Autowired
-    CrudService crudService;
-
-    @Autowired
     ConfigurationControlService configurationControlService;
 
     @Autowired

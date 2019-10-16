@@ -34,9 +34,7 @@ public class CollectionSortOrderActionHandler extends ActionHandler<CollectionSo
     private static final String SETTINGS_OP_LOCK = "Optimistic lock exception while saving settings";
     private static Logger log = LoggerFactory.getLogger(CollectionSortOrderActionHandler.class);
 
-    @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
     @EJB
     SettingsUtil settingsUtil;
     @Override

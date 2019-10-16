@@ -19,9 +19,6 @@ public class DeactivateClassifierHandler extends ActionHandler<SimpleActionConte
     private static final String STATUS_DEACTIVATED = "Аннулирован";
 
     @Autowired
-    private CrudService crudService;
-
-    @Autowired
     private ContactsManager contactsManager;
 
     @Override

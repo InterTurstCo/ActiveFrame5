@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertNotNull;
+
 public class BasicVisitorTest {
     private BasicVisitor basicVisitor = new BasicVisitor();
 
@@ -13,12 +15,14 @@ public class BasicVisitorTest {
                 + ", case when (select sum(1) from (select 1 f from c1 where c1.document = d.id union select 1 f from c2 where c2.document = d.id) tt) > 0 "
                 + "then 1 else 0 end c from document d join base_document bd on bd.id = d.id where bd.condition = 1 and d.idx != null) t"
                 + " join area a on a.id = bd.area where created_date between yesterday() and now() and a like '%x%' and a.name ~ '75'");
+        assertNotNull(p);
         basicVisitor.visit(p.getSelectStatement());
     }
 
     @Test
     public void testSelectWihoutFrom() {
         SqlQueryParser p = new SqlQueryParser("select 1");
+        assertNotNull(p);
         basicVisitor.visit(p.getSelectStatement());
     }
 
@@ -26,6 +30,7 @@ public class BasicVisitorTest {
     public void testValuesList() {
         SqlQueryParser p = new SqlQueryParser(
                 "with t as (select column1, column2 from (values (1, 2), (2, 3), (3, 2)) tt) select column1 from a join t on t.column2 = a.id");
+        assertNotNull(p);
         basicVisitor.visit(p.getSelectStatement());
     }
 }

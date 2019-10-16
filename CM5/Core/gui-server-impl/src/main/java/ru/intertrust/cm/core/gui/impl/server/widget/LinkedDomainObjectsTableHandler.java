@@ -54,9 +54,6 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     protected CrudService crudService;
 
     @Autowired
-    protected ApplicationContext applicationContext;
-
-    @Autowired
     protected CollectionsService collectionsService;
 
     @Autowired

@@ -606,8 +606,8 @@
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
     background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
     box-shadow: 0 3px 6px #ccc;
-    \-moz-box-shadow: literal("0 3px 6px #000000");
-    \-webkit-box-shadow: literal("0 3px 6px #000000");
+    -moz-box-shadow: literal("0 3px 6px #000000");
+    -webkit-box-shadow: literal("0 3px 6px #000000");
     z-index: 2;
     color: #000000;
     height: auto;

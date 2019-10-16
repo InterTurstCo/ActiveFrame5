@@ -90,7 +90,6 @@
 	background-repeat: no-repeat;
 	background-position: center center;
 	top: 0.5em;
-	top: 0.5em;
 }
 
 .fl-icon-color {
@@ -129,10 +128,7 @@
 	color: #fff;
 	position: relative;
 	top: -3px;
-	position: absolute;
-	display: inline;
 	zoom: 1;
-	top: 2px;
 }
 
 .fl-open ul {
@@ -276,9 +272,7 @@
 	position: relative;
 	top: auto;
 	left: auto;
-	top: 4px;
 	left: 5px;
-	top: 1px;
 }
 
 .tree-cell {

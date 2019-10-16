@@ -91,11 +91,7 @@ public class HierarchyBrowserView extends Composite implements HierarchyBrowserD
         openPopupButton.clear();
         ButtonForm buttonForm;
         String text = config.getText();
-        if (config != null) {
-            buttonForm = new ButtonForm(openPopupButton, config.getImage(), text);
-        } else {
-            buttonForm = new ButtonForm(openPopupButton, "images/green-plus.png", text);
-        }
+        buttonForm = new ButtonForm(openPopupButton, config.getImage(), text);
         openPopupButton.add(buttonForm);
         openPopupButton.addStyleName("hierar-add-button");
         widgetContainer.add(openPopupButton);

@@ -6,9 +6,9 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class Mainform extends DockLayoutPanel {
-    Double showDrag = 2.00;
-    Double showSticker = 5.00;
-    Double showTree = 15.00;
+    Double showDragSize = 2.00;
+    Double showStickerSize = 5.00;
+    Double showTreeSise = 15.00;
     MainContainerWithSplitPanel center = new MainContainerWithSplitPanel();
 
     public Mainform() {
@@ -16,10 +16,10 @@ public class Mainform extends DockLayoutPanel {
 
         super(Unit.EM);//px?
         this.addNorth(north, 5.6);
-        this.addSouth(south, showDrag);
+        this.addSouth(south, showDragSize);
         this.addWest(west, 6);
-        this.addWest(tree, showTree);
-        this.addEast(east, showSticker);
+        this.addWest(tree, showTreeSise);
+        this.addEast(east, showStickerSize);
 
         this.add(center);
 
@@ -50,41 +50,41 @@ public class Mainform extends DockLayoutPanel {
     CmjTree tree = new CmjTree();
 
     void showDrag() {
-        if (this.showDrag == 12.00) {
-            this.showDrag = 2.00;
+        if (this.showDragSize == 12.00) {
+            this.showDragSize = 2.00;
 
-            this.setWidgetSize(south, showDrag);
+            this.setWidgetSize(south, showDragSize);
         }
         else {
-            this.showDrag = 12.00;
+            this.showDragSize = 12.00;
 
-            this.setWidgetSize(south, showDrag);
+            this.setWidgetSize(south, showDragSize);
         }
     }
 
     void showSticker() {
-        if (this.showDrag == 15.00) {
-            this.showDrag = 5.00;
+        if (this.showDragSize == 15.00) {
+            this.showDragSize = 5.00;
 
-            this.setWidgetSize(east, showDrag);
+            this.setWidgetSize(east, showDragSize);
         }
         else {
-            this.showDrag = 15.00;
+            this.showDragSize = 15.00;
 
-            this.setWidgetSize(east, showDrag);
+            this.setWidgetSize(east, showDragSize);
         }
     }
 
     void showTree() {
-        if (this.showTree == 15.00) {
-            this.showTree = 5.00;
+        if (this.showTreeSise == 15.00) {
+            this.showTreeSise = 5.00;
 
-            this.setWidgetSize(tree, showTree);
+            this.setWidgetSize(tree, showTreeSise);
         }
         else {
-            this.showTree = 15.00;
+            this.showTreeSise = 15.00;
 
-            this.setWidgetSize(tree, showTree);
+            this.setWidgetSize(tree, showTreeSise);
         }
     }
 

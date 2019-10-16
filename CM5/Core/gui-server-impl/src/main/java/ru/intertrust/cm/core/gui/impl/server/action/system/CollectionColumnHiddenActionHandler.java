@@ -37,9 +37,7 @@ public class CollectionColumnHiddenActionHandler extends ActionHandler<Collectio
     private static Logger log = LoggerFactory.getLogger(CollectionColumnHiddenActionHandler.class);
 
     @Autowired private ConfigurationExplorer configurationService;
-    @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
     @EJB
     SettingsUtil settingsUtil;
     @Override

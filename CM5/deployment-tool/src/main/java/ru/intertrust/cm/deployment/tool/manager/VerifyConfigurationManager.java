@@ -17,7 +17,7 @@ import static ru.intertrust.cm.deployment.tool.DeploymentToolApplication.stopApp
  * This class represents...
  */
 @Service
-public class VerifyConfigurationManager {
+public class    VerifyConfigurationManager {
 
     private static Logger logger = LoggerFactory.getLogger(VerifyConfigurationManager.class);
 
@@ -56,12 +56,11 @@ public class VerifyConfigurationManager {
             logger.info("Start testing stop jboss command");
 
             logger.info("Start testing start jboss command");
-            return true;
         } else {
             logger.info("Start testing start jboss command");
             boolean hasStarted = true;
             logger.info("Start testing stop jboss command");
-            return true;
         }
+        return true;
     }
 }

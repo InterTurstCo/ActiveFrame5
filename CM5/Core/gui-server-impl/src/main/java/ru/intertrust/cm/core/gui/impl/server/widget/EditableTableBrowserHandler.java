@@ -33,9 +33,6 @@ import java.util.regex.Matcher;
 public class EditableTableBrowserHandler  extends ValueEditingWidgetHandler {
 
     @Autowired
-    ApplicationContext applicationContext;
-
-    @Autowired
     CollectionsService collectionsService;
 
     @Autowired

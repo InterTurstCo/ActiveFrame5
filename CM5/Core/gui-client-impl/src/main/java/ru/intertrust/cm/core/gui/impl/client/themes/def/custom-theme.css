@@ -21,7 +21,7 @@
     background: -webkit-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE10+ */
     background: -o-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE6-9 */
     background: -ms-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
-    background: linear-gradient(top, #bfdfea 0%, #c2e7f0 100%);
+    background: linear-gradient(to top, #bfdfea 0%, #c2e7f0 100%);
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#bfdfea', endColorstr='#c2e7f0', GradientType=0)");
 }
 
@@ -348,7 +348,7 @@ div.gwt-Good-Label {
     background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    background: linear-gradient(478 BCC);
+    background: linear-gradient(to top, #478BCC 0%, #3b649a 51%, #232464 100%);
     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0)");
 }
 /* ------------>>> end Tab panel <<<------------ */

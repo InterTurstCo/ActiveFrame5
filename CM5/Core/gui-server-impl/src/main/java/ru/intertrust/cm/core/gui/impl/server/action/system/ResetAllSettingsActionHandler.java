@@ -22,9 +22,7 @@ import java.util.List;
 @ComponentName(ResetAllSettingsActionContext.COMPONENT_NAME)
 public class ResetAllSettingsActionHandler extends ActionHandler<ResetAllSettingsActionContext, ActionData> {
 
-    @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
 
     @EJB
     SettingsUtil settingsUtil;

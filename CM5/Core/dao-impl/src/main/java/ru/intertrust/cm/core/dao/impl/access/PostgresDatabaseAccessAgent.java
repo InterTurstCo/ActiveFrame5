@@ -784,10 +784,6 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String childTypeName = domainObjectTypeName;
         // Получаем матрицу и смотрим атрибут matrix_reference_field
         DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
-        if (childDomainObjectTypeConfig == null) {
-            childDomainObjectTypeMap.put(domainObjectTypeName, NullValues.DOMAIN_OBJECT_TYPE_CONFIG);
-            return NullValues.DOMAIN_OBJECT_TYPE_CONFIG;
-        }
 
         AccessMatrixConfig matrixConfig = null;
 

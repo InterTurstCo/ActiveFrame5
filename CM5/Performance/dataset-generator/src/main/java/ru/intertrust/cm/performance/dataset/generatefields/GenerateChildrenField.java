@@ -1,6 +1,7 @@
 package ru.intertrust.cm.performance.dataset.generatefields;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -34,7 +35,7 @@ public class GenerateChildrenField {
     private AccessControlService accessControlService;
 
 
-    public void generateField(DomainObject domainObject, List<TemplateType> templateList, ObjectType objectType, DatasetGenerationServiceImpl dgsi) throws IOException {
+    public void generateField(DomainObject domainObject, List<TemplateType> templateList, ObjectType objectType, DatasetGenerationServiceImpl dgsi) throws IOException, NoSuchAlgorithmException {
 
         domainObjectDao = dgsi.getDomainObjectDao();
 

@@ -33,9 +33,6 @@ public class SaveConfigActionHandler extends SaveActionHandler {
     @Autowired
     private ConfigurationExplorer configurationService;
 
-    @Autowired
-    CrudService crudService;
-
     @Override
     public SaveActionData executeAction(SaveActionContext context) {
         SaveActionData aData = new SaveActionData();

@@ -48,9 +48,6 @@ public class FormRetriever extends FormProcessor {
   private FormResolver formResolver;
 
   @Autowired
-  ConfigurationExplorer configurationExplorer;
-
-  @Autowired
   ProfileService profileService;
 
   public FormDisplayData getForm(FormPluginConfig formPluginConfig) {

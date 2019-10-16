@@ -69,6 +69,7 @@ public class MailSenderWrapper extends JavaMailSenderImpl {
             javaMailProperties.put("mail.smtp.socketFactory.port", getPort());
             javaMailProperties.put("mail.smtp.socketFactory.class",
                     "javax.net.ssl.SSLSocketFactory");
+            javaMailProperties.put("mail.smtp.ssl.checkserveridentity", true);
             setJavaMailProperties(javaMailProperties);
         }
     }

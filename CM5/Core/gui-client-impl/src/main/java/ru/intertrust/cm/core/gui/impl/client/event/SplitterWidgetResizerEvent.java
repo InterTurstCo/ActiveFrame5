@@ -11,7 +11,7 @@ import com.google.gwt.event.shared.GwtEvent;
  * To change this template use File | Settings | File Templates.
  */
 public class SplitterWidgetResizerEvent extends GwtEvent<SplitterWidgetResizerEventHandler>{
-    public static final Type<SplitterWidgetResizerEventHandler> TYPE = new Type<SplitterWidgetResizerEventHandler>();
+    public static final Type<SplitterWidgetResizerEventHandler> EVENT_TYPE = new Type<SplitterWidgetResizerEventHandler>();
 
     private int firstWidgetWidth;
     private int secondWidgetWidth;
@@ -33,7 +33,7 @@ public class SplitterWidgetResizerEvent extends GwtEvent<SplitterWidgetResizerEv
 
     @Override
     public Type<SplitterWidgetResizerEventHandler> getAssociatedType() {
-        return TYPE;
+        return EVENT_TYPE;
     }
 
     @Override
