@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.model.util.GuiConstants;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -140,12 +141,13 @@ public final class GuiServerHelper {
         switch (fieldType) {
             case TIMELESSDATE:
                 Date timelessDate = ThreadSafeDateFormat.parse(value, GuiConstants.TIMELESS_DATE_FORMAT);
-                return getUserDateFormatter(properties).format(timelessDate);
-
+                DateFormat dateFormat = getUserDateFormatter(properties);
+                return dateFormat != null ? dateFormat.format(timelessDate) : ThreadSafeDateFormat.format(timelessDate,"yyyy-MM-dd");
             case DATETIME:
             case DATETIMEWITHTIMEZONE:
                 Date date = ThreadSafeDateFormat.parse(value, GuiConstants.DATE_TIME_FORMAT);
-                return getUserDateFormatter(properties).format(date);
+                dateFormat = getUserDateFormatter(properties);
+                return dateFormat != null ? dateFormat.format(date) : ThreadSafeDateFormat.format(date,"yyyy-MM-dd HH:mm:ss");
             default:
                 return value;
 
@@ -166,7 +168,7 @@ public final class GuiServerHelper {
     }
 
     private static SortedMarker getSortedMarker(DefaultSortCriteriaConfig sortCriteriaConfig) {
-        SortCriterion.Order sortOrder = sortCriteriaConfig.getOrder();
+        SortCriterion.Order sortOrder = sortCriteriaConfig != null ? sortCriteriaConfig.getOrder() : SortCriterion.Order.ASCENDING;
         boolean sortedAscending = sortOrder.equals(SortCriterion.Order.ASCENDING);
         SortedMarker sortedMarker = new SortedMarker();
         sortedMarker.setAscending(sortedAscending);

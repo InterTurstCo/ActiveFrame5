@@ -181,17 +181,17 @@ public class CAdESSigner {
             for (Object signerObj : signedData.getSignerInfos().getSigners()) {
                 SignerInformation signer = (SignerInformation) signerObj;
                 X509Certificate cer = findCertificate(signedData.getCertificates(), signer);
+                if (cer != null) {
+                    certificateVerifier.verifyCertificate(cer, getAllCertificates(store, signer));
+                    ContentVerifierProvider contentVerifierProvider = new GostContentVerifierProviderBuilder(
+                        new DefaultDigestAlgorithmIdentifierFinder()).build(new X509CertificateHolder(cer.getEncoded()));
 
-                certificateVerifier.verifyCertificate(cer, getAllCertificates(store, signer));
-                ContentVerifierProvider contentVerifierProvider =
-                        new GostContentVerifierProviderBuilder(new DefaultDigestAlgorithmIdentifierFinder()).build(new X509CertificateHolder(cer
-                                .getEncoded()));
+                    SignerInformationVerifier signerInformationVerifier = new SignerInformationVerifier(
+                        new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
+                        contentVerifierProvider, new CAdESDigestCalculatorProvider());
 
-                SignerInformationVerifier signerInformationVerifier =
-                        new SignerInformationVerifier(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
-                                contentVerifierProvider, new CAdESDigestCalculatorProvider());
-
-                result.validate(signerInformationVerifier);
+                    result.validate(signerInformationVerifier);
+                }
             }
         }
         return result;

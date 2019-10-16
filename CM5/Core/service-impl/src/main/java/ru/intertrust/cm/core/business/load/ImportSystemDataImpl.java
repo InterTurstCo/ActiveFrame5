@@ -156,7 +156,9 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
             }
             return out.toByteArray();
         } finally {
-            input.close();
+            if (input != null) {
+                input.close();
+            }
         }
     }
 

@@ -239,8 +239,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     @Override
     protected void removeTooltipButton() {
         SuggestPresenter presenter = (SuggestPresenter) impl;
-        if (presenter.getTooltipButton() != null) {
-            presenter.getTooltipButton().removeFromParent();
+        Widget btn = presenter.getTooltipButton();
+        if (btn != null) {
+            btn.removeFromParent();
         }
     }
 

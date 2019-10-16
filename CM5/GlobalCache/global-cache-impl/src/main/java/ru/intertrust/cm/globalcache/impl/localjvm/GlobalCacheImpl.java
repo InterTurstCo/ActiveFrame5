@@ -1143,7 +1143,7 @@ public class GlobalCacheImpl implements GlobalCache {
         if (action.isNodeInitializedWithRealObject()) {
             final Id accessObjectId = getAccessObjectId(id, action.domainObject);
             objectAccessDelegation.setDelegation(id, accessObjectId);
-            if (!accessObjectId.equals(id)) {
+            if (!(accessObjectId != null && accessObjectId.equals(id))) {
                 accessSorter.logAccess(accessObjectId);
             }
         }

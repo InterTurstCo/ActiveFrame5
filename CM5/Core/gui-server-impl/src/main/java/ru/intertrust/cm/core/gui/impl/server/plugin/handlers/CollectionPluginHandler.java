@@ -522,10 +522,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 }
             }
             final LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<>();
-            for (CollectionColumnConfig ccConfig : targetViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
-                final CollectionColumnProperties cProperties =
-                        GuiServerHelper.collectionColumnConfigToProperties(ccConfig, null, null);
-                columnPropertiesMap.put(ccConfig.getField(), cProperties);
+            if (targetViewConfig != null && targetViewConfig.getCollectionDisplayConfig() != null) {
+                for (CollectionColumnConfig ccConfig : targetViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
+                    final CollectionColumnProperties cProperties = GuiServerHelper
+                        .collectionColumnConfigToProperties(ccConfig, null, null);
+                    columnPropertiesMap.put(ccConfig.getField(), cProperties);
+                }
             }
 
             IdentifiableObjectCollection collection = searchService.search(searchRequest.getSearchQuery(),

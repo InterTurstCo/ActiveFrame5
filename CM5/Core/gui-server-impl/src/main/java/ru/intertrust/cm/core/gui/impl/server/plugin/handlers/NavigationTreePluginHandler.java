@@ -116,7 +116,7 @@ public class NavigationTreePluginHandler extends PluginHandler {
 
         NavigationConfig navigationConfig = guiService.getNavigationConfiguration();
         LinkConfig rootLinkConfig = takeSelectedRootLinkConfig(navigationConfig.getLinkConfigList(), inputParams.getRootLinkSelectedName());
-        String childToOpen = rootLinkConfig.getChildToOpen();
+        String childToOpen = rootLinkConfig != null ? rootLinkConfig.getChildToOpen() : null;
         NavigationTreePluginData out = new NavigationTreePluginData();
         out.setChildToOpen(childToOpen);
         out.setNavigationConfig(navigationConfig);

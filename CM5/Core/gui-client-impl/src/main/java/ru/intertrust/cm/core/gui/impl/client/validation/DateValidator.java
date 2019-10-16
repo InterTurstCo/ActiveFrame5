@@ -53,8 +53,9 @@ public class DateValidator implements Validator {
         }
         if (!validationResult.isEmpty()) {
             log.info("Client validator '" + this + "' found an error while validating object: " + canBeValidated);
-            canBeValidated.showErrors(validationResult);
-
+            if (canBeValidated != null) {
+                canBeValidated.showErrors(validationResult);
+            }
         }
         return validationResult; // how to return correct result? async call may complete after the method returning
     }

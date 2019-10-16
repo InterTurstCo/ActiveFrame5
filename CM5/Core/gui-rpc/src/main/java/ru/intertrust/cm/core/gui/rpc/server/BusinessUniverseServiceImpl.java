@@ -153,12 +153,14 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         if (initialization.getApplicationName() == null) {
             initialization.setApplicationName(domainObject.getString(UserSettingsHelper.DO_INITIAL_APPLICATION_NAME));
             if(initialization.getApplicationName() == null || initialization.getApplicationName().equals("undefined")) {
-                initialization.setApplicationName((businessUniverseConfig.getDefaultAppConfig()!=null)?
+                initialization.setApplicationName((businessUniverseConfig != null && businessUniverseConfig.getDefaultAppConfig()!=null)?
                         businessUniverseConfig.getDefaultAppConfig().getValue():"undefined");
             }
         }
 
-        initialization.setLoginScreenConfig(businessUniverseConfig.getLoginScreenConfig());
+        if (businessUniverseConfig != null) {
+            initialization.setLoginScreenConfig(businessUniverseConfig.getLoginScreenConfig());
+        }
         if (businessUniverseConfig.getLoginScreenConfig().isDisplayVersionList()){
             List<ComponentVersion> componentVersions = DiscoveryVersionCollectorService.INSTANCE.getAllVersions();
             List<VersionInfo> versionInfos = new ArrayList<VersionInfo>();

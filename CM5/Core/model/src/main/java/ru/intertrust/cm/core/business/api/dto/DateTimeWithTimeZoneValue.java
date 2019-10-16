@@ -64,8 +64,10 @@ public class DateTimeWithTimeZoneValue extends Value<DateTimeWithTimeZoneValue> 
                 clonedContext = null;
             } else if (olsonContext != null) {
                 clonedContext = olsonContext.getClass() == OlsonTimeZoneContext.class ? olsonContext : new OlsonTimeZoneContext(((OlsonTimeZoneContext) timeZoneContext).getTimeZoneId());
-            } else {
+            } else if (utcContext != null) {
                 clonedContext = utcContext.getClass() == UTCOffsetTimeZoneContext.class ? utcContext : new UTCOffsetTimeZoneContext((int) ((UTCOffsetTimeZoneContext) timeZoneContext).getOffset());
+            } else {
+                clonedContext = null;
             }
             final DateTimeWithTimeZone clonedDateTimeWithTimeZone = new DateTimeWithTimeZone(clonedContext, dt.getYear(), dt.getMonth(), dt.getDayOfMonth(), dt.getHours(), dt.getMinutes(), dt.getSeconds(), dt.getMilliseconds());
             return new DateTimeWithTimeZoneValue(clonedDateTimeWithTimeZone);

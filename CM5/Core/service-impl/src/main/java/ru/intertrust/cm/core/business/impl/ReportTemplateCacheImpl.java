@@ -89,7 +89,9 @@ public class ReportTemplateCacheImpl implements ReportTemplateCache{
             outStream = new FileOutputStream(file);
             outStream.write(content);
         } finally {
-            outStream.close();
+            if (outStream != null) {
+                outStream.close();
+            }
         }
     }
 
@@ -111,8 +113,12 @@ public class ReportTemplateCacheImpl implements ReportTemplateCache{
             throw new ReportServiceException("Error on get attachment body", ex);
         } finally {
             try {
-                contentStream.close();
-                inputStream.close(true);
+                if (contentStream != null) {
+                    contentStream.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close(true);
+                }
             } catch (IOException ignoreEx) {
             }
         }

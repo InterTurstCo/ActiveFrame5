@@ -201,8 +201,12 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             throw new ReportServiceException("Error on get attachment body", ex);
         } finally {
             try {
-                contentStream.close();
-                inputStream.close(true);
+                if (contentStream != null) {
+                    contentStream.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close(true);
+                }
             } catch (IOException ignoreEx) {
             }
         }

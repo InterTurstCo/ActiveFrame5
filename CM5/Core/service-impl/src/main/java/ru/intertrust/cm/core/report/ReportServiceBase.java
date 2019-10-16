@@ -149,7 +149,9 @@ public abstract class ReportServiceBase {
             return out.toByteArray();        
         } finally {
             try{
-                input.close();
+                if (input != null) {
+                    input.close();
+                }
             }catch(Exception ex){
                 logger.error("Error read File", ex);
             }

@@ -243,7 +243,9 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
             oos.writeObject(ser);
             oos.flush();
         } finally {
-            oos.close();
+            if (oos != null) {
+                oos.close();
+            }
         }
     }
 

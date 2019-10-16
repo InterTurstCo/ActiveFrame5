@@ -228,7 +228,7 @@ public class MigrationService {
 
         if (domainObjectTypeConfig == null) {
             throw new ConfigurationException("Failed to change field of DO type " +
-                    domainObjectTypeConfig.getName() + " because it doesn't exist");
+                "because it could not be found by field type " + changeFieldClassConfig.getType());
         }
 
         for (ChangeFieldClassFieldConfig changeFieldClassFieldConfig : changeFieldClassConfig.getFields()) {

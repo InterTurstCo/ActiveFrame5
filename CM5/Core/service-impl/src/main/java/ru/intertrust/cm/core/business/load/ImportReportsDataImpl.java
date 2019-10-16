@@ -141,7 +141,9 @@ public class ImportReportsDataImpl implements ImportReportsData, ImportReportsDa
             }
             return out.toByteArray();
         } finally {
-            input.close();
+            if (input != null) {
+                input.close();
+            }
         }
     }
 

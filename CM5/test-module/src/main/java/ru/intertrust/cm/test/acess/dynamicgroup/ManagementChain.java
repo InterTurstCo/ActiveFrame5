@@ -57,11 +57,13 @@ public class ManagementChain extends DynamicGroupCollectorBase implements Dynami
         List<Id> result = new ArrayList<Id>();
         if (containsModifiedField(modifiedFieldNames, "ParentDepartment")) {
             FieldModification fieldModification = getFieldModification(modifiedFieldNames, "ParentDepartment");
-            if (fieldModification.getBaseValue() != null) {
-                result.addAll(getDepartmentChain(((ReferenceValue) fieldModification.getBaseValue()).get()));
-            }
-            if (fieldModification.getComparedValue() != null) {
-                result.addAll(getDepartmentChain(((ReferenceValue) fieldModification.getComparedValue()).get()));
+            if (fieldModification != null) {
+                if (fieldModification.getBaseValue() != null) {
+                    result.addAll(getDepartmentChain(((ReferenceValue) fieldModification.getBaseValue()).get()));
+                }
+                if (fieldModification.getComparedValue() != null) {
+                    result.addAll(getDepartmentChain(((ReferenceValue) fieldModification.getComparedValue()).get()));
+                }
             }
         } else if (containsModifiedField(modifiedFieldNames, "Boss")) {
             result.addAll(getDepartmentChain(domainObject.getId()));

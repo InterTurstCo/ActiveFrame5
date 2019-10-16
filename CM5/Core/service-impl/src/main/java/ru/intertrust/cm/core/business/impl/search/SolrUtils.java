@@ -22,7 +22,7 @@ public class SolrUtils {
 
     public static String protectSearchString(String text, boolean noQuotes) {
         State state = State.PLAIN;
-        State lastState = null;
+        State lastState = State.PLAIN;
         StringBuilder converted = new StringBuilder(text.length());
         for (int i = 0; i < text.length(); i++) {
             char ch = text.charAt(i);

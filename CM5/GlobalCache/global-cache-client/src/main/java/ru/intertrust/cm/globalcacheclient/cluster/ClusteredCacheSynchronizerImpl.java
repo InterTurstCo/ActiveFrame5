@@ -44,7 +44,9 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
         final Set<Id> deletedIds = modification.getDeletedIds();
         final List<Id> modifiedAutoDomainObjectIds = modification.getModifiedAutoDomainObjectIds();
         final HashSet<Id> createdIdsSet = new HashSet<>(createdIds);
-        final HashSet<Id> ids = new HashSet<>((int) (1.5 * (createdIds.size() + changedAccessIds.size() + savedAndChangedStatusIds.size() + deletedIds.size() + modifiedAutoDomainObjectIds.size())));
+        final HashSet<Id> ids = new HashSet<>((int) (1.5 * (createdIds.size() +
+            (changedAccessIds != null ? changedAccessIds.size() : 0) + savedAndChangedStatusIds.size() +
+            deletedIds.size() + modifiedAutoDomainObjectIds.size())));
         ids.addAll(changedAccessIds);
         ids.addAll(savedAndChangedStatusIds);
         ids.addAll(deletedIds);

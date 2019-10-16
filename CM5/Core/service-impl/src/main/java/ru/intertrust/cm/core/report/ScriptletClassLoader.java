@@ -109,11 +109,15 @@ public class ScriptletClassLoader extends ClassLoader {
 			throw new RuntimeException("Can not load class file", ex);
 		} finally {
 			try {
-				in.close();
+				if (in != null) {
+					in.close();
+				}
 			} catch (Exception ignoreEx) {
 			}
 			try {
-				out.close();
+				if (out != null) {
+					out.close();
+				}
 			} catch (Exception ignoreEx) {
 			}
 		}

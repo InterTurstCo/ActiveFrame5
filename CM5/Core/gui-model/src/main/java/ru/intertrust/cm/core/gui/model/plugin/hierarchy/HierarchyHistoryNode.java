@@ -39,7 +39,9 @@ public class HierarchyHistoryNode implements Dto {
             children.add(newNode);
         } else {
             HierarchyHistoryNode parent = findParent(newNode.getParentId(), getChildren());
-            parent.add(newNode);
+            if (parent != null) {
+                parent.add(newNode);
+            }
         }
     }
 

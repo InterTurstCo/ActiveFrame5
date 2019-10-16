@@ -74,7 +74,9 @@ public class DeployReportActionHandler extends ActionHandler<DeployReportActionC
             }
             return out.toByteArray();
         } finally {
-            input.close();
+            if (input != null) {
+                input.close();
+            }
         }
     }
 }

@@ -159,11 +159,13 @@ public class PersonFormSaveInterceptor implements FormAfterSaveInterceptor , For
             Map<String, Value> paramsSimpleKey = new HashMap<>();
             paramsSimpleKey.put("user_uid", new StringValue(login));
             auth_info = crudService.findByUniqueKey("Authentication_Info", paramsSimpleKey);
+        } catch (ObjectNotFoundException e){
+            //            throw new GuiException("Authentication_Info - ObjectNotFound");
+        }
+        finally {
             if (auth_info == null){
                 auth_info = crudService.createDomainObject("Authentication_Info");
             }
-        } catch (ObjectNotFoundException e){
-            //            throw new GuiException("Authentication_Info - ObjectNotFound");
         }
         return auth_info;
     }

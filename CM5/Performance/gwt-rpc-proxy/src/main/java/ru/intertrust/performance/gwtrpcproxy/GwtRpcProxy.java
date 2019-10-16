@@ -449,7 +449,7 @@ public class GwtRpcProxy implements Runnable {
                     genericControllerTree.add(sampler, samplerTree);
                     samplerNo++;
                 }
-                if (genericControllerTree.size() > 0) {
+                if (recordScript != null && genericControllerTree.size() > 0) {
                     if (groupNo > 0) {
                         TestAction timer = new TestAction();
                         timer.setEnabled(true);
@@ -477,39 +477,45 @@ public class GwtRpcProxy implements Runnable {
 
     private void writeScriptParams(HashTree script) throws URISyntaxException {
         Arguments sysParams = (Arguments)getSamplerByName(script, "Конфигурация скрипта");
-        
-        URI uri = new URI(targetUri);
-        
-        for (int i=0; i<sysParams.getArgumentCount(); i++) {
-            Argument arg = sysParams.getArgument(i);
-            if (arg.getName().equalsIgnoreCase("HOST")){
-                arg.setValue(uri.getHost());
-            }else if (arg.getName().equalsIgnoreCase("PORT")){
-                arg.setValue(String.valueOf(uri.getPort()));
-            }            
+        if (sysParams != null) {
+            URI uri = new URI(targetUri);
+
+            for (int i = 0; i < sysParams.getArgumentCount(); i++) {
+                Argument arg = sysParams.getArgument(i);
+                if (arg.getName().equalsIgnoreCase("HOST")) {
+                    arg.setValue(uri.getHost());
+                }
+                else if (arg.getName().equalsIgnoreCase("PORT")) {
+                    arg.setValue(String.valueOf(uri.getPort()));
+                }
+            }
         }
     }
 
     private void writeHeaderManager(HashTree script){
         HeaderManager headerManager = (HeaderManager)getSamplerByName(script, "HTTP Header Manager");
         //Добавляем Header
-        headerManager.add(new Header(ProxyContext.X_GWT_PERMUTATION, context.getJournal().getxGwtPermutation()));
+        if (headerManager != null) {
+            headerManager.add(new Header(ProxyContext.X_GWT_PERMUTATION, context.getJournal().getxGwtPermutation()));
+        }
     }
     
     private void writeSystemParams(HashTree script) {
         Arguments sysParams = (Arguments)getSamplerByName(script, "Системные переменные");
-        Map<String, String> strongNames = GwtProcySerializationPolicyProvider.getPolicyMap();
-        
-        Set<String> uniqueStrongNames = new HashSet<String>();
-        
-        for (String key : strongNames.keySet()) {
-            String policyKey = GwtRpcSampler.POLICY_PARAM_PREFIX + key;
+        if (sysParams != null) {
+            Map<String, String> strongNames = GwtProcySerializationPolicyProvider.getPolicyMap();
 
-            if (!uniqueStrongNames.contains(policyKey)){
-                sysParams.addArgument(policyKey, strongNames.get(key));
-                uniqueStrongNames.add(policyKey);
+            Set<String> uniqueStrongNames = new HashSet<String>();
+
+            for (String key : strongNames.keySet()) {
+                String policyKey = GwtRpcSampler.POLICY_PARAM_PREFIX + key;
+
+                if (!uniqueStrongNames.contains(policyKey)) {
+                    sysParams.addArgument(policyKey, strongNames.get(key));
+                    uniqueStrongNames.add(policyKey);
+                }
             }
-        }        
+        }
     }
 
     private HashTree getHashTreeByName(HashTree script, String name) {

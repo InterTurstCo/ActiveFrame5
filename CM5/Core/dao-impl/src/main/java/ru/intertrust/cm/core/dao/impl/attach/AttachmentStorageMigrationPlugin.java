@@ -287,7 +287,9 @@ public class AttachmentStorageMigrationPlugin implements PluginHandler {
             }
         }finally {
             try {
-                content.close();
+                if (content != null) {
+                    content.close();
+                }
             } catch (IOException ignoreEx) {
             }
         }

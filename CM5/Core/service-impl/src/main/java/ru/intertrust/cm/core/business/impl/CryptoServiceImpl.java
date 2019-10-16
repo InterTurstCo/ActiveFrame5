@@ -107,21 +107,26 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
                     //Получение всех подписей
                     String signedType = domainObjectTypeIdCache.getName(id);
                     TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
-                    String signatureStorageBeanName = config.getSignatureStorageBeanName();
-                    SignatureStorageService signatureStorageService = (SignatureStorageService) context.getBean(signatureStorageBeanName);
-                    List<SignedResultItem> signes = signatureStorageService.loadSignature(config.getSignatureStorageBeanSettings(), id);
+                    if (config != null) {
+                        String signatureStorageBeanName = config.getSignatureStorageBeanName();
+                        SignatureStorageService signatureStorageService = (SignatureStorageService) context
+                            .getBean(signatureStorageBeanName);
+                        List<SignedResultItem> signes = signatureStorageService
+                            .loadSignature(config.getSignatureStorageBeanSettings(), id);
 
-                    //Цикл по всем подписям
-                    for (SignedResultItem signedResultItem : signes) {
-                        if (signedResultItem.getId().equals(id)) {
-                            SignedDataItem signedDataItem = getContentForSignature(id);
-                            contentStream = signedDataItem.getContent();
-                            verifyResult.setDocumentName(signedDataItem.getName());
+                        //Цикл по всем подписям
+                        for (SignedResultItem signedResultItem : signes) {
+                            if (signedResultItem.getId().equals(id)) {
+                                SignedDataItem signedDataItem = getContentForSignature(id);
+                                contentStream = signedDataItem.getContent();
+                                verifyResult.setDocumentName(signedDataItem.getName());
 
-                            VerifyResult oneResult = getCryptoBean().verify(contentStream, Base64.decodeBase64(signedResultItem.getSignature()));
-                            verifyResult.getSignerInfos().addAll(oneResult.getSignerInfos());
-                            contentStream.close();
-                            contentStream = null;
+                                VerifyResult oneResult = getCryptoBean().verify(contentStream,
+                                    Base64.decodeBase64(signedResultItem.getSignature()));
+                                verifyResult.getSignerInfos().addAll(oneResult.getSignerInfos());
+                                contentStream.close();
+                                contentStream = null;
+                            }
                         }
                     }
                     result.add(verifyResult);

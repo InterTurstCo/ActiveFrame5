@@ -210,7 +210,7 @@ public class GwtUtil {
     public static CollectionRowItem getRndCollectionsRow(Dto responce) {
         ArrayList<CollectionRowItem> items = getCollectionRowItems(responce);
         CollectionRowItem row = null;
-        if (items.size() > 0){
+        if (items != null && items.size() > 0){
             row = items.get(rnd.nextInt(items.size()));
         }
         return row;

@@ -54,19 +54,24 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
         final ActionConfig config = contextDto == null ? null : (ActionConfig) context.getActionConfig();
         final T result = executeAction(context);
         if (result != null) {
-            final Id rootObjectId;
-            if (result instanceof SimpleActionData) {
-                rootObjectId = ((SimpleActionData) result).getSavedMainObjectId();
-            } else {
-                rootObjectId = context.getRootObjectId();
-            }
-            final AfterActionExecutionConfig afterConfig = config.getAfterConfig();
-            if (config != null && afterConfig != null) {
-                final DomainObject dobj = rootObjectId != null ? crudService.find(rootObjectId) : null;
-                final OnSuccessMessageConfig messageConfig = afterConfig.getMessageConfig();
-                String successPattern = (messageConfig == null) ? null : messageConfig.getText();
-                if (result.getOnSuccessMessage()!=null) successPattern = result.getOnSuccessMessage(); // перезаписываем дефолтное сообщение тем, которое приехало из реализации action
-                result.setOnSuccessMessage(parseMessage(successPattern, dobj));
+            if (config != null) {
+                final Id rootObjectId;
+                if (result instanceof SimpleActionData) {
+                    rootObjectId = ((SimpleActionData) result).getSavedMainObjectId();
+                }
+                else {
+                    rootObjectId = context.getRootObjectId();
+                }
+                final AfterActionExecutionConfig afterConfig = config.getAfterConfig();
+                if (afterConfig != null) {
+                    final DomainObject dobj =
+                        rootObjectId != null ? crudService.find(rootObjectId) : null;
+                    final OnSuccessMessageConfig messageConfig = afterConfig.getMessageConfig();
+                    String successPattern = (messageConfig == null) ? null : messageConfig.getText();
+                    if (result.getOnSuccessMessage() != null)
+                        successPattern = result.getOnSuccessMessage(); // перезаписываем дефолтное сообщение тем, которое приехало из реализации action
+                    result.setOnSuccessMessage(parseMessage(successPattern, dobj));
+                }
             }
         }
         return result;

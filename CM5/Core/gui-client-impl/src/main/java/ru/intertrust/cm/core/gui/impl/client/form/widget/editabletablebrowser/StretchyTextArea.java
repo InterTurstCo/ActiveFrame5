@@ -166,10 +166,11 @@ public class StretchyTextArea extends TextArea {
             for (int i=charSize; i<textLength; i++) {
                 char c = getText().charAt(i);
                 // Sonar
-                if (getLastLine() == null) {
+                final Line lastLine = getLastLine();
+                if (lastLine == null) {
                     break;
                 }
-                if (lineLength == getLastLine().inc() || c == '\n') {
+                if (lineLength == lastLine.inc() || c == '\n') {
                     if (canAddNewVisibleLine()){
                         lineArray.add(new Line(true));
                         setVisibleLines(getVisibleLines()+1);
@@ -181,15 +182,16 @@ public class StretchyTextArea extends TextArea {
         } else if (textLength < charSize) {
             int diff = charSize - textLength;
             while (true) {
-                if (lineArray.isEmpty() || getLastLine() == null) {
+                final Line lastLine = getLastLine();
+                if (lastLine == null || lineArray.isEmpty()) {
                     break;
                 }
-                int count = getLastLine().getCount();
+                int count = lastLine.getCount();
                 if (count >= diff) {
-                    getLastLine().setCount(count-diff);
+                    lastLine.setCount(count-diff);
                     break;
                 } else {
-                    if (getLastLine().isVisible()) {
+                    if (lastLine.isVisible()) {
                         setVisibleLines(getVisibleLines()-1);
                     }
                     lineArray.remove(lineArray.size()-1);

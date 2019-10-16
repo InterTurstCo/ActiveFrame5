@@ -238,16 +238,24 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             }
 
             final ReportResult reportResult = new ReportResult();
-            if (queue.getReference("status").equals(statusDao.getStatusIdByName("Complete"))) {
-                reportResult.setFileName(queue.getString("file_name"));
-                reportResult.setTemplateName(queue.getString("name"));
-                reportResult.setResultId(queue.getReference("result_id"));
-            } else if (queue.getReference("status").equals(statusDao.getStatusIdByName("Fault"))) {
-                String message = "Error on generate report on report server " + queue.getString("error");
-                logger.error(message);
-                throw new ReportServiceException(message);
-            } else { //Таймаут
-                String message = "Error on generate report on report server. Timeout";
+            if (queue != null) {
+                if (queue.getReference("status").equals(statusDao.getStatusIdByName("Complete"))) {
+                    reportResult.setFileName(queue.getString("file_name"));
+                    reportResult.setTemplateName(queue.getString("name"));
+                    reportResult.setResultId(queue.getReference("result_id"));
+                }
+                else if (queue.getReference("status").equals(statusDao.getStatusIdByName("Fault"))) {
+                    String message = "Error on generate report on report server " + queue.getString("error");
+                    logger.error(message);
+                    throw new ReportServiceException(message);
+                }
+                else { //Таймаут
+                    String message = "Error on generate report on report server. Timeout";
+                    logger.error(message);
+                    throw new ReportServiceException(message);
+                }
+            } else {
+                String message = "Error on generate report on report server. Queue is null";
                 logger.error(message);
                 throw new ReportServiceException(message);
             }

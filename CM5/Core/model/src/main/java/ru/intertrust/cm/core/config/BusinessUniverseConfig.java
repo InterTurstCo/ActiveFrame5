@@ -270,8 +270,8 @@ public class BusinessUniverseConfig implements LocalizableConfig {
                 : that.defaultFormEditingStyleConfig != null) {
             return false;
         }
-        if (headerNotificationLimitConfig != null ? !defaultFormEditingStyleConfig.equals(that.defaultFormEditingStyleConfig)
-                : that.defaultFormEditingStyleConfig != null) {
+        if (headerNotificationLimitConfig != null ? !headerNotificationLimitConfig.equals(that.headerNotificationLimitConfig)
+                : that.headerNotificationLimitConfig != null) {
             return false;
         }
         return true;

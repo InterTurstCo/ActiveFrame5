@@ -448,7 +448,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 if (contentStream != null) {
                     contentStream.close();
                 }
-                inputStream.close(true);
+                if (inputStream != null) {
+                    inputStream.close(true);
+                }
             } catch (IOException ignoreEx) {
             }
         }
