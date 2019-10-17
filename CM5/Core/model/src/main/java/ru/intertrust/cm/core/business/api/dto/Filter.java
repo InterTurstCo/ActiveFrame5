@@ -201,7 +201,7 @@ public class Filter implements Dto, Cloneable {
 
     public Value getCriterion(int index) {
         List<Value> list = parameterMap.get(index);
-        if (list == null || isSingleParameterMap.get(index) == Boolean.FALSE) {
+        if (list == null || Boolean.FALSE.equals(isSingleParameterMap.get(index))) {
             return null;
         }
         return list.get(0);
@@ -213,7 +213,7 @@ public class Filter implements Dto, Cloneable {
     }
 
     public List<Value> getMultiCriterion(int index) {
-        if (isSingleParameterMap.get(index) == Boolean.TRUE) {
+        if (Boolean.TRUE.equals(isSingleParameterMap.get(index))) {
             return null;
         }
         return parameterMap.get(index);

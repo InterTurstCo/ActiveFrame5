@@ -34,7 +34,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
     public Collection<String> getSolrFieldNames(String field, boolean strict) {
         ArrayList<String> result = new ArrayList<>(languages.size());
         for (String langId : languages) {
-            if (langId != "") {
+            if (!"".equals(langId)) {
                 result.add(new StringBuilder()
                         .append(SolrFields.FIELD_PREFIX)
                         .append(langId)

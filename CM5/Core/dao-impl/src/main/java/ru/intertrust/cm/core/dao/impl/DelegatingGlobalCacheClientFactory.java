@@ -114,7 +114,7 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
 
     @Override
     public boolean isEnabled() {
-        return enabled == Boolean.TRUE;
+        return Boolean.TRUE.equals(enabled);
     }
 
     @Override
@@ -124,7 +124,7 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
 
     @Override
     public boolean isDebugEnabled() {
-        return debugEnabled == Boolean.TRUE;
+        return Boolean.TRUE.equals(debugEnabled);
     }
 
     @Override
@@ -146,6 +146,6 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
 
     @Override
     public boolean isExtendedStatisticsEnabled() {
-        return globalCacheExtendedStatisticsEnabled == Boolean.TRUE;
+        return Boolean.TRUE.equals(globalCacheExtendedStatisticsEnabled);
     }
 }

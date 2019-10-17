@@ -30,7 +30,7 @@ public class ExpressionHelper {
 
   public static Boolean applyExpression(String expression, WidgetsContainer container) throws ExpressionException {
     // Если apply-expression не задано то правило применяется в любом случае
-    if (expression != null && expression.trim() != "") {
+    if (expression != null && !expression.trim().equals("")) {
       validate(expression.toLowerCase());
 
       if (expression.toLowerCase().contains(AND)) {

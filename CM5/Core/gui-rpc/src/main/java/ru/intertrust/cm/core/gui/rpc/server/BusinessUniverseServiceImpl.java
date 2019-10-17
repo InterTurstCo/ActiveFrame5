@@ -160,19 +160,19 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
         if (businessUniverseConfig != null) {
             initialization.setLoginScreenConfig(businessUniverseConfig.getLoginScreenConfig());
-        }
-        if (businessUniverseConfig.getLoginScreenConfig().isDisplayVersionList()){
-            List<ComponentVersion> componentVersions = DiscoveryVersionCollectorService.INSTANCE.getAllVersions();
-            List<VersionInfo> versionInfos = new ArrayList<VersionInfo>();
-            for (ComponentVersion componentVersion : componentVersions) {
-                VersionInfo versionInfo = new VersionInfo();
-                versionInfo.setComponent(componentVersion.getComponent());
-                versionInfo.setVersion(componentVersion.getVersion());
-                versionInfos.add(versionInfo);
+            if (businessUniverseConfig.getLoginScreenConfig().isDisplayVersionList()){
+                List<ComponentVersion> componentVersions = DiscoveryVersionCollectorService.INSTANCE.getAllVersions();
+                List<VersionInfo> versionInfos = new ArrayList<VersionInfo>();
+                for (ComponentVersion componentVersion : componentVersions) {
+                    VersionInfo versionInfo = new VersionInfo();
+                    versionInfo.setComponent(componentVersion.getComponent());
+                    versionInfo.setVersion(componentVersion.getVersion());
+                    versionInfos.add(versionInfo);
+                }
+                initialization.setProductVersionList(versionInfos);
             }
-            initialization.setProductVersionList(versionInfos);
         }
-        
+
         Boolean hideLogoutButton = (Boolean)getThreadLocalRequest().getSession().getAttribute(ApplicationSecurityManager.HIDE_LOGOUT_BUTTON);
         if (hideLogoutButton != null) {
             initialization.setHideLogoutButton(hideLogoutButton);

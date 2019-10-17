@@ -66,10 +66,10 @@ public class PersonAccessChanges implements AccessChanges {
                 final Boolean accessGranted = newPersonAccessEntry.getValue();
                 if (currentPersonAccess.containsKey(personId)) {
                     final Boolean currentAccess = currentPersonAccess.get(personId);
-                    if (currentAccess == Boolean.TRUE) { // person has access, nothing to change
+                    if (Boolean.TRUE.equals(currentAccess)) { // person has access, nothing to change
                         continue;
                     }
-                    if (personAccess.get(personId) == Boolean.TRUE) {
+                    if (Boolean.TRUE.equals(personAccess.get(personId))) {
                         currentPersonAccess.put(personId, Boolean.TRUE);
                     }
                 } else {

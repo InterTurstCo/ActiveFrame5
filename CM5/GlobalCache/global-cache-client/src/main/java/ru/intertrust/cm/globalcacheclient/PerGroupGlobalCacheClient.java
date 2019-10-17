@@ -524,7 +524,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
             return true;
         }
         DomainObjectTypeConfig dotc = explorer.getDomainObjectTypeConfig(type);
-        return Boolean.FALSE == (dotc != null ? dotc.isGloballyCached() : Boolean.FALSE);
+        return Boolean.FALSE.equals(dotc != null ? dotc.isGloballyCached() : Boolean.FALSE);
     }
 
     private boolean neverCache(String type, boolean exactType) {  // todo: take exactType into account

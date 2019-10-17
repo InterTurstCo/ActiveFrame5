@@ -102,8 +102,10 @@ public class OOoServer {
         String[] oooCommand = new String[arguments];
         oooCommand[0] = fOffice.getPath();
 
-        for (int i = 0; i < oooOptions.size(); i++) {
-            oooCommand[i+1] = (String) oooOptions.get(i);
+        if (oooOptions != null) {
+            for (int i = 0; i < oooOptions.size(); i++) {
+                oooCommand[i + 1] = (String) oooOptions.get(i);
+            }
         }
 
         if (oooAcceptOption != null)

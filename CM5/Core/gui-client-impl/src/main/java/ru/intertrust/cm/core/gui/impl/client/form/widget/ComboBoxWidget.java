@@ -64,7 +64,7 @@ public class ComboBoxWidget extends BaseWidget {
   public void applyFilter(String value) {
     ComboBoxState st = ((ComboBoxState) getFullClientStateCopy());
 
-    if (value != null && value.trim() != "") {
+    if (value != null && !value.trim().equals("")) {
       st.setListValues(getFilteredList(originalDoList, originalDisplayList, value));
     } else {
       st.setListValues(originalDisplayList);

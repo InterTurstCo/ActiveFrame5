@@ -535,12 +535,12 @@ public class GlobalCacheControlView extends PluginView {
      */
     private void getControlPanelState() {
 
-        if (expandedStatisticsCB.getValue() != globalCachePluginData.getControlPanelModel().isExpandedStatistics() &&
-                expandedStatisticsCB.getValue().equals(Boolean.TRUE)) {
+        if (Boolean.TRUE.equals(expandedStatisticsCB.getValue()) &&
+            !expandedStatisticsCB.getValue().equals(globalCachePluginData.getControlPanelModel().isExpandedStatistics())) {
             Window.alert("Внимание, сбор расширенной статистики приведёт к снижению производительности глобального кэша");
         }
-        if (debugModeCB.getValue() != globalCachePluginData.getControlPanelModel().isDebugMode() &&
-                debugModeCB.getValue().equals(Boolean.TRUE)) {
+        if (Boolean.TRUE.equals(debugModeCB.getValue()) &&
+            !debugModeCB.getValue().equals(globalCachePluginData.getControlPanelModel().isDebugMode())) {
             Window.alert("Внимание, режим отладки приведёт к снижению производительности приложения.");
         }
         if(modeListBox.getSelectedValue().equals(GlobalCacheControlPanel.NON_BLOCKING_MODE_VALUE) &&

@@ -242,10 +242,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     @Override
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         final Boolean deleteLinkedObjects = ((LinkedDomainObjectsTableConfig) config).isDeleteLinkedObjects();
-        if (deleteLinkedObjects == Boolean.TRUE) {
-            return true;
-        } else if (deleteLinkedObjects == Boolean.FALSE) {
-            return false;
+        if (deleteLinkedObjects != null) {
+            return deleteLinkedObjects.booleanValue();
         }
         // null - unknown behavior
         final FieldPathConfig fieldPathConfig = config.getFieldPathConfig();

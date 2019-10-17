@@ -528,7 +528,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 if (++count % 50 == 0) {
                     assureCacheSizeLimit();
                 }
-                if (!atLeastOnePersonAccessGranted && accessGranted == Boolean.TRUE) {
+                if (!atLeastOnePersonAccessGranted && Boolean.TRUE.equals(accessGranted)) {
                     atLeastOnePersonAccessGranted = true;
                 }
             }
@@ -592,7 +592,7 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private boolean neverCache(String type) {
-        return Boolean.FALSE == explorer.getDomainObjectTypeConfig(type).isGloballyCached();
+        return Boolean.FALSE.equals(explorer.getDomainObjectTypeConfig(type).isGloballyCached());
     }
 
     private static int __count;
@@ -629,7 +629,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 accessSorter.logAccess(accessObjectId);
 
                 final Boolean accessGranted = userObjectAccess.isAccessGranted(userSubject, accessObjectId);
-                if (accessGranted == Boolean.FALSE) {
+                if (Boolean.FALSE.equals(accessGranted)) {
                     result = AbsentDomainObject.INSTANCE;
                 } else if (accessGranted == null) {
                     result = null; // it can be null if not retrieved yet

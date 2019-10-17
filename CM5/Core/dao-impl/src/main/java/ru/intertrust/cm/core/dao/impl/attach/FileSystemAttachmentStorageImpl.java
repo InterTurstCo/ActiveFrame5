@@ -86,7 +86,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             }
         }
         pathMask = storageConfig.getSubfolderMask();
-        if (Boolean.TRUE == storageConfig.getConfigurable()) {
+        if (Boolean.TRUE.equals(storageConfig.getConfigurable())) {
             String pathMask = getProperty(PROP_PATHMASK);
             if (pathMask != null) {
                 this.pathMask = validatePathMask(pathMask);

@@ -35,7 +35,7 @@ public class NullValues {
     }
 
     public static boolean isNull(String string) {
-        return string == null || string == STRING;
+        return string == null || STRING.equals(string);
     }
 
     public static String convertNull(String string) {

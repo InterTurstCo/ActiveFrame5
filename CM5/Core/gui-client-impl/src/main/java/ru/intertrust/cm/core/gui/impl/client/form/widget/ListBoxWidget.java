@@ -63,7 +63,7 @@ public class ListBoxWidget extends BaseWidget {
   public void applyFilter(String value) {
     ListBoxState st = ((ListBoxState) getFullClientStateCopy());
 
-    if (value != null && value.trim() != "") {
+    if (value != null && !value.trim().equals("")) {
       st.setListValues(getFilteredList(originalDoList, originalDisplayList, value));
     } else {
       st.setListValues(originalDisplayList);

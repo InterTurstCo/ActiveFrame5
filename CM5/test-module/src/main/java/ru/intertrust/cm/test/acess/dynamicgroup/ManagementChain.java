@@ -139,7 +139,11 @@ public class ManagementChain extends DynamicGroupCollectorBase implements Dynami
     private List<Id> getChildDepartments(Id parentDepartmentId) {
         String query = "select d.id from ";
         query += "Department d ";
-        query += "where d.parentdepartment = " + ((RdbmsId) parentDepartmentId).getId();
+        if (parentDepartmentId != null) {
+          query += "where d.parentdepartment = " + ((RdbmsId) parentDepartmentId).getId();
+        } else {
+          query += "where d.parentdepartment is null";
+        }
         List<Id> childIds = getIdsByQuery(query);
         List<Id> result = new ArrayList<>();
         result.addAll(childIds);

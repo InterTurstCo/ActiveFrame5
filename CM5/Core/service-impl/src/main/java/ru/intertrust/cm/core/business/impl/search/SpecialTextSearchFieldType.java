@@ -35,7 +35,7 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
         }
         ArrayList<String> result = new ArrayList<>(languages.size() + 1);
         for (String langId : languages) {
-            if (langId != "") {
+            if (!"".equals(langId)) {
                 result.add(new StringBuilder()
                         .append(baseName)
                         .append("_")
