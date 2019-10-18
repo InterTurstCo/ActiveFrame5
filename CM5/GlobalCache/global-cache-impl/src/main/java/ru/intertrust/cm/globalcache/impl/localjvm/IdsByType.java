@@ -22,28 +22,24 @@ public class IdsByType implements Sizeable {
 
     public void setIdType(Id id, String type) {
         String lowercasedType = Case.toLower(type);
-        synchronized (lowercasedType) { // todo
-            SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
-            if (mapping == null) {
-                mapping = new SizeableConcurrentHashMap<>(100, 0.75f, 16, null, false, false);
-                final SizeableConcurrentHashMap<Id, Id> newMap = idByType.putIfAbsent(lowercasedType, mapping);
-                mapping = newMap == null ? mapping : newMap;
-            }
-            mapping.put(id, id);
+        SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
+        if (mapping == null) {
+            mapping = new SizeableConcurrentHashMap<>(100, 0.75f, 16, null, false, false);
+            final SizeableConcurrentHashMap<Id, Id> newMap = idByType.putIfAbsent(lowercasedType, mapping);
+            mapping = newMap == null ? mapping : newMap;
         }
+        mapping.put(id, id);
     }
 
     public void removeId(Id id, String type) {
         String lowercasedType = Case.toLower(type);
-        synchronized (lowercasedType) { // todo
-            SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
-            if (mapping == null) {
-                return;
-            }
-            mapping.remove(id);
-            if (mapping.isEmpty()) {
-                idByType.remove(lowercasedType);
-            }
+        SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
+        if (mapping == null) {
+            return;
+        }
+        mapping.remove(id);
+        if (mapping.isEmpty()) {
+            idByType.remove(lowercasedType);
         }
     }
 

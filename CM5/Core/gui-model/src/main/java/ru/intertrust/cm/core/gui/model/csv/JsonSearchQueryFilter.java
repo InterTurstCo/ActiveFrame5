@@ -121,15 +121,8 @@ public class JsonSearchQueryFilter {
 
     private Object parseValue(Object value){
         Object result = null;
-        if(value instanceof JsonSearchQueryFilterValue){
-            result = value;
-        }else{
-            result = value;
-        }
-
+        result = value;
 
         return result;
     }
-
-
 }

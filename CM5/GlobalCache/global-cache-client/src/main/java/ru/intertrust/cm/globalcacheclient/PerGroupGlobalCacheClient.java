@@ -22,6 +22,7 @@ import ru.intertrust.cm.globalcacheclient.cluster.ClusteredCacheSynchronizer;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Denis Mitavskiy
@@ -59,8 +60,8 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     protected volatile GlobalCache globalCache;
 
-    private volatile long totalReads;
-    private volatile long totalHits;
+    private AtomicLong totalReads = new AtomicLong(0);
+    private AtomicLong totalHits = new AtomicLong(0);
 
     private ConcurrentHashMap<String, TransactionChanges> transactionChanges;
 
@@ -346,7 +347,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public DomainObject getDomainObject(Id id, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing() || neverCache(id)) {
             return null;
         }
@@ -355,7 +356,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public DomainObject getDomainObject(String type, Map<String, Value> uniqueKey, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing() || neverCache(type)) {
             return null;
         }
@@ -368,7 +369,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public ArrayList<DomainObject> getDomainObjects(Collection<Id> ids, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing()) {
             return null;
         }
@@ -384,7 +385,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public List<DomainObject> getLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing() || neverCache(linkedType, exactType) || neverCache(domainObjectId)) {
             return null;
         }
@@ -397,7 +398,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public List<Id> getLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing() || neverCache(linkedType, exactType) || neverCache(domainObjectId)) {
             return null;
         }
@@ -410,7 +411,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing() || neverCache(type, exactType)) {
             return null;
         }
@@ -423,7 +424,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public int getCollectionCount(String name, List<? extends Filter> filterValues, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing()) {
             return -1;
         }
@@ -436,7 +437,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing()) {
             return null;
         }
@@ -449,7 +450,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
 
     @Override
     public IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
-        ++totalReads;
+        totalReads.getAndIncrement();
         if (isReactivationUndergoing()) {
             return null;
         }
@@ -463,7 +464,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public GlobalCacheStatistics getStatistics() {
         final GlobalCacheStatistics result = new GlobalCacheStatistics();
-        result.setHitCount(totalReads == 0 ? 0 : totalHits / (float) totalReads);
+        result.setHitCount(totalReads.get() == 0 ? 0 : totalHits.get() / (float) totalReads.get());
         result.setFreeSpacePercentage(globalCache.getFreeSpacePercentage());
         result.setSize(globalCache.getSizeBytes());
         result.setCacheCleaningRecord(new GlobalCacheStatistics.CacheCleaningRecord(globalCache.getCacheCleanTimeCounter(), globalCache.getCacheCleanFreedSpaceCounter()));
@@ -473,22 +474,22 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     @Override
     public void clearStatistics(boolean hourlyOnly) {
         if (!hourlyOnly) {
-            totalReads = 0;
-            totalHits = 0;
+            totalReads.set(0);
+            totalHits.set(0);
             globalCache.clearCacheCleanStatistics();
         }
     }
 
     private <T> T logHit(T result) {
         if (result != null) {
-            ++totalHits;
+            totalHits.getAndIncrement();
         }
         return result;
     }
 
     private int logHit(int result) {
         if (result != -1) {
-            ++totalHits;
+            totalHits.getAndIncrement();
         }
         return result;
     }

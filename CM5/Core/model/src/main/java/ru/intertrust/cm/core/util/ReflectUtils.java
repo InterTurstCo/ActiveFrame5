@@ -190,14 +190,6 @@ public abstract class ReflectUtils {
     @Nonnull
     public static List<List<Class<?>>> computeInheritanceChains (final @Nonnull Class<?> parentType, final @Nonnull Class<?> childType) {
 
-        if (parentType == null) {
-            throw new IllegalArgumentException("parentType must be not-null");
-        }
-
-        if (childType == null) {
-            throw new IllegalArgumentException("childType must be not-null");
-        }
-
         if (!(parentType.isAssignableFrom(childType))) {
             throw new IllegalArgumentException("parentType '" + parentType + "' must be assignable from childType '" + childType + "'");
         }

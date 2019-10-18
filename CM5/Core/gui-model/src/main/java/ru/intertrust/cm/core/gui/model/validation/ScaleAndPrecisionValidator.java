@@ -44,8 +44,8 @@ public class ScaleAndPrecisionValidator extends AbstractValidator {
     @Override
     public String toString() {
         return "Client scale & precision validator: "
-                + precision != null ? "precision = " + precision : ""
-                + scale != null ? "scale = " + scale : "";
+                + (precision != null ? "precision = " + precision : "")
+                + (scale != null ? "scale = " + scale : "");
     }
 }
 

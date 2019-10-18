@@ -97,15 +97,11 @@ public class PostgresService {
             properties.setProperty("user", props.getDbUser());
             properties.setProperty("password",props.getDbPassword());
             Connection connection = DriverManager.getConnection(url, properties);
-            boolean connect = connection != null;
-            if (connect) {
-                logger.info("Database connection - success");
-                connection.close();
-            } else {
-                logger.error("Database connection - fail");
-            }
-            return connect;
+            logger.info("Database connection - success");
+            connection.close();
+            return true;
         } catch (SQLException e) {
+            logger.error("Database connection - fail");
             logger.error(e.getMessage(), e);
             return false;
         }

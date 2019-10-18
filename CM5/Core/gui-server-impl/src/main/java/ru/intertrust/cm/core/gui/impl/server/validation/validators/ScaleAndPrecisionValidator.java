@@ -65,7 +65,7 @@ public class ScaleAndPrecisionValidator implements ServerValidator {
     @Override
     public String toString() {
         return "Server scale & precision validator: "
-                + precision != null ? "precision = " + precision : ""
-                + scale != null ? "scale = " + scale : "";
+                + (precision != null ? "precision = " + precision : "")
+                + (scale != null ? "scale = " + scale : "");
     }
 }

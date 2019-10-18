@@ -793,10 +793,6 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
         }
 
-        if (childDomainObjectTypeConfig == null) {
-            childDomainObjectTypeConfig = NullValues.DOMAIN_OBJECT_TYPE_CONFIG;
-        }
-
         childDomainObjectTypeMap.put(domainObjectTypeName, childDomainObjectTypeConfig);
         accessMatrixConfigMap.put(domainObjectTypeName, matrixConfig);
 

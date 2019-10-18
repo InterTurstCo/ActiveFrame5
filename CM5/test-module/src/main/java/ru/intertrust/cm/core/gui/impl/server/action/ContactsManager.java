@@ -74,9 +74,7 @@ public class ContactsManager {
     if (collectionsService != null) {
       IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(QUERY_STATUS_BY_ID, params);
       if (collection != null && collection.size() > 0) {
-        for (IdentifiableObject O : collection) {
-          return O.getString(FIELD_NAME);
-        }
+        return collection.get(0).getString(FIELD_NAME);
       }
     }
     return null;

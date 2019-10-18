@@ -440,7 +440,7 @@
 *  def-theme gwt styles
 **/
 .H_td_user .gwt-Hyperlink a {
-    font: bold 14px Arial;
+    font: bold 14px Arial,Serif;
     cursor: pointer;
     text-decoration: underline;
     color: black !important;

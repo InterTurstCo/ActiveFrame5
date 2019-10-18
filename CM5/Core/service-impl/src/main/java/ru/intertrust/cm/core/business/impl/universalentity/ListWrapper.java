@@ -209,17 +209,9 @@ abstract class ListWrapper<E> implements List<E>, RandomAccess, Serializable {
         }
 
         for (final DomainObject odop : this.loadOdops()) {
-
             final E value = this.fromOdop(odop);
-
-            if (value == null && !this.isAllowNulls) {
-                throw new IllegalStateException("null-value detected but not allowed for this list");
-            } else {
-                this.list.add(value);
-            }
-
+            this.list.add(value);
         }
-
     }
 
     final void update () {

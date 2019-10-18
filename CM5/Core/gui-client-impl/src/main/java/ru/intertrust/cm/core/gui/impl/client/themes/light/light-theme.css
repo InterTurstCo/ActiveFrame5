@@ -276,7 +276,7 @@ body, table td, select {
 *  def-theme gwt styles
 **/
 .H_td_user .gwt-Hyperlink a {
-    font: bold 14px Arial;
+    font: bold 14px Arial,Serif;
     cursor: pointer;
     text-decoration: underline;
     color: black !important;
@@ -1074,7 +1074,7 @@ table.form-panel-header .gwt-Red-Label {
     margin-left: -20px;
 }
 
-.group-tree>div:nth-child\(2\) table {
+.group-tree>div:nth-child(2) table {
     margin-left: 20px !important;
 }
 
@@ -1125,7 +1125,7 @@ table.form-panel-header .gwt-Red-Label {
     border-bottom: none;
 }
 
-.cellTable th:not\(:last-child\) {
+.cellTable th:not(:last-child) {
     border-right: 2px solid white;
 }
 

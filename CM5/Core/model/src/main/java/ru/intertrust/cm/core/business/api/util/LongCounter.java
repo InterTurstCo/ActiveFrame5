@@ -25,7 +25,7 @@ public class LongCounter extends AbstractCounter {
         empty = true;
     }
 
-    protected void trackValue(Number value) {
+    protected synchronized void trackValue(Number value) {
         long val = value.longValue();
         total += val;
         if (empty) {
@@ -63,7 +63,7 @@ public class LongCounter extends AbstractCounter {
         return eventCount == 0 ? 0.0 : new BigDecimal(total).divide(new BigDecimal(eventCount), 15, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 
-    public static LongCounter summarize(Collection<LongCounter> counters) {
+    public synchronized static LongCounter summarize(Collection<LongCounter> counters) {
         final LongCounter sum = new LongCounter(0);
         for (LongCounter counter : counters) {
             sum.eventCount += counter.eventCount;

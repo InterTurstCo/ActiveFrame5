@@ -137,6 +137,7 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
                     try {
                         Thread.sleep(toSleep);
                     } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
                         logger.error("Exception", e);
                     }
                 }
@@ -166,6 +167,7 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     logger.error("Exception", e);
                 }
             }

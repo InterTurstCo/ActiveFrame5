@@ -29,7 +29,7 @@ public abstract class AbstractCounter implements Cloneable, Dto {
         log(value, false);
     }
 
-    public void log(Number value, boolean logSubEvent) {
+    public synchronized void log(Number value, boolean logSubEvent) {
         invalidateIfTime();
         ++eventCount;
         if (logSubEvent) {

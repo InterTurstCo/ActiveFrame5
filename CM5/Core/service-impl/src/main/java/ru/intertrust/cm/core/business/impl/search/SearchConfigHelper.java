@@ -128,7 +128,7 @@ public class SearchConfigHelper {
         @Override
         public int hashCode() {
             int hash = 58179;
-            hash += objectConfigChain.hashCode();
+            hash += Arrays.hashCode(objectConfigChain);
             hash *= 31;
             hash += areaName.hashCode();
             hash *= 31;

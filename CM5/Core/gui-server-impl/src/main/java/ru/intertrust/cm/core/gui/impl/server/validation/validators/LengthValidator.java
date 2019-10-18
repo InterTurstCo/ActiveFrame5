@@ -69,8 +69,8 @@ public class LengthValidator implements ServerValidator {
     @Override
     public String toString() {
         return "Server length validator: "
-                + length != null ? "length = " + length : ""
-                + minLength != null ? "minLength = " + minLength : ""
-                + maxLength != null ? "maxLength = " + maxLength : "";
+                + (length != null ? "length = " + length : "")
+                + (minLength != null ? "minLength = " + minLength : "")
+                + (maxLength != null ? "maxLength = " + maxLength : "");
     }
 }

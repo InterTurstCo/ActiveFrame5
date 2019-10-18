@@ -8,11 +8,7 @@ public abstract class Args {
     
     @Nonnull
     public static <X> X notNull (final @Nonnull X argValue, final String argName) {
-        if (argValue == null) {
-            throw new IllegalArgumentException(formatArgMessage(argName, "must be not-null"));
-        } else {
-            return argValue;
-        }
+        return argValue;
     }
 
     @Nonnull

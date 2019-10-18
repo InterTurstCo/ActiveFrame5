@@ -174,8 +174,8 @@ public class GwtUtil {
                     }
                 } else if (Collection.class.isAssignableFrom(field.getType())) {
                     Collection values = (Collection) field.get(request);
-                    for (Object value : values) {
-                        return findWidget(value, widgetId, widgetStateClass);
+                    if (values.size() > 0) {
+                        return findWidget(values.iterator().next(), widgetId, widgetStateClass);
                     }
                 } else if (Dto.class.isAssignableFrom(field.getType()) && !field.getType().isEnum()) {
                     Dto savedObj = (Dto) field.get(request);

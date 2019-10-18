@@ -47,6 +47,7 @@ public class TaskExecutor {
                 } catch (InterruptedException | ExecutionException e) {
                     logger.error(e.getMessage(), e);
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
 

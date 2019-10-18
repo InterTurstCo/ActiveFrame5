@@ -232,6 +232,5 @@ public class BusinessObjectPrototype implements Dto {
         // Value lastName = user.get("last_name")
         // List<BusinessObject> roles = bo.getCollection("roles") --> roles --> user_role^user.role
         //
-        System.out.println(47.48 == new BigDecimal(47.48).doubleValue());
     }
 }

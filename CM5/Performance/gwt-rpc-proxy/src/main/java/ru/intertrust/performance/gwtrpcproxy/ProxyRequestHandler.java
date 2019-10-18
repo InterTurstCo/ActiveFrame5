@@ -67,7 +67,7 @@ public class ProxyRequestHandler implements HttpAsyncRequestHandler<ProxyHttpExc
             final ProxyHttpExchange httpExchange,
             final HttpAsyncExchange responseTrigger,
             final HttpContext context) throws HttpException, IOException {
-        synchronized (httpExchange) {
+        synchronized (ProxyRequestHandler.class) {
             Exception ex = httpExchange.getException();
             if (ex != null) {                
                 int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;

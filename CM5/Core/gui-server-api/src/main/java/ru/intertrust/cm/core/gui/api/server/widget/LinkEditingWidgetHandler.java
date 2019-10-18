@@ -133,7 +133,7 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         return result;
     }
 
-    private Collection<String> getRequiredWidgetIdsFromForm(String formName, Collection<WidgetConfig> parentWidgetConfigs) {
+    protected Collection<String> getRequiredWidgetIdsFromForm(String formName, Collection<WidgetConfig> parentWidgetConfigs) {
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, formName);
         return WidgetConfigUtil.getRequiredWidgetIdsFromForm(formConfig, parentWidgetConfigs);
     }

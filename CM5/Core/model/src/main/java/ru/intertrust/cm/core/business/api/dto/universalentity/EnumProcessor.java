@@ -11,11 +11,7 @@ public abstract class EnumProcessor<E> {
     private final Map<Long, E> m2 = new HashMap<>();
 
     protected final void add (final @Nonnull E enumValue, final @Nonnull Long dbValue) {
-        if (enumValue == null) {
-            throw new IllegalArgumentException("enumValue must be not-null.");
-        } else if (dbValue == null) {
-            throw new IllegalArgumentException("dbValue must be not-null.");
-        } else if (this.m1.put(enumValue, dbValue) != null) {
+        if (this.m1.put(enumValue, dbValue) != null) {
             throw new ConfigurationException("enumValue '" + enumValue + "' already exist.");
         } else if (this.m2.put(dbValue, enumValue) != null) {
             throw new ConfigurationException("dbValue '" + dbValue + "' already exist.");

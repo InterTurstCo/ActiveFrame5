@@ -79,7 +79,7 @@ public class GenericWorkflowActionHandler
                 processService.sendProcessSignal(actionConfig.getProperty("signal.name"));
                 break;
             default:
-                new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED,
+                throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED,
                         "Process '${processType}' not supported.",
                         new Pair("processType", processType)));
         }

@@ -57,8 +57,8 @@ public class GenerateDecimalField {
 
         field = fieldName;
 
-        BigDecimal maxValue = new BigDecimal(100000000.00, new MathContext(precision, RoundingMode.valueOf(scale)));
-        BigDecimal minValue = new BigDecimal(0.00, new MathContext(precision, RoundingMode.valueOf(scale)));
+        BigDecimal maxValue = BigDecimal.valueOf(100000000, scale);
+        BigDecimal minValue = BigDecimal.valueOf(0, scale);
 
         RandomGenerators randomGenerators = RandomGenerators.getInstance();
         value = randomGenerators.getUniform(minValue, maxValue);
@@ -75,7 +75,7 @@ public class GenerateDecimalField {
         final double dbl = ((random == null ? new Random() : random).nextDouble() * (upperBound - lowerBound))
                 + lowerBound;
 
-        BigDecimal randFromDouble = new BigDecimal(dbl);
+        BigDecimal randFromDouble = BigDecimal.valueOf (dbl);
         return randFromDouble;
 
     }

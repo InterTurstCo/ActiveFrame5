@@ -41,7 +41,7 @@ public abstract class RangeValidator<T extends Comparable> extends AbstractValid
     @Override
     public String toString() {
         return "Client range validator: "
-                + rangeStartStr != null ? "rangeStart = " + rangeStartStr : ""
-                + rangeEndStr != null ? "rangeEnd = " + rangeEndStr : "";
+                + (rangeStartStr != null ? "rangeStart = " + rangeStartStr : "")
+                + (rangeEndStr != null ? "rangeEnd = " + rangeEndStr : "");
     }
 }

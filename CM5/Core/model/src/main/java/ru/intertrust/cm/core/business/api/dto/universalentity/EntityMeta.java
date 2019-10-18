@@ -15,9 +15,7 @@ public abstract class EntityMeta {
     @Nonnull
     public static <T extends Entity> T createMeta (final @Nonnull Class<T> clazz) {
 
-        if (clazz == null) {
-            throw new IllegalArgumentException("clazz must be not-null");
-        } else if (!clazz.isInterface()) {
+        if (!clazz.isInterface()) {
             throw new IllegalArgumentException("clazz must be an interface");
         }
 

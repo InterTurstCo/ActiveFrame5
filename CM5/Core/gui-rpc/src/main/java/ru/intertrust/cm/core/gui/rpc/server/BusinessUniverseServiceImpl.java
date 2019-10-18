@@ -85,7 +85,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ProfileService profileService;
 
-    private SoftReference<List<String>> refTimeZoneIds;
+    private static SoftReference<List<String>> refTimeZoneIds;
 
     @Autowired
     private ApplicationContext applicationContext;

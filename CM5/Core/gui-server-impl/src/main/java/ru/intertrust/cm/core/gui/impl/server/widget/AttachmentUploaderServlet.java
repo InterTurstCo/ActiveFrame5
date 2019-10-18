@@ -119,13 +119,13 @@ public class AttachmentUploaderServlet {
     }
 
     public static AttachmentUploadPercentage getUploadProgress(HttpSession session) {
-        Object attribute = session.getAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS);
-        if (null == attribute) {
+        AttachmentUploadPercentage attribute = (AttachmentUploadPercentage)session.getAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS);
+        if (attribute == null) {
             attribute = new AttachmentUploadPercentage();
             session.setAttribute(SESSION_ATTRIBUTE_UPLOAD_PROGRESS, attribute);
         }
 
-        return (AttachmentUploadPercentage) attribute;
+        return attribute;
     }
 
     private void zeroizePreviousUploadProgress(HttpSession session) {

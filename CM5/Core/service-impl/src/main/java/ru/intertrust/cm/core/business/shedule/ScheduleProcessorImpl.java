@@ -129,6 +129,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                     } catch (Exception ignoreEx) {
                     }
                 }
+                Thread.currentThread().interrupt();
             } catch (Throwable ex) {
                 logger.error("Error on exec task " + taskName, ex);
                 ByteArrayOutputStream err = new ByteArrayOutputStream();

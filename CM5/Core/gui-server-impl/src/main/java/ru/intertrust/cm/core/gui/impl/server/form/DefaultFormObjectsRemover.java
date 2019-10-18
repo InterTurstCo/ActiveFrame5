@@ -292,10 +292,6 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
     }
 
     private void cascadeDeleteOneToManyReferences(FieldPath fieldPath) {
-        if (cascadeDeleteNestedFormStates(fieldPath)) {
-            return;
-        }
-
         String refFieldName = fieldPath.getLinkToParentName();
         String refType = fieldPath.getReferenceType();
         List<DomainObject> linkedDomainObjects = crudService.findLinkedDomainObjects(formObjects.getRootDomainObject().getId(), refType, refFieldName);
@@ -318,30 +314,11 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
     private void cascadeDeleteManyToManyReferences(FieldPath fieldPath) {
         final List<DomainObject> intermediateDomainObjects = unlinkManyToManyReferences(fieldPath);
 
-        if (cascadeDeleteNestedFormStates(fieldPath)) {
-            return;
-        }
-
         String linkToChildrenName = fieldPath.getLinkToChildrenName();
         for (DomainObject intermediateObject : intermediateDomainObjects) {
             final DomainObject domainObject = crudService.find(intermediateObject.getReference(linkToChildrenName));
             crudService.delete(domainObject.getId());
         }
-    }
-
-    private boolean cascadeDeleteNestedFormStates(FieldPath fieldPath) {
-        /*
-         todo: this doesn't work - we need a new method WidgetState.getNestedFormStatesExceptNew() returning all form states
-         todo: so, sub-cascading is not supported yet
-
-        final WidgetState widgetState = fieldPathStates.get(fieldPath);
-        if (widgetState.mayContainNestedFormStates()) { // if not cascade - just unlink (see below)
-            for (FormState nestedState : widgetState.getEditedNestedFormStates().values()) {
-                ((FormObjectsRemover) applicationContext.getBean("formObjectsRemover", userUid)).deleteForm(nestedState);
-            }
-            return true;
-        }*/
-        return false;
     }
 
     private List<DomainObject> unlinkManyToManyReferences(FieldPath fieldPath) {

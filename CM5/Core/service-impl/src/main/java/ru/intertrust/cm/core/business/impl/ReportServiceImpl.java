@@ -233,6 +233,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 try {
                     Thread.currentThread().sleep(1000);
                 } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
                     logger.error("Error wait generate report", ex);
                 }
             }
@@ -577,7 +578,8 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 try {
                     sleep(10000);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                    logger.error("Thread is Interrupted", e);
                 }
             }
         }

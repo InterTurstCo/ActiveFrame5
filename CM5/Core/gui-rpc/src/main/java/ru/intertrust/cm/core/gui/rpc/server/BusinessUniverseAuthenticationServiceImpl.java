@@ -9,7 +9,9 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ru.intertrust.cm.core.business.api.ConfigurationService;
@@ -46,16 +48,15 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
 
     @EJB
     private ConfigurationService configurationService;
-    
-    private ExtensionService extensionService;    
-    
+
+    @Autowired
+    private ExtensionService extensionService;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
-      super.init(config);     
-      ApplicationContext ctx = WebApplicationContextUtils
-              .getRequiredWebApplicationContext(config.getServletContext());
-      this.extensionService = ctx.getBean(ExtensionService.class);      
-    }    
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
+    }
 
     @Override
     public void login(UserCredentials userCredentials) throws AuthenticationException {

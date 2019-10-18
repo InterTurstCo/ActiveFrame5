@@ -8,6 +8,7 @@ import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Denis Mitavskiy
@@ -18,8 +19,8 @@ public class CacheEntriesAccessSorter implements Sizeable {
     public static final long EXTRA_CHARGE_FOR_NON_ID_KEYS = 2 * SizeEstimator.REFERENCE_SIZE;
     private Size size;
     private int maxAccessOrderElts = 0;
-    private volatile long keysSize = 0;
-    private volatile long mapSize = 0;
+    private AtomicLong keysSize = new AtomicLong(0);
+    private AtomicLong mapSize = new AtomicLong(0);
     private LinkedHashMap<Object, Object> accessOrder;
 
     public CacheEntriesAccessSorter(int initialSize, Size totalCacheSize) {
@@ -61,25 +62,25 @@ public class CacheEntriesAccessSorter implements Sizeable {
     private void updateSizeOnAdd(Object newKey) {
         boolean changed = false;
         if (newKey != null && !(newKey instanceof Id)) { // extra-charge for it
-            keysSize += EXTRA_CHARGE_FOR_NON_ID_KEYS;
+            keysSize.addAndGet(EXTRA_CHARGE_FOR_NON_ID_KEYS);
             changed = true;
         }
         final int eltsQty = accessOrder.size();
         if (eltsQty > maxAccessOrderElts) {
             maxAccessOrderElts = eltsQty;
             if (maxAccessOrderElts < 10 || maxAccessOrderElts % 10 == 0) {
-                mapSize = ((long) Math.pow(2, SizeableConcurrentHashMap.intLog2(maxAccessOrderElts - 1) + 1)) * SizeEstimator.REFERENCE_SIZE;
+                mapSize.set(((long) Math.pow(2, SizeableConcurrentHashMap.intLog2(maxAccessOrderElts - 1) + 1)) * SizeEstimator.REFERENCE_SIZE);
                 changed = true;
             }
         }
         if (changed) {
-            this.size.set(keysSize + mapSize);
+            this.size.set(keysSize.get() + mapSize.get());
         }
     }
 
     private void updateSizeOnRemove(Object key) {
         if (key != null && !(key instanceof Id)) {
-            keysSize -= EXTRA_CHARGE_FOR_NON_ID_KEYS;
+            keysSize.addAndGet(EXTRA_CHARGE_FOR_NON_ID_KEYS * -1);
             this.size.add(-EXTRA_CHARGE_FOR_NON_ID_KEYS);
         }
     }

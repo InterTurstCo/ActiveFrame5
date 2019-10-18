@@ -50,8 +50,8 @@ public class LengthValidator extends AbstractValidator {
     @Override
     public String toString() {
         return "Client length validator: "
-                + length != null ? "length = " + length : ""
-                + minLength != null ? "minLength = " + minLength : ""
-                + maxLength != null ? "maxLength = " + maxLength : "";
+                + (length != null ? "length = " + length : "")
+                + (minLength != null ? "minLength = " + minLength : "")
+                + (maxLength != null ? "maxLength = " + maxLength : "");
     }
 }

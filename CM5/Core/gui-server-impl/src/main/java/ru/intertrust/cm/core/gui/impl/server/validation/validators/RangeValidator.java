@@ -55,7 +55,7 @@ public abstract class RangeValidator<T extends Comparable> implements ServerVali
     @Override
     public String toString() {
         return "Server range validator: "
-                + rangeStart != null ? "rangeStart = " + rangeStart : ""
-                + rangeEnd != null ? "rangeEnd = " + rangeEnd : "";
+                + (rangeStart != null ? "rangeStart = " + rangeStart : "")
+                + (rangeEnd != null ? "rangeEnd = " + rangeEnd : "");
     }
 }

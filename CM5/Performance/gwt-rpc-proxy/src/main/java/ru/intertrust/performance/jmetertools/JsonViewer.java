@@ -32,7 +32,7 @@ public class JsonViewer extends JDialog {
 
             add(panel, BorderLayout.CENTER);
         } catch (UnsupportedEncodingException e) {
-            new RuntimeException("Error init JSON View dialogs", e);
+            throw new RuntimeException("Error init JSON View dialogs", e);
         }
     }
 

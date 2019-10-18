@@ -21,7 +21,7 @@ public class DecimalCounter extends AbstractCounter {
     }
 
     protected void trackValue(Number value) {
-        final BigDecimal decimalValue = new BigDecimal(value.doubleValue());
+        final BigDecimal decimalValue = BigDecimal.valueOf(value.doubleValue());
         total = total.add(decimalValue);
         if (min == null) {
             min = decimalValue;

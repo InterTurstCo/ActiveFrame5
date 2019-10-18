@@ -144,7 +144,8 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                     futureActualisationCache.cancel(true);
                 }
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Thread is Interrupted", e);
             }
         }
     }
@@ -362,7 +363,8 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Thread is Interrupted", e);
         }
         future.cancel(true);
         logger.trace("End waitUntilNotLocked {}", resourceId);

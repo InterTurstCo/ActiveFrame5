@@ -72,6 +72,7 @@ public class JbossService {
                     Thread.sleep(TimeUnit.SECONDS.toMillis(10));
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
             }
             logger.info("Server has been stopped");
@@ -87,6 +88,7 @@ public class JbossService {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -164,6 +166,7 @@ public class JbossService {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(5));
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
+                Thread.currentThread().interrupt();
             }
         }
         boolean started = isAppStarted();
