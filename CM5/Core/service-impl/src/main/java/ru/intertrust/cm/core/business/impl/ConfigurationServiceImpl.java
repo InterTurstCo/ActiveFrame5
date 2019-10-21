@@ -22,6 +22,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -91,7 +92,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     @Override
     public <T> Collection<T> getConfigs(Class<T> type) {
         try {
-            return configurationExplorer.getConfigs(type);
+            // Перекладываем в другой контейнер для возможности сериализации
+            List<T> result = new ArrayList<T>();
+            result.addAll(configurationExplorer.getConfigs(type));
+            return result;
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }

@@ -840,7 +840,7 @@ public class ConfigurationStorageBuilder {
             }
         }
 
-        Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = new ArrayList<>(configurationExplorer.getConfigs(DomainObjectTypeConfig.class));
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
 
             fillDomainObjectFieldConfig(domainObjectTypeConfig);

@@ -348,25 +348,27 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     public void waitUntilNotLocked(final String resourceId) {
         logger.trace("Start waitUntilNotLocked {}", resourceId);
 
-        final Semaphore semaphore = new Semaphore(0);
+        if (isLocked(resourceId)) {
+            final Semaphore semaphore = new Semaphore(0);
 
-        final ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                if (!isLocked(resourceId)) {
-                    semaphore.release();
-                    logger.debug("Resource {} unlocked", resourceId);
+            final ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isLocked(resourceId)) {
+                        semaphore.release();
+                        logger.debug("Resource {} unlocked", resourceId);
+                    }
                 }
-            }
-        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS);
+            }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS);
 
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread is Interrupted", e);
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Thread is Interrupted", e);
+            }
+            future.cancel(true);
         }
-        future.cancel(true);
         logger.trace("End waitUntilNotLocked {}", resourceId);
     }
 

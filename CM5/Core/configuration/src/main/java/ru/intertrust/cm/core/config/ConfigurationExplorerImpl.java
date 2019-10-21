@@ -243,11 +243,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (typeMap == null) {
                 return Collections.EMPTY_LIST;
             }
-
-            //Перекладываем в другой контейнер, для возможности сериализации
-            List<T> result = new ArrayList<T>();
-            result.addAll((Collection<T>) typeMap.values());
-            return result;
+            return (Collection<T>)typeMap.values();
         } finally {
             unlock();
         }
