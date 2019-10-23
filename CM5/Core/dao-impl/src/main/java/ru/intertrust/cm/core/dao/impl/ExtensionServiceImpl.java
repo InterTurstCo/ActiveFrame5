@@ -7,11 +7,9 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import ru.intertrust.cm.core.business.api.dto.Case;
-import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
+import ru.intertrust.cm.core.dao.api.ClassPathScanService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
@@ -26,11 +24,10 @@ import java.util.Map;
 
 /**
  * Имплементация сервиса точек расширения.
- * 
+ *
  * @author larin
- * 
  */
-public class ExtensionServiceImpl implements ExtensionService{
+public class ExtensionServiceImpl implements ExtensionService {
     private static final Logger logger = LoggerFactory.getLogger(ExtensionServiceImpl.class);
     /**
      * Реестр точек расширения
@@ -45,6 +42,9 @@ public class ExtensionServiceImpl implements ExtensionService{
 
     @Autowired
     private ModuleService moduleService;
+
+    @Autowired
+    private ClassPathScanService scanService;
 
     /**
      * Флаг инициализации
@@ -65,13 +65,12 @@ public class ExtensionServiceImpl implements ExtensionService{
     public <T> T getExtentionPoint(
             Class<T> extentionPointInterface,
             String filter) {
-        List<String> basePackages = getUniqueBasePackages();
-        init(ExtensionService.PLATFORM_CONTEXT, localApplicationContext, basePackages);
+        init(ExtensionService.PLATFORM_CONTEXT, localApplicationContext);
 
         ExtentionInvocationHandler handler = new ExtentionInvocationHandler(
                 this, filter);
         T proxy = (T) Proxy.newProxyInstance(extentionPointInterface.getClassLoader(),
-                new Class<?>[] { extentionPointInterface }, handler);
+                new Class<?>[]{extentionPointInterface}, handler);
         return proxy;
     }
 
@@ -80,100 +79,94 @@ public class ExtensionServiceImpl implements ExtensionService{
      * заполнение реестра
      */
     @SuppressWarnings("unchecked")
-    public void init(String contextName, ApplicationContext applicationContext, List<String> packages) {
+    public void init(String contextName, ApplicationContext applicationContext) {
         try {
             if (!initContexts.contains(contextName)) {
-                
-                for (String basePackage : packages) {
 
-                    // Сканирование класспаса
-                    ClassPathScanningCandidateComponentProvider scanner =
-                            new ClassPathScanningCandidateComponentProvider(false);
-                    scanner.addIncludeFilter(new AnnotationTypeFilter(ExtensionPoint.class));
-                    // Цикл по найденным классам
-                    for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
-                        String className = bd.getBeanClassName();
-                        // Получение найденного класса
-                        Class<?> extentionPointClass = Class.forName(className);
-                        // Получение анотации ExtensionPoint
-                        ExtensionPoint annatation = (ExtensionPoint) extentionPointClass
-                                .getAnnotation(ExtensionPoint.class);
-                        //Проверка на то что загружаем точку расширения в правильном контексте
-                        if (annatation.context().equalsIgnoreCase(contextName)) {
+                // Цикл по найденным классам
+                for (BeanDefinition bd : scanService.findClassesByAnnotation(ExtensionPoint.class)) {
+                    String className = bd.getBeanClassName();
+                    // Получение найденного класса
+                    Class<?> extentionPointClass = Class.forName(className);
+                    // Получение анотации ExtensionPoint
+                    ExtensionPoint annatation = (ExtensionPoint) extentionPointClass
+                            .getAnnotation(ExtensionPoint.class);
+                    //Проверка на то что загружаем точку расширения в правильном контексте
+                    if (annatation.context().equalsIgnoreCase(contextName)) {
 
-                            // Проверка наличия анотации в классе
-                            if (annatation != null) {
+                        // Проверка наличия анотации в классе
+                        if (annatation != null) {
 
-                                // Получение интерфейса, который имплементит точка
-                                // расширения, интерфейс должен быть наследником
-                                // ExtensionPointHandler
-                                Class<?>[] interfaces = extentionPointClass.getInterfaces();
-                                //List<Class> interfaceClasses = new ArrayList<Class>();
-                                ExtensionPointHandler extentionPoint = null;
-                                for (Class<?> interfaceClass : interfaces) {
-                                    if (ExtensionPointHandler.class.isAssignableFrom(interfaceClass)) {
+                            // Получение интерфейса, который имплементит точка
+                            // расширения, интерфейс должен быть наследником
+                            // ExtensionPointHandler
+                            Class<?>[] interfaces = extentionPointClass.getInterfaces();
+                            //List<Class> interfaceClasses = new ArrayList<Class>();
+                            ExtensionPointHandler extensionPoint = null;
+                            for (Class<?> interfaceClass : interfaces) {
+                                if (ExtensionPointHandler.class.isAssignableFrom(interfaceClass)) {
 
-                                        // Получаем фильтр из аннотации
-                                        String filter = annatation.filter();
-                                        
-                                        // CMFIVE-1491 значение фильтра должно быть case-insensitive                                        
-                                        if (filter != null){
-                                            filter = Case.toLower(filter);
+                                    // Получаем фильтр из аннотации
+                                    String filter = annatation.filter();
+
+                                    // CMFIVE-1491 значение фильтра должно быть case-insensitive
+                                    if (filter != null) {
+                                        filter = Case.toLower(filter);
+                                    }
+
+                                    if (extensionPoint == null) {
+                                        // Проверяем есть ли спринг бин этого
+                                        // класса, если есть то используем его
+                                        String[] beanNames =
+                                                applicationContext.getBeanNamesForType(extentionPointClass, false, false);
+                                        if (beanNames.length > 0) {
+                                            extensionPoint = (ExtensionPointHandler) applicationContext
+                                                    .getBean(extentionPointClass);
+                                        } else {
+                                            // Если такого бина нет то создаем
+                                            // экземпляр класса
+                                            // Создаем экземпляр точки расширения
+                                            // Добавляем
+                                            // класс как спринговый бин с поддержкой
+                                            // autowire
+                                            extensionPoint =
+                                                    (ExtensionPointHandler) applicationContext
+                                                            .getAutowireCapableBeanFactory().createBean(
+                                                                    extentionPointClass,
+                                                                    AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+                                                                    true);
+
+                                            ((ConfigurableApplicationContext) applicationContext)
+                                                    .getBeanFactory().registerSingleton(
+                                                    extentionPointClass.getName(),
+                                                    extensionPoint);
                                         }
+                                    }
 
-                                        if (extentionPoint == null) {
-                                            // Проверяем есть ли спринг бин этого
-                                            // класса, если есть то используем его
-                                            String[] beanNames =
-                                                    applicationContext.getBeanNamesForType(extentionPointClass, false, false);
-                                            if (beanNames.length > 0) {
-                                                extentionPoint = (ExtensionPointHandler) applicationContext
-                                                        .getBean(extentionPointClass);
-                                            } else {
-                                                // Если такого бина нет то создаем
-                                                // экземпляр класса
-                                                // Создаем экземпляр точки расширения
-                                                // Добавляем
-                                                // класс как спринговый бин с поддержкой
-                                                // autowire
-                                                extentionPoint =
-                                                        (ExtensionPointHandler) applicationContext
-                                                                .getAutowireCapableBeanFactory().createBean(
-                                                                        extentionPointClass,
-                                                                        AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
-                                                                        true);
-
-                                                ((ConfigurableApplicationContext) applicationContext)
-                                                        .getBeanFactory().registerSingleton(
-                                                                extentionPointClass.getName(),
-                                                                extentionPoint);
-                                            }
-                                        }
-
-                                        // Сохраняем точку расширения в реестр
-                                        Hashtable<String, List<ExtensionPointHandler>> oneTypeExtensions = reestr
-                                                .get(interfaceClass);
-                                        if (oneTypeExtensions == null) {
-                                            oneTypeExtensions = new Hashtable<String, List<ExtensionPointHandler>>();
-                                            reestr.put((Class<? extends ExtentionInvocationHandler>) interfaceClass,
-                                                    oneTypeExtensions);
-                                        }
-                                        List<ExtensionPointHandler> filteredExtension = oneTypeExtensions
-                                                .get(filter);
-                                        if (filteredExtension == null) {
-                                            filteredExtension = new ArrayList<ExtensionPointHandler>();
-                                            oneTypeExtensions.put(filter, filteredExtension);
-                                        }
-                                        //Если ранее не регистрировался данный класс то регистрируем его
-                                        if (!filteredExtension.contains(extentionPoint)) {
-                                            filteredExtension.add(extentionPoint);
-                                            logger.info("Register extensionPoint " + interfaceClass.getName()
-                                                    + "(" + filter + ") = " + extentionPoint.getClass().getName());
-                                        }
+                                    // Сохраняем точку расширения в реестр
+                                    Hashtable<String, List<ExtensionPointHandler>> oneTypeExtensions = reestr
+                                            .get(interfaceClass);
+                                    if (oneTypeExtensions == null) {
+                                        oneTypeExtensions = new Hashtable<String, List<ExtensionPointHandler>>();
+                                        reestr.put((Class<? extends ExtentionInvocationHandler>) interfaceClass,
+                                                oneTypeExtensions);
+                                    }
+                                    List<ExtensionPointHandler> filteredExtension = oneTypeExtensions
+                                            .get(filter);
+                                    if (filteredExtension == null) {
+                                        filteredExtension = new ArrayList<ExtensionPointHandler>();
+                                        oneTypeExtensions.put(filter, filteredExtension);
+                                    }
+                                    //Если ранее не регистрировался данный класс то регистрируем его
+                                    if (!filteredExtension.contains(extensionPoint)) {
+                                        filteredExtension.add(extensionPoint);
+                                        logger.info("Register extensionPoint " + interfaceClass.getName()
+                                                + "(" + filter + ") = " + extensionPoint.getClass().getName());
                                     }
                                 }
                             }
                         }
+
                     }
                 }
                 initContexts.add(contextName);
@@ -182,25 +175,6 @@ public class ExtensionServiceImpl implements ExtensionService{
             throw new ExtensionPointException(
                     "Error on init extension point classes", ex);
         }
-    }
-
-    /**
-     * Получение не повторяющегося списка пакетов
-     * @return
-     */
-    private List<String> getUniqueBasePackages() {
-
-        List<String> result = new ArrayList<String>();
-        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
-            if (moduleConfiguration.getExtensionPointsPackages() != null) {
-                for (String extensionPointsPackage : moduleConfiguration.getExtensionPointsPackages()) {
-                    if (!result.contains(extensionPointsPackage)) {
-                        result.add(extensionPointsPackage);
-                    }
-                }
-            }
-        }
-        return result;
     }
 
     /**

@@ -357,4 +357,10 @@ public interface ConfigurationExplorer {
     List<FormConfig> getParentFormConfigs(FormConfig formConfig);
 
     ReentrantReadWriteLock getReadWriteLock();
+
+    /**
+     * Валидация конфигурации. Должен вызыватся после окончательного создания всех spring бинов,
+     * тоесть нельзя вызывать в PostConstruct
+     */
+    void validate();
 }

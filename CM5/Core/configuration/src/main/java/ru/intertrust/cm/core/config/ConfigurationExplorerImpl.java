@@ -127,9 +127,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         plainFormBuilder = new PlainFormBuilderImpl(this);
         configurationStorageBuilder.buildConfigurationStorage();
         this.skipLogicalValidation = skipLogicalValidation;
-        if (!skipLogicalValidation) {
-            validate();
-        }
     }
 
     public ApplicationContext getContext() {
@@ -166,34 +163,37 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * Каждый логический валидатор находится в блоке try/catch для отображения всех ошибок, возникнувших в результате
      * валидации, а не только первого бросившего exception
      */
-    private void validate() {
-        List<LogicalErrors> logicalErrorsList = new ArrayList<>();
+    @Override
+    public void validate() {
+        if (!skipLogicalValidation) {
+            List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
-        logicalErrorsList.addAll(new GlobalSettingsLogicalValidator(configStorage.configuration).validate());
-        logicalErrorsList.addAll(new DomainObjectLogicalValidator(this).validate());
+            logicalErrorsList.addAll(new GlobalSettingsLogicalValidator(configStorage.configuration).validate());
+            logicalErrorsList.addAll(new DomainObjectLogicalValidator(this).validate());
 
-        if (configStorage.globalSettings.validateAccessMatrices()) {
-            logicalErrorsList.addAll(new AccessMatrixLogicalValidator(this).validate());
-        }
+            if (configStorage.globalSettings.validateAccessMatrices()) {
+                logicalErrorsList.addAll(new AccessMatrixLogicalValidator(this).validate());
+            }
 
-        logicalErrorsList.addAll(new UniqueNameLogicalValidator(this).validate());
+            logicalErrorsList.addAll(new UniqueNameLogicalValidator(this).validate());
 
-        if (configStorage.globalSettings.validateIndirectPermissions()) {
-            logicalErrorsList.addAll(new IndirectlyPermissionLogicalValidator(this).validate());
-        }
+            if (configStorage.globalSettings.validateIndirectPermissions()) {
+                logicalErrorsList.addAll(new IndirectlyPermissionLogicalValidator(this).validate());
+            }
 
-        if (configStorage.globalSettings.validateAccessMatrices()) {
-            logicalErrorsList.addAll(new ReadEvrybodyPermissionLogicalValidator(this).validate());
-        }
+            if (configStorage.globalSettings.validateAccessMatrices()) {
+                logicalErrorsList.addAll(new ReadEvrybodyPermissionLogicalValidator(this).validate());
+            }
 
-        if (configStorage.globalSettings.validateGui()) {
-            // GUI validation is temporarily switched off as it's not working correctly anymore
-            logicalErrorsList.addAll(validateGui());
-        }
+            if (configStorage.globalSettings.validateGui()) {
+                // GUI validation is temporarily switched off as it's not working correctly anymore
+                logicalErrorsList.addAll(validateGui());
+            }
 
-        if (!logicalErrorsList.isEmpty()) {
-            throw new FatalBeanException("Configuration validation failed",
-                    new ConfigurationException(LogicalErrors.toString(logicalErrorsList)));
+            if (!logicalErrorsList.isEmpty()) {
+                throw new FatalBeanException("Configuration validation failed",
+                        new ConfigurationException(LogicalErrors.toString(logicalErrorsList)));
+            }
         }
 
     }

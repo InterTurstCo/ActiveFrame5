@@ -150,6 +150,8 @@
     <bean id="currentUserAccessor"
           class="ru.intertrust.cm.core.dao.impl.CurrentUserAccessorImpl"/>
 
+    <bean id="doelFunctionRegistry" class="ru.intertrust.cm.core.dao.doel.DoelFunctionRegistry"/>
+
     <bean id="doelResolver" class="ru.intertrust.cm.core.dao.impl.doel.DoelResolver"/>
 
     <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
@@ -185,6 +187,18 @@
     <bean id="сlusterManagerDao"  class="ru.intertrust.cm.core.dao.impl.ClusterManagerDaoImpl"/>
 
     <bean id="clusteredLockDaoImpl"  class="ru.intertrust.cm.core.dao.impl.clusterlock.ClusteredLockDaoImpl"/>
+
+    <bean id="classPathScanService"  class="ru.intertrust.cm.core.dao.impl.ClassPathScanServiceImpl"/>
+
+    <bean id="daoClassPathScanConfig"  class="ru.intertrust.cm.core.dao.impl.ClassPathScanConfig">
+        <constructor-arg>
+            <array value-type="java.lang.String">
+                <value>ru.intertrust.cm.core.dao.api.extension.ExtensionPoint</value>
+                <value>ru.intertrust.cm.core.dao.api.component.ServerComponent</value>
+                <value>ru.intertrust.cm.core.config.doel.DoelFunction</value>
+            </array>
+        </constructor-arg>
+    </bean>
 
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"

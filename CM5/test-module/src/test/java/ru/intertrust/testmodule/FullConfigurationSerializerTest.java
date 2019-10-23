@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
 import java.net.MalformedURLException;
@@ -37,7 +38,7 @@ public class FullConfigurationSerializerTest {
     }
 
     private ModuleService createModuleService() throws MalformedURLException {
-        ModuleService moduleService = new ModuleService();
+        ModuleServiceImpl moduleService = new ModuleServiceImpl();
         moduleService.init();
 
         return moduleService;

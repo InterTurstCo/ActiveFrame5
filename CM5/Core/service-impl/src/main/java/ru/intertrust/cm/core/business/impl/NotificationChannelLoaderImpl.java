@@ -1,35 +1,31 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-
 import ru.intertrust.cm.core.business.api.notification.NotificationChannel;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelInfo;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
-import ru.intertrust.cm.core.config.module.ModuleConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleService;
+import ru.intertrust.cm.core.dao.api.ClassPathScanService;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Имплементация сервиса поиска каналов отправки уведомлений
+ *
  * @author larin
- * 
  */
 public class NotificationChannelLoaderImpl implements NotificationChannelLoader, ApplicationContextAware {
     @Autowired
-    private ModuleService moduleService;
+    private ClassPathScanService scanner;
 
     private ApplicationContext applicationContext;
 
@@ -52,66 +48,35 @@ public class NotificationChannelLoaderImpl implements NotificationChannelLoader,
 
     public void init() throws ClassNotFoundException {
 
-        List<String> basePackages = getUniqueBasePackages();
-        //Цикл по пакетам которые надо просканировать
-        for (String basePackage : basePackages) {
+        //Цикл по найденным классам
+        for (BeanDefinition bd : scanner.findClassesByAnnotation(NotificationChannel.class)) {
+            String className = bd.getBeanClassName();
 
-            // Сканирование класспаса
-            ClassPathScanningCandidateComponentProvider scanner =
-                    new ClassPathScanningCandidateComponentProvider(false);
-            scanner.addIncludeFilter(new AnnotationTypeFilter(NotificationChannel.class));
+            // Получение найденного класса
+            Class<?> channelClass = Class.forName(className);
 
-            //Цикл по найденным классам
-            for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
-                String className = bd.getBeanClassName();
+            // Получение анотации NotificationChannel
+            NotificationChannel annatation = (NotificationChannel) channelClass
+                    .getAnnotation(NotificationChannel.class);
 
-                // Получение найденного класса
-                Class<?> channelClass = Class.forName(className);
-
-                // Получение анотации NotificationChannel
-                NotificationChannel annatation = (NotificationChannel) channelClass
-                        .getAnnotation(NotificationChannel.class);
+            // Проверка наличия анотации в классе
+            if (annatation != null) {
 
                 // Проверка наличия анотации в классе
-                if (annatation != null) {
+                if (NotificationChannelHandle.class.isAssignableFrom(channelClass)) {
 
-                    // Проверка наличия анотации в классе
-                    if (NotificationChannelHandle.class.isAssignableFrom(channelClass)) {
-
-                        // Создаем экземпляр точки расширения
-                        // Добавляем
-                        // класс как спринговый бин с поддержкой
-                        // autowire
-                        NotificationChannelHandle channel = (NotificationChannelHandle) applicationContext
-                                .getAutowireCapableBeanFactory().createBean(channelClass,
-                                        AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
-                        channels.put(annatation.name(),
-                                new NotificationChannelInfo(annatation.name(), annatation.description(), channel));
-                    }
-
+                    // Создаем экземпляр точки расширения
+                    // Добавляем
+                    // класс как спринговый бин с поддержкой
+                    // autowire
+                    NotificationChannelHandle channel = (NotificationChannelHandle) applicationContext
+                            .getAutowireCapableBeanFactory().createBean(channelClass,
+                                    AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+                    channels.put(annatation.name(),
+                            new NotificationChannelInfo(annatation.name(), annatation.description(), channel));
                 }
             }
         }
-    }
-
-    /**
-     * Получение не повторяющегося списка пакетов
-     * @return
-     */
-    private List<String> getUniqueBasePackages() {
-
-        List<String> result = new ArrayList<String>();
-        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
-            if (moduleConfiguration.getExtensionPointsPackages() != null) {
-                //TODO сейчас используются пакеты где лежат точки расширения, в будущем переделается на универсальную настройку пакетов
-                for (String extensionPointsPackage : moduleConfiguration.getExtensionPointsPackages()) {
-                    if (!result.contains(extensionPointsPackage)) {
-                        result.add(extensionPointsPackage);
-                    }
-                }
-            }
-        }
-        return result;
     }
 
     /**

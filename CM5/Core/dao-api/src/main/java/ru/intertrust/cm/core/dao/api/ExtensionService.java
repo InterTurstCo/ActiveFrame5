@@ -25,7 +25,6 @@ public interface ExtensionService {
      * Инициализация точек расширения из другого спринг контекста
      * @param contextName
      * @param applicationContext
-     * @param packages
      */
-    void init(String contextName, ApplicationContext applicationContext, List<String> packages);
+    void init(String contextName, ApplicationContext applicationContext);
 }

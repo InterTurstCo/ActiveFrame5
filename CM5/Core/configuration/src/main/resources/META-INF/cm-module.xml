@@ -5,14 +5,18 @@
     <name>core</name>
     <description>Модуль ядра</description>
     <extension-points-packages>
-        <extension-points-package>ru/intertrust/cm</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.core.tools</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.core.dao.impl</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.core.business.impl</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.core.business.diagnostic</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.core.config.doel</extension-points-package>
     </extension-points-packages>
     <configuration-elements-packages>
         <configuration-elements-package>ru/intertrust/cm/core</configuration-elements-package>
     </configuration-elements-packages>
     <gui-components-packages>
-        <gui-components-package>ru</gui-components-package>
-        <gui-components-package>com</gui-components-package>
+        <gui-components-package>ru.intertrust.cm.core.gui.impl.client</gui-components-package>
+        <gui-components-package>ru.intertrust.cm.core.gui.impl.server</gui-components-package>
     </gui-components-packages>
     <server-components-packages>
         <server-components-package>ru.intertrust.cm.core.dao.impl</server-components-package>

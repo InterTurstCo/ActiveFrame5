@@ -237,6 +237,11 @@ public class StubConfigurationExplorer implements ConfigurationExplorer {
     }
 
     @Override
+    public void validate() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public String getAttachmentParentType(String attachmentType) {
         throw new UnsupportedOperationException();
    }

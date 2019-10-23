@@ -26,8 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
@@ -43,10 +41,9 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.api.schedule.SheduleTaskReestrItem;
 import ru.intertrust.cm.core.business.api.schedule.SheduleType;
-import ru.intertrust.cm.core.config.module.ModuleConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.ClassPathScanService;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.ScheduleException;
@@ -54,8 +51,8 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * EJB загрузчик классов периодических заданий
+ *
  * @author larin
- * 
  */
 @Singleton
 @Local(ScheduleTaskLoader.class)
@@ -76,7 +73,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     private AccessControlService accessControlService;
 
     @Autowired
-    private ModuleService moduleService;
+    private ClassPathScanService scanner;
 
     //@Autowired
     //private SpringApplicationContext springApplicationContext;
@@ -194,7 +191,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
 
     /**
      * Создание нового доменного обьекта переданного типа
-     * 
+     *
      * @param type
      * @return
      */
@@ -223,63 +220,34 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
      */
     private void initReestr() {
         try {
-            //Получение всех пакетов
-            List<String> basePackages = getUniqueBasePackages();
+            // Сканирование класспаса
+            for (BeanDefinition bd : scanner.findClassesByAnnotation(ScheduleTask.class)) {
+                String className = bd.getBeanClassName();
+                // Получение найденного класса
+                Class<?> scheduleTaskClass = Class.forName(className);
+                // Получение анотации ScheduleTask
+                ScheduleTask annatation = (ScheduleTask) scheduleTaskClass
+                        .getAnnotation(ScheduleTask.class);
 
-            for (String basePackage : basePackages) {
+                // Проверка наличия анотации в классе
+                if (annatation != null) {
 
-                // Сканирование класспаса
-                ClassPathScanningCandidateComponentProvider scanner =
-                        new ClassPathScanningCandidateComponentProvider(false);
-                scanner.addIncludeFilter(new AnnotationTypeFilter(ScheduleTask.class));
+                    if (ScheduleTaskHandle.class.isAssignableFrom(scheduleTaskClass)) {
 
-                // Цикл по найденным классам
-                for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
-                    String className = bd.getBeanClassName();
-                    // Получение найденного класса
-                    Class<?> scheduleTaskClass = Class.forName(className);
-                    // Получение анотации ScheduleTask
-                    ScheduleTask annatation = (ScheduleTask) scheduleTaskClass
-                            .getAnnotation(ScheduleTask.class);
-
-                    // Проверка наличия анотации в классе
-                    if (annatation != null) {
-
-                        if (ScheduleTaskHandle.class.isAssignableFrom(scheduleTaskClass)) {
-
-                            // создаем экземпляр класса Добавляем класс как спринговый бин с поддержкой autowire
-                            ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) SpringApplicationContext.getContext()
-                                    .getAutowireCapableBeanFactory().createBean(scheduleTaskClass,
-                                            AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
-                            reestr.put(scheduleTaskClass.getName(), new SheduleTaskReestrItem(scheduleTask, annatation));
-                            logger.info("Register ScheduleTaskHandle=" + scheduleTaskClass.getName());
-                        }
+                        // создаем экземпляр класса Добавляем класс как спринговый бин с поддержкой autowire
+                        ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) SpringApplicationContext.getContext()
+                                .getAutowireCapableBeanFactory().createBean(scheduleTaskClass,
+                                        AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
+                        reestr.put(scheduleTaskClass.getName(), new SheduleTaskReestrItem(scheduleTask, annatation));
+                        logger.info("Register ScheduleTaskHandle=" + scheduleTaskClass.getName());
                     }
                 }
             }
+
         } catch (Exception ex) {
             throw new ScheduleException("Error on init schedule task classes", ex);
         }
 
-    }
-
-    /**
-     * Получение не повторяющегося списка пакетов из описания всех модулей
-     * @return
-     */
-    private List<String> getUniqueBasePackages() {
-
-        List<String> result = new ArrayList<String>();
-        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
-            if (moduleConfiguration.getExtensionPointsPackages() != null) {
-                for (String extensionPointsPackage : moduleConfiguration.getExtensionPointsPackages()) {
-                    if (!result.contains(extensionPointsPackage)) {
-                        result.add(extensionPointsPackage);
-                    }
-                }
-            }
-        }
-        return result;
     }
 
     @Lock(LockType.READ)
@@ -330,6 +298,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     /**
      * Получение следующей ноды из списка серверов имеющих роль
      * schedule_executor
+     *
      * @return
      */
     @Override
@@ -348,20 +317,19 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         String result = null;
         Set<String> nodeIds = clusterManager.getNodesWithRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME);
         List<String> filteredNodeIds = new ArrayList<>();
-        for (String nodeId: nodeIds) {
+        for (String nodeId : nodeIds) {
             if (taskNodeNames.contains(clusterManager.getNodesInfo().get(nodeId).getNodeName())) {
                 filteredNodeIds.add(nodeId);
             }
         }
         if (filteredNodeIds.size() == 1) {
             result = filteredNodeIds.get(0);
-        } else 
-        if (filteredNodeIds.size()>1) {
+        } else if (filteredNodeIds.size() > 1) {
             result = filteredNodeIds.get(new Random().nextInt(filteredNodeIds.size()));
         }
         return result;
     }
-    
+
     @Lock(LockType.READ)
     @Override
     public boolean taskNeedsTransaction(String className) {

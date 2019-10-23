@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.doel;
+package ru.intertrust.cm.core.dao.impl.doel;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +16,11 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.doel.AnnotationFunctionValidator;
+import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.doel.DoelFunction;
+import ru.intertrust.cm.core.dao.doel.DoelFunctionRegistry;
+import ru.intertrust.cm.core.dao.doel.DoelValidator;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.util.ArrayList;

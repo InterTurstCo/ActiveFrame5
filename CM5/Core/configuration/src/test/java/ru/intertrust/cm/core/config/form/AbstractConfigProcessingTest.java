@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -54,7 +55,7 @@ public abstract class AbstractConfigProcessingTest {
     private ModuleService createModuleService(String confPath) throws MalformedURLException {
         URL moduleUrl = getClass().getClassLoader().getResource(".");
 
-        ModuleService result = new ModuleService();
+        ModuleServiceImpl result = new ModuleServiceImpl();
         ModuleConfiguration confCore = new ModuleConfiguration();
         confCore.setName("core");
         result.getModuleList().add(confCore);

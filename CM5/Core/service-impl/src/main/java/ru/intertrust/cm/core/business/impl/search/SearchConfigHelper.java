@@ -11,8 +11,8 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
-import ru.intertrust.cm.core.config.doel.DoelValidator;
 import ru.intertrust.cm.core.config.search.*;
+import ru.intertrust.cm.core.dao.doel.DoelValidator;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.annotation.PostConstruct;

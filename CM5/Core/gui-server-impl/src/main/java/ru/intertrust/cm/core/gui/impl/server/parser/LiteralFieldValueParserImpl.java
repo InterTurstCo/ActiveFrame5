@@ -19,7 +19,7 @@ import java.util.TimeZone;
  *         Date: 26.07.2014
  *         Time: 0:27
  */
-@ComponentName("literal-parser")
+//@ComponentName("literal-parser")
 public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
 
     @Autowired

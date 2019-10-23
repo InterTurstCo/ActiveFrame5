@@ -80,6 +80,8 @@
         <constructor-arg value=""/>
     </bean>
 
+    <bean id="literal-parser" class="ru.intertrust.cm.core.gui.impl.server.parser.LiteralFieldValueParserImpl" lazy-init="true"/>
+
     <!-- Filters-->
     <bean id="abstractFilterBuilder" class="ru.intertrust.cm.core.gui.impl.server.filters.AbstractFiltersBuilder"
           lazy-init="true" abstract="true"/>

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import javax.annotation.security.RunAs;
+import javax.ejb.Asynchronous;
 import javax.ejb.Local;
 import javax.ejb.Schedule;
 import javax.ejb.Stateless;
@@ -96,7 +98,9 @@ public class PluginServiceImpl implements PluginService {
     }
 
     @Override
+    @Asynchronous
     public void init(String contextName, ApplicationContext applicationContext) {
+        logger.info("Start init plugin service");
         pluginStorage.init(contextName, applicationContext);
         //Автостарт плагина
         for (PluginInfo pluginInfo : pluginStorage.getPlugins().values()) {
@@ -105,6 +109,7 @@ public class PluginServiceImpl implements PluginService {
                 logger.info("Autostart plugin " + pluginInfo.getClassName() + ". Result: " + result);
             }
         }
+        logger.info("End init plugin service");
     }
 
     @Override

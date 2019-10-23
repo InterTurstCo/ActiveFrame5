@@ -6,6 +6,7 @@ import org.junit.rules.ExpectedException;
 import org.springframework.beans.FatalBeanException;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -50,11 +51,13 @@ public class UniqueNameLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        return new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorer result = new ConfigurationExplorerImpl(configuration);
+        result.validate();
+        return result;
     }
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {
-        ModuleService result = new ModuleService();
+        ModuleServiceImpl result = new ModuleServiceImpl();
         ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());

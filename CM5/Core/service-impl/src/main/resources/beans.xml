@@ -323,8 +323,17 @@
     <bean id="repPostProcPagination" class="ru.intertrust.cm.core.business.impl.reportpostprocessors.PaginationReportPostProcessor"/>
     <bean id="repPostFooterPageNumbering" class="ru.intertrust.cm.core.business.impl.reportpostprocessors.FooterPageNumberingReportPostProcessor"/>
     <bean id="cryptoServiceConfig" class="ru.intertrust.cm.core.business.impl.CryptoServiceConfigImpl"/>
-    
+
+    <bean id="serviceClassPathScanConfig"  class="ru.intertrust.cm.core.dao.impl.ClassPathScanConfig">
+        <constructor-arg>
+            <array value-type="java.lang.String">
+                <value>ru.intertrust.cm.core.gui.model.ComponentName</value>
+            </array>
+        </constructor-arg>
+    </bean>
+
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCacheImpl"/>
     </beans>
+
 </beans>

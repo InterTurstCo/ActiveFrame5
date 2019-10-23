@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -53,6 +54,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private static final String LOCK_KEY = "GloballyLockableInitializer_LOCK_KEY";
 
     @Autowired private ConfigurationLoader configurationLoader;
+    @Autowired private ConfigurationExplorer configurationExplorer;
     @Autowired private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired private InitialDataLoader initialDataLoader;
     @Autowired private ImportSystemData importSystemData;
@@ -98,9 +100,9 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         }
     }
 
-
     private void init() throws Exception {
        logger.info("Run init");
+        configurationExplorer.validate();
         // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
         if(isMainServer){
             logger.info("server is main");

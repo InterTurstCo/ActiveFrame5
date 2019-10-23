@@ -9,18 +9,16 @@ import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleService;
-import ru.intertrust.cm.core.config.module.ModuleService.ModuleGraf;
-import ru.intertrust.cm.core.config.module.ModuleService.ModuleNode;
 
 public class TestModuleDependences {
     private Random rnd = new Random();
     
     @Test
     public void testModuleOrder() {
-        ModuleService moduleService = new ModuleService();
-        ModuleGraf graf = moduleService.new ModuleGraf();
+        ModuleServiceImpl moduleService = new ModuleServiceImpl();
+        ModuleServiceImpl.ModuleGraf graf = moduleService.new ModuleGraf();
 
         String[] testBaseNodes = new String[]{"1:5", "2:1,5", "3", "4", "5:3,4", "6:2,5"};        
         Reestr reestr = fillGraf(graf, testBaseNodes);
@@ -31,7 +29,7 @@ public class TestModuleDependences {
         String correctOrder2 = "345126";
         String orderedFiles = "";
         while (graf.hasMoreElements()) {
-            ModuleNode file = graf.nextElement();
+            ModuleServiceImpl.ModuleNode file = graf.nextElement();
             orderedFiles += reestr.getAlias(file.getName());
         }
         Assert.assertTrue(
@@ -41,8 +39,8 @@ public class TestModuleDependences {
 
     @Test
     public void testCyclicModules() {
-        ModuleService moduleService = new ModuleService();
-        ModuleGraf graf = moduleService.new ModuleGraf();
+        ModuleServiceImpl moduleService = new ModuleServiceImpl();
+        ModuleServiceImpl.ModuleGraf graf = moduleService.new ModuleGraf();
 
         String[] testBaseNodes = new String[]{"1", "2:1", "3", "4:6", "5:3,4", "6:2,5"};        
         fillGraf(graf, testBaseNodes);
@@ -62,7 +60,7 @@ public class TestModuleDependences {
      * @param graf
      * @param nodeGroups
      */
-    private Reestr fillGraf(ModuleGraf graf, String[]... nodeGroups) {
+    private Reestr fillGraf(ModuleServiceImpl.ModuleGraf graf, String[]... nodeGroups) {
         Reestr reestr = new Reestr(); 
         
         List<String> items = new ArrayList<String>();

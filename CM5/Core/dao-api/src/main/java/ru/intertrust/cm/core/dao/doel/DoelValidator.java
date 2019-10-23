@@ -1,11 +1,14 @@
-package ru.intertrust.cm.core.config.doel;
+package ru.intertrust.cm.core.dao.doel;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelExpression.Function;
+import ru.intertrust.cm.core.config.doel.DoelFunctionValidator;
+import ru.intertrust.cm.core.config.doel.ValidationReport;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.util.*;
@@ -199,12 +202,12 @@ public class DoelValidator {
             if (DoelExpression.ElementType.FIELD == exprElem.getElementType()) {
                 DoelExpression.Field fieldElem = (DoelExpression.Field) exprElem;
                 if (ReferenceFieldConfig.ANY_TYPE.equals(currentType)) {
-                    typeVariants = findAllTypesHavingField(fieldElem.name);
+                    typeVariants = findAllTypesHavingField(fieldElem.getName());
                 } else {
                     FieldConfig fieldConfig = config.getFieldConfig(currentType, fieldElem.getName());
                     if (fieldConfig == null) {
                         result.brokenPaths = true;
-                        typeVariants = findAllChildTypesHavingField(fieldElem.name, currentType);
+                        typeVariants = findAllChildTypesHavingField(fieldElem.getName(), currentType);
                     }
                 }
             }

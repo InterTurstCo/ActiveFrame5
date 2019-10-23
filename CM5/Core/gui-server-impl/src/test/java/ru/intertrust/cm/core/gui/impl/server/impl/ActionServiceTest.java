@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -201,7 +202,7 @@ public class ActionServiceTest {
             ConfigurationClassesCache.getInstance().build();
             ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
-            ModuleService moduleSerevice = new ModuleService();
+            ModuleServiceImpl moduleSerevice = new ModuleServiceImpl();
             ModuleConfiguration conf = new ModuleConfiguration();
             moduleSerevice.getModuleList().add(conf);
             conf.setConfigurationPaths(new ArrayList<String>());

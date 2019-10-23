@@ -7,6 +7,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -87,7 +88,7 @@ public class NavigationPanelLogicalValidatorTest {
     }
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {
-        ModuleService result = new ModuleService();
+        ModuleServiceImpl result = new ModuleServiceImpl();
         ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());

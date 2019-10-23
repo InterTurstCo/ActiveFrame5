@@ -37,6 +37,7 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.SystemField;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -132,7 +133,7 @@ public class GlobalCacheTest {
         private ModuleService createModuleService(String confPath) throws MalformedURLException {
             URL moduleUrl = getClass().getClassLoader().getResource(".");
 
-            ModuleService result = new ModuleService();
+            ModuleServiceImpl result = new ModuleServiceImpl();
             ModuleConfiguration confCore = new ModuleConfiguration();
             confCore.setName("core");
             result.getModuleList().add(confCore);

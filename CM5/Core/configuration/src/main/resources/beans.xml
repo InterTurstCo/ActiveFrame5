@@ -14,9 +14,7 @@
 
     <bean id="springApplicationContext" class="ru.intertrust.cm.core.util.SpringApplicationContext"/>
 
-    <bean id="moduleService" class="ru.intertrust.cm.core.config.module.ModuleService" init-method="init"/>
-
-    <bean id="doelFunctionRegistry" class="ru.intertrust.cm.core.config.doel.DoelFunctionRegistry"/>
+    <bean id="moduleService" class="ru.intertrust.cm.core.config.impl.ModuleServiceImpl" init-method="init"/>
 
     <bean id="configurationSerializer" depends-on="configurationClassesCacheInitializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"/>

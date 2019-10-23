@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
@@ -63,7 +64,7 @@ public class GlobalSettingsLogicalValidatorTest {
     }
 
     private ModuleService createModuleService(Set<String> configs) throws MalformedURLException {
-        ModuleService result = new ModuleService();
+        ModuleServiceImpl result = new ModuleServiceImpl();
         ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());
