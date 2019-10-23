@@ -109,10 +109,10 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
             }
         }
-        List<BusinessUniverseConfig> businessUniverseConfigs = (List<BusinessUniverseConfig>) configurationService
+        Collection<BusinessUniverseConfig> businessUniverseConfigs = configurationService
                 .getConfigs(BusinessUniverseConfig.class);
         if (!businessUniverseConfigs.isEmpty()) {
-            extendedSearchPluginData.setExtendedSearchPopupConfig(businessUniverseConfigs.get(0).getExtendedSearchPopupConfig());
+            extendedSearchPluginData.setExtendedSearchPopupConfig(businessUniverseConfigs.iterator().next().getExtendedSearchPopupConfig());
         }
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
         extendedSearchPluginData.setSearchAreasData(searchAreas);
