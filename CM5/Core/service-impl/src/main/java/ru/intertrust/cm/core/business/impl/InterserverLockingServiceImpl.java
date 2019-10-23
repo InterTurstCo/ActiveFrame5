@@ -72,7 +72,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     private final ConcurrentHashMap<String, ScheduledFutureEx> heldLocks = new ConcurrentHashMap<>();
 
     @Override
-    public synchronized boolean lock(final String resourceId) {
+    public boolean lock(final String resourceId) {
         logger.trace("Start lock {}", resourceId);
         boolean result = transactionalLock(resourceId);
 
@@ -151,7 +151,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     }
 
     @Override
-    public synchronized boolean selfSharedLock(final String resourceId) {
+    public boolean selfSharedLock(final String resourceId) {
         logger.trace("Start selfSharedLock {}", resourceId);
         boolean result = true;
         Date lockTime = null;
@@ -258,7 +258,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
      * @return результат попытки блокировки (статус + отсечка времени
      *         блокировки)
      */
-    LockResult transactionalSelfSharedLock(final String resourceId) {
+    private LockResult transactionalSelfSharedLock(final String resourceId) {
         try {
             sessionContext.getUserTransaction().begin();
             Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
@@ -319,7 +319,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     }    
 
     @Override
-    public synchronized void unlock(String resourceId) {
+    public void unlock(String resourceId) {
         logger.trace("Start unlock {}", resourceId);
         ScheduledFutureEx future = heldLocks.get(resourceId);
         if (future != null) {
