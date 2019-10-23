@@ -362,5 +362,6 @@ public interface ConfigurationExplorer {
      * Валидация конфигурации. Должен вызыватся после окончательного создания всех spring бинов,
      * тоесть нельзя вызывать в PostConstruct
      */
-    void validate();
+    default void validate(){
+    }
 }
