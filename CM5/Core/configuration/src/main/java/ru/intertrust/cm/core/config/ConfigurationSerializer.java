@@ -39,7 +39,7 @@ public class ConfigurationSerializer {
     ModuleService moduleService;
 
     @Value("${configuration.deserializer.threads.count:10}")
-    private int deserializationThreadsCount = 4;
+    private int deserializationThreadsCount = 1;
 
     /**
      * Создает {@link ConfigurationSerializer}
