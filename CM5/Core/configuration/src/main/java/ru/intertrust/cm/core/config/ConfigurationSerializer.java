@@ -6,8 +6,11 @@ import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
 import org.simpleframework.xml.transform.Matcher;
 import org.simpleframework.xml.transform.Transform;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LoadedConfiguration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -21,14 +24,22 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Предоставляет функциональность для сериализации/десериализации конфигурации
  * @author vmatsukevich Date: 6/12/13 Time: 5:36 PM
  */
 public class ConfigurationSerializer {
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationSerializer.class);
+
     @Autowired
     ModuleService moduleService;
+
+    @Value("${configuration.deserializer.threads.count:10}")
+    private int deserializationThreadsCount = 4;
 
     /**
      * Создает {@link ConfigurationSerializer}
@@ -131,10 +142,13 @@ public class ConfigurationSerializer {
      * @throws Exception
      */
     public Configuration deserializeConfiguration() throws Exception {
-
+        logger.info("Start deserialize configuration");
         List<String> schemaPaths = new ArrayList<String>();
 
-        Map<String, ArrayList<Configuration>> moduleConfigsByName = new LinkedHashMap<>(100); // linked map just for tests to run
+        ExecutorService executor = Executors.newFixedThreadPool(deserializationThreadsCount);
+
+        Map<String, List<Configuration>> moduleConfigsByName = new LinkedHashMap<>(100); // linked map just for tests to run
+        final List<Future<DeserializationResult>> futures = new ArrayList<>();
         for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
             final String moduleName = moduleConfiguration.getName();
             if (moduleConfigsByName.containsKey(moduleName)) {
@@ -148,35 +162,64 @@ public class ConfigurationSerializer {
             final ArrayList<Configuration> modulePartialConfigurations = new ArrayList<>(configurationPaths == null ? 0 : configurationPaths.size());
             moduleConfigsByName.put(moduleName, modulePartialConfigurations);
             if (configurationPaths != null) {
-                List<Exception> exceptionList = new ArrayList<>();
-
+                List<String> schemaPathsClone = new ArrayList<>(schemaPaths);
                 for (String configurationFilePath : configurationPaths) {
-                    try {
-                        Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths, moduleConfiguration);
-                        modulePartialConfigurations.add(partialConfiguration);
-                    } catch (Exception e) {
-                        exceptionList.add(e);
-                    }
-                }
-
-                if (!exceptionList.isEmpty()) {
-                    StringBuilder errorMessage = new StringBuilder("Failed to deserialize configuration.\n");
-                    for (Exception exception : exceptionList) {
-                        errorMessage.append(exception.getMessage());
-                    }
-
-                    throw new ConfigurationException(errorMessage.toString());
+                    // CMFIVE-37608 Десериализуем в параллельных потоках
+                    Future<DeserializationResult> future = executor.submit(() -> {
+                        return tryDeserializeConfiguration(configurationFilePath, schemaPathsClone, moduleConfiguration);
+                    });
+                    futures.add(future);
                 }
             }
         }
+
+        // Ждем окончания всех потоков и собираем результат
+        final List<Exception> exceptionList = new ArrayList<>();
+        for (Future<DeserializationResult> future : futures) {
+            DeserializationResult result = future.get();
+            if (result.error != null) {
+                exceptionList.add(result.error);
+            } else {
+                moduleConfigsByName.get(result.moduleName).add(result.partialConfiguration);
+            }
+        }
+
+        // Проверка на ошибки
+        if (!exceptionList.isEmpty()) {
+            StringBuilder errorMessage = new StringBuilder("Failed to deserialize configuration.\n");
+            for (Exception exception : exceptionList) {
+                errorMessage.append(exception.getMessage());
+            }
+
+            throw new ConfigurationException(errorMessage.toString());
+        }
+
+        // Формирование общей конфигурации
         Configuration combinedConfiguration = new Configuration();
-        for (Map.Entry<String, ArrayList<Configuration>> moduleConfigs : moduleConfigsByName.entrySet()) {
-            final ArrayList<Configuration> partialConfigurations = moduleConfigs.getValue();
+        for (Map.Entry<String, List<Configuration>> moduleConfigs : moduleConfigsByName.entrySet()) {
+            final List<Configuration> partialConfigurations = moduleConfigs.getValue();
             for (Configuration partialConfiguration : partialConfigurations) {
                 combineConfigurations(partialConfiguration, combinedConfiguration);
             }
         }
+        logger.info("End deserialize configuration");
         return combinedConfiguration;
+    }
+
+    private DeserializationResult tryDeserializeConfiguration(String configurationFilePath,
+                                                              List<String> configurationSchemaFilePath,
+                                                              ModuleConfiguration moduleConfiguration){
+        DeserializationResult result = new DeserializationResult();
+        result.moduleName = moduleConfiguration.getName();
+        try {
+            Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, configurationSchemaFilePath, moduleConfiguration);
+            result.partialConfiguration = partialConfiguration;
+        } catch (Exception ex) {
+            result.error = ex;
+            logger.error("Error deserialization config {}", configurationFilePath, ex);
+        }
+        return result;
+
     }
 
     private InputStream[] getAllSchemaStreams() {
@@ -246,7 +289,8 @@ public class ConfigurationSerializer {
             e.setConfigurationFilePath(configurationFilePath);
             throw e;
         } catch (Exception ex) {
-            throw new ConfigurationException("Error loading " + configurationFilePath + ":" + ex.getMessage());
+            logger.error("Error deserializeConfiguration", ex);
+            throw new ConfigurationException("Error loading " + configurationFilePath + ":" + ex.getClass() + " " + ex.getMessage());
         }
     }
 
@@ -274,4 +318,9 @@ public class ConfigurationSerializer {
         return resultUrl.openStream();
     }
 
+    private static class DeserializationResult{
+        private Configuration partialConfiguration;
+        private Exception error;
+        private String moduleName;
+    }
 }
