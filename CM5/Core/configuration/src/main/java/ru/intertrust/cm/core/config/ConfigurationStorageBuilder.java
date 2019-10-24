@@ -739,8 +739,8 @@ public class ConfigurationStorageBuilder {
      * @return
      */
     private List<String> getChildTypes(String typeName) {
-        return new ArrayList<String>(configurationExplorer.findChildDomainObjectTypes(typeName, true).
-                stream().map(DomainObjectTypeConfig::getName).collect(Collectors.toList()));
+        return configurationExplorer.findChildDomainObjectTypes(typeName, true).
+                stream().map(DomainObjectTypeConfig::getName).collect(Collectors.toList());
     }
 
     private void removeTopLevelConfigFromMap(TopLevelConfig config) {
