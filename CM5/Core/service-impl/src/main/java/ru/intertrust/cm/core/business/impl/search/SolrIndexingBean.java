@@ -15,11 +15,12 @@ import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SolrIndexingBean {
 

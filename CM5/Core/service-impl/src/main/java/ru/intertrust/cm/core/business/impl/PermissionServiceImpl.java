@@ -10,7 +10,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
@@ -21,6 +20,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -30,7 +30,7 @@ import ru.intertrust.cm.core.model.RemoteSuitableException;
 @Stateless(name = "PermissionService")
 @Local(PermissionService.class)
 @Remote(PermissionService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class PermissionServiceImpl implements PermissionService {
 
     private static final Logger logger = LoggerFactory.getLogger(PermissionServiceImpl.class);

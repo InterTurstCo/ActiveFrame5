@@ -1,16 +1,39 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
+import javax.naming.NamingException;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.SummaryConfigurationException;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -24,19 +47,8 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
-
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import javax.jms.JMSException;
-import javax.naming.NamingException;
-import java.io.File;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationControlService}
@@ -47,7 +59,7 @@ import java.util.Set;
 @Stateless
 @Local(ConfigurationControlService.class)
 @Remote(ConfigurationControlService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ConfigurationControlServiceImpl implements ConfigurationControlService {
 
     private enum UpdateType {CONFIGURATION, WORKFLOW, DATA_IMPORT}

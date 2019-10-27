@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -27,7 +26,6 @@ import javax.interceptor.Interceptors;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -38,6 +36,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Класс менеджера кластера. Записывает данные о своей активности, кроме того
@@ -49,7 +48,7 @@ import ru.intertrust.cm.core.model.FatalException;
  *
  */
 @Singleton(name = "ClusterManager")
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @Startup
 public class ClusterManagerImpl implements ClusterManager{

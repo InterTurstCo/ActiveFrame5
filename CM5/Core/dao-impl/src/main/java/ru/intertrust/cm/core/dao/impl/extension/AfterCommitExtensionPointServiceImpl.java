@@ -1,7 +1,19 @@
 package ru.intertrust.cm.core.dao.impl.extension;
 
+import java.util.Collection;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -15,15 +27,11 @@ import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExten
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.Collection;
-import java.util.List;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "AfterCommitExtensionPointService")
 @Local(AfterCommitExtensionPointService.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.CONTAINER)
 public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensionPointService {
     @Autowired

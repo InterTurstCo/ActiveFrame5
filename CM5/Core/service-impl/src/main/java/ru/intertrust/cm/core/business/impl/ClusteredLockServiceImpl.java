@@ -1,35 +1,46 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+import javax.transaction.Status;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.ClusteredLockService;
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.business.api.dto.ClusteredLock;
 import ru.intertrust.cm.core.business.api.dto.impl.ClusteredLockImpl;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
-
-import javax.annotation.Resource;
-import javax.annotation.security.RunAs;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import javax.transaction.Status;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.*;
 
 @Stateless(name = "ClusteredLockService")
 @RunAs("system")
 @Local(ClusteredLockService.class)
 @Remote(ClusteredLockService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ClusteredLockServiceImpl implements ClusteredLockService {
     private static final Logger logger = LoggerFactory.getLogger(ClusteredLockServiceImpl.class);

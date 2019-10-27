@@ -1,15 +1,20 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import java.util.List;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import ru.intertrust.cm.core.business.api.CollectionsServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.List;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.CollectionsServiceDelegate}
@@ -20,7 +25,7 @@ import java.util.List;
 @Stateless
 @Local(CollectionsServiceDelegate.class)
 @Remote(CollectionsServiceDelegate.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class NonTransactionalCollectionsServiceImpl extends CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
 

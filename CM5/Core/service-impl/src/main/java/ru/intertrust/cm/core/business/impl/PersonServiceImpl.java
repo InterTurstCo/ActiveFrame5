@@ -8,18 +8,18 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "PersonService")
 @Local(PersonService.class)
 @Remote(PersonService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class PersonServiceImpl implements PersonService {
 
     private static final Logger logger = LoggerFactory.getLogger(PersonServiceImpl.class);

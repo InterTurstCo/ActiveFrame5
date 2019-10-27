@@ -1,14 +1,37 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -16,7 +39,12 @@ import ru.intertrust.cm.core.config.ExecuteActionConfig;
 import ru.intertrust.cm.core.config.gui.ActionContextChecker;
 import ru.intertrust.cm.core.config.gui.AttrValueContextConfig;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
-import ru.intertrust.cm.core.config.gui.action.*;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
+import ru.intertrust.cm.core.config.gui.action.BaseActionConfig;
+import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.StatusDao;
@@ -28,19 +56,12 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.model.ActionServiceException;
-
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import java.io.*;
-import java.util.*;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(ActionService.class)
 @Remote(ActionService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
     @Autowired

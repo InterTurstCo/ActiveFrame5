@@ -1,15 +1,51 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaCompiler.CompilationTask;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
+
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
+
 import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.DeployReportData;
+import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -21,19 +57,11 @@ import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import javax.tools.*;
-import javax.tools.JavaCompiler.CompilationTask;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.*;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 /**
  * Имплементация сервися администрирования подсистемы отчетов
@@ -43,7 +71,7 @@ import java.util.*;
 @Stateless(name = "ReportServiceAdmin")
 @Local(ReportServiceAdmin.class)
 @Remote(ReportServiceAdmin.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ReportServiceAdminImpl extends ReportServiceBase implements ReportServiceAdmin {
 
     private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);

@@ -1,9 +1,17 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.CrudServiceDelegate;
 import ru.intertrust.cm.core.business.api.DataSourceContext;
@@ -11,13 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import java.util.List;
-import java.util.Map;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
@@ -27,7 +29,7 @@ import java.util.Map;
 @Stateless
 @Local(CrudService.class)
 @Remote(CrudService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(CrudServiceImpl.class);

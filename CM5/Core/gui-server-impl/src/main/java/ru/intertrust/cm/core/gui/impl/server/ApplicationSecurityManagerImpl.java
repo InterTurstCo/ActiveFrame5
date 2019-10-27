@@ -15,15 +15,15 @@ import javax.interceptor.Interceptors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.authentication.AuthenticationProvider;
 import ru.intertrust.cm.core.gui.api.server.authentication.SecurityConfig;
 import ru.intertrust.cm.core.gui.impl.server.action.access.SecurityConfigImpl;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Singleton(name = "ApplicationSecurityManager")
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @Startup
 public class ApplicationSecurityManagerImpl implements ApplicationSecurityManager {
 

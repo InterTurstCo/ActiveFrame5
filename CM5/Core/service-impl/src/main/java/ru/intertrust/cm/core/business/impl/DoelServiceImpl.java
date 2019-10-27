@@ -8,7 +8,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.DoelService;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -19,11 +18,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "DoelService")
 @Local(DoelService.class)
 @Remote(DoelService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class DoelServiceImpl implements DoelService {
 
     @Autowired private DoelEvaluator doelEvaluator;

@@ -14,7 +14,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -27,10 +26,11 @@ import ru.intertrust.cm.core.business.api.dto.globalcache.CheckData;
 import ru.intertrust.cm.core.business.api.dto.globalcache.CheckLockData;
 import ru.intertrust.cm.core.business.api.dto.globalcache.DiagnosticData;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "DiagnosticMessageProcessor")
 @Local(DiagnosticMessageProcessor.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @TransactionManagement(TransactionManagementType.BEAN)
 public class DiagnosticMessageProcessorImpl implements DiagnosticMessageProcessor {

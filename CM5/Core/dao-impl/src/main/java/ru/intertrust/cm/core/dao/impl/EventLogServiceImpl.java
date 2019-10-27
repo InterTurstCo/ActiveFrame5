@@ -1,18 +1,26 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -24,18 +32,11 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(EventLogService.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class EventLogServiceImpl implements EventLogService {
 
     private final static Logger logger = LoggerFactory.getLogger(EventLogServiceImpl.class);

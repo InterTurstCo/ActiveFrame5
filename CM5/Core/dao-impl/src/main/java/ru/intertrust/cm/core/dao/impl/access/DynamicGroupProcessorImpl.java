@@ -16,16 +16,16 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.DynamicGroupProcessor;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "DynamicGroupProcessor")
 @Local(DynamicGroupProcessor.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class DynamicGroupProcessorImpl implements DynamicGroupProcessor {
     private static final Logger logger = LoggerFactory.getLogger(DynamicGroupProcessorImpl.class);

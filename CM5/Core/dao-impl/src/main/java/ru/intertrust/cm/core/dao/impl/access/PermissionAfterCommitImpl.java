@@ -9,16 +9,16 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AclData;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnCalculateContextRoleExtensionHandler;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(PermissionAfterCommit.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class PermissionAfterCommitImpl implements PermissionAfterCommit{
     @Autowired

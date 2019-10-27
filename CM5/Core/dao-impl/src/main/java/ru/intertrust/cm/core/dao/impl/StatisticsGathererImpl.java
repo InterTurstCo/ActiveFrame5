@@ -1,14 +1,21 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import javax.ejb.Asynchronous;
+import javax.ejb.Local;
+import javax.ejb.Singleton;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * @author Denis Mitavskiy
@@ -18,7 +25,7 @@ import javax.interceptor.Interceptors;
 @Singleton(name = "StatisticsGatherer")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Local(StatisticsGatherer.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class StatisticsGathererImpl implements StatisticsGatherer {
     private final static Logger logger = LoggerFactory.getLogger(StatisticsGathererImpl.class);
     private static final Object LOCK = new Object();

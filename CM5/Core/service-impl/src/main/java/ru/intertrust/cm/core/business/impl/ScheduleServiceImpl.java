@@ -17,7 +17,6 @@ import org.simpleframework.xml.core.Persister;
 import org.simpleframework.xml.strategy.Strategy;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -39,6 +38,7 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Реализация сервиса выполнения периодических заданий
@@ -48,7 +48,7 @@ import ru.intertrust.cm.core.model.SystemException;
 @Stateless(name = "ScheduleService")
 @Local(ScheduleService.class)
 @Remote(ScheduleService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ScheduleServiceImpl implements ScheduleService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ScheduleServiceImpl.class);

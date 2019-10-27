@@ -1,22 +1,5 @@
 package ru.intertrust.cm.core.business.load;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
-import ru.intertrust.cm.core.business.api.dto.DeployReportData;
-import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
-import ru.intertrust.cm.core.config.module.ImportReportsConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleService;
-import ru.intertrust.cm.core.config.module.ReportTemplateConfiguration;
-import ru.intertrust.cm.core.config.module.ReportTemplateDirConfiguration;
-import ru.intertrust.cm.core.config.module.ReportTemplateFileConfiguration;
-import ru.intertrust.cm.core.model.FatalException;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,6 +12,25 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
+import ru.intertrust.cm.core.business.api.dto.DeployReportData;
+import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.config.module.ImportReportsConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
+import ru.intertrust.cm.core.config.module.ReportTemplateConfiguration;
+import ru.intertrust.cm.core.config.module.ReportTemplateDirConfiguration;
+import ru.intertrust.cm.core.config.module.ReportTemplateFileConfiguration;
+import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+
 /**
  * @author Lesia Puhova
  *         Date: 28.03.14
@@ -37,7 +39,7 @@ import java.util.zip.ZipInputStream;
 @Stateless
 @Local(ImportReportsData.class)
 @Remote(ImportReportsData.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ImportReportsDataImpl implements ImportReportsData, ImportReportsData.Remote {
 
     @Autowired

@@ -1,16 +1,29 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+import javax.transaction.Status;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -23,26 +36,12 @@ import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-
-import javax.annotation.Resource;
-import javax.ejb.EJB;
-import javax.ejb.EJBContext;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-import javax.transaction.Status;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 // отдельный бин сделан для использования в нем пользовательских транзакций
 @Stateless
 @Local(EventLogCleaner.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class EventLogCleanerImpl implements EventLogCleaner {
 

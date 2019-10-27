@@ -1,19 +1,25 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -23,7 +29,7 @@ import java.util.List;
 @Stateless(name = "UserSettingsFetcher")
 @Local(UserSettingsFetcher.class)
 @Remote(UserSettingsFetcher.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class UserSettingsFetcherImpl implements UserSettingsFetcher {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;

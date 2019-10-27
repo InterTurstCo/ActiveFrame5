@@ -1,17 +1,23 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.List;
+import java.util.Map;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.LoggerFactory;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CrudServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.List;
-import java.util.Map;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.CrudServiceDelegate}
@@ -22,7 +28,7 @@ import java.util.Map;
 @Local(CrudServiceDelegate.class)
 @Remote(CrudServiceDelegate.Remote.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class NonTransactionalCrudServiceImpl extends CrudServiceBaseImpl {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(NonTransactionalCrudServiceImpl.class);

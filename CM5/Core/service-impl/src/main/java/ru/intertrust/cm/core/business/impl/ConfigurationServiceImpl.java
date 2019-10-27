@@ -1,9 +1,17 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Collection;
+import java.util.List;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -17,14 +25,8 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * {@link ConfigurationExplorer}
@@ -35,7 +37,7 @@ import java.util.List;
 @Stateless
 @Local(ConfigurationService.class)
 @Remote(ConfigurationService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ConfigurationServiceImpl implements ConfigurationService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);

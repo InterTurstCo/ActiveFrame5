@@ -1,22 +1,24 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.AttachmentService;
+import java.io.InputStream;
+import java.rmi.RemoteException;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import java.io.InputStream;
-import java.rmi.RemoteException;
+
+import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 
 /**
  * User: vlad
  */
 @Stateless
 @Remote(AttachmentService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class RemoteAttachmentServiceImpl extends BaseAttachmentServiceImpl implements AttachmentService.Remote {
     @Override
     protected RemoteInputStream wrapStream(InputStream inputStream) throws RemoteException {

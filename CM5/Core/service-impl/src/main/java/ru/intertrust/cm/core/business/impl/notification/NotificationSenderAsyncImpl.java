@@ -14,7 +14,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.EventTrigger;
 import ru.intertrust.cm.core.business.api.NotificationService;
@@ -37,10 +36,11 @@ import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "NotificationSenderAsync")
 @Local(NotificationSenderAsync.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class NotificationSenderAsyncImpl extends NotificationSenderBase implements NotificationSenderAsync {
     final static Logger logger = LoggerFactory.getLogger(NotificationSenderAsyncImpl.class);

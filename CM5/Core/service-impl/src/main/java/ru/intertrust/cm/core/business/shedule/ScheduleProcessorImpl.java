@@ -22,7 +22,6 @@ import javax.transaction.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -36,11 +35,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(ScheduleProcessor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ScheduleProcessorImpl implements ScheduleProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
 

@@ -20,7 +20,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.AuditService;
@@ -86,6 +85,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Базовая реализация сервиса GUI
@@ -96,7 +96,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 @Stateless
 @Local(GuiService.class)
 @Remote(GuiService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Autowired

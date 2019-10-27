@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.ScheduleService;
@@ -47,6 +46,7 @@ import ru.intertrust.cm.core.dao.api.ClassPathScanService;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.ScheduleException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
@@ -57,7 +57,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 @Singleton
 @Local(ScheduleTaskLoader.class)
 @Remote(ScheduleTaskLoader.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskLoader.Remote {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleTaskLoaderImpl.class);
 

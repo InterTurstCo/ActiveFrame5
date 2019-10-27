@@ -8,17 +8,16 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.ReportService;
+import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 
-import ru.intertrust.cm.core.business.api.ReportService;
-import ru.intertrust.cm.core.model.FatalException;
-
 @Stateless
 @Local(ReportService.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ReportServiceLocalImpl extends ReportServiceImpl {
 

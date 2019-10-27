@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
@@ -37,11 +36,12 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SearchException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "SearchService")
 @Local(SearchService.class)
 @Remote(SearchService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     protected Logger log = LoggerFactory.getLogger(getClass());

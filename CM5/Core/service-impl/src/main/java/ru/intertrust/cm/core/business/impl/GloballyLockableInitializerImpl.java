@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
@@ -36,6 +35,7 @@ import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitialize
 import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.process.DeployModuleProcesses;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * {@inheritDoc}
@@ -44,7 +44,7 @@ import ru.intertrust.cm.core.process.DeployModuleProcesses;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Local(GloballyLockableInitializer.class)
 @Remote(GloballyLockableInitializer.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 @RunAs("system")
 public class GloballyLockableInitializerImpl implements GloballyLockableInitializer, GloballyLockableInitializer.Remote {

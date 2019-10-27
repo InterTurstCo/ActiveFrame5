@@ -1,17 +1,29 @@
 package ru.intertrust.cm.globalcacheclient;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -21,7 +33,7 @@ import java.util.*;
 @Stateless(name = "PersonAccessHelper")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Local(PersonAccessHelper.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class PersonAccessHelperImpl implements PersonAccessHelper {
     @Autowired
     private PersonManagementServiceDao personManagementDao;

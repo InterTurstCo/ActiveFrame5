@@ -6,10 +6,18 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -22,16 +30,7 @@ import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
-
-import javax.annotation.Resource;
-import javax.ejb.EJBContext;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Данный сервис загружает системные справочники из *.CSV файлов которые указаны
@@ -42,7 +41,7 @@ import javax.interceptor.Interceptors;
 @Stateless
 @Local(ImportSystemData.class)
 @Remote(ImportSystemData.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.Remote {
 

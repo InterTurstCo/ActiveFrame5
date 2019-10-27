@@ -1,20 +1,35 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.SpringApplicationContext;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
 
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
 import java.util.HashSet;
 
-import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
+import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationLoadService}
@@ -25,7 +40,7 @@ import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE
 @Stateless
 @Local(ConfigurationLoadService.class)
 @Remote(ConfigurationLoadService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, ConfigurationLoadService.Remote {
 

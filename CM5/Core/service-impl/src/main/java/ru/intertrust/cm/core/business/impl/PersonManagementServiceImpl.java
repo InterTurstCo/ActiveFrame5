@@ -9,7 +9,6 @@ import javax.interceptor.Interceptors;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -17,11 +16,12 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "PersonManagementService")
 @Local(PersonManagementService.class)
 @Remote(PersonManagementService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class PersonManagementServiceImpl implements PersonManagementService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(PersonManagementServiceImpl.class);

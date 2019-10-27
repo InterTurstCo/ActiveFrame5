@@ -1,35 +1,57 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.model.ProfileException;
-import ru.intertrust.cm.core.model.RemoteSuitableException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.ProfileService;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.Profile;
+import ru.intertrust.cm.core.business.api.dto.ProfileBooleanValue;
+import ru.intertrust.cm.core.business.api.dto.ProfileDateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.ProfileLongValue;
+import ru.intertrust.cm.core.business.api.dto.ProfileObject;
+import ru.intertrust.cm.core.business.api.dto.ProfileReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.ProfileStringValue;
+import ru.intertrust.cm.core.business.api.dto.ProfileValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DefaultLocaleConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.model.ProfileException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "ProfileService")
 @Local(ProfileService.class)
 @Remote(ProfileService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ProfileServiceImpl implements ProfileService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProfileServiceImpl.class);

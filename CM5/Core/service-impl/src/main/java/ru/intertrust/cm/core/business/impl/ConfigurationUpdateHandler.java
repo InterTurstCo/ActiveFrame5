@@ -1,9 +1,21 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.HashSet;
+import java.util.List;
+
+import javax.ejb.ActivationConfigProperty;
+import javax.ejb.EJB;
+import javax.ejb.MessageDriven;
+import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -14,17 +26,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-
-import javax.ejb.ActivationConfigProperty;
-import javax.ejb.EJB;
-import javax.ejb.MessageDriven;
-import javax.interceptor.Interceptors;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
-import java.util.HashSet;
-import java.util.List;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Java Message Driven Bean for Configuration updates processing (updating caches, etc.)
@@ -33,7 +35,7 @@ import java.util.List;
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Topic"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="topic/ConfigurationUpdateTopic")
 })
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ConfigurationUpdateHandler implements MessageListener {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationUpdateHandler.class);

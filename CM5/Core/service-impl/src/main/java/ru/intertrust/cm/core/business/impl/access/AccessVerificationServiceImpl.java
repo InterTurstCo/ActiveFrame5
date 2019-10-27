@@ -8,7 +8,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -21,11 +20,12 @@ import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(AccessVerificationService.class)
 @Remote(AccessVerificationService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class AccessVerificationServiceImpl implements AccessVerificationService {
 
     final static Logger logger = LoggerFactory.getLogger(AccessVerificationServiceImpl.class);

@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -18,7 +17,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
@@ -42,11 +40,12 @@ import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.NotificationException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 @Stateless(name = "NotificationService")
 @Local(NotificationService.class)
 @Remote(NotificationService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);

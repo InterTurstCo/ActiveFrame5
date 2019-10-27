@@ -1,9 +1,27 @@
 package ru.intertrust.cm.core.gui.impl.server.action.system;
 
+import static ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper.getUserSettingsIdentifiableObject;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
+import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -15,22 +33,14 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
-
-import javax.annotation.Resource;
-import javax.annotation.security.RunAs;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import javax.transaction.*;
-import java.util.List;
-
-import static ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper.getUserSettingsIdentifiableObject;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 
 /**
  * Created by Ravil on 16.01.2018.
  */
 @Stateless(name = "settingsUtilImpl")
 @Local(SettingsUtil.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SettingsUtilImpl implements SettingsUtil {

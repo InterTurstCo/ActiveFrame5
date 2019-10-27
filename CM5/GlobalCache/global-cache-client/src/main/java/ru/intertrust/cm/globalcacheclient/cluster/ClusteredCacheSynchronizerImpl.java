@@ -1,20 +1,27 @@
 package ru.intertrust.cm.globalcacheclient.cluster;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
 /**
  * @author Denis Mitavskiy
@@ -24,7 +31,7 @@ import java.util.Set;
 @Stateless(name = "ClusteredCacheSynchronizer")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Local(ClusteredCacheSynchronizer.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronizer {
     final static Logger logger = LoggerFactory.getLogger(ClusteredCacheSynchronizerImpl.class);
 

@@ -19,9 +19,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.ClusterManager;
@@ -36,10 +33,13 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 @Stateless(name = "AsyncPluginExecutor")
 @Local(AsyncPluginExecutor.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
     private static final Logger logger = LoggerFactory.getLogger(AsyncPluginExecutorImpl.class);
