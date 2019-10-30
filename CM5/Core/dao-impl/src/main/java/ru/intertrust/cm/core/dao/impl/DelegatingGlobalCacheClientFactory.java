@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -7,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClientFactory;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -17,6 +20,8 @@ import java.util.Map;
  *         Time: 19:47
  */
 public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFactory, GlobalCacheManager {
+    private static final Logger logger = LoggerFactory.getLogger(DelegatingGlobalCacheClientFactory.class);
+
     @Value("${global.cache.enabled:false}")
     private volatile Boolean enabled;
 
@@ -33,14 +38,19 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
 
     @Override
     public GlobalCacheClient getGlobalCacheClient() {
-        if (switchableClient != null) {
-            return switchableClient;
-        }
+        try {
+            if (switchableClient != null) {
+                return switchableClient;
+            }
 
-        GlobalCacheClient impl = getImpl();
-        switchableClient = new SwitchableCacheClient(impl);
-        switchableClient.activate(true);
-        return switchableClient;
+            GlobalCacheClient impl = getImpl();
+            switchableClient = new SwitchableCacheClient(impl);
+            switchableClient.activate(true);
+            return switchableClient;
+        }catch(Exception ex){
+            logger.error("Error get global cache client", ex);
+            throw new FatalException("Error get global cache client", ex);
+        }
     }
 
     public boolean isCacheAvailable() {

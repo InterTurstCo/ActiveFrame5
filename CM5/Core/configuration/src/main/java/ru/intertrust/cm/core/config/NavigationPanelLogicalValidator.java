@@ -180,7 +180,7 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
           bean = context.getBean(componentName);
         } catch (BeansException exception) {
             String error = String.format("Could not find plugin handler for link with name '%s'", componentName);
-            logger.error(error);
+            logger.error(error, exception);
             logicalErrors.addError(error);
             return;
         }
