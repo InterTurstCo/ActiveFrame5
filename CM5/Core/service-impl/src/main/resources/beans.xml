@@ -328,6 +328,7 @@
         <constructor-arg>
             <array value-type="java.lang.String">
                 <value>ru.intertrust.cm.core.gui.model.ComponentName</value>
+                <value>ru.intertrust.cm.core.business.api.notification.NotificationChannel</value>
             </array>
         </constructor-arg>
     </bean>
