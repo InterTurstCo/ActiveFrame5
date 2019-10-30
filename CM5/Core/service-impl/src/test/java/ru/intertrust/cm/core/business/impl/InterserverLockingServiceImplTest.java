@@ -29,7 +29,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
@@ -37,6 +36,7 @@ import ru.intertrust.cm.core.business.api.Stamp;
 import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 import ru.intertrust.cm.core.dao.impl.StampImpl;
+import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
 import ru.intertrust.cm.globalcacheclient.impl.ClusterCommitStampsInfo;
 import ru.intertrust.cm.globalcacheclient.impl.ClusterTransactionStampServiceImpl;
@@ -261,7 +261,7 @@ public class InterserverLockingServiceImplTest {
         assertEquals(ConcurrencyManagementType.BEAN, InterserverLockingServiceImpl.class.getAnnotation(ConcurrencyManagement.class).value());
         assertArrayEquals(new Class[] { InterserverLockingService.class }, InterserverLockingServiceImpl.class.getAnnotation(Local.class).value());
         assertEquals("system", InterserverLockingServiceImpl.class.getAnnotation(RunAs.class).value());
-        assertArrayEquals(new Class[] { SpringBeanAutowiringInterceptor.class }, InterserverLockingServiceImpl.class.getAnnotation(Interceptors.class).value());
+        assertArrayEquals(new Class[] { CustomSpringBeanAutowiringInterceptor.class }, InterserverLockingServiceImpl.class.getAnnotation(Interceptors.class).value());
     }
 
     @Test
