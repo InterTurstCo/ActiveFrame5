@@ -1,12 +1,20 @@
 package ru.intertrust.cm.core.business.report;
 
 import org.junit.Test;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.RelativeDate;
+import ru.intertrust.cm.core.business.api.dto.RelativeDateBase;
+import ru.intertrust.cm.core.business.api.dto.ReportShceduleParameter;
+import ru.intertrust.cm.core.business.api.dto.ShceduleTaskReportParam;
 import ru.intertrust.cm.core.report.ReportShcedule;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 public class TestReportService {
 

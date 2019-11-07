@@ -47,6 +47,9 @@ public class ReportMetadataConfig implements Dto{
     
     @ElementList(name="postProcessors", required=false)
     private List<String> postProcessors;
+
+    @Attribute(required=false)
+    private String reportParameterResolver;
     
     public String getName() {
         return name;
@@ -110,7 +113,12 @@ public class ReportMetadataConfig implements Dto{
     public void setReportGeneratorClass(String reportGeneratorClass) {
         this.reportGeneratorClass = reportGeneratorClass;
     }
-    
-    
 
+    public String getReportParameterResolver() {
+        return reportParameterResolver;
+    }
+
+    public void setReportParameterResolver(String reportParameterResolver) {
+        this.reportParameterResolver = reportParameterResolver;
+    }
 }

@@ -7,10 +7,14 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -37,8 +41,10 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.util.StreamUtils;
 
+import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
+import ru.intertrust.cm.core.business.api.ReportParameterResolver;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
@@ -88,14 +94,13 @@ public class ReportResultBuilder extends ReportServiceBase {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
+    private Pattern fileNamePattern = Pattern.compile("\\{P\\$([^\\}]*)\\}");
+
     /**
      * Генерация отчета
-     * @param templatePath
-     * @param format
-     * @param resultFolder
-     * @param reportNameTemplate
-     * @param reportDSClassName
-     * @param params
+     * @param reportMetadata
+     * @param templateFolder
+     * @param inParams
      * @param dataSource
      * @return
      * @throws Exception
@@ -125,7 +130,7 @@ public class ReportResultBuilder extends ReportServiceBase {
                                 generatorClass, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
                 
                 try (InputStream reportStream = reportGenerator.generate(reportMetadata, templateFolder, params)) {
-                    resultFile = new File(resultFolder, getReportName(reportMetadata, reportGenerator.getFormat()));
+                    resultFile = new File(resultFolder, getReportName(reportMetadata, reportGenerator.getFormat(), inParams));
                     StreamUtils.copy(reportStream, new FileOutputStream(resultFile));
                 }
                 
@@ -175,7 +180,7 @@ public class ReportResultBuilder extends ReportServiceBase {
     
                 
     
-                String reportName = getReportName(reportMetadata, extension);
+                String reportName = getReportName(reportMetadata, extension, inParams);
     
                 resultFile = new File(resultFolder, reportName);
     
@@ -191,21 +196,52 @@ public class ReportResultBuilder extends ReportServiceBase {
         }
     }
 
-    private String getReportName(ReportMetadataConfig reportMetadata, String extension){
+    private String getReportName(ReportMetadataConfig reportMetadata, String extension, Map<String, Object> inParams){
         String mask = reportMetadata.getFileNameMask();
         if( mask == null || mask.isEmpty() ) {
             mask = globalServerSettingsService.getString("report.global.fileMask");
             if( mask == null || mask.isEmpty() ) {
+                // Имя файла отчета по умолчанию
                 return reportMetadata.getName() + " " + ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
             }
         }
-        return mask.replace(MASK_NAME, reportMetadata.getName()).
+
+        // Стандартные замены
+        String result = mask.replace(MASK_NAME, reportMetadata.getName()).
                 replace(MASK_DESCR, reportMetadata.getDescription()).
                 replace(MASK_LONG_DATE, ThreadSafeDateFormat.format(new Date(), DATE_LONG_PATTERN)).
                 replace(MASK_SHORT_DATE, ThreadSafeDateFormat.format(new Date(), DATE_SHORT_PATTERN)).
-                replace(MASK_CREATOR, currentUserAccessor.getCurrentUser()) + "." + extension;
+                replace(MASK_CREATOR, currentUserAccessor.getCurrentUser());
+
+        // Нужно ли заменять параметры
+        if (!StringUtils.isEmpty(reportMetadata.getReportParameterResolver())){
+            ReportParameterResolver resolver = (ReportParameterResolver)applicationContext.getBean(reportMetadata.getReportParameterResolver());
+            // Нужно подставлять параметры в имя отчета, выполняем поиск параметров в маске
+            List<String> paramNames = getParamsInMask(mask);
+            for (String paramName: paramNames) {
+                result = result.replace("{P$" + paramName + "}", resolver.resolve(reportMetadata.getName(), inParams, paramName));
+            }
+        }
+
+        result += "." + extension;
+
+        return result;
     }
-    
+
+    /**
+     * Получение списка параметров в маске в формате
+     * @param mask
+     * @return
+     */
+    private List<String> getParamsInMask(String mask) {
+        List<String> result = new ArrayList();
+        Matcher matcher = fileNamePattern.matcher(mask);
+        while(matcher.find()){
+            result.add(matcher.group(1));
+        }
+        return result;
+    }
+
     private Connection getConnection() throws ClassNotFoundException, SQLException {
         String connectionString = null;
         connectionString = "jdbc:sochi:local";
