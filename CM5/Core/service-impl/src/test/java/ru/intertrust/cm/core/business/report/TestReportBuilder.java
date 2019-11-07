@@ -39,7 +39,7 @@ public class TestReportBuilder {
 
         when(applicationContext.getBean(anyString())).thenReturn(new ReportParameterResolver(){
             @Override
-            public String resolve(String reportName, Map<String, Object> inParams, Object paramName){
+            public String resolve(String reportName, Map<String, Object> inParams, String paramName){
                 if (paramName.equals("param4")){
                     return "xxx";
                 }else {

@@ -12,7 +12,8 @@
 
     <bean id="hash" class="ru.intertrust.testmodule.url.TestHashFormer" />
     <bean id="testSignatureDataService" class="ru.intertrust.cm.test.crypto.TestSignatureDataService" />
-    
+    <bean id="testReportParamResolver" class="ru.intertrust.cm.test.report.TestReportParamResolver" />
+
     
 
 </beans>

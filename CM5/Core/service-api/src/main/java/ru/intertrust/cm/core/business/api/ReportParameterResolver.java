@@ -14,5 +14,5 @@ public interface ReportParameterResolver {
      * @param paramName Имя параметра, который необходимо преобразовать и подставить в имя файла
      * @return
      */
-    String resolve(String reportName, Map<String, Object> inParams, Object paramName);
+    String resolve(String reportName, Map<String, Object> inParams, String paramName);
 }

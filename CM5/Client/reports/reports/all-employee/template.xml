@@ -1,6 +1,6 @@
 ﻿<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
 <ReportMetadataConfig name="all-employee"
-	description="Все сотрудники" mainTemplate="all-employee" keepDays="5">
+	description="Все сотрудники" mainTemplate="all-employee" keepDays="5" fileNameMask="{name}_{P$test1}" reportParameterResolver="testReportParamResolver">
 	<formats>
 		<format>PDF</format>
 		<format>DOCX</format>

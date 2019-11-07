@@ -61,6 +61,8 @@ public class TestReportService extends ClientBase {
             Map params = new HashMap();
             params.put("ID_PARAMETER", new RdbmsId(100, 1000));
             params.put("DATE_PARAMETER", new Date());
+            params.put("test1", "Любое значение");
+
 
             List listParam = new ArrayList();
             listParam.add(new RdbmsId(200, 2000));
