@@ -297,7 +297,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 for (ComplexQuery nested : nestedQueries) {
                     SolrDocumentList part = nested.execute(rows, query);
                     foundParts.add(part);
-                    clipped = clipped || rows > 0 && part.size() == rows;
+                    clipped = clipped || rows > 0 && part.size() >= rows;
                 }
                 if (foundParts.size() == 1) {
                     result = foundParts.get(0);
