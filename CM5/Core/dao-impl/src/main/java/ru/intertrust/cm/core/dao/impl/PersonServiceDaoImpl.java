@@ -22,6 +22,8 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
+import javax.validation.constraints.NotNull;
+
 public class PersonServiceDaoImpl implements PersonServiceDao {
 
     @Autowired
@@ -108,6 +110,30 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
             result = domainObjectDao.find(collection.get(0).getId(), accessToken);
         }
         
+        return result;
+    }
+
+    @Override
+    @NotNull public List<String> getPersonAltUids(@NotNull String login, @NotNull String alterUidType, @NotNull String desUidType) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        String query = "select b.alter_uid from person_alt_uids a " +
+                "join person_alt_uids b on a.person = b.person " +
+                "where lower(a.alter_uid) = {0} " +
+                "and lower(a.alter_uid_type) = {1} " +
+                "and lower(b.alter_uid_type) = {2}";
+
+        List<Value> params = new ArrayList<Value>();
+        params.add(new StringValue(login.toLowerCase()));
+        params.add(new StringValue(alterUidType.toLowerCase()));
+        params.add(new StringValue(desUidType.toLowerCase()));
+
+        List<String> result = new ArrayList();
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        for (IdentifiableObject row: collection) {
+            result.add(row.getString("alter_uid"));
+        }
+
         return result;
     }
 }

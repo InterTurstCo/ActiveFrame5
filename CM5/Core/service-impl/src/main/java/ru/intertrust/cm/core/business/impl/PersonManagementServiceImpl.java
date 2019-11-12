@@ -6,6 +6,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -168,4 +169,12 @@ public class PersonManagementServiceImpl implements PersonManagementService {
         }
     }
 
+    @Override
+    public List<String> getPersonAltUids(@NotNull String login, @NotNull String alterUidType, @NotNull String desUidType){
+        try {
+            return personServiceDao.getPersonAltUids(login, alterUidType,desUidType);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
 }

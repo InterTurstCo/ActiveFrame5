@@ -160,6 +160,14 @@ public class TestPersonManagementService extends ClientBase {
             assertFalse("Person in group",
                     personService.isPersonInGroup(groupIds.get("group1"), personIds.get("person10")));
 
+            // Добавление альтернативного имени
+            DomainObject person = crudService.find(personIds.get("person" + 1));
+            createAltUid(person.getId(), "U=" + person.getString("login"), "ldap", 0);
+            createAltUid(person.getId(), person.getString("login"), "basic", 1);
+            // Получение альтернативного имени
+            List<String> altUnid = personService.getPersonAltUids(person.getString("login"), "basic", "ldap");
+            assertTrue("Alt uids",altUnid != null && altUnid.size() == 1 && altUnid.get(0).equals("U=" + person.getString("login")));
+
             // Удаление пользователей и групп
             for (int i = 1; i < 15; i++) {
                 // Удаляем пользователя из группы
@@ -177,6 +185,16 @@ public class TestPersonManagementService extends ClientBase {
         } finally {
             writeLog();
         }
+    }
+
+    private DomainObject createAltUid(Id personId, String altLogin, String altLoginType, long idx){
+        DomainObject altUid = crudService.createDomainObject("person_alt_uids");
+        altUid.setReference("person", personId);
+        altUid.setString("alter_uid", altLogin);
+        altUid.setString("alter_uid_type", altLoginType);
+        altUid.setLong("idx", idx);
+        altUid = crudService.save(altUid);
+        return altUid;
     }
 
     private DomainObject createOrganizationDomainObject() {

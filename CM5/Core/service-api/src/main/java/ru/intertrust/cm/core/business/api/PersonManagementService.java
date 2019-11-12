@@ -5,6 +5,8 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Сервис работы с пользователями и группами
  * @author larin
@@ -125,4 +127,14 @@ public interface PersonManagementService {
      * @return
      */
     DomainObject findDynamicGroup(String name, Id contectId);
+
+    /**
+     * Метод возвращает альтернативый login с указанным типом, по другому альтернативному логину с указанным типом
+     * @param login - известный логин
+     * @param alterUidType - тип известного логина
+     * @param desUidType - тип искомого логина
+     * @return - искомые логины
+     */
+    @NotNull
+    List<String> getPersonAltUids(@NotNull String login, @NotNull String alterUidType, @NotNull String desUidType);
 }

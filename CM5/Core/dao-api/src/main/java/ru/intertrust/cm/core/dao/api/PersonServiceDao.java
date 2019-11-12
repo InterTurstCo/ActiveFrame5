@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.access.PersonAltUid;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -42,10 +43,18 @@ public interface PersonServiceDao {
     /**
      * Проверка есть ли у пользователя альтернативное имя определенного типа, и получение доменного объекта Person для данного альтернативного имени. 
      * Если персона не найдена возвращает null 
-     * @param login
      * @param alterUid
      * @param alterUidType
      * @return
      */
     DomainObject findPersonByAltUid(String alterUid, String alterUidType);
+
+    /**
+     * Метод возвращает альтернативый login с указанным типом, по другому альтернативному логину с указанным типом
+     * @param login - известный логин
+     * @param alterUidType - тип известного логина
+     * @param desUidType - тип искомого логина
+     * @return - искомые логины
+     */
+    @NotNull List<String> getPersonAltUids(@NotNull String login, @NotNull String alterUidType, @NotNull String desUidType);
 }
