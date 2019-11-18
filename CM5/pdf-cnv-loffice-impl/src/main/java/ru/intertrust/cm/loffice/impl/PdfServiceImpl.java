@@ -1,5 +1,28 @@
 package ru.intertrust.cm.loffice.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.dao.api.ServerComponentService;
+import ru.intertrust.cm.core.pdf.PdfService;
+import ru.intertrust.cm.core.pdf.PropertiesProvider;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.loffice.exceptions.DefaultPdfConverterException;
+import ru.intertrust.cm.loffice.ooo.BootstrapSocketConnector;
+
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.comp.helper.BootstrapException;
 import com.sun.star.frame.XComponentLoader;
@@ -9,25 +32,6 @@ import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.uno.UnoRuntime;
 import com.sun.star.uno.XComponentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.dao.api.ServerComponentService;
-import ru.intertrust.cm.core.pdf.PdfService;
-import ru.intertrust.cm.core.pdf.PropertiesProvider;
-import ru.intertrust.cm.loffice.exceptions.DefaultPdfConverterException;
-import ru.intertrust.cm.loffice.ooo.BootstrapSocketConnector;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
 
 /**
  * Created by IntelliJ IDEA.

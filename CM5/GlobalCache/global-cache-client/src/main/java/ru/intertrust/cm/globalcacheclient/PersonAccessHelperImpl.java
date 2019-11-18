@@ -21,7 +21,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
@@ -33,7 +33,7 @@ import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 @Stateless(name = "PersonAccessHelper")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Local(PersonAccessHelper.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PersonAccessHelperImpl implements PersonAccessHelper {
     @Autowired
     private PersonManagementServiceDao personManagementDao;

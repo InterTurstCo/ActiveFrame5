@@ -56,12 +56,12 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.model.ActionServiceException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(ActionService.class)
 @Remote(ActionService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
     @Autowired

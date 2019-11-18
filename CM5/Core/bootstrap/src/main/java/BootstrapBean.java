@@ -1,15 +1,17 @@
+import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import javax.annotation.security.RunAs;
-import javax.ejb.*;
-
-import java.lang.reflect.InvocationTargetException;
+import ru.intertrust.cm.core.util.SingletonBeanFactoryLocator;
 
 /**
  * Класс который существует для выполнения инициализационных действий при старте приложения Вызывает
@@ -31,7 +33,7 @@ public class BootstrapBean {
         try {
             logger.info("Initialized ejb context");
             //Загрузка контекста из файла beanRefContex.xml.
-            final BeanFactory beanFactory = ContextSingletonBeanFactoryLocator.getInstance().useBeanFactory(null).getFactory();
+            final BeanFactory beanFactory = SingletonBeanFactoryLocator.getInstance().getBeanFactory(null);
         } catch (Throwable ex) {
             throw new FatalBeanException("Error init spring context", ex);
         }

@@ -26,11 +26,11 @@ import ru.intertrust.cm.core.business.api.dto.globalcache.CheckData;
 import ru.intertrust.cm.core.business.api.dto.globalcache.CheckLockData;
 import ru.intertrust.cm.core.business.api.dto.globalcache.DiagnosticData;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "DiagnosticMessageProcessor")
 @Local(DiagnosticMessageProcessor.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @TransactionManagement(TransactionManagementType.BEAN)
 public class DiagnosticMessageProcessorImpl implements DiagnosticMessageProcessor {

@@ -40,12 +40,12 @@ import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.NotificationException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "NotificationService")
 @Local(NotificationService.class)
 @Remote(NotificationService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);

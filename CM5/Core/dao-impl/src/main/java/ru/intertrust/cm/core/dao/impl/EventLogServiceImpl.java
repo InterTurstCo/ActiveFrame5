@@ -32,11 +32,11 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(EventLogService.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class EventLogServiceImpl implements EventLogService {
 
     private final static Logger logger = LoggerFactory.getLogger(EventLogServiceImpl.class);

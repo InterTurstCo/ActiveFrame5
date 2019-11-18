@@ -47,7 +47,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
@@ -59,7 +59,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 @Stateless
 @Local(ConfigurationControlService.class)
 @Remote(ConfigurationControlService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ConfigurationControlServiceImpl implements ConfigurationControlService {
 
     private enum UpdateType {CONFIGURATION, WORKFLOW, DATA_IMPORT}

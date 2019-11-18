@@ -38,7 +38,6 @@ import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.util.StreamUtils;
 
 import org.springframework.util.StringUtils;
@@ -49,12 +48,12 @@ import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 import ru.intertrust.cm.core.service.api.ReportDS;
 import ru.intertrust.cm.core.service.api.ReportGenerator;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * @author Denis Mitavskiy

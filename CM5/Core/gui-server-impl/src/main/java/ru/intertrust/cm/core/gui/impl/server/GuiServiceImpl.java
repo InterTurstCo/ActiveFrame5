@@ -85,7 +85,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Базовая реализация сервиса GUI
@@ -96,7 +96,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless
 @Local(GuiService.class)
 @Remote(GuiService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService, GuiService.Remote {
 
     @Autowired

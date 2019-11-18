@@ -36,11 +36,11 @@ import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "NotificationSenderAsync")
 @Local(NotificationSenderAsync.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class NotificationSenderAsyncImpl extends NotificationSenderBase implements NotificationSenderAsync {
     final static Logger logger = LoggerFactory.getLogger(NotificationSenderAsyncImpl.class);

@@ -4,27 +4,21 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.ejb.EJB;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionContext;
-
-import javax.annotation.Resource;
-import javax.annotation.security.RunAs;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
 
 /**
  * @author Sergey.Okolot

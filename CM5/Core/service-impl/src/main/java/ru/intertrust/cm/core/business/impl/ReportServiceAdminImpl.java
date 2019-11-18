@@ -57,7 +57,7 @@ import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStream;
@@ -71,7 +71,7 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 @Stateless(name = "ReportServiceAdmin")
 @Local(ReportServiceAdmin.class)
 @Remote(ReportServiceAdmin.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ReportServiceAdminImpl extends ReportServiceBase implements ReportServiceAdmin {
 
     private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);

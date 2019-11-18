@@ -10,14 +10,14 @@ import javax.interceptor.Interceptors;
 
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 
 @Stateless
 @Local(ReportService.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ReportServiceLocalImpl extends ReportServiceImpl {
 

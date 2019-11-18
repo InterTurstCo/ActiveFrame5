@@ -37,7 +37,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Класс, предназначенный для загрузки конфигурации доменных объектов
@@ -48,7 +48,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless
 @Local(InitialDataLoader.class)
 @Remote(InitialDataLoader.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class InitialDataLoaderImpl implements InitialDataLoader {
 
     private static final String ADMIN_LOGIN = "admin";

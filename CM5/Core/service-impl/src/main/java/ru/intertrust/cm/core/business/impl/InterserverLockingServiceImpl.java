@@ -31,7 +31,7 @@ import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
 import ru.intertrust.cm.globalcacheclient.impl.ClusterCommitStampsInfo;
 
@@ -40,7 +40,7 @@ import ru.intertrust.cm.globalcacheclient.impl.ClusterCommitStampsInfo;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Local(InterserverLockingService.class)
 @Remote(InterserverLockingService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class InterserverLockingServiceImpl implements InterserverLockingService {
 

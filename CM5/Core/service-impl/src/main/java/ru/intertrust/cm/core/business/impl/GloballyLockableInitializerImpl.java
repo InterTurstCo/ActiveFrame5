@@ -35,7 +35,7 @@ import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitialize
 import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.process.DeployModuleProcesses;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * {@inheritDoc}
@@ -44,7 +44,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Local(GloballyLockableInitializer.class)
 @Remote(GloballyLockableInitializer.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 @RunAs("system")
 public class GloballyLockableInitializerImpl implements GloballyLockableInitializer, GloballyLockableInitializer.Remote {

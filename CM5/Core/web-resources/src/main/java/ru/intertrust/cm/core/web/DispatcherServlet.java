@@ -1,10 +1,9 @@
 package ru.intertrust.cm.core.web;
 
-import org.springframework.beans.factory.access.BeanFactoryLocator;
-import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.web.context.WebApplicationContext;
+
+import ru.intertrust.cm.core.util.SingletonBeanFactoryLocator;
 
 /**
  * Реализация спрингового DispatcherServlet, для возможности явно задать родительский контекст для контекста сервлета
@@ -23,9 +22,7 @@ public class DispatcherServlet extends org.springframework.web.servlet.Dispatche
         ApplicationContext parentContext = parent;
         //Подмена родительского контекста
         if (parentContextName != null){
-            BeanFactoryLocator locator = ContextSingletonBeanFactoryLocator.getInstance();
-            BeanFactoryReference sochiPlatformContextReference = locator.useBeanFactory(parentContextName);
-            parentContext = (ApplicationContext)sochiPlatformContextReference.getFactory();
+            parentContext = (ApplicationContext) SingletonBeanFactoryLocator.getInstance().getBeanFactory(parentContextName);
         }
         
         return super.createWebApplicationContext(parentContext);

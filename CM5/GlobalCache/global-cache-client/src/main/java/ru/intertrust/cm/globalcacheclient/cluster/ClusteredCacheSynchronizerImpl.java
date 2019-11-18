@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 
 /**
@@ -31,7 +31,7 @@ import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
 @Stateless(name = "ClusteredCacheSynchronizer")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Local(ClusteredCacheSynchronizer.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronizer {
     final static Logger logger = LoggerFactory.getLogger(ClusteredCacheSynchronizerImpl.class);
 

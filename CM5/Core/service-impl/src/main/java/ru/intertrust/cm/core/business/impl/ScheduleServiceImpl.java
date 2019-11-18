@@ -38,7 +38,7 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Реализация сервиса выполнения периодических заданий
@@ -48,7 +48,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless(name = "ScheduleService")
 @Local(ScheduleService.class)
 @Remote(ScheduleService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ScheduleServiceImpl implements ScheduleService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ScheduleServiceImpl.class);

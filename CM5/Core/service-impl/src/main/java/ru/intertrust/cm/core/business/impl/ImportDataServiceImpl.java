@@ -18,12 +18,12 @@ import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.load.ImportData;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "ImportDataService")
 @Local(ImportDataService.class)
 @Remote(ImportDataService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ImportDataServiceImpl implements ImportDataService {
 

@@ -33,14 +33,14 @@ import ru.intertrust.cm.core.business.api.dto.ClusteredLock;
 import ru.intertrust.cm.core.business.api.dto.impl.ClusteredLockImpl;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.globalcacheclient.ClusterTransactionStampService;
 
 @Stateless(name = "ClusteredLockService")
 @RunAs("system")
 @Local(ClusteredLockService.class)
 @Remote(ClusteredLockService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ClusteredLockServiceImpl implements ClusteredLockService {
     private static final Logger logger = LoggerFactory.getLogger(ClusteredLockServiceImpl.class);

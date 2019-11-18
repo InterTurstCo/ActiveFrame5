@@ -11,7 +11,9 @@
      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
 
     <context:annotation-config/>
-
+    
+    <context:component-scan base-package="ru.intertrust.cm.core" />
+    
     <aop:aspectj-autoproxy/>
 
     <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
@@ -301,7 +303,7 @@
                 <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.ResourceHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter"/>
-                <bean class="org.springframework.http.converter.xml.XmlAwareFormHttpMessageConverter"/>
+                <bean class="org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/>
                 <ref bean="mappingJackson2HttpMessageConverter"/>
             </list>

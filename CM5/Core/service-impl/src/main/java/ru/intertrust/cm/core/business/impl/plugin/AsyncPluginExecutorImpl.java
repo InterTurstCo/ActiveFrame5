@@ -33,13 +33,13 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 @Stateless(name = "AsyncPluginExecutor")
 @Local(AsyncPluginExecutor.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
     private static final Logger logger = LoggerFactory.getLogger(AsyncPluginExecutorImpl.class);

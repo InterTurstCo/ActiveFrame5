@@ -14,11 +14,11 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AclData;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnCalculateContextRoleExtensionHandler;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(PermissionAfterCommit.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class PermissionAfterCommitImpl implements PermissionAfterCommit{
     @Autowired

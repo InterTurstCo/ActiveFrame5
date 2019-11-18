@@ -27,11 +27,11 @@ import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExten
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "AfterCommitExtensionPointService")
 @Local(AfterCommitExtensionPointService.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.CONTAINER)
 public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensionPointService {
     @Autowired

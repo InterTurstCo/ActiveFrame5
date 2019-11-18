@@ -20,7 +20,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -30,7 +30,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless(name = "PermissionService")
 @Local(PermissionService.class)
 @Remote(PermissionService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PermissionServiceImpl implements PermissionService {
 
     private static final Logger logger = LoggerFactory.getLogger(PermissionServiceImpl.class);

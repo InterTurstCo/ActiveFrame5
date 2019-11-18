@@ -26,7 +26,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Java Message Driven Bean for Configuration updates processing (updating caches, etc.)
@@ -35,7 +35,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Topic"),
         @ActivationConfigProperty(propertyName="destination", propertyValue="topic/ConfigurationUpdateTopic")
 })
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ConfigurationUpdateHandler implements MessageListener {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationUpdateHandler.class);

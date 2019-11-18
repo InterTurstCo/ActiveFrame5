@@ -20,12 +20,12 @@ import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(AccessVerificationService.class)
 @Remote(AccessVerificationService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class AccessVerificationServiceImpl implements AccessVerificationService {
 
     final static Logger logger = LoggerFactory.getLogger(AccessVerificationServiceImpl.class);

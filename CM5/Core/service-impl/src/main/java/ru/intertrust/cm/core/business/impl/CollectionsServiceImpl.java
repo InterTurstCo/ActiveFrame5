@@ -1,8 +1,15 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.List;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CollectionsServiceDelegate;
 import ru.intertrust.cm.core.business.api.DataSourceContext;
@@ -12,12 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import java.util.List;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * @author vmatsukevich

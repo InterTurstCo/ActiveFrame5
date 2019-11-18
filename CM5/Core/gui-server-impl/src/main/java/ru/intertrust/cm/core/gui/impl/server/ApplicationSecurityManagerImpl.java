@@ -20,10 +20,10 @@ import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.authentication.AuthenticationProvider;
 import ru.intertrust.cm.core.gui.api.server.authentication.SecurityConfig;
 import ru.intertrust.cm.core.gui.impl.server.action.access.SecurityConfigImpl;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Singleton(name = "ApplicationSecurityManager")
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @Startup
 public class ApplicationSecurityManagerImpl implements ApplicationSecurityManager {
 

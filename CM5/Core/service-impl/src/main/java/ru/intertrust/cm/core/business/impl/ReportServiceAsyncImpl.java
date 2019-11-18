@@ -16,12 +16,10 @@ import javax.interceptor.Interceptors;
 import javax.transaction.Status;
 import javax.transaction.SystemException;
 
-import org.activiti.engine.impl.cfg.TransactionState;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.ReportService;
@@ -36,11 +34,11 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.ReportServiceException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(ReportServiceAsync.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ReportServiceAsyncImpl implements ReportServiceAsync {
     private static final Logger logger = LoggerFactory.getLogger(ReportServiceAsyncImpl.class);

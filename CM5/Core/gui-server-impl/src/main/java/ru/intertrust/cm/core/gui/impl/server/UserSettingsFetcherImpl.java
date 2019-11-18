@@ -19,7 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -29,7 +29,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless(name = "UserSettingsFetcher")
 @Local(UserSettingsFetcher.class)
 @Remote(UserSettingsFetcher.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class UserSettingsFetcherImpl implements UserSettingsFetcher {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;

@@ -28,7 +28,7 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
@@ -40,7 +40,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 @Stateless
 @Local(ConfigurationLoadService.class)
 @Remote(ConfigurationLoadService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, ConfigurationLoadService.Remote {
 

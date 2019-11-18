@@ -35,12 +35,12 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "CryptoService")
 @Local(CryptoService.class)
 @Remote(CryptoService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class CryptoServiceImpl implements CryptoService, ApplicationListener<ConfigurationUpdateEvent> {
 
     @Autowired

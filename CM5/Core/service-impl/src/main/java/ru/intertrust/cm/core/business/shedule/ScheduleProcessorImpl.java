@@ -35,12 +35,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless
 @Local(ScheduleProcessor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ScheduleProcessorImpl implements ScheduleProcessor {
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
 

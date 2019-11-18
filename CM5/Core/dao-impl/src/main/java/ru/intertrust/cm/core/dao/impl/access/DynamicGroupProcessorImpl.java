@@ -21,11 +21,11 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.DynamicGroupProcessor;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "DynamicGroupProcessor")
 @Local(DynamicGroupProcessor.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class DynamicGroupProcessorImpl implements DynamicGroupProcessor {
     private static final Logger logger = LoggerFactory.getLogger(DynamicGroupProcessorImpl.class);

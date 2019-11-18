@@ -30,7 +30,7 @@ import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Данный сервис загружает системные справочники из *.CSV файлов которые указаны
@@ -41,7 +41,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless
 @Local(ImportSystemData.class)
 @Remote(ImportSystemData.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.Remote {
 

@@ -33,14 +33,14 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Created by Ravil on 16.01.2018.
  */
 @Stateless(name = "settingsUtilImpl")
 @Local(SettingsUtil.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SettingsUtilImpl implements SettingsUtil {

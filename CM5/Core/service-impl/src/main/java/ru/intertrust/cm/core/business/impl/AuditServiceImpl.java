@@ -19,7 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.VersionComparisonResult;
 import ru.intertrust.cm.core.business.api.dto.VersionComparisonResultImpl;
 import ru.intertrust.cm.core.dao.api.AuditLogServiceDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Интерфейс сервиса работы с Audit логом
@@ -29,7 +29,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless(name = "AuditService")
 @Local(AuditService.class)
 @Remote(AuditService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class AuditServiceImpl implements AuditService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(AuditServiceImpl.class);

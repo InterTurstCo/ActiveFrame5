@@ -9,14 +9,14 @@ import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.gui.api.server.HttpRequestFilterUser;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Created by Ravil on 16.10.2017.
  */
 @Stateless(name = "HttpRequestFilterUser")
 @Local(HttpRequestFilterUser.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class HttpRequestFilterPlatform implements HttpRequestFilterUser {
 
 

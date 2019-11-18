@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStream;
@@ -18,7 +18,7 @@ import com.healthmarketscience.rmiio.RemoteInputStream;
  */
 @Stateless
 @Local(AttachmentService.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class LocalAttachmentServiceImpl extends BaseAttachmentServiceImpl implements AttachmentService {
 
     @Override

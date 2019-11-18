@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.CollectionsServiceDelegate}
@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless
 @Local(CollectionsServiceDelegate.class)
 @Remote(CollectionsServiceDelegate.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class NonTransactionalCollectionsServiceImpl extends CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
 

@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 import java.util.ArrayList;
 
 /**
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 @Stateless
 @Local(ConfigurationService.class)
 @Remote(ConfigurationService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ConfigurationServiceImpl implements ConfigurationService {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationServiceImpl.class);

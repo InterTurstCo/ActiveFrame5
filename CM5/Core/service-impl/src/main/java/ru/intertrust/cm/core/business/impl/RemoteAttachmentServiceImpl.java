@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
@@ -18,7 +18,7 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
  */
 @Stateless
 @Remote(AttachmentService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class RemoteAttachmentServiceImpl extends BaseAttachmentServiceImpl implements AttachmentService.Remote {
     @Override
     protected RemoteInputStream wrapStream(InputStream inputStream) throws RemoteException {

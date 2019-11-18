@@ -1,6 +1,27 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,9 +29,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
@@ -22,22 +54,15 @@ import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.*;
+import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
+import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
+import ru.intertrust.cm.core.gui.model.csv.JsonExtendedSearchCSVRequest;
+import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
+import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Yaroslav Bondarchuk

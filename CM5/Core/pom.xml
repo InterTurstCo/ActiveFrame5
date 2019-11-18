@@ -69,4 +69,21 @@
 
     </dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                	<annotationProcessorPaths>
+		        		<annotationProcessorPath>
+							<groupId>org.springframework</groupId>
+							<artifactId>spring-context-indexer</artifactId>
+							<version>${spring.version}</version>
+		                </annotationProcessorPath>
+		         	</annotationProcessorPaths>
+             	</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

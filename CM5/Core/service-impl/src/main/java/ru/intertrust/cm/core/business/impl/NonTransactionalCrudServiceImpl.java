@@ -17,7 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.CrudServiceDelegate}
@@ -28,7 +28,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Local(CrudServiceDelegate.class)
 @Remote(CrudServiceDelegate.Remote.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class NonTransactionalCrudServiceImpl extends CrudServiceBaseImpl {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(NonTransactionalCrudServiceImpl.class);

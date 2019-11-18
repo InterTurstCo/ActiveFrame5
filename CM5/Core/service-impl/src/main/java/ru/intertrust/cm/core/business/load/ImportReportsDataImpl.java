@@ -29,7 +29,7 @@ import ru.intertrust.cm.core.config.module.ReportTemplateConfiguration;
 import ru.intertrust.cm.core.config.module.ReportTemplateDirConfiguration;
 import ru.intertrust.cm.core.config.module.ReportTemplateFileConfiguration;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * @author Lesia Puhova
@@ -39,7 +39,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Stateless
 @Local(ImportReportsData.class)
 @Remote(ImportReportsData.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ImportReportsDataImpl implements ImportReportsData, ImportReportsData.Remote {
 
     @Autowired

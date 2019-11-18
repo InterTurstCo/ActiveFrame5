@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * @author Denis Mitavskiy
@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
 @Singleton(name = "StatisticsGatherer")
 @TransactionManagement(TransactionManagementType.CONTAINER)
 @Local(StatisticsGatherer.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class StatisticsGathererImpl implements StatisticsGatherer {
     private final static Logger logger = LoggerFactory.getLogger(StatisticsGathererImpl.class);
     private static final Object LOCK = new Object();

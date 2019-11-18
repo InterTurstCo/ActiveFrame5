@@ -36,7 +36,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 /**
  * Класс менеджера кластера. Записывает данные о своей активности, кроме того
@@ -48,7 +48,7 @@ import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
  *
  */
 @Singleton(name = "ClusterManager")
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @RunAs("system")
 @Startup
 public class ClusterManagerImpl implements ClusterManager{

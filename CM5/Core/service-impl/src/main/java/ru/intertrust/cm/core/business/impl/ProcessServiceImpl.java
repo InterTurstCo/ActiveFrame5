@@ -46,12 +46,12 @@ import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "ProcessService")
 @Local(ProcessService.class)
 @Remote(ProcessService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ProcessServiceImpl implements ProcessService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);

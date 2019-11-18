@@ -10,8 +10,7 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <context:annotation-config />
-    <context:component-scan base-package="ru.intertrust.cm" />
-
+    
     <bean id="springApplicationContext" class="ru.intertrust.cm.core.util.SpringApplicationContext"/>
 
     <bean id="moduleService" class="ru.intertrust.cm.core.config.impl.ModuleServiceImpl" init-method="init"/>

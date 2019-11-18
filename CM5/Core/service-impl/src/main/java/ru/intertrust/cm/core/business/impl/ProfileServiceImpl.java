@@ -46,12 +46,12 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.ProfileException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "ProfileService")
 @Local(ProfileService.class)
 @Remote(ProfileService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ProfileServiceImpl implements ProfileService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProfileServiceImpl.class);

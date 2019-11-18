@@ -1,15 +1,16 @@
 package ru.intertrust.cm.core.initialize;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.BeanFactory;
-import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.web.WebApplicationInitializer;
-import ru.intertrust.cm.core.business.impl.GloballyLockableInitializer;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import ru.intertrust.cm.core.business.impl.GloballyLockableInitializer;
+import ru.intertrust.cm.core.util.SingletonBeanFactoryLocator;
 
 /**
  * Created by Vitaliy.Orlov on 04.05.2018.
@@ -23,7 +24,7 @@ public abstract class PlatformWebApplicationInitializer implements WebApplicatio
             logger.info("Initialized ejb context");
 
             //Загрузка контекста из файла beanRefContex.xml.
-            final BeanFactory beanFactory = ContextSingletonBeanFactoryLocator.getInstance().useBeanFactory(null).getFactory();
+            final BeanFactory beanFactory = SingletonBeanFactoryLocator.getInstance().getBeanFactory(null);
 
             logger.info("Initialized spring context");
 

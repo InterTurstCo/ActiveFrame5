@@ -36,12 +36,12 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SearchException;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "SearchService")
 @Local(SearchService.class)
 @Remote(SearchService.Remote.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     protected Logger log = LoggerFactory.getLogger(getClass());

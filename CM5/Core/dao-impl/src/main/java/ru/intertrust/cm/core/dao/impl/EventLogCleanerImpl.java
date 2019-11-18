@@ -36,12 +36,12 @@ import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 // отдельный бин сделан для использования в нем пользовательских транзакций
 @Stateless
 @Local(EventLogCleaner.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class EventLogCleanerImpl implements EventLogCleaner {
 

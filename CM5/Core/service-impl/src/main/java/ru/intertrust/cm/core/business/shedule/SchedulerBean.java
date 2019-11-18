@@ -62,10 +62,10 @@ import ru.intertrust.cm.core.dao.api.SchedulerDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Singleton(name = "SchedulerBean")
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 @RunAs("system")
 @Startup
