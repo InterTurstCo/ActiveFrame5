@@ -196,6 +196,7 @@
                 <value>ru.intertrust.cm.core.dao.api.extension.ExtensionPoint</value>
                 <value>ru.intertrust.cm.core.dao.api.component.ServerComponent</value>
                 <value>ru.intertrust.cm.core.config.doel.DoelFunction</value>
+                <value>ru.intertrust.cm.core.business.api.schedule.ScheduleTask</value>
             </array>
         </constructor-arg>
     </bean>
