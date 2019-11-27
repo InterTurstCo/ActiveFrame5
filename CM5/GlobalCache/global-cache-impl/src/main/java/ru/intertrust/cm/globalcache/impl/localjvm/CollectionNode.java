@@ -28,7 +28,6 @@ public class CollectionNode implements Sizeable {
         this.collection = collection;
         this.count = count;
         this.timeRetrieved = timeRetrieved;
-        this.size = new Size(SizeEstimator.estimateSize(this));
     }
 
     public IdentifiableObjectCollection getCollection() {
@@ -45,6 +44,9 @@ public class CollectionNode implements Sizeable {
 
     @Override
     public Size getSize() {
+        if (size == null){
+            this.size = new Size(SizeEstimator.estimateSize(this));
+        }
         return size;
     }
 }
