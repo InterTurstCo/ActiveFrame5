@@ -2,7 +2,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
-    <search-area name="Внутренние документы">
+    <search-area name="Внутренние документы" replace="runtime">
         <target-domain-object type="Internal_Document">
             <indexed-field name="RegNum"/>
             <indexed-field name="Name"/>
@@ -61,9 +61,13 @@
         </target-domain-object>
     </search-area>
 
-    <search-area name="Сотрудники">
+    <search-area name="Сотрудники" replace="runtime">
         <target-domain-object type="Employee">
-            <indexed-field name="FirstName"/>
+            <indexed-field name="FirstName">
+                <script>
+                    ctx.get('FirstName') + "_qwerty"
+                </script>
+            </indexed-field>
             <indexed-field name="LastName"/>
             <indexed-field name="EMail"/>
             <indexed-field name="Position"/>
@@ -79,6 +83,7 @@
             </indexed-field>
             <target-collection name="Employees"/>
         </target-domain-object>
+
         <target-domain-object type="Department">
             <indexed-field name="Name"/>
             <indexed-field name="Organization">
@@ -104,11 +109,12 @@
         </target-domain-object>
     </search-area>
 
-    <search-area name="Countries-Search-Area">
+    <search-area name="Countries-Search-Area" replace="runtime">
         <target-domain-object type="Country">
             <indexed-field name="name"/>
             <indexed-field name="independence_day"/>
             <indexed-field name="description"/>
+            <indexed-field name="population"/>
             <target-collection name="Countries"/>
         </target-domain-object>
     </search-area>

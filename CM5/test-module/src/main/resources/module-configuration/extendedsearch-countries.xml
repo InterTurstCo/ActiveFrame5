@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
     <form name="extendedsearch_countries_form" domain-object-type="Country" type="search" debug="false"
-          min-width="500px" is-default = "false">
+          min-width="500px" is-default = "false" replace="runtime">
         <markup>
             <header>
                 <table>
@@ -53,7 +53,7 @@
     </form>
 
     <form name="extendedsearch_countries_form2" domain-object-type="Country" type="search" debug="false"
-          min-width="500px" is-default = "false">
+          min-width="500px" is-default = "false" replace="runtime">
         <markup>
             <header>
                 <table>

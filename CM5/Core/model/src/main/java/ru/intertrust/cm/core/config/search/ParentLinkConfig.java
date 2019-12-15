@@ -4,6 +4,8 @@ import org.simpleframework.xml.Attribute;
 
 import ru.intertrust.cm.core.config.DoelAware;
 
+import java.util.Objects;
+
 public class ParentLinkConfig extends DoelAware {
 
     @Attribute(required = false)
@@ -14,12 +16,16 @@ public class ParentLinkConfig extends DoelAware {
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode() * 31 ^ type.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ParentLinkConfig that = (ParentLinkConfig) o;
+        return Objects.equals(type, that.type);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return super.equals(obj) && type.equals(((ParentLinkConfig) obj).type);
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), type);
     }
 }
