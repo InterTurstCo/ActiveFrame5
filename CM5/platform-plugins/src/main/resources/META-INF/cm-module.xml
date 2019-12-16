@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="https://cm5.intertrust.ru/config/module"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="https://cm5.intertrust.ru/config/module ../config/module.xsd">
+
+    <name>platform-plugins</name>
+
+    <description>Плагины модуля ядра</description>
+
+    <depends>
+        <depend>core</depend>
+    </depends>
+
+    <extension-points-packages>
+        <extension-points-package>ru.intertrust.cm.plugins</extension-points-package>
+    </extension-points-packages>
+
+</module>

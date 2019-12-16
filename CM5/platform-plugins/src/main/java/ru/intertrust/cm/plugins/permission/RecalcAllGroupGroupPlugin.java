@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.dao.access.DynamicGroupProcessor;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.plugins.PluginBase;
 
 @Plugin(name = "RecalcAllGroupGroupPlugin", description = "Пересчет состава всех групп в системе из иерархической в плоскую", transactional = false)
 public class RecalcAllGroupGroupPlugin extends PluginBase implements PluginHandler {

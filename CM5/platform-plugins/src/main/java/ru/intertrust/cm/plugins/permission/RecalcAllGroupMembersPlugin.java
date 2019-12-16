@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.business.api.plugin.Plugin;
 import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.dao.access.DynamicGroupProcessor;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.plugins.PluginBase;
 
 @Plugin(name = "RecalcAllGroupMembersPlugin",
         description = "Пересчет состава всех динамических групп по конфигурации. Поддерживаются параметры packageSize и threadCount", transactional = false)
