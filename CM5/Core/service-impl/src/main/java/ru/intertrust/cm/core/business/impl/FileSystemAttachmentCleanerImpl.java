@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.ejb.EJBContext;
+import javax.ejb.SessionContext;
 import javax.transaction.Status;
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +59,9 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
     private Environment env;
 
     public String clean(EJBContext ejbContext){
-        Worker worker = new Worker();
+        SessionContext sessionContext = (SessionContext)ejbContext;
+
+        Worker worker = new Worker(sessionContext);
         try {
             if (Status.STATUS_ACTIVE != ejbContext.getUserTransaction().getStatus()) {
                 ejbContext.getUserTransaction().begin();
@@ -69,12 +72,12 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
                 return "No attachment types";
             }
             worker.accessToken = accessControlService.createSystemAccessToken(getClass().getName());
-            worker.ejbContext = ejbContext;
 
             for (String root : getAllStorageRoots()) {
                 worker.root = Paths.get(root);
                 Files.walkFileTree(worker.root, worker);
-                if (Thread.currentThread().isInterrupted()) {
+                if (sessionContext.wasCancelCalled()) {
+                    logger.info("Work is canceled");
                     break;
                 }
             }
@@ -86,7 +89,7 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
             throw new FatalException(ex);
         }
 
-        String result = Thread.currentThread().isInterrupted() ? "Interrupted" : "Complete";
+        String result = sessionContext.wasCancelCalled() ? "CancelCalled" : "Complete";
         result += "; " + worker.deleteCount + " file(s) deleted [processed "
                 + worker.fileCount + " files in " + worker.dirCount + " directories]";
         if (worker.errorCount > 0) {
@@ -123,24 +126,28 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
         Path root;
         String[] attachmentTypes;
         AccessToken accessToken;
-        EJBContext ejbContext;
+        SessionContext sessionContext;
 
         int fileCount = 0;
         int dirCount = 0;
         int deleteCount = 0;
         int errorCount = 0;
 
+        public Worker(SessionContext sessionContext){
+            this.sessionContext = sessionContext;
+        }
+
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attr) {
             logger.trace("Processing directory " + dir);
-            return Thread.currentThread().isInterrupted() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
+            return sessionContext.wasCancelCalled() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult postVisitDirectory(Path dir, IOException ex) {
             // TODO directory can be removed if it became empty
             ++dirCount;
-            return Thread.currentThread().isInterrupted() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
+            return sessionContext.wasCancelCalled() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
         }
 
         @Override
@@ -161,20 +168,20 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
             ++fileCount;
             if (fileCount % fileDeleteBatchSize == 0) {
                 try {
-                    ejbContext.getUserTransaction().commit();
-                    ejbContext.getUserTransaction().begin();
+                    sessionContext.getUserTransaction().commit();
+                    sessionContext.getUserTransaction().begin();
                 } catch (Exception e) {
                     throw new FatalException("Transaction switching problem", e);
                 }
             }
-            return Thread.currentThread().isInterrupted() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
+            return sessionContext.wasCancelCalled() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
         }
 
         @Override
         public FileVisitResult visitFileFailed(Path file, IOException ex) {
             ++errorCount;
             logger.warn("Error access file " + file, ex);
-            return Thread.currentThread().isInterrupted() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
+            return sessionContext.wasCancelCalled() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
         }
 
         private boolean isLinkedInDo(String relativePath) {
