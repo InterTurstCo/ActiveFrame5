@@ -492,8 +492,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     private Set<Id> recalcGroupGroupForGroupAndChildGroups(Id groupId, boolean hierarchy, AccessToken accessToken) {
         // Получаем состав группы из конфигурации
-        HashMap<Id, Set<Id>> groupsMembers = new HashMap<Id, Set<Id>>();
-        getAllChildGroupsIdByConfig(groupsMembers, groupId, accessToken);
+        HashMap<Id, Set<Id>> groupsMembers = getAllChildGroupsIdByConfig(groupId, accessToken);
         //В результате groupsMembers содержит информацию о составе переданной группы и всех дочерних групп, с учетом иерархии
 
         Set<Id> result = new HashSet<Id>();
@@ -562,47 +561,52 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     /**
      * Рекурсивное получение настройки вхождения группы в группу из таблицы
-     * group_group_settings
-     * 
-     * @param parentRoleId
-     * @return
-     * @throws ServerException
+     * group_group_settings.
+     *
+     * @param parent родительская группа
+     * @param accessToken маркер доступа
+     * @return контейнер Map, в качестве ключа хранится ID родительской группы, в качестве значения ID дочерних групп
      */
-    private void getAllChildGroupsIdByConfig(HashMap<Id, Set<Id>> groupsMembers, Id parent, AccessToken accessToken) {
-        HashSet<Id> allGroups = new HashSet<>();
-        //Непосредственные вхождения
-        String query = "select child_group_id from group_group_settings where parent_group_id = {0}";
+    private HashMap<Id, Set<Id>> getAllChildGroupsIdByConfig(Id parent, AccessToken accessToken) {
 
-        /*String query = "with recursive s as( " +
-                "select ggs.child_group_id " +
+        // Рекурсивный запрос получения групп входящих в parent группу
+        String query = "with recursive s as( " +
+                "select ggs.parent_group_id, ggs.child_group_id " +
                 "from group_group_settings ggs " +
                 "where parent_group_id = {0} " +
                 "union " +
-                "select ggs.child_group_id " +
+                "select ggs.parent_group_id, ggs.child_group_id " +
                 "from group_group_settings ggs " +
                 "join s on s.child_group_id = ggs.parent_group_id " +
                 ") " +
-                "select child_group_id from s";*/
+                "select parent_group_id, child_group_id from s";
 
         List<Value> params = new ArrayList<Value>();
         params.add(new ReferenceValue(parent));
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
 
-        Set<Id> childGroups = getIds(collection);
-        allGroups.addAll(childGroups);
-        //В цикле собираем информацию о составе дочерних групп
-        for (Id childGroup : childGroups) {
-            //Получаем состав дочерних групп
-            getAllChildGroupsIdByConfig(groupsMembers, childGroup, accessToken);
-            //Добавляем состав дочерних групп в основную группу
-            allGroups.addAll(groupsMembers.get(childGroup));
+        // Добавляем в результат
+        HashMap<Id, Set<Id>> groupsMembers = new HashMap<>();
+        if (collection.size() > 0) {
+            for (IdentifiableObject row : collection) {
+                Set<Id> childGroups = groupsMembers.get(row.getReference("parent_group_id"));
+                if (childGroups == null) {
+                    childGroups = new HashSet<>();
+                    groupsMembers.put(row.getReference("parent_group_id"), childGroups);
+                }
+                childGroups.add(row.getReference("child_group_id"));
+            }
+        }else{
+            // Добавляем в результат для родительской группы пустую коллекцию, что не словить NPE
+            groupsMembers.put(parent, new HashSet<>());
         }
-        groupsMembers.put(parent, allGroups);
+
+        return groupsMembers;
     }
 
     /**
      * Получение списка идентификаторов элементов коллекции
-     * @param domainObjects
+     * @param collection
      * @return
      */
     private Set<Id> getIds(IdentifiableObjectCollection collection) {
