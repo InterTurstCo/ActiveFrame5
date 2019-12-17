@@ -572,6 +572,18 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         HashSet<Id> allGroups = new HashSet<>();
         //Непосредственные вхождения
         String query = "select child_group_id from group_group_settings where parent_group_id = {0}";
+
+        /*String query = "with recursive s as( " +
+                "select ggs.child_group_id " +
+                "from group_group_settings ggs " +
+                "where parent_group_id = {0} " +
+                "union " +
+                "select ggs.child_group_id " +
+                "from group_group_settings ggs " +
+                "join s on s.child_group_id = ggs.parent_group_id " +
+                ") " +
+                "select child_group_id from s";*/
+
         List<Value> params = new ArrayList<Value>();
         params.add(new ReferenceValue(parent));
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
