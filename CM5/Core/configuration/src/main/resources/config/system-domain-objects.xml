@@ -175,7 +175,22 @@
             <attachment-type name="execution_log"/>
         </attachment-types>
     </domain-object-type>
-    
+
+    <!--
+         Идентификатор кластера.
+         Таблица содержит только одну запись всегда.
+         Заполняется один раз при старте на пустой базе.
+    -->
+    <domain-object-type name="cluster_info" initial-status="Active">
+        <fields>
+            <string name="cluster_id" length="256" not-null="true"/>
+            <long name="singleton_key" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="singleton_key"/>
+        </uniqueKey>
+    </domain-object-type>
+
     <domain-object-type name="cluster_node" initial-status="Active">
         <fields>
             <string name="node_id" length="256" not-null="true"/>

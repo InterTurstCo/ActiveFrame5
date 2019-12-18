@@ -12,7 +12,13 @@ public interface ClusterManagerDao {
      * @return
      */
     String getNodeId();
-    
+
+    /**
+     * Получение идентификатора кластера
+     * @return
+     */
+    String getClusterId();
+
     /**
      * Получение имени узла кластера
      * @return
