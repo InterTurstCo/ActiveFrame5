@@ -21,10 +21,13 @@ import ru.intertrust.cm.core.dao.api.ClusterManagerDao;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.dao.api.extension.NotManagerDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
+import ru.intertrust.cm.core.model.FatalException;
 
 @ExtensionPoint
-public class ClusterManagerDaoImpl implements ClusterManagerDao, OnLoadConfigurationExtensionHandler {
+public class ClusterManagerDaoImpl implements ClusterManagerDao, PreDataLoadApplicationInitializer, NotManagerDataLoadApplicationInitializer {
     final private static Logger logger = LoggerFactory.getLogger(ClusterManagerDaoImpl.class);
     final private static long SINGLETON_KEY_VALUE = 1;
     final private static String CLUSTER_INFO = "cluster_info";
@@ -73,20 +76,37 @@ public class ClusterManagerDaoImpl implements ClusterManagerDao, OnLoadConfigura
     }
 
 
-    @Override
-    public void onLoad() {
-        // Инициализация идентификатора кластера
+    private void initClusterId(boolean clusterManager){
         AccessToken token = accessControlService.createSystemAccessToken(ClusterManagerDaoImpl.class.getName());
         DomainObject clusterInfo =  domainObjectDao.findByUniqueKey(
-                CLUSTER_INFO, Collections.singletonMap("singleton_key", new LongValue(SINGLETON_KEY_VALUE)), token);
+                CLUSTER_INFO, Collections.singletonMap(SINGLETON_KEY_FIELD, new LongValue(SINGLETON_KEY_VALUE)), token);
         if (clusterInfo == null){
-            clusterId = UUID.randomUUID().toString();
-            clusterInfo = new GenericDomainObject(CLUSTER_INFO);
-            clusterInfo.setString(CLUSTER_ID_FIELD, clusterId);
-            clusterInfo.setLong(SINGLETON_KEY_FIELD, SINGLETON_KEY_VALUE);
-            domainObjectDao.save(clusterInfo, token);
+            if (clusterManager) {
+                clusterId = UUID.randomUUID().toString();
+                clusterInfo = new GenericDomainObject(CLUSTER_INFO);
+                clusterInfo.setString(CLUSTER_ID_FIELD, clusterId);
+                clusterInfo.setLong(SINGLETON_KEY_FIELD, SINGLETON_KEY_VALUE);
+                domainObjectDao.save(clusterInfo, token);
+            }else{
+                throw new FatalException("Cluster ID is not initialised. Table CLUSTER_INFO is empty.");
+            }
         }else{
             clusterId = clusterInfo.getString(CLUSTER_ID_FIELD);
         }
+    }
+    /**
+     * Инициализация идентификатора кластера, вызывается на не менеджерах кластера
+     */
+    @Override
+    public void notManagerinitialize() {
+        initClusterId(false);
+    }
+
+    /**
+     * Инициализация идентификатора кластера, вызывается на менеджере кластера
+     */
+    @Override
+    public void initialize() {
+        initClusterId(true);
     }
 }

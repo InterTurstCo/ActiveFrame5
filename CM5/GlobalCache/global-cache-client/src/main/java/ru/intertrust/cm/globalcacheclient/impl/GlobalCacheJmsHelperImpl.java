@@ -427,7 +427,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                         PingData pingData = (PingData) invalidation.getDiagnosticData();
                         if (pingData.getResponse() != null) {
                             // Это ping ответ
-                            logger.info("Reseive ping response message");
+                            logger.info("Reseive ping response message from " + pingData.getResponse().getNodeName());
 
                             // Формируем результат
                             PingNodeInfo nodeInfo = new PingNodeInfo();
@@ -438,7 +438,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             GlobalCachePingService.setPingResult(pingData.getRequest().getRequestId(), nodeInfo);
                         } else {
                             // Это ping запрос
-                            logger.info("Reseive ping request message");
+                            logger.info("Reseive ping request message from " + pingData.getRequest().getNodeName());
                             //Формируем ответ
                             pingData.setResponse(new PingResponse());
                             pingData.getResponse().setResponseTime(System.currentTimeMillis());
@@ -447,7 +447,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
 
                             //Отправляем ответ
                             GlobalCacheJmsHelperImpl.this.sendClusterNotification(invalidation);
-                            logger.info("Send ping response");
+                            logger.info("Send ping response from " + clusterManagerDao.getNodeName());
                         }
                     } else {
                         logger.info("Receive diagnostic message");
@@ -459,7 +459,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             extensionPoint.onMessage(invalidation.getDiagnosticData());
                         });
                         executor.shutdown();
-                        logger.info("Diagnostic message send to processor");
+                        logger.info("Diagnostic message {} send to processor", invalidation.getDiagnosticData());
                     }
 
                     // Прекращение обработки диагностических сообщений

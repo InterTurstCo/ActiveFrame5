@@ -44,7 +44,7 @@ public class GlobalCachePingService {
     @RequestMapping(value = "/globalcache/ping/{timeout}", method = RequestMethod.GET)
     public PingResult ping(@PathVariable(value = "timeout") Integer timeout) {
         try {
-            logger.info("Ping start");
+            logger.info("Ping start from " + clusterManagerDao.getNodeName());
 
             String nodeName = clusterManagerDao.getNodeName();
             if (nodeName == null) {
