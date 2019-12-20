@@ -1,0 +1,10 @@
+1. Обучение. Часть 1 (ДО, коллекции): https://youtu.be/Fqp1gm54RXY 
+2. Обучение. Часть 2 (GUI): https://youtu.be/LQ_DCawpU7M 
+3. Обучение. Часть 3 (GUI): https://youtu.be/R167-r1uBF4 
+4. Обучение. Права доступа - архитектура, настройка: https://youtu.be/UcG_9XM7_0w 
+    Обучение. Права доступа - архитектура, настройка - вопросы: https://youtu.be/DTr7GIHwlcE 
+5. Обучение Action-api: https://www.youtube.com/watch?v=6dd0SA2XKDs 
+6. Activity Tutorial. Процесс: https://youtu.be/zJo_cjwz9J0 
+   Activity Tutorial. Обзор объектов процесса: https://youtu.be/GoPnx6S_MP8 
+7. Интеграция CM5 с JasperReports: https://www.youtube.com/watch?v=izkBJXswgFo 
+
