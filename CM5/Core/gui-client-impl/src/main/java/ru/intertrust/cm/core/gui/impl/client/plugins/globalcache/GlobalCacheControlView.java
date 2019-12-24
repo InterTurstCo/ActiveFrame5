@@ -398,10 +398,17 @@ public class GlobalCacheControlView extends PluginView {
         controlGrid.setWidget(1, 2, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_MAX_SIZE));
 
         modeListBox = new ListBox();
+        int i = 0;
         for (String key : globalCachePluginData.getControlPanelModel().getModes().keySet()) {
             modeListBox.addItem(globalCachePluginData.getControlPanelModel().getModes().get(key), key);
+
+            // Установка выделенного элемента
+            if (globalCachePluginData.getControlPanelModel().getMode().equals(key)){
+                modeListBox.setItemSelected(i, true);
+            }
+            i++;
         }
-        modeListBox.setItemSelected(globalCachePluginData.getControlPanelModel().getModeIndex(), true);
+
 
         controlGrid.setWidget(0, 3, modeListBox);
 
