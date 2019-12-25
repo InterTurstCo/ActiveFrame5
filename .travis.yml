@@ -2,5 +2,5 @@ dist: trusty
 language: java
 jdk: oraclejdk8
 
-before_install:
-  - mvn -f CM5/pom.xml
+script:
+  - mvn -f CM5/pom.xml clean install
