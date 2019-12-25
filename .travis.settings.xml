@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  
+  <servers>
+    <server>
+			<id>nexus</id>
+			<username>${env.INTTRUST_USER}</username>
+			<password>${env.INTTRUST_PASS}</password>
+		</server>	
+
+    <server>
+			<id>intertrust.repo</id>
+			<username>${env.INTTRUST_USER}</username>
+			<password>${env.INTTRUST_PASS}</password>
+    </server>	
+
+    <server>
+		  <id>intertrust.releases</id>
+		  <username>${env.INTTRUST_USER}</username>
+		  <password>${env.INTTRUST_PASS}</password>
+    </server>
+
+    <server>
+		  <id>intertrust.snapshots</id>
+		  <username>${env.INTTRUST_USER}</username>
+		  <password>${env.INTTRUST_PASS}</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <mirror>
+			<id>nexus</id>
+			<name>InterTrust Proxy Cache</name>
+			<url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
+			<mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+</settings>
