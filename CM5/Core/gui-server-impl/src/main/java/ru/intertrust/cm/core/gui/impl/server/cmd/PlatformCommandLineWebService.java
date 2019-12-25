@@ -1,32 +1,29 @@
 package ru.intertrust.cm.core.gui.impl.server.cmd;
 
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
-import ru.intertrust.cm.core.gui.impl.server.cmd.model.*;
-import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploadProgressListener;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import ru.intertrust.cm.core.gui.impl.server.cmd.model.ErrorPlatformWebServiceResult;
+import ru.intertrust.cm.core.gui.impl.server.cmd.model.PlatformWebServiceResult;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Created by Vitaliy.Orlov on 25.06.2018.
@@ -34,32 +31,35 @@ import java.util.logging.Logger;
 @Controller
 public class PlatformCommandLineWebService {
 
-    private static final Logger log = Logger.getLogger(PlatformCommandLineWebService.class.getName());
+    private static final Logger log = LoggerFactory.getLogger(PlatformCommandLineWebService.class);
 
     @Autowired
-    private ApplicationContext context;
-
+    private PlatformCommandLineService platformCommandLineService;
 
     @ResponseBody
-    @RequestMapping(value = "/execAction", method = RequestMethod.POST)
+    @RequestMapping(value = "/execAction", method = {RequestMethod.POST, RequestMethod.GET})
     public ResponseEntity<PlatformWebServiceResult> upload(HttpServletRequest req, HttpSession session)
             throws IOException, ServletException, FileUploadException {
         PlatformWebServiceResult result = null;
         try{
-            req.setCharacterEncoding("UTF-8");
-            DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
-            ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-            // Parse the request to get file items.
-            List fileItems = upload.parseRequest(req);
             List<FileItem> files = new ArrayList<>();
-            // Process the uploaded file items
-            Iterator iterator = fileItems.iterator();
-            while (iterator.hasNext()) {
-                FileItem item = (FileItem) iterator.next();
-                if (!item.isFormField()) {
-                    log.info("Got an uploaded file: " + item.getFieldName() +
-                            ", name = " + item.getName());
-                    files.add(item);
+
+            req.setCharacterEncoding("UTF-8");
+
+            if (req.getContentType()!= null && req.getContentType().startsWith("multipart/form-data")) {
+                DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
+                ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
+                // Parse the request to get file items.
+                List fileItems = upload.parseRequest(req);
+                // Process the uploaded file items
+                Iterator iterator = fileItems.iterator();
+                while (iterator.hasNext()) {
+                    FileItem item = (FileItem) iterator.next();
+                    if (!item.isFormField()) {
+                        log.info("Got an uploaded file: " + item.getFieldName() +
+                                ", name = " + item.getName());
+                        files.add(item);
+                    }
                 }
             }
 
@@ -70,21 +70,13 @@ public class PlatformCommandLineWebService {
                 throw new RuntimeException("Parameter [beanName] is required");
             }
 
-            String beanName = beanNames[0];
-            Object bean = context.getBean(beanName);
-            if(bean == null){
-                throw new RuntimeException("Can`t find bean with name : "+beanName);
-            }
+            String beanName = beanNames[0].trim();
+            log.debug("Exec bean {}", beanName);
 
-            if(bean instanceof PlatformWebService){
-                PlatformWebService execBean = (PlatformWebService) bean;
-                result = execBean.execute(files, params);
-            }else{
-                throw new RuntimeException("Found bean wiht name ["+beanName+"] is not instance of PlatformWebService");
-            }
-        }catch (Exception e){
-            result = new ErrorPlatformWebServiceResult(e.getMessage());
-
+            result = platformCommandLineService.execute(beanName, files, params);
+        }catch (Exception ex){
+            log.error("Error process request", ex);
+            result = new ErrorPlatformWebServiceResult(ex.getMessage());
         }
         return result instanceof ErrorPlatformWebServiceResult ? new ResponseEntity<PlatformWebServiceResult>(result, HttpStatus.INTERNAL_SERVER_ERROR) :  ResponseEntity.ok(result);
     }
