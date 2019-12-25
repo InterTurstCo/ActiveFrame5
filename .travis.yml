@@ -3,4 +3,4 @@ language: java
 jdk: oraclejdk8
 
 script:
-  - mvn -f CM5/pom.xml clean install -Dmaven.wagon.http.ssl.insecure=true
+  - mvn -f CM5/pom.xml clean install -U -Dmaven.wagon.http.ssl.insecure=true
