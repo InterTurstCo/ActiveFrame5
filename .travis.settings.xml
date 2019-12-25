@@ -28,13 +28,4 @@
 		  <password>${env.INTTRUST_PASS}</password>
     </server>
   </servers>
-
-  <mirrors>
-    <mirror>
-			<id>nexus</id>
-			<name>InterTrust Proxy Cache</name>
-			<url>http://sup.inttrust.ru:8081/nexus/content/groups/public</url>
-			<mirrorOf>*</mirrorOf>
-    </mirror>
-  </mirrors>
 </settings>
