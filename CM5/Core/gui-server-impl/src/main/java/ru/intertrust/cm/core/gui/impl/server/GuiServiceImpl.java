@@ -86,6 +86,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Базовая реализация сервиса GUI
@@ -384,6 +385,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private DomainObject saveFormImpl(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs) {
+        try {
         List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs,
                 userInfo.getLocale());
         if (!errorMessages.isEmpty()) {
@@ -394,6 +396,11 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
         formSaver.setContext(formState, null);
         return formSaver.saveForm();
+        }catch(GuiException ex){
+            throw ex;
+        }catch(Exception ex){
+            throw new GuiException("Error save form " + ex.getMessage());
+    }
     }
 
     public SimpleActionData executeSimpleAction(SimpleActionContext context) {
