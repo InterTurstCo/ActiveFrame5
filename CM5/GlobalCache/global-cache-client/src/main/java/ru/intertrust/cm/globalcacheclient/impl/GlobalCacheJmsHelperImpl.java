@@ -57,7 +57,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
 
     public static final String CLUSTER_NOTIFICATION_CONNECTION_FACTORY = "LocalConnectionFactory";
     public static final String NOTIFICATION_TOPIC = "ClusterNotificationTopic";
-    public static final String CLUSTER_NODE_ID_PROPERTY = "Af5ClusterNodeId";
+    public static final String CLUSTER_ID_PROPERTY = "Af5ClusterId";
 
     @Autowired
     private ClusterManagerDao clusterManagerDao;
@@ -217,7 +217,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                 logger.error("JMS subsystem not initialized");
                 return;
             }
-            
+
             synchronized (GlobalCacheJmsHelperImpl.class) {
                 // Получение метки времени 
                 Stamp<?> stamp = clock.nextStamp();
@@ -264,7 +264,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
             bm.writeBytes(messageBytes);
 
             // Добавляем информацию о ноде
-            bm.setStringProperty(CLUSTER_NODE_ID_PROPERTY, clusterManagerDao.getNodeId());
+            bm.setStringProperty(CLUSTER_ID_PROPERTY, clusterManagerDao.getClusterId());
 
             // отправляем сообщение
             producer.send(sendTopic, bm);
@@ -374,17 +374,18 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
          */
         public void onMessage(Message message) {
             try {
-                final BytesMessage bytesMessage = (BytesMessage) message;
+               final BytesMessage bytesMessage = (BytesMessage) message;
 
                 // Проверка ид ноды
-                String senderNodeId = message.getStringProperty(CLUSTER_NODE_ID_PROPERTY);
-                if (senderNodeId == null){
-                    logger.debug("Message not has node id info in header. Ignoring it.");
+                String senderClusterId = message.getStringProperty(CLUSTER_ID_PROPERTY);
+                if (senderClusterId == null){
+                    logger.debug("Message not has cluster id info in header. Ignoring it.");
                     return;
                 }
 
-                if (!clusterManagerDao.hasNode(senderNodeId)){
-                    logger.debug("Message node id not found in clustar info. Ignoring it.");
+                // Проверяем что сообщения от нашего кластера
+                if (!clusterManagerDao.getClusterId().equals(senderClusterId)){
+                    logger.debug("Message cluster id " + senderClusterId +" not equals current cluster id " + clusterManagerDao.getClusterId() + ". Ignoring it.");
                     return;
                 }
 
@@ -426,7 +427,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                         PingData pingData = (PingData) invalidation.getDiagnosticData();
                         if (pingData.getResponse() != null) {
                             // Это ping ответ
-                            logger.info("Reseive ping response message");
+                            logger.info("Reseive ping response message from " + pingData.getResponse().getNodeName());
 
                             // Формируем результат
                             PingNodeInfo nodeInfo = new PingNodeInfo();
@@ -437,7 +438,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             GlobalCachePingService.setPingResult(pingData.getRequest().getRequestId(), nodeInfo);
                         } else {
                             // Это ping запрос
-                            logger.info("Reseive ping request message");
+                            logger.info("Reseive ping request message from " + pingData.getRequest().getNodeName());
                             //Формируем ответ
                             pingData.setResponse(new PingResponse());
                             pingData.getResponse().setResponseTime(System.currentTimeMillis());
@@ -446,7 +447,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
 
                             //Отправляем ответ
                             GlobalCacheJmsHelperImpl.this.sendClusterNotification(invalidation);
-                            logger.info("Send ping response");
+                            logger.info("Send ping response from " + clusterManagerDao.getNodeName());
                         }
                     } else {
                         logger.info("Receive diagnostic message");
@@ -458,7 +459,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             extensionPoint.onMessage(invalidation.getDiagnosticData());
                         });
                         executor.shutdown();
-                        logger.info("Diagnostic message send to processor");
+                        logger.info("Diagnostic message {} send to processor", invalidation.getDiagnosticData());
                     }
 
                     // Прекращение обработки диагностических сообщений

@@ -14,11 +14,17 @@ public class GlobalCacheControlPanel implements Dto {
     public static final String BLOCKING_MODE_TEXT = "Синхронный";
     public static final String STRICTLY_MODE_TEXT = "Строго-синхронный";
     public static final String NON_BLOCKING_MODE_TEXT = "Асинхронный";
+    public static final String STAMPED_MODE_TEXT = "Stamped";
+    public static final String OPTIMISTIC_STAMPED_MODE_TEXT = "Optimistic Stamped";
+    public static final String SYNCHRONIZED_MODE_TEXT = "Java Synchronized";
     public static final String VALUE_UOM_MB = "Мб";
     public static final String VALUE_UOM_GB = "Гб";
     public static final String BLOCKING_MODE_VALUE = "blocking";
     public static final String STRICTLY_BLOCKING_MODE_VALUE = "strictly-blocking";
     public static final String NON_BLOCKING_MODE_VALUE = "non-blocking";
+    public static final String STAMPED_VALUE = "stamped";
+    public static final String OPTIMISTIC_STAMPED_VALUE = "optimistic-stamped";
+    public static final String SYNCHRONIZED_VALUE = "synchronized";
     public static final String VALUE_UOM_MEGABYTE = "M";
     public static final String VALUE_UOM_GIGABYTE = "G";
 
@@ -132,22 +138,15 @@ public class GlobalCacheControlPanel implements Dto {
         modes.put(BLOCKING_MODE_VALUE, BLOCKING_MODE_TEXT);
         modes.put(STRICTLY_BLOCKING_MODE_VALUE, STRICTLY_MODE_TEXT);
         modes.put(NON_BLOCKING_MODE_VALUE, NON_BLOCKING_MODE_TEXT);
+        modes.put(STAMPED_VALUE, STAMPED_MODE_TEXT);
+        modes.put(OPTIMISTIC_STAMPED_VALUE, OPTIMISTIC_STAMPED_MODE_TEXT);
+        modes.put(SYNCHRONIZED_VALUE, SYNCHRONIZED_MODE_TEXT);
 
         uoms = new LinkedHashMap<>();
         uoms.put(VALUE_UOM_MEGABYTE, VALUE_UOM_MB);
         uoms.put(VALUE_UOM_GIGABYTE, VALUE_UOM_GB);
 
         sizeUom = VALUE_UOM_MEGABYTE;
-    }
-
-    public int getModeIndex(){
-        if (getMode().equals(BLOCKING_MODE_VALUE)) {
-            return 0;
-        } else if (getMode().equals(STRICTLY_BLOCKING_MODE_VALUE)) {
-            return 1;
-        } else {
-            return 2;
-        }
     }
 
     public int getUomIndex(){

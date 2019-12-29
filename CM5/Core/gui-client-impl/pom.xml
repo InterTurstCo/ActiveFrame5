@@ -45,6 +45,7 @@
                         <artifact>ru.intertrust.cm-sochi:model</artifact>
                         <artifact>ru.intertrust.cm-sochi:gui-model</artifact>
                     </compileSourcesArtifacts>
+                    <sourceLevel>auto</sourceLevel>
                 </configuration>
             </plugin>
         </plugins>

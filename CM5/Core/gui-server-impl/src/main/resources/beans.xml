@@ -40,7 +40,10 @@
     <jee:local-slsb id="applicationSecurityManager"
                     jndi-name="java:module/ApplicationSecurityManager!ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager"
                     business-interface="ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager"/>
-                    
+
+    <jee:local-slsb id="platformCommandLineService"
+                    jndi-name="java:module/PlatformCommandLineService!ru.intertrust.cm.core.gui.impl.server.cmd.PlatformCommandLineService"
+                    business-interface="ru.intertrust.cm.core.gui.impl.server.cmd.PlatformCommandLineService"/>
 
     <bean id="applicationVersion" class="ru.intertrust.cm.core.gui.impl.server.util.VersionUtil" scope="singleton" />
 

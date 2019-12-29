@@ -1037,11 +1037,48 @@
                                 </tr>
                                 <tr>
                                     <td h-align="right">
+                                        <widget id="login_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="login"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="firstname_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="firstname"/>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                    <td h-align="right">
+                                        <widget id="lastname_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="lastname"/>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                    <td h-align="right">
+                                        <widget id="email_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="email"/>
+                                    </td>
+                                </tr>
+                                <tr>
+
+                                    <td h-align="right">
                                         <widget id="positionLabel"/>
                                     </td>
                                     <td h-align="left">
                                         <widget id="position"/>
                                     </td>
+                                </tr>
+                                <tr>
 
                                     <td h-align="left">
                                         <widget id="hyperlink"/>
@@ -1049,7 +1086,6 @@
                                     <td h-align="left">
                                         <widget id="label_empty_values"/>
                                     </td>
-
                                 </tr>
                             </table>
                         </tab-group>
@@ -1065,6 +1101,42 @@
             </label>
             <text-box id="Name">
                 <field-path value="Name"/>
+            </text-box>
+
+            <label id="login_label">
+                <field-path/>
+                <relates-to widget-id="login"/>
+                <text>Логин:</text>
+            </label>
+            <text-box id="login">
+                <field-path value="login"/>
+            </text-box>
+
+            <label id="firstname_label">
+                <field-path/>
+                <relates-to widget-id="firstname"/>
+                <text>Имя:</text>
+            </label>
+            <text-box id="firstname">
+                <field-path value="firstname"/>
+            </text-box>
+
+            <label id="lastname_label">
+                <field-path/>
+                <relates-to widget-id="lastname"/>
+                <text>Фамилия:</text>
+            </label>
+            <text-box id="lastname">
+                <field-path value="lastname"/>
+            </text-box>
+
+            <label id="email_label">
+                <field-path/>
+                <relates-to widget-id="email"/>
+                <text>email:</text>
+            </label>
+            <text-box id="email">
+                <field-path value="email"/>
             </text-box>
 
             <label id="Department-Label">

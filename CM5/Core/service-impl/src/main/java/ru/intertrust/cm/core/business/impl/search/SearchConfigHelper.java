@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.search.*;
 import ru.intertrust.cm.core.dao.doel.DoelValidator;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -26,7 +28,7 @@ import java.util.*;
  * 
  * @author apirozhkov
  */
-public class SearchConfigHelper {
+public class SearchConfigHelper implements ApplicationListener<ConfigurationUpdateEvent> {
 
     public static final String ALL_TYPES = "*";
 
@@ -68,6 +70,12 @@ public class SearchConfigHelper {
             Collections.synchronizedMap(new HashMap<Trio<String, List<String>, String>, Collection<String>>());
 
     private List<String> supportedLanguages = null;
+
+    @Override
+    public void onApplicationEvent(ConfigurationUpdateEvent event) {
+        clearCache();
+        logger.info("Config is changed. Cache is cleaned");
+    }
 
     /**
      * Класс, созданный для удобства работы с конфигурацией областей поиска.
@@ -759,5 +767,18 @@ public class SearchConfigHelper {
         return AttachmentService.NAME.equals(fieldName)
                 || AttachmentService.DESCRIPTION.equals(fieldName)
                 || AttachmentService.CONTENT_LENGTH.equals(fieldName);
+    }
+
+    public void clearCache(){
+        effectiveConfigsMap.clear();
+        fieldTypeMap.clear();
+        attachmentParentLinkNameMap.clear();
+        indexedFieldConfigsMap.clear();
+        supportedLanguagesMap.clear();
+        fieldTypesMap.clear();
+        objectTypesContainingFieldMap.clear();
+        objectTypesWithContentMap.clear();
+        indexedFieldConfigMap.clear();
+        applicableTypesMap.clear();
     }
 }

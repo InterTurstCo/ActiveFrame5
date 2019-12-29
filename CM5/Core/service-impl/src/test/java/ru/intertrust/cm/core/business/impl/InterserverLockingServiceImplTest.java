@@ -88,6 +88,11 @@ public class InterserverLockingServiceImplTest {
                         public String getNodeId() {
                             return "node-1-id";
                         }
+
+                        @Override
+                        public String getClusterId() {
+                            return "cluster-1";
+                        }
                     });
                 }
                 return clusterTransactionStampService;

@@ -513,10 +513,13 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     final RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
     request.setLinkedFormName(findLinkedFormName(formState, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig()));
     request.setRootId(oldRowItem.getObjectId());
-    if (index != null && currentState.getIds().size() > index) {
+    /*if (index != null && currentState.getIds().size() > index) {
       List<Id> ids = Arrays.asList(currentState.getIds().get(index));
       request.setIds(ids);
-    }
+    }*/
+
+    request.setIds(Arrays.asList(oldRowItem.getObjectId()));
+
     Command command = new Command("convertFormStateToRowItem", getName(), request);
     BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
       @Override

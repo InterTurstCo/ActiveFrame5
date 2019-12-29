@@ -335,6 +335,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="fileSystemAttachmentCleaner" class="ru.intertrust.cm.core.business.impl.FileSystemAttachmentCleanerImpl"/>
+
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCacheImpl"/>
     </beans>

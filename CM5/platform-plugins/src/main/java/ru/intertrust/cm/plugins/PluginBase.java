@@ -1,4 +1,4 @@
-package ru.intertrust.cm.plugins.permission;
+package ru.intertrust.cm.plugins;
 
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;

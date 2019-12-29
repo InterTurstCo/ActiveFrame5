@@ -6,6 +6,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.List;
+import java.util.Objects;
 
 @Root(name = "search-area")
 public class SearchAreaConfig implements TopLevelConfig {
@@ -39,22 +40,17 @@ public class SearchAreaConfig implements TopLevelConfig {
     }
 
     @Override
-    public int hashCode() {
-        return name.hashCode();
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SearchAreaConfig that = (SearchAreaConfig) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(replacementPolicy, that.replacementPolicy) &&
+                Objects.equals(targetObjects, that.targetObjects);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || !getClass().equals(obj.getClass())) {
-            return false;
-        }
-        final SearchAreaConfig that = (SearchAreaConfig) obj;
-        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
-            return false;
-        }
-        return name.equals(that.name);
+    public int hashCode() {
+        return Objects.hash(name, replacementPolicy, targetObjects);
     }
 }

@@ -120,6 +120,9 @@
         <!-- Плагин SingleRow -->
         <configuration-path>module-configuration/single-row-plugin.xml</configuration-path>
 
+        <!-- Панель NbrBase -->
+        <configuration-path>module-configuration/nbr-base-navigation.xml</configuration-path>
+
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">

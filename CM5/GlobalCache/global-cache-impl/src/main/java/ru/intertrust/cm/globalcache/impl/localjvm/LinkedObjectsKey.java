@@ -14,13 +14,12 @@ public class LinkedObjectsKey implements Sizeable {
     public final String type;
     public final String field;
     public final boolean exactType;
-    public final Size size;
+    public Size size;
 
     public LinkedObjectsKey(String type, String field, boolean exactType) {
         this.type = Case.toLower(type);
         this.field = Case.toLower(field);
         this.exactType = exactType;
-        this.size = new Size(SizeEstimator.estimateSize(this));
     }
 
     @Override
@@ -57,6 +56,9 @@ public class LinkedObjectsKey implements Sizeable {
 
     @Override
     public Size getSize() {
+        if (size == null){
+            size = new Size(SizeEstimator.estimateSize(this));
+        }
         return size;
     }
 }
