@@ -91,8 +91,8 @@ public class WidgetTemplateProcessorImpl implements WidgetTemplateProcessor {
         }
         Field[] fields = WidgetConfig.class.getDeclaredFields(); //checking intersection only on WidgetConfig fields
         for (Field field : fields) {
-            if(Modifier.isFinal(field.getModifiers())){
-                continue; // no need to check constant intersection
+            if(Modifier.isFinal(field.getModifiers()) || field.isSynthetic()){
+                continue; // no need to check constant intersection and Synthetic fields
             }
             checkFieldIntersecting(field, templateBasedWidgetConfig, errors);
         }

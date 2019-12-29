@@ -6,7 +6,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.gui.impl.server.cmd.PlatformCommandLineService;
 import ru.intertrust.cm.core.gui.impl.server.cmd.model.PlatformWebService;
 import ru.intertrust.cm.core.gui.impl.server.cmd.model.PlatformWebServiceResult;
-import ru.intertrust.cm.core.util.CustomSpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 @Stateless(name = "PlatformCommandLineService")
 @Local(PlatformCommandLineService.class)
-@Interceptors(CustomSpringBeanAutowiringInterceptor.class)
+@Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PlatformCommandLineServiceImpl implements PlatformCommandLineService {
 
     @Autowired
