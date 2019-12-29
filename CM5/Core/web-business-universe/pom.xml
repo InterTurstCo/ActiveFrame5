@@ -70,6 +70,11 @@
                         <artifact>ru.intertrust.cm-sochi:model</artifact>
                         <artifact>ru.intertrust.cm-sochi:gui-model</artifact>
                     </compileSourcesArtifacts>
+                    <modules>
+                        <module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
+                    </modules>
+                    <sourceLevel>auto</sourceLevel>
+                    <extraJvmArgs>-Xmx2G</extraJvmArgs>
                 </configuration>
             </plugin>
 

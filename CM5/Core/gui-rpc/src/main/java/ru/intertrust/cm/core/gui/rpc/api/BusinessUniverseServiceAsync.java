@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.rpc.api;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
@@ -103,14 +104,13 @@ public interface BusinessUniverseServiceAsync {
                     }
                     final String initialToken = History.getToken();
                     if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
-                        String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
-                        final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
-                                .append(Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1))
-                                .append(queryString);
-                        if (initialToken != null && !initialToken.isEmpty()) {
-                            loginPathBuilder.append('#').append(initialToken);
-                        }
-                        Window.Location.assign(loginPathBuilder.toString());
+                        UrlBuilder urlBuilder = Window.Location.createUrlBuilder();
+                        String contextPath = Window.Location.getPath().split("/")[1];
+                        String appPath = Window.Location.getPath().substring(contextPath.length() + 2);
+                        urlBuilder.setPath(contextPath + "/Login.html");
+                        urlBuilder.setParameter("targetPage", appPath);
+
+                        Window.Location.assign(urlBuilder.buildString());
                     } else {
                         async.onFailure(caught);
                     }
