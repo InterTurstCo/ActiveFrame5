@@ -513,11 +513,13 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                 if (dataType != null) {
                     result.add(new SimpleSearchFieldType(dataType, !analyzed.isSingleResult()));
                 } else {
-                    result.add(new TextSearchFieldType(getSupportedLanguages(config), !analyzed.isSingleResult(), config.getSearchBy()));
+                    result.add(new TextSearchFieldType(getSupportedLanguages(config), !analyzed.isSingleResult(),
+                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
                 }
             }
         } else if (config.getScript() != null) {
-            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), false, config.getSearchBy()));
+            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), false,
+                    config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
             if (fieldConfig == null) {
@@ -527,7 +529,8 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             if (dataType != null) {
                 result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, false));
             } else {
-                result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(config), false, config.getSearchBy()));
+                result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(config),
+                        false, config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
             }
         }
 

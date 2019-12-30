@@ -3401,7 +3401,6 @@
                         <xs:restriction base="xs:string">
                             <xs:enumeration value="words"></xs:enumeration>
                             <xs:enumeration value="substring"></xs:enumeration>
-                            <xs:enumeration value="exact"></xs:enumeration>
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:attribute>

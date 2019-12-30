@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
-import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 
 import java.util.*;
 
@@ -13,9 +12,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
     private Set<String> languages;
     private boolean multiValued;
     private boolean searchBySubstring;
-    private boolean searchByExactMatch; // флаг того, что также будет производиться поиск по полному совпадению значения
 
-    
     public TextSearchFieldType(Collection<String> languages, boolean multiValued, boolean searchBySubstring) {
         //super(Type.TEXT, multiValued);
         this.languages = new HashSet<>();
@@ -24,14 +21,6 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         this.searchBySubstring = searchBySubstring;
     }
 
-    public TextSearchFieldType(Collection<String> languages, boolean multiValued, IndexedFieldConfig.SearchBy searchBy) {
-        this.languages = new HashSet<>();
-        this.languages.addAll(languages);
-        this.multiValued = multiValued;
-        this.searchBySubstring = IndexedFieldConfig.SearchBy.SUBSTRING.equals(searchBy);
-        this.searchByExactMatch = IndexedFieldConfig.SearchBy.EXACT_MATCH.equals(searchBy);
-    }
-    
     public void addLanguage(String langId) {
         this.languages.add(langId);
     }
@@ -61,30 +50,9 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
                     .append(Case.toLower(field))
                     .toString());
         }
-        if (searchByExactMatch) {
-            result.add(new StringBuilder()
-                    .append(Case.toLower(field))
-                    .append("_s")
-                    .toString());
-        }
-
         return result;
     }
 
-    public Collection<String> getSolrSearchFieldNames(String field, boolean strict) {
-        Collection<String> result;
-        if (searchByExactMatch) {
-            result = new ArrayList<>(languages.size());
-            result.add(new StringBuilder()
-                    .append(Case.toLower(field))
-                    .append("_s")
-                    .toString());
-        } else {
-            result = getSolrFieldNames(field, strict);
-        }
-        return result;
-    }
-    
     public Set<String> getLanguages() {
         return Collections.unmodifiableSet(languages);
     }
@@ -97,14 +65,6 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         return searchBySubstring;
     }
 
-    public boolean isSearchByExactMatch() {
-        return searchByExactMatch;
-    }
-
-    public void setSearchByExactMatch(boolean searchByExactMatch) {
-        this.searchByExactMatch = searchByExactMatch;
-    }
-    
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
@@ -112,8 +72,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         TextSearchFieldType that = (TextSearchFieldType) obj;
         return this.languages.equals(that.languages)
                 && this.multiValued == that.multiValued
-                && this.searchBySubstring == that.searchBySubstring
-                && this.searchByExactMatch == that.searchByExactMatch;
+                && this.searchBySubstring == that.searchBySubstring;
     }
 
     @Override
