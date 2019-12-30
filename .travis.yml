@@ -11,3 +11,6 @@ before_script:
 
 script:
   - mvn -f CM5/pom.xml clean install -q
+ 
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
