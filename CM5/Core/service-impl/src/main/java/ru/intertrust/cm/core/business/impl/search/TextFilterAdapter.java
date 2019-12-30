@@ -40,7 +40,14 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
                 if (type instanceof TextSearchFieldType) {
                     ((TextSearchFieldType) type).addLanguage("");
                 }
-                if (type instanceof SpecialTextSearchFieldType || (type instanceof TextSearchFieldType && ((TextSearchFieldType) type).isSearchBySubstring())) {
+                if (type instanceof SpecialTextSearchFieldType ||
+                        (type instanceof TextSearchFieldType &&
+                                (
+                                        ((TextSearchFieldType) type).isSearchBySubstring() ||
+                                        ((TextSearchFieldType) type).isSearchByExactMatch()
+                                )
+                        )
+                ) {
                     if (searchString.length() >=2 && searchString.startsWith("\"") && searchString.endsWith("\"")) {
                         searchString = searchString.substring(1, searchString.length() - 1);
                     }
@@ -52,13 +59,24 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
                 } else {
                     searchString = SolrUtils.protectSearchString(searchString);
                 }
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
-                    fields.add(new StringBuilder()
-                            .append(field)
-                            .append(":(")
-                            .append(searchString)
-                            .append(")")
-                            .toString());
+                if ( type instanceof TextSearchFieldType ) {
+                    for (String field : ((TextSearchFieldType) type).getSolrSearchFieldNames(fieldName, false)) {
+                        fields.add(new StringBuilder()
+                                .append(field)
+                                .append(":(")
+                                .append(searchString)
+                                .append(")")
+                                .toString());
+                    }
+                } else {
+                    for (String field : type.getSolrFieldNames(fieldName, false)) {
+                        fields.add(new StringBuilder()
+                                .append(field)
+                                .append(":(")
+                                .append(searchString)
+                                .append(")")
+                                .toString());
+                    }
                 }
             }
         }

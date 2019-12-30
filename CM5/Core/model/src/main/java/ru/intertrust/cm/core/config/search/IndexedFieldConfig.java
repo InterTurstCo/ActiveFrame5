@@ -8,8 +8,10 @@ import java.io.Serializable;
 public class IndexedFieldConfig implements Serializable {
 
     public enum SearchBy {
+
         WORDS("words"),
-        SUBSTRING("substring");
+        SUBSTRING("substring"),
+        EXACT_MATCH("exact");
 
         public final String xmlValue;
         private SearchBy(String xmlValue) {
