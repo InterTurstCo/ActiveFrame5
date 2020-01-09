@@ -3,9 +3,9 @@ coverage:
   round: nearest
   range: "40...70"
   ignore: 
-     - "Core/gui-client-api/"
-     - "Core/gui-client-impl/"
-     - "Core/gui-model/"
-     - "Core/gui-rpc/"
-     - "Core/gui-server-api/"
-     - "Core/gui-server-impl/"
+     - "CM5/Core/gui-client-api/"
+     - "CM5/Core/gui-client-impl/"
+     - "CM5/Core/gui-model/"
+     - "CM5/Core/gui-rpc/"
+     - "CM5/Core/gui-server-api/"
+     - "CM5/Core/gui-server-impl/"
