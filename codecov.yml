@@ -1,0 +1,11 @@
+coverage:
+  precision: 2
+  round: nearest
+  range: "40...70"
+  ignore: 
+     - "Core/gui-client-api/"
+     - "Core/gui-client-impl/"
+     - "Core/gui-model/"
+     - "Core/gui-rpc/"
+     - "Core/gui-server-api/"
+     - "Core/gui-server-impl/"
