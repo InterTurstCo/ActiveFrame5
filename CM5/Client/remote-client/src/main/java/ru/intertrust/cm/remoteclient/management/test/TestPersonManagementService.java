@@ -181,7 +181,11 @@ public class TestPersonManagementService extends ClientBase {
 //                crudService.delete(personIds.get("person" + i));
             }
 
-            log("Test complete");
+            if (hasError){
+                log("Test FAILURE");
+            }else{
+                log("Test OK");
+            }
         } finally {
             writeLog();
         }

@@ -600,8 +600,27 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             // Добавляем в результат для родительской группы пустую коллекцию, что не словить NPE
             groupsMembers.put(parent, new HashSet<>());
         }
+        // В результате у нас в key группа, в value дочки этой группы, теперь разворачиваем всю иерархию
+        HashMap<Id, Set<Id>> result = new HashMap<>();
+        for (Id groupId : groupsMembers.keySet()) {
+            // Для каждой группы рекурсивно получаем состав
+            Set<Id> members = new HashSet<Id>();
+            result.put(groupId, members);
+            members.addAll(getChildGroupInMap(groupsMembers, groupId));
+        }
 
-        return groupsMembers;
+        return result;
+    }
+
+    private Set<Id> getChildGroupInMap(HashMap<Id, Set<Id>> groupsMembers, Id groupId) {
+        Set<Id> result = new HashSet<Id>();
+        if (groupsMembers.containsKey(groupId)) {
+            for (Id childId : groupsMembers.get(groupId)) {
+                result.add(childId);
+                result.addAll(getChildGroupInMap(groupsMembers, childId));
+            }
+        }
+        return result;
     }
 
     /**
