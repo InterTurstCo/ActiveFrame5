@@ -11,7 +11,7 @@ public class ReentrantReadWriteLockManager extends LockManagerBase {
     private GlobalCacheLockApi globalReadLock = new SingleReadLockImpl(new ReentrantReadWriteLock(true));
     private GlobalCacheLockApi globalWriteLock = new SingleWriteLockImpl((SingleReadLockImpl)globalReadLock);
     private GlobalCacheLockApi globalAccessReadLock = new SingleReadLockImpl(new ReentrantReadWriteLock(true));
-    private GlobalCacheLockApi globalAccessWriteLock = new SingleWriteLockImpl((SingleReadLockImpl)globalReadLock); // TODO Возможно тут надо передать globalAccessReadLock
+    private GlobalCacheLockApi globalAccessWriteLock = new SingleWriteLockImpl((SingleReadLockImpl)globalAccessReadLock); // TODO ранее передавалось globalReadLock, непонятно почему
 
     @Override
     protected GlobalCacheLockApi getGlobalReadLock(){

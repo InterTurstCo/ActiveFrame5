@@ -47,7 +47,7 @@ public abstract class LockManagerBase implements LockManager{
 
     @Override
     public GlobalCacheLock globalWriteLock() {
-        return getGlobalReadLock().lock(); //TODO возможно здесь должно быть getGlobalWriteLock
+        return getGlobalWriteLock().lock();
     }
 
     @Override
@@ -341,7 +341,7 @@ public abstract class LockManagerBase implements LockManager{
 
         @Override
         public boolean add(GlobalCacheLockApi lock) {
-            if (lock == getGlobalAccessWriteLock()) {
+            if (lock == getGlobalAccessWriteLock() || lock == getGlobalAccessReadLock()) {
                 globalAccessWriteLockCopy = lock;
             }
             return super.add(lock);
@@ -369,7 +369,8 @@ public abstract class LockManagerBase implements LockManager{
             GlobalCacheLockApi lock;
             for (int i = size() - 1; i >= 0; --i) {
                 lock = get(i);
-                if (lock == getGlobalAccessWriteLock() && globalAccessWriteLockCopy == null) {
+                if ((lock == getGlobalAccessWriteLock() || lock == getGlobalAccessReadLock())
+                        && globalAccessWriteLockCopy == null) {
                     continue;
                 }
                 lock.unlock();

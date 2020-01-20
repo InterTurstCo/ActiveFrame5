@@ -28,7 +28,7 @@ public class StampedSynchronizedGlobalCacheImpl extends LockManagerGlobalCacheIm
     private static final Logger logger = LoggerFactory.getLogger(StampedSynchronizedGlobalCacheImpl.class);
 
     @Autowired
-    private ReentrantReadWriteLockManager lockManager;
+    private StampedLockManager lockManager;
 
     @Override
     protected LockManager getLockManager() {
