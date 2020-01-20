@@ -8,15 +8,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ReentrantReadWriteLockManager extends LockManagerBase {
     private static final Logger logger = LoggerFactory.getLogger(ReentrantReadWriteLockManager.class);
 
-
-
-    private NoLock noLock = new NoLock();
     private GlobalCacheLockApi globalReadLock = new SingleReadLockImpl(new ReentrantReadWriteLock(true));
     private GlobalCacheLockApi globalWriteLock = new SingleWriteLockImpl((SingleReadLockImpl)globalReadLock);
     private GlobalCacheLockApi globalAccessReadLock = new SingleReadLockImpl(new ReentrantReadWriteLock(true));
     private GlobalCacheLockApi globalAccessWriteLock = new SingleWriteLockImpl((SingleReadLockImpl)globalReadLock); // TODO Возможно тут надо передать globalAccessReadLock
-    private FixedLockTable<Integer> typeLocks = new FixedLockTable<>();
-    private FixedLockTable<Integer> personLocks = new FixedLockTable<>();
 
     @Override
     protected GlobalCacheLockApi getGlobalReadLock(){

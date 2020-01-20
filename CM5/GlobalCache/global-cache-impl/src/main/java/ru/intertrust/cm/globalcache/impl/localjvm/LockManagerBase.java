@@ -23,7 +23,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 import static java.util.Collections.singleton;
 
 public abstract class LockManagerBase implements LockManager{
@@ -34,6 +33,10 @@ public abstract class LockManagerBase implements LockManager{
 
     @Autowired
     private ConfigurationExplorer explorer;
+
+    private NoLock noLock = new NoLock();
+    private FixedLockTable<Integer> typeLocks = new FixedLockTable<>();
+    private FixedLockTable<Integer> personLocks = new FixedLockTable<>();
 
     protected abstract GlobalCacheLockApi getGlobalReadLock();
     protected abstract GlobalCacheLockApi getGlobalWriteLock();
@@ -217,8 +220,8 @@ public abstract class LockManagerBase implements LockManager{
             addTypesDelegatingAccess(types);
 
             GenericLock lock = new GenericLock(types.size() + personsIds.size() + 2);
-            lock.add(globalReadLock); // TODO: global lock should be always last, so that we have a chance to upgrade it to WRITE-lock
-            lock.add(globalAccessReadLock);
+            lock.add(getGlobalReadLock()); // TODO: global lock should be always last, so that we have a chance to upgrade it to WRITE-lock
+            lock.add(getGlobalAccessReadLock());
             if (typesWriteLock) {
                 for (Integer typeId : getTypeIdsSorted(types)) {
                     lock.add(this.typeLocks.getLock(typeId).getWriteLock());
@@ -234,7 +237,7 @@ public abstract class LockManagerBase implements LockManager{
             return lock;
         } catch (Throwable e) {
             logger.error("Exception while obtaining lock", e);
-            return globalReadLock;
+            return getGlobalReadLock();
         }
     }
 
@@ -253,8 +256,8 @@ public abstract class LockManagerBase implements LockManager{
                 personsIds = new TreeSet<>(personsIds);
             }
             GenericLock lock = new GenericLock(types.size() + personsIds.size() + 2);
-            lock.add(globalReadLock);
-            lock.add(clearFullUserAccess ? globalAccessWriteLock : globalAccessReadLock);
+            lock.add(getGlobalReadLock());
+            lock.add(clearFullUserAccess ? getGlobalAccessWriteLock() : getGlobalAccessReadLock());
 
             for (Integer typeId : getTypeIdsSorted(types)) {
                 lock.add(this.typeLocks.getLock(typeId).getWriteLock());
@@ -265,7 +268,7 @@ public abstract class LockManagerBase implements LockManager{
             return lock;
         } catch (Throwable e) {
             logger.error("Exception while obtaining lock", e);
-            return globalReadLock;
+            return getGlobalReadLock();
         }
     }
 
