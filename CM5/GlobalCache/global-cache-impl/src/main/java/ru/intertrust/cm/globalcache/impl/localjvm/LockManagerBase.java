@@ -186,7 +186,7 @@ public abstract class LockManagerBase implements LockManager{
 
     @Override
     public GlobalCacheLock writeLock(UserSubject userSubject) {
-        return buildCommitLock(Collections.<String>emptySet(), false, getPersonId(userSubject));
+        return buildCommitLock(Collections.<String>emptySet(), false, getPersonId(userSubject)).lock();
     }
 
     private GlobalCacheLockApi buildLock(boolean writeLock, Collection<DomainObject> domainObjects, UserSubject userSubject) {

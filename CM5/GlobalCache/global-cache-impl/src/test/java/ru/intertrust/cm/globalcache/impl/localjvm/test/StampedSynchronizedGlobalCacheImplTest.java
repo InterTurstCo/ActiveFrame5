@@ -41,6 +41,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.globalcache.api.AccessChanges;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
+import ru.intertrust.cm.globalcache.impl.localjvm.StampedLockManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { StampedSynchronizedGlobalCacheImplTest.Config.class })
@@ -56,6 +57,11 @@ public class StampedSynchronizedGlobalCacheImplTest {
         public StampedSynchronizedGlobalCacheTestImpl stampedSynchronizedGlobalCacheTestImpl() {
             StampedSynchronizedGlobalCacheTestImpl service = new StampedSynchronizedGlobalCacheTestImpl();
             return service;
+        }
+
+        @Bean
+        public StampedLockManager stampedLockManager() {
+            return new StampedLockManager();
         }
 
         @Bean
@@ -181,6 +187,7 @@ public class StampedSynchronizedGlobalCacheImplTest {
 
             // not delete, need for sonarQube
             assertNotNull(method);
+
             method.invoke(globalCache, getParams(method, method.getParameterTypes()));
         }
     }
