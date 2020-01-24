@@ -111,7 +111,8 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
         return collection;
     }
 
-    protected String formatTemplate(String notificationTextTemplate, Id addressee, NotificationContext context) {
+    @Override
+    public String formatTemplate(String notificationTextTemplate, Id addressee, NotificationContext context) {
 
         Set<String> contextNames = context.getContextNames();
         if (contextNames == null)

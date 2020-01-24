@@ -39,7 +39,7 @@ public final class ModelUtil {
         StringBuilder result = new StringBuilder();
         result.append(obj.getId()).append('\t');
         for (String field : fields) {
-            result.append(obj.getValue(field)).append('\t');
+            result.append(obj.getValue(field) != null ? obj.getValue(field).toString() : "null").append('\t');
         }
         return result.toString();
     }
