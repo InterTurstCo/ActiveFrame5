@@ -1,19 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-
+import org.apache.commons.io.FilenameUtils;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
@@ -21,7 +8,6 @@ import org.apache.solr.common.util.ContentStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.ScriptService;
@@ -51,6 +37,23 @@ import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHand
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * Компонент, осуществляющий индексацию доменных объектов при их изменении.
@@ -90,6 +93,21 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
 
     @Autowired
     private AttachmentContentDao attachmentContentDao;
+
+    @org.springframework.beans.factory.annotation.Value("${attachment.index.exclusion:avi,asf,mpg,mpeg,mpe,vob,mp4,m4v,3gp,3gpp,flv,swf,mov,divx,webm,wav,wma,mp3,ogg,aac,ac3,jpg,jpeg,bmp}")
+    private String attachmentIndexExclusionConfig;
+
+    private Set<String> exclusionSet = new HashSet<>();
+
+    @PostConstruct
+    public void init(){
+        if (attachmentIndexExclusionConfig != null){
+            String[] attachmentIndexExclusionConfigArray = attachmentIndexExclusionConfig.split("[,;\t]");
+            for (String ignoreExtension : attachmentIndexExclusionConfigArray) {
+                exclusionSet.add(ignoreExtension.toLowerCase().trim());
+            }
+        }
+    }
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
@@ -191,35 +209,51 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
     }
 
     private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {
-        String linkName = configHelper.getAttachmentParentLinkName(object.getTypeName(),
-                config.getObjectConfig().getType());
-        List<Id> mainIds = calculateMainObjects(object.getReference(linkName), config.getObjectConfigChain());
-        for (Id mainId : mainIds) {
-            ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
-            request.addContentStream(new SolrAttachmentFeeder(object));
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.AREA, config.getAreaName());
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.TARGET_TYPE, config.getTargetObjectType());
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
-                    ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
-            addFieldToContentRequest(request, object, BaseAttachmentService.NAME,
-                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-            addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION,
-                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-            addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH,
-                    new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
-            request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(object, config));
-            request.setParam("uprefix", "cm_c_");
-            request.setParam("fmap.content", SolrFields.CONTENT);
-            //request.setParam("extractOnly", "true");
+        // Проверка на то что данный тип вложения надо индексировать
+        if (needIndex(object)) {
+            String linkName = configHelper.getAttachmentParentLinkName(object.getTypeName(),
+                    config.getObjectConfig().getType());
+            List<Id> mainIds = calculateMainObjects(object.getReference(linkName), config.getObjectConfigChain());
+            for (Id mainId : mainIds) {
+                ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
+                request.addContentStream(new SolrAttachmentFeeder(object));
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.AREA, config.getAreaName());
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.TARGET_TYPE, config.getTargetObjectType());
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
+                        ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
+                addFieldToContentRequest(request, object, BaseAttachmentService.NAME,
+                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION,
+                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH,
+                        new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
+                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(object, config));
+                request.setParam("uprefix", "cm_c_");
+                request.setParam("fmap.content", SolrFields.CONTENT);
+                //request.setParam("extractOnly", "true");
 
-            requestQueue.addRequest(request);
+                requestQueue.addRequest(request);
+            }
+            if (log.isInfoEnabled()) {
+                log.info("Attachment queued for indexing");
+            }
+        }else{
+            log.debug("Indexing attachment " + object.getString("name") + " is ignored by file extension");
         }
-        if (log.isInfoEnabled()) {
-            log.info("Attachment queued for indexing");
+    }
+
+    private boolean needIndex(DomainObject object) {
+        String name = object.getString(BaseAttachmentService.NAME);
+        // Не индексируем вложения без имени
+        if (name == null){
+            return false;
         }
+        // Проверка расширение файла на исключения из индексирования
+        String extension = FilenameUtils.getExtension(name).toLowerCase();
+        return !exclusionSet.contains(extension);
     }
 
     private void addFieldToContentRequest(ContentStreamUpdateRequest request,

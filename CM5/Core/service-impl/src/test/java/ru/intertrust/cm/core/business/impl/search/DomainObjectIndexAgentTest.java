@@ -829,6 +829,7 @@ public class DomainObjectIndexAgentTest {
         when(object.getId()).thenReturn(id);
         when(object.getTypeName()).thenReturn("TestType");
         when(object.getValue(BaseAttachmentService.NAME)).thenReturn(new StringValue("Attachment name"));
+        when(object.getString(BaseAttachmentService.NAME)).thenReturn("Attachment name");
         when(object.getValue(BaseAttachmentService.DESCRIPTION)).thenReturn(new StringValue("Attachment description"));
         when(object.getValue(BaseAttachmentService.CONTENT_LENGTH)).thenReturn(new LongValue(1500L));
         when(object.getModifiedDate()).thenReturn(new Date(55777L));
