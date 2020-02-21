@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 
 /**
  * Сервис для взаимодействия с процессами
@@ -76,11 +77,8 @@ public interface ProcessService {
      * Удаление шаблона процесса(каскадно или нет). При каскадном удалении
      * происходит удаление всех исполнений процессов от это шаблона, а так же
      * история выполненых процессов.
-     * 
-     * @param key
-     *            идентификатор шаблона процесса
+     * @param processDefinitionId
      * @param cascade
-     *            каскадное удаление(true) или нет(false)
      */
     void undeployProcess(String processDefinitionId, boolean cascade);
 
@@ -136,17 +134,36 @@ public interface ProcessService {
 
     /**
      * Отправка сообщения процессу
-     * @param processId Имя процесса
+     * @param processName Имя процесса
      * @param contextId идентификатор документа привязаннорго к процессу
-     * @param event уведомление
+     * @param variables переменные процесса
      */
     void sendProcessMessage(String processName, Id contextId, String message, List<ProcessVariable> variables);
 
     /**
      * Отправка сигнала всем процессам
-     * @param processName
-     * @param contextId
-     * @param message
+     * @param signal Стгнал процессу
      */
     void sendProcessSignal(String signal);
+
+    /**
+     * Создание задача внешними системами.
+     * @param taskData
+     * @return
+     */
+    Id assignTask(WorkflowTaskData taskData);
+
+    /**
+     * Проверка поддерживает ли движок устанавливаемый шаблон процессов
+     * @param processDefinition
+     * @param processName
+     * @return
+     */
+    boolean isSupportTemplate(byte[] processDefinition, String processName);
+
+    /**
+     * Получение активного в данный момент движка процессов
+     * @return Имя движка процессов
+     */
+    String getEngeneName();
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+    <extension
+         point="ru.runa.gpd.handlers">
+      <handler
+            actionHandler="true"
+            assignmentHandler="false"
+            botTaskHandler="false"
+            decisionHandler="false"
+            className="ru.inttrust.workflow.runawfe.handler.JavaScriptActionHandler"
+            label="%ru.inttrust.workflow.runawfe.handler.JavaScriptActionHandler"
+            enabled="true">
+      </handler>
+   </extension>
+
+</plugin>

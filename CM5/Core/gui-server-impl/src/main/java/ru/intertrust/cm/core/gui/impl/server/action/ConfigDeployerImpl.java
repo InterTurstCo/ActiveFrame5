@@ -10,10 +10,4 @@ public class ConfigDeployerImpl extends DeployerBase{
     public DeployConfigType getDeployConfigType() {
         return new DeployConfigType("af5-config", "Конфигурация AF5", "xml");
     }
-
-    @Override
-    protected Charset getEncoding() {
-        return StandardCharsets.UTF_8;
-    }
-
 }

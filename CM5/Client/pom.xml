@@ -13,6 +13,7 @@
 
 	<modules>
 		<module>remote-client</module>
-	</modules>
+        <module>rest-client</module>
+    </modules>
 
 </project>

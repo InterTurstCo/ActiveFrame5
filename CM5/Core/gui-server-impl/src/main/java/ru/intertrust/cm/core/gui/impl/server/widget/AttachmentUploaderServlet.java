@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 
 import javax.annotation.PostConstruct;
@@ -67,24 +69,19 @@ public class AttachmentUploaderServlet {
         req.setCharacterEncoding("UTF-8");
         String savedFilename = null;
         String savedFileNames = "";
-        DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
-        ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-        AttachmentUploadPercentage uploadProgress = getUploadProgress(session);
-        upload.setProgressListener(new AttachmentUploadProgressListener(uploadProgress));
-        // set limit of uploaded file, -1 mean no limit
-        upload.setSizeMax(2147483648L);
-        // Parse the request to get file items.
-        List fileItems = upload.parseRequest(req);
-        // Process the uploaded file items
-        Iterator iterator = fileItems.iterator();
-        while (iterator.hasNext()) {
-            FileItem item = (FileItem) iterator.next();
-            if (!item.isFormField()) {
 
-                log.info("Got an uploaded file: " + item.getFieldName() +
+        AbstractMultipartHttpServletRequest multipartRequest = (AbstractMultipartHttpServletRequest)req;
+        Iterator<String> fileNameIterator = multipartRequest.getFileNames();
+        while (fileNameIterator.hasNext()){
+            String name = fileNameIterator.next();
+            List<MultipartFile> files = ((AbstractMultipartHttpServletRequest)req).getFiles(name);
+
+            //upload.setProgressListener(new AttachmentUploadProgressListener(uploadProgress));
+            for (MultipartFile item : files) {
+                log.info("Got an uploaded file: " + item.getOriginalFilename() +
                         ", name = " + item.getName());
 
-                String filename = FilenameUtils.getName(item.getName());
+                String filename = FilenameUtils.getName(item.getOriginalFilename());
                 long time = System.nanoTime();
                 final long fileSize = item.getSize();
 
@@ -97,6 +94,7 @@ public class AttachmentUploaderServlet {
                 }
                 savedFileNames = savedFileNames + savedFilename + "*";
             }
+
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "text/html; charset=utf-8");

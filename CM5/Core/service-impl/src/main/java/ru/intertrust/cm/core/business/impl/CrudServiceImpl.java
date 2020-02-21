@@ -499,4 +499,15 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         }
     }
 
+    /**
+     * Установка статуса доменного объекта. Разрешается выполнять только под правами администратора
+     * @param id идентификатор доменного объекта
+     * @param status имя статуса
+     * @return
+     */
+    @Override
+    public DomainObject setStatus(Id id, String status) {
+        return transactionalCrudService.setStatus(id, status);
+    }
+
 }

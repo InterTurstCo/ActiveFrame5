@@ -16,7 +16,9 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.CrudException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
@@ -56,6 +58,8 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
     @Autowired
     private ExtensionService extensionService;
 
+    @Autowired
+    private StatusDao statusDao;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -352,6 +356,23 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return domainObjectDao.finAndLockByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
+    @Override
+    public DomainObject setStatus(Id id, String status) {
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            Id userId = userGroupCache.getUserIdByLogin(user);
+
+            if(!(userGroupCache.isAdministrator(userId) || userGroupCache.isPersonSuperUser(userId))){
+                throw new AccessException("User " + user + " has no right to change status. Only administrator or superuser right it.");
+            }
+
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            return domainObjectDao.setStatus(id, statusDao.getStatusIdByName(status), accessToken);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>core</artifactId>
+        <groupId>ru.intertrust.cm-sochi</groupId>
+        <version>1.0.0-2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rest-server</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-core</artifactId>
+            <scope>compile</scope>
+            <version>1.6.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>service-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+            <groupId>com.github.kongchen</groupId>
+            <artifactId>swagger-maven-plugin</artifactId>
+            <version>3.1.8</version>
+            <configuration>
+                <apiSources>
+                    <apiSource>
+                        <springmvc>true</springmvc>
+                        <locations>
+                            <location>ru.intertrust.cm.core.wsserver.impl</location>
+                        </locations>
+                        <schemes>
+                            <scheme>http</scheme>
+                            <scheme>https</scheme>
+                        </schemes>
+                        <host>localhost:8080</host>
+                        <basePath>/cm-sochi/af5-ws</basePath>
+                        <swaggerDirectory>${project.build.directory}/swagger</swaggerDirectory>
+                        <outputFormats>json</outputFormats>
+                        <templatePath>${basedir}/src/main/resources/template/strapdown.html.hbs</templatePath>
+                        <outputPath>${project.build.directory}/swagger-doc/document.html</outputPath>
+                        <attachSwaggerArtifact>true</attachSwaggerArtifact>
+                        <info>
+                            <title>Swagger Maven Plugin</title>
+                            <version>1.0.1</version>
+                        </info>
+                        <securityDefinitions>
+                            <securityDefinition>
+                                <name>basicAuth</name>
+                                <type>basic</type>
+                            </securityDefinition>
+                        </securityDefinitions>
+                    </apiSource>
+                </apiSources>
+            </configuration>
+            <executions>
+                <execution>
+                    <phase>compile</phase>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        </plugins>
+    </build>
+
+</project>

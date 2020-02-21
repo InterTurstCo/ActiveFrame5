@@ -122,7 +122,7 @@ public class TimelessDate implements Dto, Comparable<TimelessDate> {
 
     @Override
     public String toString() {
-        return year + "-" + (month + 1) + "-" + dayOfMonth;
+        return year + ":" + (month + 1) + ":" + dayOfMonth;
     }
 
     @Override

@@ -71,7 +71,11 @@ public class TestCrudService extends ClientBase {
             System.out.println("Correct error " + ex.getMessage());
         }
         
-        System.out.println("Test complete");
+        if (hasError) {
+            System.out.println("Test ERROR");
+        }else {
+            System.out.println("Test complete");
+        }
     }
 
 

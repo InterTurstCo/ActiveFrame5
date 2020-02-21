@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ru.inttrust.workflow.runawfe.designer</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0.3</version>
+	</parent>
+
+    <artifactId>repozitory</artifactId>
+    <packaging>pom</packaging>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.reficio</groupId>
+                <artifactId>p2-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+						<phase>package</phase>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>						
+                        <configuration>
+                            <artifacts>
+                                <!-- specify your depencies here -->
+                                <!-- groupId:artifactId:version -->
+                                <artifact><id>ru.inttrust.workflow.runawfe.designer:extension:${project.version}</id></artifact>
+                            </artifacts>
+							<categoryFileURL>${project.basedir}/category.xml</categoryFileURL>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

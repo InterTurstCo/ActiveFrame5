@@ -237,4 +237,13 @@ public interface CrudServiceDelegate {
      * @throws ru.intertrust.cm.core.model.AccessException,          если отказано в доступе к объекту
      */
     DomainObject findAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName);
+
+    /**
+     * Установка статуса доменного объекта. Разрешается выполнять только под правами администратора
+     * @param id идентификатор доменного объекта
+     * @param status имя статуса
+     * @return
+     */
+    DomainObject setStatus(Id id, String status);
+
 }

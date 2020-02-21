@@ -1,15 +1,5 @@
 package ru.intertrust.cm.remoteclient.process.test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.naming.NamingException;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
@@ -24,45 +14,48 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
+import javax.naming.NamingException;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 /**
  * Тестовый клиент к подсистеме процессов.
+ *
  * @author larin
- * 
  */
 public class TestProcess extends ClientBase {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         try {
             TestProcess test = new TestProcess();
             test.execute(args);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        Thread.currentThread().sleep(1000);
     }
 
     public void execute(String[] args) throws Exception {
         try {
             super.execute(args);
 
-            CrudService.Remote crudService = (CrudService.Remote) getService(
-                    "CrudServiceImpl", CrudService.Remote.class);
-
-            PersonManagementService.Remote personService =
-                    (PersonManagementService.Remote) getService("PersonManagementService", PersonManagementService.Remote.class);
-
             // Создаем персону
-            Id adminPerson = personService.getPersonId("admin");
+            Id adminPerson = getPersonManagementService().getPersonId("admin");
             if (adminPerson == null) {
-                DomainObject person = crudService.createDomainObject("Person");
+                DomainObject person = getCrudService().createDomainObject("Person");
                 person.setString("Login", "admin");
                 person.setString("FirstName", "Администратор");
                 person.setString("LastName", "Администраторович");
                 person.setString("EMail", "admin@cm5.ru");
-                person = crudService.save(person);
+                person = getCrudService().save(person);
             }
 
             byte[] processDef = getProcessAsByteArray("templates/TestSimpleProcess.bpmn");
@@ -70,7 +63,7 @@ public class TestProcess extends ClientBase {
                     "SimpleProcess.bpmn");
 
             // Создание документа, который НЕ будет прикреплен к процессу
-            DomainObject attachmentNotInProcess = crudService
+            DomainObject attachmentNotInProcess = getCrudService()
                     .createDomainObject("test_process_attachment");
             attachmentNotInProcess.setString("test_text", "Создание.");
             attachmentNotInProcess.setLong("test_long", 10L);
@@ -79,10 +72,10 @@ public class TestProcess extends ClientBase {
             attachmentNotInProcess.setTimestamp("test_date", new Date());
             // attachmentNotInProcess.setReference("person", new
             // RdbmsId("person|1"));
-            attachmentNotInProcess = crudService.save(attachmentNotInProcess);
+            attachmentNotInProcess = getCrudService().save(attachmentNotInProcess);
 
             // Создание документа, который будет прикреплен к процессу
-            DomainObject attachment = crudService
+            DomainObject attachment = getCrudService()
                     .createDomainObject("test_process_attachment");
             attachment.setString("test_text", "Создание.");
             attachment.setLong("test_long", 10L);
@@ -91,7 +84,7 @@ public class TestProcess extends ClientBase {
             attachment.setReference("author", getEmployee("person2"));
             attachment.setReference("signer", getEmployee("person3"));
             attachment.setReference("registrator", getEmployee("person4"));
-            attachment = crudService.save(attachment);
+            attachment = getCrudService().save(attachment);
 
             //Получение действий для регистратора
             ActionService personActionService = getActionService("person4");
@@ -224,58 +217,58 @@ public class TestProcess extends ClientBase {
             //Проверка наличия уведомления у пользователя person1
             List<Value> params = new ArrayList<Value>();
             params.add(new ReferenceValue(attachment.getId()));
-            
+
             //Пауза чтоб отправились асинхронные уведомления
             Thread.currentThread().sleep(2000);
-            
+
             IdentifiableObjectCollection collection = getCollectionService().findCollectionByQuery("select n.id from notification n where n.context_object = {0}", params);
             assertTrue("Send message", collection.size() == 1);
             //Корректность текста
-            DomainObject notification = crudService.find(collection.get(0).getId());
+            DomainObject notification = getCrudService().find(collection.get(0).getId());
             assertTrue("Send message text", notification.getString("body").indexOf(attachment.getId().toStringRepresentation()) > 0);
-            
-            
+
+
             //Проверка на то что попали и ждем в signalintermediatecatchevent1
-            attachment = crudService.find(attachment.getId());
+            attachment = getCrudService().find(attachment.getId());
             assertFalse("White in signalintermediatecatchevent1 1", attachment.getString("test_text").endsWith("Получили уведомление."));
 
             //отправка правильного сообщения
             getProcessService("admin").sendProcessMessage("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL", null);
 
             //Строка должна изменится
-            attachment = crudService.find(attachment.getId());
+            attachment = getCrudService().find(attachment.getId());
             assertTrue("Go then signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление."));
 
             //отправка еще одного правильного сообщения
             getProcessService("admin").sendProcessMessage("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL_2", null);
 
             //Строка должна еще раз изменится
-            attachment = crudService.find(attachment.getId());
+            attachment = getCrudService().find(attachment.getId());
             assertTrue("Go then scripttask9", attachment.getString("test_text").endsWith("Получили уведомление 2."));
 
             //проверка event gateway
             getProcessService("admin").sendProcessMessage("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL_3", null);
 
             //Строка должна еще раз изменится
-            attachment = crudService.find(attachment.getId());
+            attachment = getCrudService().find(attachment.getId());
             assertTrue("Check eventgateway1", attachment.getString("test_text").endsWith("Получили уведомление 3."));
 
             //проверка отправки сигнала
             getProcessService("admin").sendProcessSignal("START_BY_SIGNAL_5");
 
             //Строка должна еще раз изменится
-            attachment = crudService.find(attachment.getId());
-            assertTrue("Check signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление 5."));     
-            
+            attachment = getCrudService().find(attachment.getId());
+            assertTrue("Check signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление 5."));
+
             //Проверяем что таймер еще не сработал
-            attachment = crudService.find(attachment.getId());
-            assertTrue("Check timer start", attachment.getString("test_text").endsWith("Получили уведомление 5."));     
-            
+            attachment = getCrudService().find(attachment.getId());
+            assertTrue("Check timer start", attachment.getString("test_text").endsWith("Получили уведомление 5."));
+
             //Спим более минуты, должен сработать таймер
             Thread.currentThread().sleep(65000);
-            attachment = crudService.find(attachment.getId());
-            assertTrue("Check timer end", attachment.getString("test_text").endsWith("Сработал таймер."));     
-            
+            attachment = getCrudService().find(attachment.getId());
+            assertTrue("Check timer end", attachment.getString("test_text").endsWith("Сработал таймер."));
+
             personActionService = getActionService("person5");
             actions = personActionService.getActions(attachment.getId());
 
@@ -285,22 +278,22 @@ public class TestProcess extends ClientBase {
                 config = (SimpleActionConfig) context.getActionConfig();
                 getProcessService("person5").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
                         (String) config.getProperty("complete.task.action"));
-            }            
-            
+            }
+
             //Проверяем что таймер еще не сработал
-            attachment = crudService.find(attachment.getId());
-            assertTrue("Check timer 2 start", attachment.getString("test_text").endsWith("Сработал таймер."));                 
-            
+            attachment = getCrudService().find(attachment.getId());
+            assertTrue("Check timer 2 start", attachment.getString("test_text").endsWith("Сработал таймер."));
+
             //Спим более минуты, должен сработать второй таймер
             Thread.currentThread().sleep(65000);
-            
+
             //Проверяем таймер повторно
-            attachment = crudService.find(attachment.getId());
-            assertTrue("Check timer 2 end", attachment.getString("test_text").endsWith("Сработал таймер 2."));                 
-            
+            attachment = getCrudService().find(attachment.getId());
+            assertTrue("Check timer 2 end", attachment.getString("test_text").endsWith("Сработал таймер 2."));
+
             //Получаем сервис чтоб удалить под admin
             getProcessService("admin");
-            crudService.delete(attachmentNotInProcess.getId());
+            getCrudService().delete(attachmentNotInProcess.getId());
 
             log("Test complete");
         } finally {
@@ -362,4 +355,9 @@ public class TestProcess extends ClientBase {
         return service;
     }
 
+    private PersonManagementService.Remote getPersonManagementService() throws NamingException {
+        PersonManagementService.Remote personService = (PersonManagementService.Remote) getService(
+                "PersonManagementService", PersonManagementService.Remote.class);
+        return personService;
+    }
 }

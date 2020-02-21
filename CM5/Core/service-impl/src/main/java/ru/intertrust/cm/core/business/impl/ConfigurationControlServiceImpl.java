@@ -18,6 +18,7 @@ import javax.interceptor.Interceptors;
 import javax.jms.JMSException;
 import javax.naming.NamingException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -300,7 +301,12 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     private void processWorkflowUpdate(String processDataString, String fileName) {
-        processService.deployProcess(processDataString.getBytes(), fileName);
+        byte[] process = Base64.decodeBase64(processDataString);
+        if (processService.isSupportTemplate(process, fileName)) {
+            processService.deployProcess(process, fileName);
+        }else{
+            throw new FatalException("Process template " + fileName + " is not support by workflow engene");
+        }
     }
 
     private void processDataImport(String importDataString) {
@@ -367,8 +373,9 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     private UpdateType resolveUpdateType(String configurationString, String fileName) {
         if (fileName.endsWith(".csv")) {
             return UpdateType.DATA_IMPORT;
-        } else if (fileName.endsWith(".bpmn") && configurationString.startsWith("<?xml") &&
-                configurationString.contains("<process")) {
+        } else if (fileName.endsWith(".bpmn")) {
+            return UpdateType.WORKFLOW;
+        } else if (fileName.endsWith(".par")) {
             return UpdateType.WORKFLOW;
         } else if (fileName.endsWith(".xml") && configurationString.startsWith("<?xml") &&
                 configurationString.contains("<configuration")) {

@@ -237,6 +237,7 @@
     <deploy-processes>
         <process-definition>workflow/SimpleProcess.bpmn</process-definition>
         <process-definition>workflow/InternalDocTest.bpmn</process-definition>
+        <process-definition>workflow/runa/test-2.par</process-definition>
     </deploy-processes>
 
     <localization-files>

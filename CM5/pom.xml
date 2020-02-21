@@ -38,6 +38,7 @@
         <gwt.version>2.7.0</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
+        <openapi.generator.version>4.2.3</openapi.generator.version>
 
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
@@ -187,7 +188,6 @@
             </dependency>
 
             <!-- Activiti (BPM) -->
-
             <dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-engine</artifactId>
@@ -199,8 +199,36 @@
                 <version>${activiti.version}</version>
             </dependency>
 
-            <!-- JasperReports -->
+            <!-- Runa WFE -->
+            <dependency>
+                <groupId>ru.runa.wfe</groupId>
+                <artifactId>wfe-webservice-client</artifactId>
+                <version>4.4.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jboss.ws.native</groupId>
+                        <artifactId>jbossws-native-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss</groupId>
+                        <artifactId>jbossxb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-runtime</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.glassfish.gmbal</groupId>
+                        <artifactId>gmbal-api-only</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
+            <!-- JasperReports -->
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports-javaflow</artifactId>
@@ -552,7 +580,8 @@
 				<artifactId>docx4j</artifactId>
 				<version>3.2.1</version>
 		    </dependency>
-            
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -879,7 +908,7 @@
         <!-- External repositories -->
 
         <repository>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
             <id>central</id>
             <name>Central Repository</name>
         </repository>
@@ -909,7 +938,7 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
             <id>central</id>
             <name>Central Repository</name>
         </pluginRepository>

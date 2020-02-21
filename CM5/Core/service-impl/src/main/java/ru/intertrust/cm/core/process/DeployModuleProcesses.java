@@ -1,14 +1,14 @@
 package ru.intertrust.cm.core.process;
 
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.repository.Deployment;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.util.StreamUtils;
+import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
+import ru.intertrust.cm.core.model.FatalException;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Класс автоматической загрузки шаблонов процессов, определенных как ресурсы модуля
@@ -19,24 +19,34 @@ public class DeployModuleProcesses {
     private static final Logger logger = Logger.getLogger(DeployModuleProcesses.class);
             
     @Autowired
+    private ProcessService processService;
+
+    @Autowired
     private ModuleService moduleService;
 
     public void load() {
-        //Цикл по модулям
-        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
-            if (moduleConfiguration.getDeployProcesses() != null && moduleConfiguration.getDeployProcesses().size() > 0) {
-                //Цикл по процессам
-                for (String processResource : moduleConfiguration.getDeployProcesses()) {
-                    //Деполй процесса
-                    ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
-                    RepositoryService repositoryService = processEngine.getRepositoryService();
-                    Deployment deployment = repositoryService.createDeployment()
-                            .addClasspathResource(processResource)
-                            .name(processResource)
-                            .deploy();
-                    logger.info("Process + " + processResource + " is deployed. Process name: " + deployment.getName() + "; Process ID: " + deployment.getId());
+        try {
+            //Цикл по модулям
+            for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+                if (moduleConfiguration.getDeployProcesses() != null && moduleConfiguration.getDeployProcesses().size() > 0) {
+                    //Цикл по процессам
+                    for (String processResource : moduleConfiguration.getDeployProcesses()) {
+                        try(ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                            StreamUtils.copy(getClass().getClassLoader().getResourceAsStream(processResource), out);
+                            // Проверка поддерживает ли текущий движок данный шаблон процесса
+                            if (processService.isSupportTemplate(out.toByteArray(), processResource)) {
+                                //Деполй процесса
+                                String deployId = processService.deployProcess(out.toByteArray(), processResource);
+                                logger.info("Process + " + processResource + " is deployed. Process name: " + processResource + "; Process ID: " + deployId);
+                            } else {
+                                logger.warn("Process " + processResource + " is not support by wf engene " + processService.getEngeneName());
+                            }
+                        }
+                    }
                 }
             }
+        }catch(Exception ex){
+            throw new FatalException("Error install module processes", ex);
         }
     }
 }

@@ -77,6 +77,11 @@
         </dependency>
 
         <dependency>
+            <groupId>ru.runa.wfe</groupId>
+            <artifactId>wfe-webservice-client</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>commons-javaflow</groupId>
             <artifactId>commons-javaflow</artifactId>
             <version>1.0.0</version>

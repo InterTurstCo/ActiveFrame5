@@ -34,6 +34,7 @@
         <module>web-resources</module>
         <module>web-business-universe</module>
         <module>web-login-page</module>
+        <module>rest-server</module>
     </modules>
 
     <properties>
