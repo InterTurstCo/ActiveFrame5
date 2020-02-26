@@ -25,9 +25,14 @@ public abstract class PluginBase {
             String[] params = param.split("[ ;,]");
             for (String papamsItem : params) {
                 String[] keyVal = papamsItem.trim().split("=");
-                result.put(keyVal[0], keyVal[1]);
+                if (keyVal.length > 1) {
+                    result.put(keyVal[0], keyVal[1]);
+                }else{
+                    result.put(keyVal[0], null);
+                }
             }
         }
+        logger.info("Parameters: " + result);
         return result;
     }
     

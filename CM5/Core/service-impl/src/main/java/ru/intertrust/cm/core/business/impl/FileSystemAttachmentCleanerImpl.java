@@ -28,7 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,10 +60,16 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
     @Autowired
     private Environment env;
 
+    @Override
     public String clean(EJBContext ejbContext){
+        return clean(ejbContext, null, null);
+    }
+
+    @Override
+    public String clean(EJBContext ejbContext, Date from, Date to) {
         SessionContext sessionContext = (SessionContext)ejbContext;
 
-        Worker worker = new Worker(sessionContext);
+        Worker worker = new Worker(sessionContext, from, to);
         try {
             if (Status.STATUS_ACTIVE != ejbContext.getUserTransaction().getStatus()) {
                 ejbContext.getUserTransaction().begin();
@@ -97,7 +105,6 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
         }
         logger.info(result);
         return result;
-
     }
 
     private String[] getAllStorageRoots() {
@@ -123,18 +130,22 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
 
     private class Worker implements FileVisitor<Path> {
 
-        Path root;
-        String[] attachmentTypes;
-        AccessToken accessToken;
-        SessionContext sessionContext;
+        private Path root;
+        private String[] attachmentTypes;
+        private AccessToken accessToken;
+        private SessionContext sessionContext;
+        private Date from;
+        private Date to;
 
-        int fileCount = 0;
-        int dirCount = 0;
-        int deleteCount = 0;
-        int errorCount = 0;
+        private int fileCount = 0;
+        private int dirCount = 0;
+        private int deleteCount = 0;
+        private int errorCount = 0;
 
-        public Worker(SessionContext sessionContext){
+        public Worker(SessionContext sessionContext, Date from, Date to){
             this.sessionContext = sessionContext;
+            this.from = from;
+            this.to = to;
         }
 
         @Override
@@ -152,8 +163,9 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
-            if (attr.creationTime().toMillis() - fileDeleteTimeGap * 1000 < System.currentTimeMillis()) { // skip new file
-                String path = root.relativize(file).toString();
+            String path = root.relativize(file).toString();
+            if ((attr.creationTime().toMillis() - fileDeleteTimeGap * 1000 < System.currentTimeMillis()) // skip new file
+                    && checkPeriod(attr.creationTime())) {
                 if (!isLinkedInDo(path)) {
                     try {
                         Files.delete(file);
@@ -164,6 +176,8 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
                         logger.warn("Error deleting not linked file " + file, e);
                     }
                 }
+            }else{
+                logger.debug("Ignore file " + path);
             }
             ++fileCount;
             if (fileCount % fileDeleteBatchSize == 0) {
@@ -175,6 +189,18 @@ public class FileSystemAttachmentCleanerImpl implements FileSystemAttachmentClea
                 }
             }
             return sessionContext.wasCancelCalled() ? FileVisitResult.TERMINATE : FileVisitResult.CONTINUE;
+        }
+
+        /**
+         * Проверка входит ли дата создания файла в проверяемый период
+         * @param creationTime
+         * @return
+         */
+        private boolean checkPeriod(FileTime creationTime) {
+            return (from == null && to == null) ||
+                    (from == null && to != null && creationTime.toMillis() < to.getTime()) ||
+                    (from != null && creationTime.toMillis() > from.getTime() && to == null) ||
+                    (from != null && creationTime.toMillis() > from.getTime() && to != null && creationTime.toMillis() < to.getTime());
         }
 
         @Override
