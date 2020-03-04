@@ -151,11 +151,11 @@ public class AccessControlServiceImpl implements AccessControlService {
      * @return
      */
     private boolean isAdministratorWithAllPermissions(Id personId, Id objectId) {
-        return userGroupCache.isAdministrator(personId) && ! hasAccessMatrix(objectId);
+        return userGroupCache.isAdministrator(personId);
     }
     
     private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
-        return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
+        return userGroupCache.isAdministrator(personId);
     }
 
     private boolean hasAccessMatrix(Id objectId) {

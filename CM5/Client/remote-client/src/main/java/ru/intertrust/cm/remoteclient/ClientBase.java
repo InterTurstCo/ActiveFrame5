@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public abstract class ClientBase {
-    private static final Logger logger = LoggerFactory.getLogger(ClientBase.class);
+    protected static final Logger logger = LoggerFactory.getLogger(ClientBase.class);
     public static final String APP_NAME = "appName";
     public static final String MODULE_NAME = "moduleName";
     public static final String CLIENT = "client";
@@ -98,6 +98,12 @@ public abstract class ClientBase {
     protected void log(String message) {
         logger.info(message);
         log.append(message);
+        log.append("\n");
+    }
+
+    protected void logError(String message, Throwable ex) {
+        logger.error(message, ex);
+        log.append(message + ex.getMessage());
         log.append("\n");
     }
 

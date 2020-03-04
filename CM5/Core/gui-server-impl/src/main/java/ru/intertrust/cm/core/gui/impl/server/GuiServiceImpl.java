@@ -399,6 +399,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         }catch(GuiException ex){
             throw ex;
         }catch(Exception ex){
+            log.error("Error save form", ex);
             throw new GuiException("Error save form " + ex.getMessage());
     }
     }

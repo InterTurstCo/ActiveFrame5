@@ -101,7 +101,7 @@ public class AccessControlUtility {
         if (personId == null) {
             return false;
         }
-        return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
+        return userGroupCache.isAdministrator(personId);
     }
 
     /**
