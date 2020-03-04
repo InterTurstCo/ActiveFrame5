@@ -31,9 +31,10 @@ public class BootstrapBean {
     @PostConstruct
     public void init() {
         try {
-            logger.info("Initialized ejb context");
+            logger.info("Start initialized ejb context");
             //Загрузка контекста из файла beanRefContex.xml.
             final BeanFactory beanFactory = SingletonBeanFactoryLocator.getInstance().getBeanFactory(null);
+            logger.info("Finish initialized ejb context");
         } catch (Throwable ex) {
             throw new FatalBeanException("Error init spring context", ex);
         }

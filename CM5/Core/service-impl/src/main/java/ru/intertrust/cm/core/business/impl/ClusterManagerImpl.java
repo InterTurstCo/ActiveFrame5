@@ -94,9 +94,9 @@ public class ClusterManagerImpl implements ClusterManager{
     @PostConstruct
     @Lock(LockType.WRITE)
     public void init() {
-        logger.trace("Start ClusterManager Timer initialized " + nodeId);
+        logger.trace("Start ClusterManager Timer initialized");
         nodeId = clusterManagerDao.getNodeId();
-        timerService.createIntervalTimer(0, INTERVAL, new TimerConfig(TIMER_NAME, false));
+        timerService.createIntervalTimer(INTERVAL, INTERVAL, new TimerConfig(TIMER_NAME, false));
         logger.debug("End ClusterManager Timer initialized " + nodeId);
     }
 
@@ -130,9 +130,10 @@ public class ClusterManagerImpl implements ClusterManager{
     public void onTimeout(Timer timer) {
         logger.trace("Start on timer");
 
-        mainClusterManager = !isCanBeMaster() ? false : interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY);
-
         if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
+            logger.trace("Configuration is loaded, timer is active");
+            mainClusterManager = !isCanBeMaster() ? false : interserverLockingService.selfSharedLock(CLUSTER_MANAGER_LOCK_KEY);
+
             //Обновляем информацию о ноде в базе
             DomainObject nodeInfo = crudService.findAndLockByUniqueKey("cluster_node",
                     Collections.singletonMap("node_id", (Value) new StringValue(nodeId)));

@@ -412,8 +412,8 @@ public class SchedulerBean {
 
     /**
      * Проверка одного поля расписания
-     * @param year
-     * @param year2
+     * @param field
+     * @param now
      * @return
      */
     private boolean isScheduleFieldComplete(String field, int now) {
@@ -448,8 +448,10 @@ public class SchedulerBean {
 
     @PostConstruct
     public void init() {
+        logger.debug("Start init");
         clusterManager.regRole(ScheduleService.SCHEDULE_MANAGER_ROLE_NAME, true);
         clusterManager.regRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME, false);
+        logger.debug("Finish init");
     }
 
     private class StartedTask {
