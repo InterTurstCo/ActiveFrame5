@@ -435,7 +435,9 @@ public class ConfigurationStorageBuilder {
             buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
 
             List<String> typesInAscendingOrder = new ArrayList<>(typesHierarchy.size() + 1);
-            typesInAscendingOrder.add(typeName);
+            // Так как регистр параметра typeName может быть не такой как в конфигурации, запрашиваем оригинальный конфиг
+            DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig)configurationStorage.topLevelConfigMap.get(DomainObjectTypeConfig.class).get(typeName);
+            typesInAscendingOrder.add(typeConfig.getName());
             typesInAscendingOrder.addAll(typesHierarchy);
             configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[typesInAscendingOrder.size()]));
 
