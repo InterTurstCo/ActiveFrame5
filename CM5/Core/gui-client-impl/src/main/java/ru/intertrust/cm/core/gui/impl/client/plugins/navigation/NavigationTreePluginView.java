@@ -6,6 +6,8 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
@@ -41,6 +43,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 
 import java.util.*;
+import java.util.logging.Logger;
 
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
@@ -60,10 +63,11 @@ public class NavigationTreePluginView extends PluginView {
     private static final int DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH = 220;
     private static final int TOP_MARGIN = 80;
     public static final long SESSION_TIMEOUT = 1800;
+    private static Logger logger = Logger.getLogger(NavigationTreePluginView.class.getName());
     private int START_WIDGET_WIDTH = 0;
     private boolean pinButtonPressed = false;
     private TreeItem currentSelectedItem;
-    private FocusPanel navigationTreesPanel = new FocusPanel();
+    private FocusPanel navigationTreesPanel;
     private SidebarView sideBarView;
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
     private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
@@ -112,6 +116,7 @@ public class NavigationTreePluginView extends PluginView {
         compactModeState.setLevelsIntersection(levelsIntersection);
         endWidgetWidthInPx = secondLevelNavigationPanelWidth + "px";
         pinButton = new HTML();
+        navigationTreesPanel = new FocusPanel();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
         if (minimalMargin) {
@@ -318,16 +323,28 @@ public class NavigationTreePluginView extends PluginView {
                         }
                     });
                 } else {
-                    String context = GWT.getHostPageBaseURL().split("/")[3];
-                    StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL().substring(0,
-                            GWT.getHostPageBaseURL().indexOf(context)+context.length()+1))
-                            .append("Login.html");
-                    Window.Location.replace(loginPathBuilder.toString());
+                    String loginPath = getLoginPath(GWT.getHostPageBaseURL());
+                    Window.Location.replace(loginPath);
                 }
             }
         };
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
 
+    }
+
+    private String getLoginPath(String hostPageBaseURL){
+        RegExp regExp = RegExp.compile("(http[s]?://[^/]*/[^/]*)", "i");
+        MatchResult execResult = regExp.exec(hostPageBaseURL);
+        String result = null;
+        if (execResult != null) {
+            result = execResult.getGroup(1) + "/Login.html";
+        }else{
+            // Не смогли распарсить адрес, чтоб не падал клиент просто оставляем исходный адрес
+            result = hostPageBaseURL;
+            logger.fine("Can not parsing url " + hostPageBaseURL);
+        }
+
+        return result;
     }
 
     private void updateCounterKeys() {
