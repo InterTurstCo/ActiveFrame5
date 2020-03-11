@@ -50,7 +50,7 @@ public class SingleRowPlugin extends Plugin {
             formPlugin = ComponentRegistry.instance.get("form.plugin");
             formPlugin.setDisplayActionToolBar(true);
             formPlugin.setLocalEventBus(this.eventBus);
-            
+
             FormPluginConfig formPluginConfig = new FormPluginConfig();
             if (initialData.getFormPluginData().getFormDisplayData().getStatus() != null){
                 formPluginConfig.setDomainObjectId(initialData.getFormPluginData().getFormDisplayData().getStatus().getId());
@@ -60,6 +60,7 @@ public class SingleRowPlugin extends Plugin {
             formPlugin.setConfig(formPluginConfig);
         }
         formPlugin.setInitialData(initialData.getFormPluginData());
+        formPlugin.getFormPluginState().setInCentralPanel(true);
     }
 
 }
