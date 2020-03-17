@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.model.ProcessException;
 import ru.runa.wfe.webservice.Actor;
 import ru.runa.wfe.webservice.AuthenticationAPI;
 import ru.runa.wfe.webservice.AuthenticationWebService;
+import ru.runa.wfe.webservice.AuthorizationAPI;
+import ru.runa.wfe.webservice.AuthorizationWebService;
 import ru.runa.wfe.webservice.BatchPresentation;
 import ru.runa.wfe.webservice.DefinitionAPI;
 import ru.runa.wfe.webservice.DefinitionWebService;
@@ -40,8 +42,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
     private static final Logger logger = LoggerFactory.getLogger(RunaWorkflowEngineImpl.class);
@@ -118,6 +122,8 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
             AuthenticationAPI authenticationAPI = new AuthenticationWebService(getServiceUrl(AuthenticationWebService.class)).getAuthenticationAPIPort();
             User user = authenticationAPI.authenticateByLoginPassword(systemUsername, systemPassword);
             DefinitionAPI definitionAPI = new DefinitionWebService(getServiceUrl(DefinitionWebService.class)).getDefinitionAPIPort();
+            AuthorizationAPI authorizationAPI = new AuthorizationWebService(getServiceUrl(AuthorizationWebService.class)).getAuthorizationAPIPort();
+            ExecutorAPI executorAPI = new ExecutorWebService(getServiceUrl(ExecutorWebService.class)).getExecutorAPIPort();
 
             // Получение установленноого процесса
             List<WfDefinition> definitions = definitionAPI.getProcessDefinitionHistory(user, processName);
@@ -134,6 +140,13 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
                 wfDefinition = definitionAPI.getLatestProcessDefinition(user, processName);
                 wfDefinition = definitionAPI.redeployProcessDefinition(user, wfDefinition.getId(), processDefinition, Collections.singletonList(PROCESS_TYPE));
             }
+
+            // Разрешаем запускать всем
+            /* Не работает из за ошибки в Runa org.apache.cxf.binding.soap.SoapFault: Unmarshalling Error: Unable to create an instance of ru.runa.wfe.security.SecuredObject
+            WfExecutor allPersonsGroup = executorAPI.getExecutorByName(user, "AllPersons");
+            authorizationAPI.setPermissions(user, allPersonsGroup.getId(), Collections.singletonList("START"), wfDefinition);
+            */
+
 
             // TODO сохранение данных об установленной версии
 
@@ -168,6 +181,8 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
             result = new URL(baseUrl + "TaskWebService/TaskAPI?wsdl");
         } else if (clazz.equals(ExecutorWebService.class)) {
             result = new URL(baseUrl + "ExecutorWebService/ExecutorAPI?wsdl");
+        } else if (clazz.equals(AuthorizationWebService.class)) {
+            result = new URL(baseUrl + "AuthorizationWebService/AuthorizationAPI?wsdl");
         } else {
             throw new UnsupportedOperationException("Not support service " + clazz.getName());
         }
@@ -325,7 +340,7 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public boolean createGroup(String name) {
+    public boolean createOrUpdateGroup(String name, Set<String> persons) {
         try{
             // Подключаемся к серверу
             AuthenticationAPI authenticationAPI = new AuthenticationWebService(getServiceUrl(AuthenticationWebService.class)).getAuthenticationAPIPort();
@@ -333,16 +348,54 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
             ExecutorAPI executorAPI = new ExecutorWebService(getServiceUrl(ExecutorWebService.class)).getExecutorAPIPort();
 
             boolean result = false;
+            // Создание группы если нет
+            WfExecutor executor = null;
             if (executorAPI.isExecutorExist(user, name)){
-                WfExecutor executor = executorAPI.getExecutorByName(user, name);
+                executor = executorAPI.getExecutorByName(user, name);
             }else{
-                WfExecutor executor = new WfExecutor();
+                executor = new WfExecutor();
                 executor.setName(name);
                 executor.setExecutorClassName("ru.runa.wfe.user.Group");
                 executor.setDescription("Created by AF5");
                 executor = executorAPI.create(user, executor);
                 result = true;
             }
+
+            // Синхронизация пользователей
+            Group group = new Group();
+            group.setId(executor.getId());
+            group.setName(executor.getName());
+            List<WfExecutor> currentMembers = executorAPI.getAllExecutorsFromGroup(user, group);
+            // Перекладываем в Map
+            Map<String, Long> currentMembersMap = new HashMap();
+            for (WfExecutor currentMember: currentMembers){
+                currentMembersMap.put(currentMember.getName(), currentMember.getId());
+            }
+            // Поиск пользователей которых нет в группе
+            List<Long> addExecutors = new ArrayList<>();
+            for (String person : persons) {
+                if (!currentMembersMap.containsKey(person)){
+                    WfExecutor addWfExecutor = executorAPI.getExecutorByName(user, person);
+                    addExecutors.add(addWfExecutor.getId());
+                }
+            }
+            if (addExecutors.size() > 0) {
+                executorAPI.addExecutorsToGroup(user, addExecutors, group.getId());
+                result = true;
+            }
+
+            // Поиск пользователей которые удалены из группы
+            List<Long> deleteExecutors = new ArrayList<>();
+            for (String currentMember : currentMembersMap.keySet()) {
+                if (!persons.contains(currentMember)){
+                    deleteExecutors.add(currentMembersMap.get(currentMember));
+                }
+            }
+            if (deleteExecutors.size() > 0) {
+                executorAPI.removeExecutorsFromGroup(user, deleteExecutors, group.getId());
+                result = true;
+            }
+
             return result;
         } catch (Exception ex) {
             throw new ProcessException("Error create group", ex);

@@ -2,6 +2,9 @@ package ru.intertrust.cm.core.business.impl.workflow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
@@ -11,6 +14,10 @@ import ru.intertrust.cm.core.business.api.workflow.WorkflowEngine;
 
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @ScheduleTask(name = "RunaSyncExecutors",
         dayOfMonth = "*/1",
@@ -25,6 +32,9 @@ public class RunaSyncExecutors implements ScheduleTaskHandle {
     @Autowired
     private CollectionsService collectionsService;
 
+    @Autowired
+    private PersonManagementService personManagementService;
+
     @Override
     public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
         long personsCount = syncPersons();
@@ -37,7 +47,12 @@ public class RunaSyncExecutors implements ScheduleTaskHandle {
         IdentifiableObjectCollection collection =
                 collectionsService.findCollectionByQuery("select id, group_name from user_group where object_id is null");
         for (IdentifiableObject row : collection) {
-            if (workflowEngine.createGroup(row.getString("group_name"))){
+            List<DomainObject> persons = personManagementService.getAllPersonsInGroup(row.getId());
+            Set<String> membersLogin = new HashSet<>();
+            for (DomainObject person : persons) {
+                membersLogin.add(person.getString("login"));
+            }
+            if (workflowEngine.createOrUpdateGroup(row.getString("group_name"), membersLogin)){
                 count++;
             }
         }

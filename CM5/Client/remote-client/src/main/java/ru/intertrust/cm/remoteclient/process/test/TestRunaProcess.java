@@ -202,6 +202,20 @@ public class TestRunaProcess extends ClientBase {
                 }
             }
 
+            // Проверка задачи группе AllPersons
+            personActionService = getActionService("person1");
+            actions = personActionService.getActions(attachment.getId());
+            context = (SimpleActionContext) actions.get(0);
+            config = (SimpleActionConfig) context.getActionConfig();
+            assertTrue("Action count to AllPersons group", actions.size() == 1 && config.getProperty("complete.activity.id").equals("ID95"));
+
+            for (ActionContext actionContext : actions) {
+                context = (SimpleActionContext) actionContext;
+                config = (SimpleActionConfig) context.getActionConfig();
+                getProcessService("person1").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
+                        (String) config.getProperty("complete.task.action"));
+            }
+
             // Проверка Изменения вложения и создания новго из процесса
             attachment = getCrudService().find(attachment.getId());
             assertTrue("Change domain object from process", attachment.getString("test_text").startsWith("Изменен в процессе"));
@@ -297,7 +311,7 @@ public class TestRunaProcess extends ClientBase {
             assertTrue("Check find by query", personDomObj.getString("login").equals("person1"));
 
             // Удаление процесса
-            getProcessService("admin").undeployProcess("test-1", true);
+            //getProcessService("admin").undeployProcess("test-1", true);
 
         } finally {
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ActivitiWorkflowEngineImpl extends AbstactWorkflowEngine {
     private static final Logger logger = LoggerFactory.getLogger(ActivitiWorkflowEngineImpl.class);
@@ -178,7 +179,7 @@ public class ActivitiWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public boolean createGroup(String name) {
+    public boolean createOrUpdateGroup(String name, Set<String> persons) {
         // Этат метод не нужен в activiti, так в качестве адресата может быть произвольная строка
         throw new UnsupportedOperationException();
     }

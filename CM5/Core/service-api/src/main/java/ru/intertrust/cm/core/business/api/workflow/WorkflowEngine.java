@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 
 import java.util.List;
+import java.util.Set;
 
 public interface WorkflowEngine {
     /**
@@ -125,7 +126,7 @@ public interface WorkflowEngine {
      * @param name Имя группы
      * @return Идентификатор группы в движке WF
      */
-    boolean createGroup(String name);
+    boolean createOrUpdateGroup(String name, Set<String> persons);
 
     /**
      * Создание или изменение информации о пользователе
