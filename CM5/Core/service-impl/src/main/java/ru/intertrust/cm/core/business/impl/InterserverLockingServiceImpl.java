@@ -324,8 +324,8 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         ScheduledFutureEx future = heldLocks.get(resourceId);
         if (future != null) {
             future.cancel(true);
-            getInterserverLockingDao().unlock(resourceId, getClusterTransactionStampService().getInvalidationCacheInfo().encode());
             heldLocks.remove(resourceId);
+            getInterserverLockingDao().unlock(resourceId, getClusterTransactionStampService().getInvalidationCacheInfo().encode());
             logger.trace("End unlock {}", resourceId);
         } else {
             throw new RuntimeException("Only locker can unlock resource.");
