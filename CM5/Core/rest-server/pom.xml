@@ -3,7 +3,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>1.0.0-4-SNAPSHOT</version>
+        <version>1.0.0-4</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
