@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import javax.annotation.security.RunAs;
 import javax.ejb.Asynchronous;
 import javax.ejb.Local;
 import javax.ejb.Schedule;

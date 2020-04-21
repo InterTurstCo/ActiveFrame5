@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
@@ -38,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScheduleService;
@@ -110,7 +113,7 @@ public class SchedulerBean {
     private ClusterManager clusterManager;
 
 
-    @org.springframework.beans.factory.annotation.Value("${excluded.task.list:}")
+    @Value("${excluded.task.list:}")
     private String excludedTaskList;
     
     private Set<String> excludedTask;
@@ -376,7 +379,7 @@ public class SchedulerBean {
         ru.intertrust.cm.core.business.api.schedule.Schedule schedule = getScheduleFromTask(task);
 
         //Получаем текущие значения даты и времени
-        Calendar calendar = Calendar.getInstance();
+        Calendar calendar = getCalendarInstance();
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
@@ -393,6 +396,10 @@ public class SchedulerBean {
         result = result && isScheduleFieldComplete(schedule.getMinute(), minute);
 
         return result;
+    }
+
+    protected Calendar getCalendarInstance() {
+        return Calendar.getInstance();
     }
 
     private ru.intertrust.cm.core.business.api.schedule.Schedule getScheduleFromTask(IdentifiableObject task) {
@@ -421,10 +428,28 @@ public class SchedulerBean {
 
         if (field.equals("*")) {
             result = true;
+        } else if (field.contains(",")) {
+            result = Stream.of(field.split(","))
+                    .anyMatch(it -> it.matches("\\d+") && isScheduleFieldComplete(it, now));
+        } else if (field.contains("-")) {
+            String[] values = field.split("-");
+            if (values.length == 2 && values[0].matches("\\d+") && values[1].matches("\\d+")) {
+                int start = Integer.parseInt(values[0]);
+                int finish = Integer.parseInt(values[1]);
+                if (start < finish) {
+                    result = IntStream.range(start, finish).anyMatch(it -> isScheduleFieldComplete(String.valueOf(it), now));
+                } else {
+                    logger.error("Incorrect cron syntax: {}", field);
+                }
+            } else {
+                logger.error("Incorrect cron syntax: {}", field);
+            }
         } else if (field.matches("\\d+")) {
             result = Integer.parseInt(field) == now;
         } else if (field.matches("\\*/\\d+")) {
             result = now % Integer.parseInt(field.substring(2)) == 0;
+        } else {
+            logger.error("Incorrect cron syntax: {}", field);
         }
 
         return result;

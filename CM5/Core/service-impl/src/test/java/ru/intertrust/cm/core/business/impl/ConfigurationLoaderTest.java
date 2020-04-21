@@ -22,7 +22,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 public class ConfigurationLoaderTest {
 
     @InjectMocks
-    private ConfigurationLoader configurationLoader;
+    private ConfigurationLoaderImpl configurationLoader;
     @Mock
     private ConfigurationLoadService configurationLoadService;
     @Mock

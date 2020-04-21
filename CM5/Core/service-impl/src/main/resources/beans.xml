@@ -16,7 +16,7 @@
     
     <aop:aspectj-autoproxy/>
 
-    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
+    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoaderImpl"
           depends-on="springApplicationContext"/>
 
     <bean id="configurationExtensionProcessor" class="ru.intertrust.cm.core.business.impl.ConfigurationExtensionProcessor"
