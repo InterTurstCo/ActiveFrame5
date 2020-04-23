@@ -3359,6 +3359,7 @@
 
     <xs:complexType name="searchAreaType">
         <xs:sequence>
+            <xs:element name="solr-server-url" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element type="con:targetDomainObjectType" name="target-domain-object" minOccurs="1"
                         maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
@@ -3404,12 +3405,14 @@
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:attribute>
+                <xs:attribute name="show-in-results" type="xs:boolean" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="indexedContentType">
         <xs:attribute type="xs:string" name="type" use="required"/>
+        <xs:attribute name="show-in-results" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="linkedDomainObjectType">
@@ -4557,5 +4560,5 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    
+
 </xs:schema>

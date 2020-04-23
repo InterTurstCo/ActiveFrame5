@@ -130,6 +130,37 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery, sqlParams), maxResults);
     }
 
+    // Контекстный поиск
+    @Override
+    public IdentifiableObjectCollection search(SearchQuery searchQuery, int maxResults) {
+        try {
+            if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
+                maxResults = RESULTS_LIMIT;
+            }
+
+            CollectionRetriever collectionRetriever = new ContentCollectionRetriever();
+            ContentQuery solrContentQuery = new ContentQuery();
+            solrContentQuery.addFilters(searchQuery.getFilters(), searchQuery);
+
+            int fetchLimit = maxResults;
+            while(true) {
+                SolrDocumentList found = solrContentQuery.execute(fetchLimit, searchQuery);
+                if (fetchLimit <= 0) {
+                    fetchLimit = found.size();
+                }
+
+                IdentifiableObjectCollection result = collectionRetriever.queryCollection(found, maxResults);
+                if (found.size() >= fetchLimit && result.size() < maxResults) {
+                    fetchLimit = estimateFetchLimit(found.size(), result.size());
+                    continue;
+                }
+                return result;
+            }
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
     private IdentifiableObjectCollection complexSearch(SearchQuery query, CollectionRetriever collectionRetriever,
             int maxResults) {
         try {
@@ -162,13 +193,13 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
     class ComplexQuery {
-        private HashMap<String, StringBuilder> filterStrings = new HashMap<>();
-        private ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
-        private ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
+        protected HashMap<String, StringBuilder> filterStrings = new HashMap<>();
+        protected ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
+        protected ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
         CombiningFilter.Op combineOperation = CombiningFilter.AND;
         boolean negateResult = false;
 
-        private HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
+        protected HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
 
         public ComplexQuery newNestedQuery() {
             ComplexQuery nestedQuery = new ComplexQuery();
@@ -312,6 +343,20 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             return result;
         }
     }
+
+    class ContentQuery extends ComplexQuery {
+
+        @Override
+        void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
+            super.addFilters(filters, query);
+        }
+
+        @Override
+        public SolrDocumentList execute(int fetchLimit, SearchQuery query) {
+            return super.execute(fetchLimit,query);
+        }
+    }
+
 
     private interface Combiner {
         boolean add(SolrDocument doc, SolrDocumentList list);

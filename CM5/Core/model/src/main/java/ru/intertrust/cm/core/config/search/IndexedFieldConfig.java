@@ -43,6 +43,9 @@ public class IndexedFieldConfig implements Serializable {
     @Element(required = false)
     private String script;
 
+    @Attribute(name = "show-in-results", required = false)
+    private Boolean showInResults;
+
     public String getName() {
         return name;
     }
@@ -77,6 +80,10 @@ public class IndexedFieldConfig implements Serializable {
         return solrPrefix;
     }
 
+    public boolean getShowInResults() {
+        return showInResults != null ? showInResults.booleanValue() : false;
+    }
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
@@ -84,6 +91,7 @@ public class IndexedFieldConfig implements Serializable {
         hash = hash * 31 ^ (doel != null ? doel.hashCode() : 0);
         hash = hash * 31 ^ (script != null ? script.hashCode() : 0);
         hash = hash * 31 ^ (solrPrefix != null ? solrPrefix.hashCode() : 0);
+        hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
         return hash;
     }
 
@@ -100,6 +108,7 @@ public class IndexedFieldConfig implements Serializable {
                 && (language == null ? other.language == null : language.equals(other.language))
                 && (doel == null ? other.doel == null : doel.equals(other.doel))
                 && (script == null ? other.script == null : script.equals(other.script))
-                && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix));
+                && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix))
+                && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults));
     }
 }

@@ -83,5 +83,16 @@ public interface SearchService {
     IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery,
             String sqlQuery, List<? extends Value<?>> sqlParams, int maxResults);
 
+    /**
+     * Выполняет поиск по вложениям и полям доменных объектов одной области поиска.
+     *
+     * @param searchQuery Критерии поиска
+     * @param maxResults Ограничение количества найденных объектов
+     * @return Коллекция найденных доменных объектов
+     * @throws IllegalArgumentException если критерии поиска содержат области поиска или типы искомых объектов,
+     *      не объявленные в конфигурации
+     */
+    IdentifiableObjectCollection search(SearchQuery searchQuery, int maxResults);
+
     void dumpAll();
 }

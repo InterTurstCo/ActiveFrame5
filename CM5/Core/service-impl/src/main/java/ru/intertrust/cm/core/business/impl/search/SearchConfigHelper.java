@@ -87,15 +87,17 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         private IndexedDomainObjectConfig[] objectConfigChain;
         private String areaName;
         private String targetObjectType;
+        private String solrServerUrl;
 
         SearchAreaDetailsConfig() {
         }
 
         SearchAreaDetailsConfig(List<IndexedDomainObjectConfig> objectConfigChain,
-                String areaName, String targetObjectType) {
+                String areaName, String targetObjectType, String solrServerUrl) {
             this.objectConfigChain = objectConfigChain.toArray(new IndexedDomainObjectConfig[objectConfigChain.size()]);
             this.areaName = areaName;
             this.targetObjectType = targetObjectType;
+            this.solrServerUrl = solrServerUrl;
         }
 
         /**
@@ -131,6 +133,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
          */
         public String getTargetObjectType() {
             return targetObjectType;
+        }
+
+        public String getSolrServerUrl() {
+            return solrServerUrl;
         }
 
         @Override
@@ -169,6 +175,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+    }
+
+    public SearchAreaConfig getSearchAreaDetailsConfig(String areaName) {
+        return configurationExplorer.getConfig(SearchAreaConfig.class, areaName);
     }
 
     @PostConstruct
@@ -379,15 +389,15 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         result = new ArrayList<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
-            processConfigList(objectType, area.getName(), null, area.getTargetObjects(),
-                    new LinkedList<IndexedDomainObjectConfig>(), result);
+            processConfigList(objectType, area.getName(), null, area.getSolrServerUrl(),
+                    area.getTargetObjects(), new LinkedList<IndexedDomainObjectConfig>(), result);
         }
 
         effectiveConfigsMap.put(objectType, result);
         return result;
     }
 
-    private void processConfigList(String objectType, String areaName, String targetObjectType,
+    private void processConfigList(String objectType, String areaName, String targetObjectType, String solrServerUrl,
             Collection<? extends IndexedDomainObjectConfig> list, LinkedList<IndexedDomainObjectConfig> parents,
             ArrayList<SearchAreaDetailsConfig> result) {
         for (IndexedDomainObjectConfig config : list) {
@@ -399,16 +409,16 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             if (isSuitableType(config.getType(), objectType)) {
                 /*DomainObjectFilter filter = createFilter(config);
                 if (filter == null || filter.filter(object)) {*/
-                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType));
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerUrl));
                 //}
             }
             for (IndexedContentConfig contentConfig : config.getContentObjects()) {
                 //if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
                 if (isSuitableType(contentConfig.getType(), objectType)) {
-                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType));
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerUrl));
                 }
             }
-            processConfigList(objectType, areaName, targetObjectType, config.getLinkedObjects(), parents, result);
+            processConfigList(objectType, areaName, targetObjectType, solrServerUrl, config.getLinkedObjects(), parents, result);
             parents.removeFirst();
         }
     }

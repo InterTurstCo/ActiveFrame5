@@ -14,7 +14,7 @@ public class SearchQuery implements Dto {
 
     public static final String RELEVANCE = "_relevance";
 
-    private ArrayList<String> areas = new ArrayList<String>();
+    private ArrayList<String> areas = new ArrayList<>();
     private String targetObjectType;
     private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
 
@@ -53,7 +53,7 @@ public class SearchQuery implements Dto {
      * 
      * @param area имя области поиска, заданное в конфигурации
      */
-    public void removeArea(String area) {
+    public void removeArea(SearchArea area) {
         areas.remove(area);
     }
 
@@ -140,5 +140,34 @@ public class SearchQuery implements Dto {
         result.append("; areas: ").append(areas.toString());
         result.append("; filters: ").append(filters.toString());
         return result.toString();
+    }
+
+    public static class SearchArea {
+        private final String area;
+        private final String solrServerUrl;
+
+        public SearchArea (String area, String solrServerUrl) {
+            this.area = area;
+            this.solrServerUrl = solrServerUrl;
+        }
+
+        public String getArea() {
+            return area;
+        }
+
+        public String getSolrServerUrl() {
+            return solrServerUrl;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            boolean b = false;
+            if (obj instanceof SearchArea) {
+                SearchArea that = (SearchArea)obj;
+                b = (area == null ? that.area == null : area.equals(that.area))
+                        && (solrServerUrl == null ? that.solrServerUrl == null : solrServerUrl.equals(that.solrServerUrl));
+            }
+            return b;
+        }
     }
 }
