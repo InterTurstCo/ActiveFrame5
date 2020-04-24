@@ -42,7 +42,7 @@ import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 @Local(ImportSystemData.class)
 @Remote(ImportSystemData.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-@TransactionManagement(TransactionManagementType.BEAN)
+@TransactionManagement(TransactionManagementType.CONTAINER)
 public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.Remote {
 
     private static final Logger logger = Logger.getLogger(ImportSystemDataImpl.class);
@@ -103,7 +103,7 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
                                     ImportData importData = (ImportData) springContext.getBean(ImportData.SYSTEM_IMPORT_BEAN);
 
                                     importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString()
-                                            + importFile.getFileName())), importFilesConfiguration.getCsvEncoding(), rewrite, null, context.getUserTransaction());
+                                            + importFile.getFileName())), importFilesConfiguration.getCsvEncoding(), rewrite, null, null);
                                     logger.info("Import system data from file " + importFile.getFileName());
                                 }
                             }
