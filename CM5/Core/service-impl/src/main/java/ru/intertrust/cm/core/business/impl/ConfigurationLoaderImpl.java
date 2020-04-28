@@ -17,7 +17,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 public class ConfigurationLoaderImpl implements ConfigurationLoader {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationLoaderImpl.class);
     
-    static boolean isCfgTransactionCommited = true;
+    private boolean isCfgTransactionCommited = true;
 
     @Autowired
     private ConfigurationLoadService configurationLoadService;
@@ -126,6 +126,11 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
     @Override
     public boolean isConfigurationTableExist(){
         return configurationLoadService.isConfigurationTableExist();
+    }
+    
+    @Override
+    public void setCfgTransactionCommited (boolean value) {
+        this.isCfgTransactionCommited = value;
     }
     
 }

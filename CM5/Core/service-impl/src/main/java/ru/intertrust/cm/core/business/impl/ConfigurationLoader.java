@@ -45,4 +45,7 @@ public interface ConfigurationLoader {
      * @return
      */
     boolean isConfigurationTableExist();
+
+    void setCfgTransactionCommited (boolean value);
+
 }
