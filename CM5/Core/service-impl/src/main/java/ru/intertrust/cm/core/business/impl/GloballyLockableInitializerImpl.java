@@ -128,7 +128,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                     
                     @Override
                     public void onAfterCommit () {
-                        GloballyLockableInitializerImpl.this.configurationLoader.setCfgTransactionCommited(false);
+                        GloballyLockableInitializerImpl.this.configurationLoader.setCfgTransactionCommited(true);
                     }
                     
                     @Override
