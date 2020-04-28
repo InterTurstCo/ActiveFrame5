@@ -5,7 +5,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -16,8 +18,6 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
  */
 public class ConfigurationLoaderImpl implements ConfigurationLoader {
     private static final Logger logger = LoggerFactory.getLogger(ConfigurationLoaderImpl.class);
-    
-    private boolean isCfgTransactionCommited = true;
 
     @Autowired
     private ConfigurationLoadService configurationLoadService;
@@ -30,6 +30,9 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
 
     @Autowired
     private AccessControlService accessControlService;
+    
+    @Autowired
+    private UserTransactionService userTransactionService;
     
     private boolean configurationLoaded;
 
@@ -99,8 +102,28 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
             extension.onLoad();
         }
 
-        //Установка флага загруженности конфигурации
-        configurationLoaded = true;
+        if (userTransactionService.getTransactionId() == null) {
+            //Установка флага загруженности конфигурации - раз нет транзакции, то сразу
+            configurationLoaded = true;
+        } else {
+            userTransactionService.addListener(new ActionListener() {
+                
+                @Override
+                public void onAfterCommit () {
+                    ConfigurationLoaderImpl.this.configurationLoaded = true;
+                }
+                
+                @Override
+                public void onRollback () {
+                }
+                
+                @Override
+                public void onBeforeCommit () {
+                }
+                
+            });
+        }
+            
     }
 
     private ConfigurationExtensionProcessor extensionProcessor() {
@@ -115,7 +138,7 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
      */
     @Override
     public boolean isConfigurationLoaded(){
-        return configurationLoaded && isCfgTransactionCommited;
+        return configurationLoaded;
     }
 
 
@@ -126,11 +149,6 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
     @Override
     public boolean isConfigurationTableExist(){
         return configurationLoadService.isConfigurationTableExist();
-    }
-    
-    @Override
-    public void setCfgTransactionCommited (boolean value) {
-        this.isCfgTransactionCommited = value;
     }
     
 }

@@ -30,11 +30,9 @@ import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.config.server.ServerStatus;
-import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
-import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 import ru.intertrust.cm.core.dao.api.extension.NotManagerDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitializer;
@@ -77,7 +75,6 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private DeployModuleProcesses deployModuleProcesses;
     @Autowired private ClusteredLockDao clusteredLockDao;
     @Autowired private DatabaseDaoFactory dbDaoFactory;
-    @Autowired private UserTransactionService userTransactionService;
     @Value("${scheme.transaction.timeout:60}") private int schemeTransactionTimeout = 60; // minutes
     @Value("${scheme.transaction.disable:false}") private boolean isSchemeTransactionDisable = false;
 
@@ -123,23 +120,6 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 tx = this.ejbContext.getUserTransaction();
                 tx.setTransactionTimeout(this.schemeTransactionTimeout * 60);
                 tx.begin();
-                this.configurationLoader.setCfgTransactionCommited(false);
-                this.userTransactionService.addListener(new ActionListener() {
-                    
-                    @Override
-                    public void onAfterCommit () {
-                        GloballyLockableInitializerImpl.this.configurationLoader.setCfgTransactionCommited(true);
-                    }
-                    
-                    @Override
-                    public void onRollback () {
-                    }
-                    
-                    @Override
-                    public void onBeforeCommit () {
-                    }
-                    
-                });
             }
             try {
                 // если нет конфигукации предполагаем что необходимо создать все структуру базы.
