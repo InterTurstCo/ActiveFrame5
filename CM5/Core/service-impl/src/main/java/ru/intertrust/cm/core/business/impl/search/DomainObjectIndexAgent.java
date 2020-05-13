@@ -111,6 +111,11 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
+        // Проверка включения агента индексирования
+        if (configHelper.isDisableIndexing()){
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(domainObject.getTypeName());
         if (configs.size() == 0) {
@@ -488,6 +493,11 @@ public class DomainObjectIndexAgent implements AfterSaveAfterCommitExtensionHand
 
     @Override
     public void onAfterDelete(DomainObject deletedDomainObject) {
+        // Проверка включения агента индексирования
+        if (configHelper.isDisableIndexing()){
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
         if (configs.size() == 0) {

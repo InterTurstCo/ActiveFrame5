@@ -83,5 +83,15 @@ public interface SearchService {
     IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery,
             String sqlQuery, List<? extends Value<?>> sqlParams, int maxResults);
 
+    /**
+     * Метод предназначен для отладки состояния хранилища индекса. Выгружает данные в файл
+     * указанный в свойстве search.dump.file, по умолчанию выгружает в файл search-index-dump.txt
+     */
     void dumpAll();
+
+    /**
+     * Метод включает или отключает индексацию доменных объектов и вложений.
+     * @param disableFlag
+     */
+    void disableIndexing(boolean disableFlag);
 }

@@ -39,6 +39,12 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     private List<SearchLanguageConfig> languageConfigs;
 
+    /**
+     * Флаг отключения агента индексирования. Аггент полезно отключать в процессе импорта для ускорения процесса.
+     */
+    @org.springframework.beans.factory.annotation.Value("${index.agent.disable:false}")
+    private boolean disableIndexing = false;
+
     private Map<String, ArrayList<SearchAreaDetailsConfig>> effectiveConfigsMap =
             Collections.synchronizedMap(new HashMap<String, ArrayList<SearchAreaDetailsConfig>>());
 
@@ -780,5 +786,13 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         objectTypesWithContentMap.clear();
         indexedFieldConfigMap.clear();
         applicableTypesMap.clear();
+    }
+
+    public void disableIndexing(boolean disable){
+        disableIndexing = disable;
+    }
+
+    public boolean isDisableIndexing(){
+        return disableIndexing;
     }
 }

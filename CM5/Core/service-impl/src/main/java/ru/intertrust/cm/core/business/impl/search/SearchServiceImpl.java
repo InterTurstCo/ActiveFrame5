@@ -535,4 +535,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         }
     }
+
+    @Override
+    public void disableIndexing(boolean disableFlag) {
+        configHelper.disableIndexing(disableFlag);
+    }
 }
