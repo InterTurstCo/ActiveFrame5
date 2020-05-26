@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
@@ -75,6 +76,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private DeployModuleProcesses deployModuleProcesses;
     @Autowired private ClusteredLockDao clusteredLockDao;
     @Autowired private DatabaseDaoFactory dbDaoFactory;
+    @Autowired private EventLogService eventLogService;
     @Value("${scheme.transaction.timeout:60}") private int schemeTransactionTimeout = 60; // minutes
     @Value("${scheme.transaction.disable:false}") private boolean isSchemeTransactionDisable = false;
 
@@ -109,7 +111,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     }
 
     private void init() throws Exception {
-       logger.info("Run init");
+        logger.info("Run init");
         configurationExplorer.validate();
         // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
         if(isMainServer){
@@ -177,7 +179,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);
 
         }
-
+        eventLogService.setEnable(true);
         logger.info("Finish init");
     }
 

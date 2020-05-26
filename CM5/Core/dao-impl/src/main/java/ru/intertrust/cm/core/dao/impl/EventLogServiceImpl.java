@@ -45,6 +45,11 @@ public class EventLogServiceImpl implements EventLogService {
 
     private static final String OBJECT_ACCESS_LOG = "object_access_log";
 
+    /**
+     * Состояние сервиса логирования. Включается после старта сервера.
+     */
+    private boolean enable = false;
+
     @Autowired
     @Qualifier("masterNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations masterJdbcTemplate;
@@ -75,7 +80,8 @@ public class EventLogServiceImpl implements EventLogService {
 
     @EJB
     private EventLogCleaner eventLogCleaner;
-    
+
+
 
     @Override
     public void logLogInEvent(String login, String ip, boolean success) {
@@ -88,6 +94,9 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void doLogLogInEvent(String login, String ip, boolean success) {
+        if (!enable){
+            return;
+        }
         UserEventLogBuilder userEventLogBuilder = createLoginEventLogBuilder(login, ip, success);
         saveUserEventLog(userEventLogBuilder);
     }
@@ -112,6 +121,9 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void doLogLogOutEvent(String login, String ip) {
+        if (!enable){
+            return;
+        }
         UserEventLogBuilder logoutEventLogBuilder = createLogoutEventLogBuilder(login, ip);
         saveUserEventLog(logoutEventLogBuilder);
     }
@@ -136,6 +148,7 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     private boolean isLogoutEventEnabled() {
+
         EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
         if (eventLogsConfiguration != null && eventLogsConfiguration.getLogoutConfig() != null) {
             return eventLogsConfiguration.getLogoutConfig().isEnable();
@@ -155,6 +168,9 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void doLogDownloadAttachmentEvent(Id attachment) {
+        if (!enable){
+            return;
+        }
         ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
         if (currentUserAccessor.getCurrentUserId() != null) {
             accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
@@ -230,6 +246,9 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void saveAccessLogObjects(List<DomainObject> objectAccessLogs) {
+        if (!enable){
+            return;
+        }
         if (objectAccessLogs.size() > 0) {
             domainObjectDao.save(objectAccessLogs, getSystemAccessToken());
         }
@@ -238,6 +257,10 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void doLogDomainObjectAccess(Id objectId, String accessType, boolean success) {
+        if (!enable){
+            return;
+        }
+
         ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
         if (currentUserAccessor.getCurrentUserId() != null) {
             accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
@@ -377,6 +400,16 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     public void clearEventLogs() throws Exception{
         eventLogCleaner.clearEventLogs();
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    @Override
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+        logger.info("Enable EventLog Service");
     }
 
     /**
