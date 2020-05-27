@@ -1,20 +1,20 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_MOCKS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
@@ -85,7 +86,7 @@ public class QueryCollectionRetrieverTest {
                 pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
                 pair(id3, new ReferenceValue(id3), new StringValue("object 3"))
                 );
-        when(collectionsService.findCollectionByQuery("Test SQL", 0, 20)).thenReturn(sample);
+        when(collectionsService.findCollectionByQuery(anyString(), anyList(), eq(0), eq(20))).thenReturn(sample);
 
         IdentifiableObjectCollection result = retriever.queryCollection(docList, 20);
 
@@ -98,6 +99,7 @@ public class QueryCollectionRetrieverTest {
     }
 
     @Test
+    @Ignore // Порциональные запросы теперь не нужны
     public void testPartialFetch() {
         SolrDocument doc1 = mock(SolrDocument.class);
         when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id1");
@@ -132,7 +134,7 @@ public class QueryCollectionRetrieverTest {
                 pair(id5, new ReferenceValue(id5), new StringValue("object 5")),
                 pair(id1, new ReferenceValue(id1), new StringValue("object 1"))
                 );
-        when(collectionsService.findCollectionByQuery("Test SQL", 0, 20)).thenReturn(sample);
+        when(collectionsService.findCollectionByQuery(anyString(), anyList(), eq(0), eq(20))).thenReturn(sample);
 
         IdentifiableObjectCollection result = retriever.queryCollection(docList, 20);
 
@@ -144,6 +146,7 @@ public class QueryCollectionRetrieverTest {
     }
 
     @Test
+    @Ignore // Повторный запрос теперь не требуется
     public void testRepeatedFetch() {
         SolrDocument doc1 = mock(SolrDocument.class);
         when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id5");
@@ -190,7 +193,7 @@ public class QueryCollectionRetrieverTest {
                 pair(id7, new ReferenceValue(id7), new StringValue("object 7")),
                 pair(id8, new ReferenceValue(id8), new StringValue("object 8"))
                 );
-        when(collectionsService.findCollectionByQuery(eq("Test SQL"), anyInt(), anyInt()))
+        when(collectionsService.findCollectionByQuery(anyString(), anyList(), anyInt(), anyInt()))
                 .thenReturn(sample1, sample2);
 
         IdentifiableObjectCollection result = retriever.queryCollection(docList, 5);
@@ -233,7 +236,7 @@ public class QueryCollectionRetrieverTest {
                 pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
                 pair(id3, new ReferenceValue(id3), new StringValue("object 3"))
                 );
-        when(collectionsService.findCollectionByQuery("Test SQL", parameters, 0, 20))
+        when(collectionsService.findCollectionByQuery(anyString(), anyList(), eq(0), eq(20)))
                 .thenReturn(sample);
 
         IdentifiableObjectCollection result = parametrizedRetriever.queryCollection(docList, 20);
@@ -307,5 +310,63 @@ public class QueryCollectionRetrieverTest {
         public void describeTo(Description description) {
             // TODO Auto-generated method stub
         }
+    }
+
+    @Test
+    public void testQueryModifier(){
+        SolrDocument doc1 = mock(SolrDocument.class);
+        when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id1");
+        when(doc1.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.3f);
+        SolrDocument doc2 = mock(SolrDocument.class);
+        when(doc2.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id2");
+        when(doc2.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
+        SolrDocument doc3 = mock(SolrDocument.class);
+        when(doc3.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id3");
+        when(doc3.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
+        SolrDocumentList docList = new SolrDocumentList();
+        docList.addAll(Arrays.asList(doc2, doc3, doc1));    // mixed
+
+        Id id1 = mock(Id.class);
+        when(idService.createId("id1")).thenReturn(id1);
+        Id id2 = mock(Id.class);
+        when(idService.createId("id2")).thenReturn(id2);
+        Id id3 = mock(Id.class);
+        when(idService.createId("id3")).thenReturn(id3);
+
+        FieldConfig field1 = mock(FieldConfig.class);
+        when(field1.getName()).thenReturn("Id");
+        FieldConfig field2 = mock(FieldConfig.class);
+        when(field2.getName()).thenReturn("Id");
+        IdentifiableObjectCollection sample = collection(Arrays.asList(field1, field2),
+                pair(id1, new ReferenceValue(id1), new StringValue("object 1")),
+                pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
+                pair(id3, new ReferenceValue(id3), new StringValue("object 3"))
+        );
+        when(collectionsService.findCollectionByQuery(anyString(), anyList(), eq(0), eq(20)))
+                .thenReturn(sample);
+
+        List<Value> queryParams = new ArrayList<>();
+        queryParams.add(new ReferenceValue(id2));
+        queryParams.add(new ReferenceValue(id3));
+        queryParams.add(new ReferenceValue(id1));
+
+        ReflectionTestUtils.setField(retriever, "sqlQuery", "select id from type");
+        retriever.queryCollection(docList, 20);
+        verify(collectionsService).findCollectionByQuery(
+                eq("select * from (select id from type) orig where (id={0} or id={1} or id={2})"),
+                eq(queryParams),
+                eq(0),
+                eq(20));
+
+        StringValue param = new StringValue("field_value");
+        ReflectionTestUtils.setField(retriever, "sqlQuery", "select id from type where field = {0}");
+        ReflectionTestUtils.setField(retriever, "sqlParameters", Collections.singletonList(param));
+        retriever.queryCollection(docList, 20);
+        queryParams.add(0, param);
+        verify(collectionsService).findCollectionByQuery(
+                eq("select * from (select id from type where field = {0}) orig where (id={1} or id={2} or id={3})"),
+                eq(queryParams),
+                eq(0),
+                eq(20));
     }
 }

@@ -80,7 +80,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 .addField(SolrFields.MAIN_OBJECT_ID)
                 .addField(SolrUtils.SCORE_FIELD);
             if (solrQuery.getSorts().isEmpty()){
-                solrQuery.addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                        .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
             }
             if (maxResults > 0) {
                 solrQuery.setRows(maxResults);
@@ -260,7 +261,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
                     }*/
                     if (solrQuery.getSorts().isEmpty()){
-                        solrQuery.addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                        solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                                .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                     }
                     if (rows > 0) {
                         solrQuery.setRows(rows);
@@ -284,7 +286,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
                     if (solrQuery.getSorts().isEmpty()){
-                        solrQuery.addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                        solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                                .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                     }
                     if (rows > 0) {
                         solrQuery.setRows(rows);
