@@ -204,6 +204,25 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     }
 
     @Override
+    public List<DomainObject> getParentGroups(Id childGroup) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+
+        final List<DomainObject> groupGroupSettings =
+                domainObjectDao.findLinkedDomainObjects(childGroup, "group_group_settings", "child_group_id", accessToken);
+        if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ArrayList<Id> parentGroupIds = new ArrayList<>(groupGroupSettings.size());
+        for (DomainObject groupGroupSetting : groupGroupSettings) {
+            final Id parentGroupId = groupGroupSetting.getReference("parent_group_id");
+            if (parentGroupId != null) {
+                parentGroupIds.add(parentGroupId);
+            }
+        }
+        return domainObjectDao.find(parentGroupIds, accessToken);
+    }
+
+    @Override
     public List<DomainObject> getAllChildGroups(Id parent) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 

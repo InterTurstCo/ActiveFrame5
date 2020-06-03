@@ -71,7 +71,7 @@ public interface PersonManagementService {
 
     /**
      * Получение всех родительских групп для группы, с учетом вхождения группы в группу
-     * @param parent
+     * @param child
      * @return
      */
     List<DomainObject> getAllParentGroup(Id child);
@@ -137,4 +137,12 @@ public interface PersonManagementService {
      */
     @NotNull
     List<String> getPersonAltUids(@NotNull String login, @NotNull String alterUidType, @NotNull String desUidType);
+
+    /**
+     * Получение групп, в которые непосредственно входит переданная группа
+     * @param childGroup
+     * @return
+     */
+    List<DomainObject> getParentGroups(Id childGroup);
+
 }

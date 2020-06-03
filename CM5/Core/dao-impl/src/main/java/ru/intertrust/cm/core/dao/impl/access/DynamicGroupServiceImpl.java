@@ -114,7 +114,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Пересчет состава динамической группы
-     * @param domainObject
      * @param groupId
      */
     @Override
