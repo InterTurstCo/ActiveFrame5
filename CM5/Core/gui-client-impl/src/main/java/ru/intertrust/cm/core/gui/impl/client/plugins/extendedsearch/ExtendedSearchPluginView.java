@@ -356,7 +356,7 @@ public class ExtendedSearchPluginView extends PluginView {
             cbDecorated.add(targetDomainObjectsRadioButtons.get(type));
         }
 
-        String currentType = searchQuery.getTargetObjectType();
+        String currentType = searchQuery.getTargetObjectTypes().get(0);
         if (currentType != null && !typesAvailable.contains(currentType)) {
             searchQuery.setTargetObjectType(null);
             targetDomainObjectsRadioButtons.get(currentType).setValue(false);

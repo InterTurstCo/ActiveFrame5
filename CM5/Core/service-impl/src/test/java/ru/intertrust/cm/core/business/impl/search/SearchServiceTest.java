@@ -180,7 +180,7 @@ public class SearchServiceTest {
         // Подготовка данных
         SearchQuery query = new SearchQuery();
         query.addAreas(Arrays.asList("Area1", "Area2", "Area3"));
-        query.setTargetObjectType("TargetType");
+        query.setTargetObjectTypes(Arrays.asList("TargetType1", "TargetType2"));
         query.addFilter(new TextSearchFilter("StringField", "text search"));
         ReferenceValue refMock = mock(ReferenceValue.class);
         query.addFilter(new OneOfListFilter("ReferenceField", Arrays.asList(refMock, refMock)));
@@ -200,13 +200,13 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("LongField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("LongField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("DateField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("DateField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         QueryResponse response = mock(QueryResponse.class);
@@ -235,7 +235,7 @@ public class SearchServiceTest {
         assertEquals("<> AND <> AND <> AND <>", params.getValue().getQuery().replaceAll("<[^>]+>", "<>"));
         assertThat(params.getValue().getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area1\" OR \"Area2\" OR \"Area3\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType1\" OR \"TargetType2\")"),
                 hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", params.getValue().getFields());
@@ -257,7 +257,7 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         QueryResponse response = mock(QueryResponse.class);
@@ -286,7 +286,7 @@ public class SearchServiceTest {
         assertEquals("<text filter>", params.getValue().getQuery());
         assertThat(params.getValue().getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area1\" OR \"Area2\" OR \"Area3\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType\")"),
                 hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", params.getValue().getFields());
@@ -313,9 +313,9 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
 
-        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("LinkedType"));
-        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         SolrDocument a1Doc = docMock("doc1", 1f);
@@ -355,7 +355,7 @@ public class SearchServiceTest {
         assertEquals("<text filter>", solrQuery1.getQuery());
         assertThat(solrQuery1.getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType\")"),
                 hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", solrQuery1.getFields());
@@ -364,7 +364,7 @@ public class SearchServiceTest {
         assertEquals("<text filter>", solrQuery2.getQuery());
         assertThat(solrQuery2.getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType\")"),
                 hasItemInArray("cm_item:\"LinkedType\"")
                 ));
         assertEquals("cm_main,score", solrQuery2.getFields());
@@ -403,9 +403,9 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
 
-        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("LinkedType"));
-        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         SolrDocument a1Doc = docMock("doc1", 10f);
@@ -508,11 +508,11 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("DateField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("DateField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         // Возвращаются пустые наборы документов, т.к. нужно проверить только правильность запросов к Solr
@@ -539,7 +539,7 @@ public class SearchServiceTest {
             }
             assertThat(q.getFilterQueries(), allOf(
                     hasItemInArray("cm_area:(\"TestArea\")"),
-                    hasItemInArray("cm_type:\"TargetType\""),
+                    hasItemInArray("cm_type:(\"TargetType\")"),
                     hasItemInArray("cm_item:\"TargetType\"")
                     ));
             assertEquals("cm_main,score", q.getFields());
@@ -566,7 +566,7 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         SolrDocument doc1 = docMock("doc1", 1f);
@@ -618,7 +618,7 @@ public class SearchServiceTest {
                         return "<" + filter.getText() + ">";
                     }
                 });
-        when(configHelper.findApplicableTypes(eq(SearchFilter.EVERYWHERE), any(List.class), eq("TargetType")))
+        when(configHelper.findApplicableTypes(eq(SearchFilter.EVERYWHERE), any(List.class), eq(Arrays.asList("TargetType"))))
                 .thenReturn(Collections.singleton(SearchConfigHelper.ALL_TYPES));
         // Поскольку адаптеры композитных фильтров работают в тесном взаимодействии с классом SearchServiceImpl,
         // для этих фильтров используются реальные адаптеры
@@ -646,7 +646,7 @@ public class SearchServiceTest {
         for (SolrQuery q : params.getAllValues()) {
             assertThat(q.getFilterQueries(), allOf(
                     hasItemInArray("cm_area:(\"TestArea\")"),
-                    hasItemInArray("cm_type:\"TargetType\"")
+                    hasItemInArray("cm_type:(\"TargetType\")")
                     ));
             assertEquals("cm_main,score", q.getFields());
             assertEquals(20, q.getRows().intValue());

@@ -193,7 +193,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
 
                 Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(), query.getAreas(),
-                        query.getTargetObjectType());
+                        query.getTargetObjectTypes());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
@@ -236,6 +236,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
             areas.append(")");
 
+            StringBuilder targetTypes = new StringBuilder();
+            for (String targetObjectType : query.getTargetObjectTypes()) {
+                targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
+                        .append("\"")
+                        .append(targetObjectType)
+                        .append("\"");
+            }
+            targetTypes.append(")");
+
             SolrDocumentList result;
             float clippingFactor = 1f;
             boolean clipped;
@@ -253,7 +262,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     SolrQuery solrQuery = new SolrQuery()
                             .setQuery(entry.getValue().toString())
                             .addFilterQuery(SolrFields.AREA + ":" + areas)
-                            .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                            .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
                             .addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
@@ -282,7 +291,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     SolrQuery solrQuery = new SolrQuery()
                             .setQuery(filterString)
                             .addFilterQuery(SolrFields.AREA + ":" + areas)
-                            .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                            .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
                     if (solrQuery.getSorts().isEmpty()){
