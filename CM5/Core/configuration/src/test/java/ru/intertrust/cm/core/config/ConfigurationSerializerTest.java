@@ -204,4 +204,12 @@ public class ConfigurationSerializerTest {
 
         return Charset.forName("UTF-8").decode(ByteBuffer.wrap(buffer)).toString();
     }
+
+    @Test
+    public void testDeserializeSimpleData() throws Exception {
+        String serializedConfiguration = readTextFile("modules-configuration/test-module/simple-data.xml");
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/simple-data.xml");
+        Configuration conf = configurationSerializer.deserializeLoadedConfiguration(serializedConfiguration);
+        assertNotNull(conf);
+    }
 }
