@@ -4,10 +4,17 @@ import ru.intertrust.cm.core.business.api.dto.*;
 
 import java.util.*;
 
-public class SimpleData {
+public class SimpleData implements Dto{
     private String type;
-    private Map<String, List<Value>> values;
+    private String id = UUID.randomUUID().toString();
+    private Map<String, List<Value>> values = new HashMap<>();
 
+    public SimpleData(){
+    }
+
+    public SimpleData(String type){
+        this.type = type;
+    }
 
     public String getType() {
         return type;
@@ -41,8 +48,10 @@ public class SimpleData {
             fieldValues = new ArrayList();
             this.values.put(name.toLowerCase(), fieldValues);
         }
-        for (Value value : values) {
-            fieldValues.add(value);
+        if (values != null) {
+            for (Value value : values) {
+                fieldValues.add(value);
+            }
         }
     }
 
@@ -57,6 +66,53 @@ public class SimpleData {
 
     public void setString(String name, String ... values){
         setValues(name, toValues(values, StringValue.class));
+    }
+
+    public List<String> getString(String name){
+        return fromValues(getValues(name), String.class);
+    }
+
+    public void setLong(String name, Long ... values){
+        setValues(name, toValues(values, LongValue.class));
+    }
+
+    public List<Long> getLong(String name){
+        return fromValues(getValues(name), Long.class);
+    }
+
+    public void setLong(String name, Integer ... values){
+        setValues(name, toValues(values, LongValue.class));
+    }
+
+    public void setTimelessDate(String name, TimelessDate ... values){
+        setValues(name, toValues(values, TimelessDateValue.class));
+    }
+
+    public List<Date> getDateTime(String name){
+        return fromValues(getValues(name), Date.class);
+    }
+
+    public void setBoolean(String name, Boolean ... values){
+        setValues(name, toValues(values, BooleanValue.class));
+    }
+
+    public List<Boolean> getBoolean(String name){
+        return fromValues(getValues(name), Boolean.class);
+    }
+
+    public void setDateTime(String name, Date ... values){
+        setValues(name, toValues(values, DateTimeValue.class));
+    }
+
+    public List<TimelessDate> getTimelessDate(String name){
+        return fromValues(getValues(name), TimelessDate.class);
+    }
+    private <T> List<T> fromValues(List<Value> values, Class<T> listType) {
+        List<T> result = new ArrayList<>(values.size());
+        for (Value value: values) {
+            result.add((T) value.get());
+        }
+        return result;
     }
 
     private Value[] toValues(Object[] values, Class<? extends Value> clazz){
@@ -89,5 +145,13 @@ public class SimpleData {
                 throw new UnsupportedOperationException("Not support field with type " + clazz.toString());
             }
         return result;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

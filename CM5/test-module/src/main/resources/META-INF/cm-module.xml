@@ -123,6 +123,9 @@
         <!-- Панель NbrBase -->
         <configuration-path>module-configuration/nbr-base-navigation.xml</configuration-path>
 
+        <!-- SimpleDataStorage -->
+        <configuration-path>module-configuration/simple-data.xml</configuration-path>
+
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">

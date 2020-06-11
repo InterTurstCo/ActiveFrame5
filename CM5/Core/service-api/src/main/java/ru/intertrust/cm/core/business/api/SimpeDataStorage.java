@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleData;
+import ru.intertrust.cm.core.business.api.simpledata.SimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleSearchOrder;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Сервис хранения простых данных
@@ -19,20 +18,31 @@ public interface SimpeDataStorage {
      * Сохранить данные
      * @param data
      */
-    void store(SimpleData data);
+    void save(SimpleData data);
 
     /**
-     * Найти данные
-     * @param filter значение полей, которые объеденяются по И. Имя типа данных так же можно передать в
-     *               фильтре в поле с именем type
+     * Найти данные по фильтру
+     * @param filters Объединение фильтров по И
      * @return
      */
-    List<SimpleData> find(Map<String, Value> filter, List<String> resultFields, List<SimpleSearchOrder> resultOrder);
+    List<SimpleData> find(String type, List<SimpleDataSearchFilter> filters, List<String> resultFields, List<SimpleSearchOrder> resultOrder);
 
     /**
-     * Удалить данные
-     * @param filter значение полей, которые объеденяются по И для поиска удаляемых значений.
-     *               Имя типа данных так же можно передать в фильтре в поле с именем type
+     * Удалить данные найденные по фильтру
+     * @param filters Объединение фильтров по И
      */
-    void delete(Map<String, Value> filter);
+    void delete(String type, List<SimpleDataSearchFilter> filters);
+
+    /**
+     * Получение данных по ID
+     * @param id
+     * @return
+     */
+    SimpleData find(String type, String id);
+
+    /**
+     * Удаление данных по ID
+     * @param id
+     */
+    void delete(String id);
 }

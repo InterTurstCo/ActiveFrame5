@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Root(name = "simple-data")
 public class SimpleDataConfig implements TopLevelConfig {
@@ -42,5 +43,19 @@ public class SimpleDataConfig implements TopLevelConfig {
 
     public void setFields(List<SimpleDataFieldConfig> fields) {
         this.fields = fields;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleDataConfig that = (SimpleDataConfig) o;
+        return Objects.equals(name, that.name) &&
+                Objects.equals(fields, that.fields);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, fields);
     }
 }
