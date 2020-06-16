@@ -24,7 +24,7 @@
     <attachment-storage name="default">
         <folder configurable="true">
             <subfolder-mask>{year}/{month}/{day}/{hour}</subfolder-mask>
-            <delete-file mode="never"/>
+            <delete-file mode="delayed" delay="1"/>
         </folder>
     </attachment-storage>
 
@@ -280,5 +280,15 @@
         	<field name="alter_uid" />
         	<field name="alter_uid_type" />
         </uniqueKey>
-    </domain-object-type>	
+    </domain-object-type>
+
+    <!-- Журнал удаления неиспользующихся вложений в случае использования стратегии delayed -->
+    <domain-object-type name="delete_attachment_journal">
+        <fields>
+            <!-- Путь к файлу относительно корневой конфигурации вложений -->
+            <string name="path" length="512" not-null="true" />
+            <!-- Дата, до наступления которой файл удалять нельзя -->
+            <date-time name="delete_after" not-null="true"/>
+        </fields>
+    </domain-object-type>
 </configuration>
