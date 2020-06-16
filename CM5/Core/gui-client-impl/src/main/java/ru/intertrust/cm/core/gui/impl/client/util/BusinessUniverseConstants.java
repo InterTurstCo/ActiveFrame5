@@ -63,6 +63,12 @@ public class BusinessUniverseConstants {
     public static final int MOVE_HANDLE_WIDTH = 14;
     public static final int CLEAR_BUTTON_WIDTH = 28;
     public static final int FILTER_CONTAINER_MARGIN = 20;
+    /*
+        Смещение для поля ввода поиска, чтобы уменьшить его размер на случай, когда в браузере меняется масштаб
+        и из-за присутствия долей пикселей в вычисленных размерах появляется погрешность, при которой новые размеры элементов
+        могут не влезть в контейнер их содержащий, в следствие чего начать располагаться неверно
+    */
+    public static final int SEARCH_INPUT_OFFSET = 1;
 
     //Hyperlink form title, maybe temporary
     public static final String FORM_TITLE = "Item";

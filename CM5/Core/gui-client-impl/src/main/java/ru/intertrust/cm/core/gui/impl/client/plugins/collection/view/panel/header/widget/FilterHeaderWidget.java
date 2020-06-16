@@ -84,7 +84,7 @@ public abstract class FilterHeaderWidget extends HeaderWidget {
 
     protected String getSearchInputStyle() {
         StringBuilder styleForSearchInputBuilder = new StringBuilder("style=\"");
-        int searchInputWidth = filterWidth - RESIZE_HANDLE_WIDTH - MOVE_HANDLE_WIDTH - CLEAR_BUTTON_WIDTH;
+        int searchInputWidth = filterWidth - RESIZE_HANDLE_WIDTH - MOVE_HANDLE_WIDTH - CLEAR_BUTTON_WIDTH - SEARCH_INPUT_OFFSET;
         if (searchInputWidth < 10) {
             styleForSearchInputBuilder.append("display:none;\"");
         } else {
