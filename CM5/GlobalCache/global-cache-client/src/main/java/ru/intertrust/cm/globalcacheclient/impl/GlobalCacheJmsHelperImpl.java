@@ -188,6 +188,8 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
 
     @PreDestroy
     public void deinit() {
+        logger.info("Pre Destroy GlobalCacheJmsHelperImpl");
+
         // Отключаемся от MOM в том потоке где подключены для потока отправки
         sendExecutor.execute(() -> {
             sendContext.close();
