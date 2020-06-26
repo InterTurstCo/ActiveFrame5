@@ -36,8 +36,8 @@ public class BusinessUniverseConstants {
     public static final String LOGIN_PAGE = "Login.html";
 
     public static final int START_SIDEBAR_WIDTH = 110;
-    public static final String CLOSED = "closed";
-    public static final String OPEN = "open";
+    public static final String FILTER_PANEL_STATE_CLOSED = "closed";
+    public static final String FILTER_PANEL_STATE_OPEN = "open";
     public static final String UNDEFINED_COLLECTION_NAME = "undefined";
     //Date selectors labels
     public static final String TODAY_LABEL = "Сегодня";
