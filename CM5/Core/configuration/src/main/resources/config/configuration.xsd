@@ -2490,7 +2490,7 @@
     </xs:complexType>
 
     <xs:complexType name="filterPanelType">
-        <xs:attribute name="panel-state" type="con:panelStateAttr" default="closed"/>
+        <xs:attribute name="panel-state" type="con:panelStateAttr" default="open"/>
     </xs:complexType>
 
     <xs:complexType name="initialFiltersType">
