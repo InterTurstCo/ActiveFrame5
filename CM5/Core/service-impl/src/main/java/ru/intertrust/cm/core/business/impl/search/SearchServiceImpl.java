@@ -198,9 +198,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
 
-                for (String type : types) {
-                    addFilterValue(type, filterValue);
+                if (types.size() > 1){
+                    addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue);
+                }else if(types.size() == 1){
+                    addFilterValue((String)types.toArray()[0], filterValue);
                 }
+
+                /*for (String type : types) {
+                    addFilterValue(type, filterValue);
+                }*/
             }
         }
 
