@@ -4,6 +4,14 @@ public class SimpleSearchOrder {
     private String fieldName;
     private SumpleSearchOrderDirection direction;
 
+    public SimpleSearchOrder() {
+    }
+
+    public SimpleSearchOrder(String fieldName, SumpleSearchOrderDirection direction) {
+        this.fieldName = fieldName;
+        this.direction = direction;
+    }
+
     public String getFieldName() {
         return fieldName;
     }
