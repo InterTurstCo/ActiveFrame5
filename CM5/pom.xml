@@ -180,6 +180,13 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-indexer</artifactId>
+                <version>${spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
             <!-- AspectJ -->
             <dependency>
                 <groupId>org.aspectj</groupId>

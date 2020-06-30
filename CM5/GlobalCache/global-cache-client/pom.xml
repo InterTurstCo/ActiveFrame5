@@ -40,5 +40,9 @@
             <artifactId>jboss-javaee-8.0</artifactId>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-indexer</artifactId>
+        </dependency>
     </dependencies>
 </project>

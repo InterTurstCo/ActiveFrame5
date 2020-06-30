@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api.dto.globalcache;
 
 public class PingResponse {
     private String nodeName;
+    private String nodeId;
     private long responseTime;
 
     public String getNodeName() {
@@ -15,5 +16,13 @@ public class PingResponse {
     }
     public void setResponseTime(long responseTime) {
         this.responseTime = responseTime;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 }

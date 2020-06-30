@@ -12,15 +12,11 @@
     <!-- Uploader and Downloader part -->
     <servlet>
         <servlet-name>Spring Dispatcher</servlet-name>
-        <servlet-class>ru.intertrust.cm.core.web.DispatcherServlet</servlet-class>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <param-value>classpath:META-INF/dispatcherContext.xml</param-value>
         </init-param>
-        <init-param>
-            <param-name>PARENT_CONTEXT</param-name>
-            <param-value>ear.context</param-value>
-        </init-param>        
         <load-on-startup>1</load-on-startup>
     </servlet>
 

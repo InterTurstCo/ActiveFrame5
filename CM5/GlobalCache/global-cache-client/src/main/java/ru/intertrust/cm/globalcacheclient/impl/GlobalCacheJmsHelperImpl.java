@@ -434,6 +434,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             // Формируем результат
                             PingNodeInfo nodeInfo = new PingNodeInfo();
                             nodeInfo.setNodeName(pingData.getResponse().getNodeName());
+                            nodeInfo.setNodeId(pingData.getResponse().getNodeId());
                             nodeInfo.setTime(pingData.getResponse().getResponseTime() - pingData.getRequest().getSendTime());
 
                             // Сохраняем результат
@@ -446,6 +447,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             pingData.getResponse().setResponseTime(System.currentTimeMillis());
                             String nodeName = clusterManagerDao.getNodeName();
                             pingData.getResponse().setNodeName(nodeName == null ? "not_configured" : nodeName);
+                            pingData.getResponse().setNodeId(clusterManagerDao.getNodeId());
 
                             //Отправляем ответ
                             GlobalCacheJmsHelperImpl.this.sendClusterNotification(invalidation);
