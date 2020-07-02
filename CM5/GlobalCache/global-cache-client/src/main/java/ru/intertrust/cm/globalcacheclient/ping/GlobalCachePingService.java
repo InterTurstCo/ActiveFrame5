@@ -1,5 +1,7 @@
 package ru.intertrust.cm.globalcacheclient.ping;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
@@ -36,6 +38,8 @@ public class GlobalCachePingService {
     
     
     private static Map<String, PingResult> pingResults = new Hashtable<String, PingResult>();
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     public GlobalCachePingService() {
         logger.info("Init Global Cache Ping Service");
@@ -56,6 +60,7 @@ public class GlobalCachePingService {
             pingResults.put(requestId, result);
             result.setRequestId(requestId);
             result.setInitiator(nodeName);
+            result.setPingDate(dateFormat.format(new Date()));
             
             // Формируем ping запрос
             CacheInvalidation pingMessage = new CacheInvalidation();

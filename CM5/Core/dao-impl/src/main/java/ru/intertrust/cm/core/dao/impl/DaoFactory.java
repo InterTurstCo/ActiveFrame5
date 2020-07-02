@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.dao.api.*;
  * Интерфейс абстрактной фабрики ДАО-сервисов.
  * @author vmatsukevich
  */
-public interface DaoFactory {
+public interface DaoFactory extends DatabaseDaoFactory {
 
     /**
      * Создаёт AuditLogServiceDao
@@ -77,4 +77,5 @@ public interface DaoFactory {
      * @return SchedulerDao
      */
     SchedulerDao createSchedulerDao();
+    
 }

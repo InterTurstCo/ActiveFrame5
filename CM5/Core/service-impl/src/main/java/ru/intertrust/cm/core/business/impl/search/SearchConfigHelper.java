@@ -39,6 +39,12 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     private List<SearchLanguageConfig> languageConfigs;
 
+    /**
+     * Флаг отключения агента индексирования. Аггент полезно отключать в процессе импорта для ускорения процесса.
+     */
+    @org.springframework.beans.factory.annotation.Value("${index.agent.disable:false}")
+    private boolean disableIndexing = false;
+
     private Map<String, ArrayList<SearchAreaDetailsConfig>> effectiveConfigsMap =
             Collections.synchronizedMap(new HashMap<String, ArrayList<SearchAreaDetailsConfig>>());
 
@@ -748,29 +754,35 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         return result;
     }
 
-    public Collection<String> findApplicableTypes(String fieldName, List<String> areaNames, String targetType) {
-        Trio<String, List<String>, String> key = new Trio<>(fieldName, areaNames, targetType);
+    public Collection<String> findApplicableTypes(String fieldName, List<String> areaNames, List<String> targetTypes) {
 
-        Collection<String> result = applicableTypesMap.get(key);
-        if (result != null) {
-            return result;
-        }
+        Collection<String> allTypeResult = new ArrayList<>();
 
-        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
-            //types = configHelper.findAllObjectTypes(areaNames, targetType);
-            result = Collections.singleton(ALL_TYPES);
-        } else if (SearchFilter.CONTENT.equals(fieldName)) {
-            //types = configHelper.findObjectTypesWithContent(areaNames, targetType);
-            result = Collections.singleton(ALL_TYPES);
-        } else {
-            result = findObjectTypesContainingField(fieldName, areaNames, targetType);
-        }
-        if (isAttachmentObjectField(fieldName)) {
-            result.addAll(findObjectTypesWithContent(areaNames, targetType));
-        }
+        for (String targetType : targetTypes) {
 
-        applicableTypesMap.put(key, result);
-        return result;
+            Trio<String, List<String>, String> key = new Trio<>(fieldName, areaNames, targetType);
+
+            Collection<String> result = applicableTypesMap.get(key);
+            if (result == null) {
+
+                if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+                    //types = configHelper.findAllObjectTypes(areaNames, targetType);
+                    result = Collections.singleton(ALL_TYPES);
+                } else if (SearchFilter.CONTENT.equals(fieldName)) {
+                    //types = configHelper.findObjectTypesWithContent(areaNames, targetType);
+                    result = Collections.singleton(ALL_TYPES);
+                } else {
+                    result = findObjectTypesContainingField(fieldName, areaNames, targetType);
+                }
+                if (isAttachmentObjectField(fieldName)) {
+                    result.addAll(findObjectTypesWithContent(areaNames, targetType));
+                }
+
+                applicableTypesMap.put(key, result);
+            }
+            allTypeResult.addAll(result);
+        }
+        return allTypeResult;
     }
 
     private boolean isAttachmentObjectField(String fieldName) {
@@ -790,5 +802,13 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         objectTypesWithContentMap.clear();
         indexedFieldConfigMap.clear();
         applicableTypesMap.clear();
+    }
+
+    public void disableIndexing(boolean disable){
+        disableIndexing = disable;
+    }
+
+    public boolean isDisableIndexing(){
+        return disableIndexing;
     }
 }

@@ -506,6 +506,8 @@
                 minOccurs="0" />
             <xs:element type="con:linkType" name="link" maxOccurs="unbounded"
                         minOccurs="0"/>
+            <xs:element type="con:SimpleDataType" name="simple-data" maxOccurs="unbounded"
+                        minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
 
@@ -2488,7 +2490,7 @@
     </xs:complexType>
 
     <xs:complexType name="filterPanelType">
-        <xs:attribute name="panel-state" type="con:panelStateAttr" default="closed"/>
+        <xs:attribute name="panel-state" type="con:panelStateAttr" default="open"/>
     </xs:complexType>
 
     <xs:complexType name="initialFiltersType">
@@ -4562,5 +4564,35 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:complexType name="SimpleDataType">
+        <xs:sequence>
+            <xs:element name="fields" minOccurs="1" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="field" minOccurs="1" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:attribute name="name" type="xs:string" use="required"/>
+                                <xs:attribute name="type" type="con:SimpleDataFieldType" use="required"/>
+                                <xs:attribute name="index" type="xs:boolean" use="required"/>
+                                <xs:attribute name="storage" type="xs:boolean" use="required"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+    <xs:simpleType name="SimpleDataFieldType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="String"/>
+            <xs:enumeration value="Long"/>
+            <xs:enumeration value="Bollean"/>
+            <xs:enumeration value="Date"/>
+            <xs:enumeration value="DateTime"/>
+        </xs:restriction>
+    </xs:simpleType>
 
 </xs:schema>

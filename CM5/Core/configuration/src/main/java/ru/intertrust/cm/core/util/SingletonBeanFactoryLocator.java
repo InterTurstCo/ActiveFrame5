@@ -70,6 +70,7 @@ public class SingletonBeanFactoryLocator {
 	protected void initializeDefinition(BeanFactory groupDef) {
 		if (groupDef instanceof ConfigurableApplicationContext) {
 			((ConfigurableApplicationContext) groupDef).refresh();
+			((ConfigurableApplicationContext) groupDef).registerShutdownHook();
 		}
 	}
 

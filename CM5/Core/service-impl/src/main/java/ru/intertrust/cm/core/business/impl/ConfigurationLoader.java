@@ -45,4 +45,5 @@ public interface ConfigurationLoader {
      * @return
      */
     boolean isConfigurationTableExist();
+
 }

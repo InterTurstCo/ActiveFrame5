@@ -80,7 +80,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 .addField(SolrFields.MAIN_OBJECT_ID)
                 .addField(SolrUtils.SCORE_FIELD);
             if (solrQuery.getSorts().isEmpty()){
-                solrQuery.addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                        .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
             }
             if (maxResults > 0) {
                 solrQuery.setRows(maxResults);
@@ -223,14 +224,20 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
 
                 Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(), query.getAreas(),
-                        query.getTargetObjectType());
+                        query.getTargetObjectTypes());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
 
-                for (String type : types) {
-                    addFilterValue(type, filterValue);
+                if (types.size() > 1){
+                    addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue);
+                }else if(types.size() == 1){
+                    addFilterValue((String)types.toArray()[0], filterValue);
                 }
+
+                /*for (String type : types) {
+                    addFilterValue(type, filterValue);
+                }*/
             }
         }
 
@@ -266,6 +273,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
             areas.append(")");
 
+            StringBuilder targetTypes = new StringBuilder();
+            for (String targetObjectType : query.getTargetObjectTypes()) {
+                targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
+                        .append("\"")
+                        .append(targetObjectType)
+                        .append("\"");
+            }
+            targetTypes.append(")");
+
             SolrDocumentList result;
             float clippingFactor = 1f;
             boolean clipped;
@@ -283,7 +299,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     SolrQuery solrQuery = new SolrQuery()
                             .setQuery(entry.getValue().toString())
                             .addFilterQuery(SolrFields.AREA + ":" + areas)
-                            .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                            .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
                             .addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
@@ -291,7 +307,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
                     }*/
                     if (solrQuery.getSorts().isEmpty()){
-                        solrQuery.addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                        solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                                .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                     }
                     if (rows > 0) {
                         solrQuery.setRows(rows);
@@ -311,11 +328,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     SolrQuery solrQuery = new SolrQuery()
                             .setQuery(filterString)
                             .addFilterQuery(SolrFields.AREA + ":" + areas)
-                            .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                            .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
                     if (solrQuery.getSorts().isEmpty()){
-                        solrQuery.addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                        solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                                .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                     }
                     if (rows > 0) {
                         solrQuery.setRows(rows);
@@ -582,5 +600,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 out.close();
             }
         }
+    }
+
+    @Override
+    public void disableIndexing(boolean disableFlag) {
+        configHelper.disableIndexing(disableFlag);
     }
 }

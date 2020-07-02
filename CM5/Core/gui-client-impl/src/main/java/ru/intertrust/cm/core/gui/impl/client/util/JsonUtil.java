@@ -202,7 +202,7 @@ public class JsonUtil {
 
     public static JSONObject searchQueryToJson(SearchQuery searchQuery) {
         JSONObject result = new JSONObject();
-        result.put("targetObjectType", new JSONString(searchQuery.getTargetObjectType()));
+        result.put("targetObjectType", new JSONString(searchQuery.getTargetObjectTypes().get(0)));
 
         JSONArray areasValue = new JSONArray();
 

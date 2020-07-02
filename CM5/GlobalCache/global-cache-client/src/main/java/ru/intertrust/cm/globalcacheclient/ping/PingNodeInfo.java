@@ -2,6 +2,7 @@ package ru.intertrust.cm.globalcacheclient.ping;
 
 public class PingNodeInfo {
     private String nodeName;
+    private String nodeId;
     private long time;
     
     public String getNodeName() {
@@ -15,5 +16,13 @@ public class PingNodeInfo {
     }
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public String getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 }

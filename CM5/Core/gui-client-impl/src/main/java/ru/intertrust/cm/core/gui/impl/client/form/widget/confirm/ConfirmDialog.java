@@ -4,11 +4,7 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -17,27 +13,65 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 /**
  * @author Yaroslav Bondacrhuk
- *         Date: 09.08.2014
- *         Time: 15:50
+ * Date: 09.08.2014
+ * Time: 15:50
  */
 public class ConfirmDialog extends DialogBox {
+
     private ConfirmCallback confirmCallback;
 
+    /**
+     * Базовый конструктор диалога.
+     *
+     * @param text            текст диалога, воспринимается как обычный текст, т.е. будет вставлен в диалог как есть, любые управляющие теги/символы будут проигнорированы.
+     * @param confirmCallback объект обратного вызова при клике на кнопки диалога
+     */
     public ConfirmDialog(String text, ConfirmCallback confirmCallback) {
         this.confirmCallback = confirmCallback;
-        init(text);
+        init(text, false);
     }
 
-    private void init(String text) {
+    /**
+     * Расширенные конструктор диалога
+     *
+     * @param text            текст диалога, воспринимается как обычный текст, т.е. будет вставлен в диалог как есть,
+     *                        любые управляющие теги/символы будут проигнорированы.
+     * @param isHtml          должен ли текст восприниматься как HTML, либо как обычный текст
+     *                        (в последнем случае управляющие html-теги (ровно как и любые другие) работать не будут)
+     * @param confirmCallback объект обратного вызова при клике на кнопки диалога
+     */
+    public ConfirmDialog(String text, boolean isHtml, ConfirmCallback confirmCallback) {
+        this.confirmCallback = confirmCallback;
+        init(text, isHtml);
+    }
+
+    /**
+     * Выполняет инициализационные действия по созданию диалога.
+     *
+     * @param text   текст диалога
+     * @param isHtml должен ли текст восприниматься как HTML, либо как обычный текст
+     *               (в последнем случае управляющие html-теги (ровно как и любые другие) работать не будут)
+     */
+    private void init(String text, boolean isHtml) {
         this.setAnimationEnabled(true);
         this.setStyleName("confirmDialogWindow");
 
-        Label label = new Label(text);
-        label.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().confirmDialogIm());
         AbsolutePanel panel = new AbsolutePanel();
         panel.setStyleName("confirmDialogContent");
 
-        panel.add(label);
+        if (isHtml) {
+            final HTML html = new HTML();
+            html.setHTML(text);
+            html.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().confirmDialogIm());
+
+            panel.add(html);
+        } else {
+            Label label = new Label(text);
+            label.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().confirmDialogIm());
+
+            panel.add(label);
+        }
+
         Panel buttonsPanel = initButtonsPanel();
         panel.add(buttonsPanel);
         this.add(panel);
@@ -89,10 +123,12 @@ public class ConfirmDialog extends DialogBox {
             confirmCallback.onCancel();
         }
     }
-    public void confirm(){
+
+    public void confirm() {
         this.show();
         Style style = this.getElement().getStyle();
         style.setTop(80, Style.Unit.PX);
         style.setLeft(39, Style.Unit.PCT);
     }
+
 }

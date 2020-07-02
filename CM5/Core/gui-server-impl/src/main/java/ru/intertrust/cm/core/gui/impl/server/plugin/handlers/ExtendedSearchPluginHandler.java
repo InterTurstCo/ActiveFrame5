@@ -194,7 +194,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     // данных
     public Dto searchFormDataProcessor(Dto dto) {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) dto;
-        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(),
+        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectTypes().get(0),
                 FormConfig.TYPE_SEARCH);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
 
@@ -314,7 +314,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         ArrayList<CollectionRowItem> searchResultRowItems = new ArrayList<CollectionRowItem>();
 
         final String targetCollectionName = extendedSearchData.getTargetCollectionNames()
-                .get(extendedSearchData.getSearchQuery().getTargetObjectType());
+                .get(extendedSearchData.getSearchQuery().getTargetObjectTypes().get(0));
         final Collection<CollectionViewConfig> viewConfigs = configurationService.getConfigs(CollectionViewConfig.class);
         CollectionViewConfig targetViewConfig = null;
         for (CollectionViewConfig viewConfig : viewConfigs) {
@@ -347,7 +347,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
         final FormPluginConfig formPluginConfig;
         if (items == null || items.isEmpty()) {
-            formPluginConfig = new FormPluginConfig(extendedSearchData.getSearchQuery().getTargetObjectType());
+            formPluginConfig = new FormPluginConfig(extendedSearchData.getSearchQuery().getTargetObjectTypes().get(0));
         } else {
             final Id selectedId = items.get(0).getId();
             formPluginConfig = new FormPluginConfig(selectedId);
@@ -378,7 +378,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         CollectionRefConfig refConfig = new CollectionRefConfig();
         refConfig.setName(extendedSearchData.getTargetCollectionNames().get(extendedSearchData.getSearchQuery().
-                getTargetObjectType()));
+                getTargetObjectTypes().get(0)));
 
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         collectionViewerConfig.setCollectionRefConfig(refConfig);
@@ -388,7 +388,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         result.setExtendedSearchConfiguration(formWidgetsData);
         result.setSearchAreas(searchQuery.getAreas());
 
-        result.setSearchDomainObjectType(searchQuery.getTargetObjectType());
+        result.setSearchDomainObjectType(searchQuery.getTargetObjectTypes().get(0));
         result.setDomainObjectSurferConfig(domainObjectSurferConfig);
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
@@ -554,7 +554,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         try {
             return searchService.search(extendedSearchData.getSearchQuery(),
                     extendedSearchData.getTargetCollectionNames().
-                            get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
+                            get(extendedSearchData.getSearchQuery().getTargetObjectTypes().get(0)), extendedSearchData.getMaxResults());
         } catch (Exception ge) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SEARCH,
                     "Ошибка при поиске:\\n",

@@ -14,8 +14,8 @@ public class SearchQuery implements Dto {
 
     public static final String RELEVANCE = "_relevance";
 
-    private ArrayList<String> areas = new ArrayList<>();
-    private String targetObjectType;
+    private ArrayList<String> areas = new ArrayList<String>();
+    private List<String> targetObjectTypes = new ArrayList<String>();
     private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
 
     /**
@@ -70,8 +70,8 @@ public class SearchQuery implements Dto {
      * 
      * @return имя типа доменных объектов
      */
-    public String getTargetObjectType() {
-        return targetObjectType;
+    public List<String> getTargetObjectTypes() {
+        return targetObjectTypes;
     }
 
     /**
@@ -81,7 +81,25 @@ public class SearchQuery implements Dto {
      * @param targetObjectType имя типа доменных объектов, определённое в конфигурации
      */
     public void setTargetObjectType(String targetObjectType) {
-        this.targetObjectType = targetObjectType;
+        this.targetObjectTypes = new ArrayList<>();
+        this.targetObjectTypes.add(targetObjectType);
+    }
+
+    /**
+     * Устанавливает типы искомых объектов
+     * @param targetObjectTypes
+     */
+    public void setTargetObjectTypes(List<String> targetObjectTypes) {
+        this.targetObjectTypes = new ArrayList<>();
+        this.targetObjectTypes.addAll(targetObjectTypes);
+    }
+
+    /**
+     * Добавляет искомый тип
+     * @param targetObjectType
+     */
+    public void addTargetObjectType(String targetObjectType) {
+        this.targetObjectTypes.add(targetObjectType);
     }
 
     /**
@@ -136,7 +154,7 @@ public class SearchQuery implements Dto {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        result.append("Target type: ").append(targetObjectType);
+        result.append("Target type: ").append( targetObjectTypes.toString() );
         result.append("; areas: ").append(areas.toString());
         result.append("; filters: ").append(filters.toString());
         return result.toString();

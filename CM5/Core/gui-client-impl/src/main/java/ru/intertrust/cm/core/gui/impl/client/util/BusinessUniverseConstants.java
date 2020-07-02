@@ -36,8 +36,8 @@ public class BusinessUniverseConstants {
     public static final String LOGIN_PAGE = "Login.html";
 
     public static final int START_SIDEBAR_WIDTH = 110;
-    public static final String CLOSED = "closed";
-    public static final String OPEN = "open";
+    public static final String FILTER_PANEL_STATE_CLOSED = "closed";
+    public static final String FILTER_PANEL_STATE_OPEN = "open";
     public static final String UNDEFINED_COLLECTION_NAME = "undefined";
     //Date selectors labels
     public static final String TODAY_LABEL = "Сегодня";
@@ -63,6 +63,12 @@ public class BusinessUniverseConstants {
     public static final int MOVE_HANDLE_WIDTH = 14;
     public static final int CLEAR_BUTTON_WIDTH = 28;
     public static final int FILTER_CONTAINER_MARGIN = 20;
+    /*
+        Смещение для поля ввода поиска, чтобы уменьшить его размер на случай, когда в браузере меняется масштаб
+        и из-за присутствия долей пикселей в вычисленных размерах появляется погрешность, при которой новые размеры элементов
+        могут не влезть в контейнер их содержащий, в следствие чего начать располагаться неверно
+    */
+    public static final int SEARCH_INPUT_OFFSET = 1;
 
     //Hyperlink form title, maybe temporary
     public static final String FORM_TITLE = "Item";

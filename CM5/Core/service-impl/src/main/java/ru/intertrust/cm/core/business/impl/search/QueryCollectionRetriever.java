@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -8,10 +9,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 
 public class QueryCollectionRetriever extends CollectionRetriever {
 
@@ -31,42 +29,40 @@ public class QueryCollectionRetriever extends CollectionRetriever {
 
     @Override
     public IdentifiableObjectCollection queryCollection(SolrDocumentList documents, int maxResults) {
-        HashSet<Id> ids = new HashSet<>();
+        ArrayList<ReferenceValue> ids = new ArrayList<>();
         for (SolrDocument doc : documents) {
-            ids.add(idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID)));
+            Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
+            ids.add(new ReferenceValue(id));
         }
 
-        GenericIdentifiableObjectCollection result = new GenericIdentifiableObjectCollection();
-        int fetchStart = 0;
         int fetchSize = maxResults;
-        int fieldsCount = 0;
-        while (true) {
-            IdentifiableObjectCollection sample = sqlParameters == null
-                    ? collectionsService.findCollectionByQuery(sqlQuery, fetchStart, fetchSize)
-                    : collectionsService.findCollectionByQuery(sqlQuery, sqlParameters, fetchStart, fetchSize);
-            if (fetchStart == 0) {
-                result.setFieldsConfiguration(sample.getFieldsConfiguration());
-                fieldsCount = sample.getFieldsConfiguration().size();
-            }
-            for (int row = 0; row < sample.size(); ++row) {
-                if (ids.contains(sample.getId(row))) {
-                    int destRow = result.size();
-                    result.setId(destRow, sample.getId(row));
-                    for (int i = 0; i < fieldsCount; ++i) {
-                        result.set(i, destRow, sample.get(i, row));
-                    }
-                    if (result.size() == maxResults) {
-                        addWeightsAndSort(result, documents);
-                        return result;
-                    }
-                }
-            }
-            if (sample.size() < fetchSize) {
-                break;
-            }
-            fetchStart += fetchSize;
-            fetchSize = estimateFetchSize(fetchSize, result.size(), maxResults);
+
+        List<Value> modifiedParams = new ArrayList<>();
+        int index = 0;
+        if (sqlParameters != null){
+            modifiedParams.addAll(sqlParameters);
+            index = sqlParameters.size();
         }
+        String listQuery = "(";
+        boolean first = true;
+
+        for (ReferenceValue refValue : ids) {
+            modifiedParams.add((Value)refValue);
+
+            if (first){
+                first = false;
+            }else{
+                listQuery += " or ";
+            }
+            listQuery += "id={" + index + "}";
+            index++;
+        }
+        listQuery += ")";
+        String modifiedQuery = "select * from (" + sqlQuery + ") orig where " + listQuery;
+
+        IdentifiableObjectCollection result = collectionsService.
+                findCollectionByQuery(modifiedQuery, modifiedParams, 0, fetchSize);
+
         addWeightsAndSort(result, documents);
         return result;
     }

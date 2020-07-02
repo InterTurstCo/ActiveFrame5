@@ -574,6 +574,18 @@
     </domain-object-type>
     <!-- END Для тестирования REST API -->
 
+    <domain-object-type name="test_type_43" initial-status="draft">
+        <fields>
+            <string name="stringField" length="128"/>
+        </fields>
+    </domain-object-type>
+
+    <collection name="test_type_43_col" idField="id">
+        <prototype>
+            select id from test_type_43
+        </prototype>
+    </collection>
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
@@ -784,5 +796,36 @@
             </write>
         </status>
     </access-matrix>
+
+    <context-role name="test_type_43_author">
+        <context>
+            <domain-object type="test_type_43"/>
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>created_by</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <access-matrix type="test_type_43">
+        <create>
+            <permit-group name="AllPersons"/>
+        </create>
+        <status name="*">
+            <read>
+                <permit-role name="test_type_43_author"/>
+            </read>
+            <write>
+                <permit-role name="test_type_43_author"/>
+            </write>
+            <delete>
+                <permit-role name="test_type_43_author"/>
+            </delete>
+        </status>
+    </access-matrix>
+
 
 </configuration>

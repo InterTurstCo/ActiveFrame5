@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>1.0.1-2-SNAPSHOT</version>
+    <version>1.0.1-5-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -178,6 +178,13 @@
                         <artifactId>spring-context-support</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-indexer</artifactId>
+                <version>${spring.version}</version>
+                <optional>true</optional>
             </dependency>
 
             <!-- AspectJ -->

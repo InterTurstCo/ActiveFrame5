@@ -268,8 +268,11 @@ public class AuthenticationFilter implements Filter {
     private void forwardToLogin(ServletRequest servletRequest, ServletResponse servletResponse, boolean authenticationError)
             throws ServletException, IOException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        // Проверка, возможно form аутентификация запрещена, тогда отображаем нет доступа
 
+        // Для корректного срабатывания редиректа
+        request.getSession().invalidate();
+
+        // Проверка, возможно form аутентификация запрещена, тогда отображаем нет доступа
         if (securityConfig.getActiveProviders().contains(ApplicationSecurityManager.FORM_AUTHENTICATION_TYPE)) {
             StringBuilder loginPath = new StringBuilder(request.getContextPath()).append("/Login.html");
             String requestURI = request.getRequestURI();

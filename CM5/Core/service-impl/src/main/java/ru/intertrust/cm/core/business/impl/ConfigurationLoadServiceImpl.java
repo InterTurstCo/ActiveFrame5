@@ -8,8 +8,6 @@ import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,6 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 @Local(ConfigurationLoadService.class)
 @Remote(ConfigurationLoadService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, ConfigurationLoadService.Remote {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationLoadServiceImpl.class);
