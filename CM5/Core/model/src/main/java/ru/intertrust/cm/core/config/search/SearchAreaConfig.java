@@ -19,7 +19,7 @@ public class SearchAreaConfig implements TopLevelConfig {
     private String replacementPolicy;
 
     @Element(name = "solr-server-url", required = false)
-    private String solrServerUrl;
+    private String solrServerKey;
 
     @ElementList(entry = "target-domain-object", inline = true)
     private List<TargetDomainObjectConfig> targetObjects;
@@ -43,8 +43,8 @@ public class SearchAreaConfig implements TopLevelConfig {
         return targetObjects;
     }
 
-    public String getSolrServerUrl() {
-        return solrServerUrl;
+    public String getSolrServerKey() {
+        return solrServerKey;
     }
 
     @Override
@@ -53,13 +53,13 @@ public class SearchAreaConfig implements TopLevelConfig {
         if (o == null || getClass() != o.getClass()) return false;
         SearchAreaConfig that = (SearchAreaConfig) o;
         return Objects.equals(name, that.name) &&
-                Objects.equals(replacementPolicy, that.replacementPolicy) &&
-                Objects.equals(targetObjects, that.targetObjects) &&
-                Objects.equals(solrServerUrl, that.solrServerUrl);
+               Objects.equals(replacementPolicy, that.replacementPolicy) &&
+               Objects.equals(targetObjects, that.targetObjects) &&
+               Objects.equals(solrServerKey, that.solrServerKey);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, replacementPolicy, targetObjects, (solrServerUrl == null ? "" : solrServerUrl));
+        return Objects.hash(name, replacementPolicy, targetObjects, (solrServerKey == null ? "" : solrServerKey));
     }
 }

@@ -210,8 +210,12 @@
     <bean id="solrServer"
           class="ru.intertrust.cm.core.business.impl.search.SolrServerFactory"/>
     <!-- factory-method="getSolrServer"/> -->
+    <bean id="solServerMap"
+          class="ru.intertrust.cm.core.business.impl.search.SolrServerMapFactory"/>
 
-    <bean id="solrUpdateQueue" class="ru.intertrust.cm.core.business.impl.search.SolrUpdateRequestQueue"/>
+    <bean id="solrUpdateQueue" class="ru.intertrust.cm.core.business.impl.search.SolrUpdateRequestQueue" scope="prototype"/>
+
+    <bean id="solrServerWrapper" class="ru.intertrust.cm.core.business.impl.search.SolrServerWrapper" scope="prototype"/>
 
     <bean id="searchConfigHelper" class="ru.intertrust.cm.core.business.impl.search.SearchConfigHelper"/>
 

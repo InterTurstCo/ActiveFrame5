@@ -46,6 +46,9 @@ public class IndexedFieldConfig implements Serializable {
     @Attribute(name = "show-in-results", required = false)
     private Boolean showInResults;
 
+    @Attribute(name = "multi-valued", required = false)
+    private Boolean multiValued;
+
     public String getName() {
         return name;
     }
@@ -84,6 +87,10 @@ public class IndexedFieldConfig implements Serializable {
         return showInResults != null ? showInResults.booleanValue() : false;
     }
 
+    public boolean getMultiValued() {
+        return multiValued != null ? multiValued.booleanValue() : false;
+    }
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
@@ -92,6 +99,7 @@ public class IndexedFieldConfig implements Serializable {
         hash = hash * 31 ^ (script != null ? script.hashCode() : 0);
         hash = hash * 31 ^ (solrPrefix != null ? solrPrefix.hashCode() : 0);
         hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
+        hash = hash * 31 ^ (multiValued != null ? multiValued.hashCode() : 0);
         return hash;
     }
 
@@ -109,6 +117,7 @@ public class IndexedFieldConfig implements Serializable {
                 && (doel == null ? other.doel == null : doel.equals(other.doel))
                 && (script == null ? other.script == null : script.equals(other.script))
                 && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix))
-                && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults));
+                && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults))
+                && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued));
     }
 }

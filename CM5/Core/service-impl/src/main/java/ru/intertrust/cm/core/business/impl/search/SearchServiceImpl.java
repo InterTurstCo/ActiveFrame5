@@ -50,7 +50,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private int RESULTS_LIMIT;
 
     @Autowired
-    private SolrServer solrServer;
+    private SolrServerWrapperMap solrServerWrapperMap ;
 
     @Autowired
     private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
@@ -528,6 +528,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private QueryResponse executeSolrQuery(SolrQuery query) {
         try {
+            SolrServer solrServer = solrServerWrapperMap.getRegularSolrServerWrapper().getSolrServer();
+            // SolrServer solrServer = solrServerWrapperMap.getSolrServerWrapper("solr1").getSolrServer();
             QueryResponse response = solrServer.query(query);
             if (log.isDebugEnabled()) {
                 log.debug("Response: " + response);
@@ -562,6 +564,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     .setQuery("*:*")
                     .addField("*")
                     .setRows(1000000);
+            SolrServer solrServer = solrServerWrapperMap.getRegularSolrServerWrapper().getSolrServer();
             QueryResponse all = solrServer.query(testQuery);
             out.println("Total " + all.getResults().getNumFound() + " document(s)");
             int i = 0;

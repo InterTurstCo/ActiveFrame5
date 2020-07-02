@@ -18,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
@@ -30,11 +33,11 @@ public class SolrIndexingBean {
 
     private volatile boolean active = false;
 
-    @Autowired
-    private SolrUpdateRequestQueue requestQueue;
+    // @Autowired
+    // private SolrUpdateRequestQueue requestQueue;
 
     @Autowired
-    private SolrServer solrServer;
+    private SolrServerWrapperMap solrServerWrapperMap;
 
     @Schedule(hour = "*", minute = "*", second = "*/20", persistent = false)
     public void processTimer() {
@@ -42,15 +45,23 @@ public class SolrIndexingBean {
             return;
         }
         active = true;
-        processUpdateQueue();
+        processUpdateQueues();
         active = false;
     }
 
-    private void processUpdateQueue() {
+    private void processUpdateQueues() {
+        if (solrServerWrapperMap != null) {
+            for (Map.Entry<String, SolrServerWrapper> entry : solrServerWrapperMap.getMap().entrySet()) {
+                processUpdateQueue(entry.getValue().getSolrServer(), entry.getValue().getQueue(), entry.getKey());
+            }
+        }
+    }
+
+    private void processUpdateQueue(SolrServer solrServer, SolrUpdateRequestQueue requestQueue, String serverKey) {
         long breakTime = System.currentTimeMillis() + WORKTIME_LIMIT;
 
         if (log.isTraceEnabled()) {
-            log.trace("Solr request queue processing started");
+            log.trace("Solr request queue processing started: " + serverKey);
         }
         int processed = 0;
 
@@ -78,12 +89,16 @@ public class SolrIndexingBean {
             }
         }
         if (log.isTraceEnabled()) {
-            log.trace("Solr request queue processing finished");
+            log.trace("Solr request queue processing finished: " + serverKey);
         }
     }
 
     @PreDestroy
     public void shutdown() {
-        solrServer.shutdown();
+        if (solrServerWrapperMap != null) {
+            for (Map.Entry<String, SolrServerWrapper> entry : solrServerWrapperMap.getMap().entrySet()) {
+                entry.getValue().getSolrServer().shutdown();
+            }
+        }
     }
 }

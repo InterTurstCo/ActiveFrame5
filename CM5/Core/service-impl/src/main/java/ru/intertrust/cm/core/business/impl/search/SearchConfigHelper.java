@@ -87,17 +87,17 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         private IndexedDomainObjectConfig[] objectConfigChain;
         private String areaName;
         private String targetObjectType;
-        private String solrServerUrl;
+        private String solrServerKey;
 
         SearchAreaDetailsConfig() {
         }
 
         SearchAreaDetailsConfig(List<IndexedDomainObjectConfig> objectConfigChain,
-                String areaName, String targetObjectType, String solrServerUrl) {
+                String areaName, String targetObjectType, String solrServerKey) {
             this.objectConfigChain = objectConfigChain.toArray(new IndexedDomainObjectConfig[objectConfigChain.size()]);
             this.areaName = areaName;
             this.targetObjectType = targetObjectType;
-            this.solrServerUrl = solrServerUrl;
+            this.solrServerKey = solrServerKey;
         }
 
         /**
@@ -135,8 +135,8 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             return targetObjectType;
         }
 
-        public String getSolrServerUrl() {
-            return solrServerUrl;
+        public String getSolrServerKey() {
+            return solrServerKey;
         }
 
         @Override
@@ -389,7 +389,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         result = new ArrayList<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
-            processConfigList(objectType, area.getName(), null, area.getSolrServerUrl(),
+            processConfigList(objectType, area.getName(), null, area.getSolrServerKey(),
                     area.getTargetObjects(), new LinkedList<IndexedDomainObjectConfig>(), result);
         }
 
@@ -397,7 +397,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         return result;
     }
 
-    private void processConfigList(String objectType, String areaName, String targetObjectType, String solrServerUrl,
+    private void processConfigList(String objectType, String areaName, String targetObjectType, String solrServerKey,
             Collection<? extends IndexedDomainObjectConfig> list, LinkedList<IndexedDomainObjectConfig> parents,
             ArrayList<SearchAreaDetailsConfig> result) {
         for (IndexedDomainObjectConfig config : list) {
@@ -409,16 +409,16 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             if (isSuitableType(config.getType(), objectType)) {
                 /*DomainObjectFilter filter = createFilter(config);
                 if (filter == null || filter.filter(object)) {*/
-                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerUrl));
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerKey));
                 //}
             }
             for (IndexedContentConfig contentConfig : config.getContentObjects()) {
                 //if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
                 if (isSuitableType(contentConfig.getType(), objectType)) {
-                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerUrl));
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerKey));
                 }
             }
-            processConfigList(objectType, areaName, targetObjectType, solrServerUrl, config.getLinkedObjects(), parents, result);
+            processConfigList(objectType, areaName, targetObjectType, solrServerKey, config.getLinkedObjects(), parents, result);
             parents.removeFirst();
         }
     }
@@ -528,7 +528,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                 }
             }
         } else if (config.getScript() != null) {
-            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), false,
+            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), config.getMultiValued(),
                     config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
@@ -537,10 +537,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             }
             SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(fieldConfig.getFieldType());
             if (dataType != null) {
-                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, false));
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, config.getMultiValued()));
             } else {
                 result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(config),
-                        false, config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
+                        config.getMultiValued(), config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
             }
         }
 
