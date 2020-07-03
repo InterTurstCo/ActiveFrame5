@@ -180,6 +180,19 @@
             </check-box>
 
             <check-box id="chbRequired" translate-id="true" text="Обязательное">
+                <events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="chbSystem"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:access>
+                        <rul:rule apply-expression="chbSystem.value == true"/>
+                    </rul:access>
+                    <rul:value>
+                        <rul:rule apply-expression="chbSystem.value == false" value="true"/>
+                    </rul:value>
+                </rules>
                 <field-path value="is_required"/>
             </check-box>
 

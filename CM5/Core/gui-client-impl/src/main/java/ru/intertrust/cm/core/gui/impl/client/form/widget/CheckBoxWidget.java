@@ -22,12 +22,18 @@ public class CheckBoxWidget extends BaseWidget {
 
     @Override
     public void setValue(Object value) {
-        //TODO: Implementation required
+        Boolean valueToSet = null;
+        if (value instanceof Boolean) {
+            valueToSet = (Boolean) value;
+        } else if (value instanceof String) {
+            valueToSet = Boolean.valueOf((String) value);
+        }
+        ((CheckBox)impl).setValue(valueToSet);
     }
 
     @Override
     public void disable(Boolean isDisabled) {
-        //TODO: Implementation required
+        ((CheckBox)impl).setEnabled(!isDisabled);
     }
 
     @Override

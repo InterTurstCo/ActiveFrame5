@@ -2,11 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client.rules;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.ComboBoxWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.ListBoxWidget;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
@@ -19,6 +16,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
  * операция.
  */
 public class ExpressionHelper {
+
   private static final String VAL = ".value";
   private static final String FORM_DOCUMENT = "form.document";
   private static final String AND = " and ";
@@ -28,20 +26,20 @@ public class ExpressionHelper {
   private static final String GREAT = ">";
   private static final String LESS = "<";
 
-  public static Boolean applyExpression(String expression, WidgetsContainer container) throws ExpressionException {
+  public static boolean applyExpression(String expression, WidgetsContainer container) throws ExpressionException {
     // Если apply-expression не задано то правило применяется в любом случае
     if (expression != null && !expression.trim().equals("")) {
       validate(expression.toLowerCase());
 
       if (expression.toLowerCase().contains(AND)) {
         String[] expressions = splitExpressionByLogicalOperation(expression.toLowerCase(), AND);
-        Boolean firstExpression = calculate(expressions[0], container);
-        Boolean secondExpression = calculate(expressions[1], container);
+        boolean firstExpression = calculate(expressions[0], container);
+        boolean secondExpression = calculate(expressions[1], container);
         return firstExpression && secondExpression;
       } else if (expression.toLowerCase().contains(OR)) {
         String[] expressions = splitExpressionByLogicalOperation(expression.toLowerCase(), OR);
-        Boolean firstExpression = calculate(expressions[0], container);
-        Boolean secondExpression = calculate(expressions[1], container);
+        boolean firstExpression = calculate(expressions[0], container);
+        boolean secondExpression = calculate(expressions[1], container);
         return firstExpression || secondExpression;
       } else {
         return calculate(expression, container);
@@ -98,7 +96,7 @@ public class ExpressionHelper {
     }
   }
 
-  private static Boolean calculate(String expression, WidgetsContainer container) throws ExpressionException {
+  private static boolean calculate(String expression, WidgetsContainer container) throws ExpressionException {
     Object leftOperandValue;
     Object rightOperandValue;
     if (expression.trim().equals("")) {

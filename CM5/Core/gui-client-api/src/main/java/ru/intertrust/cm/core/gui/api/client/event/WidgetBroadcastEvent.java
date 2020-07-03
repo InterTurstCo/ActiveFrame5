@@ -25,8 +25,8 @@ public class WidgetBroadcastEvent extends GwtEvent<WidgetBroadcastEventHandler> 
     eventPayload = payload;
   }
 
-  public WidgetBroadcastEvent(Object payload,Boolean isBroadcast){
-    this.isBroadcast = true;
+  public WidgetBroadcastEvent(Object payload, Boolean isBroadcast) {
+    this.isBroadcast = isBroadcast;
     eventPayload = payload;
   }
 

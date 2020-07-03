@@ -2,19 +2,11 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.RuleTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RulesTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
@@ -24,27 +16,14 @@ import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.event.WidgetBroadcastEvent;
 import ru.intertrust.cm.core.gui.api.client.event.WidgetBroadcastEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
-import ru.intertrust.cm.core.gui.impl.client.rules.ExpressionException;
-import ru.intertrust.cm.core.gui.impl.client.rules.ExpressionHelper;
+import ru.intertrust.cm.core.gui.impl.client.rules.widget.RuleEventWidgetManager;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
-import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
-import ru.intertrust.cm.core.gui.model.validation.DecimalRangeValidator;
-import ru.intertrust.cm.core.gui.model.validation.IntRangeValidator;
-import ru.intertrust.cm.core.gui.model.validation.LengthValidator;
-import ru.intertrust.cm.core.gui.model.validation.ScaleAndPrecisionValidator;
-import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
-import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
-import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
-import ru.intertrust.cm.core.gui.model.validation.Validator;
+import ru.intertrust.cm.core.gui.model.validation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -68,6 +47,12 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
   protected EventBus eventBus;
   protected Widget impl;
   protected WidgetsContainer container;
+
+  /**
+   * Обработчик событий, связанных с правилами. Инициализируется в геттере {@link #getRuleEventWidgetManager()},
+   * поэтому нужно использовать его, а напрямую к этой переменной экземпляра не обращаться.
+   */
+  private RuleEventWidgetManager ruleEventWidgetManager;
 
   private Map<String, String> messages;
 
@@ -94,43 +79,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
    */
   @Override
   public void onEventReceived(WidgetBroadcastEvent e) {
-    if ((!initialData.getSubscription().isEmpty()
-        && initialData.getSubscription().contains(e.getWidgetId())
-        //&& (getContainer().hashCode() == e.getInitiatorHashCode())
-    ) || (!initialData.getSubscription().isEmpty() && e.getBroadcast())) {
-      if (e.getCascade() && e.getPublicatorsChain().contains(initialData.getWidgetId())) {
-        return;
-      }
-      if (initialData.getRules() != null) {
-        processRule(e.getBroadcast());
-      }
-    }
-  }
-
-  private void processRule(Boolean fromBroadcast) {
-    try {
-      // Первый приоритет
-      if (initialData.getRules().getHideRulesTypeConfig() != null) {
-        // Если правил сокрытия несколько то их суммарный результат должен быть true
-        Boolean shouldByHidden = true;
-        for (RuleTypeConfig rule : initialData.getRules().getHideRulesTypeConfig().getRuleTypeConfigs()) {
-          shouldByHidden = shouldByHidden && ExpressionHelper.applyExpression(rule.getApplyExpression(), getContainer());
-        }
-        hide(!shouldByHidden);
-      }
-      if (initialData.getRules().getFilterRulesTypeConfig() != null && !fromBroadcast) {
-        // Пока не ясно что делать с несколькими правилами фильтрации возникает противоречие.
-        RuleTypeConfig filterRule = initialData.getRules().getFilterRulesTypeConfig().getRuleTypeConfigs().get(0);
-        if (ExpressionHelper.applyExpression(filterRule.getApplyExpression(), getContainer())) {
-          applyFilter(ExpressionHelper.getValue(filterRule.getValue(), getContainer()).toString());
-        }
-      }
-
-
-      //TODO: Остальные типы проавил в следующих приоритетах разработки
-    } catch (ExpressionException e) {
-      Window.alert(e.getMessage());
-    }
+    getRuleEventWidgetManager().processReceivedEvent(e);
   }
 
   /**
@@ -440,4 +389,17 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     }
     return result;
   }
+
+  /**
+   * Создает (если он еще не был создан) и возвращает экземпляр обработчика правил по событиям для текущего виджета.
+   *
+   * @return объект {@link RuleEventWidgetManager} для текущего виджета.
+   */
+  private RuleEventWidgetManager getRuleEventWidgetManager() {
+    if (ruleEventWidgetManager == null) {
+      ruleEventWidgetManager = new RuleEventWidgetManager(this);
+    }
+    return ruleEventWidgetManager;
+  }
+
 }
