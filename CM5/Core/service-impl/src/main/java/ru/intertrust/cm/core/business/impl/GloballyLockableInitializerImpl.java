@@ -14,13 +14,11 @@ import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 import javax.transaction.Status;
 import javax.transaction.UserTransaction;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
@@ -31,6 +29,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
@@ -77,6 +76,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ClusteredLockDao clusteredLockDao;
     @Autowired private DatabaseDaoFactory dbDaoFactory;
     @Autowired private EventLogService eventLogService;
+    @Autowired private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Value("${scheme.transaction.timeout:60}") private int schemeTransactionTimeout = 60; // minutes
     @Value("${scheme.transaction.disable:false}") private boolean isSchemeTransactionDisable = false;
 
@@ -113,6 +113,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private void init() throws Exception {
         logger.info("Run init");
         configurationExplorer.validate();
+        domainObjectTypeIdDao.init();
         // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
         if(isMainServer){
             logger.info("server is main");
