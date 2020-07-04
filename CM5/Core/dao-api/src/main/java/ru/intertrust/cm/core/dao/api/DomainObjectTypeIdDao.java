@@ -44,4 +44,9 @@ public interface DomainObjectTypeIdDao {
      * @return
      */
     public Integer findIdByName(String configName);
+
+    /**
+     * Инициализация текущей конфигурации идентификаторов типов в базе
+     */
+    void init();
 }

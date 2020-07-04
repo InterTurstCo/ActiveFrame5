@@ -234,7 +234,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
      */
     @Override
     public void createServiceTables() {
-        jdbcTemplate.update(getQueryHelper().generateCreateDomainObjectTypeIdSequenceQuery());
         jdbcTemplate.update(getQueryHelper().generateCreateDomainObjectTypeIdTableQuery());
 
         jdbcTemplate.update(getQueryHelper().generateCreateConfigurationSequenceQuery());

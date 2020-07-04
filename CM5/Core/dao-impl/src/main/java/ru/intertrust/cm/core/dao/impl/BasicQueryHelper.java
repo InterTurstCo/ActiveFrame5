@@ -98,14 +98,6 @@ public abstract class BasicQueryHelper {
                 "constraint " + wrap("u_" + DOMAIN_OBJECT_TYPE_ID_TABLE) + " unique (" + wrap(NAME_COLUMN) + "))";
     }
 
-    /**
-     * Генерирует запрос для создания последовательности для domain_object_type_id
-     * @return запрос для создания последовательности для domain_object_type_id
-     */
-    public String generateCreateDomainObjectTypeIdSequenceQuery() {
-        return "create sequence " + wrap(getSqlSequenceName(DOMAIN_OBJECT_TYPE_ID_TABLE)) + " start with 5001";
-    }
-
     public String generateCreateConfigurationSequenceQuery() {
         return "create sequence " + wrap(getSqlSequenceName(CONFIGURATION_TABLE));
     }
