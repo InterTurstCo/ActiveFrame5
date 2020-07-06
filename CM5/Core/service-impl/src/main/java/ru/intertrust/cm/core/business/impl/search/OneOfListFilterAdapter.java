@@ -58,4 +58,24 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
     public boolean isCompositeFilter(OneOfListFilter filter) {
         return false;
     }
+
+    @Override
+    public List<String> getFieldNames(OneOfListFilter filter, SearchQuery query) {
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        ArrayList<String> names = new ArrayList<>(types.size());
+        if (types.size() == 0) {
+            return names;
+        }
+
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    names.add(field);
+                }
+            }
+        }
+        return names;
+
+    }
 }

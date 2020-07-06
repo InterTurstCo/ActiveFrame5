@@ -1,17 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -29,11 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SearchException;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
@@ -50,7 +36,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private int RESULTS_LIMIT;
 
     @Autowired
-    private SolrServerWrapperMap solrServerWrapperMap ;
+    private SolrServerWrapperMap solrServerWrapperMap;
 
     @Autowired
     private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
@@ -89,7 +75,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
             int fetchLimit = maxResults;
             while (true) {
-                QueryResponse response = executeSolrQuery(solrQuery);
+                QueryResponse response = executeSolrQuery(solrQuery, SolrServerWrapper.REGULAR);
                 if (fetchLimit <= 0) {
                     fetchLimit = response.getResults().size();
                 }
@@ -111,7 +97,20 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
-        return complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
+        Map<String, SearchQuery> queries = splitQueryBySolrServer(query);
+        List<IdentifiableObjectCollection> collections = new ArrayList<>();
+        for (Map.Entry<String, SearchQuery> entry : queries.entrySet()) {
+            IdentifiableObjectCollection collectionPart = null;
+            if (SolrServerWrapper.REGULAR.equals(entry.getKey())) {
+                collectionPart = complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
+            } else {
+                collectionPart = cntxSearch(query, new CntxCollectionRetriever(targetCollectionName), maxResults, entry.getKey());
+            }
+            if (collectionPart != null) {
+                collections.add(collectionPart);
+            }
+        }
+        return mergeCollections(collections, maxResults);
     }
 
     @Override
@@ -131,35 +130,33 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery, sqlParams), maxResults);
     }
 
-    // Контекстный поиск
     @Override
-    public IdentifiableObjectCollection search(SearchQuery searchQuery, int maxResults) {
-        try {
-            if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
-                maxResults = RESULTS_LIMIT;
+    public IdentifiableObjectCollection searchCntx(SearchQuery query, String targetCollectionName, int maxResults) {
+        Map<String, SearchQuery> queries = splitQueryBySolrServer(query);
+        List<IdentifiableObjectCollection> collections = new ArrayList<>();
+        for (Map.Entry<String, SearchQuery> entry : queries.entrySet()) {
+            IdentifiableObjectCollection collectionPart = null;
+            if (!SolrServerWrapper.REGULAR.equals(entry.getKey())) {
+                collectionPart = cntxSearch(query, new CntxCollectionRetriever(targetCollectionName), maxResults, entry.getKey());
             }
-
-            CollectionRetriever collectionRetriever = new ContentCollectionRetriever();
-            ContentQuery solrContentQuery = new ContentQuery();
-            solrContentQuery.addFilters(searchQuery.getFilters(), searchQuery);
-
-            int fetchLimit = maxResults;
-            while(true) {
-                SolrDocumentList found = solrContentQuery.execute(fetchLimit, searchQuery);
-                if (fetchLimit <= 0) {
-                    fetchLimit = found.size();
-                }
-
-                IdentifiableObjectCollection result = collectionRetriever.queryCollection(found, maxResults);
-                if (found.size() >= fetchLimit && result.size() < maxResults) {
-                    fetchLimit = estimateFetchLimit(found.size(), result.size());
-                    continue;
-                }
-                return result;
+            if (collectionPart != null) {
+                collections.add(collectionPart);
             }
-        } catch (Exception ex) {
-            throw RemoteSuitableException.convert(ex);
         }
+        return mergeCollections(collections, maxResults);
+    }
+
+    private IdentifiableObjectCollection mergeCollections(List<IdentifiableObjectCollection> collections, int maxResults) {
+        IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+        if (collections != null) {
+            for (IdentifiableObjectCollection collectionPart : collections) {
+                if (collectionPart != null) {
+                    collection.append(collectionPart);
+                }
+            }
+        }
+        // TODO отсортировать по редевантности и сократить до maxResult
+        return collection;
     }
 
     private IdentifiableObjectCollection complexSearch(SearchQuery query, CollectionRetriever collectionRetriever,
@@ -193,23 +190,97 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
     }
 
-    class ComplexQuery {
+    private IdentifiableObjectCollection cntxSearch(SearchQuery searchQuery, CollectionRetriever collectionRetriever,
+                                                    int maxResults, String solrServerKey) {
+        try {
+            if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
+                maxResults = RESULTS_LIMIT;
+            }
+
+            CntxQuery solrCntxQuery = new CntxQuery(solrServerKey);
+            solrCntxQuery.addFilters(searchQuery.getFilters(), searchQuery);
+
+            int fetchLimit = maxResults;
+            while(true) {
+                QueryResponse found = solrCntxQuery.execute(fetchLimit, searchQuery);
+                if (found == null || found.getResults() == null) {
+                    return new GenericIdentifiableObjectCollection();
+                }
+                if (fetchLimit <= 0) {
+                    fetchLimit = found.getResults().size();
+                }
+
+                IdentifiableObjectCollection result = collectionRetriever.queryCollection(
+                        found.getResults(), found.getHighlighting(), maxResults);
+                if (found.getResults().size() >= fetchLimit && result.size() < maxResults) {
+                    fetchLimit = estimateFetchLimit(found.getResults().size(), result.size());
+                    continue;
+                }
+                return result;
+            }
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
+    private Map<String, SearchQuery> splitQueryBySolrServer(SearchQuery query) {
+        Map<String, SearchQuery> queryMap = new HashMap<>();
+        // разбиваем запрос на несколько - обычный и контекстные по областям поиска
+        List<String> areas = query.getAreas();
+        if (areas != null && !areas.isEmpty()) {
+            for (String area : areas) {
+                String key = configHelper.getSearchAreaDetailsConfig(area).getSolrServerKey();
+                key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
+                SearchQuery newQuery = queryMap.get(key);
+                if (newQuery == null) {
+                    newQuery = new SearchQuery(query);
+                    newQuery.clearAreas();
+                    queryMap.put(key, newQuery);
+                }
+                newQuery.addArea(area);
+            }
+        } else {
+            queryMap.put(SolrServerWrapper.REGULAR, query);
+        }
+        return queryMap;
+    }
+
+    interface QueryProcessor {
+        QueryProcessor newNestedQuery();
+        void setCombineOperation(CombiningFilter.Op operation);
+        void setNegativeResult(boolean negativeResault);
+        void addFilters(Collection<SearchFilter> filters, SearchQuery query);
+    }
+
+    class ComplexQuery implements QueryProcessor {
         protected HashMap<String, StringBuilder> filterStrings = new HashMap<>();
         protected ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
         protected ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
-        CombiningFilter.Op combineOperation = CombiningFilter.AND;
-        boolean negateResult = false;
+        protected CombiningFilter.Op combineOperation = CombiningFilter.AND;
+        protected boolean negateResult = false;
+        private final String solrServerKey = SolrServerWrapper.REGULAR;
 
         protected HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
 
+        @Override
         public ComplexQuery newNestedQuery() {
             ComplexQuery nestedQuery = new ComplexQuery();
             nestedQueries.add(nestedQuery);
             return nestedQuery;
         }
 
+        @Override
+        public void setCombineOperation(CombiningFilter.Op operation) {
+            this.combineOperation = operation;
+        }
+
+        public void setNegativeResult(boolean negativeResult){
+            this.negateResult = negativeResult;
+        }
+
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
+        @Override
+        public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
             for (SearchFilter filter : filters) {
                 FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
 
@@ -313,7 +384,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     if (rows > 0) {
                         solrQuery.setRows(rows);
                     }
-                    QueryResponse response = executeSolrQuery(solrQuery);
+                    QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
                     foundParts.add(response.getResults());
                     foundCache.put(entry.getKey(), response.getResults());
                     clipped = clipped || rows > 0 && response.getResults().size() == rows;
@@ -338,7 +409,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     if (rows > 0) {
                         solrQuery.setRows(rows);
                     }
-                    QueryResponse response = executeSolrQuery(solrQuery);
+                    QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
                     foundParts.add(response.getResults());
                     foundCache.put(":" + filterString, response.getResults());
                     clipped = clipped || rows > 0 && response.getResults().size() == rows;
@@ -362,19 +433,200 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
     }
 
-    class ContentQuery extends ComplexQuery {
+// =================================================================================================================
+    class CntxQuery implements QueryProcessor{
+        protected HashMap<String, StringBuilder> filterStrings = new HashMap<>();
+        protected ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
+        protected ArrayList<CntxQuery> nestedQueries = new ArrayList<>();
+        CombiningFilter.Op combineOperation = CombiningFilter.AND;
+        boolean negateResult = false;
+        Set<String> hlFields = new LinkedHashSet<>();
 
-        @Override
-        void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
-            super.addFilters(filters, query);
+        protected HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
+        private final String solrServerKey;
+
+        CntxQuery(String solrServerKey) {
+            this.solrServerKey = solrServerKey;
         }
 
         @Override
-        public SolrDocumentList execute(int fetchLimit, SearchQuery query) {
-            return super.execute(fetchLimit,query);
+        public CntxQuery newNestedQuery() {
+            CntxQuery nestedQuery = new CntxQuery(solrServerKey);
+            nestedQueries.add(nestedQuery);
+            return nestedQuery;
+        }
+
+        @Override
+        public void setCombineOperation(CombiningFilter.Op operation) {
+            this.combineOperation = operation;
+        }
+
+        public void setNegativeResult(boolean negativeResult) {
+            this.negateResult = negativeResult;
+        }
+
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @Override
+        public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
+            for (SearchFilter filter : filters) {
+                FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
+
+                if (adapter.isCompositeFilter(filter)) {
+                    ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
+                    continue;
+                }
+
+                String filterValue = adapter.getFilterString(filter, query);
+                if (filterValue == null || filterValue.isEmpty()) {
+                    continue;
+                }
+
+                if (filterValue.toLowerCase().contains(SolrFields.CONTENT.toLowerCase())) {
+                    List<String> names = adapter.getFieldNames(filter, query);
+                    hlFields.addAll(names);
+                }
+
+                Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(), query.getAreas(),
+                        query.getTargetObjectTypes());
+                if (types.size() == 0) {
+                    log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
+                }
+
+                if (types.size() > 1){
+                    addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue);
+                }else if(types.size() == 1){
+                    addFilterValue((String)types.toArray()[0], filterValue);
+                }
+            }
+        }
+
+        private void addFilterValue(String type, String filterValue) {
+            if (SearchConfigHelper.ALL_TYPES.equals(type)) {
+                multiTypeFilterStrings.add(filterValue);
+                return;
+            }
+            StringBuilder filterString;
+            if (!filterStrings.containsKey(type)) {
+                filterString = new StringBuilder();
+                filterStrings.put(type, filterString);
+            } else {
+                filterString = filterStrings.get(type);
+                filterString.append(combineOperation == CombiningFilter.AND ? " AND " : " OR ");
+            }
+            filterString.append(filterValue);
+        }
+
+        public QueryResponse execute(int fetchLimit, SearchQuery query) {
+            if (negateResult) {
+                for (StringBuilder str : filterStrings.values()) {
+                    str.insert(0, "-(").append(")");
+                }
+            }
+
+            StringBuilder areas = new StringBuilder();
+            for (String areaName : query.getAreas()) {
+                areas.append(areas.length() == 0 ? "(" : " OR ")
+                        .append("\"")
+                        .append(areaName)
+                        .append("\"");
+            }
+            areas.append(")");
+
+            StringBuilder targetTypes = new StringBuilder();
+            for (String targetObjectType : query.getTargetObjectTypes()) {
+                targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
+                        .append("\"")
+                        .append(targetObjectType)
+                        .append("\"");
+            }
+            targetTypes.append(")");
+
+            StringBuilder queryString = new StringBuilder();
+            StringBuilder objectTypes = new StringBuilder();
+
+            for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+                queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
+                        .append(entry.getValue().toString());
+                objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
+                        .append("\"")
+                        .append(entry.getKey())
+                        .append("\"");
+            }
+            objectTypes.append(")");
+
+            for (String filterString : multiTypeFilterStrings) {
+                queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
+                        .append(filterString);
+            }
+
+            float clippingFactor = 1f;
+            boolean clipped;
+            QueryResponse response = null;
+            do {
+                clipped = false;
+                int rows = Math.round(fetchLimit / clippingFactor);
+                SolrQuery solrQuery = new SolrQuery()
+                        .setQuery(queryString.toString())
+                        .addFilterQuery(SolrFields.AREA + ":" + areas)
+                        .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
+                        .addFilterQuery(SolrFields.OBJECT_TYPE + ":" + objectTypes)
+                        .addField("id")
+                        .addField(SolrFields.OBJECT_ID)
+                        .addField(SolrFields.MAIN_OBJECT_ID)
+                        .addField(SolrUtils.SCORE_FIELD);
+
+                if (solrQuery.getSorts().isEmpty()){
+                    solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
+                            .addSort(SolrFields.OBJECT_ID, SolrQuery.ORDER.asc)
+                            .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
+                }
+
+                if (!hlFields.isEmpty()) {
+                    solrQuery.setHighlight(true)
+                            .setHighlightRequireFieldMatch(true)
+                            .set("hl.usePhraseHighlighter", true)
+                            .set("hl.highlightMultiTerm", true)
+                            .set("hl.simple.pre", "<hl>")
+                            .set("hl.simple.post", "</hl>")
+                            .set("hl.snippets", "5")
+                            .set("hl.fragsize", "50");
+                    for (String hlField : hlFields) {
+                        solrQuery.addHighlightField(hlField);
+                    }
+                }
+
+                if (rows > 0) {
+                    solrQuery.setRows(rows);
+                }
+                response = executeSolrQuery(solrQuery, solrServerKey);
+                clipped = clipped || rows > 0 && response.getResults().size() == rows;
+                compactQueryResults(response);
+                clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
+            } while (clipped && response.getResults().size() < fetchLimit);
+            return response;
+        }
+
+        private void compactQueryResults(QueryResponse response) {
+            if (response == null || response.getResults() == null ) {
+                return;
+            }
+            HashSet<String> ids = new HashSet<>(response.getResults().size());
+            for (Iterator<SolrDocument> itr = response.getResults().iterator(); itr.hasNext();) {
+                SolrDocument doc = itr.next();
+                String mainId = (String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID);
+                String id = (String) doc.getFieldValue("id");
+                if (ids.contains(mainId)) {
+                    itr.remove();
+                    if (response.getHighlighting() != null && response.getHighlighting().containsKey(id)) {
+                        response.getHighlighting().remove(id);
+                    }
+                } else {
+                    ids.add(mainId);
+                }
+            }
         }
     }
-
+    // =================================================================================================================
 
     private interface Combiner {
         boolean add(SolrDocument doc, SolrDocumentList list);
@@ -544,10 +796,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return fields;
     }
 
-    private QueryResponse executeSolrQuery(SolrQuery query) {
+    private QueryResponse executeSolrQuery(SolrQuery query, String solrServerKey) {
         try {
-            SolrServer solrServer = solrServerWrapperMap.getRegularSolrServerWrapper().getSolrServer();
-            // SolrServer solrServer = solrServerWrapperMap.getSolrServerWrapper("solr1").getSolrServer();
+            SolrServer solrServer = solrServerWrapperMap.getSolrServerWrapper(solrServerKey).getSolrServer();
+            if (solrServer == null) {
+                throw new Exception("Can't find SolrServer by key : " + (solrServerKey != null ? solrServerKey : "null"));
+            }
             QueryResponse response = solrServer.query(query);
             if (log.isDebugEnabled()) {
                 log.debug("Response: " + response);

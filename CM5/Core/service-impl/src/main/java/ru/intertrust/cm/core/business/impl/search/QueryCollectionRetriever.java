@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.search;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class QueryCollectionRetriever extends CollectionRetriever {
 
@@ -25,6 +27,16 @@ public class QueryCollectionRetriever extends CollectionRetriever {
     public QueryCollectionRetriever(String sqlQuery, List<? extends Value<?>> sqlParameters) {
         this.sqlQuery = sqlQuery;
         this.sqlParameters = sqlParameters;
+    }
+
+    @Override
+    public IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
+                                                        Map<String, Map<String, List<String>>> hilightings,
+                                                        int maxResults) {
+        throw new RuntimeException("Not implemented: " +
+                "QueryCollectionRetriever.queryCollection(SolrDocumentList found, " +
+                "Map<String, Map<String, List<String>>> hilightings, " +
+                "int maxResults");
     }
 
     @Override

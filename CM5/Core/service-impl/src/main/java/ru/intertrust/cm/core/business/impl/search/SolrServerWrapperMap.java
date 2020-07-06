@@ -23,4 +23,8 @@ public class SolrServerWrapperMap implements Serializable {
     public SolrServerWrapper getRegularSolrServerWrapper() {
         return solrServerMap.get(SolrServerWrapper.REGULAR);
     }
+
+    public boolean isCntxSolrServer(String key) {
+        return solrServerMap.containsKey(key != null ? key.trim() : null);
+    }
 }

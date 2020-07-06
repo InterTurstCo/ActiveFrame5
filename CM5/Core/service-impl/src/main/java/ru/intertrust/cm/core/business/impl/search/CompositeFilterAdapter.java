@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.SearchQuery;
  * предварительно вызывает метод {@link #isCompositeFilter(SearchFilter)}, чтобы определить, является ли данный фильтр
  * составным. Для простых фильтров затем вызывается метод {{@link #getFilterString(SearchFilter, SearchQuery)},
  * а для составных &mdash; определённый в данном интефейсе
- * {{@link #processCompositeFilter(SearchFilter, SearchServiceImpl.ComplexQuery, SearchQuery)}.
+ * {{@link #processCompositeFilter(SearchFilter, SearchServiceImpl.QueryProcessor, SearchQuery)}.
  * 
  * @author apirozhkov
  *
@@ -29,6 +29,6 @@ public interface CompositeFilterAdapter<F extends SearchFilter> extends FilterAd
      * @param query Исходный поисковый запрос
      * @return объект подзапроса или null
      */
-    SearchServiceImpl.ComplexQuery processCompositeFilter(F filter,
-            SearchServiceImpl.ComplexQuery queryProcessor, SearchQuery query);
+    SearchServiceImpl.QueryProcessor processCompositeFilter(F filter,
+            SearchServiceImpl.QueryProcessor queryProcessor, SearchQuery query);
 }

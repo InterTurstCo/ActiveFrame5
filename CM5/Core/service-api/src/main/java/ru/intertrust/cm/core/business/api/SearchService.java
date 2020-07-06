@@ -87,12 +87,13 @@ public interface SearchService {
      * Выполняет поиск по вложениям и полям доменных объектов одной области поиска.
      *
      * @param searchQuery Критерии поиска
+     * @param targetCollectionName Имя сконфигурированной коллекции для возвращаемых объектов
      * @param maxResults Ограничение количества найденных объектов
      * @return Коллекция найденных доменных объектов
      * @throws IllegalArgumentException если критерии поиска содержат области поиска или типы искомых объектов,
      *      не объявленные в конфигурации
      */
-    IdentifiableObjectCollection search(SearchQuery searchQuery, int maxResults);
+    IdentifiableObjectCollection searchCntx(SearchQuery searchQuery, String targetCollectionName, int maxResults);
 
     /**
      * Метод предназначен для отладки состояния хранилища индекса. Выгружает данные в файл

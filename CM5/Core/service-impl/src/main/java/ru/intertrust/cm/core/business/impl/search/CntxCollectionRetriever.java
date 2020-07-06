@@ -1,59 +1,42 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ru.intertrust.cm.core.business.api.dto.*;
 
-import javax.resource.NotSupportedException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
-public class NamedCollectionRetriever extends CollectionRetriever {
-
+public class CntxCollectionRetriever extends CollectionRetriever {
     public static final int MAX_IDS_PER_QUERY = 2000;
 
-    private static Logger log = LoggerFactory.getLogger(NamedCollectionRetriever.class);
+    private static Logger log = LoggerFactory.getLogger(CntxCollectionRetriever.class);
 
-    @Autowired private CollectionsService collectionsService;
+    @Autowired
+    private CollectionsService collectionsService;
 
     private String collectionName;
-    private List<? extends Filter> collectionFilters;
+    // private List<? extends Filter> collectionFilters;
 
-    public NamedCollectionRetriever(String collectionName) {
+    public CntxCollectionRetriever(String collectionName) {
         this.collectionName = collectionName;
     }
 
-    public NamedCollectionRetriever(String collectionName, List<? extends Filter> filters) {
-        this.collectionName = collectionName;
-        this.collectionFilters = filters;
+    @Override
+    public IdentifiableObjectCollection queryCollection(SolrDocumentList found, int maxResults) {
+        return queryCollection(found, null, maxResults);
     }
 
     @Override
     public IdentifiableObjectCollection queryCollection(SolrDocumentList found,
                                                         Map<String, Map<String, List<String>>> hilightings,
                                                         int maxResults) {
-        throw new RuntimeException("Not implemented: " +
-                "NamedCollectionRetriever.queryCollection(SolrDocumentList found, " +
-                "Map<String, Map<String, List<String>>> hilightings, " +
-                "int maxResults");
-    }
-
-    @Override
-    public IdentifiableObjectCollection queryCollection(SolrDocumentList found, int maxResults) {
         ArrayList<ReferenceValue> ids = new ArrayList<>();
         for (SolrDocument doc : found) {
             Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
@@ -61,6 +44,7 @@ public class NamedCollectionRetriever extends CollectionRetriever {
         }
         IdsIncludedFilter idFilter = new IdsIncludedFilter(ids);
         ArrayList<Filter> modifiedFilters = new ArrayList<>();
+        /*
         if (collectionFilters != null) {
             modifiedFilters.ensureCapacity(collectionFilters.size());
             for (Filter filter : collectionFilters) {
@@ -72,7 +56,7 @@ public class NamedCollectionRetriever extends CollectionRetriever {
                 }
             }
         }
-
+        */
         IdentifiableObjectCollection result = null;
         if (idFilter.getCriterionKeys().size() > MAX_IDS_PER_QUERY) {
             //CMFIVE-5387 workaround: splitting query having too many IDs into smaller portions
@@ -82,7 +66,7 @@ public class NamedCollectionRetriever extends CollectionRetriever {
             }
             ArrayList<ReferenceValue> partIds = new ArrayList<>(MAX_IDS_PER_QUERY);
             for (int part = 0; part < (idFilter.getCriterionKeys().size() + MAX_IDS_PER_QUERY - 1) / MAX_IDS_PER_QUERY;
-                    ++part) {
+                 ++part) {
                 int partSize = Math.min(MAX_IDS_PER_QUERY, idFilter.getCriterionKeys().size() - part * MAX_IDS_PER_QUERY);
                 for (int i = 0; i < partSize; ++i) {
                     partIds.add(idFilter.getCriterion(i + part * MAX_IDS_PER_QUERY));
@@ -141,5 +125,4 @@ public class NamedCollectionRetriever extends CollectionRetriever {
         }
         return new IdsIncludedFilter(result);
     }
-
 }

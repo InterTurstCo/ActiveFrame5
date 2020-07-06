@@ -279,7 +279,7 @@ public abstract class DomainObjectIndexAgentBase {
     }
 
     protected boolean isCntxSolrServer(String key) {
-        return solrServerWrapperMap.getMap().containsKey(key != null ? key.trim() : null);
+        return solrServerWrapperMap.isCntxSolrServer(key);
     }
 
     public class SolrAttachmentFeeder implements ContentStream {

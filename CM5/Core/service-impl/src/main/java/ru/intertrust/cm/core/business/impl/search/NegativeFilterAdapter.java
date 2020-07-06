@@ -7,6 +7,8 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.impl.search.SearchServiceImpl.ComplexQuery;
 
+import java.util.List;
+
 public class NegativeFilterAdapter implements CompositeFilterAdapter<NegativeFilter> {
 
     @Autowired
@@ -36,17 +38,23 @@ public class NegativeFilterAdapter implements CompositeFilterAdapter<NegativeFil
     }
 
     @Override
-    public SearchServiceImpl.ComplexQuery processCompositeFilter(NegativeFilter filter,
-            ComplexQuery queryProcessor, SearchQuery query) {
+    public List<String> getFieldNames(NegativeFilter filter, SearchQuery query) {
+        FilterAdapter<SearchFilter> adapter = getBaseFilterAdapter(filter);
+        return adapter.getFieldNames(filter.getBaseFilter(), query);
+    }
+
+    @Override
+    public SearchServiceImpl.QueryProcessor processCompositeFilter(NegativeFilter filter,
+            SearchServiceImpl.QueryProcessor queryProcessor, SearchQuery query) {
         CompositeFilterAdapter<SearchFilter> adapter =
                 (CompositeFilterAdapter<SearchFilter>) getBaseFilterAdapter(filter);
-        SearchServiceImpl.ComplexQuery nestedQuery =
+        SearchServiceImpl.QueryProcessor nestedQuery =
                 adapter.processCompositeFilter(filter.getBaseFilter(), queryProcessor, query);
         if (nestedQuery == null) {
             throw new IllegalArgumentException("Filter " + filter.getBaseFilter()
                     + " can't be used inside of NegativeFilter");
         } else {
-            nestedQuery.negateResult = true;
+            nestedQuery.setNegativeResult(true);
             return nestedQuery;
         }
     }

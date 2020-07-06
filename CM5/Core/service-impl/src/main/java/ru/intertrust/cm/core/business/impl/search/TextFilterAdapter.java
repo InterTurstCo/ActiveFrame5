@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,34 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
     @Override
     public boolean isCompositeFilter(TextSearchFilter filter) {
         return false;
+    }
+
+    @Override
+    public List<String> getFieldNames(TextSearchFilter filter, SearchQuery query) {
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types;
+        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+            types = Collections.<SearchFieldType>singleton(
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+        } else if (SearchFilter.CONTENT.equals(fieldName)) {
+            types = Collections.<SearchFieldType>singleton(
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+        } else {
+            types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        }
+        ArrayList<String> names = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                String searchString = filter.getText();
+                if (type instanceof TextSearchFieldType) {
+                    ((TextSearchFieldType) type).addLanguage("");
+                }
+                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                    names.add(field);
+                }
+            }
+        }
+        return names;
     }
 
 }

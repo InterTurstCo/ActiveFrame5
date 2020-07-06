@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.search;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.common.SolrDocument;
@@ -35,7 +36,12 @@ public abstract class CollectionRetriever {
         SpringApplicationContext.getContext().getAutowireCapableBeanFactory().autowireBean(this);
     }
 
-    public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents, int maxResults);
+    public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
+                                                                 Map<String, Map<String, List<String>>> hilightings,
+                                                                 int maxResults);
+
+    public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
+                                                                 int maxResults);
 
     protected void addWeightsAndSort(IdentifiableObjectCollection objects, SolrDocumentList solrDocs) {
         Map<Id, Float> weights = new HashMap<Id, Float>();

@@ -18,6 +18,17 @@ public class SearchQuery implements Dto {
     private List<String> targetObjectTypes = new ArrayList<String>();
     private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
 
+    public SearchQuery() {
+    }
+
+    public SearchQuery(SearchQuery copyFrom) {
+        if (copyFrom != null) {
+            this.setTargetObjectTypes(copyFrom.getTargetObjectTypes());
+            this.addAreas(copyFrom.getAreas());
+            this.addFilters(copyFrom.getFilters());
+        }
+    }
+
     /**
      * Возвращает список имён добавленных областей поиска.
      * Если имена областей поиска не были добавлены или были все удалены, возвращается пустой список.
