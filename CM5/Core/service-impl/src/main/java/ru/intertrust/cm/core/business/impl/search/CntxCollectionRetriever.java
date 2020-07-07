@@ -7,14 +7,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CntxCollectionRetriever extends CollectionRetriever {
-    public static final int MAX_IDS_PER_QUERY = 2000;
+    // public static final int MAX_IDS_PER_QUERY = 2000;
+    private static final String SNIPPET_FIELD_NAME = "hilighting";
+    private static final String CNTX_FILTER = "CNTX_ID_FILTER";
+    private static final FieldConfig SNIPPET_FIELD = new StringFieldConfig();
+    static {
+        SNIPPET_FIELD.setName(SNIPPET_FIELD_NAME);
+    }
 
     private static Logger log = LoggerFactory.getLogger(CntxCollectionRetriever.class);
 
@@ -22,7 +27,6 @@ public class CntxCollectionRetriever extends CollectionRetriever {
     private CollectionsService collectionsService;
 
     private String collectionName;
-    // private List<? extends Filter> collectionFilters;
 
     public CntxCollectionRetriever(String collectionName) {
         this.collectionName = collectionName;
@@ -37,92 +41,76 @@ public class CntxCollectionRetriever extends CollectionRetriever {
     public IdentifiableObjectCollection queryCollection(SolrDocumentList found,
                                                         Map<String, Map<String, List<String>>> hilightings,
                                                         int maxResults) {
-        ArrayList<ReferenceValue> ids = new ArrayList<>();
-        for (SolrDocument doc : found) {
-            Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
-            ids.add(new ReferenceValue(id));
-        }
-        IdsIncludedFilter idFilter = new IdsIncludedFilter(ids);
-        ArrayList<Filter> modifiedFilters = new ArrayList<>();
-        /*
-        if (collectionFilters != null) {
-            modifiedFilters.ensureCapacity(collectionFilters.size());
-            for (Filter filter : collectionFilters) {
-                if (filter instanceof IdsIncludedFilter) {
-                    idFilter = intersectFilters(idFilter, (IdsIncludedFilter) filter);
-                    // will be added to the end of the list
-                } else {
-                    modifiedFilters.add(filter);
-                }
-            }
-        }
-        */
         IdentifiableObjectCollection result = null;
-        if (idFilter.getCriterionKeys().size() > MAX_IDS_PER_QUERY) {
-            //CMFIVE-5387 workaround: splitting query having too many IDs into smaller portions
-            if (log.isDebugEnabled()) {
-                log.debug("Too meany IDs requested (" + idFilter.getCriterionKeys().size()
-                        + "), splitting DB queries by " + MAX_IDS_PER_QUERY + " IDs");
+        // TODO сделать получение соллекции порциями, если количество id больше MAX_IDS_PER_QUERY = 2000
+        if (found.size() > 0) {
+            ArrayList<Value> ids = new ArrayList<>();
+            for (SolrDocument doc : found) {
+                Id id = idService.createId((String) doc.getFieldValue(SolrFields.OBJECT_ID));
+                ids.add(new ReferenceValue(id));
             }
-            ArrayList<ReferenceValue> partIds = new ArrayList<>(MAX_IDS_PER_QUERY);
-            for (int part = 0; part < (idFilter.getCriterionKeys().size() + MAX_IDS_PER_QUERY - 1) / MAX_IDS_PER_QUERY;
-                 ++part) {
-                int partSize = Math.min(MAX_IDS_PER_QUERY, idFilter.getCriterionKeys().size() - part * MAX_IDS_PER_QUERY);
-                for (int i = 0; i < partSize; ++i) {
-                    partIds.add(idFilter.getCriterion(i + part * MAX_IDS_PER_QUERY));
-                }
-                IdsIncludedFilter partialIdFilter = new IdsIncludedFilter(partIds);
-                modifiedFilters.add(partialIdFilter);
-                IdentifiableObjectCollection partialResult = collectionsService.findCollection(collectionName,
-                        new SortOrder(), modifiedFilters, 0, maxResults);
-                if (log.isDebugEnabled()) {
-                    log.debug("Part " + part + ": " + partialResult.size() + " object(s) fetched");
-                }
-                if (result == null) {
-                    result = partialResult;
-                } else {
-                    result.append(partialResult);
-                }
-                if (maxResults != 0) {      // maxResults==0 on call means unlimited result
-                    maxResults -= partialResult.size();
-                    if (maxResults <= 0) {
-                        break;
-                    }
-                }
-                // preparing for next iteration
-                modifiedFilters.remove(modifiedFilters.size() - 1);
-                partIds.clear();
-            }
-            //CMFIVE-5387 ----------
-        } else {
-            modifiedFilters.add(idFilter);
-            result = collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
-        }
 
-        addWeightsAndSort(result, found);
+            ArrayList<Filter> modifiedFilters = new ArrayList<>();
+            Filter idFilter = new Filter();
+            idFilter.setFilter(CNTX_FILTER);
+            idFilter.addMultiCriterion(0, ids);
+            modifiedFilters.add(idFilter);
+
+            result = collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
+
+            addHilighting(result, found, hilightings);
+            addWeightsAndSort(result, found);
+        } else {
+            result = new GenericIdentifiableObjectCollection();
+        }
         return result;
     }
 
-    private IdsIncludedFilter intersectFilters(IdsIncludedFilter filter1, IdsIncludedFilter filter2) {
-        if (log.isDebugEnabled()) {
-            log.debug("Requested collection is already filtered by IDs, they will be intersected with found IDs");
+    private void addHilighting(IdentifiableObjectCollection collection,
+                               SolrDocumentList solrDocs,
+                               Map<String, Map<String, List<String>>> hilightings) {
+        if (collection == null || collection.size() == 0) {
+            return;
         }
-        HashSet<ReferenceValue> ids = new HashSet<>(filter1.getCriterionKeys().size());
-        for (int i : filter1.getCriterionKeys()) {
-            ids.add(filter1.getCriterion(i));
+        Map<Id, String> hlIds = new HashMap<>();
+        for (SolrDocument solrDoc : solrDocs) {
+            Id id = idService.createId((String) solrDoc.getFieldValue(SolrFields.OBJECT_ID));
+            String hlId = (String) solrDoc.getFieldValue(SolrUtils.ID_FIELD);
+            hlIds.put(id, hlId);
         }
-        ArrayList<ReferenceValue> result = new ArrayList<>();
-        for (int i : filter2.getCriterionKeys()) {
-            ReferenceValue value = filter2.getCriterion(i);
-            if (ids.contains(value)) {
-                result.add(value);
+
+        ArrayList<FieldConfig> fields = collection.getFieldsConfiguration();
+        fields.add(SNIPPET_FIELD);
+        collection.setFieldsConfiguration(fields);
+        int snippetIdx = collection.getFieldIndex(SNIPPET_FIELD_NAME);
+
+        for (int i = 0; i < collection.size(); ++i) {
+            Id id = collection.getId(i);
+            collection.set(snippetIdx, i, new StringValue(composeHilighting(hilightings, hlIds.get(id))));
+        }
+    }
+
+    private String composeHilighting(Map<String, Map<String, List<String>>> hilightings, String id) {
+        String hl = "";
+        if (hilightings != null) {
+            Map<String, List<String>> hlValues = hilightings.get(id);
+            if (hlValues != null) {
+                for (Map.Entry<String, List<String>> entry : hlValues.entrySet()) {
+                    if (entry.getKey() != null && entry.getKey().toLowerCase().contains((SolrFields.CONTENT.toLowerCase()))) {
+                        List<String> hlList = entry.getValue() != null ? entry.getValue() : null;
+                        if (hlList != null && !hlList.isEmpty()) {
+                            for (String hlVal : hlList) {
+                                hl += (hlVal != null ? hlVal : "") + (!hl.isEmpty() ? " ... " : "");
+                            }
+                            if (!hl.isEmpty()) {
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
-        if (log.isDebugEnabled()) {
-            log.debug("" + result.size() + " ID(s) included out of "
-                    + filter2.getCriterionKeys().size() + " (collection defined) and "
-                    + filter1.getCriterionKeys().size() + " (found) IDs");
-        }
-        return new IdsIncludedFilter(result);
+        return hl;
     }
+
 }

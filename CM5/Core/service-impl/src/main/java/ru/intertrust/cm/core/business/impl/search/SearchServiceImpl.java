@@ -97,20 +97,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
-        Map<String, SearchQuery> queries = splitQueryBySolrServer(query);
-        List<IdentifiableObjectCollection> collections = new ArrayList<>();
-        for (Map.Entry<String, SearchQuery> entry : queries.entrySet()) {
-            IdentifiableObjectCollection collectionPart = null;
-            if (SolrServerWrapper.REGULAR.equals(entry.getKey())) {
-                collectionPart = complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
-            } else {
-                collectionPart = cntxSearch(query, new CntxCollectionRetriever(targetCollectionName), maxResults, entry.getKey());
-            }
-            if (collectionPart != null) {
-                collections.add(collectionPart);
-            }
-        }
-        return mergeCollections(collections, maxResults);
+        return complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
     }
 
     @Override
@@ -136,7 +123,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         List<IdentifiableObjectCollection> collections = new ArrayList<>();
         for (Map.Entry<String, SearchQuery> entry : queries.entrySet()) {
             IdentifiableObjectCollection collectionPart = null;
-            if (!SolrServerWrapper.REGULAR.equals(entry.getKey())) {
+            if (SolrServerWrapper.REGULAR.equals(entry.getKey())) {
+                collectionPart = complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
+            } else {
                 collectionPart = cntxSearch(query, new CntxCollectionRetriever(targetCollectionName), maxResults, entry.getKey());
             }
             if (collectionPart != null) {
@@ -148,6 +137,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private IdentifiableObjectCollection mergeCollections(List<IdentifiableObjectCollection> collections, int maxResults) {
         IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+        // TODO установить список полей
         if (collections != null) {
             for (IdentifiableObjectCollection collectionPart : collections) {
                 if (collectionPart != null) {
@@ -155,7 +145,21 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
             }
         }
-        // TODO отсортировать по редевантности и сократить до maxResult
+        // ортировка по редевантности
+        CollectionRetriever.sortByRelevance(collection);
+        // cокращение до maxResult
+        if (collection.size() > maxResults) {
+            int cnt = 0;
+            Iterator<IdentifiableObject> iterator = collection.iterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                if (cnt >= maxResults) {
+                    iterator.remove();
+                } else {
+                    cnt ++;
+                }
+            }
+        }
         return collection;
     }
 
@@ -201,7 +205,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             solrCntxQuery.addFilters(searchQuery.getFilters(), searchQuery);
 
             int fetchLimit = maxResults;
-            while(true) {
+            do {
                 QueryResponse found = solrCntxQuery.execute(fetchLimit, searchQuery);
                 if (found == null || found.getResults() == null) {
                     return new GenericIdentifiableObjectCollection();
@@ -217,7 +221,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     continue;
                 }
                 return result;
-            }
+            } while(true);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -305,10 +309,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }else if(types.size() == 1){
                     addFilterValue((String)types.toArray()[0], filterValue);
                 }
-
-                /*for (String type : types) {
-                    addFilterValue(type, filterValue);
-                }*/
             }
         }
 
@@ -434,7 +434,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
 // =================================================================================================================
-    class CntxQuery implements QueryProcessor{
+    class CntxQuery implements QueryProcessor {
+        private final static String HL_usePhraseHighlighter = "hl.usePhraseHighlighter";
+        private final static String HL_highlightMultiTerm = "hl.highlightMultiTerm";
+        private final static String HL_simple_pre = "hl.simple.pre";
+        private final static String HL_simple_post = "hl.simple.post";
+        private final static String HL_snippets = "hl.snippets";
+        private final static String HL_fragsize = "hl.fragsize";
+
         protected HashMap<String, StringBuilder> filterStrings = new HashMap<>();
         protected ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
         protected ArrayList<CntxQuery> nestedQueries = new ArrayList<>();
@@ -486,8 +493,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     hlFields.addAll(names);
                 }
 
-                Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(), query.getAreas(),
-                        query.getTargetObjectTypes());
+                Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(),
+                        query.getAreas(), query.getTargetObjectTypes());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
@@ -570,10 +577,13 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         .addFilterQuery(SolrFields.AREA + ":" + areas)
                         .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
                         .addFilterQuery(SolrFields.OBJECT_TYPE + ":" + objectTypes)
-                        .addField("id")
+                        .addField(SolrUtils.ID_FIELD)
                         .addField(SolrFields.OBJECT_ID)
                         .addField(SolrFields.MAIN_OBJECT_ID)
                         .addField(SolrUtils.SCORE_FIELD);
+                // TODO подумать, нужно ли дополнить всеми полями из конфигурации области поиска и типа объекта.
+                // Или все данные для результирующей коллекции лучше получить запросом из базы с фильтрацией по набору id,
+                // который вернул solr. Запрос все равно нужно сделать, чтобы выполнить фильтрацию по ACL
 
                 if (solrQuery.getSorts().isEmpty()){
                     solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
@@ -584,12 +594,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (!hlFields.isEmpty()) {
                     solrQuery.setHighlight(true)
                             .setHighlightRequireFieldMatch(true)
-                            .set("hl.usePhraseHighlighter", true)
-                            .set("hl.highlightMultiTerm", true)
-                            .set("hl.simple.pre", "<hl>")
-                            .set("hl.simple.post", "</hl>")
-                            .set("hl.snippets", "5")
-                            .set("hl.fragsize", "50");
+                            .set(HL_usePhraseHighlighter, true)
+                            .set(HL_highlightMultiTerm, true)
+                            .set(HL_simple_pre, "<hl>")
+                            .set(HL_simple_post, "</hl>")
+                            .set(HL_snippets, "5")
+                            .set(HL_fragsize, "50");
                     for (String hlField : hlFields) {
                         solrQuery.addHighlightField(hlField);
                     }
@@ -614,7 +624,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             for (Iterator<SolrDocument> itr = response.getResults().iterator(); itr.hasNext();) {
                 SolrDocument doc = itr.next();
                 String mainId = (String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID);
-                String id = (String) doc.getFieldValue("id");
+                String id = (String) doc.getFieldValue(SolrUtils.ID_FIELD);
                 if (ids.contains(mainId)) {
                     itr.remove();
                     if (response.getHighlighting() != null && response.getHighlighting().containsKey(id)) {

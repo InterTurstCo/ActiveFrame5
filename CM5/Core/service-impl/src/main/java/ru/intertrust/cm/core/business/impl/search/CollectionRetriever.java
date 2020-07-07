@@ -32,6 +32,12 @@ public abstract class CollectionRetriever {
         RELEVANCE_SORT.add(new SortCriterion(SearchQuery.RELEVANCE, SortCriterion.Order.DESCENDING));
     }
 
+    public static void sortByRelevance(IdentifiableObjectCollection collection) {
+        if (collection != null) {
+            collection.sort(RELEVANCE_SORT);
+        }
+    }
+
     protected CollectionRetriever() {
         SpringApplicationContext.getContext().getAutowireCapableBeanFactory().autowireBean(this);
     }
