@@ -14,7 +14,7 @@ import java.util.*;
 
 public class CntxCollectionRetriever extends CollectionRetriever {
     // public static final int MAX_IDS_PER_QUERY = 2000;
-    private static final String SNIPPET_FIELD_NAME = "hilighting";
+    private static final String SNIPPET_FIELD_NAME = "highlighting";
     private static final String CNTX_FILTER = "CNTX_ID_FILTER";
     private static final FieldConfig SNIPPET_FIELD = new StringFieldConfig();
     static {
@@ -39,7 +39,7 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
     @Override
     public IdentifiableObjectCollection queryCollection(SolrDocumentList found,
-                                                        Map<String, Map<String, List<String>>> hilightings,
+                                                        Map<String, Map<String, List<String>>> highlightings,
                                                         int maxResults) {
         IdentifiableObjectCollection result = null;
         // TODO сделать получение соллекции порциями, если количество id больше MAX_IDS_PER_QUERY = 2000
@@ -58,7 +58,7 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
             result = collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
 
-            addHilighting(result, found, hilightings);
+            addHilighting(result, found, highlightings);
             addWeightsAndSort(result, found);
         } else {
             result = new GenericIdentifiableObjectCollection();
@@ -68,7 +68,7 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
     private void addHilighting(IdentifiableObjectCollection collection,
                                SolrDocumentList solrDocs,
-                               Map<String, Map<String, List<String>>> hilightings) {
+                               Map<String, Map<String, List<String>>> highlightings) {
         if (collection == null || collection.size() == 0) {
             return;
         }
@@ -86,14 +86,14 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
         for (int i = 0; i < collection.size(); ++i) {
             Id id = collection.getId(i);
-            collection.set(snippetIdx, i, new StringValue(composeHilighting(hilightings, hlIds.get(id))));
+            collection.set(snippetIdx, i, new StringValue(composeHilighting(highlightings, hlIds.get(id))));
         }
     }
 
-    private String composeHilighting(Map<String, Map<String, List<String>>> hilightings, String id) {
+    private String composeHilighting(Map<String, Map<String, List<String>>> highlightings, String id) {
         String hl = "";
-        if (hilightings != null) {
-            Map<String, List<String>> hlValues = hilightings.get(id);
+        if (highlightings != null) {
+            Map<String, List<String>> hlValues = highlightings.get(id);
             if (hlValues != null) {
                 for (Map.Entry<String, List<String>> entry : hlValues.entrySet()) {
                     if (entry.getKey() != null && entry.getKey().toLowerCase().contains((SolrFields.CONTENT.toLowerCase()))) {

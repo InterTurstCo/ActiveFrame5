@@ -44,11 +44,11 @@ public class NamedCollectionRetriever extends CollectionRetriever {
 
     @Override
     public IdentifiableObjectCollection queryCollection(SolrDocumentList found,
-                                                        Map<String, Map<String, List<String>>> hilightings,
+                                                        Map<String, Map<String, List<String>>> highlightings,
                                                         int maxResults) {
         throw new RuntimeException("Not implemented: " +
                 "NamedCollectionRetriever.queryCollection(SolrDocumentList found, " +
-                "Map<String, Map<String, List<String>>> hilightings, " +
+                "Map<String, Map<String, List<String>>> highlightings, " +
                 "int maxResults");
     }
 

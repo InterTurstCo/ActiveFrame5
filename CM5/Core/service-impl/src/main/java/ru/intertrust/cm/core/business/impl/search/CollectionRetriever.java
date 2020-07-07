@@ -43,7 +43,7 @@ public abstract class CollectionRetriever {
     }
 
     public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
-                                                                 Map<String, Map<String, List<String>>> hilightings,
+                                                                 Map<String, Map<String, List<String>>> highlightings,
                                                                  int maxResults);
 
     public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
