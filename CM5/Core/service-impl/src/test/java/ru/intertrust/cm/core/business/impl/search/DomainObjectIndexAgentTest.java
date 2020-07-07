@@ -42,6 +42,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.ScriptContext;
 import ru.intertrust.cm.core.business.api.ScriptService;
@@ -78,6 +79,9 @@ public class DomainObjectIndexAgentTest {
     @Mock private AccessControlService accessControlService;
     @Mock private AttachmentContentDao attachmentContentDao;
 
+    @Mock private SolrServerWrapperMap solrServerWrapperMap;
+    @Mock private SolrServerWrapper solrServerWrapper;
+
     @InjectMocks
     DomainObjectIndexAgent testee = new DomainObjectIndexAgent();
 
@@ -103,6 +107,8 @@ public class DomainObjectIndexAgentTest {
     @Before
     public void init() {
         initMocks(this);
+        when(solrServerWrapperMap.getRegularSolrServerWrapper()).thenReturn(solrServerWrapper);
+        when(solrServerWrapper.getQueue()).thenReturn(requestQueue);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
