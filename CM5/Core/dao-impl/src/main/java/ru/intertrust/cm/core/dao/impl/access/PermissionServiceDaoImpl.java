@@ -261,9 +261,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         //Регистрация на вызов после окончания транзакции
         RecalcAclSynchronization recalcGroupSynchronization = userTransactionService.getListener(RecalcAclSynchronization.class);
-        if (recalcGroupSynchronization != null) {
-            recalcGroupSynchronization.setAclData(domainObjectId, result);
+        if (recalcGroupSynchronization == null) {
+            recalcGroupSynchronization = new RecalcAclSynchronization();
+            userTransactionService.addListener(recalcGroupSynchronization);
         }
+        recalcGroupSynchronization.setAclData(domainObjectId, result);
 
     }
 
