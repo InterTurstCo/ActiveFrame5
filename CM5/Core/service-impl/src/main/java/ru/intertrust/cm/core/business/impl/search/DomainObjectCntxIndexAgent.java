@@ -177,13 +177,13 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
                         ThreadSafeDateFormat.format(attachmentObject.getModifiedDate(), DATE_PATTERN));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.NAME,
+                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.NAME, SolrUtils.CONTENT_FILE_NAME,
                         new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.DESCRIPTION,
+                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.DESCRIPTION, SolrUtils.CONTENT_DESCRIPTION,
                         new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.PATH,
+                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.PATH, SolrUtils.CONTENT_PATH,
                         new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.CONTENT_LENGTH,
+                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.CONTENT_LENGTH, SolrUtils.CONTENT_LENGTH,
                         new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(attachmentObject, attachmentConfig));
                 request.setParam("uprefix", "cm_c_");

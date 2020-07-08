@@ -117,9 +117,15 @@ public abstract class DomainObjectIndexAgentBase {
 
     protected void addFieldToContentRequest(ContentStreamUpdateRequest request,
             DomainObject object, String fieldName, SearchFieldType fieldType) {
+        addFieldToContentRequest(request, object, fieldName, fieldName, fieldType);
+    }
+
+    protected void addFieldToContentRequest(ContentStreamUpdateRequest request, DomainObject object,
+                                            String fieldName, String solrFieldName,
+                                            SearchFieldType fieldType) {
         Object value = convertValue(object.getValue(fieldName));
         if (value != null) {
-            for (String solrField : fieldType.getSolrFieldNames(fieldName, true)) {
+            for (String solrField : fieldType.getSolrFieldNames(solrFieldName, true)) {
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + solrField, value.toString());
             }
         }

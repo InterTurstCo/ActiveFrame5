@@ -9,6 +9,11 @@ public class SolrUtils {
     public static final String ID_FIELD = "id";
     public static final String SCORE_FIELD = "score";
     public static final String PARAM_FIELD_PREFIX = "literal.";
+    public static final String CONTENT_LENGTH = "cntx_length";
+    public static final String CONTENT_FILE_NAME = "cntx_fname";
+    public static final String CONTENT_PATH = "cntx_path";
+    public static final String CONTENT_DESCRIPTION = "cntx_descr";
+
 
     private enum State {
         PLAIN,

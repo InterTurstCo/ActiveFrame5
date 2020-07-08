@@ -123,9 +123,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         List<IdentifiableObjectCollection> collections = new ArrayList<>();
         for (Map.Entry<String, SearchQuery> entry : queries.entrySet()) {
             IdentifiableObjectCollection collectionPart = null;
-            if (SolrServerWrapper.REGULAR.equals(entry.getKey())) {
-                collectionPart = complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
-            } else {
+            if (!SolrServerWrapper.REGULAR.equals(entry.getKey())) {
                 collectionPart = cntxSearch(query, new CntxCollectionRetriever(targetCollectionName), maxResults, entry.getKey());
             }
             if (collectionPart != null) {

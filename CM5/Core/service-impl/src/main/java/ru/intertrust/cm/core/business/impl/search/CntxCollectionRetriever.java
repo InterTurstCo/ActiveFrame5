@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.config.StringFieldConfig;
 import java.util.*;
 
 public class CntxCollectionRetriever extends CollectionRetriever {
-    // public static final int MAX_IDS_PER_QUERY = 2000;
+    private static final int MAX_IDS_PER_QUERY = 2000;
     private static final String SNIPPET_FIELD_NAME = "highlighting";
     private static final String CNTX_FILTER = "CNTX_ID_FILTER";
     private static final FieldConfig SNIPPET_FIELD = new StringFieldConfig();
@@ -41,29 +41,30 @@ public class CntxCollectionRetriever extends CollectionRetriever {
     public IdentifiableObjectCollection queryCollection(SolrDocumentList found,
                                                         Map<String, Map<String, List<String>>> highlightings,
                                                         int maxResults) {
-        IdentifiableObjectCollection result = null;
-        // TODO сделать получение соллекции порциями, если количество id больше MAX_IDS_PER_QUERY = 2000
-        if (found.size() > 0) {
-            ArrayList<Value> ids = new ArrayList<>();
+        IdentifiableObjectCollection result = new GenericIdentifiableObjectCollection();
+        if (!found.isEmpty()) {
+            ArrayList<Value> ids = new ArrayList<>(found.size());
             for (SolrDocument doc : found) {
                 Id id = idService.createId((String) doc.getFieldValue(SolrFields.OBJECT_ID));
                 ids.add(new ReferenceValue(id));
             }
-
-            ArrayList<Filter> modifiedFilters = new ArrayList<>();
-            Filter idFilter = new Filter();
-            idFilter.setFilter(CNTX_FILTER);
-            idFilter.addMultiCriterion(0, ids);
-            modifiedFilters.add(idFilter);
-
-            result = collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
-
+            int idsSize = ids.size();
+            for (int cnt = 0; cnt < idsSize; cnt += MAX_IDS_PER_QUERY) {
+                ArrayList<Filter> filters = new ArrayList<>(1);
+                filters.add(createIdFilter(ids.subList(cnt, Math.min(cnt + MAX_IDS_PER_QUERY, idsSize))));
+                result.append(collectionsService.findCollection(collectionName, new SortOrder(), filters, 0, maxResults));
+            }
             addHilighting(result, found, highlightings);
             addWeightsAndSort(result, found);
-        } else {
-            result = new GenericIdentifiableObjectCollection();
         }
         return result;
+    }
+
+    private Filter createIdFilter(List<Value> ids) {
+        Filter idFilter = new Filter();
+        idFilter.setFilter(CNTX_FILTER);
+        idFilter.addMultiCriterion(0, ids);
+        return idFilter;
     }
 
     private void addHilighting(IdentifiableObjectCollection collection,
@@ -74,14 +75,16 @@ public class CntxCollectionRetriever extends CollectionRetriever {
         }
         Map<Id, String> hlIds = new HashMap<>();
         for (SolrDocument solrDoc : solrDocs) {
-            Id id = idService.createId((String) solrDoc.getFieldValue(SolrFields.OBJECT_ID));
+            Id id = idService.createId((String) solrDoc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
             String hlId = (String) solrDoc.getFieldValue(SolrUtils.ID_FIELD);
             hlIds.put(id, hlId);
         }
 
         ArrayList<FieldConfig> fields = collection.getFieldsConfiguration();
-        fields.add(SNIPPET_FIELD);
-        collection.setFieldsConfiguration(fields);
+        if (!fields.contains(SNIPPET_FIELD)) {
+            fields.add(SNIPPET_FIELD);
+            collection.setFieldsConfiguration(fields);
+        }
         int snippetIdx = collection.getFieldIndex(SNIPPET_FIELD_NAME);
 
         for (int i = 0; i < collection.size(); ++i) {
