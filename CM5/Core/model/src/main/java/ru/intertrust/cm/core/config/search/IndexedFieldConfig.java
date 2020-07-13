@@ -49,6 +49,13 @@ public class IndexedFieldConfig implements Serializable {
     @Attribute(name = "multi-valued", required = false)
     private Boolean multiValued;
 
+    @Attribute(name = "target-field-name", required = false)
+    private String targetFieldName;
+
+    public String getTargetFieldName() {
+        return targetFieldName != null && !targetFieldName.isEmpty() ?  targetFieldName : name;
+    }
+
     public String getName() {
         return name;
     }
@@ -100,6 +107,7 @@ public class IndexedFieldConfig implements Serializable {
         hash = hash * 31 ^ (solrPrefix != null ? solrPrefix.hashCode() : 0);
         hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
         hash = hash * 31 ^ (multiValued != null ? multiValued.hashCode() : 0);
+        hash = hash * 31 ^ (targetFieldName != null ? targetFieldName.hashCode() : 0);
         return hash;
     }
 
@@ -118,6 +126,7 @@ public class IndexedFieldConfig implements Serializable {
                 && (script == null ? other.script == null : script.equals(other.script))
                 && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix))
                 && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults))
+                && (targetFieldName == null ? other.targetFieldName == null : targetFieldName.equals(other.targetFieldName))
                 && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued));
     }
 }

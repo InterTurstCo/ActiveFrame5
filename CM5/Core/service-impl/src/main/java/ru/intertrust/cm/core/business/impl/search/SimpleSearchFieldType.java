@@ -47,6 +47,31 @@ public class SimpleSearchFieldType implements SearchFieldType {
     }
 
     @Override
+    public FieldType getDataFieldType() {
+        FieldType fieldType = null;
+        switch (type) {
+            case DATE:
+                fieldType = FieldType.DATETIME;
+                break;
+            case LONG:
+                fieldType = FieldType.LONG;
+                break;
+            case DOUBLE:
+                fieldType = FieldType.DECIMAL;
+                break;
+            case REF:
+                fieldType = FieldType.REFERENCE;
+                break;
+            case BOOL:
+                fieldType = FieldType.BOOLEAN;
+                break;
+            default:
+                break;
+        }
+        return fieldType;
+    }
+
+    @Override
     public boolean supportsFilter(SearchFilter filter) {
         if (filter instanceof EmptyValueFilter) {
             return true;

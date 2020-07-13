@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 
 public class SpecialTextSearchFieldType implements SearchFieldType {
@@ -47,6 +48,11 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
             result.add(baseName);
         }
         return result;
+    }
+
+    @Override
+    public FieldType getDataFieldType() {
+        return FieldType.STRING;
     }
 
     @Override

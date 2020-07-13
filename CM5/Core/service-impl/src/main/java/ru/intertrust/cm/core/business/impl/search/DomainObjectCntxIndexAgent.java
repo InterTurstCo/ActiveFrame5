@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+import ru.intertrust.cm.core.config.search.ContentFieldConfig;
 import ru.intertrust.cm.core.config.search.IndexedContentConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -157,7 +158,6 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
         putSolrDocIdsToQueue(solrIds);
     }
 
-
     private void indexAttachment(Map<String, List<SolrInputDocument>> solrDocs,
                                  DomainObject attachmentObject,
                                  SearchConfigHelper.SearchAreaDetailsConfig attachmentConfig,
@@ -177,14 +177,44 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
                         ThreadSafeDateFormat.format(attachmentObject.getModifiedDate(), DATE_PATTERN));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.NAME, SolrUtils.CONTENT_FILE_NAME,
-                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.DESCRIPTION, SolrUtils.CONTENT_DESCRIPTION,
-                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.PATH, SolrUtils.CONTENT_PATH,
-                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
-                addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.CONTENT_LENGTH, SolrUtils.CONTENT_LENGTH,
-                        new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
+                Map<String, ContentFieldConfig> contentFieldConfigs = new HashMap<>();
+                for (IndexedContentConfig contentConfig : attachmentConfig.getObjectConfig().getContentObjects()){
+                    for (ContentFieldConfig contentFieldConfig : contentConfig.getFields()) {
+                        contentFieldConfigs.put(contentFieldConfig.getType().getFieldType(), contentFieldConfig);
+                    }
+                }
+                for (ContentFieldConfig contentFieldConfig : contentFieldConfigs.values()) {
+                    switch (contentFieldConfig.getType()) {
+                        case NAME :
+                            addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.NAME,
+                                    contentFieldConfig.getType().getFieldType(),
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                            break;
+                        case PATH :
+                            addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.PATH,
+                                    contentFieldConfig.getType().getFieldType(),
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                            break;
+                        case MIMETYPE :
+                            addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.MIME_TYPE,
+                                    contentFieldConfig.getType().getFieldType(),
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                            break;
+                        case DESCRIPTION :
+                            addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.DESCRIPTION,
+                                    contentFieldConfig.getType().getFieldType(),
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                            break;
+                        case LENGTH :
+                            addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.CONTENT_LENGTH,
+                                    contentFieldConfig.getType().getFieldType(),
+                                    new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(attachmentObject, attachmentConfig));
                 request.setParam("uprefix", "cm_c_");
                 request.setParam("fmap.content", SolrFields.CONTENT);
@@ -264,6 +294,9 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 contentConfigs.addAll(cfg.getContentObjects());
             }
             for (IndexedContentConfig contentConfig : contentConfigs) {
+                if (contentConfig.getParentFkField() == null) {
+                    continue;
+                }
                 List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(mainId,
                         contentConfig.getType(), contentConfig.getParentFkField(), accessToken);
                 if (attachments != null && !attachments.isEmpty()) {

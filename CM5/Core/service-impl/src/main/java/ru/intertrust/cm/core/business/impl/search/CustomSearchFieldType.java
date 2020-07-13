@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import ru.intertrust.cm.core.business.api.dto.Case;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 
 import java.util.Collection;
@@ -28,6 +29,11 @@ public class CustomSearchFieldType implements SearchFieldType {
                 .append(solrPrefix)
                 .append(Case.toLower(field))
                 .toString());
+    }
+
+    @Override
+    public FieldType getDataFieldType() {
+        return FieldType.STRING;
     }
 
     @Override

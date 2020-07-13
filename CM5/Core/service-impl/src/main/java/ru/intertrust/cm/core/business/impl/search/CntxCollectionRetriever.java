@@ -7,19 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.business.impl.search.SearchConfigHelper.SearchAreaDetailsConfig;
+import ru.intertrust.cm.core.config.*;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class CntxCollectionRetriever extends CollectionRetriever {
     private static final int MAX_IDS_PER_QUERY = 2000;
-    private static final String SNIPPET_FIELD_NAME = "highlighting";
-    private static final String CNTX_FILTER = "CNTX_ID_FILTER";
-    private static final FieldConfig SNIPPET_FIELD = new StringFieldConfig();
-    static {
-        SNIPPET_FIELD.setName(SNIPPET_FIELD_NAME);
-    }
 
     private static Logger log = LoggerFactory.getLogger(CntxCollectionRetriever.class);
 
@@ -28,8 +23,14 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
     private String collectionName;
 
-    public CntxCollectionRetriever(String collectionName) {
+    private String cntxFilterName;
+
+    private Collection<TargetResultField> solrFields;
+
+    public CntxCollectionRetriever(String collectionName, String cntxFilterName, Collection<TargetResultField> solrFields) {
         this.collectionName = collectionName;
+        this.solrFields = solrFields;
+        this.cntxFilterName = cntxFilterName;
     }
 
     @Override
@@ -44,17 +45,31 @@ public class CntxCollectionRetriever extends CollectionRetriever {
         IdentifiableObjectCollection result = new GenericIdentifiableObjectCollection();
         if (!found.isEmpty()) {
             ArrayList<Value> ids = new ArrayList<>(found.size());
+            Map<Id, Map<String, List<String>>> hl = new HashMap<>();
+            Map<Id, SolrDocument> solrDocsMap = new HashMap<>();
+
             for (SolrDocument doc : found) {
                 Id id = idService.createId((String) doc.getFieldValue(SolrFields.OBJECT_ID));
                 ids.add(new ReferenceValue(id));
+                Id mid = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
+                String solrId = (String) doc.getFieldValue(SolrUtils.ID_FIELD);
+                hl.put(mid, highlightings.get(solrId));
+                solrDocsMap.put(mid, doc);
             }
             int idsSize = ids.size();
             for (int cnt = 0; cnt < idsSize; cnt += MAX_IDS_PER_QUERY) {
-                ArrayList<Filter> filters = new ArrayList<>(1);
-                filters.add(createIdFilter(ids.subList(cnt, Math.min(cnt + MAX_IDS_PER_QUERY, idsSize))));
-                result.append(collectionsService.findCollection(collectionName, new SortOrder(), filters, 0, maxResults));
+                if (cntxFilterName != null) {
+                    ArrayList<Filter> filters = new ArrayList<>(1);
+                    filters.add(createIdFilter(ids.subList(cnt, Math.min(cnt + MAX_IDS_PER_QUERY, idsSize))));
+                    result.append(collectionsService.findCollection(collectionName, new SortOrder(), filters, 0, maxResults));
+                } else {
+                    ArrayList<Filter> filters = new ArrayList<>(0);
+                    result.append(collectionsService.findCollection(collectionName, new SortOrder(), filters, cnt, maxResults));
+                }
+
             }
-            addHilighting(result, found, highlightings);
+            addSolrFields(result, solrDocsMap, hl);
+            // addHilighting(result, found, highlightings);
             addWeightsAndSort(result, found);
         }
         return result;
@@ -62,53 +77,104 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
     private Filter createIdFilter(List<Value> ids) {
         Filter idFilter = new Filter();
-        idFilter.setFilter(CNTX_FILTER);
+        idFilter.setFilter(cntxFilterName);
         idFilter.addMultiCriterion(0, ids);
         return idFilter;
     }
 
-    private void addHilighting(IdentifiableObjectCollection collection,
-                               SolrDocumentList solrDocs,
-                               Map<String, Map<String, List<String>>> highlightings) {
+    private void addSolrFields(IdentifiableObjectCollection collection,
+                               Map<Id, SolrDocument> solrDocs,
+                               Map<Id, Map<String, List<String>>> highlightings) {
         if (collection == null || collection.size() == 0) {
             return;
         }
-        Map<Id, String> hlIds = new HashMap<>();
-        for (SolrDocument solrDoc : solrDocs) {
-            Id id = idService.createId((String) solrDoc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
-            String hlId = (String) solrDoc.getFieldValue(SolrUtils.ID_FIELD);
-            hlIds.put(id, hlId);
-        }
-
-        ArrayList<FieldConfig> fields = collection.getFieldsConfiguration();
-        if (!fields.contains(SNIPPET_FIELD)) {
-            fields.add(SNIPPET_FIELD);
-            collection.setFieldsConfiguration(fields);
-        }
-        int snippetIdx = collection.getFieldIndex(SNIPPET_FIELD_NAME);
-
-        for (int i = 0; i < collection.size(); ++i) {
-            Id id = collection.getId(i);
-            collection.set(snippetIdx, i, new StringValue(composeHilighting(highlightings, hlIds.get(id))));
+        if (solrFields != null && !solrFields.isEmpty()) {
+            for (TargetResultField solrField : solrFields) {
+                FieldConfig fieldConfig = createFieldConfig(solrField);
+                if (fieldConfig != null) {
+                    ArrayList<FieldConfig> fields = collection.getFieldsConfiguration();
+                    if (!fields.contains(fieldConfig)) {
+                        fields.add(fieldConfig);
+                        collection.setFieldsConfiguration(fields);
+                    }
+                }
+            }
+            for (int i = 0; i < collection.size(); i++) {
+                fillFieldValues(i, collection, solrFields, solrDocs, highlightings);
+            }
         }
     }
 
-    private String composeHilighting(Map<String, Map<String, List<String>>> highlightings, String id) {
+    private void fillFieldValues(int rowIdx,
+                                 IdentifiableObjectCollection collection,
+                                 Collection<TargetResultField> solrFields,
+                                 Map<Id, SolrDocument> solrDocs,
+                                 Map<Id, Map<String, List<String>>> highlightings) {
+        Id id = collection.getId(rowIdx);
+        for (TargetResultField solrField : solrFields) {
+            int colIdx = collection.getFieldIndex(solrField.getResultFieldName());
+            if (colIdx >= 0) {
+                FieldType fieldType = solrField.getDataFieldType();
+                if (solrField.isHighlighting() && fieldType == FieldType.STRING) {
+                    collection.set(colIdx, rowIdx, new StringValue(composeHighlighting(id, solrField, highlightings.get(id))));
+                }  else {
+                    Value value = composeFieldValue(id, solrField, solrDocs.get(id));
+                    if (value != null) {
+                        collection.set(colIdx, rowIdx, value);
+                    }
+                }
+            }
+        }
+    }
+
+    private FieldConfig createFieldConfig(TargetResultField resultField) {
+        FieldConfig fieldConfig = null;
+        if (resultField != null) {
+            String name = resultField.getResultFieldName();
+            FieldType fieldType = resultField.getDataFieldType();
+
+            switch (fieldType) {
+                case BOOLEAN:
+                    fieldConfig = new BooleanFieldConfig();
+                    break;
+                case DATETIME:
+                    fieldConfig = new DateTimeFieldConfig();
+                    break;
+                case STRING:
+                    fieldConfig = new StringFieldConfig();
+                    break;
+                case DECIMAL:
+                    fieldConfig = new DecimalFieldConfig();
+                    break;
+                case LONG:
+                    fieldConfig = new LongFieldConfig();
+                    break;
+                case REFERENCE:
+                    fieldConfig = new ReferenceFieldConfig();
+                    break;
+                default:
+                    break;
+            }
+            if (fieldConfig != null) {
+                fieldConfig.setName(name);
+            }
+        }
+        return fieldConfig;
+    }
+
+    private String composeHighlighting(Id id,
+                                       TargetResultField resultField,
+                                       Map<String, List<String>> highlighting) {
         String hl = "";
-        if (highlightings != null) {
-            Map<String, List<String>> hlValues = highlightings.get(id);
-            if (hlValues != null) {
-                for (Map.Entry<String, List<String>> entry : hlValues.entrySet()) {
-                    if (entry.getKey() != null && entry.getKey().toLowerCase().contains((SolrFields.CONTENT.toLowerCase()))) {
-                        List<String> hlList = entry.getValue() != null ? entry.getValue() : null;
-                        if (hlList != null && !hlList.isEmpty()) {
-                            for (String hlVal : hlList) {
-                                hl += (hlVal != null ? hlVal : "") + (!hl.isEmpty() ? " ... " : "");
-                            }
-                            if (!hl.isEmpty()) {
-                                break;
-                            }
-                        }
+        if (highlighting != null) {
+            for (String fieldName : resultField.getSolrFieldNames()) {
+                List<String> hlList = highlighting.get(fieldName);
+                if (hlList != null && !hlList.isEmpty()) {
+                    for (String hlVal : hlList) {
+                        hl += (!hl.isEmpty() ? " ... " : "") + (hlVal != null ? hlVal : "") ;
+                    }
+                    if (!hl.isEmpty()) {
+                        break;
                     }
                 }
             }
@@ -116,4 +182,41 @@ public class CntxCollectionRetriever extends CollectionRetriever {
         return hl;
     }
 
+    private Value composeFieldValue(Id id,
+                                    TargetResultField resultField,
+                                    SolrDocument solrDoc) {
+        Value value = null;
+        if (solrDoc != null && resultField != null) {
+            for (String fieldName : resultField.getSolrFieldNames()) {
+                Object objVal = solrDoc.getFieldValue(fieldName);
+                switch (resultField.getDataFieldType()) {
+                    case BOOLEAN:
+                        value = new BooleanValue((objVal instanceof Boolean) ? (Boolean) objVal : null);
+                        break;
+                    case DATETIME:
+                        value = new DateTimeValue((objVal instanceof Date) ? (Date) objVal : null);
+                        break;
+                    case DECIMAL:
+                        value = new DecimalValue((objVal instanceof BigDecimal) ? (BigDecimal) objVal : null);
+                        break;
+                    case LONG:
+                        value = new LongValue((objVal instanceof Long) ? (Long) objVal : null);
+                        break;
+                    case STRING:
+                        value = new StringValue((objVal instanceof String) ? (String) objVal : null);
+                        break;
+                    case REFERENCE:
+                        value = new ReferenceValue(objVal != null ? idService.createId(objVal.toString()) : null);
+                        break;
+                    default:
+                        break;
+                }
+
+                if (objVal != null && !objVal.toString().isEmpty()) {
+                    break;
+                }
+            }
+        }
+        return value;
+    }
 }

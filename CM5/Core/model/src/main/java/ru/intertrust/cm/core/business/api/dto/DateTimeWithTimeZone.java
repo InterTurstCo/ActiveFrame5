@@ -121,6 +121,20 @@ public class DateTimeWithTimeZone implements Dto {
         this.milliseconds = cal.get(Calendar.MILLISECOND);
     }
 
+    @GwtIncompatible
+    public Date toDate() {
+        final TimeZone timeZone = TimeZone.getTimeZone(getTimeZoneContext().getTimeZoneId());
+        final Calendar cal = Calendar.getInstance(timeZone);
+        cal.set(Calendar.YEAR, getYear());
+        cal.set(Calendar.MONTH, getMonth());
+        cal.set(Calendar.DAY_OF_MONTH, getDayOfMonth());
+        cal.set(Calendar.HOUR_OF_DAY, getHours());
+        cal.set(Calendar.MINUTE, getMinutes());
+        cal.set(Calendar.SECOND, getSeconds());
+        cal.set(Calendar.MILLISECOND, getMilliseconds());
+        return cal.getTime();
+    }
+
     public int getYear() {
         return year;
     }

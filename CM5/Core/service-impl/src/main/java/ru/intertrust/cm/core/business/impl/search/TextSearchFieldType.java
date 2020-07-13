@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import ru.intertrust.cm.core.business.api.dto.Case;
-import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
-import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.business.api.dto.*;
 
 import java.util.*;
 
@@ -51,6 +48,11 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
                     .toString());
         }
         return result;
+    }
+
+    @Override
+    public FieldType getDataFieldType() {
+        return FieldType.STRING;
     }
 
     public Set<String> getLanguages() {

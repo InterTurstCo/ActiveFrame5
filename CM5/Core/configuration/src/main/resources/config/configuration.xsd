@@ -2,7 +2,8 @@
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
            targetNamespace="https://cm5.intertrust.ru/config" xmlns:con="https://cm5.intertrust.ru/config"
            xmlns:act="https://cm5.intertrust.ru/config/action" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules">
+           xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules"
+           version="1.1">
 
     <xs:import namespace="https://cm5.intertrust.ru/config/action" schemaLocation="actions.xsd"/>
     <xs:import namespace="https://cm5.intertrust.ru/config/event" schemaLocation="events.xsd"/>
@@ -3362,6 +3363,7 @@
     <xs:complexType name="searchAreaType">
         <xs:sequence>
             <xs:element name="solr-server-url" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="target-filter-name" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element type="con:targetDomainObjectType" name="target-domain-object" minOccurs="1"
                         maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
@@ -3409,14 +3411,36 @@
                 </xs:attribute>
                 <xs:attribute name="show-in-results" type="xs:boolean" use="optional"/>
                 <xs:attribute name="multi-valued" type="xs:boolean" use="optional"/>
+                <xs:attribute type="xs:string" name="target-field-name" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="indexedContentType">
+        <xs:sequence>
+            <xs:element type="con:indexedContentField" name="content-field" minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
         <xs:attribute type="xs:string" name="type" use="required"/>
-        <xs:attribute name="show-in-results" type="xs:boolean" use="optional"/>
         <xs:attribute type="xs:string" name="parent-fk-field" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="indexedContentField">
+        <xs:attribute type="xs:boolean" name="show-in-results" use="optional"/>
+        <xs:attribute type="xs:string" name="target-field-name" use="required"/>
+        <xs:attribute name="type" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="refid"></xs:enumeration>
+                    <xs:enumeration value="mimetype"></xs:enumeration>
+                    <xs:enumeration value="length"></xs:enumeration>
+                    <xs:enumeration value="name"></xs:enumeration>
+                    <xs:enumeration value="path"></xs:enumeration>
+                    <xs:enumeration value="description"></xs:enumeration>
+                    <xs:enumeration value="highlighting"></xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="linkedDomainObjectType">

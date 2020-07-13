@@ -21,6 +21,9 @@ public class SearchAreaConfig implements TopLevelConfig {
     @Element(name = "solr-server-url", required = false)
     private String solrServerKey;
 
+    @Element(name = "target-filter-name", required = false)
+    private String targetFilterName;
+
     @ElementList(entry = "target-domain-object", inline = true)
     private List<TargetDomainObjectConfig> targetObjects;
 
@@ -47,19 +50,26 @@ public class SearchAreaConfig implements TopLevelConfig {
         return solrServerKey;
     }
 
+    public String getTargetFilterName() {
+        return targetFilterName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SearchAreaConfig that = (SearchAreaConfig) o;
         return Objects.equals(name, that.name) &&
-               Objects.equals(replacementPolicy, that.replacementPolicy) &&
-               Objects.equals(targetObjects, that.targetObjects) &&
-               Objects.equals(solrServerKey, that.solrServerKey);
+                Objects.equals(replacementPolicy, that.replacementPolicy) &&
+                Objects.equals(targetObjects, that.targetObjects) &&
+                Objects.equals(solrServerKey, that.solrServerKey) &&
+                Objects.equals(targetFilterName, that.targetFilterName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, replacementPolicy, targetObjects, (solrServerKey == null ? "" : solrServerKey));
+        return Objects.hash(name, replacementPolicy, targetObjects,
+                (solrServerKey == null ? "" : solrServerKey),
+                (targetFilterName == null ? "" : targetFilterName));
     }
 }
