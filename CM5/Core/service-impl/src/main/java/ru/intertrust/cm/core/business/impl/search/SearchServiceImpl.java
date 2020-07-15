@@ -102,7 +102,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
-        return complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
+        // return complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
+        return commonSearch(query, targetCollectionName, maxResults, false);
     }
 
     @Override
@@ -124,24 +125,48 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection searchCntx(SearchQuery query, String targetCollectionName, int maxResults) {
-        Map<CustomKey<String, String>, SearchQuery> queries = splitQueryBySolrServer(query);
+        return commonSearch(query, targetCollectionName, maxResults, true);
+    }
+
+    private IdentifiableObjectCollection commonSearch(SearchQuery query, String targetCollectionName,
+                                                      int maxResults, boolean onlyContextSearch) {
+        Map<String, SearchQuery> queries = splitQueryBySolrServer(query);
         List<IdentifiableObjectCollection> collections = new ArrayList<>();
-        for (Map.Entry<CustomKey<String, String>, SearchQuery> entry : queries.entrySet()) {
-            IdentifiableObjectCollection collectionPart = null;
-            if (!SolrServerWrapper.REGULAR.equals(entry.getKey())) {
-                Set<String> solrFieldNames = getSolrFieldNames(entry.getValue(), entry.getKey().getServerKey(), new SolrNameExtractor());
-                Set<String> hlFieldNames = getSolrFieldNames(entry.getValue(), entry.getKey().getServerKey(), new HighlightingNameExtractor());
-                Collection<TargetResultField> fieldsCollection = getResultFields(entry.getValue(), entry.getKey().getServerKey(), new ResultFieldsExtractor());
-                SearchAreaConfig searchAreaConfig = configHelper.getSearchAreaDetailsConfig(entry.getKey().getAreaKey());
-                String targetFilterName = searchAreaConfig != null ? searchAreaConfig.getTargetFilterName() : null;
-                collectionPart = cntxSearch(query, new CntxCollectionRetriever(targetCollectionName, targetFilterName, fieldsCollection),
-                        entry.getKey().getServerKey(), solrFieldNames, hlFieldNames, maxResults);
-            }
-            if (collectionPart != null) {
-                collections.add(collectionPart);
+        for (Map.Entry<String, SearchQuery> entry : queries.entrySet()) {
+            if (SolrServerWrapper.REGULAR.equals(entry.getKey())) {
+                if (onlyContextSearch) {
+                    continue;
+                }
+                collections.add(complexSearch(entry.getValue(), new NamedCollectionRetriever(targetCollectionName), maxResults));
+            } else {
+                List<String> areas = entry.getValue().getAreas();
+                if (areas.size() == 1) {
+                    collections.add(contextSearch(areas.get(0), entry.getKey(), entry.getValue(), targetCollectionName, maxResults));
+                } else {
+                    for (String area : areas) {
+                        SearchQuery q = new SearchQuery(entry.getValue());
+                        q.clearAreas();
+                        q.addArea(area);
+                        collections.add(contextSearch(area, entry.getKey(), q, targetCollectionName, maxResults));
+                    }
+                }
             }
         }
-        return mergeCollections(collections, maxResults);
+        return collections.size() == 1 ? collections.get(0) : mergeCollections(collections, maxResults);
+    }
+
+    private IdentifiableObjectCollection contextSearch(String area, String solrServerKey,
+                                                       SearchQuery query, String targetCollectionName, int maxResults) {
+        Set<String> solrFieldNames = getSolrFieldsMetaData(area, solrServerKey,
+                query.getTargetObjectTypes(), new SolrNameExtractor());
+        Set<String> hlFieldNames = getSolrFieldsMetaData(area, solrServerKey,
+                query.getTargetObjectTypes(), new HighlightingNameExtractor());
+        Set<TargetResultField> fieldsCollection = getSolrFieldsMetaData(area, solrServerKey,
+                query.getTargetObjectTypes(), new ResultFieldsExtractor());
+        SearchAreaConfig searchAreaConfig = configHelper.getSearchAreaDetailsConfig(area);
+        String targetFilterName = searchAreaConfig != null ? searchAreaConfig.getTargetFilterName() : null;
+        return contextSearch(query, new CntxCollectionRetriever(targetCollectionName, targetFilterName, fieldsCollection),
+                solrServerKey, solrFieldNames, hlFieldNames, maxResults);
     }
 
     private IdentifiableObjectCollection mergeCollections(List<IdentifiableObjectCollection> collections, int maxResults) {
@@ -203,12 +228,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
     }
 
-    private IdentifiableObjectCollection cntxSearch(SearchQuery searchQuery,
-                                                    CollectionRetriever collectionRetriever,
-                                                    String solrServerKey,
-                                                    Set<String> solrFields,
-                                                    Set<String> highlightingFields,
-                                                    int maxResults) {
+    private IdentifiableObjectCollection contextSearch(SearchQuery searchQuery,
+                                                       CollectionRetriever collectionRetriever,
+                                                       String solrServerKey,
+                                                       Set<String> solrFields,
+                                                       Set<String> highlightingFields,
+                                                       int maxResults) {
         try {
             if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
                 maxResults = RESULTS_LIMIT;
@@ -240,62 +265,31 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
     }
 
-    private Map<CustomKey<String, String>, SearchQuery> splitQueryBySolrServer(SearchQuery query) {
-        Map<CustomKey<String, String>, SearchQuery> queryMap = new HashMap<>();
+    private Map<String, SearchQuery> splitQueryBySolrServer(SearchQuery query) {
+        Map<String, SearchQuery> queryMap = new HashMap<>();
         // разбиваем запрос на несколько - обычный и контекстные по областям поиска
         List<String> areas = query.getAreas();
-        if (areas != null && !areas.isEmpty()) {
+        if (areas == null || areas.isEmpty()) {
+            queryMap.put(SolrServerWrapper.REGULAR, query);
+        } else if (areas.size() == 1) {
+            String area = areas.get(0);
+            String key = configHelper.getSearchAreaDetailsConfig(area).getSolrServerKey();
+            key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
+            queryMap.put(key, query);
+        } else {
             for (String area : areas) {
                 String key = configHelper.getSearchAreaDetailsConfig(area).getSolrServerKey();
                 key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
-                CustomKey<String, String> customKey = new CustomKey<>(key, area);
-                SearchQuery newQuery = queryMap.get(customKey);
+                SearchQuery newQuery = queryMap.get(key);
                 if (newQuery == null) {
                     newQuery = new SearchQuery(query);
                     newQuery.clearAreas();
-                    queryMap.put(customKey, newQuery);
+                    queryMap.put(key, newQuery);
                 }
                 newQuery.addArea(area);
             }
-        } else {
-            queryMap.put(new CustomKey(SolrServerWrapper.REGULAR, null), query);
         }
         return queryMap;
-    }
-
-    class CustomKey <T1, T2>{
-        private final T1 solrServerKey;
-        private final T2 areaKey;
-
-        CustomKey (T1 solrServerKey, T2 areaKey) {
-            this.solrServerKey = solrServerKey;
-            this.areaKey = areaKey;
-        }
-
-        public T1 getServerKey() {
-            return solrServerKey;
-        }
-
-        public T2 getAreaKey() {
-            return areaKey;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = solrServerKey != null ? solrServerKey.hashCode() : 0;
-            hash = hash * 31 ^ (areaKey != null ? areaKey.hashCode() : 0);
-            return hash;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (!(obj instanceof CustomKey)) {
-                return false;
-            }
-            CustomKey<T1, T2> other = (CustomKey) obj;
-            return this.solrServerKey == null ? other.solrServerKey == null : this.solrServerKey.equals(other.solrServerKey)
-                    && this.areaKey == null ? other.areaKey == null : this.areaKey.equals(other.areaKey);
-        }
     }
 
     interface QueryProcessor {
@@ -526,8 +520,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             for (SearchFilter filter : filters) {
                 FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
 
-                if (adapter.isCompositeFilter(filter)) {
-                    ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
+                if (adapter.isCompositeFilter(filter) && filter instanceof CombiningFilter) {
+                    // ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
+                    addFilters(((CombiningFilter)filter).getFilters(), query);
                     continue;
                 }
 
@@ -578,35 +573,41 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
 
             StringBuilder areas = new StringBuilder();
-            for (String areaName : query.getAreas()) {
-                areas.append(areas.length() == 0 ? "(" : " OR ")
-                        .append("\"")
-                        .append(areaName)
-                        .append("\"");
+            if (!query.getAreas().isEmpty()) {
+                for (String areaName : query.getAreas()) {
+                    areas.append(areas.length() == 0 ? "(" : " OR ")
+                            .append("\"")
+                            .append(areaName)
+                            .append("\"");
+                }
+                areas.append(")");
             }
-            areas.append(")");
 
             StringBuilder targetTypes = new StringBuilder();
-            for (String targetObjectType : query.getTargetObjectTypes()) {
-                targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
-                        .append("\"")
-                        .append(targetObjectType)
-                        .append("\"");
+            if (!query.getTargetObjectTypes().isEmpty()) {
+                for (String targetObjectType : query.getTargetObjectTypes()) {
+                    targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
+                            .append("\"")
+                            .append(targetObjectType)
+                            .append("\"");
+                }
+                targetTypes.append(")");
             }
-            targetTypes.append(")");
 
             StringBuilder queryString = new StringBuilder();
             StringBuilder objectTypes = new StringBuilder();
 
-            for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
-                queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
-                        .append(entry.getValue().toString());
-                objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
-                        .append("\"")
-                        .append(entry.getKey())
-                        .append("\"");
+            if (!filterStrings.entrySet().isEmpty()) {
+                for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+                    queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
+                            .append(entry.getValue().toString());
+                    objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
+                            .append("\"")
+                            .append(entry.getKey())
+                            .append("\"");
+                }
+                objectTypes.append(")");
             }
-            objectTypes.append(")");
 
             for (String filterString : multiTypeFilterStrings) {
                 queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
@@ -621,13 +622,19 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 int rows = Math.round(fetchLimit / clippingFactor);
                 SolrQuery solrQuery = new SolrQuery()
                         .setQuery(queryString.toString())
-                        .addFilterQuery(SolrFields.AREA + ":" + areas)
-                        .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
-                        .addFilterQuery(SolrFields.OBJECT_TYPE + ":" + objectTypes)
                         .addField(SolrUtils.ID_FIELD)
                         .addField(SolrFields.OBJECT_ID)
                         .addField(SolrFields.MAIN_OBJECT_ID)
                         .addField(SolrUtils.SCORE_FIELD);
+                if (areas.length() > 0) {
+                    solrQuery.addFilterQuery(SolrFields.AREA + ":" + areas);
+                }
+                if (targetTypes.length() > 0) {
+                    solrQuery.addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes);
+                }
+                if (objectTypes.length() > 0) {
+                    solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":" + objectTypes);
+                }
                 // TODO подумать, нужно ли дополнить всеми полями из конфигурации области поиска и типа объекта.
                 // Или все данные для результирующей коллекции лучше получить запросом из базы с фильтрацией по набору id,
                 // который вернул solr. Запрос все равно нужно сделать, чтобы выполнить фильтрацию по ACL
@@ -691,70 +698,33 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
     // =================================================================================================================
 
-    public Set<String> getSolrFieldNames(SearchQuery query, String solrServerKey, ConfigDataExtractor extractor) {
-        Set<String> solrFieldNames = new LinkedHashSet<>();
+    public <T> Set<T> getSolrFieldsMetaData(String area, String solrServerKey,
+                                            List<String> targetObjectTypes, ConfigDataExtractor extractor) {
+        Set<T> solrFieldsMetaData = new LinkedHashSet<>();
         try {
-            if (extractor != null) {
-                for (String type : query.getTargetObjectTypes()) {
+            if (extractor != null && targetObjectTypes != null) {
+                for (String type : targetObjectTypes) {
                     List<SearchConfigHelper.SearchAreaDetailsConfig> searchAreaDetailsConfigs = configHelper.findEffectiveConfigs(type);
                     if (searchAreaDetailsConfigs == null || searchAreaDetailsConfigs.isEmpty()) {
                         continue;
                     }
                     for (SearchConfigHelper.SearchAreaDetailsConfig searchAreaDetailsConfig : searchAreaDetailsConfigs) {
                         String solrKey = searchAreaDetailsConfig.getSolrServerKey();
-                        if (!solrServerKey.equalsIgnoreCase(solrKey)) {
+                        String searchAreaName = searchAreaDetailsConfig.getAreaName();
+                        if (!solrServerKey.equalsIgnoreCase(solrKey) || !searchAreaName.equalsIgnoreCase(area)) {
                             continue;
                         }
-                        String searchAreaName = searchAreaDetailsConfig.getAreaName();
-                        for (String area : query.getAreas()) {
-                            if (!searchAreaName.equalsIgnoreCase(area)) {
-                                continue;
-                            }
-                            // получаем список полей
-                            IndexedDomainObjectConfig objectConfig = searchAreaDetailsConfig.getObjectConfig();
-                            Collection<String> extractedValues = extractor != null ? extractor.getExtractedValues(type, objectConfig) : Collections.emptySet();
-                            solrFieldNames.addAll(extractedValues);
-                        }
+                        // получаем список полей
+                        IndexedDomainObjectConfig objectConfig = searchAreaDetailsConfig.getObjectConfig();
+                        Collection<T> extractedValues = extractor != null ? extractor.getExtractedValues(type, objectConfig) : Collections.emptySet();
+                        solrFieldsMetaData.addAll(extractedValues);
                     }
                 }
             }
         } catch (Exception e) {
             throw RemoteSuitableException.convert(e);
         }
-        return solrFieldNames;
-    }
-
-    public List<TargetResultField> getResultFields(SearchQuery query, String solrServerKey, ConfigDataExtractor extractor) {
-        List<TargetResultField> solrFields = new ArrayList<>();
-        try {
-            if (extractor != null) {
-                for (String type : query.getTargetObjectTypes()) {
-                    List<SearchConfigHelper.SearchAreaDetailsConfig> searchAreaDetailsConfigs = configHelper.findEffectiveConfigs(type);
-                    if (searchAreaDetailsConfigs == null || searchAreaDetailsConfigs.isEmpty()) {
-                        continue;
-                    }
-                    for (SearchConfigHelper.SearchAreaDetailsConfig searchAreaDetailsConfig : searchAreaDetailsConfigs) {
-                        String solrKey = searchAreaDetailsConfig.getSolrServerKey();
-                        if (!solrServerKey.equalsIgnoreCase(solrKey)) {
-                            continue;
-                        }
-                        String searchAreaName = searchAreaDetailsConfig.getAreaName();
-                        for (String area : query.getAreas()) {
-                            if (!searchAreaName.equalsIgnoreCase(area)) {
-                                continue;
-                            }
-                            // получаем список полей
-                            IndexedDomainObjectConfig objectConfig = searchAreaDetailsConfig.getObjectConfig();
-                            Collection<TargetResultField> extractedValues = extractor != null ? extractor.getExtractedValues(type, objectConfig) : Collections.emptySet();
-                            solrFields.addAll(extractedValues);
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            throw RemoteSuitableException.convert(e);
-        }
-        return solrFields;
+        return solrFieldsMetaData;
     }
 
     private Collection<SearchFieldType> calculateFieldType(String objectTypeName, IndexedFieldConfig config) {
@@ -772,81 +742,35 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             List<IndexedContentConfig> indexedContentConfigs = objectConfig != null ?
                     objectConfig.getContentObjects() : new ArrayList<>(0);
 
-            for (IndexedFieldConfig fieldConfig : indexedFileldConfigs) {
-                if (fieldConfig.getShowInResults()) {
-                    String targetName = fieldConfig.getTargetFieldName();
-                    Collection<SearchFieldType> fieldTypes = calculateFieldType(mainType, fieldConfig);
-                    if (fieldTypes != null && !fieldTypes.isEmpty()) {
-                        for (SearchFieldType fieldType : fieldTypes) {
-                            Collection<String> list = fieldType.getSolrFieldNames(fieldConfig.getName(), true);
-                            if (!list.isEmpty()) {
-                                TargetResultField ssrf = new TargetResultField(fieldConfig.getName(), targetName, fieldType.getDataFieldType());
-                                ssrf.getSolrFieldNames().addAll(list);
-                                solrFields.put(targetName, ssrf);
-                            }
-                        }
-                    }
-                }
-            }
+            collectFieldConfigData(solrFields, mainType, indexedFileldConfigs);
             for (LinkedDomainObjectConfig linkedFileldConfig : linkedFileldConfigs) {
                 String linkedType = linkedFileldConfig.getType();
-                for (IndexedFieldConfig fieldConfig : linkedFileldConfig.getFields()) {
-                    if (fieldConfig.getShowInResults()) {
-                        String targetName = fieldConfig.getTargetFieldName();
-                        Collection<SearchFieldType> fieldTypes = calculateFieldType(linkedType, fieldConfig);
-                        for (SearchFieldType fieldType : fieldTypes) {
-                            Collection<String> list = fieldType.getSolrFieldNames(fieldConfig.getName(), true);
-                            if (!list.isEmpty()) {
-                                TargetResultField ssrf = new TargetResultField(fieldConfig.getName(), targetName, fieldType.getDataFieldType());
-                                ssrf.getSolrFieldNames().addAll(list);
-                                solrFields.put(targetName, ssrf);
-                            }
-                        }
-                    }
-                }
+                collectFieldConfigData(solrFields, linkedType, linkedFileldConfig.getFields());
             }
 
             for (IndexedContentConfig indexedContentConfig : indexedContentConfigs) {
                 for (ContentFieldConfig contentFieldConfig : indexedContentConfig.getFields()) {
                     if (contentFieldConfig.getShowInResults()) {
-                        SearchFieldType searchFieldType = null;
                         String targetName = contentFieldConfig.getTargetFieldName();
-                        Collection<String> fieldNameList;
                         switch (contentFieldConfig.getType()) {
                             case NAME:
                             case PATH:
                             case MIMETYPE:
                             case DESCRIPTION:
-                                searchFieldType = new TextSearchFieldType(
-                                        configHelper.getSupportedLanguages(), false, false);
-                                fieldNameList = searchFieldType.getSolrFieldNames(contentFieldConfig.getType().getSolrFieldName(),true);
-                                if (!fieldNameList.isEmpty()) {
-                                    TargetResultField ssrf = new TargetResultField(contentFieldConfig.getTypeString(),
-                                            targetName, searchFieldType.getDataFieldType());
-                                    ssrf.getSolrFieldNames().addAll(fieldNameList);
-                                    solrFields.put(targetName, ssrf);
-                                }
+                                addFieldMetaData(solrFields, new TextSearchFieldType(
+                                        configHelper.getSupportedLanguages(), false, false),
+                                        contentFieldConfig.getType().getSolrFieldName(),
+                                        contentFieldConfig.getTypeString(), targetName, false);
                                 break;
                             case HIGHLIGHTING:
-                                searchFieldType = new SpecialTextSearchFieldType(
-                                        configHelper.getSupportedLanguages());
-                                fieldNameList = searchFieldType.getSolrFieldNames(contentFieldConfig.getType().getSolrFieldName(),true);
-                                if (!fieldNameList.isEmpty()) {
-                                    TargetResultField ssrf = new TargetResultField(SearchFilter.CONTENT,
-                                            targetName, searchFieldType.getDataFieldType(),true);
-                                    ssrf.getSolrFieldNames().addAll(fieldNameList);
-                                    solrFields.put(targetName, ssrf);
-                                }
+                                addFieldMetaData(solrFields, new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()),
+                                        contentFieldConfig.getType().getSolrFieldName(),
+                                        SearchFilter.CONTENT, targetName, true);
                                 break;
                             case LENGTH:
-                                searchFieldType = new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG);
-                                fieldNameList = searchFieldType.getSolrFieldNames(contentFieldConfig.getType().getSolrFieldName(),true);
-                                if (!fieldNameList.isEmpty()) {
-                                    TargetResultField ssrf = new TargetResultField(contentFieldConfig.getTypeString(),
-                                            targetName, searchFieldType.getDataFieldType());
-                                    ssrf.getSolrFieldNames().addAll(fieldNameList);
-                                    solrFields.put(targetName, ssrf);
-                                }
+                                addFieldMetaData(solrFields, new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG),
+                                        contentFieldConfig.getType().getSolrFieldName(),
+                                        contentFieldConfig.getTypeString(), targetName, false);
                                 break;
                             default:
                                 break;
@@ -855,6 +779,42 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
             }
             return solrFields.values();
+        }
+
+        private void addFieldMetaData(Map<String, TargetResultField> solrFields,
+                                      SearchFieldType searchFieldType,
+                                      String solrFieldName,
+                                      String indexedFieldName,
+                                      String targetName,
+                                      boolean isHighlighting) {
+            Collection<String> fieldNameList = searchFieldType.getSolrFieldNames(solrFieldName,true);
+            if (!fieldNameList.isEmpty()) {
+                TargetResultField trf = new TargetResultField(indexedFieldName,
+                        targetName, searchFieldType.getDataFieldType(), isHighlighting);
+                trf.getSolrFieldNames().addAll(fieldNameList);
+                solrFields.put(targetName, trf);
+            }
+        }
+
+        private void collectFieldConfigData(Map<String, TargetResultField> solrFields,
+                                            String type, List<IndexedFieldConfig> indexedFileldConfigs) {
+            for (IndexedFieldConfig fieldConfig : indexedFileldConfigs) {
+                if (fieldConfig.getShowInResults()) {
+                    String targetName = fieldConfig.getTargetFieldName();
+                    Collection<SearchFieldType> fieldTypes = calculateFieldType(type, fieldConfig);
+                    if (fieldTypes != null && !fieldTypes.isEmpty()) {
+                        for (SearchFieldType fieldType : fieldTypes) {
+                            Collection<String> list = fieldType.getSolrFieldNames(fieldConfig.getName(), true);
+                            if (!list.isEmpty()) {
+                                TargetResultField trf = new TargetResultField(fieldConfig.getName(),
+                                        targetName, fieldType.getDataFieldType());
+                                trf.getSolrFieldNames().addAll(list);
+                                solrFields.put(targetName, trf);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -869,26 +829,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             List<IndexedContentConfig> indexedContentConfigs = objectConfig != null ?
                     objectConfig.getContentObjects() : new ArrayList<>(0);
 
-            for (IndexedFieldConfig fieldConfig : indexedFileldConfigs) {
-                if (fieldConfig.getShowInResults()) {
-                    Collection<SearchFieldType> fieldTypes = calculateFieldType(mainType, fieldConfig);
-                    for (SearchFieldType fieldType : fieldTypes) {
-                        solrFieldNames.addAll(fieldType.getSolrFieldNames(fieldConfig.getName(), true));
-                    }
-                }
-            }
+            collectFieldConfigData(solrFieldNames, mainType, indexedFileldConfigs);
             for (LinkedDomainObjectConfig linkedFileldConfig : linkedFileldConfigs) {
                 String linkedType = linkedFileldConfig.getType();
-                for (IndexedFieldConfig fieldConfig : linkedFileldConfig.getFields()) {
-                    if (fieldConfig.getShowInResults()) {
-                        Collection<SearchFieldType> fieldTypes = calculateFieldType(linkedType, fieldConfig);
-                        for (SearchFieldType fieldType : fieldTypes) {
-                            solrFieldNames.addAll(fieldType.getSolrFieldNames(fieldConfig.getName(), true));
-                        }
-                    }
-                }
+                collectFieldConfigData(solrFieldNames, linkedType, linkedFileldConfig.getFields());
             }
-
             for (IndexedContentConfig indexedContentConfig : indexedContentConfigs) {
                 for (ContentFieldConfig contentFieldConfig : indexedContentConfig.getFields()) {
                     if (contentFieldConfig.getShowInResults()) {
@@ -909,12 +854,24 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         }
                         if (searchFieldType != null) {
                             solrFieldNames.addAll(searchFieldType.getSolrFieldNames(
-                                    contentFieldConfig.getType().getSolrFieldName(),true));
+                                    contentFieldConfig.getType().getSolrFieldName(), true));
                         }
                     }
                 }
             }
             return solrFieldNames;
+        }
+
+        private void collectFieldConfigData(Set<String> solrFieldNames,
+                                            String type, List<IndexedFieldConfig> indexedFileldConfigs) {
+            for (IndexedFieldConfig fieldConfig : indexedFileldConfigs) {
+                if (fieldConfig.getShowInResults()) {
+                    Collection<SearchFieldType> fieldTypes = calculateFieldType(type, fieldConfig);
+                    for (SearchFieldType fieldType : fieldTypes) {
+                        solrFieldNames.addAll(fieldType.getSolrFieldNames(fieldConfig.getName(), true));
+                    }
+                }
+            }
         }
     }
 
