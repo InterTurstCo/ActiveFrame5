@@ -66,7 +66,17 @@ public class CheckBoxWidget extends BaseWidget {
     protected boolean isChanged() {
         final Boolean currentValue = ((CheckBox) impl).getValue();
         final CheckBoxState state = getInitialData();
-        return currentValue == null ? state.isSelected() != null : !currentValue.equals(state.isSelected());
+        if (currentValue == null) {
+            // старое значение есть, но нет нового - изменения есть
+            return (state.isSelected() != null);
+        } else if (state.isSelected() != null) {
+            // есть оба значения, изменения есть, если они (значения) не совпадают
+            return !currentValue.equals(state.isSelected());
+        } else {
+            // есть новое значение, но нет старого (т.е. в БД записано null) - считаем измененным только при установленном флаге,
+            // в противном случае это означает, что его не меняли на форме
+            return currentValue;
+        }
     }
 
     @Override
