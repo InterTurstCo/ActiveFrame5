@@ -53,6 +53,7 @@ import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 
 @SuppressWarnings("unchecked")
 @RunWith(PowerMockRunner.class)
@@ -82,6 +83,10 @@ public class SearchServiceTest {
         when(solrServerWrapperMap.getRegularSolrServerWrapper()).thenReturn(solrServerWrapper);
         when(solrServerWrapperMap.getSolrServerWrapper(SolrServerWrapper.REGULAR)).thenReturn(solrServerWrapper);
         when(solrServerWrapper.getSolrServer()).thenReturn(solrServer);
+        SearchAreaConfig areaConfig = mock(SearchAreaConfig.class);
+        when(areaConfig.getSolrServerKey()).thenReturn(SolrServerWrapper.REGULAR);
+        when(solrServerWrapperMap.isCntxSolrServer(SolrServerWrapper.REGULAR)).thenReturn(false);
+        when(configHelper.getSearchAreaDetailsConfig(anyString())).thenReturn(areaConfig);
     }
 
     @Test
