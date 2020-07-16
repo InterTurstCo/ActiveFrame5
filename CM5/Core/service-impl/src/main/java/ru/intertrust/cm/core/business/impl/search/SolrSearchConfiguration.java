@@ -25,7 +25,6 @@ public class SolrSearchConfiguration {
     @Value("${search.solr.timeout:180000}")
     private int queryTimeout;
 
-
     @Value("${search.solr.data}")
     private String solrDataDir;
 
@@ -35,7 +34,7 @@ public class SolrSearchConfiguration {
     @Value("${search.solr.collection:CM5}")
     private String solrCollection;
 
-    @Value("${search.solr.cntx.servers}")
+    @Value("${search.solr.cntx.servers:}")
     private String solrCntxServers;
 
     private Map<String, SolrCntxServerDescription> solrCntxServerDescriptionMap = null;
