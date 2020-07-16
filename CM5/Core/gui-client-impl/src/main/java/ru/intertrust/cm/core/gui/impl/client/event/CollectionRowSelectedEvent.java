@@ -7,10 +7,18 @@ public class CollectionRowSelectedEvent extends GwtEvent<CollectionRowSelectedEv
 
     public static Type<CollectionRowSelectedEventHandler> TYPE = new Type<CollectionRowSelectedEventHandler>();
     private Id id;
+    /**
+     * Нужно ли производить скролл до выделенного элемента коллекции. Флаг нужен для различения событий автоматического (кодом) и ручного выделения элемента.
+     */
+    private boolean scrollToSelectedRow = false;
 
     public CollectionRowSelectedEvent(Id id) {
         this.id = id;
+    }
 
+    public CollectionRowSelectedEvent(Id id, boolean scrollToSelectedRow) {
+        this.id = id;
+        this.scrollToSelectedRow = scrollToSelectedRow;
     }
 
     @Override
@@ -25,6 +33,10 @@ public class CollectionRowSelectedEvent extends GwtEvent<CollectionRowSelectedEv
 
     public Id getId() {
         return id;
+    }
+
+    public boolean isScrollToSelectedRow() {
+        return scrollToSelectedRow;
     }
 
 }

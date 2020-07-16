@@ -19,13 +19,17 @@ public class CloseInCentralPanelAction extends Action {
         plugin.getOwner().asWidget().setWidth("100%");
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
         final Id objectId = editor.getRootDomainObject().getId();
+        PluginPanel owner = plugin.getOwner();
+        owner.closeCurrentPlugin();
+
         DomainObjectSource source = editor.getFormPluginState() == null ? DomainObjectSource.COLLECTION
                 : editor.getFormPluginState().getDomainObjectSource();
         if (objectId != null && plugin.getLocalEventBus()!= null && DomainObjectSource.COLLECTION.equals(source)) {
-            plugin.getLocalEventBus().fireEvent(new CollectionRowSelectedEvent(objectId));
+            // выделяем элемент в коллекции, который мы закрыли и скроллим до него в представлении коллекции
+            final CollectionRowSelectedEvent collectionRowSelectedEvent = new CollectionRowSelectedEvent(objectId, true);
+            plugin.getLocalEventBus().fireEvent(collectionRowSelectedEvent);
         }
-        PluginPanel owner = plugin.getOwner();
-        owner.closeCurrentPlugin();
+
         if(DomainObjectSource.HYPERLINK.equals(source)){
             owner.getCurrentPlugin().refresh();
         }
