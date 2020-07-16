@@ -571,7 +571,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     str.insert(0, "-(").append(")");
                 }
             }
-
+            List <String> areaList = new ArrayList<>(1);
             StringBuilder areas = new StringBuilder();
             if (!query.getAreas().isEmpty()) {
                 for (String areaName : query.getAreas()) {
@@ -579,6 +579,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .append("\"")
                             .append(areaName)
                             .append("\"");
+                    areaList.add(areaName);
                 }
                 areas.append(")");
             }
@@ -651,19 +652,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                 }
 
-                if (highlightingFields != null && !highlightingFields.isEmpty()) {
-                    solrQuery.setHighlight(true)
-                            .setHighlightRequireFieldMatch(true)
-                            .set(HL_usePhraseHighlighter, true)
-                            .set(HL_highlightMultiTerm, true)
-                            .set(HL_simple_pre, "<hl>")
-                            .set(HL_simple_post, "</hl>")
-                            .set(HL_snippets, "5")
-                            .set(HL_fragsize, "50");
-                    for (String hlField : highlightingFields) {
-                        solrQuery.addHighlightField(hlField);
-                    }
-                }
+                addHighlightingToQuery(!areaList.isEmpty() ? areaList.get(0) : null, solrQuery, highlightingFields);
 
                 if (rows > 0) {
                     solrQuery.setRows(rows);
@@ -674,6 +663,34 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
             } while (clipped && response.getResults().size() < fetchLimit);
             return response;
+        }
+
+        private void addHighlightingToQuery(String area, SolrQuery solrQuery, Set<String> highlightingFields) {
+            if (area != null && solrQuery != null && highlightingFields != null && !highlightingFields.isEmpty()) {
+                SearchAreaConfig searchAreaConfig = configHelper.getSearchAreaDetailsConfig(area);
+                HighlightingConfig highlightingConfig = searchAreaConfig != null ? searchAreaConfig.getHighlightingConfig() : null;
+                if (highlightingConfig == null) {
+                    highlightingConfig = new HighlightingConfig(true);
+                }
+                if (highlightingConfig.getEnabled()) {
+                    solrQuery.setHighlight(highlightingConfig.getEnabled())
+                            .setHighlightRequireFieldMatch(highlightingConfig.getHighlightRequireMatch())
+                            .set(HL_usePhraseHighlighter, highlightingConfig.getHighlightPhrase())
+                            .set(HL_highlightMultiTerm, highlightingConfig.getHighlightMultiTerm())
+                            .set(HL_simple_pre, highlightingConfig.getPreTag() != null ? highlightingConfig.getPreTag() : "")
+                            .set(HL_simple_post, highlightingConfig.getPostTag() != null ? highlightingConfig.getPostTag() : "")
+                            .set(HL_snippets, highlightingConfig.getSnippetCount() != null ? highlightingConfig.getSnippetCount() : 5)
+                            .set(HL_fragsize, highlightingConfig.getFragmentSize() != null ? highlightingConfig.getFragmentSize() : 50);
+                    if (highlightingConfig.getRawParams() != null) {
+                        for (HighlightingRawParam param : highlightingConfig.getRawParams()) {
+                            solrQuery.set(param.getName(), param.getValue());
+                        }
+                    }
+                    for (String hlField : highlightingFields) {
+                        solrQuery.addHighlightField(hlField);
+                    }
+                }
+            }
         }
 
         private void compactQueryResults(QueryResponse response) {

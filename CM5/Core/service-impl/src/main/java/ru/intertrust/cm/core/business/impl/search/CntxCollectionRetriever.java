@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.impl.search.SearchConfigHelper.SearchAreaDetailsConfig;
 import ru.intertrust.cm.core.config.*;
 
@@ -53,8 +54,10 @@ public class CntxCollectionRetriever extends CollectionRetriever {
                 ids.add(new ReferenceValue(id));
                 Id mid = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
                 String solrId = (String) doc.getFieldValue(SolrUtils.ID_FIELD);
-                hl.put(mid, highlightings.get(solrId));
                 solrDocsMap.put(mid, doc);
+                if (highlightings != null) {
+                    hl.put(mid, highlightings.get(solrId));
+                }
             }
             int idsSize = ids.size();
             for (int cnt = 0; cnt < idsSize; cnt += MAX_IDS_PER_QUERY) {
@@ -69,7 +72,6 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
             }
             addSolrFields(result, solrDocsMap, hl);
-            // addHilighting(result, found, highlightings);
             addWeightsAndSort(result, found);
         }
         return result;
@@ -115,8 +117,14 @@ public class CntxCollectionRetriever extends CollectionRetriever {
             int colIdx = collection.getFieldIndex(solrField.getResultFieldName());
             if (colIdx >= 0) {
                 FieldType fieldType = solrField.getDataFieldType();
-                if (solrField.isHighlighting() && fieldType == FieldType.STRING) {
-                    collection.set(colIdx, rowIdx, new StringValue(composeHighlighting(id, solrField, highlightings.get(id))));
+                if (solrField.isHighlighting() && fieldType == FieldType.LIST) {
+                    List<StringValue> valueList = composeHighlighting(id, solrField, highlightings.get(id));
+                    ListValue data = new ListValue();
+                    if (!valueList.isEmpty()) {
+                        StringValue[] array = new StringValue[valueList.size()];
+                        data = new ListValue(valueList.toArray(array));
+                    }
+                    collection.set(colIdx, rowIdx, data);
                 }  else {
                     Value value = composeFieldValue(id, solrField, solrDocs.get(id));
                     if (value != null) {
@@ -152,6 +160,14 @@ public class CntxCollectionRetriever extends CollectionRetriever {
                 case REFERENCE:
                     fieldConfig = new ReferenceFieldConfig();
                     break;
+                case LIST:
+                    fieldConfig = new FieldConfig() {
+                        @Override
+                        public FieldType getFieldType() {
+                            return FieldType.LIST;
+                        }
+                    };
+                    break;
                 default:
                     break;
             }
@@ -162,24 +178,26 @@ public class CntxCollectionRetriever extends CollectionRetriever {
         return fieldConfig;
     }
 
-    private String composeHighlighting(Id id,
-                                       TargetResultField resultField,
-                                       Map<String, List<String>> highlighting) {
-        String hl = "";
+    private List<StringValue> composeHighlighting(Id id,
+                                                  TargetResultField resultField,
+                                                  Map<String, List<String>> highlighting) {
+        List<StringValue> result = null;
         if (highlighting != null) {
+            result = new ArrayList<>();
             for (String fieldName : resultField.getSolrFieldNames()) {
                 List<String> hlList = highlighting.get(fieldName);
                 if (hlList != null && !hlList.isEmpty()) {
-                    for (String hlVal : hlList) {
-                        hl += (!hl.isEmpty() ? " ... " : "") + (hlVal != null ? hlVal : "") ;
-                    }
-                    if (!hl.isEmpty()) {
-                        break;
+                    for (String hl : hlList) {
+                        if (hl != null && !hl.trim().isEmpty()) {
+                            result.add(new StringValue(hl));
+                        }
                     }
                 }
             }
+        } else {
+            result = Collections.emptyList();
         }
-        return hl;
+        return result;
     }
 
     private Value composeFieldValue(Id id,

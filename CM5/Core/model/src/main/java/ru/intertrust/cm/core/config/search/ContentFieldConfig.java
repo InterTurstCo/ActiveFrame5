@@ -76,7 +76,7 @@ public class ContentFieldConfig implements Serializable {
     @Override
     public int hashCode() {
         int hash = type.hashCode();
-        hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
+        hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 1);
         hash = hash * 31 ^ targetFieldName.hashCode();
         return hash;
     }

@@ -27,6 +27,9 @@ public class SearchAreaConfig implements TopLevelConfig {
     @ElementList(entry = "target-domain-object", inline = true)
     private List<TargetDomainObjectConfig> targetObjects;
 
+    @Element(name = "highlighting-config", required = false)
+    private HighlightingConfig highlightingConfig;
+
     @Override
     public String getName() {
         return name;
@@ -54,6 +57,14 @@ public class SearchAreaConfig implements TopLevelConfig {
         return targetFilterName;
     }
 
+    public HighlightingConfig getHighlightingConfig() {
+        return highlightingConfig;
+    }
+
+    public void setHighlightingConfig(HighlightingConfig highlightingConfig) {
+        this.highlightingConfig = highlightingConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -63,13 +74,16 @@ public class SearchAreaConfig implements TopLevelConfig {
                 Objects.equals(replacementPolicy, that.replacementPolicy) &&
                 Objects.equals(targetObjects, that.targetObjects) &&
                 Objects.equals(solrServerKey, that.solrServerKey) &&
-                Objects.equals(targetFilterName, that.targetFilterName);
+                Objects.equals(targetFilterName, that.targetFilterName) &&
+                Objects.equals(highlightingConfig, that.highlightingConfig);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(name, replacementPolicy, targetObjects,
                 (solrServerKey == null ? "" : solrServerKey),
-                (targetFilterName == null ? "" : targetFilterName));
+                (targetFilterName == null ? "" : targetFilterName),
+                (highlightingConfig != null ? "" : highlightingConfig));
     }
+
 }

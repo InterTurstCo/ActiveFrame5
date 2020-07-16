@@ -52,7 +52,7 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
 
     @Override
     public FieldType getDataFieldType() {
-        return FieldType.STRING;
+        return FieldType.LIST;
     }
 
     @Override
