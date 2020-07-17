@@ -41,6 +41,9 @@ public class QueryCollectionRetriever extends CollectionRetriever {
 
     @Override
     public IdentifiableObjectCollection queryCollection(SolrDocumentList documents, int maxResults) {
+        if (documents.isEmpty()) {
+            return new GenericIdentifiableObjectCollection();
+        }
         ArrayList<ReferenceValue> ids = new ArrayList<>();
         for (SolrDocument doc : documents) {
             Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
