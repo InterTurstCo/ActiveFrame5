@@ -50,10 +50,12 @@
           depends-on="currentDataSourceJndiContext"/>
 
     <jee:jndi-lookup id="dataSource" jndi-name="${datasource.master:java:jboss/datasources/CM5}"/>
-          <!-- lookup-on-startup="false"/> -->
-
     <bean id="transactionManager"
-          class="org.springframework.transaction.jta.JtaTransactionManager" />
+          class="org.springframework.transaction.jta.JtaTransactionManager">
+        <property name="transactionManagerName" value="java:jboss/TransactionManager"/>
+        <property name="transactionSynchronization" value="2"/>
+        <property name="autodetectUserTransaction" value="false"/>
+    </bean>
 
     <bean id="sqlLogger"
           class="ru.intertrust.cm.core.dao.impl.SqlLogger" />
