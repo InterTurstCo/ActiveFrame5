@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
-import ru.intertrust.cm.core.business.impl.search.SearchConfigHelper.SearchAreaDetailsConfig;
 import ru.intertrust.cm.core.config.*;
 
 import java.math.BigDecimal;

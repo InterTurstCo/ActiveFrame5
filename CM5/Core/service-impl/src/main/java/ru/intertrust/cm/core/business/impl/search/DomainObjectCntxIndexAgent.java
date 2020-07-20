@@ -187,28 +187,31 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                     switch (contentFieldConfig.getType()) {
                         case NAME :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.NAME,
-                                    contentFieldConfig.getType().getFieldType(),
+                                    contentFieldConfig.getType().getSolrFieldName(),
                                     new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
                             break;
                         case PATH :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.PATH,
-                                    contentFieldConfig.getType().getFieldType(),
+                                    contentFieldConfig.getType().getSolrFieldName(),
                                     new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
                             break;
                         case MIMETYPE :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.MIME_TYPE,
-                                    contentFieldConfig.getType().getFieldType(),
+                                    contentFieldConfig.getType().getSolrFieldName(),
                                     new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
                             break;
                         case DESCRIPTION :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.DESCRIPTION,
-                                    contentFieldConfig.getType().getFieldType(),
+                                    contentFieldConfig.getType().getSolrFieldName(),
                                     new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
                             break;
                         case LENGTH :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.CONTENT_LENGTH,
-                                    contentFieldConfig.getType().getFieldType(),
+                                    contentFieldConfig.getType().getSolrFieldName(),
                                     new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
+                            break;
+                        case REFID:
+                            // SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_ID
                             break;
                         default:
                             break;

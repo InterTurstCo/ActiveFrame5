@@ -225,6 +225,9 @@
                                         <resource>
                                             <directory>src/solr/resources</directory>
                                         </resource>
+                                        <resource>
+                                            <directory>src/solr-cntx/resources</directory>
+                                        </resource>
                                     </resources>
                                 </configuration>
                             </execution>

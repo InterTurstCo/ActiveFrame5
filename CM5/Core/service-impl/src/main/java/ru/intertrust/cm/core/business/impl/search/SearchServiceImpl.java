@@ -789,6 +789,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                         contentFieldConfig.getType().getSolrFieldName(),
                                         contentFieldConfig.getTypeString(), targetName, false);
                                 break;
+                            case REFID:
+                                TargetResultField trf = new TargetResultField(ContentFieldConfig.Type.REFID.getSolrFieldName(),
+                                        targetName, FieldType.REFERENCE);
+                                trf.getSolrFieldNames().add(ContentFieldConfig.Type.REFID.getSolrFieldName());
+                                solrFields.put(targetName, trf);
+                                break;
                             default:
                                 break;
                         }
@@ -806,7 +812,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                       boolean isHighlighting) {
             Collection<String> fieldNameList = searchFieldType.getSolrFieldNames(solrFieldName,true);
             if (!fieldNameList.isEmpty()) {
-                TargetResultField trf = new TargetResultField(indexedFieldName,
+             TargetResultField trf = new TargetResultField(indexedFieldName,
                         targetName, searchFieldType.getDataFieldType(), isHighlighting);
                 trf.getSolrFieldNames().addAll(fieldNameList);
                 solrFields.put(targetName, trf);
@@ -865,6 +871,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                 break;
                             case LENGTH:
                                 searchFieldType = new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG);
+                                break;
+                            case REFID:
+                                solrFieldNames.add(ContentFieldConfig.Type.REFID.getSolrFieldName());
                                 break;
                             default:
                                 break;

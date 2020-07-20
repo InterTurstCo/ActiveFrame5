@@ -256,7 +256,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private void addEmptyValuesIfNeeded(int size) {
             if (fieldValues.size() < size){
                 fieldValues.ensureCapacity(size);
-                for (int i = 0; i < size - fieldValues.size(); ++i) {
+                int cnt = size - fieldValues.size();
+                for (int i = 0; i < cnt; ++i) {
                     fieldValues.add(null);
                 }
             }

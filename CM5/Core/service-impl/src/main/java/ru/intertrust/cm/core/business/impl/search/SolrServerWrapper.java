@@ -9,14 +9,13 @@ public class SolrServerWrapper {
     public static final String REGULAR = "_regular_";
     private SolrServer solrServer = null;
     private boolean bRegular = true;
-    private String url = null;
     private String key = null;
+    
     @Autowired
     private SolrUpdateRequestQueue queue;
 
-    public SolrServerWrapper (String key, String url, SolrServer solrServer, boolean isRegular) {
+    public SolrServerWrapper (String key, SolrServer solrServer, boolean isRegular) {
         this.bRegular = isRegular;
-        this.url = url != null ? url.trim() : null;
         this.key = key != null ? key.trim() : null;
         this.solrServer = solrServer;
     }
@@ -27,10 +26,6 @@ public class SolrServerWrapper {
 
     public SolrServer getSolrServer() {
         return solrServer;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     public boolean isRegular() {
