@@ -879,17 +879,22 @@
                 from
                     Person_Task t
                     inner join Status s on (t.status = s.id)
-                     
-                     ::from-clause
                 where
                     s.name in ('Send', 'Acquired') ::where-clause
             ]]>
         </prototype>
 
-        <filter name="byExecutionIdAndTaskId">
+        <filter name="byExecutionIdAndActivityidId">
             <criteria placeholder="where-clause">
                 <![CDATA[
                     t.executionid = {0} and t.activityid = {1} 
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byTaskId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    t.taskId = {0}
                 ]]>
             </criteria>
         </filter>

@@ -265,7 +265,7 @@ public class TestProcess extends ClientBase {
             assertTrue("Check timer start", attachment.getString("test_text").endsWith("Получили уведомление 5."));
 
             //Спим более минуты, должен сработать таймер
-            Thread.currentThread().sleep(65000);
+            Thread.currentThread().sleep(120000);
             attachment = getCrudService().find(attachment.getId());
             assertTrue("Check timer end", attachment.getString("test_text").endsWith("Сработал таймер."));
 
@@ -285,7 +285,7 @@ public class TestProcess extends ClientBase {
             assertTrue("Check timer 2 start", attachment.getString("test_text").endsWith("Сработал таймер."));
 
             //Спим более минуты, должен сработать второй таймер
-            Thread.currentThread().sleep(65000);
+            Thread.currentThread().sleep(120000);
 
             //Проверяем таймер повторно
             attachment = getCrudService().find(attachment.getId());
@@ -295,7 +295,11 @@ public class TestProcess extends ClientBase {
             getProcessService("admin");
             getCrudService().delete(attachmentNotInProcess.getId());
 
-            log("Test complete");
+            if (hasError){
+                log("Test FAILURE");
+            }else{
+                log("Test COMPLETE");
+            }
         } finally {
             writeLog();
         }

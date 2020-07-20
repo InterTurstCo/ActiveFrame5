@@ -30,10 +30,10 @@ public class CustomUserTaskParseHandler extends UserTaskParseHandler {
         userTask.getTaskListeners().add(globalCreateListener);
 
         FlowableListener globalEndListener = new FlowableListener();
-        globalEndListener.setEvent(ExecutionListener.EVENTNAME_END);
-        globalEndListener.setImplementation(GlobalCreateTaskListener.class.getName());
+        globalEndListener.setEvent(TaskListener.EVENTNAME_DELETE);
+        globalEndListener.setImplementation(GlobalDeleteTaskListener.class.getName());
         globalEndListener.setImplementationType("class");
-        userTask.getExecutionListeners().add(globalEndListener);
+        userTask.getTaskListeners().add(globalEndListener);
 
         super.executeParse(bpmnParse, userTask);
     }

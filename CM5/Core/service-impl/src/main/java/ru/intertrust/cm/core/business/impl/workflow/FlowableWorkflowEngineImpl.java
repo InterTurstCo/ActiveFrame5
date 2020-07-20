@@ -28,9 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ActivitiWorkflowEngineImpl extends AbstactWorkflowEngine {
-    private static final Logger logger = LoggerFactory.getLogger(ActivitiWorkflowEngineImpl.class);
-    public static final String ENGENE_NAME = "activiti";
+public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
+    private static final Logger logger = LoggerFactory.getLogger(FlowableWorkflowEngineImpl.class);
+    public static final String ENGENE_NAME = "flowable";
 
     @Autowired
     private RepositoryService repositoryService;

@@ -11,7 +11,7 @@ import org.flowable.engine.ProcessEngines;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.flowable.engine.delegate.ExecutionListener;
-import org.flowable.engine.delegate.TaskListener;
+import org.flowable.task.service.delegate.TaskListener;
 import org.flowable.engine.form.FormProperty;
 import org.flowable.engine.form.TaskFormData;
 import org.flowable.task.service.delegate.DelegateTask;
@@ -41,8 +41,7 @@ import ru.intertrust.cm.core.tools.SpringClient;
  * Глобальный слушатель создания UserTask. Создает соответствующий доменный
  * объект и выполняет отсылку по электронной почте
  */
-public class GlobalCreateTaskListener extends SpringClient implements
-        TaskListener, ExecutionListener {
+public class GlobalCreateTaskListener extends SpringClient implements TaskListener {
     public static final String PERSON_ASSIGNEE_PREFIX = "PERSON";
     public static final String GROUP_ASSIGNEE_PREFIX = "GROUP";
     public static final String DYNAMIC_GROUP_ASSIGNEE_PREFIX = "DYNAMIC_GROUP";
@@ -221,68 +220,4 @@ public class GlobalCreateTaskListener extends SpringClient implements
         taskDomainObject.setModifiedDate(currentDate);
         return taskDomainObject;
     }
-
-    /**
-     * Точка входа при выходе из задачи. переопределяется чтобы установить
-     * статус у задач, которые были завершены с помощью event
-     */
-    @Override
-    public void notify(DelegateExecution execution){
-        List<DomainObject> tasks = getNotCompleteTasks(execution.getId(), execution.getCurrentActivityId());
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        for (DomainObject domainObjectTask : tasks) {
-            //domainObjectTask.setLong("State", ProcessService.TASK_STATE_PRETERMIT);
-            domainObjectDao.setStatus(domainObjectTask.getId(),
-                    statusDao.getStatusIdByName(ProcessService.TASK_STATE_PRETERMIT), accessToken);
-            //domainObjectDao.save(domainObjectTask, accessToken);
-        }
-    }
-
-    /**
-     * Получение всех не завершенных задач и установка у них статуса прервана
-     * @param executionId
-     * @param taskId
-     * @return
-     */
-    private List<DomainObject> getNotCompleteTasks(String executionId, String taskId) {
-        // TODO Костыль, нужно избавлятся от использования идентификатора как
-        // int или
-        // long
-        /*
-         * int personIdAsint =
-         * Integer.parseInt(personId.toStringRepresentation()
-         * .substring(personId.toStringRepresentation().indexOf('|') + 1));
-         */
-        // поиск задач отправленных пользователю, или любой группе в которую
-        // входит пользователь
-
-        List<Filter> filters = new ArrayList<>();
-        Filter filter = new Filter();
-        filter.setFilter("byExecutionIdAndTaskId");
-        StringValue sv = new StringValue(executionId);
-        filter.addCriterion(0, sv);
-        sv = new StringValue(taskId);
-        filter.addCriterion(1, sv);
-        filters.add(filter);
-
-        /*
-         * AccessToken accessToken = accessControlService
-         * .createCollectionAccessToken(personIdAsint);
-         */
-        // TODO пока права не работают работаю от имени админа
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
-
-        IdentifiableObjectCollection collection = collectionsDao
-                .findCollection("NotCompleteTask", filters, null, 0, 0, accessToken);
-
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        for (IdentifiableObject item : collection) {
-            DomainObject group = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(group);
-        }
-        return result;
-    }
-
 }
