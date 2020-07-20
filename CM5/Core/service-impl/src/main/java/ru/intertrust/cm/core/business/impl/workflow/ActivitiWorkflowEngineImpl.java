@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.business.impl.workflow;
 
-import org.activiti.engine.FormService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.repository.DeploymentBuilder;
-import org.activiti.engine.runtime.Execution;
+import org.flowable.engine.FormService;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngines;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.DeploymentBuilder;
+import org.flowable.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

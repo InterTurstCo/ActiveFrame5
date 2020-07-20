@@ -69,12 +69,12 @@
         </dependency>
 
         <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-engine</artifactId>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-spring</artifactId>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring</artifactId>
         </dependency>
 
         <dependency>

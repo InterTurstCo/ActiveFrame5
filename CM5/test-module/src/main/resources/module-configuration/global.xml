@@ -9,6 +9,7 @@
             <language id="en"/>
         </search-languages>
         <default-locale name="ru"/>
+
         <event-logs>
             <login enable="true"/>
             <logout enable="true"/>
@@ -45,7 +46,7 @@
        <collection-query-cache max-size="1000" />
         <migration-modules><module name="core"/></migration-modules>
         <development-mode>
-            <logical-validation access-matrices="false" indirect-permissions="false" gui="true"/>
+            <logical-validation access-matrices="false" indirect-permissions="false" gui="false"/>
         </development-mode>
     </global-settings>
 

@@ -5,16 +5,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.activiti.engine.FormService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.DelegateTask;
-import org.activiti.engine.delegate.ExecutionListener;
-import org.activiti.engine.delegate.TaskListener;
-import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.form.TaskFormData;
+import org.flowable.engine.FormService;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngines;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.ExecutionListener;
+import org.flowable.engine.delegate.TaskListener;
+import org.flowable.engine.form.FormProperty;
+import org.flowable.engine.form.TaskFormData;
+import org.flowable.task.service.delegate.DelegateTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.IdService;
@@ -227,7 +227,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
      * статус у задач, которые были завершены с помощью event
      */
     @Override
-    public void notify(DelegateExecution execution) throws Exception {
+    public void notify(DelegateExecution execution){
         List<DomainObject> tasks = getNotCompleteTasks(execution.getId(), execution.getCurrentActivityId());
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         for (DomainObject domainObjectTask : tasks) {
