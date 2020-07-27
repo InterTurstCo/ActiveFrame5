@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.process;
 
 import org.flowable.bpmn.model.FlowableListener;
 import org.flowable.bpmn.model.UserTask;
-import org.flowable.engine.delegate.ExecutionListener;
 import org.flowable.engine.delegate.TaskListener;
 import org.flowable.engine.impl.bpmn.parser.BpmnParse;
 import org.flowable.engine.impl.bpmn.parser.handler.UserTaskParseHandler;

@@ -219,7 +219,7 @@ public class TestProcess extends ClientBase {
             params.add(new ReferenceValue(attachment.getId()));
 
             //Пауза чтоб отправились асинхронные уведомления
-            Thread.currentThread().sleep(2000);
+            Thread.currentThread().sleep(10000);
 
             IdentifiableObjectCollection collection = getCollectionService().findCollectionByQuery("select n.id from notification n where n.context_object = {0}", params);
             assertTrue("Send message", collection.size() == 1);

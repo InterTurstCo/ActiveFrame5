@@ -213,6 +213,9 @@
     <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
     <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
     <bean id="moduleProcessDeployer"  class="ru.intertrust.cm.core.process.DeployModuleProcesses"/>
+    <bean id="taskListners"  class="ru.intertrust.cm.core.process.TaskListnersImpl"/>
+    <bean id="platformCreateTaskListener"  class="ru.intertrust.cm.core.process.PlatformCreateTaskListener"/>
+    <bean id="platformDeleteTaskListener"  class="ru.intertrust.cm.core.process.PlatformDeleteTaskListener"/>
 
     <!-- Интеграция с Flowable -->
 
