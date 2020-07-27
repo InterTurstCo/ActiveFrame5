@@ -50,6 +50,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.MessageDi
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.DownloadAttachmentActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
@@ -159,7 +160,12 @@ public class PluginManagerView extends PluginView {
         mainPanel.add(filterPanel);
 
         cellTable = new CellTable<PluginInfo>(50);
-        cellTable.addStyleName("cellTable");
+        final boolean isIE = GuiUtil.isIE();
+        if (isIE) {
+            cellTable.addStyleName("cellTable-IE");
+        } else {
+            cellTable.addStyleName("cellTable");
+        }
 
         // Do not refresh the headers and footers every time the data is updated.
         cellTable.setAutoHeaderRefreshDisabled(true);
