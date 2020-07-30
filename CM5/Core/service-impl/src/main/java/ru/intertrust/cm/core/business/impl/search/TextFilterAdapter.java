@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 
 public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
 
@@ -38,10 +39,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
                 String searchString = filter.getText();
-                if (type instanceof TextSearchFieldType) {
-                    ((TextSearchFieldType) type).addLanguage("");
-                }
-                if (type instanceof SpecialTextSearchFieldType || (type instanceof TextSearchFieldType && ((TextSearchFieldType) type).isSearchBySubstring())) {
+                if (type.isQuote()) {
                     if (searchString.length() >=2 && searchString.startsWith("\"") && searchString.endsWith("\"")) {
                         searchString = searchString.substring(1, searchString.length() - 1);
                     }
@@ -53,7 +51,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
                 } else {
                     searchString = SolrUtils.protectSearchString(searchString);
                 }
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":(")
@@ -87,11 +85,8 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         ArrayList<String> names = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                String searchString = filter.getText();
-                if (type instanceof TextSearchFieldType) {
-                    ((TextSearchFieldType) type).addLanguage("");
-                }
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                // String searchString = filter.getText();
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     names.add(field);
                 }
             }

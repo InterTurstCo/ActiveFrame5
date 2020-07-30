@@ -15,7 +15,7 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
     public SpecialTextSearchFieldType(Collection<String> languages) {
         this.languages = new HashSet<>(languages.size());
         this.languages.addAll(languages);
-        this.languages.add("");
+        // this.languages.add("");
     }
 
     @Override
@@ -25,7 +25,7 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
     }
 
     @Override
-    public Collection<String> getSolrFieldNames(String field, boolean strict) {
+    public Collection<String> getSolrFieldNames(String field) {
         String baseName;
         if (SearchFilter.EVERYWHERE.equals(field)) {
             baseName = SolrFields.EVERYTHING;
@@ -44,15 +44,24 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
                         .toString());
             }
         }
-        if (!strict || languages.contains("")) {
-            result.add(baseName);
-        }
+        result.add(baseName);
         return result;
     }
 
     @Override
     public FieldType getDataFieldType() {
+        // Highlighting
         return FieldType.LIST;
+    }
+
+    @Override
+    public boolean isQuote() {
+        return true;
+    }
+
+    @Override
+    public boolean isTextType() {
+        return true;
     }
 
     @Override

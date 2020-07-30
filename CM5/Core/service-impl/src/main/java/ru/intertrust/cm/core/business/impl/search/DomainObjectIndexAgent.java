@@ -130,7 +130,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 Map<SearchFieldType, ?> values = calculateField(object, fieldConfig);
                 for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
                     SearchFieldType type = entry.getKey();
-                    for (String fieldName : type.getSolrFieldNames(fieldConfig.getName(), true)) {
+                    for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
                         doc.addField(fieldName, entry.getValue());
                     }
                 }
@@ -168,9 +168,9 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
                         ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
                 addFieldToContentRequest(request, object, BaseAttachmentService.NAME,
-                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                        new TextSearchFieldType(configHelper.getSupportedLanguages()));
                 addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION,
-                        new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                        new TextSearchFieldType(configHelper.getSupportedLanguages()));
                 addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH,
                         new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG));
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(object, config));

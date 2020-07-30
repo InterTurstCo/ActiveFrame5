@@ -38,7 +38,7 @@ public class SimpleSearchFieldType implements SearchFieldType {
     }
 
     @Override
-    public Collection<String> getSolrFieldNames(String field, boolean strict) {
+    public Collection<String> getSolrFieldNames(String field) {
         return Collections.singleton(new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)
                 .append(multiValued ? type.infixMultiple : type.infixSingle)
@@ -69,6 +69,16 @@ public class SimpleSearchFieldType implements SearchFieldType {
                 break;
         }
         return fieldType;
+    }
+
+    @Override
+    public boolean isQuote() {
+        return false;
+    }
+
+    @Override
+    public boolean isTextType() {
+        return false;
     }
 
     @Override

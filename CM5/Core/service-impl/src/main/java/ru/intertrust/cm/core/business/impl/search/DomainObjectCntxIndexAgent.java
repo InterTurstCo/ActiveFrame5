@@ -188,22 +188,22 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                         case NAME :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.NAME,
                                     contentFieldConfig.getType().getSolrFieldName(),
-                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages()));
                             break;
                         case PATH :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.PATH,
                                     contentFieldConfig.getType().getSolrFieldName(),
-                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages()));
                             break;
                         case MIMETYPE :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.MIME_TYPE,
                                     contentFieldConfig.getType().getSolrFieldName(),
-                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages()));
                             break;
                         case DESCRIPTION :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.DESCRIPTION,
                                     contentFieldConfig.getType().getSolrFieldName(),
-                                    new TextSearchFieldType(configHelper.getSupportedLanguages(), false, false));
+                                    new TextSearchFieldType(configHelper.getSupportedLanguages()));
                             break;
                         case LENGTH :
                             addFieldToContentRequest(request, attachmentObject, BaseAttachmentService.CONTENT_LENGTH,
@@ -331,7 +331,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 Map<SearchFieldType, ?> values = calculateField(object, fieldConfig);
                 for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
                     SearchFieldType type = entry.getKey();
-                    for (String fieldName : type.getSolrFieldNames(fieldConfig.getName(), true)) {
+                    for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
                         Map<String, Object> fieldModifier = new HashMap<>(1);
                         fieldModifier.put(action == IndexingAction.ADD && !fieldConfig.getMultiValued() ?
                                 IndexingAction.UPDATE.getText() : action.getText(), entry.getValue());

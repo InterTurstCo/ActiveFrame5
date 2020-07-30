@@ -9,7 +9,8 @@ public class IndexedFieldConfig implements Serializable {
 
     public enum SearchBy {
         WORDS("words"),
-        SUBSTRING("substring");
+        SUBSTRING("substring"),
+        EXACTMATCH("exactmatch");
 
         public final String xmlValue;
         private SearchBy(String xmlValue) {
@@ -108,6 +109,7 @@ public class IndexedFieldConfig implements Serializable {
         hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
         hash = hash * 31 ^ (multiValued != null ? multiValued.hashCode() : 0);
         hash = hash * 31 ^ (targetFieldName != null ? targetFieldName.hashCode() : 0);
+        hash = hash * 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
         return hash;
     }
 
@@ -127,6 +129,7 @@ public class IndexedFieldConfig implements Serializable {
                 && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix))
                 && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults))
                 && (targetFieldName == null ? other.targetFieldName == null : targetFieldName.equals(other.targetFieldName))
-                && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued));
+                && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued))
+                && (searchBy == null ? other.searchBy == null : searchBy.equals(other.searchBy));
     }
 }

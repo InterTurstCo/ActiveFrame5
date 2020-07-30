@@ -32,7 +32,7 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         ArrayList<String> fields = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":[")
@@ -59,7 +59,7 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         ArrayList<String> names = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     names.add(field);
                 }
             }
