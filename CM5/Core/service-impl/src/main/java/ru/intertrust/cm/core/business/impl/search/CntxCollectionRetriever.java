@@ -208,22 +208,31 @@ public class CntxCollectionRetriever extends CollectionRetriever {
                 Object objVal = solrDoc.getFieldValue(fieldName);
                 switch (resultField.getDataFieldType()) {
                     case BOOLEAN:
-                        value = new BooleanValue((objVal instanceof Boolean) ? (Boolean) objVal : null);
+                        value = new BooleanValue(extractValue(objVal, Boolean.class));
                         break;
                     case DATETIME:
-                        value = new DateTimeValue((objVal instanceof Date) ? (Date) objVal : null);
+                        value = new DateTimeValue(extractValue(objVal, Date.class));
                         break;
                     case DECIMAL:
-                        value = new DecimalValue((objVal instanceof BigDecimal) ? (BigDecimal) objVal : null);
+                        value = new DecimalValue(extractValue(objVal, BigDecimal.class));
                         break;
                     case LONG:
-                        value = new LongValue((objVal instanceof Long) ? (Long) objVal : null);
+                        value = new LongValue(extractValue(objVal, Long.class));
                         break;
                     case STRING:
-                        value = new StringValue((objVal instanceof String) ? (String) objVal : null);
+                        List<String> values = extractValues(objVal, String.class);
+                        String strVal = null;
+                        if (!values.isEmpty()) {
+                            strVal = "";
+                            for (String s : values) {
+                                strVal += (strVal.isEmpty() ? "" : ", ") + s;
+                            }
+                        }
+                        value = new StringValue(strVal);
                         break;
                     case REFERENCE:
-                        value = new ReferenceValue(objVal != null ? idService.createId(objVal.toString()) : null);
+                        String val = extractValue(objVal, String.class);
+                        value = new ReferenceValue(val != null ? idService.createId(val) : null);
                         break;
                     default:
                         break;
@@ -235,5 +244,48 @@ public class CntxCollectionRetriever extends CollectionRetriever {
             }
         }
         return value;
+    }
+
+    private <T extends Object> T extractValue (Object rawValue,  Class<T> clazz) {
+        T value = null;
+        if (rawValue != null) {
+            if (clazz.isInstance(rawValue)) {
+                value = (T)rawValue;
+            } else if (rawValue instanceof Collection) {
+                Iterator iterator = ((Collection) rawValue).iterator();
+                while (iterator.hasNext()) {
+                    rawValue = iterator.next();
+                    if (rawValue == null) {
+                        continue;
+                    }
+                    if (clazz.isInstance(rawValue)) {
+                        value = (T)rawValue;
+                        break;
+                    }
+                }
+            }
+        }
+        return value;
+    }
+
+    private <T extends Object> List<T> extractValues (Object rawValue,  Class<T> clazz) {
+        List<T> list = new ArrayList<>(1);
+        if (rawValue != null) {
+            if (clazz.isInstance(rawValue)) {
+                list.add((T)rawValue);
+            } else if (rawValue instanceof Collection) {
+                Iterator iterator = ((Collection) rawValue).iterator();
+                while (iterator.hasNext()) {
+                    rawValue = iterator.next();
+                    if (rawValue == null) {
+                        continue;
+                    }
+                    if (clazz.isInstance(rawValue)) {
+                        list.add((T)rawValue);
+                    }
+                }
+            }
+        }
+        return list;
     }
 }

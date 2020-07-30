@@ -7,6 +7,7 @@ import org.mockito.Mock;
 
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.model.SearchException;
 
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class TextFilterAdapterTest {
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn();
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList("ru", "en"), false, false)));
+                        new TextSearchFieldType(Arrays.asList("ru", "en"))));
 
         String result = adapter.getFilterString(filter, query);
         HashSet<String> expectedFields = new HashSet<>(
@@ -84,7 +85,7 @@ public class TextFilterAdapterTest {
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList(""), false, false)));
+                        new TextSearchFieldType(Arrays.asList(""))));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:(Simple)", result);
@@ -125,7 +126,7 @@ public class TextFilterAdapterTest {
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList(""), false, false)));
+                        new TextSearchFieldType(Arrays.asList(""))));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:( \\( \\) \\[ \\] \\{ \\} \\: \" \" \\\\ \\( \\) \\[ \\] \\{ \\} \\: \\\" )",
@@ -140,7 +141,7 @@ public class TextFilterAdapterTest {
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList(""), false, true)));
+                        new TextSearchFieldType(Arrays.asList(""), false, IndexedFieldConfig.SearchBy.SUBSTRING)));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:(\"Quotes must be \\\"quoted\\\"\")", result);
@@ -154,7 +155,7 @@ public class TextFilterAdapterTest {
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList(""), false, true)));
+                        new TextSearchFieldType(Arrays.asList(""), false, IndexedFieldConfig.SearchBy.SUBSTRING)));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:(\"Embracing quotes must be removed\")", result);
@@ -181,7 +182,7 @@ public class TextFilterAdapterTest {
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList(""), false, false)));
+                        new TextSearchFieldType(Arrays.asList(""))));
 
         /*String result =*/ adapter.getFilterString(filter, query);
     }
@@ -194,7 +195,7 @@ public class TextFilterAdapterTest {
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
-                        new TextSearchFieldType(Arrays.asList(""), false, false)));
+                        new TextSearchFieldType(Arrays.asList(""))));
 
         /*String result =*/ adapter.getFilterString(filter, query);
     }

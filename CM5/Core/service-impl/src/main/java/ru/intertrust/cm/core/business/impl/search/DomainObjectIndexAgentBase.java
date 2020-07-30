@@ -125,7 +125,7 @@ public abstract class DomainObjectIndexAgentBase {
                                             SearchFieldType fieldType) {
         Object value = convertValue(object.getValue(fieldName));
         if (value != null) {
-            for (String solrField : fieldType.getSolrFieldNames(solrFieldName, true)) {
+            for (String solrField : fieldType.getSolrFieldNames(solrFieldName)) {
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + solrField, value.toString());
             }
         }

@@ -28,7 +28,7 @@ public class EmptyValueFilterAdapterTest {
     public void testStringField() {
         //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.STRING);
         when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Collections.<String>emptySet(), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Collections.<String>emptySet())));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
@@ -62,8 +62,8 @@ public class EmptyValueFilterAdapterTest {
                 new LinkedHashSet<>(Arrays.asList(
                         new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF),
                         new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true),
-                        new TextSearchFieldType(Arrays.asList("ru", "en"), false, false),
-                        new TextSearchFieldType(Arrays.asList("ru", "fr"), true, false))));
+                        new TextSearchFieldType(Arrays.asList("ru", "en"), false),
+                        new TextSearchFieldType(Arrays.asList("ru", "fr"), true))));
         /*when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaA"))).thenReturn(Arrays.asList(""));
         when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaB"))).thenReturn(
                 Arrays.asList("ru", "en"), Arrays.asList("ru", "fr"));*/

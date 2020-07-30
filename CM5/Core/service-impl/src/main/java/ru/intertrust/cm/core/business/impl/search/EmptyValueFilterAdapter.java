@@ -26,11 +26,11 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         ArrayList<String> fields = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":[")
-                            .append(isTextType(type) ? "\"\"" : "*")
+                            .append(type != null && type.isTextType() ? "\"\"" : "*")
                             .append(" TO *]")
                             .toString());
                 }
@@ -51,15 +51,11 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         ArrayList<String> names = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     names.add(field);
                 }
             }
         }
         return names;
-    }
-
-    private boolean isTextType(SearchFieldType type) {
-        return type instanceof TextSearchFieldType || type instanceof SpecialTextSearchFieldType;
     }
 }

@@ -486,7 +486,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private final static String HL_fragsize = "hl.fragsize";
 
         protected HashMap<String, StringBuilder> filterStrings = new HashMap<>();
-        protected ArrayList<String> multiTypeFilterStrings = new ArrayList<>();
+        protected ArrayList<MultiTypeFilterItem> multiTypeFilterStrings = new ArrayList<>();
         protected ArrayList<CntxQuery> nestedQueries = new ArrayList<>();
         CombiningFilter.Op combineOperation = CombiningFilter.AND;
         boolean negateResult = false;
@@ -514,15 +514,19 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             this.negateResult = negativeResult;
         }
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
+            addFilters(filters, query, 0, combineOperation);
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        private void addFilters(Collection<SearchFilter> filters, SearchQuery query, int level, CombiningFilter.Op combineOperation) {
             for (SearchFilter filter : filters) {
                 FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
 
                 if (adapter.isCompositeFilter(filter) && filter instanceof CombiningFilter) {
                     // ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
-                    addFilters(((CombiningFilter)filter).getFilters(), query);
+                    addFilters(((CombiningFilter)filter).getFilters(), query, level + 1, ((CombiningFilter)filter).getOperation());
                     continue;
                 }
 
@@ -535,22 +539,20 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         query.getAreas(), query.getTargetObjectTypes());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
-                }
-
-                if (types.size() > 1) {
-                    addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue);
-                } else if (types.size() == 1) {
-                    addFilterValue((String) types.toArray()[0], filterValue);
+                } else if (types.size() > 1) {
+                    addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue, level, combineOperation);
+                } else /*if (types.size() == 1)*/ {
+                    addFilterValue((String) types.toArray()[0], filterValue, level, combineOperation);
                 }
             }
         }
 
-        private void addFilterValue(String type, String filterValue) {
+        private void addFilterValue(String type, String filterValue, int level, CombiningFilter.Op combineOperation) {
             if (SearchConfigHelper.ALL_TYPES.equals(type)) {
-                multiTypeFilterStrings.add(filterValue);
+                multiTypeFilterStrings.add(new MultiTypeFilterItem(filterValue, level, combineOperation));
                 return;
             }
-            StringBuilder filterString;
+            StringBuilder filterString = null;
             if (!filterStrings.containsKey(type)) {
                 filterString = new StringBuilder();
                 filterStrings.put(type, filterString);
@@ -571,49 +573,13 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     str.insert(0, "-(").append(")");
                 }
             }
-            List <String> areaList = new ArrayList<>(1);
-            StringBuilder areas = new StringBuilder();
-            if (!query.getAreas().isEmpty()) {
-                for (String areaName : query.getAreas()) {
-                    areas.append(areas.length() == 0 ? "(" : " OR ")
-                            .append("\"")
-                            .append(areaName)
-                            .append("\"");
-                    areaList.add(areaName);
-                }
-                areas.append(")");
-            }
 
-            StringBuilder targetTypes = new StringBuilder();
-            if (!query.getTargetObjectTypes().isEmpty()) {
-                for (String targetObjectType : query.getTargetObjectTypes()) {
-                    targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
-                            .append("\"")
-                            .append(targetObjectType)
-                            .append("\"");
-                }
-                targetTypes.append(")");
-            }
+            StringBuilder areas = composeAreaFilterValue(query);
+            StringBuilder targetTypes = composeTargetTypeFilterValue(query);
+            StringBuilder objectTypes = composeObjectTypeFilterValue(query, filterStrings);
+            StringBuilder queryString = composeQueryString(filterStrings, combineOperation);
 
-            StringBuilder queryString = new StringBuilder();
-            StringBuilder objectTypes = new StringBuilder();
-
-            if (!filterStrings.entrySet().isEmpty()) {
-                for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
-                    queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
-                            .append(entry.getValue().toString());
-                    objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
-                            .append("\"")
-                            .append(entry.getKey())
-                            .append("\"");
-                }
-                objectTypes.append(")");
-            }
-
-            for (String filterString : multiTypeFilterStrings) {
-                queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
-                        .append(filterString);
-            }
+            appendQueryString(multiTypeFilterStrings, combineOperation, queryString);
 
             float clippingFactor = 1f;
             boolean clipped;
@@ -652,7 +618,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                 }
 
-                addHighlightingToQuery(!areaList.isEmpty() ? areaList.get(0) : null, solrQuery, highlightingFields);
+                addHighlightingToQuery(!query.getAreas().isEmpty() ? query.getAreas().get(0) : null, solrQuery, highlightingFields);
 
                 if (rows > 0) {
                     solrQuery.setRows(rows);
@@ -663,6 +629,86 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
             } while (clipped && response.getResults().size() < fetchLimit);
             return response;
+        }
+
+        private StringBuilder composeAreaFilterValue(SearchQuery query) {
+            StringBuilder areas = new StringBuilder();
+            if (!query.getAreas().isEmpty()) {
+                for (String areaName : query.getAreas()) {
+                    areas.append(areas.length() == 0 ? "(" : " OR ")
+                            .append("\"")
+                            .append(areaName)
+                            .append("\"");
+                }
+                areas.append(")");
+            }
+            return areas;
+        }
+
+        private StringBuilder composeTargetTypeFilterValue(SearchQuery query) {
+            StringBuilder targetTypes = new StringBuilder();
+            if (!query.getTargetObjectTypes().isEmpty()) {
+                for (String targetObjectType : query.getTargetObjectTypes()) {
+                    targetTypes.append(targetTypes.length() == 0 ? "(" : " OR ")
+                            .append("\"")
+                            .append(targetObjectType)
+                            .append("\"");
+                }
+                targetTypes.append(")");
+            }
+            return targetTypes;
+        }
+
+        private StringBuilder composeObjectTypeFilterValue(SearchQuery query, Map<String, StringBuilder> filterStrings) {
+            StringBuilder objectTypes = new StringBuilder();
+            if (!filterStrings.entrySet().isEmpty()) {
+                for (String type : filterStrings.keySet()) {
+                    objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
+                            .append("\"")
+                            .append(type)
+                            .append("\"");
+                }
+                objectTypes.append(")");
+            }
+            return objectTypes;
+        }
+
+        private StringBuilder composeQueryString(Map<String, StringBuilder> filterStrings, CombiningFilter.Op combineOperation) {
+            StringBuilder queryString = new StringBuilder();
+            if (!filterStrings.entrySet().isEmpty()) {
+                for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+                    queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
+                            .append(entry.getValue().toString());
+                }
+            }
+            return queryString;
+        }
+
+        private StringBuilder appendQueryString(ArrayList<MultiTypeFilterItem> multiTypeFilterStrings,
+                                               CombiningFilter.Op combineOperation,
+                                               StringBuilder queryString) {
+            if (queryString == null) {
+                queryString = new StringBuilder();
+            }
+            CombiningFilter.Op lastOperation = combineOperation;
+            int lastLevel = 0;
+            int brCount = 0;
+            for (MultiTypeFilterItem filterItem : multiTypeFilterStrings) {
+                boolean bOpenBr = lastLevel < filterItem.getLevel();
+                boolean bCloseBr = lastLevel > filterItem.getLevel();
+                queryString
+                        .append(queryString.length() > 0 ? (lastOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
+                        .append(bOpenBr ? "(" : "")
+                        .append(filterItem.getFilterString())
+                        .append(bCloseBr ? ")" : "");
+                brCount += bOpenBr ? 1 : bCloseBr ? -1 : 0;
+                lastLevel = filterItem.getLevel();
+                lastOperation = filterItem.getCombineOperation();
+            }
+            for (; brCount > 0; brCount--) {
+                queryString.append(")");
+            }
+            return queryString;
         }
 
         private void addHighlightingToQuery(String area, SolrQuery solrQuery, Set<String> highlightingFields) {
@@ -748,6 +794,31 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return configHelper.getFieldTypes(config, objectTypeName);
     }
 
+
+    private class MultiTypeFilterItem {
+        private final String filterString;
+        private final int level;
+        private final CombiningFilter.Op combineOperation;
+
+        private MultiTypeFilterItem (String filterString, int level, CombiningFilter.Op combineOperation) {
+            this.filterString = filterString;
+            this.level = level;
+            this.combineOperation = combineOperation;
+        }
+
+        public String getFilterString() {
+            return filterString;
+        }
+
+        public int getLevel() {
+            return level;
+        }
+
+        public CombiningFilter.Op getCombineOperation() {
+            return combineOperation;
+        }
+    }
+
     private class ResultFieldsExtractor implements ConfigDataExtractor<TargetResultField> {
         @Override
         public Collection<TargetResultField> getExtractedValues(String mainType, IndexedDomainObjectConfig objectConfig) {
@@ -775,7 +846,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             case MIMETYPE:
                             case DESCRIPTION:
                                 addFieldMetaData(solrFields, new TextSearchFieldType(
-                                        configHelper.getSupportedLanguages(), false, false),
+                                        configHelper.getSupportedLanguages()),
                                         contentFieldConfig.getType().getSolrFieldName(),
                                         contentFieldConfig.getTypeString(), targetName, false);
                                 break;
@@ -810,7 +881,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                       String indexedFieldName,
                                       String targetName,
                                       boolean isHighlighting) {
-            Collection<String> fieldNameList = searchFieldType.getSolrFieldNames(solrFieldName,true);
+            Collection<String> fieldNameList = searchFieldType.getSolrFieldNames(solrFieldName);
             if (!fieldNameList.isEmpty()) {
              TargetResultField trf = new TargetResultField(indexedFieldName,
                         targetName, searchFieldType.getDataFieldType(), isHighlighting);
@@ -827,7 +898,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     Collection<SearchFieldType> fieldTypes = calculateFieldType(type, fieldConfig);
                     if (fieldTypes != null && !fieldTypes.isEmpty()) {
                         for (SearchFieldType fieldType : fieldTypes) {
-                            Collection<String> list = fieldType.getSolrFieldNames(fieldConfig.getName(), true);
+                            Collection<String> list = fieldType.getSolrFieldNames(fieldConfig.getName());
                             if (!list.isEmpty()) {
                                 TargetResultField trf = new TargetResultField(fieldConfig.getName(),
                                         targetName, fieldType.getDataFieldType());
@@ -866,8 +937,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             case PATH:
                             case MIMETYPE:
                             case DESCRIPTION:
-                                searchFieldType = new TextSearchFieldType(
-                                        configHelper.getSupportedLanguages(), false, false);
+                                searchFieldType = new TextSearchFieldType(configHelper.getSupportedLanguages());
                                 break;
                             case LENGTH:
                                 searchFieldType = new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG);
@@ -880,7 +950,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         }
                         if (searchFieldType != null) {
                             solrFieldNames.addAll(searchFieldType.getSolrFieldNames(
-                                    contentFieldConfig.getType().getSolrFieldName(), true));
+                                    contentFieldConfig.getType().getSolrFieldName()));
                         }
                     }
                 }
@@ -894,7 +964,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (fieldConfig.getShowInResults()) {
                     Collection<SearchFieldType> fieldTypes = calculateFieldType(type, fieldConfig);
                     for (SearchFieldType fieldType : fieldTypes) {
-                        solrFieldNames.addAll(fieldType.getSolrFieldNames(fieldConfig.getName(), true));
+                        solrFieldNames.addAll(fieldType.getSolrFieldNames(fieldConfig.getName()));
                     }
                 }
             }
@@ -913,7 +983,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         if (ContentFieldConfig.Type.HIGHLIGHTING == contentFieldConfig.getType()) {
                             SearchFieldType searchFieldType = new SpecialTextSearchFieldType(
                                     configHelper.getSupportedLanguages());
-                            solrFieldNames.addAll(searchFieldType.getSolrFieldNames(SearchFilter.CONTENT, true));
+                            solrFieldNames.addAll(searchFieldType.getSolrFieldNames(SearchFilter.CONTENT));
                         }
                     }
                 }

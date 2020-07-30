@@ -130,6 +130,9 @@
     <field name="cm_text_en" type="text_stem_en" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_content_en" type="text_stem_en" indexed="true" stored="false" multiValued="true"/>
 
+    <dynamicField name="cm_te_*" type="text_exact" indexed="true" stored="true"/>
+    <dynamicField name="cm_tes_*" type="text_exact" indexed="true" stored="true" multiValued="true"/>
+
     <dynamicField name="cm_t_*" type="text_general" indexed="true" stored="true"/>
     <dynamicField name="cm_ts_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
     <dynamicField name="cm_r_*" type="string" indexed="true" stored="true"/>
@@ -250,6 +253,13 @@
     <copyField source="cm_rus_*" dest="cm_text_ru"/>
     <copyField source="cm_en_*" dest="cm_text_en"/>
     <copyField source="cm_ens_*" dest="cm_text_en"/>
+
+    <copyField source="cm_te__*" dest="cm_text"/>
+    <copyField source="cm_tes__*" dest="cm_text"/>
+    <copyField source="cm_te_en_*" dest="cm_text_en"/>
+    <copyField source="cm_tes_en_*" dest="cm_text_en"/>
+    <copyField source="cm_te_ru_*" dest="cm_text_ru"/>
+    <copyField source="cm_tess_ru_*" dest="cm_text_ru"/>
 
     <!--
     <copyField source="cm_content" dest="cm_content_en"/>
@@ -1072,6 +1082,14 @@
         <!--filter class="solr.FlattenGraphFilterFactory"/--> 
       </analyzer>
     </fieldType>
+
+    <fieldType name="text_exact" class="solr.TextField" positionIncrementGap="100">
+      <analyzer> 
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+    
   </types>
 
 </schema>
