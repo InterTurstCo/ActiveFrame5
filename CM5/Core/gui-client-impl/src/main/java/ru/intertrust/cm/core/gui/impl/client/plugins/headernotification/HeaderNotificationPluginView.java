@@ -8,7 +8,6 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -20,15 +19,17 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HeaderNotificationRemoveItemEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
+import ru.intertrust.cm.core.gui.impl.client.model.util.session.SessionTimeoutRequestDto;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.session.SessionTimeoutResponseDto;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
 import java.util.Date;
 
-import static ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView.SESSION_TIMEOUT;
 import static ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView.getLastActivity;
 
 /**
@@ -51,16 +52,39 @@ public class HeaderNotificationPluginView extends PluginView {
         headerNotificationPluginData = plugin.getInitialData();
         listNotificationItem = headerNotificationPluginData.getCollection();
         if (Application.getInstance().getHeaderNotificationPeriod() > 0) {
-            updateNotificationTimer(Application.getInstance().getHeaderNotificationPeriod());
+            Command command = new Command();
+
+            command.setComponentName("session.utils.component");
+            command.setName("getSessionTimeout");
+            command.setParameter(new SessionTimeoutRequestDto());
+
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onSuccess(Dto result) {
+                    SessionTimeoutResponseDto resultDto = (SessionTimeoutResponseDto) result;
+                    final Integer sessionTimeout = resultDto.getSessionTimeout();
+
+                    if ((sessionTimeout != null) && (sessionTimeout > 0)) {
+                        final int headerNotificationPeriod = Application.getInstance().getHeaderNotificationPeriod();
+                        updateNotificationTimer(headerNotificationPeriod, sessionTimeout);
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining session data");
+                    caught.printStackTrace();
+                }
+            });
         }
     }
 
-    private void updateNotificationTimer(final int headerNotificationPeriod) {
+    private void updateNotificationTimer(final int headerNotificationPeriod, final Integer sessionTimeout) {
         timer = new Timer() {
             @Override
             public void run() {
                 Date now = new Date();
-                if (getLastActivity() == 0 || ((now.getTime() - getLastActivity()) / 1000 < SESSION_TIMEOUT)) {
+                if (getLastActivity() == 0 || ((now.getTime() - getLastActivity()) / TimeUtil.MILLIS_IN_SEC < (sessionTimeout * TimeUtil.SECONDS_IN_MINUTE))) {
                     cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
                 } else {
                     String context = GWT.getHostPageBaseURL().split("/")[3];
