@@ -39,11 +39,15 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSu
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.SessionUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchDomainObjectSurfacePluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.HashMap;
@@ -245,6 +249,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         navigationTreePanel.setVisibleWidth(NavigationTreePluginView.FIRST_LEVEL_NAVIGATION_PANEL_WIDTH);
         navigationTreePanel.open(navigationTreePlugin);
 
+        SessionUtils.startSessionSchedulers();
     }
 
     @Override
