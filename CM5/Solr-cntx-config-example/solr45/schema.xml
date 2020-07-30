@@ -259,7 +259,7 @@
     <copyField source="cm_te_en_*" dest="cm_text_en"/>
     <copyField source="cm_tes_en_*" dest="cm_text_en"/>
     <copyField source="cm_te_ru_*" dest="cm_text_ru"/>
-    <copyField source="cm_tess_ru_*" dest="cm_text_ru"/>
+    <copyField source="cm_tes_ru_*" dest="cm_text_ru"/>
 
     <!--
     <copyField source="cm_content" dest="cm_content_en"/>
