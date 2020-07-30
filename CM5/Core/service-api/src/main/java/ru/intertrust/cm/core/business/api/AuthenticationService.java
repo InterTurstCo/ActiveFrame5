@@ -25,4 +25,10 @@ public interface AuthenticationService {
      */
     boolean existsAuthenticationInfo(String login);
 
+    /**
+     * Возвращает тайм-аут сессии
+     * @return таймаут сессии в минутах
+     */
+    Integer getSessionTimeout();
+
 }
