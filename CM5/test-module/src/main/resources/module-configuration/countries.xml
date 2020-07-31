@@ -1027,6 +1027,9 @@
     </form>
 
     <form name="city_form" domain-object-type="city" is-default="true">
+        <act:tool-bar useDefault="true">
+            <act:action-ref name-ref="aRefresh" rendered="true"/>
+        </act:tool-bar>
         <markup>
             <title>
                 <new-object label-widget-id="titleNew"/>
