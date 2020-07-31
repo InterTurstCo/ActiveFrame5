@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
@@ -41,6 +39,7 @@ import java.util.logging.Logger;
  *         Time: 13:01
  */
 public abstract class Plugin extends BaseComponent {
+
     private PluginPanel owner;
     private PluginConfig config;
     private boolean displayActionToolBar;
@@ -52,7 +51,10 @@ public abstract class Plugin extends BaseComponent {
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
     private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
     private List<PluginCloseListener> pluginCloseListeners = new ArrayList<PluginCloseListener>(1);
-    private boolean lockScreenImmediately = true;
+    /**
+     * Нужно ли показывать индикатор выполнения запроса через 1 секунду (игнорируется, если экран не блокировался)
+     */
+    protected boolean indicateLockScreen = true;
     static Logger logger = Logger.getLogger("plugin logger");
     private NavigationConfig navigationConfig;
 
@@ -123,15 +125,19 @@ public abstract class Plugin extends BaseComponent {
         };
         fillHistoryData();
         final Command command = new Command("initialize", this.getName(), getConfig());
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, lockScreenImmediately);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, indicateLockScreen);
     }
 
     protected GwtEvent.Type[] getEventTypesToHandle() {
         return null;
     }
 
-    void setLockScreenImmediately(boolean lockScreenImmediately) {
-        this.lockScreenImmediately = lockScreenImmediately;
+    void setIndicateLockScreen(boolean indicateLockScreen) {
+        this.indicateLockScreen = indicateLockScreen;
+    }
+
+    public boolean isIndicateLockScreen() {
+        return indicateLockScreen;
     }
 
     private void registerEventsHandling(GwtEvent.Type[] events) {
