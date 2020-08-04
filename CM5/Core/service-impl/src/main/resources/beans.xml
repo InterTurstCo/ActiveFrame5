@@ -189,7 +189,7 @@
 
     <!-- Интеграция с Flowable -->
     <bean id="processEngineConfiguration" class="org.flowable.spring.SpringProcessEngineConfiguration">
-        <property name="dataSource" ref="dataSource"/>
+        <property name="dataSource" ref="wfDataSource"/>
         <property name="transactionManager" ref="transactionManager"/>
         <property name="databaseSchemaUpdate" value="true"/>
         <property name="asyncExecutorActivate" value="${wf.job.executor.activate:false}"/>
