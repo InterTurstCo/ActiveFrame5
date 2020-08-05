@@ -360,14 +360,12 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                     onMessage(consumer.receive());
                 }
 
-                receiveContext.close();
             } catch (Exception ex) {
-                if (Thread.currentThread().isInterrupted()) {
-                    receiveContext.close();
-                    logger.info("Receive JMS is shutdown");
-                } else {
-                    logger.error("Error in receive message thread", ex);
-                }
+                logger.error("Error in receive message thread", ex);
+            } finally {
+                consumer.close();
+                receiveContext.close();
+                logger.info("Receive JMS is shutdown");
             }
         }
 
