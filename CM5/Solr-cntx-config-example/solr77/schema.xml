@@ -122,12 +122,12 @@
 
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/-->
    
-    <field name="cm_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_main" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_area" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
+    <field name="cm_id" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="cm_main" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="cm_area" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
     <field name="cm_type" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
-    <field name="cm_item" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
-    <field name="cm_modified" type="pdate" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="cm_item" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
+    <field name="cm_modified" type="pdate" indexed="true" stored="true" multiValued="false"/>
 
     <field name="cm_text" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_content" type="text_stem" indexed="true" stored="true" multiValued="true"/>

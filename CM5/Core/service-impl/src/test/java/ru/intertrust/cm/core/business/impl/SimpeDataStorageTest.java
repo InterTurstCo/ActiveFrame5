@@ -54,11 +54,11 @@ public class SimpeDataStorageTest {
         SimpleDataConfig config = new SimpleDataConfig();
         config.setName("test-simple-data");
         List<SimpleDataFieldConfig> fields = new ArrayList<>();
-        fields.add(new SimpleDataFieldConfig("test-string", SimpleDataFieldType.String, true, true));
-        fields.add(new SimpleDataFieldConfig("test-long", SimpleDataFieldType.Long, true, true));
-        fields.add(new SimpleDataFieldConfig("test-boolean", SimpleDataFieldType.Bollean, true, true));
-        fields.add(new SimpleDataFieldConfig("test-date", SimpleDataFieldType.Date, true, true));
-        fields.add(new SimpleDataFieldConfig("test-date-time", SimpleDataFieldType.DateTime, true, true));
+        fields.add(new SimpleDataFieldConfig("test-string", SimpleDataFieldType.String, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-long", SimpleDataFieldType.Long, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-boolean", SimpleDataFieldType.Bollean, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-date", SimpleDataFieldType.Date, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-date-time", SimpleDataFieldType.DateTime, true, true, true));
         config.setFields(fields);
         when(configurationExplorer.getConfig(eq(SimpleDataConfig.class), eq("test-simple-data"))).
                 thenReturn(config);

@@ -28,6 +28,13 @@ public interface SimpeDataStorage {
     List<SimpleData> find(String type, List<SimpleDataSearchFilter> filters, List<String> resultFields, List<SimpleSearchOrder> resultOrder);
 
     /**
+     * Найти данные по фильтру
+     * @param filters Объединение фильтров по И
+     * @return
+     */
+    List<SimpleData> find(String type, List<SimpleDataSearchFilter> filters, List<String> resultFields, List<SimpleSearchOrder> resultOrder, int limit);
+
+    /**
      * Удалить данные найденные по фильтру
      * @param filters Объединение фильтров по И
      */

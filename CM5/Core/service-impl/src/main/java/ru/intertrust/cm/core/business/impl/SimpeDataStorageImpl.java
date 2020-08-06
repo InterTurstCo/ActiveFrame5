@@ -42,7 +42,7 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
 
     SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
-    Map<String, SimpleDataFieldType> fieldTypes = new HashMap<>();
+    Map<String, SimpleDataFieldConfig> fieldConfigs = new HashMap<>();
 
     @Override
     public void save(SimpleData data) {
@@ -80,10 +80,15 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
     }
 
     @Override
-    public List<SimpleData> find(String type, List<SimpleDataSearchFilter> filters, List<String> resultFields, List<SimpleSearchOrder> resultOrder) {
+    public List<SimpleData> find(String type, List<SimpleDataSearchFilter> filters, List<String> resultFields, List<SimpleSearchOrder> resultOrder, int limit) {
         try {
             SimpleDataConfig config = configurationExplorer.getConfig(SimpleDataConfig.class, type);
             SolrQuery query = new SolrQuery();
+
+            if (limit > -1) {
+                query.setRows(limit);
+            }
+
             query.setQuery(createQuery(config, filters));
 
             query.addField("id");
@@ -96,7 +101,7 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
             if (resultOrder != null) {
                 for (SimpleSearchOrder order : resultOrder) {
                     query.addSort(getSolrFieldName(config, order.getFieldName()),
-                            order.getDirection() != null && order.getDirection() == SumpleSearchOrderDirection.DESK ? SolrQuery.ORDER.desc : SolrQuery.ORDER.asc);
+                            order.getDirection() != null && order.getDirection() == SumpleSearchOrderDirection.DESС ? SolrQuery.ORDER.desc : SolrQuery.ORDER.asc);
                 }
             }
 
@@ -126,22 +131,36 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
         }
     }
 
+    @Override
+    public List<SimpleData> find(String type, List<SimpleDataSearchFilter> filters, List<String> resultFields, List<SimpleSearchOrder> resultOrder) {
+        return find(type, filters, resultFields, resultOrder, -1);
+    }
+
     private String getSolrFieldName(SimpleDataConfig config, String fieldName) {
-        SimpleDataFieldType fieldType = getFieldType(config, fieldName);
+        SimpleDataFieldConfig fieldConfig = getFieldConfig(config, fieldName);
         String result = null;
-        if (fieldType.equals(SimpleDataFieldType.String)) {
-            result = "cm_rs_" + fieldName;
-        } else if (fieldType.equals(SimpleDataFieldType.Long)) {
-            result = "cm_ls_" + fieldName;
-        } else if (fieldType.equals(SimpleDataFieldType.Bollean)) {
-            result = "cm_bs_" + fieldName;
-        } else if (fieldType.equals(SimpleDataFieldType.DateTime)) {
-            result = "cm_dts_" + fieldName;
-        } else if (fieldType.equals(SimpleDataFieldType.Date)) {
-            result = "cm_dts_" + fieldName;
+        if (fieldConfig.getType().equals(SimpleDataFieldType.String)) {
+            result = "cm_r";
+        } else if (fieldConfig.getType().equals(SimpleDataFieldType.Long)) {
+            result = "cm_l";
+        } else if (fieldConfig.getType().equals(SimpleDataFieldType.Bollean)) {
+            result = "cm_b";
+        } else if (fieldConfig.getType().equals(SimpleDataFieldType.DateTime)) {
+            result = "cm_dt";
+        } else if (fieldConfig.getType().equals(SimpleDataFieldType.Date)) {
+            result = "cm_dt";
         } else {
-            throw new FatalException("Field " + fieldName + ". Type " + fieldType + " is not supported");
+            throw new FatalException("Field " + fieldName + ". Type " + fieldConfig.getType() + " is not supported");
         }
+
+        if (fieldConfig.isMultivalue() != null && fieldConfig.isMultivalue()){
+            result += "s_";
+        }else{
+            result += "_";
+        }
+
+        result += fieldName;
+
         return result;
     }
 
@@ -150,18 +169,18 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
         Value[] result = null;
         if (fieldValues != null) {
             result = new Value[fieldValues.size()];
-            SimpleDataFieldType fieldType = getFieldType(config, fieldName);
+            SimpleDataFieldConfig fieldConfig = getFieldConfig(config, fieldName);
             int i = 0;
             for (Object fieldValue : fieldValues) {
-                if (fieldType.equals(SimpleDataFieldType.String)) {
+                if (fieldConfig.getType().equals(SimpleDataFieldType.String)) {
                     result[i] = new StringValue((String) fieldValue);
-                } else if (fieldType.equals(SimpleDataFieldType.Long)) {
+                } else if (fieldConfig.getType().equals(SimpleDataFieldType.Long)) {
                     result[i] = new LongValue((Long) fieldValue);
-                } else if (fieldType.equals(SimpleDataFieldType.Bollean)) {
+                } else if (fieldConfig.getType().equals(SimpleDataFieldType.Bollean)) {
                     result[i] = new BooleanValue((Boolean) fieldValue);
-                } else if (fieldType.equals(SimpleDataFieldType.DateTime)) {
+                } else if (fieldConfig.getType().equals(SimpleDataFieldType.DateTime)) {
                     result[i] = new DateTimeValue((Date) fieldValue);
-                } else if (fieldType.equals(SimpleDataFieldType.Date)) {
+                } else if (fieldConfig.getType().equals(SimpleDataFieldType.Date)) {
                     Date dateValue = (Date) fieldValue;
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(dateValue);
@@ -184,14 +203,14 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
      * @param name
      * @return
      */
-    private SimpleDataFieldType getFieldType(SimpleDataConfig config, String name) {
-        SimpleDataFieldType result = fieldTypes.get(config.getName().toLowerCase() + ":" + name.toLowerCase());
+    private SimpleDataFieldConfig getFieldConfig(SimpleDataConfig config, String name) {
+        SimpleDataFieldConfig result = fieldConfigs.get(config.getName().toLowerCase() + ":" + name.toLowerCase());
         if (result == null) {
             for (SimpleDataFieldConfig fieldConfig : config.getFields()) {
-                fieldTypes.put(config.getName().toLowerCase() + ":" + fieldConfig.getName().toLowerCase(),
-                        fieldConfig.getType());
+                fieldConfigs.put(config.getName().toLowerCase() + ":" + fieldConfig.getName().toLowerCase(),
+                        fieldConfig);
             }
-            result = fieldTypes.get(config.getName().toLowerCase() + ":" + name.toLowerCase());
+            result = fieldConfigs.get(config.getName().toLowerCase() + ":" + name.toLowerCase());
         }
         return result;
     }

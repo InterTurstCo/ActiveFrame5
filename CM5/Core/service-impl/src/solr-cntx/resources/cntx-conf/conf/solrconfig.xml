@@ -149,7 +149,7 @@
   -->
   <schemaFactory class="ManagedIndexSchemaFactory">
     <bool name="mutable">true</bool>
-    <str name="managedSchemaResourceName">managed-schema.xml</str>
+    <str name="managedSchemaResourceName">managed-schema.xmlmanaged-schema.xml</str>
   </schemaFactory>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
