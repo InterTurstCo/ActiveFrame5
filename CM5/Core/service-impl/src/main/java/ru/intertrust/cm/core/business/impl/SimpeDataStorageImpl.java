@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.SimpeDataStorage;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.simpledata.*;
+import ru.intertrust.cm.core.business.impl.search.simple.SimpleDataSearchFilterQueryFactory;
+import ru.intertrust.cm.core.business.impl.search.simple.SimpleSearchUtils;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.SimpleDataConfig;
 import ru.intertrust.cm.core.config.SimpleDataFieldConfig;
@@ -33,16 +35,16 @@ import java.util.*;
 @Remote(SimpeDataStorage.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class SimpeDataStorageImpl implements SimpeDataStorage {
-    private Logger logger = LoggerFactory.getLogger(SimpeDataStorageImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(SimpeDataStorageImpl.class);
 
     @Autowired
     private SolrServer solrServer;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-
-    SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-
-    Map<String, SimpleDataFieldConfig> fieldConfigs = new HashMap<>();
+    @Autowired
+    private SimpleSearchUtils simpleSearchUtils;
+    @Autowired
+    private SimpleDataSearchFilterQueryFactory queryFactory;
 
     @Override
     public void save(SimpleData data) {
@@ -59,10 +61,10 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
             for (SimpleDataFieldConfig fieldConfig : config.getFields()) {
                 if (data.getValues(fieldConfig.getName()) != null) {
                     List<Object> values = new ArrayList<>();
-                    for (Value dataValue : data.getValues(fieldConfig.getName())) {
+                    for (Value<?> dataValue : data.getValues(fieldConfig.getName())) {
                         values.add(dataValue.get());
                     }
-                    doc.addField(getSolrFieldName(config, fieldConfig.getName()), values);
+                    doc.addField(simpleSearchUtils.getSolrFieldName(config, fieldConfig.getName()), values);
                 }
             }
 
@@ -94,13 +96,13 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
             query.addField("id");
             if (resultFields != null) {
                 for (String resultField : resultFields) {
-                    query.addField(getSolrFieldName(config, resultField));
+                    query.addField(simpleSearchUtils.getSolrFieldName(config, resultField));
                 }
             }
 
             if (resultOrder != null) {
                 for (SimpleSearchOrder order : resultOrder) {
-                    query.addSort(getSolrFieldName(config, order.getFieldName()),
+                    query.addSort(simpleSearchUtils.getSolrFieldName(config, order.getFieldName()),
                             order.getDirection() != null && order.getDirection() == SumpleSearchOrderDirection.DESС ? SolrQuery.ORDER.desc : SolrQuery.ORDER.asc);
                 }
             }
@@ -136,40 +138,12 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
         return find(type, filters, resultFields, resultOrder, -1);
     }
 
-    private String getSolrFieldName(SimpleDataConfig config, String fieldName) {
-        SimpleDataFieldConfig fieldConfig = getFieldConfig(config, fieldName);
-        String result = null;
-        if (fieldConfig.getType().equals(SimpleDataFieldType.String)) {
-            result = "cm_r";
-        } else if (fieldConfig.getType().equals(SimpleDataFieldType.Long)) {
-            result = "cm_l";
-        } else if (fieldConfig.getType().equals(SimpleDataFieldType.Bollean)) {
-            result = "cm_b";
-        } else if (fieldConfig.getType().equals(SimpleDataFieldType.DateTime)) {
-            result = "cm_dt";
-        } else if (fieldConfig.getType().equals(SimpleDataFieldType.Date)) {
-            result = "cm_dt";
-        } else {
-            throw new FatalException("Field " + fieldName + ". Type " + fieldConfig.getType() + " is not supported");
-        }
-
-        if (fieldConfig.isMultivalue() != null && fieldConfig.isMultivalue()){
-            result += "s_";
-        }else{
-            result += "_";
-        }
-
-        result += fieldName;
-
-        return result;
-    }
-
-    private Value[] getFieldValue(SimpleDataConfig config, String fieldName, SolrDocument document) {
-        Collection<Object> fieldValues = document.getFieldValues(getSolrFieldName(config, fieldName));
-        Value[] result = null;
+    private Value<?>[] getFieldValue(SimpleDataConfig config, String fieldName, SolrDocument document) {
+        Collection<Object> fieldValues = document.getFieldValues(simpleSearchUtils.getSolrFieldName(config, fieldName));
+        Value<?>[] result = null;
         if (fieldValues != null) {
             result = new Value[fieldValues.size()];
-            SimpleDataFieldConfig fieldConfig = getFieldConfig(config, fieldName);
+            SimpleDataFieldConfig fieldConfig = simpleSearchUtils.getFieldConfig(config, fieldName);
             int i = 0;
             for (Object fieldValue : fieldValues) {
                 if (fieldConfig.getType().equals(SimpleDataFieldType.String)) {
@@ -193,25 +167,6 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
             }
         }
 
-        return result;
-    }
-
-    /**
-     * Кэшируем тип полей
-     *
-     * @param config
-     * @param name
-     * @return
-     */
-    private SimpleDataFieldConfig getFieldConfig(SimpleDataConfig config, String name) {
-        SimpleDataFieldConfig result = fieldConfigs.get(config.getName().toLowerCase() + ":" + name.toLowerCase());
-        if (result == null) {
-            for (SimpleDataFieldConfig fieldConfig : config.getFields()) {
-                fieldConfigs.put(config.getName().toLowerCase() + ":" + fieldConfig.getName().toLowerCase(),
-                        fieldConfig);
-            }
-            result = fieldConfigs.get(config.getName().toLowerCase() + ":" + name.toLowerCase());
-        }
         return result;
     }
 
@@ -240,7 +195,7 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
 
             query.addField("id");
             for (SimpleDataFieldConfig fieldConfig : config.getFields()) {
-                query.addField(getSolrFieldName(config, fieldConfig.getName()));
+                query.addField(simpleSearchUtils.getSolrFieldName(config, fieldConfig.getName()));
             }
 
             if (logger.isDebugEnabled()) {
@@ -282,53 +237,13 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
     }
 
     private String createQuery(SimpleDataConfig config, List<SimpleDataSearchFilter> filters) {
-        String result = "cm_type: \"" + config.getName() + "\"";
-
+        StringBuilder result = new StringBuilder("cm_type: \"" + config.getName() + "\"");
         if (filters != null) {
             for (SimpleDataSearchFilter filter : filters) {
-                result += " AND " + getFilterQuery(config, filter);
+                result.append(" AND ").append(queryFactory.getQuery(config, filter));
             }
         }
-        return result;
+        return result.toString();
     }
 
-    private String getFilterQuery(SimpleDataConfig config, SimpleDataSearchFilter filter) {
-        if (filter instanceof EqualSimpleDataSearchFilter) {
-            return getEqualSimpleDataSearchFilterQuery(config, (EqualSimpleDataSearchFilter) filter);
-        } else if (filter instanceof LikeSimpleDataSearchFilter) {
-            return getLikeSimpleDataSearchFilterQuery(config, (LikeSimpleDataSearchFilter) filter);
-        }
-        throw new FatalException("Filter " + filter.getClass() + " is not supported");
-    }
-
-    private String getLikeSimpleDataSearchFilterQuery(SimpleDataConfig config, LikeSimpleDataSearchFilter filter) {
-        String solrFieldName = getSolrFieldName(config, filter.getFieldName());
-        Value value = filter.getFieldValue();
-        String result = null;
-        if (value instanceof StringValue) {
-            result = solrFieldName + ": *" + value.get() + "*";
-        } else {
-            throw new FatalException("Like filter can be use only with String fields");
-        }
-        return result;
-    }
-
-    private String getEqualSimpleDataSearchFilterQuery(SimpleDataConfig config, EqualSimpleDataSearchFilter filter) {
-        String solrFieldName = getSolrFieldName(config, filter.getFieldName());
-        Value value = filter.getFieldValue();
-        String result = null;
-        if (value instanceof StringValue) {
-            result = solrFieldName + ": \"" + value.get() + "\"";
-        } else if (value instanceof LongValue) {
-            result = solrFieldName + ": " + value.get() + "";
-        } else if (value instanceof BooleanValue) {
-            result = solrFieldName + ": " + value.get() + "";
-        } else if (value instanceof DateTimeValue) {
-            result = solrFieldName + ": \"" + dateTimeFormat.format(value.get()) + "\"";
-        } else if (value instanceof TimelessDateValue) {
-            TimelessDate timelessDate = ((TimelessDateValue) value).get();
-            result = solrFieldName + ": \"" + timelessDate.toString() + "\"";
-        }
-        return result;
-    }
 }
