@@ -140,12 +140,11 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                 logger.debug("Start wait actual data {}", resourceId);
                 semaphore.acquire();
                 logger.debug("End wait actual data {}", resourceId);
-                if (futureActualisationCache != null) {
-                    futureActualisationCache.cancel(true);
-                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException("Thread is Interrupted", e);
+            } finally {
+                futureActualisationCache.cancel(true);
             }
         }
     }
