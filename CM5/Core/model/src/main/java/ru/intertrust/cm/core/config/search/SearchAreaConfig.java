@@ -30,6 +30,22 @@ public class SearchAreaConfig implements TopLevelConfig {
     @Element(name = "highlighting-config", required = false)
     private HighlightingConfig highlightingConfig;
 
+    private IndexedFieldConfig.SearchBy contentSearchBy;
+
+    @Element(name = "content-search-by", required = false)
+    public String getContentSearchByString() {
+        return contentSearchBy == null ? null : contentSearchBy.xmlValue;
+    }
+
+    @Element(name = "content-search-by", required = false)
+    public void setContentSearchByString(String contentSearchBy) {
+        this.contentSearchBy = IndexedFieldConfig.SearchBy.fromXmlValue(contentSearchBy);
+    }
+
+    public IndexedFieldConfig.SearchBy getContentSearchBy() {
+        return contentSearchBy == null ? IndexedFieldConfig.SearchBy.SUBSTRING : contentSearchBy;
+    }
+
     @Override
     public String getName() {
         return name;
@@ -75,7 +91,8 @@ public class SearchAreaConfig implements TopLevelConfig {
                 Objects.equals(targetObjects, that.targetObjects) &&
                 Objects.equals(solrServerKey, that.solrServerKey) &&
                 Objects.equals(targetFilterName, that.targetFilterName) &&
-                Objects.equals(highlightingConfig, that.highlightingConfig);
+                Objects.equals(highlightingConfig, that.highlightingConfig) &&
+                Objects.equals(contentSearchBy, that.contentSearchBy);
     }
 
     @Override
@@ -83,7 +100,8 @@ public class SearchAreaConfig implements TopLevelConfig {
         return Objects.hash(name, replacementPolicy, targetObjects,
                 (solrServerKey == null ? "" : solrServerKey),
                 (targetFilterName == null ? "" : targetFilterName),
-                (highlightingConfig != null ? "" : highlightingConfig));
+                (highlightingConfig != null ? "" : highlightingConfig),
+                (contentSearchBy != null ? "" : contentSearchBy));
     }
 
 }

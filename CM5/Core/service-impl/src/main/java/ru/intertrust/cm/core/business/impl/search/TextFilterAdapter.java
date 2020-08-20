@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 
 public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
 
@@ -23,12 +21,20 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         }
         String fieldName = filter.getFieldName();
         Set<SearchFieldType> types;
-        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+        if (SearchFilter.EVERYWHERE.equals(fieldName) || SearchFilter.CONTENT.equals(fieldName)) {
+            Set<IndexedFieldConfig.SearchBy> searchBySet = new HashSet<>(1);
+            List<String> areas = query.getAreas();
+            if (areas != null && !areas.isEmpty()) {
+                for (String area : areas) {
+                    SearchAreaConfig searchAreaConfig = configHelper.getSearchAreaDetailsConfig(area);
+                    searchBySet.add(searchAreaConfig != null ? searchAreaConfig.getContentSearchBy() :
+                            IndexedFieldConfig.SearchBy.SUBSTRING);
+                }
+            }
             types = Collections.<SearchFieldType>singleton(
-                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
-        } else if (SearchFilter.CONTENT.equals(fieldName)) {
-            types = Collections.<SearchFieldType>singleton(
-                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages(),
+                            searchBySet.contains(IndexedFieldConfig.SearchBy.WORDS) ?
+                                    IndexedFieldConfig.SearchBy.WORDS : IndexedFieldConfig.SearchBy.SUBSTRING));
         } else {
             types = configHelper.getFieldTypes(fieldName, query.getAreas());
             if (types.size() == 0) {

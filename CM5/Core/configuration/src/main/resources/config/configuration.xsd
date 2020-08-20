@@ -3363,6 +3363,14 @@
     <xs:complexType name="searchAreaType">
         <xs:sequence>
             <xs:element name="solr-server-url" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="content-search-by" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="words"></xs:enumeration>
+                        <xs:enumeration value="substring"></xs:enumeration>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
             <xs:element name="target-filter-name" minOccurs="0" maxOccurs="1" type="xs:string"/>
             <xs:element type="con:highlightingConfig" name="highlighting-config" minOccurs="0"
                         maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>

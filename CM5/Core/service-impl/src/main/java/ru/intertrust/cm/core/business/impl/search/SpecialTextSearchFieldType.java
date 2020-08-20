@@ -7,14 +7,21 @@ import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 
 public class SpecialTextSearchFieldType implements SearchFieldType {
 
     private Set<String> languages;
+    private IndexedFieldConfig.SearchBy searchBy;
 
     public SpecialTextSearchFieldType(Collection<String> languages) {
+        this(languages, IndexedFieldConfig.SearchBy.SUBSTRING);
+    }
+
+    public SpecialTextSearchFieldType(Collection<String> languages, IndexedFieldConfig.SearchBy searchBy) {
         this.languages = new HashSet<>(languages.size());
         this.languages.addAll(languages);
+        this.searchBy = searchBy;
         // this.languages.add("");
     }
 
@@ -56,7 +63,7 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
 
     @Override
     public boolean isQuote() {
-        return true;
+        return IndexedFieldConfig.SearchBy.SUBSTRING.equals(searchBy);
     }
 
     @Override
@@ -69,12 +76,15 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != getClass()) return false;
         SpecialTextSearchFieldType that = (SpecialTextSearchFieldType) obj;
-        return this.languages.equals(that.languages);
+        return this.languages.equals(that.languages)
+                && (this.searchBy == null ? that.searchBy == null : this.searchBy.equals(that.searchBy));
     }
 
     @Override
     public int hashCode() {
-        return languages.hashCode();
+        int hash = languages.hashCode();
+        hash *= 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
+        return hash;
     }
 
 }
