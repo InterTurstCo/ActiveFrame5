@@ -118,7 +118,7 @@
     <field name="cm_id" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="cm_main" type="string" indexed="true" stored="true" multiValued="false"/>
     <field name="cm_area" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
-    <field name="cm_type" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
+    <field name="cm_type" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
     <field name="cm_item" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
     <field name="cm_modified" type="date" indexed="true" stored="true" multiValued="false"/>
 
