@@ -35,10 +35,13 @@ public class VirtualAppFilter implements Filter {
                 )
         {
             servletRequest.setAttribute(APP_NAME, "/" + businessUniverseConfig.getBaseUrlConfig().getValue());
-        }
-        if (((HttpServletRequest) servletRequest).getMethod().equalsIgnoreCase(METHOD_POST)
-                && businessUniverseConfig.getBaseUrlConfig()!=null && businessUniverseConfig.getBaseUrlConfig().getValue()!=null
-                && ((HttpServletRequest) servletRequest).getRequestURL().toString().contains("/" + businessUniverseConfig.getBaseUrlConfig().getValue())) {
+		}
+
+		final HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+		if (httpRequest.getMethod().equalsIgnoreCase(METHOD_POST) 
+				&& businessUniverseConfig.getBaseUrlConfig() != null
+				&& businessUniverseConfig.getBaseUrlConfig().getValue() != null
+				&& httpRequest.getRequestURI().startsWith(httpRequest.getContextPath() + "/" + businessUniverseConfig.getBaseUrlConfig().getValue())) {
 
 
             XSSRequestWrapper wrappedRequest = new XSSRequestWrapper(
