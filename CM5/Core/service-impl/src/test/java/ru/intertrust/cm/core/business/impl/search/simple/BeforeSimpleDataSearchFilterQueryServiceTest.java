@@ -1,6 +1,10 @@
 package ru.intertrust.cm.core.business.impl.search.simple;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.TimeZone;
 import org.junit.Before;
@@ -50,13 +54,14 @@ public class BeforeSimpleDataSearchFilterQueryServiceTest {
     @Test
     public void prepareQuery_DateArg() {
         Date now = new Date();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String stringDateTime = now.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                .format(DateTimeFormatter.ISO_DATE_TIME);
 
         String query = service.prepareQuery(
                 mock(SimpleDataConfig.class),
                 new BeforeSimpleDataSearchFilter(FIELD_NAME, new DateTimeValue(now), true)
         );
-        assertEquals(PREFIX + FIELD_NAME + ":[* TO " + simpleDateFormat.format(now) + "Z}", query);
+        assertEquals(PREFIX + FIELD_NAME + ":[* TO " + stringDateTime + "Z}", query);
     }
 
     @Test
