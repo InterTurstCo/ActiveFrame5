@@ -1039,13 +1039,13 @@
                   class="solr.extraction.ExtractingRequestHandler" >
     <lst name="defaults">
       <str name="lowernames">true</str>
-      <str name="uprefix">ignored_</str>
-
-      <!-- capture link hrefs but ignore div attributes -->
       <str name="captureAttr">true</str>
-      <str name="fmap.a">links</str>
-      <str name="fmap.div">ignored_</str>
+      <str name="fmap.a">ignored_</str>
+      <str name="fmap.title">ignored_</str>
+      <str name="fmap.meta">ignored_</str>
+      <str name="capture">title</str>
     </lst>
+    <bool name="ignoreTikaException">true</bool>
   </requestHandler>
 
 
