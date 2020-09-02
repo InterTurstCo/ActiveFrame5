@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>1.0.1-16-SNAPSHOT</version>
+    <version>1.1.1</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -84,7 +84,7 @@
         <url>https://git.inttrust.ru/git/?p=CM5SRC.git</url>
         <connection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</connection>
         <developerConnection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</developerConnection>
-        <tag>HEAD</tag>
+        <tag>1.1.1</tag>
     </scm>
 
     <ciManagement>
