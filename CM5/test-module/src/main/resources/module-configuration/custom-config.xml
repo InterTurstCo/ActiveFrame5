@@ -14,6 +14,7 @@
             <reference name="Signer" type="Employee"/>
             <long name="Long_Field"/> <!-- mapping to LONG_FIELD column -->
             <decimal name="Decimal_Field" precision="10" scale="2" />
+            <string name="ServerState" length="128" />
         </fields>
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Registration_Number"/>
