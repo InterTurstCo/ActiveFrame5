@@ -99,6 +99,7 @@
             <reference name="Signer" type="Employee" />
             <string name="RegNum" length="128" />
             <string name="State" length="128" /> <!-- Не удалять строковой статус. Требуется для тестирования -->
+            <string name="ServerState" length="128" />
         </fields>
         <attachment-types>
             <attachment-type name="Internal_Document_Content" />

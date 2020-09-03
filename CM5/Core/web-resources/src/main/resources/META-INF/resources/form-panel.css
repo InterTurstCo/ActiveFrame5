@@ -745,12 +745,23 @@ button.btn-update {
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
 }
 
-.cellTable {
+.cellTable, .cellTable-IE-left-panel-expanded, .cellTable-IE-left-panel-collapsed {
     display: flex;
     flex-flow: column;
     width: 100%;
     height: 400px;
+    overflow-y: auto;
 }
+
+/*стили для IE, в нем в данном месте ширина в % от родительского контейнера не работает*/
+.cellTable-IE-left-panel-expanded {
+    width: 79vw;
+}
+
+.cellTable-IE-left-panel-collapsed {
+    width: 90vw;
+}
+
 .cellTable thead {
     flex: 0 0 auto;
     width: calc(100% - 0.9em);

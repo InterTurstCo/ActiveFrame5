@@ -3,6 +3,7 @@ package ru.intertrust.cm.remoteclient.attachment;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -70,6 +71,15 @@ public class TestAttachments extends ClientBase {
             attachments = attachmentService.findAttachmentDomainObjectsFor(person.getId());
             assertTrue("findAttachmentDomainObjectsFor", attachments.size() == 1);
 
+            // Замена вложения
+            try(FileInputStream fileStream = new FileInputStream("import-employee.csv")) {
+                SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(fileStream);
+                RemoteInputStream remoteInputStream = simpleRemoteInputStream.export();
+                attachmentService.saveAttachment(remoteInputStream, attachments.get(0));
+            }
+            loadContent = getAttachmentContent(attachments.get(0));
+            saveContent = readFile(new File("import-employee.csv"));
+            assertTrue("Compare content after update", compareContent(loadContent, saveContent));
 
             //Проверка распознования типа файла (mimetype)
             DomainObject testTypeDo = setAttachment(person, new File(file));
@@ -114,9 +124,8 @@ public class TestAttachments extends ClientBase {
             attachments = attachmentService.findAttachmentDomainObjectsFor(person.getId());
             assertTrue("findAttachmentDomainObjectsFor", attachments.size() == 14);
 
-
             log("Tset OK");
-            testTime();
+            //testTime();
 
         } finally {
             writeLog();

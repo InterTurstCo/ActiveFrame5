@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Collections;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServer;
@@ -11,6 +12,7 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.SolrParams;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,12 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.simpledata.EqualSimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleData;
+import ru.intertrust.cm.core.business.impl.search.simple.DefaultSimpleSearchUtils;
+import ru.intertrust.cm.core.business.impl.search.simple.EqualsSimpleDataSearchFilterQueryService;
+import ru.intertrust.cm.core.business.impl.search.simple.LikeSimpleDataSearchFilterQueryService;
+import ru.intertrust.cm.core.business.impl.search.simple.SimpleDataSearchFilterQueryFactory;
+import ru.intertrust.cm.core.business.impl.search.simple.SimpleDataSearchFilterQueryFactoryImpl;
+import ru.intertrust.cm.core.business.impl.search.simple.SimpleSearchUtils;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.SimpleDataConfig;
 import ru.intertrust.cm.core.config.SimpleDataFieldConfig;
@@ -45,27 +53,42 @@ public class SimpeDataStorageTest {
     private SolrServer solrServer;
     @Mock
     private ConfigurationExplorer configurationExplorer;
+    @Mock
+    private SimpleDataSearchFilterQueryFactory queryFactory;
+    @Mock
+    private SimpleSearchUtils simpleSearchUtils;
 
     @InjectMocks
-    private SimpeDataStorage storage = new SimpeDataStorageImpl();
+    private final SimpeDataStorage storage = new SimpeDataStorageImpl();
 
     @Before
     public void init() throws Exception{
         SimpleDataConfig config = new SimpleDataConfig();
         config.setName("test-simple-data");
         List<SimpleDataFieldConfig> fields = new ArrayList<>();
-        fields.add(new SimpleDataFieldConfig("test-string", SimpleDataFieldType.String, true, true));
-        fields.add(new SimpleDataFieldConfig("test-long", SimpleDataFieldType.Long, true, true));
-        fields.add(new SimpleDataFieldConfig("test-boolean", SimpleDataFieldType.Bollean, true, true));
-        fields.add(new SimpleDataFieldConfig("test-date", SimpleDataFieldType.Date, true, true));
-        fields.add(new SimpleDataFieldConfig("test-date-time", SimpleDataFieldType.DateTime, true, true));
+        fields.add(new SimpleDataFieldConfig("test-string", SimpleDataFieldType.String, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-long", SimpleDataFieldType.Long, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-boolean", SimpleDataFieldType.Bollean, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-date", SimpleDataFieldType.Date, true, true, true));
+        fields.add(new SimpleDataFieldConfig("test-date-time", SimpleDataFieldType.DateTime, true, true, true));
         config.setFields(fields);
         when(configurationExplorer.getConfig(eq(SimpleDataConfig.class), eq("test-simple-data"))).
                 thenReturn(config);
 
+        when(simpleSearchUtils.getSolrFieldName(config, "test-string")).thenReturn("cm_rs_test-string");
+        when(simpleSearchUtils.getSolrFieldName(config, "test-long")).thenReturn("cm_ls_test-long");
+        when(simpleSearchUtils.getSolrFieldName(config, "test-boolean")).thenReturn("cm_bs_test-boolean");
+        when(simpleSearchUtils.getSolrFieldName(config, "test-date")).thenReturn("cm_dts_test-date");
+        when(simpleSearchUtils.getSolrFieldName(config, "test-date-time")).thenReturn("cm_dts_test-date-time");
+
         QueryResponse response = new QueryResponse();
         ReflectionTestUtils.setField(response, "_results", new SolrDocumentList());
         when(solrServer.query(anyObject())).thenReturn(response);
+    }
+
+    @After
+    public void destroy() {
+        reset(queryFactory);
     }
 
     @Test
@@ -112,20 +135,27 @@ public class SimpeDataStorageTest {
     }
 
     @Test
-    public void testFindByType() throws Exception{
+    public void testFindByType() throws Exception {
         storage.find("test-simple-data", null, null, null);
         verify(solrServer).query(argThat(new SolrQueryMatcher("cm_type: \"test-simple-data\"")));
     }
 
     @Test
-    public void testFindByFilter() throws Exception{
-        storage.find("test-simple-data", Arrays.asList(new EqualSimpleDataSearchFilter("test-string", new StringValue("xxx"))), null, null);
+    public void testFindByFilter() throws Exception {
+
+        EqualSimpleDataSearchFilter searchFilter = new EqualSimpleDataSearchFilter("test-string", new StringValue("xxx"));
+        when(queryFactory.getQuery(any(SimpleDataConfig.class), eq(searchFilter))).thenReturn("cm_rs_test-string: \"xxx\"");
+
+        storage.find("test-simple-data", Collections.singletonList(searchFilter), null, null);
         verify(solrServer).query(argThat(new SolrQueryMatcher("cm_type: \"test-simple-data\" AND cm_rs_test-string: \"xxx\"")));
     }
 
     @Test
     public void testDeleteByFilter() throws Exception{
-        storage.delete("test-simple-data", Arrays.asList(new EqualSimpleDataSearchFilter("test-string", new StringValue("xxx"))));
+        EqualSimpleDataSearchFilter searchFilter = new EqualSimpleDataSearchFilter("test-string", new StringValue("xxx"));
+        when(queryFactory.getQuery(any(SimpleDataConfig.class), eq(searchFilter))).thenReturn("cm_rs_test-string: \"xxx\"");
+
+        storage.delete("test-simple-data", Collections.singletonList(searchFilter));
         verify(solrServer).deleteByQuery("cm_type: \"test-simple-data\" AND cm_rs_test-string: \"xxx\"");
     }
 

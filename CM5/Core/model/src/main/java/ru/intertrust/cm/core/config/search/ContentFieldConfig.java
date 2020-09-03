@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class ContentFieldConfig implements Serializable {
 
     public enum Type {
-        REFID("refid", null),
+        REFID("refid", "cm_id"),
         MIMETYPE("mimetype", "cntx_mime_type"),
         LENGTH("length", "cntx_length"),
         NAME("name", "cntx_fname"),

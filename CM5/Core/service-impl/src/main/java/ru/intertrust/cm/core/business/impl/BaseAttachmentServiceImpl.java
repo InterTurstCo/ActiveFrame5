@@ -105,6 +105,11 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     protected DomainObject saveAttachment(InputStream contentStream, DomainObject attachmentDomainObject) {
         AccessToken accessToken = createSystemAccessToken();
 
+        // Удаление старого вложения для не новых доменных объектов
+        if (!attachmentDomainObject.isNew()){
+            attachmentContentDao.deleteContent(attachmentDomainObject);
+        }
+
         String fileName = attachmentDomainObject.getString(NAME);
         String attachmentType = attachmentDomainObject.getTypeName();
         Id parentId = attachmentDomainObject.getReference(configurationExplorer.getAttachmentParentType(attachmentType));

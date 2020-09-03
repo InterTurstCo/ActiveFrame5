@@ -7,15 +7,22 @@ import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 
 public class SpecialTextSearchFieldType implements SearchFieldType {
 
     private Set<String> languages;
+    private IndexedFieldConfig.SearchBy searchBy;
 
     public SpecialTextSearchFieldType(Collection<String> languages) {
+        this(languages, IndexedFieldConfig.SearchBy.SUBSTRING);
+    }
+
+    public SpecialTextSearchFieldType(Collection<String> languages, IndexedFieldConfig.SearchBy searchBy) {
         this.languages = new HashSet<>(languages.size());
         this.languages.addAll(languages);
-        this.languages.add("");
+        this.searchBy = searchBy;
+        // this.languages.add("");
     }
 
     @Override
@@ -25,7 +32,7 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
     }
 
     @Override
-    public Collection<String> getSolrFieldNames(String field, boolean strict) {
+    public Collection<String> getSolrFieldNames(String field) {
         String baseName;
         if (SearchFilter.EVERYWHERE.equals(field)) {
             baseName = SolrFields.EVERYTHING;
@@ -44,15 +51,24 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
                         .toString());
             }
         }
-        if (!strict || languages.contains("")) {
-            result.add(baseName);
-        }
+        result.add(baseName);
         return result;
     }
 
     @Override
     public FieldType getDataFieldType() {
+        // Highlighting
         return FieldType.LIST;
+    }
+
+    @Override
+    public boolean isQuote() {
+        return IndexedFieldConfig.SearchBy.SUBSTRING.equals(searchBy);
+    }
+
+    @Override
+    public boolean isTextType() {
+        return true;
     }
 
     @Override
@@ -60,12 +76,15 @@ public class SpecialTextSearchFieldType implements SearchFieldType {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != getClass()) return false;
         SpecialTextSearchFieldType that = (SpecialTextSearchFieldType) obj;
-        return this.languages.equals(that.languages);
+        return this.languages.equals(that.languages)
+                && (this.searchBy == null ? that.searchBy == null : this.searchBy.equals(that.searchBy));
     }
 
     @Override
     public int hashCode() {
-        return languages.hashCode();
+        int hash = languages.hashCode();
+        hash *= 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
+        return hash;
     }
 
 }

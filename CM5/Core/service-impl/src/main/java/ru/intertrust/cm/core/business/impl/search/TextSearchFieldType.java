@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 
 import java.util.*;
 
@@ -8,18 +9,22 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
 
     private Set<String> languages;
     private boolean multiValued;
-    private boolean searchBySubstring;
+    private IndexedFieldConfig.SearchBy searchBy;
 
-    public TextSearchFieldType(Collection<String> languages, boolean multiValued, boolean searchBySubstring) {
+    public TextSearchFieldType(Collection<String> languages) {
+        this(languages, false);
+    }
+
+    public TextSearchFieldType(Collection<String> languages, boolean multiValued) {
+        this(languages, multiValued, IndexedFieldConfig.SearchBy.WORDS);
+    }
+
+    public TextSearchFieldType(Collection<String> languages, boolean multiValued, IndexedFieldConfig.SearchBy searchBy) {
         //super(Type.TEXT, multiValued);
         this.languages = new HashSet<>();
         this.languages.addAll(languages);
         this.multiValued = multiValued;
-        this.searchBySubstring = searchBySubstring;
-    }
-
-    public void addLanguage(String langId) {
-        this.languages.add(langId);
+        this.searchBy = searchBy;
     }
 
     @Override
@@ -28,19 +33,36 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
     }
 
     @Override
-    public Collection<String> getSolrFieldNames(String field, boolean strict) {
+    public Collection<String> getSolrFieldNames(String field) {
         ArrayList<String> result = new ArrayList<>(languages.size());
         for (String langId : languages) {
             if (!"".equals(langId)) {
-                result.add(new StringBuilder()
-                        .append(SolrFields.FIELD_PREFIX)
-                        .append(langId)
-                        .append(multiValued ? "s_" : "_")
-                        .append(Case.toLower(field))
-                        .toString());
+                if (searchBy == IndexedFieldConfig.SearchBy.EXACTMATCH) {
+                    result.add(new StringBuilder()
+                            .append(SolrFields.EXACT_MATCH_FIELD)
+                            .append(multiValued ? "s_" : "_")
+                            .append(langId)
+                            .append("_")
+                            .append(Case.toLower(field))
+                            .toString());
+                } else {
+                    result.add(new StringBuilder()
+                            .append(SolrFields.FIELD_PREFIX)
+                            .append(langId)
+                            .append(multiValued ? "s_" : "_")
+                            .append(Case.toLower(field))
+                            .toString());
+                }
             }
         }
-        if (!strict || languages.contains("")) {
+        if (searchBy == IndexedFieldConfig.SearchBy.EXACTMATCH) {
+            result.add(new StringBuilder()
+                    .append(SolrFields.EXACT_MATCH_FIELD)
+                    .append(multiValued ? "s_" : "_")
+                    .append("_")
+                    .append(Case.toLower(field))
+                    .toString());
+        } else {
             result.add(new StringBuilder()
                     .append(SolrFields.FIELD_PREFIX)
                     .append(multiValued ? "ts_" : "t_")
@@ -55,6 +77,17 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         return FieldType.STRING;
     }
 
+    @Override
+    public boolean isQuote() {
+        return (searchBy == IndexedFieldConfig.SearchBy.SUBSTRING)
+                || (searchBy == IndexedFieldConfig.SearchBy.EXACTMATCH);
+    }
+
+    @Override
+    public boolean isTextType() {
+        return true;
+    }
+
     public Set<String> getLanguages() {
         return Collections.unmodifiableSet(languages);
     }
@@ -63,8 +96,8 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         return multiValued;
     }
 
-    public boolean isSearchBySubstring() {
-        return searchBySubstring;
+    public IndexedFieldConfig.SearchBy getSearchBy() {
+        return searchBy;
     }
 
     @Override
@@ -74,7 +107,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         TextSearchFieldType that = (TextSearchFieldType) obj;
         return this.languages.equals(that.languages)
                 && this.multiValued == that.multiValued
-                && this.searchBySubstring == that.searchBySubstring;
+                && this.searchBy == that.searchBy;
     }
 
     @Override
@@ -83,9 +116,7 @@ public class TextSearchFieldType implements SearchFieldType {// extends SimpleSe
         if (multiValued) {
             hash ^= 0x5A5A5A5A;
         }
-        if (searchBySubstring) {
-            hash ^= 0xA5A5A5A5;
-        }
+        hash *= 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
         return hash;
     }
 

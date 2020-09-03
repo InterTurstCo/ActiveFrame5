@@ -165,9 +165,10 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_B");
         when(config.getDoel()).thenReturn(null);
+        when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
     }
 
     @Test
@@ -205,9 +206,10 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_Ca");
         when(config.getDoel()).thenReturn("String_Ca");
+        when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_C");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
     }
 
     @Test
@@ -215,10 +217,11 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("Calculated");
         when(config.getDoel()).thenReturn(null);
+        when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
         when(config.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
     }
 
     @Test
@@ -229,7 +232,8 @@ public class SearchConfigHelperTest {
         when(config.getDoel()).thenReturn(null);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, true));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false,
+                IndexedFieldConfig.SearchBy.SUBSTRING));
     }
 
     @Test
@@ -267,7 +271,7 @@ public class SearchConfigHelperTest {
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
         Set<SearchFieldType> types = testee.getFieldTypes("String_A", areas);
         assertTrue("Поле Long_C должно иметь тип STRING, а не " + types,
-                types.size() == 1 && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false, false)));
+                types.size() == 1 && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false)));
     }
 
     @Test
@@ -276,7 +280,7 @@ public class SearchConfigHelperTest {
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
         Set<SearchFieldType> types = testee.getFieldTypes("DiffType", areas);
         assertTrue("Поле Long_C должно иметь типы STRING и DATE, а не " + types, types.size() == 2
-                && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false, false))
+                && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false))
                 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE)));
     }
 

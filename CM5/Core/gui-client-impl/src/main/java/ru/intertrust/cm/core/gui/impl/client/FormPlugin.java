@@ -1,18 +1,22 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Map;
 
@@ -23,6 +27,7 @@ import java.util.Map;
  */
 @ComponentName("form.plugin")
 public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor, PluginPanelSizeChangedEventHandler {
+
     // поле для локальной шины событий
     protected EventBus eventBus;
     private FormPluginState initialVisualState;
@@ -148,8 +153,19 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
 
     @Override
     public void refresh() {
-        FormState fState = this.<FormPluginData>getInitialData().getFormDisplayData().getFormState();
-        ((FormPluginView)getView()).update(fState);
+        AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                setInitialData((PluginData) result);
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+                onDataLoadFailure(caught);
+            }
+        };
+        final Command command = new Command("initialize", this.getName(), getConfig());
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, indicateLockScreen);
     }
 
     @Override

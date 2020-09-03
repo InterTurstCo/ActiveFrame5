@@ -1,10 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.plugin;
 
-import com.google.gwt.cell.client.ButtonCell;
-import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.DateCell;
-import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
@@ -22,15 +18,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -44,12 +32,15 @@ import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.event.LeftPanelAttachedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.LeftPanelAttachedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.InfoMessageDialog;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.MessageDialog;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.DownloadAttachmentActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
@@ -67,7 +58,7 @@ import java.util.List;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
 
-public class PluginManagerView extends PluginView {
+public class PluginManagerView extends PluginView implements LeftPanelAttachedEventHandler {
 
     public static final String DATE_TIME_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private Panel mainPanel = new AbsolutePanel();
@@ -82,6 +73,7 @@ public class PluginManagerView extends PluginView {
     private TextBox filterValue;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<>();
     ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler;
+    private final EventBus applicationEventBus = Application.getInstance().getEventBus();
 
     private PluginManagerParamDialogBox dialogBox;
 
@@ -159,7 +151,8 @@ public class PluginManagerView extends PluginView {
         mainPanel.add(filterPanel);
 
         cellTable = new CellTable<PluginInfo>(50);
-        cellTable.addStyleName("cellTable");
+        final boolean isNavigationTreePanelExpanded = Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded();
+        setCellTableStyle(isNavigationTreePanelExpanded);
 
         // Do not refresh the headers and footers every time the data is updated.
         cellTable.setAutoHeaderRefreshDisabled(true);
@@ -176,8 +169,28 @@ public class PluginManagerView extends PluginView {
         refreshPluginsModel();
 
         mainPanel.add(cellTable);
+        applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE,this);
 
         Application.getInstance().unlockScreen();
+    }
+
+    /**
+     * Устанавливает стиль таблицы, в зависимости от того развернута ли левая панель навигации и является ли браузер интернет-эксплорером
+     * (у него свои особые стили в силу наличия некоторых ограничений)
+     *
+     * @param isLeftPanelExpanded развернута ли панель навигации слева
+     */
+    private void setCellTableStyle(boolean isLeftPanelExpanded) {
+        final boolean isIE = GuiUtil.isIE();
+        if (isIE) {
+            if (isLeftPanelExpanded) {
+                cellTable.setStyleName("cellTable-IE-left-panel-expanded");
+            } else {
+                cellTable.setStyleName("cellTable-IE-left-panel-collapsed");
+            }
+        } else {
+            cellTable.setStyleName("cellTable");
+        }
     }
 
     private void deployPlugins() {
@@ -469,6 +482,11 @@ public class PluginManagerView extends PluginView {
         cellTable.getColumnSortList().push(nameColumn);
     }
 
+    @Override
+    public void onLeftPanelAttachedEvent(LeftPanelAttachedEvent event) {
+        final Boolean isLeftPanelAttached = event.getAttached();
+        setCellTableStyle(isLeftPanelAttached);
+    }
 
     private class PluginIdComparator implements Comparator<PluginInfo> {
         public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {

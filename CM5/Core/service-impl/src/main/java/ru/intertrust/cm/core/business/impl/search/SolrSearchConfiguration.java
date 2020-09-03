@@ -103,17 +103,7 @@ public class SolrSearchConfiguration {
                 String solrCntxServer[] = solrCntxServers.split(";");
                 for (String key : solrCntxServer) {
                     if (key != null && !key.trim().isEmpty()) {
-                        String url = env.getProperty(key + ".url", "");
-                        String sTimeOut = env.getProperty(key + ".timeout", "");
-                        if (url != null && !url.trim().isEmpty()) {
-                            int timeOut = 180000;
-                            try {
-                                timeOut = Integer.parseInt(sTimeOut);
-                            } catch (NumberFormatException e) {
-                                // do nothing
-                            }
-                            solrCntxServerDescriptionMap.put(key.trim(), new SolrCntxServerDescription(key.trim(), url.trim(), timeOut));
-                        }
+                        solrCntxServerDescriptionMap.put(key.trim(),  new SolrCntxServerDescription(key.trim(), env));
                     }
                 }
             }

@@ -24,7 +24,7 @@ public class CustomSearchFieldType implements SearchFieldType {
     }
 
     @Override
-    public Collection<String> getSolrFieldNames(String field, boolean strict) {
+    public Collection<String> getSolrFieldNames(String field) {
         return Collections.singleton(new StringBuilder()
                 .append(solrPrefix)
                 .append(Case.toLower(field))
@@ -34,6 +34,16 @@ public class CustomSearchFieldType implements SearchFieldType {
     @Override
     public FieldType getDataFieldType() {
         return FieldType.STRING;
+    }
+
+    @Override
+    public boolean isQuote() {
+        return false;
+    }
+
+    @Override
+    public boolean isTextType() {
+        return false;
     }
 
     @Override

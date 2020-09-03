@@ -47,11 +47,18 @@ public abstract class LockManagerGlobalCacheImpl extends GlobalCacheImpl {
 
     @Override
     public void clear() {
-        final GlobalCacheLock globalLock = getLockManager().globalWriteLock();
+        // Во избежании deadlock при изменение конфигурации не создаем доп блокировку когда уже существуе блокировка
+        // установленная при обновлении конфигурации
+        GlobalCacheLock globalLock = null;
+        if (!explorer.getReadWriteLock().isWriteLockedByCurrentThread()){
+            globalLock = getLockManager().globalWriteLock();
+        }
         try {
             super.clear();
         } finally {
-            getLockManager().unlock(globalLock);
+            if (globalLock != null) {
+                getLockManager().unlock(globalLock);
+            }
         }
     }
 

@@ -7,18 +7,18 @@
         <depend>core</depend>
     </depends>
     <extension-points-packages>
-        <extension-points-package>ru/intertrust/cm/test</extension-points-package>
-        <extension-points-package>ru/intertrust/testmodule/extensions</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.test</extension-points-package>
+        <extension-points-package>ru.intertrust.testmodule.extensions</extension-points-package>
     </extension-points-packages>
     <configuration-elements-packages>
-        <configuration-elements-package>ru/intertrust/cm/test</configuration-elements-package>
+        <configuration-elements-package>ru.intertrust.cm.test</configuration-elements-package>
     </configuration-elements-packages>
     <gui-components-packages>
         <gui-components-package>ru.intertrust.cm.core.gui.impl.action</gui-components-package>
         <gui-components-package>ru.intertrust.cm.core.gui.impl.server</gui-components-package>
     </gui-components-packages>
     <server-components-packages>
-        <server-components-package>ru/intertrust/cm</server-components-package>
+        <server-components-package>ru.intertrust.cm</server-components-package>
     </server-components-packages>    
     <configuration-schema-path>module-configuration/custom-configuration.xsd</configuration-schema-path>
     <configuration-paths>
