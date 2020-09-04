@@ -111,7 +111,7 @@ public class AccessControlUtility {
      * @return
      */
     public static List<String> getSubTypes(String type, ConfigurationExplorer configurationExplorer) {
-        // Получение всех конфигураций доменных оьъектов
+        // Получение всех конфигураций доменных объектов
         Collection<DomainObjectTypeConfig> configs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         HashMap<String, HashSet<String>> directInheritors = new HashMap<>(configs.size() / 5);
         for (DomainObjectTypeConfig config : configs) {
@@ -119,19 +119,19 @@ public class AccessControlUtility {
             if (typeExtended == null) {
                 continue;
             }
-            HashSet<String> inheritors = directInheritors.get(typeExtended);
+            HashSet<String> inheritors = directInheritors.get(typeExtended.toLowerCase());
             if (inheritors == null) {
                 inheritors = new HashSet<>();
-                directInheritors.put(typeExtended, inheritors);
+                directInheritors.put(typeExtended.toLowerCase(), inheritors);
             }
-            inheritors.add(config.getName());
+            inheritors.add(config.getName().toLowerCase());
         }
         return getSubTypes(type, directInheritors);
     }
 
     private static List<String> getSubTypes(String type, HashMap<String, HashSet<String>> directInheritors) {
         // Получение всех конфигураций доменных оьъектов
-        HashSet<String> typeInheritors = directInheritors.get(type);
+        HashSet<String> typeInheritors = directInheritors.get(type.toLowerCase());
         if (typeInheritors == null) {
             return Collections.emptyList();
         }
