@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.jdbc;
 
+import java.util.Objects;
 import java.util.Properties;
 
 import javax.naming.Context;
@@ -139,8 +140,9 @@ public class SochiClient {
         if (ctx.get() == null) {
             ctx.set(new InitialContext());
         }
+        final String envName = Objects.equals(appName, moduleName) ? moduleName : (appName + "/" + moduleName);
         //Нельзя использовать конструкцию java:module/.... так как Jasper создает потоки для подотчетов и lookup выдаст ошибку
-        Object service = ctx.get().lookup("java:global/" + appName + "/" + moduleName + "/" + serviceName + "!" + localInterfaceClass.getName());
+        Object service = ctx.get().lookup("java:global/" + envName + "/" + serviceName + "!" + localInterfaceClass.getName());
         return service;
     }
 
