@@ -36,7 +36,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
                             searchBySet.contains(IndexedFieldConfig.SearchBy.WORDS) ?
                                     IndexedFieldConfig.SearchBy.WORDS : IndexedFieldConfig.SearchBy.SUBSTRING));
         } else {
-            types = configHelper.getFieldTypes(fieldName, query.getAreas());
+            types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
             if (types.size() == 0) {
                 return null;
             }
@@ -86,7 +86,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
             types = Collections.<SearchFieldType>singleton(
                     new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
         } else {
-            types = configHelper.getFieldTypes(fieldName, query.getAreas());
+            types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getAreas());
         }
         ArrayList<String> names = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {

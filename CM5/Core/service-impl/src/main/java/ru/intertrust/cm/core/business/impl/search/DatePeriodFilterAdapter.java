@@ -29,7 +29,7 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
             return null;
         }
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         if (types.size() == 0) {
             return null;
         }
@@ -73,7 +73,7 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
     @Override
     public List<String> getFieldNames(DatePeriodFilter filter, SearchQuery query) {
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         ArrayList<String> names = new ArrayList<>(types.size());
         if (types.size() == 0) {
             return names;

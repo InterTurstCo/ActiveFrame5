@@ -25,7 +25,7 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
             return null;
         }
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         if (types.size() == 0) {
             return null;
         }
@@ -55,7 +55,7 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
     @Override
     public List<String> getFieldNames(TimeIntervalFilter filter, SearchQuery query) {
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         ArrayList<String> names = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {

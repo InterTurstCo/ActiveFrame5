@@ -60,8 +60,8 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
     private Map<Pair<String, String>, List<String>> supportedLanguagesMap =
             Collections.synchronizedMap(new HashMap<Pair<String, String>, List<String>>());
 
-    private Map<Pair<String, Collection<String>>, Set<SearchFieldType>> fieldTypesMap =
-            Collections.synchronizedMap(new HashMap<Pair<String, Collection<String>>, Set<SearchFieldType>>());
+    private Map<Trio<String, Collection<String>, Collection<String>>, Set<SearchFieldType>> fieldTypesMap =
+            Collections.synchronizedMap(new HashMap<Trio<String, Collection<String>, Collection<String>>, Set<SearchFieldType>>());
 
     private Map<Trio<String, List<String>, String>, Set<String>> objectTypesContainingFieldMap =
             Collections.synchronizedMap(new HashMap<Trio<String, List<String>, String>, Set<String>>());
@@ -559,21 +559,29 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
      * 
      * @param name имя индексируемого поля
      * @param areas набор областей поиска
+     * @param srcTargetTypes набор целевых типов
      * @return набор типов индексируемых полей
      */
-    public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {
-        Pair<String, Collection<String>> key = new Pair<>(name, areas);
+    public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas, Collection<String> srcTargetTypes) {
+        Trio<String, Collection<String>, Collection<String>> key = new Trio<>(name, areas, srcTargetTypes);
 
         Set<SearchFieldType> result = fieldTypesMap.get(key);
         if (result != null) {
             return result;
         }
 
+        Collection<String> targetTypes = new HashSet<>(srcTargetTypes != null ? srcTargetTypes.size() : 0);
+        if (srcTargetTypes != null) {
+            for (String srcTargetType : srcTargetTypes) {
+                targetTypes.add(srcTargetType.toLowerCase());
+            }
+        }
+
         result = new HashSet<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
             if (areas.contains(area.getName())) {
-                findFieldTypes(name, area.getTargetObjects(), result);
+                findFieldTypes(name, area.getTargetObjects(), targetTypes, result);
             }
         }
 
@@ -581,16 +589,20 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         return result;
     }
 
-    private void findFieldTypes(String fieldName, Collection<? extends IndexedDomainObjectConfig> configs,
-            Set<SearchFieldType> types) {
+    private void findFieldTypes(String fieldName,
+                                Collection<? extends IndexedDomainObjectConfig> configs,
+                                Collection<String> targetTypes,
+                                Set<SearchFieldType> types) {
         for (IndexedDomainObjectConfig config : configs) {
-            for (IndexedFieldConfig field : config.getFields()) {
-                if (fieldName.equalsIgnoreCase(field.getName())) {
-                    types.addAll(getFieldTypes(field, config.getType()));
-                    break;      // No more fields with this name should be in this object config
+            if (targetTypes.contains(config.getType().toLowerCase())) {
+                for (IndexedFieldConfig field : config.getFields()) {
+                    if (fieldName.equalsIgnoreCase(field.getName())) {
+                        types.addAll(getFieldTypes(field, config.getType()));
+                        break;      // No more fields with this name should be in this object config
+                    }
                 }
             }
-            findFieldTypes(fieldName, config.getLinkedObjects(), types);
+            findFieldTypes(fieldName, config.getLinkedObjects(), targetTypes, types);
         }
     }
 
