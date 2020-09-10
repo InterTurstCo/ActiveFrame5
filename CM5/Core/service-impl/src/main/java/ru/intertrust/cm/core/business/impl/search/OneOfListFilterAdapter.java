@@ -26,7 +26,7 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
             return null;
         }
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         if (types.size() == 0) {
             return null;
         }
@@ -62,7 +62,7 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
     @Override
     public List<String> getFieldNames(OneOfListFilter filter, SearchQuery query) {
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         ArrayList<String> names = new ArrayList<>(types.size());
         if (types.size() == 0) {
             return names;

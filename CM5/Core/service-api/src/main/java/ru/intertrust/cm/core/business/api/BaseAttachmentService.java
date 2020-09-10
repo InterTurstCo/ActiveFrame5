@@ -19,6 +19,7 @@ public interface BaseAttachmentService {
     String MIME_TYPE = "MimeType";
     String DESCRIPTION = "Description";
     String CONTENT_LENGTH = "ContentLength";
+    String FIELD_NAME = "FieldName";
 
     /**
      * Создает доменный объект (ДО) Вложение на основе его типа, не сохраняя его в СУБД.

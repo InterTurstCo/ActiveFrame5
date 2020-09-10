@@ -84,9 +84,11 @@ public class TestAttachments extends ClientBase {
             //Проверка распознования типа файла (mimetype)
             DomainObject testTypeDo = setAttachment(person, new File(file));
             assertTrue("PDF", testTypeDo.getString("mimetype").equalsIgnoreCase("application/pdf"));
+            assertTrue("FieldName is empty", testTypeDo.getString("FieldName") == null);
             
-            testTypeDo = setAttachment(person, new File("import-employee.csv"));
+            testTypeDo = setAttachment(person, new File("import-employee.csv"), "TestField");
             assertTrue("CSV", testTypeDo.getString("mimetype").equalsIgnoreCase("text/csv"));
+            assertTrue("FieldName is not empty", "TestField".equals(testTypeDo.getString("FieldName")));
 
             testTypeDo = setAttachment(person, new File("test_1251.txt"));
             assertTrue("TXT", testTypeDo.getString("mimetype").equalsIgnoreCase("text/plain"));
@@ -158,7 +160,7 @@ public class TestAttachments extends ClientBase {
             saveContent = saveStream.toByteArray();
             
             long start = System.currentTimeMillis();
-            DomainObject attachment = setAttachment(person, "test.pdf", saveContent);
+            DomainObject attachment = setAttachment(person, "test.pdf", saveContent, null);
             long save = System.currentTimeMillis() - start;
             start = System.currentTimeMillis();
 
@@ -206,15 +208,20 @@ public class TestAttachments extends ClientBase {
         return person;
     }
 
-    private DomainObject setAttachment(DomainObject domainObject, File file) throws IOException {
-        return setAttachment(domainObject, file.getName(), readFile(file));
+    private DomainObject setAttachment(DomainObject domainObject, File file, String fieldName) throws IOException {
+        return setAttachment(domainObject, file.getName(), readFile(file), fieldName);
     }
 
-    private DomainObject setAttachment(DomainObject domainObject, String name, byte[] content) throws IOException {
+    private DomainObject setAttachment(DomainObject domainObject, File file) throws IOException {
+        return setAttachment(domainObject, file.getName(), readFile(file), null);
+    }
+
+    private DomainObject setAttachment(DomainObject domainObject, String name, byte[] content, String fieldName) throws IOException {
         DomainObject attachment =
                 attachmentService.createAttachmentDomainObjectFor(domainObject.getId(),
                         "Person_Attachment");
         attachment.setString("Name", name);
+        attachment.setString(AttachmentService.FIELD_NAME, fieldName);
         ByteArrayInputStream bis = new ByteArrayInputStream(content);
         SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
 

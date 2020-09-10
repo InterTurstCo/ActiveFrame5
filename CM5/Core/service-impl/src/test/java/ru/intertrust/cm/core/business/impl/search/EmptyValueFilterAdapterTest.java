@@ -27,7 +27,7 @@ public class EmptyValueFilterAdapterTest {
     @SuppressWarnings("unchecked")
     public void testStringField() {
         //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.STRING);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection(), anyCollection())).thenReturn(
                 Collections.<SearchFieldType>singleton(new TextSearchFieldType(Collections.<String>emptySet())));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         SearchQuery query = mock(SearchQuery.class);
@@ -42,7 +42,7 @@ public class EmptyValueFilterAdapterTest {
     @SuppressWarnings("unchecked")
     public void testLongField() {
         //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.LONG);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection()))
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection(), anyCollection()))
                 .thenReturn(Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG)));
         SearchQuery query = mock(SearchQuery.class);
 
@@ -58,7 +58,7 @@ public class EmptyValueFilterAdapterTest {
         //SearchConfigHelper.FieldDataType typeMDate = new SearchConfigHelper.FieldDataType(FieldType.DATETIME, true);
         //SearchConfigHelper.FieldDataType typeText = new SearchConfigHelper.FieldDataType(FieldType.TEXT);
         //SearchConfigHelper.FieldDataType typeMText = new SearchConfigHelper.FieldDataType(FieldType.TEXT, true);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection(), anyCollection())).thenReturn(
                 new LinkedHashSet<>(Arrays.asList(
                         new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF),
                         new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, true),

@@ -251,7 +251,8 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_Once() {
         // Поле встречается один раз в одной области поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("Long_C", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_C"));
+        Set<SearchFieldType> types = testee.getFieldTypes("Long_C", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь тип LONG, а не " + types,
                 types.size() == 1 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG)));
     }
@@ -260,7 +261,8 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_TwiceSameArea() {
         // Поле встречается 2 раза в одной области поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_D", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_D"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_D", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь тип DATE, а не " + types,
                 types.size() == 1 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE)));
     }
@@ -269,7 +271,8 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_TwiceDifferentAreas() {
         // Поле встречается 2 раза в разных областях поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("String_A", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_A", "Type_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("String_A", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь тип STRING, а не " + types,
                 types.size() == 1 && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false)));
     }
@@ -278,7 +281,8 @@ public class SearchConfigHelperTest {
     public void testGetFieldType_TwiceDifferentTypes() {
         // Поле встречается 2 раза в разных областях поиска и имеет разные типы
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("DiffType", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_A", "Type_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DiffType", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь типы STRING и DATE, а не " + types, types.size() == 2
                 && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false))
                 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE)));
@@ -287,7 +291,7 @@ public class SearchConfigHelperTest {
     @Test
     public void testGetFieldTypes_None() {
         // Поле отсутствует в заданной области поиска (но присутствует в другой)
-        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_C", Collections.singleton("Area_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_C", Collections.singleton("Area_B"),  Collections.singleton("Type_B"));
         assertTrue("Поле DateTime_C отсутствует в конфигурации области Area_B", types.size() == 0);
     }
 

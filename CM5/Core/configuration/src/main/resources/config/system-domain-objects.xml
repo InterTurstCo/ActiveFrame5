@@ -35,6 +35,7 @@
             <string name="MimeType" length="128"/>
             <string name="Description" length="128"/>
             <long name="ContentLength"/>
+            <string name="FieldName" length="256"/>
         </fields>
         <indices>
             <index>

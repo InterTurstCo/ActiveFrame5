@@ -43,7 +43,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("Area1", "Area2"));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn();
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList("ru", "en"))));
 
@@ -83,7 +83,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""))));
 
@@ -124,7 +124,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""))));
 
@@ -139,7 +139,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""), false, IndexedFieldConfig.SearchBy.SUBSTRING)));
 
@@ -153,7 +153,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""), false, IndexedFieldConfig.SearchBy.SUBSTRING)));
 
@@ -167,7 +167,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(null));
 
         String result = adapter.getFilterString(filter, query);
@@ -180,7 +180,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""))));
 
@@ -193,7 +193,7 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""))));
 

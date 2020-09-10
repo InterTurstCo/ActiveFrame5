@@ -22,7 +22,7 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         if (SearchFilter.EVERYWHERE.equals(fieldName)) {
             throw new SearchException("Поиск пустого значения может осущетсвляться только в конкретном поле");
         }
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         ArrayList<String> fields = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
@@ -47,7 +47,7 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
     @Override
     public List<String> getFieldNames(EmptyValueFilter filter, SearchQuery query) {
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         ArrayList<String> names = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
