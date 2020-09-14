@@ -1636,7 +1636,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             if (isUpdateStatus) {
                 queryBuilder.append(wrap(STATUS_FIELD_NAME)).append("=?, ");
-                query.addReferenceParameter(STATUS_FIELD_NAME);
+                queryBuilder.append(wrap(STATUS_TYPE_COLUMN)).append("=?, ");
+                query.addReferenceParameters(STATUS_FIELD_NAME);
             }
         }
 

@@ -165,7 +165,7 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkUpdateQuery = "update \"person\" set \"updated_date\"=?, \"updated_by\"=?, "
-                + "\"updated_by_type\"=?, \"status\"=?, \"email\"=?, \"login\"=?, "
+                + "\"updated_by_type\"=?, \"status\"=?, \"status_type\"=?, \"email\"=?, \"login\"=?, "
                 + "\"password\"=?, \"boss\"=?, \"boss_type\"=? where \"id\"=? and date_trunc('milliseconds', \"updated_date\")=?";
 
         Query query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig, true);
