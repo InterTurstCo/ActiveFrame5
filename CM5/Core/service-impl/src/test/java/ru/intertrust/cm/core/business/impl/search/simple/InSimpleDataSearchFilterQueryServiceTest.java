@@ -8,7 +8,9 @@ import ru.intertrust.cm.core.business.api.simpledata.InSimpleDataSearchFilter;
 import ru.intertrust.cm.core.config.SimpleDataConfig;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -77,4 +79,42 @@ public class InSimpleDataSearchFilterQueryServiceTest {
                         new InSimpleDataSearchFilter(FIELD_NAME, listValue));
         assertEquals(expected, string);
     }
+
+    @Test
+    public void prepareQuery_List() {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String expected = PREFIX + FIELD_NAME + ":(\"SOME_STRING\" OR 1 OR true OR \"" + sdf.format(date) + "\")";
+        List<Value<?>> listValue = new ArrayList<>(4);
+        listValue.add(new StringValue("SOME_STRING"));
+        listValue.add(new LongValue(1L));
+        listValue.add(new BooleanValue(true));
+        listValue.add(new DateTimeValue(date));
+        String string = service
+                .prepareQuery(mock(SimpleDataConfig.class),
+                        new InSimpleDataSearchFilter(FIELD_NAME, listValue));
+        assertEquals(expected, string);
+    }
+
+    @Test
+    public void prepareQuery_NullOrEmptyList() {
+        String expected = PREFIX + FIELD_NAME + ":(\"\")";
+        String string = service
+                .prepareQuery(mock(SimpleDataConfig.class),
+                        new InSimpleDataSearchFilter(FIELD_NAME, (Value)null));
+        assertEquals(expected, string);
+        string = service
+                .prepareQuery(mock(SimpleDataConfig.class),
+                        new InSimpleDataSearchFilter(FIELD_NAME, (ListValue)null));
+        assertEquals(expected, string);
+        string = service
+                .prepareQuery(mock(SimpleDataConfig.class),
+                        new InSimpleDataSearchFilter(FIELD_NAME, new ListValue()));
+        assertEquals(expected, string);
+        string = service
+                .prepareQuery(mock(SimpleDataConfig.class),
+                        new InSimpleDataSearchFilter(FIELD_NAME, new ArrayList<Value<?>>(0)));
+        assertEquals(expected, string);
+    }
+
 }
