@@ -1038,6 +1038,7 @@
                   startup="lazy"
                   class="solr.extraction.ExtractingRequestHandler" >
     <lst name="defaults">
+      <str name="update.chain">extract-text</str>
       <str name="lowernames">true</str>
       <str name="captureAttr">true</str>
       <str name="fmap.a">ignored_</str>
@@ -1048,6 +1049,32 @@
     <bool name="ignoreTikaException">true</bool>
   </requestHandler>
 
+  <updateRequestProcessorChain name="extract-text">
+    <!--processor class="solr.RegexReplaceProcessorFactory"> 
+      <str name="fieldName">cm_content</str> 
+      <str name="fieldName">cm_content_ru</str> 
+      <str name="fieldName">cm_content_en</str> 
+      <str name="pattern">\n</str> 
+      <str name="replacement"> </str> 
+    </processor> 
+    <processor class="solr.RegexReplaceProcessorFactory"> 
+      <str name="fieldName">cm_content</str> 
+      <str name="fieldName">cm_content_ru</str> 
+      <str name="fieldName">cm_content_en</str> 
+      <str name="pattern">\t</str> 
+      <str name="replacement"> </str> 
+    </processor--> 
+    <processor class="solr.RegexReplaceProcessorFactory"> 
+      <str name="fieldName">cm_content</str> 
+      <str name="fieldName">cm_content_ru</str> 
+      <str name="fieldName">cm_content_en</str> 
+      <str name="pattern">\s+</str>
+      <str name="replacement"> </str>
+      <!--bool name="literalReplacement">true</bool-->
+    </processor> 
+    <processor class="solr.LogUpdateProcessorFactory" />
+    <processor class="solr.RunUpdateProcessorFactory" />
+  </updateRequestProcessorChain>
 
   <!-- Field Analysis Request Handler
 
