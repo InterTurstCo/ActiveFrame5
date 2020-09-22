@@ -32,7 +32,9 @@ public class LikeSimpleDataSearchFilterQueryService implements SimpleDataSearchF
         Value<?> value = searchFilter.getFieldValue();
         String result;
         if (value instanceof StringValue) {
-            result = solrFieldName + ": *" + value.get() + "*";
+            String val = ((StringValue)value).get();
+            // предполагаем стандартный токенайзер - solr.StandardTokenizerFactory
+            result = solrFieldName + ": (\"" + (val != null ? val.replaceAll("\"","\\\\\"") : "") + "\")";
         } else {
             throw new FatalException("Like filter can be use only with String fields");
         }

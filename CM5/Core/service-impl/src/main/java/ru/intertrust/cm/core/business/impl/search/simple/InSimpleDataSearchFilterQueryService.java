@@ -50,7 +50,8 @@ public class InSimpleDataSearchFilterQueryService implements SimpleDataSearchFil
         Object tmp = value !=null ? value.get() : null;
         if (tmp != null) {
             if (value instanceof StringValue) {
-                values.add("\"" + tmp + "\"");
+                // предполагаем стандартный токенайзер - solr.StandardTokenizerFactory
+                values.add("\"" + tmp.toString().replaceAll("\"","\\\\\"") + "\"");
             } else if (value instanceof LongValue ||
                     value instanceof BooleanValue) {
                 values.add("" + tmp);
