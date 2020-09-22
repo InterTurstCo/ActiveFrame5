@@ -581,7 +581,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
             if (areas.contains(area.getName())) {
-                findFieldTypes(name, area.getTargetObjects(), targetTypes, result);
+                findFieldTypes(name, area.getTargetObjects(), targetTypes, true, result);
             }
         }
 
@@ -592,17 +592,22 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
     private void findFieldTypes(String fieldName,
                                 Collection<? extends IndexedDomainObjectConfig> configs,
                                 Collection<String> targetTypes,
+                                boolean bUseTargetTypes,
                                 Set<SearchFieldType> types) {
         for (IndexedDomainObjectConfig config : configs) {
-            if (targetTypes.contains(config.getType().toLowerCase())) {
+            if ((!bUseTargetTypes) || (bUseTargetTypes && targetTypes.contains(config.getType().toLowerCase()))) {
                 for (IndexedFieldConfig field : config.getFields()) {
                     if (fieldName.equalsIgnoreCase(field.getName())) {
                         types.addAll(getFieldTypes(field, config.getType()));
                         break;      // No more fields with this name should be in this object config
                     }
                 }
+                // ищем в дочерних элементах области, у которой тип совпал, без учета типа дочерних объектов
+                findFieldTypes(fieldName, config.getLinkedObjects(), targetTypes, false, types);
+            } else {
+                // для остальных областей ищем с учетом типа дочерних объектов
+                findFieldTypes(fieldName, config.getLinkedObjects(), targetTypes, true, types);
             }
-            findFieldTypes(fieldName, config.getLinkedObjects(), targetTypes, types);
         }
     }
 
