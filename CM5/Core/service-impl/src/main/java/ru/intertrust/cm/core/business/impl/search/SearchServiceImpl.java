@@ -485,7 +485,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private final static String HL_snippets = "hl.snippets";
         private final static String HL_fragsize = "hl.fragsize";
 
-        protected HashMap<String, StringBuilder> filterStrings = new HashMap<>();
+        protected HashMap<String, FilterItem> filterItems = new HashMap<>();
         protected ArrayList<MultiTypeFilterItem> multiTypeFilterStrings = new ArrayList<>();
         protected ArrayList<CntxQuery> nestedQueries = new ArrayList<>();
         CombiningFilter.Op combineOperation = CombiningFilter.AND;
@@ -552,15 +552,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 multiTypeFilterStrings.add(new MultiTypeFilterItem(filterValue, level, combineOperation));
                 return;
             }
-            StringBuilder filterString = null;
-            if (!filterStrings.containsKey(type)) {
-                filterString = new StringBuilder();
-                filterStrings.put(type, filterString);
+            if (!filterItems.containsKey(type)) {
+                filterItems.put(type, new FilterItem(filterValue));
             } else {
-                filterString = filterStrings.get(type);
-                filterString.append(combineOperation == CombiningFilter.AND ? " AND " : " OR ");
+                filterItems.get(type).addFilterValue(filterValue, combineOperation);
             }
-            filterString.append(filterValue);
         }
 
         public QueryResponse execute(SearchQuery query,
@@ -568,16 +564,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                      Set<String> solrFields,
                                      Set<String> highlightingFields,
                                      int fetchLimit) {
-            if (negateResult) {
-                for (StringBuilder str : filterStrings.values()) {
-                    str.insert(0, "-(").append(")");
-                }
-            }
-
             StringBuilder areas = composeAreaFilterValue(query);
             StringBuilder targetTypes = composeTargetTypeFilterValue(query);
-            StringBuilder objectTypes = composeObjectTypeFilterValue(query, filterStrings);
-            StringBuilder queryString = composeQueryString(filterStrings, combineOperation);
+            StringBuilder objectTypes = composeObjectTypeFilterValue(filterItems);
+            StringBuilder queryString = composeQueryString(filterItems, combineOperation, negateResult);
 
             appendQueryString(multiTypeFilterStrings, combineOperation, queryString);
 
@@ -659,10 +649,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             return targetTypes;
         }
 
-        private StringBuilder composeObjectTypeFilterValue(SearchQuery query, Map<String, StringBuilder> filterStrings) {
+        private StringBuilder composeObjectTypeFilterValue(Map<String, FilterItem> filterItems) {
             StringBuilder objectTypes = new StringBuilder();
-            if (!filterStrings.entrySet().isEmpty()) {
-                for (String type : filterStrings.keySet()) {
+            if (!filterItems.entrySet().isEmpty()) {
+                for (String type : filterItems.keySet()) {
                     objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
                             .append("\"")
                             .append(type)
@@ -673,12 +663,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             return objectTypes;
         }
 
-        private StringBuilder composeQueryString(Map<String, StringBuilder> filterStrings, CombiningFilter.Op combineOperation) {
+        private StringBuilder composeQueryString(Map<String, FilterItem> filterItems,
+                                                 CombiningFilter.Op combineOperation,
+                                                 boolean negative) {
             StringBuilder queryString = new StringBuilder();
-            if (!filterStrings.entrySet().isEmpty()) {
-                for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+            if (!filterItems.entrySet().isEmpty()) {
+                for (Map.Entry<String, FilterItem> entry : filterItems.entrySet()) {
                     queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
-                            .append(entry.getValue().toString());
+                            .append(entry.getValue().getFilterString(negative));
                 }
             }
             return queryString;
@@ -794,7 +786,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return configHelper.getFieldTypes(config, objectTypeName);
     }
 
-
     private class MultiTypeFilterItem {
         private final String filterString;
         private final int level;
@@ -816,6 +807,42 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
         public CombiningFilter.Op getCombineOperation() {
             return combineOperation;
+        }
+    }
+
+    private class FilterItem {
+        private final StringBuilder stringBuilder = new StringBuilder();
+        private int clauseCount;
+
+        private FilterItem() {
+            clauseCount = 0;
+        }
+
+        private FilterItem(String filterValue) {
+            if (filterValue != null && !filterValue.trim().isEmpty()) {
+                stringBuilder.append(filterValue);
+                clauseCount = 1;
+            } else {
+                clauseCount = 0;
+            }
+        }
+
+        public String getFilterString(boolean negative) {
+            String result = stringBuilder.toString();
+            if (clauseCount > 1 || negative) {
+                result = (negative ? "-(" : "(") + result  + ")";
+            }
+            return result;
+        }
+
+        public void addFilterValue(String filterValue, CombiningFilter.Op operation) {
+            if (filterValue != null && !filterValue.trim().isEmpty()) {
+                if (clauseCount > 0) {
+                    stringBuilder.append(operation == CombiningFilter.AND ? " AND " : " OR ");
+                }
+                stringBuilder.append(filterValue);
+                clauseCount ++;
+            }
         }
     }
 
