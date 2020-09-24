@@ -612,6 +612,12 @@
 				<version>3.2.1</version>
 		    </dependency>
 
+            <!-- Keycloak integration -->
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-servlet-filter-adapter</artifactId>
+                <version>5.0.0</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

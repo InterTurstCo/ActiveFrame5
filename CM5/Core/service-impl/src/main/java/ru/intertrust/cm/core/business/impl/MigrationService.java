@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.migration.*;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.*;
 
 import java.util.*;
@@ -41,7 +42,7 @@ public class MigrationService {
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     @Autowired
-    private CollectionsService collectionsService;
+    private CollectionsDao collectionsService;
 
     @Autowired
     private CrudService crudService;
@@ -57,6 +58,10 @@ public class MigrationService {
 
     @Autowired
     private ServerComponentService serverComponentService;
+
+    @Autowired
+    private AccessControlService accessControlService;
+
 
     /**
      * Выполняет скриптовую миграцию до автоматической конфигурации
@@ -128,7 +133,14 @@ public class MigrationService {
         }
 
         final Filter byModule = Filter.create("byModule", 0, new StringValue(moduleConfiguration.getName()));
-        IdentifiableObjectCollection collection = collectionsService.findCollection("last_migration_log", null, Collections.singletonList(byModule));
+        IdentifiableObjectCollection collection = collectionsService.findCollection(
+                "last_migration_log",
+                Collections.singletonList(byModule),
+                null,
+                0,
+                1,
+                accessControlService.createSystemAccessToken(this.getClass().getName()));
+
         if (collection == null || collection.size() == 0) {
             return 0;
         }

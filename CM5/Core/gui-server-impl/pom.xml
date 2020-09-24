@@ -85,6 +85,10 @@
             <version>2.7</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-servlet-filter-adapter</artifactId>
+        </dependency>
 
 
     </dependencies>

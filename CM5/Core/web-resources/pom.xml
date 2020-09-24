@@ -30,7 +30,19 @@
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
-        </dependency>                
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-servlet-filter-adapter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>service-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
     </dependencies>
    
 </project>

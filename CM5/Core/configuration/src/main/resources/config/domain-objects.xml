@@ -24,11 +24,16 @@
             <string name="FirstName" length="128" />
             <string name="LastName" length="128" />
             <string name="EMail" length="128" />
+            <string name="unid" length="64" />
             <reference name="profile" type="person_profile"/>
             <!--timelessDate name="test_date"/-->
         </fields>
-        <uniqueKey> <!-- This key means automatic key + index creation-->
+        <!-- This key means automatic key + index creation-->
+        <uniqueKey>
             <field name="Login"/>
+        </uniqueKey>
+        <uniqueKey>
+            <field name="unid"/>
         </uniqueKey>
         <!--<uniqueKey> &lt;!&ndash; This key means automatic key + index creation&ndash;&gt;
             <field name="EMail"/>
