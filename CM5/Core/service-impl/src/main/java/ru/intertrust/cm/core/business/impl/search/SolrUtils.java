@@ -9,6 +9,7 @@ public class SolrUtils {
     public static final String ID_FIELD = "id";
     public static final String SCORE_FIELD = "score";
     public static final String PARAM_FIELD_PREFIX = "literal.";
+    private static final String symbolsToEscape = "[\\  \\+\\-\\&\\|\\!\\(\\)\\{\\}\\[\\]\\^\"\\~\\*\\?\\:\\/]";
 
     private enum State {
         PLAIN,
@@ -86,5 +87,13 @@ public class SolrUtils {
             result.insert(0, "(").append(")");
         }
         return result.toString();
+    }
+
+    public static String escapeString(String srcString) {
+        String resultString = srcString;
+        if (resultString != null) {
+            resultString = resultString.replaceAll(symbolsToEscape, "\\\\$0");
+        }
+        return resultString;
     }
 }

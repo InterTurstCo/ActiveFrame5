@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.simpledata.LikeSimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleDataSearchFilter;
+import ru.intertrust.cm.core.business.impl.search.SolrUtils;
 import ru.intertrust.cm.core.config.SimpleDataConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -33,8 +34,8 @@ public class LikeSimpleDataSearchFilterQueryService implements SimpleDataSearchF
         String result;
         if (value instanceof StringValue) {
             String val = ((StringValue)value).get();
-            // предполагаем стандартный токенайзер - solr.StandardTokenizerFactory
-            result = solrFieldName + ": (\"" + (val != null ? val.replaceAll("\"","\\\\\"") : "") + "\")";
+            // префикс cm_r_ соответствует типу solr.StrField, в кавычки нельза оборачивать (точное совпадение)
+            result = solrFieldName + ": (*" + (val != null ? SolrUtils.escapeString(val) : "") + "*)";
         } else {
             throw new FatalException("Like filter can be use only with String fields");
         }

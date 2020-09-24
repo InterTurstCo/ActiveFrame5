@@ -37,7 +37,7 @@ public class EqualsSimpleDataSearchFilterQueryService implements SimpleDataSearc
         Value<?> value = searchFilter.getFieldValue();
         String result = null;
         if (value instanceof StringValue) {
-            result = solrFieldName + ": \"" + value.get() + "\"";
+            result = solrFieldName + ": \"" + (value.get() != null ? value.get().toString().replaceAll("\"","\\\\\"") : "") + "\"";
         } else if (value instanceof LongValue) {
             result = solrFieldName + ": " + value.get() + "";
         } else if (value instanceof BooleanValue) {

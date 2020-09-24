@@ -44,6 +44,12 @@ public class EqualsSimpleDataSearchFilterQueryServiceTest {
         String string = service
                 .prepareQuery(mock(SimpleDataConfig.class), new EqualSimpleDataSearchFilter(FIELD_NAME, new StringValue("SOME_STRING")));
         assertEquals(PREFIX + FIELD_NAME + ": \"SOME_STRING\"", string);
+        string = service
+                .prepareQuery(mock(SimpleDataConfig.class), new EqualSimpleDataSearchFilter(FIELD_NAME, new StringValue("SOME STRING")));
+        assertEquals(PREFIX + FIELD_NAME + ": \"SOME STRING\"", string);
+        string = service
+                .prepareQuery(mock(SimpleDataConfig.class), new EqualSimpleDataSearchFilter(FIELD_NAME, new StringValue("SOME\"STRING")));
+        assertEquals(PREFIX + FIELD_NAME + ": \"SOME\\\"STRING\"", string);
     }
 
     @Test
