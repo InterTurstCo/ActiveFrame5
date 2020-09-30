@@ -155,6 +155,8 @@
     <dynamicField name="cm_s_*" type="lowercase" indexed="true" stored="true"/>
     <dynamicField name="cm_ss_*" type="lowercase" indexed="true" stored="true" multiValued="true"/>
 
+    <dynamicField name="cm_ngram_*" type="ngram" indexed="true" stored="true" />
+
     <!-- Dynamic field definitions allow using convention over configuration
        for fields via the specification of patterns to match field names. 
        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
@@ -1119,6 +1121,15 @@
       <analyzer> 
         <tokenizer class="solr.KeywordTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="ngram" class="solr.TextField">
+      <analyzer type="index">
+        <tokenizer class="solr.NGramTokenizerFactory" minGramSize="1" maxGramSize="50"/>
+      </analyzer>
+      <analyzer type="query">
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
       </analyzer>
     </fieldType>
 
