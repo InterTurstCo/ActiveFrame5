@@ -35,7 +35,7 @@ public class LikeSimpleDataSearchFilterQueryService implements SimpleDataSearchF
         if (value instanceof StringValue) {
             String val = ((StringValue)value).get();
             // префикс cm_r_ соответствует типу solr.StrField, в кавычки нельза оборачивать (точное совпадение)
-            result = solrFieldName + ": (*" + (val != null ? SolrUtils.escapeString(val) : "") + "*)";
+            result = solrFieldName + ": (*" + (val != null ? SolrUtils.escapeString(val, SolrUtils.ESCAPE_TYPE.SIMPLE_SEARCH_LIKE) : "") + "*)";
         } else {
             throw new FatalException("Like filter can be use only with String fields");
         }

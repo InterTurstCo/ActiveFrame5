@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -63,7 +64,7 @@ public class TextFilterAdapterTest {
             expectedFields.remove(foundField);
             result = result.substring(foundField.length());
             result = checkAndCutBeginning(result,
-                    ":(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)");
+                    ":(find WoRdS \\&\\& part\\* \\|\\| \\\"whole phrase\\\" \\+required \\-excess escape\\:semicolon)");
             if (expectedFields.isEmpty()) {
                 assertTrue(result.equals(")"));
                 break;
@@ -129,7 +130,7 @@ public class TextFilterAdapterTest {
                         new TextSearchFieldType(Arrays.asList(""))));
 
         String result = adapter.getFilterString(filter, query);
-        assertEquals("cm_t_testfield:( \\( \\) \\[ \\] \\{ \\} \\: \" \" \\\\ \\( \\) \\[ \\] \\{ \\} \\: \\\" )",
+        assertEquals("cm_t_testfield:( \\( \\) \\[ \\] \\{ \\} \\: \\\" \\\" \\\\ \\( \\) \\[ \\] \\{ \\} \\: \\\" )",
                 result);
     }
 
@@ -175,6 +176,7 @@ public class TextFilterAdapterTest {
     }
 
     @Test(expected = SearchException.class)
+    @Ignore // Неактуально
     public void testUnpairedQuotes() {
         TextSearchFilter filter = new TextSearchFilter("TestField", "Three \"quotes\" in a \"string");
         SearchQuery query = mock(SearchQuery.class);
@@ -188,6 +190,7 @@ public class TextFilterAdapterTest {
     }
 
     @Test(expected = SearchException.class)
+    @Ignore // Неактуально
     public void testTrailingBackslash() {
         TextSearchFilter filter = new TextSearchFilter("TestField", "Finished with backslash \\");
         SearchQuery query = mock(SearchQuery.class);
@@ -197,6 +200,6 @@ public class TextFilterAdapterTest {
                 .thenReturn(Collections.<SearchFieldType>singleton(
                         new TextSearchFieldType(Arrays.asList(""))));
 
-        /*String result =*/ adapter.getFilterString(filter, query);
+        adapter.getFilterString(filter, query);
     }
 }
