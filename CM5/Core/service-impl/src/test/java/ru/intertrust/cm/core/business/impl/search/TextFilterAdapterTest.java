@@ -64,7 +64,7 @@ public class TextFilterAdapterTest {
             expectedFields.remove(foundField);
             result = result.substring(foundField.length());
             result = checkAndCutBeginning(result,
-                    ":(find WoRdS \\&\\& part\\* \\|\\| \\\"whole phrase\\\" \\+required \\-excess escape\\:semicolon)");
+                    ":(find WoRdS \\&\\& part* \\|\\| \\\"whole phrase\\\" \\+required \\-excess escape\\:semicolon)");
             if (expectedFields.isEmpty()) {
                 assertTrue(result.equals(")"));
                 break;
