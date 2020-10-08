@@ -179,21 +179,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
             }
         }
-        // ортировка по редевантности
+        // сортировка по редевантности
         CollectionRetriever.sortByRelevance(collection);
-        // cокращение до maxResult
-        if (collection.size() > maxResults) {
-            int cnt = 0;
-            Iterator<IdentifiableObject> iterator = collection.iterator();
-            while (iterator.hasNext()) {
-                iterator.next();
-                if (cnt >= maxResults) {
-                    iterator.remove();
-                } else {
-                    cnt ++;
-                }
-            }
-        }
+        CollectionRetriever.truncCollection(collection, maxResults);
         return collection;
     }
 
