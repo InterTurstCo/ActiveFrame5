@@ -33,9 +33,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <aspectj.version>1.9.2</aspectj.version>
 
-        <spring.version>5.2.1.RELEASE</spring.version>
+        <spring.version>5.2.6.RELEASE</spring.version>
         <spring.integration.mail.version>4.1.3.RELEASE</spring.integration.mail.version>
-        <!--activiti.version>5.19.0.1</activiti.version-->
         <flowable.version>6.5.0</flowable.version>
         <gwt.version>2.7.0</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
