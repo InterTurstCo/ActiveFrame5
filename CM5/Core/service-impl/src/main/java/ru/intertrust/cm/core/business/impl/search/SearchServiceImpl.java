@@ -179,21 +179,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
             }
         }
-        // ортировка по редевантности
+        // сортировка по редевантности
         CollectionRetriever.sortByRelevance(collection);
-        // cокращение до maxResult
-        if (collection.size() > maxResults) {
-            int cnt = 0;
-            Iterator<IdentifiableObject> iterator = collection.iterator();
-            while (iterator.hasNext()) {
-                iterator.next();
-                if (cnt >= maxResults) {
-                    iterator.remove();
-                } else {
-                    cnt ++;
-                }
-            }
-        }
+        CollectionRetriever.truncCollection(collection, maxResults);
         return collection;
     }
 
@@ -239,7 +227,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 maxResults = RESULTS_LIMIT;
             }
 
-            CntxQuery solrCntxQuery = new CntxQuery(solrServerKey);
+            CntxQuery solrCntxQuery = new CntxQuery();
             solrCntxQuery.addFilters(searchQuery.getFilters(), searchQuery);
 
             int fetchLimit = maxResults;
@@ -277,6 +265,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
             queryMap.put(key, query);
         } else {
+            // TODO подумать нужно ли делить еще и по типам объектов
             for (String area : areas) {
                 String key = configHelper.getSearchAreaDetailsConfig(area).getSolrServerKey();
                 key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
@@ -485,24 +474,16 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private final static String HL_snippets = "hl.snippets";
         private final static String HL_fragsize = "hl.fragsize";
 
-        protected HashMap<String, FilterItem> filterItems = new HashMap<>();
-        protected ArrayList<MultiTypeFilterItem> multiTypeFilterStrings = new ArrayList<>();
-        protected ArrayList<CntxQuery> nestedQueries = new ArrayList<>();
         CombiningFilter.Op combineOperation = CombiningFilter.AND;
-        boolean negateResult = false;
+        private String queryString = "";
+        private Set<String> objectTypeSet = new HashSet<>();
 
-        protected HashMap<String, SolrDocumentList> foundCache = new HashMap<>();
-        private final String solrServerKey;
-
-        CntxQuery(String solrServerKey) {
-            this.solrServerKey = solrServerKey;
+        CntxQuery() {
         }
 
         @Override
         public CntxQuery newNestedQuery() {
-            CntxQuery nestedQuery = new CntxQuery(solrServerKey);
-            nestedQueries.add(nestedQuery);
-            return nestedQuery;
+            throw new RuntimeException("not implemented");
         }
 
         @Override
@@ -510,27 +491,33 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             this.combineOperation = operation;
         }
 
+        @Override
         public void setNegativeResult(boolean negativeResult) {
-            this.negateResult = negativeResult;
+            throw new RuntimeException("not implemented");
         }
 
         @Override
         public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
-            addFilters(filters, query, 0, combineOperation);
+            String queryString = composeQueryString(filters, query, CombiningFilter.Op.OR);
+            String operation = this.combineOperation == CombiningFilter.AND ? " AND " : " OR ";
+            this.queryString += (!this.queryString.isEmpty() ? operation : "") + queryString;
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
-        private void addFilters(Collection<SearchFilter> filters, SearchQuery query, int level, CombiningFilter.Op combineOperation) {
+        private String composeQueryString(Collection<SearchFilter> filters, SearchQuery query, CombiningFilter.Op combineOperation) {
+            String queryString = "";
+            String operation = combineOperation == CombiningFilter.AND ? " AND " : " OR ";
             for (SearchFilter filter : filters) {
                 FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
 
+                String filterValue = "";
                 if (adapter.isCompositeFilter(filter) && filter instanceof CombiningFilter) {
-                    // ((CompositeFilterAdapter) adapter).processCompositeFilter(filter, this, query);
-                    addFilters(((CombiningFilter)filter).getFilters(), query, level + 1, ((CombiningFilter)filter).getOperation());
+                    filterValue = composeQueryString(((CombiningFilter) filter).getFilters(), query, ((CombiningFilter) filter).getOperation());
+                    queryString += (!queryString.isEmpty() ? operation : "") + filterValue;
                     continue;
                 }
 
-                String filterValue = adapter.getFilterString(filter, query);
+                filterValue = adapter.getFilterString(filter, query);
                 if (filterValue == null || filterValue.isEmpty()) {
                     continue;
                 }
@@ -539,24 +526,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         query.getAreas(), query.getTargetObjectTypes());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
-                } else if (types.size() > 1) {
-                    addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue, level, combineOperation);
-                } else /*if (types.size() == 1)*/ {
-                    addFilterValue((String) types.toArray()[0], filterValue, level, combineOperation);
+                } else {
+                    queryString += (!queryString.isEmpty() ? operation : "") + filterValue;
+                    if (types.size() == 1) {
+                        objectTypeSet.add((String) types.toArray()[0]);
+                    }
                 }
             }
-        }
-
-        private void addFilterValue(String type, String filterValue, int level, CombiningFilter.Op combineOperation) {
-            if (SearchConfigHelper.ALL_TYPES.equals(type)) {
-                multiTypeFilterStrings.add(new MultiTypeFilterItem(filterValue, level, combineOperation));
-                return;
-            }
-            if (!filterItems.containsKey(type)) {
-                filterItems.put(type, new FilterItem(filterValue));
-            } else {
-                filterItems.get(type).addFilterValue(filterValue, combineOperation);
-            }
+            return filters.size() > 1 ? ("(" + queryString + ")") : queryString;
         }
 
         public QueryResponse execute(SearchQuery query,
@@ -566,10 +543,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                      int fetchLimit) {
             StringBuilder areas = composeAreaFilterValue(query);
             StringBuilder targetTypes = composeTargetTypeFilterValue(query);
-            StringBuilder objectTypes = composeObjectTypeFilterValue(filterItems);
-            StringBuilder queryString = composeQueryString(filterItems, combineOperation, negateResult);
-
-            appendQueryString(multiTypeFilterStrings, combineOperation, queryString);
+            StringBuilder objectTypes = composeObjectTypeFilterValue(objectTypeSet);
 
             float clippingFactor = 1f;
             boolean clipped;
@@ -578,7 +552,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 clipped = false;
                 int rows = Math.round(fetchLimit / clippingFactor);
                 SolrQuery solrQuery = new SolrQuery()
-                        .setQuery(queryString.toString())
+                        .setQuery(queryString)
                         .addField(SolrUtils.ID_FIELD)
                         .addField(SolrFields.OBJECT_ID)
                         .addField(SolrFields.MAIN_OBJECT_ID)
@@ -608,7 +582,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                 }
 
-                addHighlightingToQuery(!query.getAreas().isEmpty() ? query.getAreas().get(0) : null, solrQuery, highlightingFields);
+                addHighlightingToQuery(!query.getAreas().isEmpty() ? query.getAreas().get(0) : null,
+                        solrQuery, highlightingFields);
 
                 if (rows > 0) {
                     solrQuery.setRows(rows);
@@ -649,10 +624,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             return targetTypes;
         }
 
-        private StringBuilder composeObjectTypeFilterValue(Map<String, FilterItem> filterItems) {
+        private StringBuilder composeObjectTypeFilterValue(Set<String> objectTypeSet) {
             StringBuilder objectTypes = new StringBuilder();
-            if (!filterItems.entrySet().isEmpty()) {
-                for (String type : filterItems.keySet()) {
+            if (!objectTypeSet.isEmpty()) {
+                for (String type : objectTypeSet) {
                     objectTypes.append(objectTypes.length() == 0 ? "(" : " OR ")
                             .append("\"")
                             .append(type)
@@ -661,46 +636,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 objectTypes.append(")");
             }
             return objectTypes;
-        }
-
-        private StringBuilder composeQueryString(Map<String, FilterItem> filterItems,
-                                                 CombiningFilter.Op combineOperation,
-                                                 boolean negative) {
-            StringBuilder queryString = new StringBuilder();
-            if (!filterItems.entrySet().isEmpty()) {
-                for (Map.Entry<String, FilterItem> entry : filterItems.entrySet()) {
-                    queryString.append(queryString.length() > 0 ? (combineOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
-                            .append(entry.getValue().getFilterString(negative));
-                }
-            }
-            return queryString;
-        }
-
-        private StringBuilder appendQueryString(ArrayList<MultiTypeFilterItem> multiTypeFilterStrings,
-                                               CombiningFilter.Op combineOperation,
-                                               StringBuilder queryString) {
-            if (queryString == null) {
-                queryString = new StringBuilder();
-            }
-            CombiningFilter.Op lastOperation = combineOperation;
-            int lastLevel = 0;
-            int brCount = 0;
-            for (MultiTypeFilterItem filterItem : multiTypeFilterStrings) {
-                boolean bOpenBr = lastLevel < filterItem.getLevel();
-                boolean bCloseBr = lastLevel > filterItem.getLevel();
-                queryString
-                        .append(queryString.length() > 0 ? (lastOperation == CombiningFilter.AND ? " AND " : " OR ") : "")
-                        .append(bOpenBr ? "(" : "")
-                        .append(filterItem.getFilterString())
-                        .append(bCloseBr ? ")" : "");
-                brCount += bOpenBr ? 1 : bCloseBr ? -1 : 0;
-                lastLevel = filterItem.getLevel();
-                lastOperation = filterItem.getCombineOperation();
-            }
-            for (; brCount > 0; brCount--) {
-                queryString.append(")");
-            }
-            return queryString;
         }
 
         private void addHighlightingToQuery(String area, SolrQuery solrQuery, Set<String> highlightingFields) {
@@ -784,66 +719,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private Collection<SearchFieldType> calculateFieldType(String objectTypeName, IndexedFieldConfig config) {
         return configHelper.getFieldTypes(config, objectTypeName);
-    }
-
-    private class MultiTypeFilterItem {
-        private final String filterString;
-        private final int level;
-        private final CombiningFilter.Op combineOperation;
-
-        private MultiTypeFilterItem (String filterString, int level, CombiningFilter.Op combineOperation) {
-            this.filterString = filterString;
-            this.level = level;
-            this.combineOperation = combineOperation;
-        }
-
-        public String getFilterString() {
-            return filterString;
-        }
-
-        public int getLevel() {
-            return level;
-        }
-
-        public CombiningFilter.Op getCombineOperation() {
-            return combineOperation;
-        }
-    }
-
-    private class FilterItem {
-        private final StringBuilder stringBuilder = new StringBuilder();
-        private int clauseCount;
-
-        private FilterItem() {
-            clauseCount = 0;
-        }
-
-        private FilterItem(String filterValue) {
-            if (filterValue != null && !filterValue.trim().isEmpty()) {
-                stringBuilder.append(filterValue);
-                clauseCount = 1;
-            } else {
-                clauseCount = 0;
-            }
-        }
-
-        public String getFilterString(boolean negative) {
-            String result = stringBuilder.toString();
-            if (clauseCount > 1 || negative) {
-                result = (negative ? "-(" : "(") + result  + ")";
-            }
-            return result;
-        }
-
-        public void addFilterValue(String filterValue, CombiningFilter.Op operation) {
-            if (filterValue != null && !filterValue.trim().isEmpty()) {
-                if (clauseCount > 0) {
-                    stringBuilder.append(operation == CombiningFilter.AND ? " AND " : " OR ");
-                }
-                stringBuilder.append(filterValue);
-                clauseCount ++;
-            }
-        }
     }
 
     private class ResultFieldsExtractor implements ConfigDataExtractor<TargetResultField> {

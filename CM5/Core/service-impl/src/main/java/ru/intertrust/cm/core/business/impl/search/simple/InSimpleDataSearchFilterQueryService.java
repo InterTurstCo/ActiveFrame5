@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.api.simpledata.InSimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleDataSearchFilter;
+import ru.intertrust.cm.core.business.impl.search.SolrUtils;
 import ru.intertrust.cm.core.config.SimpleDataConfig;
 
 import java.text.SimpleDateFormat;
@@ -51,7 +52,7 @@ public class InSimpleDataSearchFilterQueryService implements SimpleDataSearchFil
         if (tmp != null) {
             if (value instanceof StringValue) {
                 // предполагаем стандартный токенайзер - solr.StandardTokenizerFactory
-                values.add("\"" + tmp.toString().replaceAll("\"","\\\\\"") + "\"");
+                values.add("\"" + SolrUtils.escapeString(tmp.toString(), SolrUtils.ESCAPE_TYPE.SIMPLE_SEARCH_EQUALS) + "\"");
             } else if (value instanceof LongValue ||
                     value instanceof BooleanValue) {
                 values.add("" + tmp);

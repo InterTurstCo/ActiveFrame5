@@ -160,10 +160,7 @@ public abstract class DomainObjectIndexAgentBase {
                                 result.put(type, convertValue(value));
                             } else {
                                 @SuppressWarnings("unchecked")
-                                List<Object> list = (List<Object>) result.get(type);
-                                if (list == null) {
-                                    result.put(type, list = new ArrayList<>());
-                                }
+                                List<Object> list = (List<Object>) result.computeIfAbsent(type, (key) -> new ArrayList<>());
                                 list.add(convertValue(value));
                             }
                         } else if (type instanceof SimpleSearchFieldType && ((SimpleSearchFieldType) type).type == typeId) {
@@ -171,12 +168,13 @@ public abstract class DomainObjectIndexAgentBase {
                                 result.put(type, convertValue(value));
                             } else {
                                 @SuppressWarnings("unchecked")
-                                List<Object> list = (List<Object>) result.get(type);
-                                if (list == null) {
-                                    result.put(type, list = new ArrayList<>());
-                                }
+                                List<Object> list = (List<Object>) result.computeIfAbsent(type, (key) -> new ArrayList<>());
                                 list.add(convertValue(value));
                             }
+                        } else if (type instanceof CustomSearchFieldType) {
+                            @SuppressWarnings("unchecked")
+                            List<Object> list = (List<Object>) result.computeIfAbsent(type, (key) -> new ArrayList<>());
+                            list.add(convertValue(value));
                         }
                     }
                 }

@@ -19,7 +19,7 @@ import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.workflow.TaskListeners;
+import ru.intertrust.cm.core.business.api.workflow.GlobalListeners;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
@@ -64,11 +64,11 @@ public class PlatformCreateTaskListener implements TaskListener {
     private PermissionServiceDao permissionServiceDao;
 
     @Autowired
-    private TaskListeners taskListeners;
+    private GlobalListeners globalListeners;
 
     @PostConstruct
     public void init(){
-        taskListeners.addCreateTaskListener(TaskListeners.NBR_PROCESS_TARGET_NAMESPACE, this);
+        globalListeners.addCreateTaskListener(GlobalListeners.NBR_PROCESS_TARGET_NAMESPACE, this);
     }
 
     /**

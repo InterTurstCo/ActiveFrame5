@@ -51,11 +51,13 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
                     }
                     searchString = new StringBuilder()
                             .append("\"")
-                            .append(SolrUtils.protectSearchString(searchString, true))
+                            //.append(SolrUtils.protectSearchString(searchString, true))
+                            .append(SolrUtils.escapeString(searchString, SolrUtils.ESCAPE_TYPE.REG_CNTX_SEARCH))
                             .append("\"")
                             .toString();
                 } else {
-                    searchString = SolrUtils.protectSearchString(searchString);
+                    // searchString = SolrUtils.protectSearchString(searchString);
+                    searchString = SolrUtils.escapeString(searchString, SolrUtils.ESCAPE_TYPE.REG_CNTX_SEARCH);
                 }
                 for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()

@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.workflow.TaskListeners;
+import ru.intertrust.cm.core.business.api.workflow.GlobalListeners;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -33,11 +33,11 @@ public class PlatformDeleteTaskListener implements TaskListener {
     private StatusDao statusDao;
 
     @Autowired
-    private TaskListeners taskListeners;
+    private GlobalListeners globalListeners;
 
     @PostConstruct
     public void init(){
-        taskListeners.addDeleteTaskListener(TaskListeners.NBR_PROCESS_TARGET_NAMESPACE, this);
+        globalListeners.addDeleteTaskListener(GlobalListeners.NBR_PROCESS_TARGET_NAMESPACE, this);
     }
 
     @Override

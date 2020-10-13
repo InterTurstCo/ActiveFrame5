@@ -71,8 +71,8 @@ public class InSimpleDataSearchFilterQueryServiceTest {
     public void prepareQuery_ListValue() {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String expected = PREFIX + FIELD_NAME + ":(\"SOME_STRING\" OR 1 OR true OR \"" + sdf.format(date) + "\")";
-        ListValue listValue = new ListValue(new StringValue("SOME_STRING"), new LongValue(1L),
+        String expected = PREFIX + FIELD_NAME + ":(\"SOME STRING\" OR 1 OR true OR \"" + sdf.format(date) + "\")";
+        ListValue listValue = new ListValue(new StringValue("SOME STRING"), new LongValue(1L),
                 new BooleanValue(true), new DateTimeValue(date));
         String string = service
                 .prepareQuery(mock(SimpleDataConfig.class),
@@ -84,9 +84,9 @@ public class InSimpleDataSearchFilterQueryServiceTest {
     public void prepareQuery_List() {
         Date date = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String expected = PREFIX + FIELD_NAME + ":(\"SOME_STRING\" OR 1 OR true OR \"" + sdf.format(date) + "\")";
+        String expected = PREFIX + FIELD_NAME + ":(\"SOME\\\"STRING\" OR 1 OR true OR \"" + sdf.format(date) + "\")";
         List<Value<?>> listValue = new ArrayList<>(4);
-        listValue.add(new StringValue("SOME_STRING"));
+        listValue.add(new StringValue("SOME\"STRING"));
         listValue.add(new LongValue(1L));
         listValue.add(new BooleanValue(true));
         listValue.add(new DateTimeValue(date));

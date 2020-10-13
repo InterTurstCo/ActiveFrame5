@@ -63,15 +63,18 @@ public class CntxCollectionRetriever extends CollectionRetriever {
                 if (cntxFilterName != null) {
                     ArrayList<Filter> filters = new ArrayList<>(1);
                     filters.add(createIdFilter(ids.subList(cnt, Math.min(cnt + MAX_IDS_PER_QUERY, idsSize))));
-                    result.append(collectionsService.findCollection(collectionName, new SortOrder(), filters, 0, maxResults));
+                    result.append(collectionsService.findCollection(collectionName,
+                            new SortOrder(), filters, 0, Math.min(MAX_IDS_PER_QUERY, idsSize)));
                 } else {
                     ArrayList<Filter> filters = new ArrayList<>(0);
-                    result.append(collectionsService.findCollection(collectionName, new SortOrder(), filters, cnt, maxResults));
+                    result.append(collectionsService.findCollection(collectionName,
+                            new SortOrder(), filters, 0, Math.min(MAX_IDS_PER_QUERY, idsSize)));
                 }
 
             }
             addSolrFields(result, solrDocsMap, hl);
             addWeightsAndSort(result, found);
+            truncCollection(result, maxResults);
         }
         return result;
     }

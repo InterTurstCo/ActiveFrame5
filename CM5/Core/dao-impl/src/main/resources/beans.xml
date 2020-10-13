@@ -56,6 +56,7 @@
     <bean id="transactionManager"
           class="org.springframework.transaction.jta.JtaTransactionManager">
         <property name="transactionManagerName" value="java:jboss/TransactionManager"/>
+        <!-- Отключение синхронизации транзакции из за проблемы https://conf.inttrust.ru:8443/pages/viewpage.action?pageId=117440875 -->
         <property name="transactionSynchronization" value="2"/>
         <property name="autodetectUserTransaction" value="false"/>
     </bean>
