@@ -40,9 +40,6 @@ public class DeployModuleProcesses {
                                 if (processResource.contains("/")){
                                     processName = processResource.substring(processResource.lastIndexOf("/") + 1);
                                 }
-                                if (processName.contains(".")){
-                                    processName = processName.substring(0, processName.lastIndexOf("."));
-                                }
 
                                 String deployId = processService.deployProcess(out.toByteArray(), processName);
                                 logger.info("Process + " + processResource + " is deployed. Process name: " + processResource + "; Process ID: " + deployId);
