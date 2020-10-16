@@ -39,6 +39,8 @@ public class PlatformKeycloakConfigResolver extends SpringClient implements Keyc
         result.setPublicKeyLocator(pkLocator);
         result.setClientAuthenticator(ClientCredentialsProviderUtils.bootstrapClientAuthenticator(result));
         result.setClient(new HttpClientBuilder().build(adapterConfig));
+        result.setCors(true);
+
         return result;
     }
 }

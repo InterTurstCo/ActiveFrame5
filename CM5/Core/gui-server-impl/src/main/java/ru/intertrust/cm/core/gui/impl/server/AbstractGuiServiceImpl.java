@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 
 import javax.annotation.Resource;
@@ -26,8 +27,8 @@ public class AbstractGuiServiceImpl {
     @Autowired
     protected ApplicationContext applicationContext;
 
-    @Resource
-    protected SessionContext sessionContext;
+    @Autowired
+    protected CurrentUserAccessor currentUserAccessor;
 
     @Autowired
     protected ConfigurationExplorer configurationExplorer;

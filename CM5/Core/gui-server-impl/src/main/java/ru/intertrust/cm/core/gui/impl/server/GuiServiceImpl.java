@@ -56,6 +56,7 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -118,7 +119,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     public NavigationConfig getNavigationConfiguration() {
         NavigationTreeResolver navigationTreeResolver = (NavigationTreeResolver)
                 applicationContext.getBean("navigationTreeResolver");
-        return navigationTreeResolver.getNavigationPanel(sessionContext.getCallerPrincipal().getName());
+        return navigationTreeResolver.getNavigationPanel(currentUserAccessor.getCurrentUser());
     }
 
     /**
@@ -525,7 +526,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Override
     public String getUserUid() {
-        return sessionContext.getCallerPrincipal().getName();
+        return currentUserAccessor.getCurrentUser();
     }
 
     @Override
