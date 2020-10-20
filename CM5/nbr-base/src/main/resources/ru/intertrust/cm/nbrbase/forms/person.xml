@@ -73,6 +73,18 @@
                                     <td><widget id="LoginFieldDescription"/></td>
                                 </tr>
                                 <tr>
+                                    <td h-align="right">
+                                        <widget id="UnidLbl"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="UnidField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="fakeWidget"/></td>
+                                    <td><widget id="UnidFieldDescription"/></td>
+                                </tr>
+                                <tr>
                                     <td h-align="left">
                                         <widget id="auth_info_Lable"/>
                                     </td>
@@ -151,6 +163,22 @@
             <text-box id="LoginField">
                 <field-path value="login"/>
             </text-box>
+
+            <label id="UnidLbl">
+                <field-path/>
+                <relates-to widget-id="UnidField"/>
+                <text>UNID</text>
+            </label>
+            <text-box id="UnidField">
+                <field-path value="unid"/>
+            </text-box>
+            <label id="UnidFieldDescription">
+                <text>Заполняется при использование внешнего IDP сервера</text>
+                <font-weight value="normal"/>
+                <font-style value="normal"/>
+                <font-size value="11px"/>
+            </label>
+
 
             <label id="auth_info_Lable">
                 <text>Пароль</text>

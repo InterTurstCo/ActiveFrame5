@@ -20,6 +20,13 @@ public interface PersonServiceDao {
     DomainObject findPersonByLogin(String login);
 
     /**
+     * Поиск пользовыателя по UUID
+     * @param unid uuid пользователя
+     * @return доменной объект персоны
+     */
+    DomainObject findPersonByUnid(String unid);
+
+    /**
      * обновление кеша персон при изменении/удалении пользователя
      * @param login
      */

@@ -1,12 +1,14 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import java.security.Principal;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
@@ -95,6 +97,13 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                 }*/ else if (ejbContext.isCallerInRole("cm_user")) {
                     result = ejbContext.getCallerPrincipal().getName(); //principalName;
                 }
+
+                // Вычисление пользователя по UNID
+                if (result != null && isUuid(result)){
+                    // Получаем персону по UUID
+                    DomainObject person = getPersonServiceDao().findPersonByUnid(result);
+                    result = person.getString("Login");
+                }
             }
         } catch (Exception e) {
             result = null;
@@ -108,6 +117,15 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
         }
         
         return result;
+    }
+
+    private boolean isUuid(String uuid){
+        try{
+            UUID.fromString(uuid);
+            return true;
+        }catch (Exception ex){
+            return false;
+        }
     }
 
     /**

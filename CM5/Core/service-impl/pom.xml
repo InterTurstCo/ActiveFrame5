@@ -160,7 +160,12 @@
 		    <groupId>org.docx4j</groupId>
 		    <artifactId>docx4j</artifactId>
 		</dependency>
-		
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+        </dependency>
+
     </dependencies>
 
     <profiles>

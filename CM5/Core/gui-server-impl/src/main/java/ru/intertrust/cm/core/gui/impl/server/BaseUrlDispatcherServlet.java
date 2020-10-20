@@ -23,12 +23,12 @@ public class BaseUrlDispatcherServlet extends HttpServlet {
   @Override
   public void doGet(final HttpServletRequest request, final HttpServletResponse response)
       throws IOException, ServletException {
-    HttpSession session = request.getSession(false);
+    HttpSession session = request.getSession(true);
     if (session.getAttribute(ATTRIBUTE_URI) == null
-        || (!session.getAttribute(ATTRIBUTE_URI).toString().equals(request.getRequestURI())
-        && !request.getRequestURI().contains(".") && !request.getRequestURI().contains("js"))
-        )
+            || (!session.getAttribute(ATTRIBUTE_URI).toString().equals(request.getRequestURI())
+              && !request.getRequestURI().contains(".") && !request.getRequestURI().contains("js"))) {
       session.setAttribute(ATTRIBUTE_URI, request.getRequestURI());
+    }
     //response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
 
     // первая версия костыля для CMFIVE-18382 (забраковано)

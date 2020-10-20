@@ -359,6 +359,7 @@
     <bean id="fileSystemAttachmentCleaner" class="ru.intertrust.cm.core.business.impl.FileSystemAttachmentCleanerImpl"/>
     <bean id="workflowEngeneFactory" class="ru.intertrust.cm.core.business.impl.workflow.WorkflowEngeneFactory"/>
     <bean id="workflowEngine" factory-bean="workflowEngeneFactory" factory-method="getObject"/>
+    <bean id="keycloakIdpServiceImpl" class="ru.intertrust.cm.core.business.impl.access.KeycloakIdpServiceImpl"/>
 
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCacheImpl"/>
