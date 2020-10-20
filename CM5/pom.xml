@@ -615,7 +615,13 @@
             <dependency>
                 <groupId>org.keycloak</groupId>
                 <artifactId>keycloak-servlet-filter-adapter</artifactId>
-                <version>5.0.0</version>
+                <version>11.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-admin-client</artifactId>
+                <version>11.0.2</version>
             </dependency>
 
         </dependencies>
