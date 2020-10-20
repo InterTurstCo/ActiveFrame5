@@ -3,8 +3,6 @@ package ru.intertrust.cm.remoteclient.idp;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.keycloak.common.util.Base64;
 import ru.intertrust.cm.remoteclient.ClientBase;

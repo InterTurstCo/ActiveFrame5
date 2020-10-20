@@ -32,6 +32,14 @@ public class PlatformKeycloakConfigResolver extends SpringClient implements Keyc
         result.setPublicClient(true);
         AdapterConfig adapterConfig = new AdapterConfig();
         adapterConfig.setAuthServerUrl(config.getServerUrl());
+
+        // Выключение проверки сертификатов
+        adapterConfig.setDisableTrustManager(config.isDisableTrustManager());
+
+        // Настройка хранилища сертификатов keycloak сервера
+        adapterConfig.setTruststore(config.getTruststore());
+        adapterConfig.setTruststorePassword(config.getTruststorePassword());
+
         result.setAuthServerBaseUrl(adapterConfig);
         result.setSslRequired(SslRequired.NONE);
         HardcodedPublicKeyLocator pkLocator = new HardcodedPublicKeyLocator(PemUtils.decodePublicKey(config.getRealmPublicKey()));
@@ -39,6 +47,7 @@ public class PlatformKeycloakConfigResolver extends SpringClient implements Keyc
         result.setClientAuthenticator(ClientCredentialsProviderUtils.bootstrapClientAuthenticator(result));
         result.setClient(new HttpClientBuilder().build(adapterConfig));
         result.setCors(true);
+
 
         return result;
     }

@@ -9,6 +9,9 @@ public class KeycloakConfig implements IdpConfig {
     private String adminLogin;
     private String adminPassword;
     private String clientId;
+    private boolean disableTrustManager;
+    private String truststore;
+    private String truststorePassword;
 
     @Override
     public String getServerUrl() {
@@ -60,7 +63,34 @@ public class KeycloakConfig implements IdpConfig {
         return adminPassword;
     }
 
+    @Override
+    public boolean isDisableTrustManager() {
+        return disableTrustManager;
+    }
+
+    @Override
+    public String getTruststore() {
+        return truststore;
+    }
+
+    @Override
+    public String getTruststorePassword() {
+        return truststorePassword;
+    }
+
     public void setAdminPassword(String adminPassword) {
         this.adminPassword = adminPassword;
+    }
+
+    public void setDisableTrustManager(boolean disableTrustManager) {
+        this.disableTrustManager = disableTrustManager;
+    }
+
+    public void setTruststore(String truststore) {
+        this.truststore = truststore;
+    }
+
+    public void setTruststorePassword(String truststorePassword) {
+        this.truststorePassword = truststorePassword;
     }
 }

@@ -20,18 +20,25 @@ public class KeycloakIdpServiceImpl implements IdpService {
     private String realmPublicKey;
 
     @Value("${keycloak.url}")
-    private String keycloakUrl;
+    private String url;
 
     @Value("${keycloak.client.id}")
-    private String keycloakClientId;
+    private String clientId;
 
     @Value("${keycloak.admin.login}")
-    private String keycloakAdminLogin;
+    private String adminLogin;
 
     @Value("${keycloak.admin.password}")
-    private String keycloakAdminPassword;
+    private String adminPassword;
 
+    @Value("${keycloak.disable.trust.manager:false}")
+    private boolean disableTrustManager;
 
+    @Value("${keycloak.truststore:}")
+    private String truststore;
+
+    @Value("${keycloak.truststore.password:}")
+    private String truststorePassword;
 
     private Keycloak keycloak;
     private KeycloakConfig config;
@@ -42,11 +49,14 @@ public class KeycloakIdpServiceImpl implements IdpService {
 
         config = new KeycloakConfig();
         config.setRealm(realmName);
-        config.setServerUrl(keycloakUrl);
+        config.setServerUrl(url);
         config.setRealmPublicKey(realmPublicKey);
-        config.setClientId(keycloakClientId);
-        config.setAdminLogin(keycloakAdminLogin);
-        config.setAdminPassword(keycloakAdminPassword);
+        config.setClientId(clientId);
+        config.setAdminLogin(adminLogin);
+        config.setAdminPassword(adminPassword);
+        config.setDisableTrustManager(disableTrustManager);
+        config.setTruststore(truststore);
+        config.setTruststorePassword(truststorePassword);
 
         keycloak = Keycloak.getInstance(
                 config.getServerUrl(),
