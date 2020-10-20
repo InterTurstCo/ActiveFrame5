@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import org.keycloak.adapters.servlet.KeycloakOIDCFilter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.intertrust.cm.core.business.api.access.IdpService;
 
 public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
     private boolean useIdp;
@@ -30,8 +31,8 @@ public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
         ApplicationContext ctx = WebApplicationContextUtils
                 .getRequiredWebApplicationContext(filterConfig.getServletContext());
 
-        String useIdpParamValue = ctx.getEnvironment().getProperty(AuthenticationFilter.USE_IDP_PARAMETER);
-        useIdp = useIdpParamValue == null ? false : Boolean.parseBoolean(useIdpParamValue);
+        IdpService idpService = ctx.getBean(IdpService.class);
+        useIdp = idpService.getConfig().isIdpAuthentication();
     }
 
     @Override

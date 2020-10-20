@@ -12,6 +12,7 @@ public class KeycloakConfig implements IdpConfig {
     private boolean disableTrustManager;
     private String truststore;
     private String truststorePassword;
+    private boolean idpAuthentication;
 
     @Override
     public String getServerUrl() {
@@ -92,5 +93,14 @@ public class KeycloakConfig implements IdpConfig {
 
     public void setTruststorePassword(String truststorePassword) {
         this.truststorePassword = truststorePassword;
+    }
+
+    @Override
+    public boolean isIdpAuthentication() {
+        return idpAuthentication;
+    }
+
+    public void setIdpAuthentication(boolean idpAuthentication) {
+        this.idpAuthentication = idpAuthentication;
     }
 }

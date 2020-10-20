@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.access.IdpService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.dao.api.EventLogService;
@@ -51,12 +51,8 @@ public class AuthenticationFilter implements Filter {
     private static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
     private static final String REMOTE = "/remote";
     private static final String AF5_STRONG_SECURITY_DOMAIN = "af5.strong.security.domain";
-    public static final String USE_IDP_PARAMETER = "idp.authentication";
 
     private ExtensionService extensionService;
-
-    @EJB
-    private ConfigurationService configurationService;
 
     @EJB
     private ApplicationSecurityManager applicationSecurityManager;
@@ -67,6 +63,7 @@ public class AuthenticationFilter implements Filter {
 
     private EventLogService eventLogService;
 
+    private IdpService idpService;
     /**
      * Флаг использования IDP провайдера для аутентификаци
      */
@@ -92,8 +89,9 @@ public class AuthenticationFilter implements Filter {
 
         eventLogService = ctx.getBean(EventLogService.class);
 
-        String useIdpParamValue = ctx.getEnvironment().getProperty(USE_IDP_PARAMETER);
-        useIdp = useIdpParamValue == null ? false : Boolean.parseBoolean(useIdpParamValue);
+        idpService = ctx.getBean(IdpService.class);
+
+        useIdp = idpService.getConfig().isIdpAuthentication();
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)

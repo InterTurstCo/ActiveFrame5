@@ -58,4 +58,10 @@ public interface IdpConfig {
      * @return
      */
     String getTruststorePassword();
+
+    /**
+     * Возвращает флаг включена ли аутентификация на IDP сервере
+     * @return
+     */
+    boolean isIdpAuthentication();
 }

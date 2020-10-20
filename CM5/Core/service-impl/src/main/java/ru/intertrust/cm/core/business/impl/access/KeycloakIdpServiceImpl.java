@@ -13,22 +13,22 @@ import ru.intertrust.cm.core.model.FatalException;
 
 public class KeycloakIdpServiceImpl implements IdpService {
 
-    @Value("${keycloak.ralm.name}")
+    @Value("${keycloak.ralm.name:}")
     private String realmName;
 
-    @Value("${keycloak.realm.public.key}")
+    @Value("${keycloak.realm.public.key:}")
     private String realmPublicKey;
 
-    @Value("${keycloak.url}")
+    @Value("${keycloak.url:}")
     private String url;
 
-    @Value("${keycloak.client.id}")
+    @Value("${keycloak.client.id:}")
     private String clientId;
 
-    @Value("${keycloak.admin.login}")
+    @Value("${keycloak.admin.login:}")
     private String adminLogin;
 
-    @Value("${keycloak.admin.password}")
+    @Value("${keycloak.admin.password:}")
     private String adminPassword;
 
     @Value("${keycloak.disable.trust.manager:false}")
@@ -39,6 +39,10 @@ public class KeycloakIdpServiceImpl implements IdpService {
 
     @Value("${keycloak.truststore.password:}")
     private String truststorePassword;
+
+    @Value("${idp.authentication:false}")
+    private boolean idpAuthentication;
+
 
     private Keycloak keycloak;
     private KeycloakConfig config;
@@ -57,13 +61,16 @@ public class KeycloakIdpServiceImpl implements IdpService {
         config.setDisableTrustManager(disableTrustManager);
         config.setTruststore(truststore);
         config.setTruststorePassword(truststorePassword);
+        config.setIdpAuthentication(idpAuthentication);
 
-        keycloak = Keycloak.getInstance(
-                config.getServerUrl(),
-                "master",
-                config.getAdminLogin(),
-                config.getAdminPassword(),
-                "admin-cli");
+        if (url != null && !url.isEmpty()) {
+            keycloak = Keycloak.getInstance(
+                    config.getServerUrl(),
+                    "master",
+                    config.getAdminLogin(),
+                    config.getAdminPassword(),
+                    "admin-cli");
+        }
     }
 
     @Override
