@@ -10,11 +10,11 @@ import java.nio.file.Paths;
 import org.apache.commons.codec.binary.Base64;
 import ru.intertrust.cm.core.gui.model.plugin.DeployConfigType;
 
-public class ActivityDeployerImpl extends DeployerBase {
+public class FlowableDeployerImpl extends DeployerBase {
 
     @Override
     public DeployConfigType getDeployConfigType() {
-        return new DeployConfigType("bpmn", "Шаблон процесса Activiti", "bpmn");
+        return new DeployConfigType("bpmn", "Шаблон процесса Flowable", "bpmn");
     }
 
     protected String readFileAsString(File file) throws IOException {

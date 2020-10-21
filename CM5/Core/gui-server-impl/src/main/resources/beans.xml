@@ -100,7 +100,7 @@
 
     <bean id="sortOrderHelper" class="ru.intertrust.cm.core.gui.impl.server.SorOrderHelperImpl" lazy-init="true"/>
     
-    <bean id="activityDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ActivityDeployerImpl" lazy-init="true"/>
+    <bean id="flowableDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.FlowableDeployerImpl" lazy-init="true"/>
     <bean id="runaDeployerImpl" class="ru.intertrust.cm.core.gui.impl.server.action.RunaDeployerImpl" lazy-init="true"/>
     <bean id="configDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ConfigDeployerImpl" lazy-init="true"/>
     <bean id="importDataDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ImportDataDeployerImpl" lazy-init="true"/>
