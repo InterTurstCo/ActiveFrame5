@@ -340,6 +340,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
+        addCurrentPersonParameter(collectionQuery, parameters);
         long preparationTime = System.nanoTime() - preparationStartTime;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
@@ -569,6 +570,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
+        addCurrentPersonParameter(collectionQuery, parameters);
         long preparationTime = System.nanoTime() - preparationStartTime;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
@@ -625,6 +627,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
         fillParameterMap(params, parameters);
+        addCurrentPersonParameter(collectionQuery, parameters);
 
         long preparationTime = System.nanoTime() - preparationStartTime;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
