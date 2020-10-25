@@ -138,9 +138,9 @@ public abstract class DomainObjectIndexAgentBase {
                 return Collections.emptyMap();
             }
 
-            if (config.getScript() != null) {
+            if (config.getScriptConfig() != null) {
                 SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
-                Object value = scriptService.eval(config.getScript(), context);
+                Object value = scriptService.eval(config.getScriptConfig().getScript(), context);
                 return Collections.singletonMap(types.iterator().next(), value);
 
             } else if (config.getDoel() != null) {
@@ -187,8 +187,8 @@ public abstract class DomainObjectIndexAgentBase {
 
         } catch (Exception e) {
             StringBuilder message = new StringBuilder("Field ").append(config.getName()).append(" calculation error");
-            if (config.getScript() != null) {
-                message.append(" [script=").append(config.getScript()).append("]");
+            if (config.getScriptConfig() != null) {
+                message.append(" [script=").append(config.getScriptConfig().getScript()).append("]");
             }
             if (config.getDoel() != null) {
                 message.append(" [doel=").append(config.getDoel()).append("]");

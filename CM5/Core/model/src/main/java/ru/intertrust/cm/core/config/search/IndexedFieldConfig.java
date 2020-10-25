@@ -41,8 +41,8 @@ public class IndexedFieldConfig implements Serializable {
     @Element(required = false)
     private String doel;
 
-    @Element(required = false)
-    private String script;
+    @Element(name = "script", required = false)
+    private IndexedFieldScriptConfig scriptConfig;
 
     @Attribute(name = "show-in-results", required = false)
     private Boolean showInResults;
@@ -69,8 +69,8 @@ public class IndexedFieldConfig implements Serializable {
         return doel;
     }
     
-    public String getScript() {
-        return script;
+    public IndexedFieldScriptConfig getScriptConfig() {
+        return scriptConfig;
     }
 
     @Attribute(name = "search-by", required = false)
@@ -104,7 +104,7 @@ public class IndexedFieldConfig implements Serializable {
         int hash = name.hashCode();
         hash = hash * 31 ^ (language != null ? language.hashCode() : 0);
         hash = hash * 31 ^ (doel != null ? doel.hashCode() : 0);
-        hash = hash * 31 ^ (script != null ? script.hashCode() : 0);
+        hash = hash * 31 ^ (scriptConfig != null ? scriptConfig.hashCode() : 0);
         hash = hash * 31 ^ (solrPrefix != null ? solrPrefix.hashCode() : 0);
         hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
         hash = hash * 31 ^ (multiValued != null ? multiValued.hashCode() : 0);
@@ -125,7 +125,7 @@ public class IndexedFieldConfig implements Serializable {
         return name.equals(other.name)
                 && (language == null ? other.language == null : language.equals(other.language))
                 && (doel == null ? other.doel == null : doel.equals(other.doel))
-                && (script == null ? other.script == null : script.equals(other.script))
+                && (scriptConfig == null ? other.scriptConfig == null : scriptConfig.equals(other.scriptConfig))
                 && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix))
                 && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults))
                 && (targetFieldName == null ? other.targetFieldName == null : targetFieldName.equals(other.targetFieldName))

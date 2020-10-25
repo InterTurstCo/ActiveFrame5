@@ -533,7 +533,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                             config.getSearchBy()));
                 }
             }
-        } else if (config.getScript() != null) {
+        } else if (config.getScriptConfig() != null) {
             result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), config.getMultiValued(),
                     config.getSearchBy()));
         } else {

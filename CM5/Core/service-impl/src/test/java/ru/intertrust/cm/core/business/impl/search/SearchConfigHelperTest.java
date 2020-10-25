@@ -218,7 +218,7 @@ public class SearchConfigHelperTest {
         when(config.getName()).thenReturn("Calculated");
         when(config.getDoel()).thenReturn(null);
         when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
-        when(config.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
+        when(config.getScriptConfig().getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
         assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));

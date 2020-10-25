@@ -137,7 +137,7 @@ public class DomainObjectIndexAgentTest {
         when(customField.getSolrPrefix()).thenReturn("custom");
         IndexedFieldConfig scriptField = mock(IndexedFieldConfig.class);
         when(scriptField.getName()).thenReturn("ScriptField");
-        when(scriptField.getScript()).thenReturn("evaluate");
+        when(scriptField.getScriptConfig().getScript()).thenReturn("evaluate");
         // Поля поисковой области, вычисляемые скриптами
         /*IndexedFieldConfig scriptStringField = mock(IndexedFieldConfig.class);
         when(scriptStringField.getName()).thenReturn("ScriptStringField");

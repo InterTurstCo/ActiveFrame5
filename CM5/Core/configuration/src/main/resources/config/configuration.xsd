@@ -1020,6 +1020,24 @@
         </xs:choice>
     </xs:complexType>
 
+    <xs:complexType name="scriptType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="return-type" use="optional">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="string"></xs:enumeration>
+                            <xs:enumeration value="date"></xs:enumeration>
+                            <xs:enumeration value="boolean"></xs:enumeration>
+                            <xs:enumeration value="long"></xs:enumeration>
+                            <xs:enumeration value="decimal"></xs:enumeration>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:simpleType name="doelType">
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"/>
@@ -3543,7 +3561,8 @@
             <xs:element name="java-class" type="con:javaClassType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="spring-bean" type="con:springBeanType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="doel" type="con:doelType" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="script" type="xs:string"/>
+            <!--xs:element name="script" type="xs:string"/-->
+            <xs:element name="script" type="con:scriptType" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
 
