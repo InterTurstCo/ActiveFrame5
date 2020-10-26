@@ -56,11 +56,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
-import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
-import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
-import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
-import ru.intertrust.cm.core.config.search.ParentLinkConfig;
-import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.Subject;
@@ -116,6 +112,7 @@ public class DomainObjectIndexAgentTest {
     public void testSaveGenericDocument_RootObjectManyFields() {
         // Модель конфигурации области поиска
         IndexedFieldConfig stringField = mock(IndexedFieldConfig.class);
+        IndexedFieldScriptConfig scriptConfig = mock(IndexedFieldScriptConfig.class);
         when(stringField.getName()).thenReturn("StringField");
         IndexedFieldConfig ruStringField = mock(IndexedFieldConfig.class);
         when(ruStringField.getName()).thenReturn("RuStringField");
@@ -137,7 +134,8 @@ public class DomainObjectIndexAgentTest {
         when(customField.getSolrPrefix()).thenReturn("custom");
         IndexedFieldConfig scriptField = mock(IndexedFieldConfig.class);
         when(scriptField.getName()).thenReturn("ScriptField");
-        when(scriptField.getScriptConfig().getScript()).thenReturn("evaluate");
+        when(scriptField.getScriptConfig()).thenReturn(scriptConfig);
+        when(scriptConfig.getScript()).thenReturn("evaluate");
         // Поля поисковой области, вычисляемые скриптами
         /*IndexedFieldConfig scriptStringField = mock(IndexedFieldConfig.class);
         when(scriptStringField.getName()).thenReturn("ScriptStringField");

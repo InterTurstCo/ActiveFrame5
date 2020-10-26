@@ -141,7 +141,7 @@ public abstract class DomainObjectIndexAgentBase {
             if (config.getScriptConfig() != null) {
                 SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
                 Object value = scriptService.eval(config.getScriptConfig().getScript(), context);
-                return Collections.singletonMap(types.iterator().next(), value);
+                return Collections.singletonMap(types.iterator().next(), convertScriptValue(value));
 
             } else if (config.getDoel() != null) {
                 DoelExpression doel = DoelExpression.parse(config.getDoel());
@@ -266,6 +266,34 @@ public abstract class DomainObjectIndexAgentBase {
             }
         } else {
             result = value.get();
+        }
+        return result;
+    }
+
+
+    protected Object convertScriptValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        Object result = null;
+        if (value instanceof TimelessDate) {
+            TimelessDate date = (TimelessDate) value;
+            if (date != null) {
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                cal.clear();
+                cal.set(date.getYear(), date.getMonth(), date.getDayOfMonth());
+                result = cal.getTime();
+            }
+        } else if (value instanceof DateTimeWithTimeZone) {
+            DateTimeWithTimeZone date = (DateTimeWithTimeZone) value;
+            if (date != null) {
+                Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(date.getTimeZoneContext().getTimeZoneId()));
+                cal.set(date.getYear(), date.getMonth(), date.getDayOfMonth(),
+                        date.getHours(), date.getMinutes(), date.getSeconds());
+                result = cal.getTime();
+            }
+        } else {
+            result = value;
         }
         return result;
     }

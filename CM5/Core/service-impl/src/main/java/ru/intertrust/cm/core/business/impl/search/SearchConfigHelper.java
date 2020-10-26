@@ -34,6 +34,8 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     private static final Logger logger = LoggerFactory.getLogger(SearchConfigHelper.class);
 
+    private static final Map<IndexedFieldScriptConfig.ScriptReturnType, SimpleSearchFieldType.Type> searchFieldTypes = new HashMap<>(4);
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -534,8 +536,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                 }
             }
         } else if (config.getScriptConfig() != null) {
-            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), config.getMultiValued(),
-                    config.getSearchBy()));
+            result = getScriptFieldType(config);
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
             if (fieldConfig == null) {
@@ -806,6 +807,30 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         return AttachmentService.NAME.equals(fieldName)
                 || AttachmentService.DESCRIPTION.equals(fieldName)
                 || AttachmentService.CONTENT_LENGTH.equals(fieldName);
+    }
+
+    private Set<SearchFieldType> getScriptFieldType(IndexedFieldConfig config) {
+        Set<SearchFieldType> result = null;
+        if (config != null && config.getScriptConfig() != null) {
+            switch (config.getScriptConfig().getScriptReturnType()) {
+                case BOOLEAN:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.BOOL, config.getMultiValued()));
+                    break;
+                case DATE:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, config.getMultiValued()));
+                    break;
+                case LONG:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, config.getMultiValued()));
+                    break;
+                case DECIMAL:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DOUBLE, config.getMultiValued()));
+                    break;
+                default:
+                    result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), config.getMultiValued(),
+                            config.getSearchBy()));
+            }
+        }
+        return result;
     }
 
     public void clearCache(){

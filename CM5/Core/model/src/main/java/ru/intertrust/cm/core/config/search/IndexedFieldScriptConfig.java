@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.config.search;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Text;
 
 import java.io.Serializable;
 
@@ -32,7 +32,7 @@ public class IndexedFieldScriptConfig implements Serializable {
 
     private ScriptReturnType scriptReturnType;
 
-    @Element(required = false)
+    @Text(required = false)
     private String script;
 
     public String getScript() {

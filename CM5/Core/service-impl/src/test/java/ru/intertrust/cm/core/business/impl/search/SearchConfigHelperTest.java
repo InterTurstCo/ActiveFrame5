@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -215,10 +216,13 @@ public class SearchConfigHelperTest {
     @Test
     public void testGetFieldType_Calculated() {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        IndexedFieldScriptConfig scriptConfig = mock(IndexedFieldScriptConfig.class);
         when(config.getName()).thenReturn("Calculated");
         when(config.getDoel()).thenReturn(null);
         when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
-        when(config.getScriptConfig().getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
+        when(config.getScriptConfig()).thenReturn(scriptConfig);
+        when(scriptConfig.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
+        when(scriptConfig.getScriptReturnType()).thenReturn(IndexedFieldScriptConfig.ScriptReturnType.STRING);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
         assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
