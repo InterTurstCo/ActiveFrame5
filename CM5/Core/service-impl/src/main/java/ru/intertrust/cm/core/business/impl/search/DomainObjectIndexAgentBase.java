@@ -292,6 +292,11 @@ public abstract class DomainObjectIndexAgentBase {
                         date.getHours(), date.getMinutes(), date.getSeconds());
                 result = cal.getTime();
             }
+        } else if (value instanceof Date) {
+            Date date = (Date) value;
+            if (date != null) {
+                result = date;
+            }
         } else {
             result = value;
         }
