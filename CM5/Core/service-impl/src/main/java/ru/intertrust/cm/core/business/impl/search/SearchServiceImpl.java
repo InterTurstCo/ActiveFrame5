@@ -442,9 +442,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         solrQuery.setRows(rows);
                     }
                     QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
-                    foundParts.add(response.getResults());
-                    foundCache.put(":" + filterString, response.getResults());
-                    clipped = clipped || rows > 0 && response.getResults().size() == rows;
+					if (response.getResults() != null) {
+						foundParts.add(response.getResults());
+						foundCache.put(":" + filterString, response.getResults());
+						clipped = clipped || rows > 0 && response.getResults().size() == rows;
+					}
                 }
                 for (ComplexQuery nested : nestedQueries) {
                     SolrDocumentList part = nested.execute(rows, query);
