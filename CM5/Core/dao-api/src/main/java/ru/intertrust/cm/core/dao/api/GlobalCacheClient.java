@@ -30,7 +30,7 @@ public interface GlobalCacheClient {
 
     void notifyCreate(DomainObject obj, AccessToken accessToken);
 
-    void notifyUpdate(DomainObject obj, AccessToken accessToken);
+    void notifyUpdate(DomainObject obj, AccessToken accessToken, boolean stampChanged);
 
     void notifyDelete(Id id);
 

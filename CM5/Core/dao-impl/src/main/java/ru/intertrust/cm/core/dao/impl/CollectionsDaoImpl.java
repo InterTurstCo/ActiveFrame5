@@ -51,6 +51,8 @@ import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
+import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
 import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
@@ -61,6 +63,7 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 /**
  * @author vmatsukevich Date: 7/1/13 Time: 6:58 PM
  */
+@ExtensionPoint
 public class CollectionsDaoImpl implements CollectionsDao {
     private static final Logger logger = LoggerFactory.getLogger(CollectionsDaoImpl.class);
 
@@ -878,4 +881,5 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
         return parameterValue;
     }
+
 }

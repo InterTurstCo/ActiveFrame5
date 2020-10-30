@@ -126,7 +126,6 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                 setSchemaUpdateDone();
             }
         }
-
     }
 
     protected void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {

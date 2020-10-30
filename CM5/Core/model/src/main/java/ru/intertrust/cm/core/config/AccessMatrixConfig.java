@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Конфигурация матрицы доступа.
@@ -38,7 +39,9 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Element(name = "matrix-reference-mapping", required = false)
     private MatrixReferenceMappingConfig matrixReferenceMappingConfig;
 
-    
+    @Attribute(name= "support-security-stamp", required = false)
+    private Boolean supportSecurityStamp;
+
     public static enum BorrowPermissisonsMode{
         none,
         read,
@@ -81,42 +84,22 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         AccessMatrixConfig that = (AccessMatrixConfig) o;
-
-        if (readEverybody != null ? !readEverybody.equals(that.readEverybody) : that.readEverybody != null) {
-            return false;
-        }
-        if (status != null ? !status.equals(that.status) : that.status != null) {
-            return false;
-        }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-        if (borrowPermissisons != null ? !borrowPermissisons.equals(that.borrowPermissisons) : that.borrowPermissisons != null) {
-            return false;
-        }
-
-        if (accessMatrixCreateConfig != null ? !accessMatrixCreateConfig.equals(that.accessMatrixCreateConfig)
-                : that.accessMatrixCreateConfig != null) {
-            return false;
-        }
-        return true;
+        return Objects.equals(type, that.type) &&
+                Objects.equals(readEverybody, that.readEverybody) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(matrixReference, that.matrixReference) &&
+                borrowPermissisons == that.borrowPermissisons &&
+                Objects.equals(accessMatrixCreateConfig, that.accessMatrixCreateConfig) &&
+                Objects.equals(matrixReferenceMappingConfig, that.matrixReferenceMappingConfig) &&
+                Objects.equals(supportSecurityStamp, that.supportSecurityStamp);
     }
 
     @Override
     public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (readEverybody != null ? readEverybody.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (borrowPermissisons != null ? borrowPermissisons.hashCode() : 0);        
-        return result;
+        return Objects.hash(type, readEverybody, status, matrixReference, borrowPermissisons, accessMatrixCreateConfig, matrixReferenceMappingConfig, supportSecurityStamp);
     }
 
     @Override
@@ -160,8 +143,23 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     @Override
     public String toString() {
-        return "AccessMatrixConfig [type=" + type + ", readEverybody=" + readEverybody + ", status=" + status + ", matrixReference=" + matrixReference
-                + ", borrowPermissisons=" + borrowPermissisons + ", accessMatrixCreateConfig=" + accessMatrixCreateConfig + ", matrixReferenceMappingConfig="
-                + matrixReferenceMappingConfig + "]";
+        return "AccessMatrixConfig{" +
+                "type='" + type + '\'' +
+                ", readEverybody=" + readEverybody +
+                ", status=" + status +
+                ", matrixReference='" + matrixReference + '\'' +
+                ", borrowPermissisons=" + borrowPermissisons +
+                ", accessMatrixCreateConfig=" + accessMatrixCreateConfig +
+                ", matrixReferenceMappingConfig=" + matrixReferenceMappingConfig +
+                ", supportSecurityStamp=" + supportSecurityStamp +
+                '}';
+    }
+
+    public Boolean isSupportSecurityStamp() {
+        return supportSecurityStamp;
+    }
+
+    public void setSupportSecurityStamp(Boolean supportSecurityStamp) {
+        this.supportSecurityStamp = supportSecurityStamp;
     }
 }

@@ -1111,6 +1111,7 @@
         <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
         <xs:attribute name="matrix-reference-field" type="xs:string" use="optional"/>
         <xs:attribute name="borrow-permissisons" type="con:BorrowPermissisonsEnum" use="optional"/>
+        <xs:attribute name="support-security-stamp" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="matrixReferenceMapping">

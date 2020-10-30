@@ -207,6 +207,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="securityStampImpl"  class="ru.intertrust.cm.core.dao.impl.access.SecurityStampImpl"/>
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>

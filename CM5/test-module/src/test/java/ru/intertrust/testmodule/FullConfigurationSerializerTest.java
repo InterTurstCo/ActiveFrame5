@@ -29,7 +29,7 @@ public class FullConfigurationSerializerTest {
         for(TopLevelConfig tl : configuration1.getConfigurationList()){
 
             if(!tl.equals(configuration2.getConfigurationList().get(index))){
-                System.out.println("NOT EQUALS");
+                System.out.println("NOT EQUALS " + tl.getClass().getName() + " " + tl.getName());
             }
             index++;
         }

@@ -47,6 +47,8 @@ public interface DomainObjectDao {
     String UPDATED_BY_TYPE_COLUMN = UPDATED_BY + REFERENCE_TYPE_POSTFIX;
     
     String ACCESS_OBJECT_ID = "access_object_id";
+    String SECURITY_STAMP_COLUMN = "security_stamp";
+    String SECURITY_STAMP_TYPE_COLUMN = SECURITY_STAMP_COLUMN + REFERENCE_TYPE_POSTFIX;
     String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_FIELD_NAME + REFERENCE_TYPE_POSTFIX;
     String OPERATION_COLUMN = "operation";
 

@@ -119,7 +119,7 @@ public class PostgreSqlQueryHelperTest {
         String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN + "\" integer, " +
                 "\"created_date\" timestamp not null, " + "\"updated_date\" timestamp not null, \"created_by\" bigint, " +
                 "\"created_by_type\" integer, \"updated_by\" bigint, \"updated_by_type\" integer, \"status\" bigint, " +
-                "\"status_type\" integer, \"access_object_id\" bigint, " +
+                "\"status_type\" integer, \"security_stamp\" bigint, \"security_stamp_type\"  integer, \"access_object_id\" bigint, " +
                 "\"registration_number\" varchar(128), \"registration_date\" timestamp, \"author\" bigint, " +
                 "\"author_type\" integer, " +
                 "\"long_field\" bigint, \"decimal_field_1\" numeric(10, 2), \"decimal_field_2\" numeric(10), " +

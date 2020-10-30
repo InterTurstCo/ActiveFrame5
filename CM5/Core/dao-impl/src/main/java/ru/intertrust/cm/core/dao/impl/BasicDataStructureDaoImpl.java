@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.IndexesRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
@@ -129,6 +130,8 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
         createAutoIndices(config, fieldConfigList, isAl, true, isParent);
     }
+
+
 
     @Override
     public void createIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToCreate) {        
@@ -303,7 +306,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#updateColumnType(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#updateColumnType(DomainObjectTypeConfig, FieldConfig, FieldConfig)}}
      */
     @Override
     public void updateColumnType(DomainObjectTypeConfig config, FieldConfig oldFieldConfig, FieldConfig newFieldConfig) {
@@ -510,4 +513,22 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     protected abstract String generateCountTableForeignKeys();
 
     protected abstract String generateSelectTableForeignKeys();
+
+    @Override
+    public void addColumns(DomainObjectTypeConfig type, List<FieldConfig> fields){
+
+
+
+        String addColumnQuery = getQueryHelper().generateAddColumnsQuery(type.getName(), fields);
+        jdbcTemplate.execute(addColumnQuery);
+
+        List<ReferenceFieldConfig> referenceFields = new ArrayList<>();
+        for (FieldConfig fieldConfig : fields) {
+            if (fieldConfig instanceof ReferenceFieldConfig){
+                referenceFields.add((ReferenceFieldConfig)fieldConfig);
+            }
+        }
+
+        createForeignKeyAndUniqueConstraints(type, referenceFields, Collections.emptyList());
+    }
 }

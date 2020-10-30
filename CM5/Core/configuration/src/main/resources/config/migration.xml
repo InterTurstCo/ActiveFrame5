@@ -17,4 +17,10 @@
         </before-auto-migration>
     </migration-script>
 
+    <migration-script sequence-number="200">
+        <after-auto-migration>
+            <execute component-name="addSecurityStampField"/>
+        </after-auto-migration>
+    </migration-script>
+
 </configuration>

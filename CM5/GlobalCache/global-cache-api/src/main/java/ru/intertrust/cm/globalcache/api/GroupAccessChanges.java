@@ -113,7 +113,7 @@ public class GroupAccessChanges implements AccessChanges {
         return groupAccess;
     }
 
-    private void markForFullAccessClearing() {
+    public void markForFullAccessClearing() {
         groupAccessByObject = null;
     }
 }

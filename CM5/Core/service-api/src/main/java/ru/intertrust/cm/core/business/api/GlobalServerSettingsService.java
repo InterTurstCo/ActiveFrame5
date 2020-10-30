@@ -52,4 +52,25 @@ public interface GlobalServerSettingsService {
      * @return
      */
     public Long getLong(String name, Long defaultValue);
+
+    /**
+     * Установка строкового значения глобальной конфигурации
+     * @param name
+     * @param value
+     */
+    public void setString(String name, String value);
+
+    /**
+     * Установка числового значения глобальной конфигурации
+     * @param name
+     * @param value
+     */
+    public void setLong(String name, Long value);
+
+    /**
+     * Установка логического значения глобальной конфигурации
+     * @param name
+     * @param value
+     */
+    public void setBoolean(String name, Boolean value);
 }

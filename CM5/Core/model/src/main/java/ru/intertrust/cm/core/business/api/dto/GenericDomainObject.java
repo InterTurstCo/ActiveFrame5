@@ -21,6 +21,8 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
 
     public static String STATUS_DO = "status";
 
+    public static String SECURITY_STAMP_DO = "security_stamp";
+
     public static final String USER_GROUP_DOMAIN_OBJECT = "User_Group";
 
     public static final String GROUP_MEMBER_DOMAIN_OBJECT = "Group_Member";
@@ -158,12 +160,21 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     }
 
     @Override
+    public Id getStamp() {
+        return getReference(SystemField.security_stamp.name());
+    }
+
+    @Override
     public boolean isAbsent() {
         return false;
     }
 
     public void setStatus(Id status) {
         setReference(SystemField.status.name(), status);
+    }
+
+    public void setStamp(Id stamp) {
+        setReference(SystemField.security_stamp.name(), stamp);
     }
 
     @Override

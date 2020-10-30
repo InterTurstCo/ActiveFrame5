@@ -64,6 +64,11 @@ public class AbsentDomainObject implements DomainObject, Cloneable {
     }
 
     @Override
+    public Id getStamp() {
+        return null;
+    }
+
+    @Override
     public boolean isAbsent() {
         return true;
     }

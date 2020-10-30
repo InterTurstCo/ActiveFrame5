@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.simpleframework.xml.ElementList;
 
@@ -24,5 +25,16 @@ public class MatrixReferenceMappingConfig implements Dto {
         this.permission = permission;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatrixReferenceMappingConfig that = (MatrixReferenceMappingConfig) o;
+        return Objects.equals(permission, that.permission);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(permission);
+    }
 }

@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
 
 import java.util.HashMap;
 
@@ -9,10 +11,12 @@ import net.sf.jsqlparser.statement.select.Select;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer.TypeConfigBuilder;
 
@@ -111,10 +115,11 @@ public class AddAclVisitorTest {
 
     @Before
     public void setUp() {
-        AddAclVisitor.clearStaticFields();
+        AddAclVisitor.clearCache();
         queryHelper.setConfigurationExplorer(configurationExplorer);
         queryHelper.setCurrentUserAccessor(accessor);
         queryHelper.setUserGroupCache(userCache);
+        ReflectionTestUtils.setField(queryHelper, "securityStamp", mock(SecurityStamp.class));
         addUser(new User(new RdbmsId(1, 1), "user", false, false));
     }
 

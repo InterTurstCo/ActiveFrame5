@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -29,16 +30,19 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
             " JOIN global_server_settings GSS ON B.id = GSS.id AND UPPER(GSS.name) = UPPER({0})";
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     @Autowired
-    DomainObjectDao domainObjectDao;
+    private DomainObjectDao domainObjectDao;
 
     @Autowired
-    CollectionsDao collectionsDao;
+    private CollectionsDao collectionsDao;
 
     @Autowired
-    AccessControlService accessControlService;
+    private AccessControlService accessControlService;
+
+    @Autowired
+    private CrudService crudService;
 
     @Override
     public String getString(String name) {
@@ -111,6 +115,30 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
     public Long getLong(String name, Long defaultValue) {
         Long longPparameterValue = getLong(name);
         return (longPparameterValue == null) ? defaultValue : longPparameterValue;
+    }
+
+    @Override
+    public void setString(String name, String value) {
+        DomainObject settings = crudService.createDomainObject("string_settings");
+        settings.setString("name", name);
+        settings.setString("string_value", value);
+        crudService.save(settings);
+    }
+
+    @Override
+    public void setLong(String name, Long value) {
+        DomainObject settings = crudService.createDomainObject("long_settings");
+        settings.setString("name", name);
+        settings.setLong("long_value", value);
+        crudService.save(settings);
+    }
+
+    @Override
+    public void setBoolean(String name, Boolean value) {
+        DomainObject settings = crudService.createDomainObject("boolean_settings");
+        settings.setString("name", name);
+        settings.setBoolean("boolean_value", value);
+        crudService.save(settings);
     }
 
     private AccessToken getAccessToken() {

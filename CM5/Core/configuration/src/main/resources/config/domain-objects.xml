@@ -423,7 +423,7 @@
     <domain-object-type name="person_stamp">
         <fields>
             <reference name="person" type="person" not-null="true"/>
-            <reference name="security_stamp" type="security_stamp" not-null="true"/>
+            <reference name="stamp" type="security_stamp" not-null="true"/>
         </fields>
     </domain-object-type>
     
