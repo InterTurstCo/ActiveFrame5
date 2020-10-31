@@ -416,10 +416,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     if (rows > 0) {
                         solrQuery.setRows(rows);
                     }
-                    QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
-                    foundParts.add(response.getResults());
-                    foundCache.put(entry.getKey(), response.getResults());
-                    clipped = clipped || rows > 0 && response.getResults().size() == rows;
+					QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
+					if (response.getResults() != null) {
+						foundParts.add(response.getResults());
+						foundCache.put(entry.getKey(), response.getResults());
+						clipped = clipped || rows > 0 && response.getResults().size() == rows;
+					}
                 }
                 for (String filterString : multiTypeFilterStrings) {
                     SolrDocumentList cached = foundCache.get(":" + filterString);
@@ -591,9 +593,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     solrQuery.setRows(rows);
                 }
                 response = executeSolrQuery(solrQuery, solrServerKey);
-                clipped = clipped || rows > 0 && response.getResults().size() == rows;
-                compactQueryResults(response);
-                clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
+				if (response.getResults() != null) {
+					clipped = clipped || rows > 0 && response.getResults().size() == rows;
+					compactQueryResults(response);
+					clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
+				}
             } while (clipped && response.getResults().size() < fetchLimit);
             return response;
         }
