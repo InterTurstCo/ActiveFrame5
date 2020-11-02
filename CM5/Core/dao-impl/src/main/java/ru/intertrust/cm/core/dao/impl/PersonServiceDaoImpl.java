@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -63,7 +65,7 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
 
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(unid) = {0}", params, 0, 0, accessToken);
         if (collection.size() == 0) {
-            throw new IllegalArgumentException("Person not found: " + unid);
+            return null;
         }
 
         DomainObject person = domainObjectDao.find(collection.get(0).getId(), accessToken);
@@ -152,5 +154,22 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
         }
 
         return result;
+    }
+
+    @Override
+    @Cacheable(value="persons", key = "#email")
+    public List<DomainObject> findPersonsByEmail(String email) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(email) = {0}",
+                Collections.singletonList(new StringValue(email.toLowerCase())), 0, 0, accessToken);
+        if (collection.size() == 0) {
+            return Collections.emptyList();
+        }
+        final List<DomainObject> persons = new ArrayList<>(collection.size());
+        for(IdentifiableObject id : collection) {
+            persons.add(domainObjectDao.find(id.getId(), accessToken));
+        }
+        return persons;
     }
 }

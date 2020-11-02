@@ -102,7 +102,11 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                 if (result != null && isUuid(result)){
                     // Получаем персону по UUID
                     DomainObject person = getPersonServiceDao().findPersonByUnid(result);
-                    result = person.getString("Login");
+                    if (person == null) {
+                        result = null;
+                    } else {
+                        result = person.getString("Login");
+                    }
                 }
             }
         } catch (Exception e) {
