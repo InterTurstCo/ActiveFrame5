@@ -18,9 +18,40 @@
     </migration-script>
 
     <migration-script sequence-number="200">
-        <after-auto-migration>
+        <before-auto-migration>
+            <native-command>
+                <![CDATA[
+                CREATE TABLE "security_stamp" (
+                    "id" BIGINT NOT NULL
+                    ,"id_type" INTEGER
+                    ,"created_date" TIMESTAMP NOT NULL
+                    ,"updated_date" TIMESTAMP NOT NULL
+                    ,"created_by" BIGINT
+                    ,"created_by_type" INTEGER
+                    ,"updated_by" BIGINT
+                    ,"updated_by_type" INTEGER
+                    ,"status" BIGINT
+                    ,"status_type" INTEGER
+                    ,"security_stamp" BIGINT
+                    ,"security_stamp_type" INTEGER
+                    ,"access_object_id" BIGINT
+                    ,"name" VARCHAR(256) NOT NULL
+                    ,"description" VARCHAR(512)
+                    ,CONSTRAINT "pk_security_stamp" PRIMARY KEY ("id")
+                    ,CONSTRAINT "u_security_stamp" UNIQUE (
+                        "id"
+                        ,"id_type"
+                        )
+                    )
+                ]]>
+            </native-command>
+        </before-auto-migration>
+    </migration-script>
+
+    <migration-script sequence-number="300">
+        <before-auto-migration>
             <execute component-name="addSecurityStampField"/>
-        </after-auto-migration>
+        </before-auto-migration>
     </migration-script>
 
 </configuration>

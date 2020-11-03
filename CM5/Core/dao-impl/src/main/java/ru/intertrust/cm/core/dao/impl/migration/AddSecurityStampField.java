@@ -35,7 +35,10 @@ public class AddSecurityStampField implements Migrator {
 
         Collection<DomainObjectTypeConfig> typeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig typeConfig : typeConfigs) {
-            if (typeConfig.getExtendsAttribute() == null && !typeConfig.isTemplate() && !ifStampColumnExists(schemaTables, typeConfig.getName())){
+            if (typeConfig.getExtendsAttribute() == null
+                    && !typeConfig.isTemplate()
+                    && schemaTables.containsKey(typeConfig.getName().toLowerCase())
+                    && !ifStampColumnExists(schemaTables, typeConfig.getName())){
                 addSecurityStamp(typeConfig);
             }
         }
@@ -43,6 +46,7 @@ public class AddSecurityStampField implements Migrator {
     }
 
     private boolean ifStampColumnExists(Map<String, Map<String, ColumnInfo>> schemaTables, String typeName){
+
         return schemaTables.get(typeName.toLowerCase()).containsKey("security_stamp");
     }
 
