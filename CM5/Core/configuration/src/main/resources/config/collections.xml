@@ -1274,7 +1274,7 @@
     <collection name="last_migration_log" idField="id">
         <prototype>
             <![CDATA[
-                    select * from migration_log where sequence_number = (
+                    select id, sequence_number from migration_log where sequence_number = (
                         select max(sequence_number) from migration_log
                         where 1=1 ::where-clause
                     )
