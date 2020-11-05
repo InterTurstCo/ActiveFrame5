@@ -313,7 +313,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         try {
             importDataService.importData(importDataString.getBytes("Windows-1251"), null, true);
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(); //should not happen
+            throw new FatalException("Error import csv file", e);
         }
     }
 
