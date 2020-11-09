@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="process_definition" domain-object-type="process_definition" replace="runtime">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="nameLabel" width="100px" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="versionLaber"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="versionField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="descriptionLaber"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="descriptionField"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="nameLabel">
+                <field-path value="name"/>
+            </label>
+
+            <label id="versionLaber">
+                <text>Версия</text>
+            </label>
+
+            <text-box id="versionField" read-only="true">
+                <field-path value="version"/>
+            </text-box>
+
+            <label id="descriptionLaber">
+                <text>Описание</text>
+            </label>
+
+            <text-area id="descriptionField" read-only="true">
+                <field-path value="description"/>
+            </text-area>
+        </widget-config>
+
+    </form>
+
+    <form name="process_instance" domain-object-type="process_instance" replace="runtime">
+        <markup>
+            <header></header>
+            <body display-single-tab=""></body>
+        </markup>
+
+        <widget-config>
+
+        </widget-config>
+    </form>
+
+</configuration>

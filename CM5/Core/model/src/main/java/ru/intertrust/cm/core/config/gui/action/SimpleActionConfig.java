@@ -18,8 +18,7 @@ public class SimpleActionConfig extends ActionConfig {
         super();
         this.actionHandler = actionHandler;
     }
-    
-    
+
     @Attribute(name = "action-handler")
     private String actionHandler;
 

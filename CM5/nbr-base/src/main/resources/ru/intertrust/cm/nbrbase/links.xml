@@ -29,4 +29,54 @@
         </plugin>
     </link>
 
+    <link name="process_definition" display-text="Схемы процессов">
+        <plugin>
+            <domain-object-surfer domain-object-type-to-create="process_definition">
+                <collection-viewer>
+                    <collection-ref name="process_definition" />
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <act:tool-bar useDefault="false" >
+                        <act:action-ref name-ref="aRefresh" />
+                        <act:simple-upload-action action-handler="upload.process.model"
+                                                  componentName="simple.upload.action"
+                                                  name="uploadProcessModel"
+                                                  text="Загрзить"
+                                                  multiple-file="true"
+                                                  file-extensions=".bpmn"
+                                                  dirtySensitivity="true"  merged="true"/>
+                        <act:simple-action componentName="simple.action" action-handler="deploy.process.model" text="Установить"/>
+                    </act:tool-bar>
+                </collection-viewer>
+            </domain-object-surfer>
+        </plugin>
+    </link>
+
+    <link name="trash_process_definition" display-text="Корзина">
+        <plugin>
+            <domain-object-surfer>
+                <collection-viewer>
+                    <collection-ref name="trash_process_definition" />
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <act:tool-bar useDefault="false">
+                        <act:action-ref name-ref="aRefresh" />
+                    </act:tool-bar>
+                </collection-viewer>
+            </domain-object-surfer>
+        </plugin>
+    </link>
+
+    <link name="process_instances" display-text="Экземпляры процессов">
+        <plugin>
+            <domain-object-surfer>
+                <collection-viewer>
+                    <collection-ref name="process_instances" />
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <act:tool-bar useDefault="false">
+                        <act:action-ref name-ref="aRefresh" />
+                    </act:tool-bar>
+                </collection-viewer>
+            </domain-object-surfer>
+        </plugin>
+    </link>
+
 </configuration>

@@ -105,5 +105,8 @@
     <bean id="configDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ConfigDeployerImpl" lazy-init="true"/>
     <bean id="importDataDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.ImportDataDeployerImpl" lazy-init="true"/>
     <bean id="pluginDeployer" class="ru.intertrust.cm.core.gui.impl.server.action.PluginDeployerImpl" lazy-init="true"/>
+    <bean id="DomainObjectMappingImpl" class="ru.intertrust.cm.core.gui.impl.server.DomainObjectMappingImpl" lazy-init="true"/>
+
+
     
 </beans>

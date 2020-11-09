@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://inttrust.ru/cmj">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://inttrust.ru/nbr">
   <message id="TEST_MESSAGE" name="Тестовое сообщение"></message>
   <process id="testFlowableProcess" name="Test flowable process" isExecutable="true">
+    <documentation>Это самый простой процесс с получением сооющений</documentation>
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
     <userTask id="usertask1" name="User Task" activiti:assignee="@DocumentField(@Variable(contextId); IdAuthor)"></userTask>
@@ -11,6 +12,11 @@
     </intermediateCatchEvent>
     <sequenceFlow id="flow3" sourceRef="usertask1" targetRef="messageintermediatecatchevent1"></sequenceFlow>
     <sequenceFlow id="flow4" sourceRef="messageintermediatecatchevent1" targetRef="endevent1"></sequenceFlow>
+    <dataObject id="version" name="version" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>0.0.0.10</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_testFlowableProcess">
     <bpmndi:BPMNPlane bpmnElement="testFlowableProcess" id="BPMNPlane_testFlowableProcess">

@@ -292,4 +292,30 @@
             <date-time name="delete_after" not-null="true"/>
         </fields>
     </domain-object-type>
+
+    <!-- Реестр установленных процессов   -->
+    <domain-object-type name="process_definition" initial-status="draft">
+        <fields>
+            <string name="name" length="256" not-null="true"/>
+            <text name="description" />
+            <string name="version" length="64" />
+            <string name="definition_id" length="64"/>
+            <string name="category" length="128" />
+            <string name="hash" length="128" />
+        </fields>
+
+        <uniqueKey>
+            <field name="name"/>
+            <field name="version"/>
+        </uniqueKey>
+
+        <uniqueKey>
+            <field name="hash"/>
+        </uniqueKey>
+
+        <attachment-types>
+            <attachment-type name="process_definition_model" />
+        </attachment-types>
+    </domain-object-type>
+
 </configuration>

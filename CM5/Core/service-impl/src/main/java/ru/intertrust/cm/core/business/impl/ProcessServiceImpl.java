@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,12 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
+import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowEngine;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SystemException;
@@ -46,6 +50,9 @@ public class ProcessServiceImpl implements ProcessService {
     @Autowired
     private PersonManagementService personManagementService;
 
+    @Autowired
+    private MD5Service md5Service;
+
     @Override
     public String startProcess(String processName, Id attachedObjectId,
             List<ProcessVariable> variables) {
@@ -68,7 +75,8 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public String deployProcess(byte[] processDefinition, String processName) {
         try {
-            return workflowEngine.deployProcess(processDefinition, processName);
+            String deploymentId = workflowEngine.deployProcess(processDefinition, processName);
+            return deploymentId;
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -204,6 +212,21 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public String getEngeneName() {
         return workflowEngine.getEngeneName();
+    }
+
+    @Override
+    public ProcessTemplateInfo getProcessTemplateInfo(byte[] template) {
+        return workflowEngine.getProcessTemplateInfo(template);
+    }
+
+    @Override
+    public ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId) {
+        return workflowEngine.getProcessInstanceInfo(processInstanceId);
+    }
+
+    @Override
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
+        return workflowEngine.getProcessInstanceInfos(offset, limit);
     }
 }
 

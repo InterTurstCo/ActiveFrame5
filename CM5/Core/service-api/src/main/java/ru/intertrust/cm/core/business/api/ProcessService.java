@@ -6,6 +6,8 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
+import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 
 /**
@@ -166,4 +168,27 @@ public interface ProcessService {
      * @return Имя движка процессов
      */
     String getEngeneName();
+
+
+    /**
+     * Получение информации о шаблоне процесса
+     * @param template
+     * @return
+     */
+    ProcessTemplateInfo getProcessTemplateInfo(byte[] template);
+
+    /**
+     * Получение информации об экземпляре процесса
+     * @param processInstanceId
+     * @return
+     */
+    ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId);
+
+    /**
+     * Пщдгчение информации о запущзенных процессах
+     * @param offset
+     * @param limit
+     * @return
+     */
+    List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit);
 }

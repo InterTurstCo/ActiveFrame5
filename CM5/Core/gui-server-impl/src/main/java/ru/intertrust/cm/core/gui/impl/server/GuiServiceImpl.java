@@ -59,6 +59,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -112,6 +113,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Autowired
     private AuditService auditService;
+
+    @Autowired
+    private DomainObjectMapping domainObjectMapping;
 
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
@@ -178,13 +182,22 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Override
     public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
                                    FormViewerConfig formViewerConfig) {
-        String typeName = domainObjectTypeIdCache.getName(domainObjectId);
-        
+
+        String typeName = getTypeName(domainObjectId);
+
         if (configurationExplorer.isAuditLogType(typeName)) {
             return getAuditForm(domainObjectId);
         }else {
             return getFormRetriever(userInfo).getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
         }
+    }
+
+    private String getTypeName(Id domainObjectId){
+        String typeName = domainObjectMapping.getTypeName(domainObjectId);
+        if (typeName == null){
+            typeName = domainObjectTypeIdCache.getName(domainObjectId);
+        }
+        return typeName;
     }
 
     private FormDisplayData getAuditForm(Id versionId) {

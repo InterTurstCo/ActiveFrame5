@@ -149,4 +149,24 @@ public interface WorkflowEngine {
      * @return
      */
     String getEngeneName();
+
+    /**
+     * Получение информации из модели процесса
+     * @param tempale
+     * @return
+     */
+    ProcessTemplateInfo getProcessTemplateInfo(byte[] tempale);
+
+    /**
+     * Получение информации об экземпляре процесса
+     * @param processInstanceId
+     * @return
+     */
+    ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId);
+
+    /**
+     * Получение информации о запущенных процессах
+     * @return
+     */
+    List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit);
 }

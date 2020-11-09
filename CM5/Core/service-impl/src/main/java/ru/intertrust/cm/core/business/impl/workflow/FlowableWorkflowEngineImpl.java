@@ -1,13 +1,23 @@
 package ru.intertrust.cm.core.business.impl.workflow;
 
+import org.flowable.bpmn.converter.BpmnXMLConverter;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.ValuedDataObject;
+import org.flowable.common.engine.impl.util.io.BytesStreamSource;
 import org.flowable.engine.FormService;
+import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngines;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.DeploymentBuilder;
+import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.repository.ProcessDefinitionQuery;
 import org.flowable.engine.runtime.Execution;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +26,10 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
+import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
@@ -37,6 +50,9 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
 
     @Autowired
     private RuntimeService runtimeService;
+
+    @Autowired
+    private HistoryService historyService;
 
     @Autowired
     FormService formService;
@@ -108,7 +124,15 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             db.addString(processName, text);
             db.name(processName);
             Deployment depl = db.deploy();
-            return depl.getId();
+
+            ProcessDefinitionQuery processDefinitionQuery = repositoryService.createProcessDefinitionQuery().deploymentId(depl.getId());
+            List<ProcessDefinition> processDefinitions =  processDefinitionQuery.list();
+
+            if (processDefinitions.size() == 0){
+                throw new FatalException("Process definition not created. Check model and process name. Name need bpmn extensions");
+            }
+
+            return processDefinitions.get(0).getId();
         } catch (Exception ex) {
             throw new ProcessException("Error deploy process", ex);
         }
@@ -198,5 +222,67 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
     @Override
     public String getEngeneName() {
         return ENGENE_NAME;
+    }
+
+    @Override
+    public ProcessTemplateInfo getProcessTemplateInfo(byte[] tempale) {
+        try {
+            BpmnXMLConverter converter = new BpmnXMLConverter();
+            BpmnModel model = converter.convertToBpmnModel(new BytesStreamSource(tempale), true, false);
+
+            ProcessTemplateInfo result = new ProcessTemplateInfo();
+            result.setName(model.getMainProcess().getName());
+            result.setDescription(model.getMainProcess().getDocumentation());
+            result.setCategory(model.getTargetNamespace());
+
+            List<ValuedDataObject> dataObjects = model.getMainProcess().getDataObjects();
+            for (ValuedDataObject dataObject : dataObjects) {
+                if (dataObject.getName().equalsIgnoreCase("version")
+                        || dataObject.getId().equalsIgnoreCase("version")){
+                    result.setVersion((String)dataObject.getValue());
+                }
+            }
+
+
+            return result;
+        } catch (Exception ex) {
+            throw new ProcessException("Error get process template info", ex);
+        }
+    }
+
+    @Override
+    public ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId) {
+        List<ProcessInstance> processInstances = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).list();
+        ProcessInstanceInfo result = null;
+        if (processInstances.size() > 0){
+            result = new ProcessInstanceInfo();
+            result.setId(processInstances.get(0).getId());
+        }
+        return result;
+    }
+
+    @Override
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
+        HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
+        List<HistoricProcessInstance> processInstances = query.listPage(offset, limit);
+
+        List<ProcessInstanceInfo> result = new ArrayList<>();
+
+        int rowNumber = 0;
+        for (HistoricProcessInstance processInstance : processInstances) {
+            ProcessInstanceInfo info = new ProcessInstanceInfo();
+            info.setId(processInstance.getId());
+            info.setName(processInstance.getProcessDefinitionKey());
+            info.setStart(processInstance.getStartTime());
+            info.setFinish(processInstance.getEndTime());
+
+            for (String keys : processInstance.getProcessVariables().keySet()){
+                info.setVariables(processInstance.getProcessVariables());
+            }
+
+            result.add(info);
+        }
+
+        return result;
     }
 }

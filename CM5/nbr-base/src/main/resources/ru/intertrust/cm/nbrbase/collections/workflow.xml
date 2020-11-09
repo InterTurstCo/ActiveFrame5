@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <collection name="process_definition" replace="runtime" idField="id">
+        <prototype>
+            <![CDATA[
+                select id, name, version, category from process_definition
+                where 1=1 ::where-clause
+            ]]>
+        </prototype>
+    </collection>
+
+    <collection-view name="process_definition" collection="process_definition" is-default="true" replace="runtime">
+        <display>
+            <column field="name" name="Наименование" type="string"/>
+            <column field="version" name="Версия" type="string"/>
+            <column field="category" name="Категория" type="string"/>
+        </display>
+    </collection-view>
+
+    <collection name="trash_process_definition" replace="runtime" idField="id">
+        <prototype>
+            <![CDATA[
+                select id, name, version, category from process_definition
+                where 1=1 ::where-clause
+            ]]>
+        </prototype>
+    </collection>
+
+    <collection-view name="trash_process_definition" collection="trash_process_definition" is-default="true" replace="runtime">
+        <display>
+            <column field="name" name="Наименование" type="string"/>
+            <column field="version" name="Версия" type="string"/>
+            <column field="category" name="Категория" type="string"/>
+        </display>
+    </collection-view>
+
+    <collection name="process_instances" replace="runtime" idField="id">
+        <generator class-name="process.definitions.collection"/>
+
+        <filter name="byName"/>
+        <filter name="bySatrtDate"/>
+        <filter name="byFinishDate"/>
+
+    </collection>
+
+    <collection-view name="process_instances" collection="process_instances" is-default="true" replace="runtime">
+        <display>
+            <column field="name" name="Наименование" type="string" search-filter="byName" sortable="true" min-width="80px" resizable="true"/>
+            <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="bySatrtDate"/>
+            <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="byFinishDate"/>
+        </display>
+    </collection-view>
+
+</configuration>

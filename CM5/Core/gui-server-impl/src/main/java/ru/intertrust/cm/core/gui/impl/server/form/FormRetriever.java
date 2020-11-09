@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageKey;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
@@ -50,6 +51,9 @@ public class FormRetriever extends FormProcessor {
   @Autowired
   ProfileService profileService;
 
+  @Autowired
+  private DomainObjectMapping domainObjectMapping;
+
   public FormDisplayData getForm(FormPluginConfig formPluginConfig) {
     DomainObject root = crudService.createDomainObject(formPluginConfig.getDomainObjectTypeToCreate());
     if (formPluginConfig.getDomainObjectUpdatorComponent() != null) {
@@ -65,8 +69,29 @@ public class FormRetriever extends FormProcessor {
     return getForm(domainObjectId, null, null, formViewerConfig);
   }
 
+  private String getTypeName(Id domainObjectId){
+    String typeName = domainObjectMapping.getTypeName(domainObjectId);
+    if (typeName == null){
+      typeName = crudService.getDomainObjectType(domainObjectId);
+    }
+    return typeName;
+  }
+
+
   public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
-    DomainObject root = (domainObjectId!=null)?crudService.find(domainObjectId):null;
+
+    DomainObject root = null;
+
+    if (domainObjectId != null) {
+      String typeName = getTypeName(domainObjectId);
+      if (domainObjectMapping.isSupportedType(typeName)) {
+        Object object = domainObjectMapping.getObject(domainObjectId);
+        root = domainObjectMapping.toDomainObject(typeName, object);
+      } else {
+        root = crudService.find(domainObjectId);
+      }
+    }
+
     if (root == null) {
       throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_EXIST,
           "Object with id: ${objectId} doesn't exist", new Pair("objectId",

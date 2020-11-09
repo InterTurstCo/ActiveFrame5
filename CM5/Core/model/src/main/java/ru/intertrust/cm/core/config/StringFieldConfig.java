@@ -23,6 +23,12 @@ public class StringFieldConfig extends FieldConfig {
     public StringFieldConfig() {
     }
 
+    public StringFieldConfig(String name, boolean notNull, boolean immutable, int length, Boolean encrypted) {
+        super(name, notNull, immutable);
+        this.length = length;
+        this.encrypted = encrypted;
+    }
+
     public int getLength() {
         return length;
     }

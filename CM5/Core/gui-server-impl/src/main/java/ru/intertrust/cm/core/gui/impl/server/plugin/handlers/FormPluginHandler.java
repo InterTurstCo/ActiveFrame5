@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -54,6 +55,9 @@ public class FormPluginHandler extends ActivePluginHandler {
     @Autowired
     private AccessVerificationService accessVerificationService;
 
+    @Autowired
+    private DomainObjectMapping domainObjectMapping;
+
     public FormPluginData initialize(Dto initialData) {
         final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
         GuiContext.get().setFormPluginState(formPluginConfig.getPluginState());
@@ -66,7 +70,15 @@ public class FormPluginHandler extends ActivePluginHandler {
         }
         FormPluginData pluginData = new FormPluginData();
         if(!configurationExplorer.isAuditLogType(rootDomainObjectType) && domainObjectId!=null){
-            DomainObject rootObject = crudService.find(domainObjectId);
+            String typeName = getTypeName(domainObjectId);
+            DomainObject rootObject = null;
+            if (domainObjectMapping.isSupportedType(typeName)){
+                Object object = domainObjectMapping.getObject(domainObjectId);
+                rootObject = domainObjectMapping.toDomainObject(typeName, object);
+            }else{
+                rootObject = crudService.find(domainObjectId);
+            }
+
             if(rootObject.getStatus()!=null){
                 form.setStatus(crudService.find(rootObject.getStatus()));
             }
@@ -77,6 +89,14 @@ public class FormPluginHandler extends ActivePluginHandler {
         ToolbarContext toolbarContext = getActionContexts(formPluginConfig, form);
         pluginData.setToolbarContext(toolbarContext);
         return pluginData;
+    }
+
+    private String getTypeName(Id domainObjectId){
+        String typeName = domainObjectMapping.getTypeName(domainObjectId);
+        if (typeName == null){
+            typeName = crudService.getDomainObjectType(domainObjectId);
+        }
+        return typeName;
     }
 
     private FormDisplayData getFormDisplayData(FormPluginConfig config) {
