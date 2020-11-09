@@ -76,7 +76,7 @@ public class MigrationService {
     }
 
     private void performMigrationMechanismUpgrade(ConfigurationExplorer oldConfigurationExplorer) {
-        final List<MigrationScriptConfig> scriptConfigs = (List<MigrationScriptConfig>) configurationExplorer.getConfigs(MigrationScriptConfig.class);
+        final Collection<MigrationScriptConfig> scriptConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
         MigrationScriptConfig migrationMigrationScript = null;
         for (MigrationScriptConfig scriptConfig : scriptConfigs) {
             if (scriptConfig.getSequenceNumber() == 100 && "core".equals(scriptConfig.getModuleName())) {
