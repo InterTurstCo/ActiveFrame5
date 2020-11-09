@@ -252,11 +252,19 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
 
     @Override
     public ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId) {
-        List<ProcessInstance> processInstances = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).list();
+        List<HistoricProcessInstance> processInstances = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId).list();
         ProcessInstanceInfo result = null;
         if (processInstances.size() > 0){
+            HistoricProcessInstance processInstance = processInstances.get(0);
             result = new ProcessInstanceInfo();
-            result.setId(processInstances.get(0).getId());
+            result.setId(processInstance.getId());
+            result.setName(processInstance.getProcessDefinitionKey());
+            result.setStart(processInstance.getStartTime());
+            result.setFinish(processInstance.getEndTime());
+            result.setVariables(processInstance.getProcessVariables());
+
+            // TODO Load Tasks
         }
         return result;
     }
@@ -275,10 +283,7 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             info.setName(processInstance.getProcessDefinitionKey());
             info.setStart(processInstance.getStartTime());
             info.setFinish(processInstance.getEndTime());
-
-            for (String keys : processInstance.getProcessVariables().keySet()){
-                info.setVariables(processInstance.getProcessVariables());
-            }
+            info.setVariables(processInstance.getProcessVariables());
 
             result.add(info);
         }

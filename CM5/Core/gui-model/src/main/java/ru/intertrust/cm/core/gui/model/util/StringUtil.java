@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.model.util;
 import com.google.gwt.i18n.client.NumberFormat;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.gui.model.DomainObjectMappingId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,13 @@ public class StringUtil {
             try {
                 result = new RdbmsId(idAsStr.trim());
             } catch (Exception ignored) {
+            }
+
+            if (result == null){
+                try {
+                    result = new DomainObjectMappingId(idAsStr.trim());
+                } catch (Exception ignored) {
+                }
             }
         }
         return result;

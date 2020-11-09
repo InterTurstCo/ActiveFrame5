@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.model.FatalException;
 
 public class DomainObjectMappingId implements Id {
     private String type;
@@ -14,9 +15,16 @@ public class DomainObjectMappingId implements Id {
         this.id = id;
     }
 
+    public DomainObjectMappingId(String stringRep){
+        setFromStringRepresentation(stringRep);
+    }
+
     @Override
     public void setFromStringRepresentation(String stringRep) {
         String[] idPair = stringRep.split(":");
+        if (idPair.length != 2){
+            throw new FatalException("Incorrect is format");
+        }
         type = idPair[0];
         id = idPair[1];
     }
