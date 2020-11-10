@@ -165,6 +165,10 @@
                     jndi-name="java:module/SimpeDataStorage!ru.intertrust.cm.core.business.api.SimpeDataStorage"
                     business-interface="ru.intertrust.cm.core.business.api.SimpeDataStorage"/>
 
+    <jee:local-slsb id="reportGeneratorService"
+                    jndi-name="java:module/ReportGeneratorService!ru.intertrust.cm.core.business.api.ReportGeneratorService"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportGeneratorService"/>
+
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
 
