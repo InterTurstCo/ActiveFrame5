@@ -73,7 +73,9 @@
         </markup>
 
         <widget-config>
-
+            <label id="empty">
+                <text>empty</text>
+            </label>
         </widget-config>
     </form>
 
