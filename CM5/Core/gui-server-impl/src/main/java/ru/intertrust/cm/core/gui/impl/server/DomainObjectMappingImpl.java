@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectMapper;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.gui.model.DomainObjectMappingId;
 
 public class DomainObjectMappingImpl implements DomainObjectMapping {
 
+    @Autowired
     private List<DomainObjectMapper> mapperObjects = new ArrayList<>();
 
     private HashMap<String, DomainObjectMapper> mapperReestr = new HashMap<>();
