@@ -1134,6 +1134,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="delete" type="con:permissionsType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="read-attachment" type="con:permissionsType" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="create-child" type="con:createChildPermissionsType" maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="execute-action" type="con:executeActionPermissionsType" maxOccurs="unbounded"

@@ -9,7 +9,8 @@ public class DomainObjectPermission implements Dto{
     public enum Permission{
         Read,
         Write,
-        Delete
+        Delete,
+        ReadAttachment
     }
     
     private List<Permission> permissions = new ArrayList<DomainObjectPermission.Permission>();

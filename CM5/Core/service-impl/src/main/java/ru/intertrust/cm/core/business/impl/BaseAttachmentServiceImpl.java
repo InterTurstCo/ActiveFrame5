@@ -6,7 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -22,6 +24,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 
@@ -53,6 +56,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private PermissionService permissionService;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -65,9 +70,9 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             String domainObjectType = domainObjectTypeIdCache.getName(objectId);
 
-            String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+            String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
-            attachmentDomainObject.setReference(attchmentLinkedField, objectId);
+            attachmentDomainObject.setReference(attachmentLinkedField, objectId);
             return attachmentDomainObject;
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
@@ -137,6 +142,10 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
+            Id userId = currentUserAccessor.getCurrentUserId();
+            if (userId != null) {
+                checkAccessWithException(attachmentDomainObjectId, userId, DomainObjectPermission.Permission.ReadAttachment);
+            }
             InputStream inFile = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream remoteInputStream = wrapStream(inFile);
             return remoteInputStream;
@@ -150,6 +159,10 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
+            Id userId = currentUserAccessor.getCurrentUserId();
+            if (userId != null) {
+                checkAccessWithException(attachmentDomainObjectId, userId, DomainObjectPermission.Permission.ReadAttachment);
+            }
             AccessToken accessToken = createSystemAccessToken();
             DomainObject attachmentObject = domainObjectDao.find(attachmentDomainObjectId, accessToken);
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
@@ -382,5 +395,24 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
     public void setCrudService(CrudService crudService) {
         this.crudService = crudService;
+    }
+
+    /**
+     * Проверяет указанный тип доступа к вложению
+     *
+     * @param attachId вложение
+     * @param userId пользователь
+     * @param permission тип доступа
+     * @return признак того, что у пользователя есть доступ этого типа
+     */
+    public boolean checkAccess(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
+        DomainObjectPermission permissions = permissionService.getObjectPermission(attachId, userId);
+        return permissions.getPermission().contains(permission);
+    }
+
+    private void checkAccessWithException(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
+        if (!checkAccess(attachId, userId, permission)) {
+            throw new AccessException();
+        }
     }
 }

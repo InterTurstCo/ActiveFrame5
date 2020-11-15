@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.access;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -121,4 +122,33 @@ public interface PermissionServiceDao {
      * @param invalidContextIds
      */
     void refreshAclIfMarked(Set<Id> invalidContextIds);
+
+    /**
+     * Проверка, ограничен ли доступ к вложению на операцию чтения содержимого
+     *
+     * @param attachId id вложения - по нему будем искать ограничения в таблице с правами
+     * @return true, если доступ ограничен
+     */
+    boolean checkIfContentReadRestricted(Id attachId);
+
+    /**
+     * Вычисление вложений, к которым доступ не ограничен. Не проверяет соответствие типа вложений соответствующему параметру.
+     *
+     * @param objectIds список id проверяемых объектов
+     * @param objType тип вложений
+     * @return множество id объектов, доступ к которым не был ограничен
+     */
+    @Nonnull
+    Set<Id> checkIfContentReadAllowedForAll(List<Id> objectIds, String objType);
+
+    /**
+     * Вычисление вложений, доступ к которым ограничен. Не проверяет соответствие типа вложений соответствующему параметру.
+     *
+     * @param objectIds список id проверяемых объектов
+     * @param objType тип вложений
+     * @return множество id объектов, доступ к которым был ограничен
+     */
+    @Nonnull
+    Set<Id> checkIfContentReadRestricted(List<Id> objectIds, String objType);
+
 }
