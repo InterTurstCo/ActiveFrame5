@@ -1,14 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.widget.report;
 
-import org.flowable.engine.task.Attachment;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.server.form.FormBeforeSaveInterceptor;
-import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
-import ru.intertrust.cm.core.gui.impl.server.widget.EnumBoxHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
