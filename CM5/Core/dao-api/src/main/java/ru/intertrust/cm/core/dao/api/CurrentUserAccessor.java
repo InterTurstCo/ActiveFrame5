@@ -31,7 +31,17 @@ public interface CurrentUserAccessor {
 
     /**
      * Завершение работы с использование билета
-     * @param ticket
      */
     void cleanTicket();
+
+    /**
+     * Получение информации о запросе данных
+     * @return
+     */
+    RequestInfo getRequestInfo();
+
+    /**
+     * Установка информации о запросе данных
+     */
+    void setRequestInfo(RequestInfo requestInfo);
 }

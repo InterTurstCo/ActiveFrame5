@@ -32,8 +32,10 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.intertrust.cm.core.business.api.access.IdpService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.RequestInfo;
 import ru.intertrust.cm.core.gui.api.server.ApplicationSecurityManager;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.api.server.authentication.AuthenticationProvider;
@@ -64,6 +66,8 @@ public class AuthenticationFilter implements Filter {
     private EventLogService eventLogService;
 
     private IdpService idpService;
+
+    private CurrentUserAccessor currentUserAccessor;
     /**
      * Флаг использования IDP провайдера для аутентификаци
      */
@@ -92,17 +96,26 @@ public class AuthenticationFilter implements Filter {
         idpService = ctx.getBean(IdpService.class);
 
         useIdp = idpService.getConfig().isIdpAuthentication();
+
+        currentUserAccessor = ctx.getBean(CurrentUserAccessor.class);
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
 
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+        // Установка информации о запросе
+        RequestInfo requestInfo = new RequestInfo();
+        requestInfo.setClientAddress(request.getRemoteHost());
+        requestInfo.setClientIp(request.getRemoteAddr());
+        currentUserAccessor.setRequestInfo(requestInfo);
+
         if (useIdp){
             filterChain.doFilter(servletRequest, servletResponse);
         }else {
 
-            HttpServletRequest request = (HttpServletRequest) servletRequest;
-            HttpServletResponse response = (HttpServletResponse) servletResponse;
             HttpSession session = request.getSession();
             String requestURI = request.getRequestURI();
 

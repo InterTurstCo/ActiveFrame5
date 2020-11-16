@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.RequestInfo;
 import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -32,6 +33,8 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     private EJBContext ejbContext;
     
     private ThreadLocal<String> ticketPerson = new ThreadLocal<String>();
+
+    private ThreadLocal<RequestInfo> requestInfo = new ThreadLocal<RequestInfo>();
     
     @Autowired
     private TicketService ticketService;
@@ -166,4 +169,15 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     public void cleanTicket() {
         ticketPerson.remove();        
     }
+
+    @Override
+    public RequestInfo getRequestInfo() {
+        return requestInfo.get();
+    }
+
+    @Override
+    public void setRequestInfo(RequestInfo requestInfo) {
+        this.requestInfo.set(requestInfo);
+    }
+
 }
