@@ -51,7 +51,9 @@ public class DeployProcess extends SimpleActionHandler {
             String deployId = processService.deployProcess(outStream.toByteArray(), processInfo.getString("name"));
 
             processInfo.setString("definition_id", deployId);
-            crudService.save(processInfo);
+            processInfo = crudService.save(processInfo);
+
+            crudService.setStatus(processInfo.getId(), "Active");
 
         } catch (IOException e) {
             throw new FatalException("Error load process definition attachment");

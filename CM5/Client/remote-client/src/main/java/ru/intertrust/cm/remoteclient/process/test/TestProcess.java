@@ -58,7 +58,7 @@ public class TestProcess extends ClientBase {
                 person = getCrudService().save(person);
             }
 
-            byte[] processDef = getProcessAsByteArray("templates/TestSimpleProcess.bpmn");
+            byte[] processDef = getProcessAsByteArray("Client/remote-client/templates/TestSimpleProcess.bpmn");
             String defId = getProcessService("admin").deployProcess(processDef,
                     "SimpleProcess.bpmn");
 

@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface WorkflowEngine {
@@ -169,4 +170,18 @@ public interface WorkflowEngine {
      * @return
      */
     List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit);
+
+    /**
+     * Получение задач процесса
+     * @param processInstanceId
+     * @return
+     */
+    List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit);
+
+    /**
+     * Поучение переменных процесса
+     * @param processInstanceId
+     * @return
+     */
+    Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit);
 }

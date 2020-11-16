@@ -21,8 +21,8 @@ import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.api.component.ServerComponent;
 import ru.intertrust.cm.core.gui.model.DomainObjectMappingId;
 
-@ServerComponent(name = "process.definitions.collection")
-public class ProcessDefinitionsCollectionGenerator implements CollectionDataGenerator {
+@ServerComponent(name = "process.instances.collection")
+public class ProcessInstancesCollectionGenerator implements CollectionDataGenerator {
 
     @Autowired
     private ProcessService processService;

@@ -4,8 +4,9 @@
     <collection name="process_definition" replace="runtime" idField="id">
         <prototype>
             <![CDATA[
-                select id, name, version, category from process_definition
-                where 1=1 ::where-clause
+                select pd.id, pd.name, pd.version, pd.category, s.description from process_definition pd
+                join status s on s.id = pd.status
+                where lower(s.name) in ('draft', 'active') ::where-clause
             ]]>
         </prototype>
     </collection>
@@ -15,14 +16,16 @@
             <column field="name" name="Наименование" type="string"/>
             <column field="version" name="Версия" type="string"/>
             <column field="category" name="Категория" type="string"/>
+            <column field="status" name="Статус" type="string"/>
         </display>
     </collection-view>
 
     <collection name="trash_process_definition" replace="runtime" idField="id">
         <prototype>
             <![CDATA[
-                select id, name, version, category from process_definition
-                where 1=1 ::where-clause
+                select pd.id, pd.name, pd.version, pd.category, s.description from process_definition pd
+                join status s on s.id = pd.status
+                where lower(s.name) = 'trash' ::where-clause
             ]]>
         </prototype>
     </collection>
@@ -36,7 +39,7 @@
     </collection-view>
 
     <collection name="process_instances" replace="runtime" idField="id">
-        <generator class-name="process.definitions.collection"/>
+        <generator class-name="process.instances.collection"/>
 
         <filter name="byName"/>
         <filter name="bySatrtDate"/>
@@ -49,6 +52,35 @@
             <column field="name" name="Наименование" type="string" search-filter="byName" sortable="true" min-width="80px" resizable="true"/>
             <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="bySatrtDate"/>
             <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="byFinishDate"/>
+        </display>
+    </collection-view>
+
+    <collection name="process_variables" replace="runtime" idField="id">
+        <generator class-name="process.variables.collection"/>
+
+        <filter name="byInstance"/>
+    </collection>
+
+    <collection-view name="process_variables" collection="process_variables" is-default="true" replace="runtime">
+        <display>
+            <column field="name" name="Имя" type="string" search-filter="byName" sortable="true" min-width="80px"/>
+            <column field="value" name="Значение" type="string" search-filter="byValue" sortable="true" min-width="80px"/>
+        </display>
+    </collection-view>
+
+    <collection name="process_tasks" replace="runtime" idField="id">
+        <generator class-name="process.tasks.collection"/>
+
+        <filter name="byInstance"/>
+    </collection>
+
+
+    <collection-view name="process_tasks" collection="process_tasks" is-default="true" replace="runtime">
+        <display>
+            <column field="name" name="Имя" type="string" search-filter="byName" sortable="true" min-width="80px"/>
+            <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="bySatrtDate"/>
+            <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="byFinishDate"/>
+            <column field="assignee" name="Адресат" type="string" search-filter="byName" sortable="true" min-width="80px"/>
         </display>
     </collection-view>
 

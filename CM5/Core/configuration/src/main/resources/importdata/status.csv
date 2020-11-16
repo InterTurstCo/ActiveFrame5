@@ -22,3 +22,4 @@ TYPE_NAME=Status; KEYS=Name
 Fault;Ошибка
 Terminate;Остановлен
 Inactive;Не активный
+Trash;Корзина

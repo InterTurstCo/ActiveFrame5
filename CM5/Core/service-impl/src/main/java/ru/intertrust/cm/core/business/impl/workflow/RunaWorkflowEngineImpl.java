@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -490,6 +491,16 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
 
     @Override
     public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
         throw new UnsupportedOperationException();
     }
 }

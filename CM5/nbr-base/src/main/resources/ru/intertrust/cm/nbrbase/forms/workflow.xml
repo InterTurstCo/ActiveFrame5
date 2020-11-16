@@ -68,14 +68,122 @@
 
     <form name="process_instance" domain-object-type="process_instance" replace="runtime">
         <markup>
-            <header></header>
-            <body display-single-tab=""></body>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="nameLabel" width="100px" />
+                        </td>
+                        <td>
+                            <widget id="nameField" width="100px" />
+                        </td>
+                    </tr>
+                </table>
+            </header>
+
+            <body display-single-tab="true">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="startLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="startField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="finishLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="finishField"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Задачи">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="tasks"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Переменные">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="variables"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
         </markup>
 
         <widget-config>
-            <label id="empty">
-                <text>empty</text>
+            <label id="nameLabel">
+                <text>Имя</text>
             </label>
+            <label id="empty">
+                <text>Заглушка</text>
+            </label>
+            <text-box id="nameField" read-only="true">
+                <field-path value="name"/>
+            </text-box>
+            <label id="startLabel">
+                <text>Запущен</text>
+            </label>
+            <date-box id="startField" read-only="true">
+                <field-path value="start_date"/>
+            </date-box>
+            <label id="finishLabel">
+                <text>Завершен</text>
+            </label>
+            <date-box id="finishField" read-only="true">
+                <field-path value="finish_date"/>
+            </date-box>
+
+            <table-viewer id="tasks">
+                <page-size>50</page-size>
+                <collection-viewer>
+                    <collection-ref name="process_tasks"/>
+                    <collection-view-ref name="process_tasks"/>
+                    <default-sort-criteria column-field="start_date" order="asc"/>
+                    <collection-extra-filters>
+                        <extra-filter name="byInstance">
+                            <param name="0" set-base-object="true"/>
+                        </extra-filter>
+                    </collection-extra-filters>
+                </collection-viewer>
+            </table-viewer>
+
+            <table-viewer id="variables">
+                <page-size>50</page-size>
+                <collection-viewer>
+                    <collection-ref name="process_variables"/>
+                    <collection-view-ref name="process_variables"/>
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <collection-extra-filters>
+                        <extra-filter name="byInstance">
+                            <param name="0" set-base-object="true" />
+                        </extra-filter>
+                    </collection-extra-filters>
+                </collection-viewer>
+            </table-viewer>
+
         </widget-config>
     </form>
 

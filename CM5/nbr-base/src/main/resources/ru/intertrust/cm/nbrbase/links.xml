@@ -53,7 +53,7 @@
 
     <link name="trash_process_definition" display-text="Корзина">
         <plugin>
-            <domain-object-surfer>
+            <domain-object-surfer domain-object-type-to-create="process_definition">
                 <collection-viewer>
                     <collection-ref name="trash_process_definition" />
                     <default-sort-criteria column-field="name" order="asc"/>

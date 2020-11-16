@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowEngine;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
@@ -30,6 +31,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Stateless(name = "ProcessService")
 @Local(ProcessService.class)
@@ -227,6 +229,16 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
         return workflowEngine.getProcessInstanceInfos(offset, limit);
+    }
+
+    @Override
+    public List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit) {
+        return workflowEngine.getProcessInstanceTasks(processInstanceId, offset, limit);
+    }
+
+    @Override
+    public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
+        return workflowEngine.getProcessInstanceVariables(processInstanceId, offset, limit);
     }
 }
 

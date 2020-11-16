@@ -176,6 +176,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);
         DomainObjectModification[] domainObjectModifications = new DomainObjectModification[1];
+        domainObjectModifications[0] = getModifiedFieldsAndValidate(domainObject);
 
         Set<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, domainObjectModifications[0].getFieldModifications());
 

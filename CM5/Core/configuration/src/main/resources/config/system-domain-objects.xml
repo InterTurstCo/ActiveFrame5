@@ -294,7 +294,7 @@
     </domain-object-type>
 
     <!-- Реестр установленных процессов   -->
-    <domain-object-type name="process_definition" initial-status="draft">
+    <domain-object-type name="process_definition" initial-status="Draft">
         <fields>
             <string name="name" length="256" not-null="true"/>
             <text name="description" />

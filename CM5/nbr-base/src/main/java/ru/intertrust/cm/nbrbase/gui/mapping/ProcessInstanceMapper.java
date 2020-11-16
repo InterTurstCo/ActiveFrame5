@@ -20,6 +20,10 @@ public class ProcessInstanceMapper implements DomainObjectMapper {
             ProcessInstanceInfo processInstanceInfo = (ProcessInstanceInfo)convertedObject;
 
             GenericDomainObject result = new GenericDomainObject(getTypeName());
+            result.setString("name", processInstanceInfo.getName());
+            result.setTimestamp("start_date", processInstanceInfo.getStart());
+            result.setTimestamp("finish_date", processInstanceInfo.getFinish());
+            result.setId(new DomainObjectMappingId(getTypeName(), processInstanceInfo.getId()));
             return result;
         }else{
             throw new FatalException("Object need ProcessInstanceInfo instance");

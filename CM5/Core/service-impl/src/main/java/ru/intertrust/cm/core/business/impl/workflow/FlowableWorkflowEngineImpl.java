@@ -18,6 +18,8 @@ import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.repository.ProcessDefinitionQuery;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.task.api.history.HistoricTaskInstance;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ProcessException;
@@ -262,9 +265,8 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             result.setName(processInstance.getProcessDefinitionKey());
             result.setStart(processInstance.getStartTime());
             result.setFinish(processInstance.getEndTime());
-            result.setVariables(processInstance.getProcessVariables());
-
-            // TODO Load Tasks
+            //result.setTasks(getProcessInstanceTasks(processInstanceId));
+            //result.setVariables(getProcessInstanceVariables(processInstanceId));
         }
         return result;
     }
@@ -276,18 +278,68 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
 
         List<ProcessInstanceInfo> result = new ArrayList<>();
 
-        int rowNumber = 0;
         for (HistoricProcessInstance processInstance : processInstances) {
             ProcessInstanceInfo info = new ProcessInstanceInfo();
             info.setId(processInstance.getId());
             info.setName(processInstance.getProcessDefinitionKey());
             info.setStart(processInstance.getStartTime());
             info.setFinish(processInstance.getEndTime());
-            info.setVariables(processInstance.getProcessVariables());
-
             result.add(info);
         }
 
+        return result;
+    }
+
+    @Override
+    public List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit) {
+        List<TaskInfo> result = new ArrayList<>();
+        try{
+            List<HistoricTaskInstance> tasks = null;
+            if (limit > 0) {
+                tasks = historyService.createHistoricTaskInstanceQuery().
+                        processInstanceId(processInstanceId).listPage(offset, limit);
+            }else{
+                tasks = historyService.createHistoricTaskInstanceQuery().
+                        processInstanceId(processInstanceId).list();
+
+            }
+            for (HistoricTaskInstance task :tasks) {
+                TaskInfo taskInfo = new TaskInfo();
+                taskInfo.setStartDate(task.getCreateTime());
+                taskInfo.setFinishDate(task.getEndTime());
+                taskInfo.setName(task.getName());
+                taskInfo.setAssignee(task.getAssignee());
+                taskInfo.setId(task.getId());
+                result.add(taskInfo);
+            }
+
+        }catch(Exception ignoreEx){
+            // При обновлении версии могут возникнуть пролемы десериализации на старых экземплярах процессов, игнорируем такие ошибки
+            logger.warn("Error get variables", ignoreEx);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            List<HistoricVariableInstance> variables = null;
+            if (limit > 0) {
+                variables = historyService.createHistoricVariableInstanceQuery().
+                        processInstanceId(processInstanceId).listPage(offset, limit);
+            }else{
+                variables = historyService.createHistoricVariableInstanceQuery().
+                        processInstanceId(processInstanceId).list();
+            }
+            for (HistoricVariableInstance variable : variables) {
+                result.put(variable.getVariableName(), variable.getValue());
+            }
+        }catch(Exception ignoreEx){
+            // При обновлении версии могут возникнуть пролемы десериализации на старых экземплярах процессов, игнорируем такие ошибки
+            logger.warn("Error get variables", ignoreEx);
+        }
         return result;
     }
 }

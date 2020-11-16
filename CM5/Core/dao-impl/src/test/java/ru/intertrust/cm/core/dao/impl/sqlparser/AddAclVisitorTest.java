@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.RequestInfo;
 import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer.TypeConfigBuilder;
@@ -80,6 +81,15 @@ public class AddAclVisitorTest {
 
         @Override
         public void cleanTicket() {
+        }
+
+        @Override
+        public RequestInfo getRequestInfo() {
+            return null;
+        }
+
+        @Override
+        public void setRequestInfo(RequestInfo requestInfo) {
         }
     };
 

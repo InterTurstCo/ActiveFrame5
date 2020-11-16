@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api;
 
 import java.util.List;
+import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -8,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 
 /**
@@ -191,4 +193,18 @@ public interface ProcessService {
      * @return
      */
     List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit);
+
+    /**
+     * Получение задач процесса
+     * @param processInstanceId
+     * @return
+     */
+    List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit);
+
+    /**
+     * Поучение переменных процесса
+     * @param processInstanceId
+     * @return
+     */
+    Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit);
 }
