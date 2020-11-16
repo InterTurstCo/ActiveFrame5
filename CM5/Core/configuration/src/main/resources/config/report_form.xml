@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
-    <form name="report_form" domain-object-type="report_template" is-default="true">
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="report_form" domain-object-type="report_template" is-default="true" replace="runtime">
+        <!--default-value-setter="report.template.form.setter"-->
         <act:tool-bar plugin="report.plugin" useDefault="false">
             <act:action-ref name-ref="aDelete" rendered="false"/>
-            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOn" rendered="preview" merged="false"/>
+            <act:action-ref name-ref="aSave" rendered="toggle-edit and (not preview)" merged="false"/>
             <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
-
         </act:tool-bar>
         <markup>
             <header>
@@ -31,6 +33,18 @@
                                     <td><widget id="descriptionValue"/></td>
                                 </tr>
                                 <tr>
+                                    <td><widget id="typeLabel"/></td>
+                                    <td><widget id="typeValue"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="constructorLabel"/></td>
+                                    <td><widget id="constructorValue"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="docxTemplateLabel"/></td>
+                                    <td><widget id="docxTemplateValue"/></td>
+                                </tr>
+                                <tr>
                                     <td><widget id="lockLabel"/></td>
                                     <td><widget id="lockValue"/></td>
                                 </tr>
@@ -47,9 +61,10 @@
 
             <label id="nameLabel">
                 <text>Название:</text>
+                <force-required-asterisk value="true"/>
             </label>
 
-            <text-box id="nameValue" read-only="true">
+            <text-box id="nameValue" handler="report.template.name.handler">
                 <field-path value="name"/>
             </text-box>
 
@@ -64,11 +79,61 @@
             <label id="lockLabel">
                 <text>Защитить от обновления:</text>
             </label>
+
             <check-box id="lockValue">
                 <field-path value="lockupdate"/>
             </check-box>
 
+            <label id="typeLabel">
+                <text>Тип отчета:</text>
+            </label>
+
+            <enumeration-box id="typeValue" handler="report.template.type.handler">
+                <field-path value="type"/>
+                <mapping>
+                    <map display-text="Табличный" value="table"/>
+                    <map display-text="Печатная форма" value="printform"/>
+                </mapping>
+            </enumeration-box>
+
+            <label id="constructorLabel">
+                <text>Конструктор:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+
+            <enumeration-box id="constructorValue" handler="report.template.constructor.handler">
+                <field-path value="constructor"/>
+                <mapping>
+                    <map display-text="JasperReports" value="jasper"/>
+                    <map display-text="Файл docx" value="docx"/>
+                </mapping>
+            </enumeration-box>
+
+            <label id="docxTemplateLabel">
+                <text>Файл шаблона docх:</text>
+            </label>
+
+            <attachment-box id="docxTemplateValue">
+                <!-- нет реализации для в платформе events>
+                    <evt:subscriber>
+                        <evt:subscribed to-id="typeValue"/>
+                    </evt:subscriber>
+                </events>
+                <rules>
+                    <rul:access>
+                        <rul:rule apply-expression="typeValue.value == 'Печатная форма'"/>
+                    </rul:access>
+                </rules-->
+                <field-path value="report_template_attach_dx^report_template"/>
+                <attachment-type-ref name="report_template_attach_dx"/>
+                <scanner enabled="false"/>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <choice-style name="popup"/>
+                <delete-button display="true"/>
+            </attachment-box>
 
         </widget-config>
+        <form-save-extension before-save-component="report.template.form.save.handler" />
     </form>
 </configuration>

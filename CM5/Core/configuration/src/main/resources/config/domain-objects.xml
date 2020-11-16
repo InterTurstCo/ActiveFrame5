@@ -144,12 +144,15 @@
             <boolean name="forceMaster"/>
             <boolean name="lockUpdate"/>
             <long name="reportHash"/>
+            <string name="constructor" length="32" not-null="true"/>
+            <string name="type" length="32" not-null="false" />
         </fields>
         <uniqueKey>
             <field name="name" />
         </uniqueKey>
         <attachment-types>
             <attachment-type name="report_template_attach"/>
+            <attachment-type name="report_template_attach_dx"/>
         </attachment-types>
         
     </domain-object-type>

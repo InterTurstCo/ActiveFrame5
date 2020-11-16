@@ -54,4 +54,24 @@
         </before-auto-migration>
     </migration-script>
 
+    <migration-script sequence-number="400">
+        <before-auto-migration>
+            <native-command>
+                <![CDATA[
+                    DO $$
+                    BEGIN
+                        BEGIN
+                            ALTER TABLE IF EXISTS report_template ADD COLUMN constructor character varying(32) not null default 'jasper';
+                        EXCEPTION
+                            WHEN duplicate_column THEN RAISE NOTICE 'The column constructor already exists in report_template.';
+							WHEN others THEN RAISE NOTICE '%; SQLSTATE: %', SQLERRM, SQLSTATE;
+                        END;
+                    END;
+                    $$
+                ]]>
+            </native-command>
+        </before-auto-migration>
+    </migration-script>
+
+
 </configuration>

@@ -268,6 +268,8 @@
 
     <access-matrix type="report_template_attach" read-everybody="true"/>
 
+    <access-matrix type="report_template_attach_dx" read-everybody="true"/>
+
     <access-matrix type="report_result">
         <create>
             <permit-group name="AllPersons" />

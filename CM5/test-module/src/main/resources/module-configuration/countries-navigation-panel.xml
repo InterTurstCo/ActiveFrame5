@@ -564,10 +564,11 @@
                         <domain-object-surfer domain-object-type-to-create="report_template">
                             <collection-viewer>
                                 <act:tool-bar useDefault="false">
-                                    <act:action-ref name-ref="aCreate" rendered="false"/>
-                                    <act:action-ref name-ref="aDelete" rendered="false"/>
+                                    <act:action-ref name-ref="aRefresh" text="B1" rendered="true" merged="false"/>
+                                    <act:action-ref name-ref="aCreate" text="B2" rendered="true" merged="false"/>
+                                    <act:action-ref name-ref="aDelete" text="B3" rendered="false"/>
                                     <act:action-ref name-ref="aToggleEditOn" rendered="true"/>
-                                    <act:action componentName="uninstall.report.action" text="Деинсталлировать"
+                                    <act:action componentName="uninstall.report.action" text="Деинсталлировать2"
                                                 permissions="Create"
                                                 image="images/icons/favorite-panel-off.png" merged="false"/>
                                 </act:tool-bar>
