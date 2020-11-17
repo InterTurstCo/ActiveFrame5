@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
@@ -137,6 +138,9 @@ public class AttachmentServiceImplTest {
         @Mock
         private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+        @Mock
+        private PermissionService permissionService;
+
         private WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator;
 
         private PlainFormBuilder plainFormBuilder;
@@ -241,6 +245,23 @@ public class AttachmentServiceImplTest {
             }).when(domainObjectDao).find(any(Id.class), any(AccessToken.class));
 
             return domainObjectDao;
+        }
+
+        @Bean
+        public PermissionService permissionService() {
+            doAnswer(new Answer() {
+                @Override
+                public DomainObjectPermission answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    return new DomainObjectPermission() {
+                        @Override
+                        public List<Permission> getPermission() {
+                            return Collections.singletonList(Permission.ReadAttachment);
+                        }
+                    };
+                }
+            }).when(permissionService).getObjectPermission(any(Id.class), any(Id.class));
+
+            return permissionService;
         }
 
         public FormLogicalValidator formLogicalValidator() {

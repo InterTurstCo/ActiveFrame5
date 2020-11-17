@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -90,6 +91,7 @@ public class PostgresDatabaseAccessAgentTest {
 
     @Before
     public void setUp() throws Exception {
+        ReflectionTestUtils.setField(accessAgent, "accessControlConverter", new AccessControlConverterImpl());
         employeeId = new RdbmsId(1, 1);
         departmentId = new RdbmsId(2, 1);
         when(configurationExplorer.getDomainObjectRootType(anyString())).then(new Answer<String>() {
