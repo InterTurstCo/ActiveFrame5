@@ -3,6 +3,9 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <form name="process_definition" domain-object-type="process_definition" replace="runtime">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false" order="1"/>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
@@ -20,7 +23,23 @@
                             <table>
                                 <tr>
                                     <td h-align="right">
-                                        <widget id="versionLaber"/>
+                                        <widget id="processIdLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="processIdField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="processNameLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="processNameField"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="versionLabel"/>
                                     </td>
                                     <td h-align="left">
                                         <widget id="versionField"/>
@@ -28,7 +47,7 @@
                                 </tr>
                                 <tr>
                                     <td h-align="right">
-                                        <widget id="descriptionLaber"/>
+                                        <widget id="descriptionLabel"/>
                                     </td>
                                     <td h-align="left">
                                         <widget id="descriptionField"/>
@@ -47,7 +66,23 @@
                 <field-path value="name"/>
             </label>
 
-            <label id="versionLaber">
+            <label id="processIdLabel">
+                <text>ID</text>
+            </label>
+
+            <text-box id="processIdField" read-only="true">
+                <field-path value="process_id"/>
+            </text-box>
+
+            <label id="processNameLabel">
+                <text>Имя</text>
+            </label>
+
+            <text-box id="processNameField" read-only="true">
+                <field-path value="process_name"/>
+            </text-box>
+
+            <label id="versionLabel">
                 <text>Версия</text>
             </label>
 
@@ -55,7 +90,7 @@
                 <field-path value="version"/>
             </text-box>
 
-            <label id="descriptionLaber">
+            <label id="descriptionLabel">
                 <text>Описание</text>
             </label>
 
@@ -67,6 +102,9 @@
     </form>
 
     <form name="process_instance" domain-object-type="process_instance" replace="runtime">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false" order="1"/>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
@@ -102,6 +140,16 @@
                                         <widget id="finishField"/>
                                     </td>
                                 </tr>
+
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="suspendedLabel"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="suspendedField"/>
+                                    </td>
+                                </tr>
+
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -134,11 +182,11 @@
         </markup>
 
         <widget-config>
-            <label id="nameLabel">
-                <text>Имя</text>
-            </label>
             <label id="empty">
                 <text>Заглушка</text>
+            </label>
+            <label id="nameLabel">
+                <text>Имя</text>
             </label>
             <text-box id="nameField" read-only="true">
                 <field-path value="name"/>
@@ -155,7 +203,12 @@
             <date-box id="finishField" read-only="true">
                 <field-path value="finish_date"/>
             </date-box>
-
+            <label id="suspendedLabel">
+                <text>Приостановлен</text>
+            </label>
+            <check-box id="suspendedField" read-only="true">
+                <field-path value="suspended"/>
+            </check-box>
             <table-viewer id="tasks">
                 <page-size>50</page-size>
                 <collection-viewer>

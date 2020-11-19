@@ -503,4 +503,34 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
     public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String getLastProcessDefinitionId(String processDefinitionKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void suspendProcessInstance(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void activateProcessInstance(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteProcessInstance(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] getProcessTemplateModel(byte[] template) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] getProcessInstanceModel(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
 }

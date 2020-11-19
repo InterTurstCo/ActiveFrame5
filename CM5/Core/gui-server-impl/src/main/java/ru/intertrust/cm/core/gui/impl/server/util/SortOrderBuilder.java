@@ -150,15 +150,15 @@ public class SortOrderBuilder {
         return result;
     }
 
-    private static String buildMessage(String message, String defaultLocale, String locale) {
-        return MessageResourceProvider.getMessage(message, defaultLocale, locale);
+    private static String buildMessage(String message, String defaultValue, String locale) {
+        return MessageResourceProvider.getMessage(message, locale, defaultValue);
     }
 
-    private static String buildMessage(String message, String defaultLocale, String locale, Pair<String, String>... params) {
+    private static String buildMessage(String message, String defaultValue, String locale, Pair<String, String>... params) {
         Map<String, String> paramsMap = new HashMap<>();
         for (Pair<String, String> pair  : params) {
             paramsMap.put(pair.getFirst(), pair.getSecond());
         }
-        return PlaceholderResolver.substitute(buildMessage(message, defaultLocale, locale), paramsMap);
+        return PlaceholderResolver.substitute(buildMessage(message, defaultValue, locale), paramsMap);
     }
 }

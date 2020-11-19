@@ -1,5 +1,14 @@
 package ru.intertrust.cm.core.business.impl.workflow;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.ValuedDataObject;
@@ -18,11 +27,13 @@ import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.repository.ProcessDefinitionQuery;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StreamUtils;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -36,13 +47,6 @@ import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
     private static final Logger logger = LoggerFactory.getLogger(FlowableWorkflowEngineImpl.class);
@@ -228,13 +232,14 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public ProcessTemplateInfo getProcessTemplateInfo(byte[] tempale) {
+    public ProcessTemplateInfo getProcessTemplateInfo(byte[] template) {
         try {
             BpmnXMLConverter converter = new BpmnXMLConverter();
-            BpmnModel model = converter.convertToBpmnModel(new BytesStreamSource(tempale), true, false);
+            BpmnModel model = converter.convertToBpmnModel(new BytesStreamSource(template), true, false);
 
             ProcessTemplateInfo result = new ProcessTemplateInfo();
             result.setName(model.getMainProcess().getName());
+            result.setId(model.getMainProcess().getId());
             result.setDescription(model.getMainProcess().getDocumentation());
             result.setCategory(model.getTargetNamespace());
 
@@ -245,7 +250,6 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
                     result.setVersion((String)dataObject.getValue());
                 }
             }
-
 
             return result;
         } catch (Exception ex) {
@@ -265,8 +269,16 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             result.setName(processInstance.getProcessDefinitionKey());
             result.setStart(processInstance.getStartTime());
             result.setFinish(processInstance.getEndTime());
-            //result.setTasks(getProcessInstanceTasks(processInstanceId));
-            //result.setVariables(getProcessInstanceVariables(processInstanceId));
+            result.setDefinitionId(processInstance.getProcessDefinitionId());
+            if (processInstance.getEndTime() != null) {
+                result.setFinish(processInstance.getEndTime());
+            }else{
+                List<ProcessInstance> activeProcessInstances = runtimeService.createProcessInstanceQuery().
+                        processInstanceId(processInstance.getId()).list();
+                if (activeProcessInstances.size() > 0) {
+                    result.setSuspended(activeProcessInstances.get(0).isSuspended());
+                }
+            }
         }
         return result;
     }
@@ -283,9 +295,20 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             info.setId(processInstance.getId());
             info.setName(processInstance.getProcessDefinitionKey());
             info.setStart(processInstance.getStartTime());
-            info.setFinish(processInstance.getEndTime());
+            if (processInstance.getEndTime() != null) {
+                info.setFinish(processInstance.getEndTime());
+            }else{
+                List<ProcessInstance> activeProcessInstances = runtimeService.createProcessInstanceQuery().
+                        processInstanceId(processInstance.getId()).list();
+                if (activeProcessInstances.size() > 0) {
+                    info.setSuspended(activeProcessInstances.get(0).isSuspended());
+                }
+            }
+            info.setDefinitionId(processInstance.getProcessDefinitionId());
+
             result.add(info);
         }
+
 
         return result;
     }
@@ -341,5 +364,79 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             logger.warn("Error get variables", ignoreEx);
         }
         return result;
+    }
+
+    @Override
+    public String getLastProcessDefinitionId(String processDefinitionKey){
+        ProcessDefinitionQuery processDefinitionQuery = ProcessEngines.getDefaultProcessEngine().
+                getRepositoryService().createProcessDefinitionQuery();
+
+        List<ProcessDefinition> lastVersion = processDefinitionQuery.processDefinitionKey(processDefinitionKey).latestVersion().list();
+        if (lastVersion.size() > 0){
+            return lastVersion.get(0).getId();
+        }
+        return null;
+    }
+
+    @Override
+    public void suspendProcessInstance(String processInstanceId){
+        runtimeService.suspendProcessInstanceById(processInstanceId);
+    }
+
+    @Override
+    public void activateProcessInstance(String processInstanceId){
+        runtimeService.activateProcessInstanceById(processInstanceId);
+    }
+
+    @Override
+    public void deleteProcessInstance(String processInstanceId){
+        historyService.deleteHistoricProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public byte[] getProcessTemplateModel(byte[] template) {
+        try {
+            ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+
+            BpmnXMLConverter converter = new BpmnXMLConverter();
+            BpmnModel model = converter.convertToBpmnModel(new BytesStreamSource(template), true, false);
+
+            ProcessDiagramGenerator generator = processEngine.getProcessEngineConfiguration().getProcessDiagramGenerator();
+            InputStream pngStream = generator.generateJpgDiagram(model);
+            ByteArrayOutputStream pngOutStram = new ByteArrayOutputStream();
+            StreamUtils.copy(pngStream, pngOutStram);
+            return pngOutStram.toByteArray();
+        }catch(Exception ex){
+            throw new FatalException("Error create model diagramm");
+        }
+    }
+
+    @Override
+    public byte[] getProcessInstanceModel(String processInstanceId) {
+        try{
+            ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
+
+            List<HistoricProcessInstance> processInstance = historyService.createHistoricProcessInstanceQuery().
+                    processInstanceId(processInstanceId).list();
+
+            if (processInstance.size() > 0){
+                BpmnModel model = processEngine.getRepositoryService().getBpmnModel(
+                        processInstance.get(0).getProcessDefinitionId());
+
+                ProcessDiagramGenerator generator = processEngine.
+                        getProcessEngineConfiguration().getProcessDiagramGenerator();
+                List<String> highLightedActivities = runtimeService.getActiveActivityIds(processInstanceId);
+                InputStream pngStream = generator.generateDiagram(model, "jpg", highLightedActivities,
+                        Collections.emptyList(), true);
+                ByteArrayOutputStream pngOutStram = new ByteArrayOutputStream();
+                StreamUtils.copy(pngStream, pngOutStram);
+                return pngOutStram.toByteArray();
+            }else{
+                return null;
+            }
+        }catch(Exception ex){
+            throw new FatalException("Error create model diagramm");
+        }
+
     }
 }

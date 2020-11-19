@@ -16,18 +16,25 @@ public class ProcessInstanceMapper implements DomainObjectMapper {
 
     @Override
     public DomainObject toDomainObject(Object convertedObject) {
-        if (convertedObject instanceof ProcessInstanceInfo){
-            ProcessInstanceInfo processInstanceInfo = (ProcessInstanceInfo)convertedObject;
+        GenericDomainObject result = new GenericDomainObject(getTypeName());
 
-            GenericDomainObject result = new GenericDomainObject(getTypeName());
-            result.setString("name", processInstanceInfo.getName());
-            result.setTimestamp("start_date", processInstanceInfo.getStart());
-            result.setTimestamp("finish_date", processInstanceInfo.getFinish());
-            result.setId(new DomainObjectMappingId(getTypeName(), processInstanceInfo.getId()));
-            return result;
-        }else{
-            throw new FatalException("Object need ProcessInstanceInfo instance");
+        if (convertedObject == null) {
+            result.setString("name", "");
+        } else {
+            if (convertedObject instanceof ProcessInstanceInfo) {
+                ProcessInstanceInfo processInstanceInfo = (ProcessInstanceInfo) convertedObject;
+
+                result.setString("name", processInstanceInfo.getName());
+                result.setTimestamp("start_date", processInstanceInfo.getStart());
+                result.setTimestamp("finish_date", processInstanceInfo.getFinish());
+                result.setBoolean("suspended", processInstanceInfo.isSuspended());
+                result.setId(new DomainObjectMappingId(getTypeName(), processInstanceInfo.getId()));
+
+            }else{
+                throw new FatalException("Object need ProcessInstanceInfo instance");
+            }
         }
+        return result;
     }
 
     @Override

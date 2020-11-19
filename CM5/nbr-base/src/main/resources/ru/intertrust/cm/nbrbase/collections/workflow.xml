@@ -1,40 +1,58 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:act="https://cm5.intertrust.ru/config/action">
+<configuration xmlns="https://cm5.intertrust.ru/config">
     <collection name="process_definition" replace="runtime" idField="id">
-        <prototype>
-            <![CDATA[
-                select pd.id, pd.name, pd.version, pd.category, s.description from process_definition pd
-                join status s on s.id = pd.status
-                where lower(s.name) in ('draft', 'active') ::where-clause
-            ]]>
-        </prototype>
+        <generator class-name="process.definition.collection"/>
+
+        <filter name="byFileName"/>
+        <filter name="byProcessId"/>
+        <filter name="byProcessName"/>
+        <filter name="isLast"/>
     </collection>
 
     <collection-view name="process_definition" collection="process_definition" is-default="true" replace="runtime">
         <display>
-            <column field="name" name="Наименование" type="string"/>
-            <column field="version" name="Версия" type="string"/>
-            <column field="category" name="Категория" type="string"/>
-            <column field="status" name="Статус" type="string"/>
+            <column field="file_name" name="Имя файла" type="string" search-filter="byFileName" sortable="true"/>
+            <column field="process_id" name="ID процесса" type="string" search-filter="byProcessId" sortable="true"/>
+            <column field="process_name" name="Имя процесса" type="string" search-filter="byProcessName" sortable="true"/>
+            <column field="version" name="Версия" type="string" sortable="true"/>
+            <column field="category" name="Категория" type="string" sortable="true"/>
+            <column field="status" name="Статус" type="string" sortable="true"/>
+            <column field="last" name="Активный" type="boolean" search-filter="isLast"/>
         </display>
     </collection-view>
 
     <collection name="trash_process_definition" replace="runtime" idField="id">
         <prototype>
             <![CDATA[
-                select pd.id, pd.name, pd.version, pd.category, s.description from process_definition pd
+                select pd.id, pd.file_name, pd.process_name, pd.process_id, pd.version, pd.category, s.name from process_definition pd
                 join status s on s.id = pd.status
                 where lower(s.name) = 'trash' ::where-clause
             ]]>
         </prototype>
+        <filter name="byFileName">
+            <criteria placeholder="where-clause">
+                lower(pd.file_name) like lower({0})
+            </criteria>
+        </filter>
+        <filter name="byProcessId">
+            <criteria placeholder="where-clause">
+                lower(pd.process_id) like lower({0})
+            </criteria>
+        </filter>
+        <filter name="byProcessName">
+            <criteria placeholder="where-clause">
+                lower(pd.process_name) like lower({0})
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="trash_process_definition" collection="trash_process_definition" is-default="true" replace="runtime">
         <display>
-            <column field="name" name="Наименование" type="string"/>
-            <column field="version" name="Версия" type="string"/>
-            <column field="category" name="Категория" type="string"/>
+            <column field="file_name" name="Имя файла" type="string" search-filter="byFileName" sortable="true"/>
+            <column field="process_id" name="ID процесса" type="string" search-filter="byProcessId" sortable="true"/>
+            <column field="process_name" name="Имя процесса" type="string" search-filter="byProcessName" sortable="true"/>
+            <column field="version" name="Версия" type="string" sortable="true"/>
+            <column field="category" name="Категория" type="string" sortable="true"/>
         </display>
     </collection-view>
 
@@ -44,14 +62,16 @@
         <filter name="byName"/>
         <filter name="bySatrtDate"/>
         <filter name="byFinishDate"/>
-
+        <filter name="byVersion"/>
     </collection>
 
     <collection-view name="process_instances" collection="process_instances" is-default="true" replace="runtime">
         <display>
-            <column field="name" name="Наименование" type="string" search-filter="byName" sortable="true" min-width="80px" resizable="true"/>
-            <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="bySatrtDate"/>
-            <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="byFinishDate"/>
+            <column field="name" name="Наименование" type="string" search-filter="byName" sortable="true" min-width="80px" />
+            <column field="version" name="Версия" type="string" search-filter="byVersion" sortable="true" min-width="80px"/>
+            <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" search-filter="bySatrtDate"/>
+            <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" search-filter="byFinishDate"/>
+            <column field="suspended" name="Приостановлен" type="boolean" min-width="80px" />
         </display>
     </collection-view>
 

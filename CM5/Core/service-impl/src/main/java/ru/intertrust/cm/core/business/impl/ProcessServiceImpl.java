@@ -1,9 +1,14 @@
 package ru.intertrust.cm.core.business.impl;
 
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StreamUtils;
+import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
@@ -11,8 +16,10 @@ import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
@@ -20,6 +27,7 @@ import ru.intertrust.cm.core.business.api.workflow.WorkflowEngine;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SystemException;
@@ -29,7 +37,12 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +60,9 @@ public class ProcessServiceImpl implements ProcessService {
     private CrudService crudService;
 
     @Autowired
+    private CollectionsService collectionsService;
+
+    @Autowired
     private IdService idService;
 
     @Autowired
@@ -54,6 +70,9 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     private MD5Service md5Service;
+
+    @Autowired
+    private AttachmentService attachmentService;
 
     @Override
     public String startProcess(String processName, Id attachedObjectId,
@@ -75,10 +94,91 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public String deployProcess(byte[] processDefinition, String processName) {
+    public Id saveProcess(byte[] processDefinition, String fileName, boolean deploy) {
+
+        ProcessTemplateInfo info = workflowEngine.getProcessTemplateInfo(processDefinition);
+        Id result = null;
+
+        // Проверяем что версия не пустая
+        if (info.getVersion() == null){
+            throw new FatalException("Version is not defined in process definition " + fileName);
+        }
+
+        if (!info.getVersion().matches("\\d+\\.\\d+.\\d+.\\d+")){
+            throw new FatalException("Version has incorrect format in process definition " + fileName + ". Need #.#.#.# format.");
+        }
+
+        // Вычисляем хэш сохраняемого шаблона
+        String newHash = md5Service.getMD5AsHex(processDefinition);
+
+        // Поиск процесса по имени и версии
+        Map<String, Value> key = new HashMap<>();
+        key.put("process_id", new StringValue(info.getId()));
+        key.put("version", new StringValue(info.getVersion()));
+        DomainObject processDefinitionObject = crudService.findByUniqueKey("process_definition", key);
+
+        // Если найдено проверяем соответствие хэша шаблона
+        if (processDefinitionObject != null){
+            // Проверяем соответствие хэшей
+            if (!newHash.equals(processDefinitionObject.getString("hash"))){
+                // Попытка сохранить другой шаблон с повторяющимися именем и версией
+                throw new FatalException("Process definition with name " + fileName +
+                        " and version " + info.getVersion() + " alredy exists.");
+            }
+        }else {
+            // Ничего не найдено, создаем
+            processDefinitionObject = crudService.createDomainObject("process_definition");
+
+            processDefinitionObject.setString("file_name", fileName);
+            processDefinitionObject.setString("process_id", info.getId());
+            processDefinitionObject.setString("process_name", info.getName());
+            processDefinitionObject.setString("version", info.getVersion());
+            processDefinitionObject.setString("category", info.getCategory());
+            processDefinitionObject.setString("description", info.getDescription());
+            processDefinitionObject.setString("hash", newHash);
+
+            processDefinitionObject = crudService.save(processDefinitionObject);
+
+            DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(processDefinitionObject.getId(), "process_definition_model");
+            attachment.setString("Name", fileName);
+
+            DirectRemoteInputStream directRemoteInputStream =
+                    new DirectRemoteInputStream(new ByteArrayInputStream(processDefinition), false);
+            attachmentService.saveAttachment(directRemoteInputStream, attachment);
+
+            if (deploy) {
+                deployProcess(processDefinitionObject.getId());
+            }
+        }
+        result = processDefinitionObject.getId();
+
+        return result;
+    }
+
+    @Override
+    public String deployProcess(Id processDefinitionId) {
         try {
-            String deploymentId = workflowEngine.deployProcess(processDefinition, processName);
-            return deploymentId;
+
+            DomainObject processDefinition = crudService.find(processDefinitionId);
+            List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(processDefinitionId);
+
+            // Ожидаем что только одно вложение привязано к доменному объекту
+            if (attachments.size() != 1){
+                throw new FatalException("Only one attachment need in process_definition objects");
+            }
+
+            try (final InputStream stream = RemoteInputStreamClient.wrap(attachmentService.loadAttachment(attachments.get(0).getId()))) {
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                StreamUtils.copy(stream, outStream);
+
+                String deployId = workflowEngine.deployProcess(outStream.toByteArray(), processDefinition.getString("file_name"));
+
+                processDefinition.setString("definition_id", deployId);
+                crudService.save(processDefinition);
+
+                crudService.setStatus(processDefinitionId, "Active");
+                return deployId;
+            }
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -217,11 +317,6 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public ProcessTemplateInfo getProcessTemplateInfo(byte[] template) {
-        return workflowEngine.getProcessTemplateInfo(template);
-    }
-
-    @Override
     public ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId) {
         return workflowEngine.getProcessInstanceInfo(processInstanceId);
     }
@@ -239,6 +334,68 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
         return workflowEngine.getProcessInstanceVariables(processInstanceId, offset, limit);
+    }
+
+    @Override
+    public Id getLastProcessDefinitionId(String processDefinitionKey) {
+        Id result = null;
+
+        String processDefinitionId = workflowEngine.getLastProcessDefinitionId(processDefinitionKey);
+
+        if (processDefinitionId != null) {
+            IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
+                    "select id from process_definition where definition_id = {0}",
+                    Collections.singletonList(new StringValue(processDefinitionId)));
+
+            if (collection.size() > 0){
+                result = collection.get(0).getId();
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public void suspendProcessInstance(String processInstanceId) {
+        workflowEngine.suspendProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public void activateProcessInstance(String processInstanceId) {
+        workflowEngine.activateProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public void deleteProcessInstance(String processInstanceId) {
+        workflowEngine.deleteProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public byte[] getProcessTemplateModel(Id processDefinitionId) {
+        try {
+
+            DomainObject processDefinition = crudService.find(processDefinitionId);
+            List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(processDefinitionId);
+
+            // Ожидаем что только одно вложение привязано к доменному объекту
+            if (attachments.size() != 1){
+                throw new FatalException("Only one attachment need in process_definition objects");
+            }
+
+            try (final InputStream stream = RemoteInputStreamClient.wrap(attachmentService.loadAttachment(attachments.get(0).getId()))) {
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                StreamUtils.copy(stream, outStream);
+
+                return workflowEngine.getProcessTemplateModel(outStream.toByteArray());
+            }
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
+    @Override
+    public byte[] getProcessInstanceModel(String processInstanceId) {
+        return workflowEngine.getProcessInstanceModel(processInstanceId);
     }
 }
 

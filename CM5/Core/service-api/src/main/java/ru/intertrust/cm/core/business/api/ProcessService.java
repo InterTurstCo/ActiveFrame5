@@ -69,13 +69,20 @@ public interface ProcessService {
     /**
      * Установка шаблона процесса
      * 
-     * @param processDefinition
-     *            описания процесса в виде строки
-     * @param processName
-     *            имя файла
+     * @param processDefinitionId
+     *            ID процесса в таблице process_definition
      * @return возвращается идентификатор шаблона процесса
      */
-    String deployProcess(byte[] processDefinition, String processName);
+    String deployProcess(Id processDefinitionId);
+
+    /**
+     * Сохранение процесса в хранилище
+     * @param processDefinition описание процесса
+     * @param deploy имя сохраняемого файла
+     * @param deploy флаг необходимости устанавливать процесс в движок WF
+     * @return идентификатор сохраненного процесса
+     */
+    Id saveProcess(byte[] processDefinition, String fileName, boolean deploy);
 
     /**
      * Удаление шаблона процесса(каскадно или нет). При каскадном удалении
@@ -171,14 +178,6 @@ public interface ProcessService {
      */
     String getEngeneName();
 
-
-    /**
-     * Получение информации о шаблоне процесса
-     * @param template
-     * @return
-     */
-    ProcessTemplateInfo getProcessTemplateInfo(byte[] template);
-
     /**
      * Получение информации об экземпляре процесса
      * @param processInstanceId
@@ -207,4 +206,43 @@ public interface ProcessService {
      * @return
      */
     Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit);
-}
+
+    /**
+     * Получение идентификатора крайней версии процесса с переданным ключем
+     * @param processDefinitionKey
+     * @return
+     */
+    Id getLastProcessDefinitionId(String processDefinitionKey);
+
+    /**
+     * Приостановить процесс
+     * @param processInstanceId
+     */
+    void suspendProcessInstance(String processInstanceId);
+
+    /**
+     * Возобновить процесс
+     * @param processInstanceId
+     */
+    void activateProcessInstance(String processInstanceId);
+
+    /**
+     * Удаление экземпляра процесса
+     * @param processInstanceId
+     */
+    void deleteProcessInstance(String processInstanceId);
+
+
+    /**
+     * Получение диаграммы шаблона процесса в виде png изображения
+     * @param processDefinitionId
+     * @return
+     */
+    byte[] getProcessTemplateModel(Id processDefinitionId);
+
+    /**
+     * Получение диагараммы экземпляра процесса с подсвеченными элементами модели в виде png изображения
+     * @param processInstanceId
+     * @return
+     */
+    byte[] getProcessInstanceModel(String processInstanceId);}

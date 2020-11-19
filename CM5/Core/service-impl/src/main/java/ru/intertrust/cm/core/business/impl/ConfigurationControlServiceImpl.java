@@ -303,7 +303,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     private void processWorkflowUpdate(String processDataString, String fileName) {
         byte[] process = Base64.decodeBase64(processDataString);
         if (processService.isSupportTemplate(process, fileName)) {
-            processService.deployProcess(process, fileName);
+            processService.saveProcess(process, fileName, true);
         }else{
             throw new FatalException("Process template " + fileName + " is not support by workflow engene");
         }
@@ -311,7 +311,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     private void processDataImport(String importDataString) {
         try {
-            importDataService.importData(importDataString.getBytes("Windows-1251"), null, true);
+            importDataService.importData(importDataString.getBytes("windows-1251"), null, true);
         } catch (UnsupportedEncodingException e) {
             throw new FatalException("Error import csv file", e);
         }

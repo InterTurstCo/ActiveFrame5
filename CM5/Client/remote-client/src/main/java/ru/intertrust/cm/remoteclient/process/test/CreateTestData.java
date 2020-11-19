@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -60,24 +61,24 @@ public class CreateTestData
 
             
             byte[] processDef = getProcessAsByteArray("templates/testInternalDoc/InternalDoc.bpmn");
-            String defId = processService.deployProcess(processDef,
-                    "InternalDoc.bpmn");
+            Id defId = processService.saveProcess(processDef,
+                    "InternalDoc.bpmn", true);
 
             processDef = getProcessAsByteArray("templates/testInternalDoc/Negotiation.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "Negotiation.bpmn");
+            defId = processService.saveProcess(processDef,
+                    "Negotiation.bpmn", true);
             
             processDef = getProcessAsByteArray("templates/testInternalDoc/Registration.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "Registration.bpmn");
+            defId = processService.saveProcess(processDef,
+                    "Registration.bpmn", true);
             
             processDef = getProcessAsByteArray("templates/testInternalDoc/DocExecution.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "DocExecution.bpmn");
+            defId = processService.saveProcess(processDef,
+                    "DocExecution.bpmn", true);
             
             processDef = getProcessAsByteArray("templates/testInternalDoc/CommissionExecution.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "CommissionExecution.bpmn");            
+            defId = processService.saveProcess(processDef,
+                    "CommissionExecution.bpmn", true);
         } finally {
             writeLog();
         }

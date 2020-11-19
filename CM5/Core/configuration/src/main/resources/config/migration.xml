@@ -73,5 +73,23 @@
         </before-auto-migration>
     </migration-script>
 
+    <migration-script sequence-number="500">
+        <before-auto-migration>
+            <native-command>
+                <![CDATA[
+                    DO $$
+                    DECLARE
+                        type_id varchar;
+                    BEGIN
+                        select id into type_id from domain_object_type_id where name = 'process_definition';
 
+                        execute 'ALTER TABLE IF EXISTS process_definition DROP CONSTRAINT IF EXISTS u_' || type_id || '_1';
+                        execute 'ALTER TABLE IF EXISTS process_definition DROP CONSTRAINT IF EXISTS u_' || type_id || '_2';
+                        execute 'ALTER TABLE IF EXISTS process_definition DROP CONSTRAINT IF EXISTS u_' || type_id || '_3';
+                    END;
+                    $$
+                ]]>
+            </native-command>
+        </before-auto-migration>
+    </migration-script>
 </configuration>

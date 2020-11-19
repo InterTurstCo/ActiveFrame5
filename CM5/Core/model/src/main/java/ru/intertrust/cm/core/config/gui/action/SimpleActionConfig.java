@@ -27,7 +27,11 @@ public class SimpleActionConfig extends ActionConfig {
 
     @Override
     public String getComponentName() {
-        return "simple.action";
+        if (super.getComponentName() != null && !super.getComponentName().isEmpty()){
+            return super.getComponentName();
+        }else {
+            return "simple.action";
+        }
     }
 
     public String getActionHandler() {

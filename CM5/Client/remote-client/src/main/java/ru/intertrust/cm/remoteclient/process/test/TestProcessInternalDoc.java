@@ -151,27 +151,25 @@ public class TestProcessInternalDoc extends ClientBase {
 
 
             byte[] processDef = getProcessAsByteArray("templates/testInternalDoc/InternalDoc.bpmn");
-            String defId = service.deployProcess(processDef,
-                    "InternalDoc.bpmn");
+            Id defId = service.saveProcess(processDef,
+                    "InternalDoc.bpmn", true);
 
             processDef = getProcessAsByteArray("templates/testInternalDoc/Negotiation.bpmn");
-            defId = service.deployProcess(processDef,
-                    "Negotiation.bpmn");
+            defId = service.saveProcess(processDef,
+                    "Negotiation.bpmn", true);
             
             processDef = getProcessAsByteArray("templates/testInternalDoc/Registration.bpmn");
-            defId = service.deployProcess(processDef,
-                    "Registration.bpmn");
+            defId = service.saveProcess(processDef,
+                    "Registration.bpmn", true);
             
             processDef = getProcessAsByteArray("templates/testInternalDoc/DocExecution.bpmn");
-            defId = service.deployProcess(processDef,
-                    "DocExecution.bpmn");
+            defId = service.saveProcess(processDef,
+                    "DocExecution.bpmn", true);
             
             processDef = getProcessAsByteArray("templates/testInternalDoc/CommissionExecution.bpmn");
-            defId = service.deployProcess(processDef,
-                    "CommissionExecution.bpmn");
+            defId = service.saveProcess(processDef,
+                    "CommissionExecution.bpmn", true);
             
-
-
             attachment.setReference("docAuthor", docAuthor);
             attachment.setReference("Registrant", registrant);
             attachment = crudService.save(attachment);

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api.workflow;
 public class ProcessTemplateInfo {
     private String version;
     private String name;
+    private String id;
     private String category;
     private String description;
 
@@ -36,5 +37,13 @@ public class ProcessTemplateInfo {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -31,26 +31,25 @@ public class ProcessVariablesCollectionGenerator implements CollectionDataGenera
     public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
         GenericIdentifiableObjectCollection result = new GenericIdentifiableObjectCollection();
 
-        if (filters.size() != 1){
-            throw new FatalException("ProcessTasksCollectionGenerator need onlyb one filter value with process instance id");
-        }
-
-        Id instanceId = ((ReferenceValue)filters.get(0).getParameterMap().get(0).get(0)).get();
-        Map<String, Object> variables = processService.getProcessInstanceVariables(((DomainObjectMappingId)instanceId).getId(), offset, limit);
-
         List<FieldConfig> fieldConfigs = new ArrayList<>();
         fieldConfigs.add(new StringFieldConfig("name", true, false, 256, false));
         fieldConfigs.add(new StringFieldConfig("value", true, false, 256, false));
         result.setFieldsConfiguration(fieldConfigs);
 
-        int rowNumber = 0;
-        if (variables != null) {
-            for (String name : variables.keySet()) {
-                result.setId(rowNumber, new DomainObjectMappingId("process_variable", "_" + System.currentTimeMillis()));
-                result.set("name", rowNumber, new StringValue(name));
-                result.set("value", rowNumber, new StringValue(variables.get(name).toString()));
+        if (filters.size() == 1) {
 
-                rowNumber++;
+            Id instanceId = ((ReferenceValue) filters.get(0).getParameterMap().get(0).get(0)).get();
+            Map<String, Object> variables = processService.getProcessInstanceVariables(((DomainObjectMappingId) instanceId).getId(), offset, limit);
+
+            int rowNumber = 0;
+            if (variables != null) {
+                for (String name : variables.keySet()) {
+                    result.setId(rowNumber, new DomainObjectMappingId("process_variable", "_" + System.currentTimeMillis()));
+                    result.set("name", rowNumber, new StringValue(name));
+                    result.set("value", rowNumber, new StringValue(variables.get(name).toString()));
+
+                    rowNumber++;
+                }
             }
         }
 

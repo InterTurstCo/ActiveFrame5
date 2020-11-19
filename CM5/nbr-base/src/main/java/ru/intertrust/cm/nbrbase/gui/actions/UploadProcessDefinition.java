@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StreamUtils;
@@ -11,10 +12,12 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.UploadActionContext;
 import ru.intertrust.cm.core.gui.model.action.UploadActionData;
 import ru.intertrust.cm.core.model.FatalException;
@@ -28,12 +31,6 @@ public class UploadProcessDefinition extends ActionHandler<UploadActionContext, 
     @Autowired
     private ProcessService processService;
 
-    @Autowired
-    private MD5Service md5Service;
-
-    @Autowired
-    private AttachmentService attachmentService;
-
     @Override
     public UploadActionData executeAction(UploadActionContext context) {
 
@@ -43,30 +40,13 @@ public class UploadProcessDefinition extends ActionHandler<UploadActionContext, 
             try (FileInputStream processDefinitionStream = new FileInputStream(processDefinitionFile)) {
                 StreamUtils.copy(processDefinitionStream, outStream);
 
-                ProcessTemplateInfo info = processService.getProcessTemplateInfo(outStream.toByteArray());
-
-                DomainObject processDefinition = crudService.createDomainObject("process_definition");
-
-                processDefinition.setString("name", fileName);
-                processDefinition.setString("version", info.getVersion());
-                processDefinition.setString("category", info.getCategory());
-                processDefinition.setString("description", info.getDescription());
-                processDefinition.setString("hash", md5Service.getMD5AsHex(outStream.toByteArray()));
-
-                processDefinition = crudService.save(processDefinition);
-
-                DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(processDefinition.getId(), "process_definition_model");
-                attachment.setString("Name", fileName);
-
-                DirectRemoteInputStream directRemoteInputStream =
-                        new DirectRemoteInputStream(new ByteArrayInputStream(outStream.toByteArray()), false);
-                attachmentService.saveAttachment(directRemoteInputStream, attachment);
+                processService.saveProcess(outStream.toByteArray(), fileName, false);
+            }catch(FatalException | GuiException ex) {
+                throw ex;
             }catch(Exception ex) {
                 throw new FatalException("Error upload process definition file", ex);
             }
         }
-
-
 
         UploadActionData result = new UploadActionData();
         result.setOnSuccessMessage("Загрузка процессов завершена успешно");

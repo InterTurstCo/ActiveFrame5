@@ -256,6 +256,11 @@ MAIN_ATTACHMENT.save();]]></script>
     <sequenceFlow id="flow50" sourceRef="timerintermediatecatchevent1" targetRef="scripttask13"></sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow52" sourceRef="scripttask13" targetRef="endevent1"></sequenceFlow>
+    <dataObject id="version" name="version" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>1.0.0.1</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_testSimpleProcess">
     <bpmndi:BPMNPlane bpmnElement="testSimpleProcess" id="BPMNPlane_testSimpleProcess">

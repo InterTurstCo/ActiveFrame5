@@ -55,7 +55,12 @@ public class FormRetriever extends FormProcessor {
   private DomainObjectMapping domainObjectMapping;
 
   public FormDisplayData getForm(FormPluginConfig formPluginConfig) {
-    DomainObject root = crudService.createDomainObject(formPluginConfig.getDomainObjectTypeToCreate());
+    DomainObject root = null;
+    if (domainObjectMapping.isSupportedType(formPluginConfig.getDomainObjectTypeToCreate())){
+      root = domainObjectMapping.toDomainObject(formPluginConfig.getDomainObjectTypeToCreate(), null);
+    }else {
+      root = crudService.createDomainObject(formPluginConfig.getDomainObjectTypeToCreate());
+    }
     if (formPluginConfig.getDomainObjectUpdatorComponent() != null) {
       DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext
           .getBean(formPluginConfig.getDomainObjectUpdatorComponent());

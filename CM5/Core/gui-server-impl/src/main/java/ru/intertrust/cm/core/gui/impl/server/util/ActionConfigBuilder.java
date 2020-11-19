@@ -143,8 +143,10 @@ public class ActionConfigBuilder {
         if (actionConfig.getVisibilityChecker() != null) {
             final boolean contains = applicationContext.containsBean(actionConfig.getVisibilityChecker());
             if (contains) {
-                final ActionVisibilityContext avContext = new ActionVisibilityContext()
-                        .setDomainObject(domainObject);
+                final ActionVisibilityContext avContext = new ActionVisibilityContext();
+                avContext.setDomainObject(domainObject);
+                avContext.setActionConfig(actionConfig);
+
                 ActionVisibilityChecker checker =
                         (ActionVisibilityChecker) applicationContext.getBean(actionConfig.getVisibilityChecker());
                 status = checker.isVisible(avContext) ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;

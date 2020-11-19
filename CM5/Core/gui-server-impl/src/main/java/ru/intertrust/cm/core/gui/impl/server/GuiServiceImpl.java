@@ -193,9 +193,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private String getTypeName(Id domainObjectId){
-        String typeName = domainObjectMapping.getTypeName(domainObjectId);
-        if (typeName == null){
-            typeName = domainObjectTypeIdCache.getName(domainObjectId);
+        String typeName = null;
+        if (domainObjectId != null) {
+            typeName = domainObjectMapping.getTypeName(domainObjectId);
+            if (typeName == null) {
+                typeName = domainObjectTypeIdCache.getName(domainObjectId);
+            }
         }
         return typeName;
     }

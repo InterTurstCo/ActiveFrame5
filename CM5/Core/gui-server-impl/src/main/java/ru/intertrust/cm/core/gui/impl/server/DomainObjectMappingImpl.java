@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.model.DomainObjectMappingId;
 
 public class DomainObjectMappingImpl implements DomainObjectMapping {
 
-    @Autowired
+    @Autowired(required = false)
     private List<DomainObjectMapper> mapperObjects = new ArrayList<>();
 
     private HashMap<String, DomainObjectMapper> mapperReestr = new HashMap<>();

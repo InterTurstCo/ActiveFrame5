@@ -6,11 +6,13 @@ import java.util.Map;
 
 public class ProcessInstanceInfo {
     private String id;
+    private String definitionId;
     private String name;
     private Date start;
     private Date finish;
     private List<TaskInfo> tasks;
     private Map<String, Object> variables;
+    private boolean suspended;
 
     public String getId() {
         return id;
@@ -58,5 +60,21 @@ public class ProcessInstanceInfo {
 
     public void setFinish(Date finish) {
         this.finish = finish;
+    }
+
+    public String getDefinitionId() {
+        return definitionId;
+    }
+
+    public void setDefinitionId(String definitionId) {
+        this.definitionId = definitionId;
+    }
+
+    public boolean isSuspended() {
+        return suspended;
+    }
+
+    public void setSuspended(boolean suspended) {
+        this.suspended = suspended;
     }
 }

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StreamUtils;
 import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.model.FatalException;
@@ -41,7 +42,7 @@ public class DeployModuleProcesses {
                                     processName = processResource.substring(processResource.lastIndexOf("/") + 1);
                                 }
 
-                                String deployId = processService.deployProcess(out.toByteArray(), processName);
+                                Id deployId = processService.saveProcess(out.toByteArray(), processName, true);
                                 logger.info("Process + " + processResource + " is deployed. Process name: " + processResource + "; Process ID: " + deployId);
                             } else {
                                 logger.warn("Process " + processResource + " is not support by wf engene " + processService.getEngeneName());

@@ -1,10 +1,20 @@
 package ru.intertrust.cm.core.business.api.workflow;
 
+import org.flowable.bpmn.converter.BpmnXMLConverter;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.common.engine.impl.util.io.BytesStreamSource;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngines;
+import org.flowable.image.ProcessDiagramGenerator;
+import org.springframework.util.StreamUtils;
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.model.FatalException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -184,4 +194,43 @@ public interface WorkflowEngine {
      * @return
      */
     Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit);
+
+    /**
+     * Получение идентификатора крайней версии шаблона процесса с переданным ключем
+     * @param processDefinitionKey
+     * @return
+     */
+    String getLastProcessDefinitionId(String processDefinitionKey);
+
+    /**
+     * Приостановить процесс
+     * @param processInstanceId
+     */
+    void suspendProcessInstance(String processInstanceId);
+
+    /**
+     * Возобновить процесс
+     * @param processInstanceId
+     */
+    void activateProcessInstance(String processInstanceId);
+
+    /**
+     * Удаление экземпляра процесса
+     * @param processInstanceId
+     */
+    void deleteProcessInstance(String processInstanceId);
+
+    /**
+     * Получение диаграммы шаблона процесса в виде png изображения
+     * @param template
+     * @return
+     */
+    byte[] getProcessTemplateModel(byte[] template);
+
+    /**
+     * Получение диагараммы экземпляра процесса с подсвеченными элементами модели в виде png изображения
+     * @param processInstanceId
+     * @return
+     */
+    byte[] getProcessInstanceModel(String processInstanceId);
 }

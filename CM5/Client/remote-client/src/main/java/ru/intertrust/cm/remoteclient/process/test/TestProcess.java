@@ -59,8 +59,8 @@ public class TestProcess extends ClientBase {
             }
 
             byte[] processDef = getProcessAsByteArray("Client/remote-client/templates/TestSimpleProcess.bpmn");
-            String defId = getProcessService("admin").deployProcess(processDef,
-                    "SimpleProcess.bpmn");
+            Id defId = getProcessService("admin").saveProcess(processDef,
+                    "SimpleProcess.bpmn", true);
 
             // Создание документа, который НЕ будет прикреплен к процессу
             DomainObject attachmentNotInProcess = getCrudService()

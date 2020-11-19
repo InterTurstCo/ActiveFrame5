@@ -32,29 +32,28 @@ public class ProcessTasksCollectionGenerator implements CollectionDataGenerator 
         GenericIdentifiableObjectCollection result = new GenericIdentifiableObjectCollection();
 
 
-        if (filters.size() != 1){
-            throw new FatalException("ProcessTasksCollectionGenerator need onlyb one filter value with process instance id");
-        }
-        Id instanceId = ((ReferenceValue)filters.get(0).getParameterMap().get(0).get(0)).get();
-        List<TaskInfo> tasks = processService.getProcessInstanceTasks(((DomainObjectMappingId)instanceId).getId(), offset, limit);
+        if (filters.size() == 1) {
+            Id instanceId = ((ReferenceValue) filters.get(0).getParameterMap().get(0).get(0)).get();
+            List<TaskInfo> tasks = processService.getProcessInstanceTasks(((DomainObjectMappingId) instanceId).getId(), offset, limit);
 
-        List<FieldConfig> fieldConfigs = new ArrayList<>();
-        fieldConfigs.add(new StringFieldConfig("name", true, false, 256, false));
-        fieldConfigs.add(new DateTimeFieldConfig("start_date", true, false));
-        fieldConfigs.add(new DateTimeFieldConfig("finish_date", true, false));
-        fieldConfigs.add(new StringFieldConfig("assignee", true, false, 256, false));
-        result.setFieldsConfiguration(fieldConfigs);
+            List<FieldConfig> fieldConfigs = new ArrayList<>();
+            fieldConfigs.add(new StringFieldConfig("name", true, false, 256, false));
+            fieldConfigs.add(new DateTimeFieldConfig("start_date", true, false));
+            fieldConfigs.add(new DateTimeFieldConfig("finish_date", true, false));
+            fieldConfigs.add(new StringFieldConfig("assignee", true, false, 256, false));
+            result.setFieldsConfiguration(fieldConfigs);
 
-        int rowNumber = 0;
-        if (tasks != null) {
-            for (TaskInfo task : tasks) {
-                result.setId(rowNumber, new DomainObjectMappingId("process_task", task.getId()));
-                result.set("name", rowNumber, new StringValue(task.getName()));
-                result.set("start_date", rowNumber, new DateTimeValue(task.getStartDate()));
-                result.set("finish_date", rowNumber, new DateTimeValue(task.getFinishDate()));
-                result.set("assignee", rowNumber, new StringValue(task.getAssignee()));
+            int rowNumber = 0;
+            if (tasks != null) {
+                for (TaskInfo task : tasks) {
+                    result.setId(rowNumber, new DomainObjectMappingId("process_task", task.getId()));
+                    result.set("name", rowNumber, new StringValue(task.getName()));
+                    result.set("start_date", rowNumber, new DateTimeValue(task.getStartDate()));
+                    result.set("finish_date", rowNumber, new DateTimeValue(task.getFinishDate()));
+                    result.set("assignee", rowNumber, new StringValue(task.getAssignee()));
 
-                rowNumber++;
+                    rowNumber++;
+                }
             }
         }
 
