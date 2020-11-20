@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
@@ -42,6 +43,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -322,8 +324,13 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
-        return workflowEngine.getProcessInstanceInfos(offset, limit);
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(
+            int offset, int limit, String name,
+            Date startDateBegin, Date startDateEnd,
+            Date finishDateBegin, Date finishDateEnd,
+            SortOrder sortOrder){
+        return workflowEngine.getProcessInstanceInfos(offset, limit, name, startDateBegin, startDateEnd,
+                finishDateBegin, finishDateEnd, sortOrder);
     }
 
     @Override

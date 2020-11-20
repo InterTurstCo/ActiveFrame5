@@ -11,10 +11,12 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -177,9 +179,21 @@ public interface WorkflowEngine {
 
     /**
      * Получение информации о запущенных процессах
+     * @param offset
+     * @param limit
+     * @param name
+     * @param startDateBegin
+     * @param startDateEnd
+     * @param finishDateBegin
+     * @param finishDateEnd
+     * @param sortOrder
      * @return
      */
-    List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit);
+    List<ProcessInstanceInfo> getProcessInstanceInfos(
+            int offset, int limit, String name,
+            Date startDateBegin, Date startDateEnd,
+            Date finishDateBegin, Date finishDateEnd,
+            SortOrder sortOrder);
 
     /**
      * Получение задач процесса

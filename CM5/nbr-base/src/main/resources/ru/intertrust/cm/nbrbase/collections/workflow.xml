@@ -7,6 +7,8 @@
         <filter name="byProcessId"/>
         <filter name="byProcessName"/>
         <filter name="isLast"/>
+        <filter name="byUpdatedDate"/>
+        <filter name="byLogin"/>
     </collection>
 
     <collection-view name="process_definition" collection="process_definition" is-default="true" replace="runtime">
@@ -18,14 +20,19 @@
             <column field="category" name="Категория" type="string" sortable="true"/>
             <column field="status" name="Статус" type="string" sortable="true"/>
             <column field="last" name="Активный" type="boolean" search-filter="isLast"/>
+            <column field="updated_date" name="Дата изменения" type="datetime" search-filter="byUpdatedDate"/>
+            <column field="login" name="Изменивший" type="string" sortable="true" search-filter="byLogin"/>
         </display>
     </collection-view>
 
     <collection name="trash_process_definition" replace="runtime" idField="id">
         <prototype>
             <![CDATA[
-                select pd.id, pd.file_name, pd.process_name, pd.process_id, pd.version, pd.category, s.name from process_definition pd
+                select pd.id, pd.file_name, pd.process_name, pd.process_id, pd.version,
+                pd.category, s.name, pd.updated_date, p.login
+                from process_definition pd
                 join status s on s.id = pd.status
+                join person p on p.id = pd.updated_by
                 where lower(s.name) = 'trash' ::where-clause
             ]]>
         </prototype>
@@ -44,6 +51,16 @@
                 lower(pd.process_name) like lower({0})
             </criteria>
         </filter>
+        <filter name="byUpdatedDate">
+            <criteria placeholder="where-clause">
+                pd.updated_date between {0} and {1}
+            </criteria>
+        </filter>
+        <filter name="byLogin">
+            <criteria placeholder="where-clause">
+                lower(p.login) like lower({0})
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="trash_process_definition" collection="trash_process_definition" is-default="true" replace="runtime">
@@ -53,6 +70,8 @@
             <column field="process_name" name="Имя процесса" type="string" search-filter="byProcessName" sortable="true"/>
             <column field="version" name="Версия" type="string" sortable="true"/>
             <column field="category" name="Категория" type="string" sortable="true"/>
+            <column field="updated_date" name="Дата изменения" type="datetime" sortable="true" search-filter="byUpdatedDate"/>
+            <column field="login" name="Изменивший" type="string" sortable="true" search-filter="byLogin"/>
         </display>
     </collection-view>
 
@@ -62,13 +81,12 @@
         <filter name="byName"/>
         <filter name="bySatrtDate"/>
         <filter name="byFinishDate"/>
-        <filter name="byVersion"/>
     </collection>
 
     <collection-view name="process_instances" collection="process_instances" is-default="true" replace="runtime">
         <display>
             <column field="name" name="Наименование" type="string" search-filter="byName" sortable="true" min-width="80px" />
-            <column field="version" name="Версия" type="string" search-filter="byVersion" sortable="true" min-width="80px"/>
+            <column field="version" name="Версия" type="string" min-width="80px"/>
             <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" search-filter="bySatrtDate"/>
             <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" search-filter="byFinishDate"/>
             <column field="suspended" name="Приостановлен" type="boolean" min-width="80px" />
@@ -83,8 +101,8 @@
 
     <collection-view name="process_variables" collection="process_variables" is-default="true" replace="runtime">
         <display>
-            <column field="name" name="Имя" type="string" search-filter="byName" sortable="true" min-width="80px"/>
-            <column field="value" name="Значение" type="string" search-filter="byValue" sortable="true" min-width="80px"/>
+            <column field="name" name="Имя" type="string" min-width="80px"/>
+            <column field="value" name="Значение" type="string" min-width="80px"/>
         </display>
     </collection-view>
 
@@ -97,10 +115,10 @@
 
     <collection-view name="process_tasks" collection="process_tasks" is-default="true" replace="runtime">
         <display>
-            <column field="name" name="Имя" type="string" search-filter="byName" sortable="true" min-width="80px"/>
-            <column field="start_date" name="Дата старта" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="bySatrtDate"/>
-            <column field="finish_date" name="Дата завершения" type="datetime" sortable="true" min-width="80px" resizable="true" search-filter="byFinishDate"/>
-            <column field="assignee" name="Адресат" type="string" search-filter="byName" sortable="true" min-width="80px"/>
+            <column field="name" name="Имя" type="string" min-width="80px"/>
+            <column field="start_date" name="Дата старта" type="datetime" min-width="80px"/>
+            <column field="finish_date" name="Дата завершения" type="datetime" min-width="80px"/>
+            <column field="assignee" name="Адресат" type="string" min-width="80px"/>
         </display>
     </collection-view>
 

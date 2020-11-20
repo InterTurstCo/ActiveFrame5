@@ -48,13 +48,23 @@ public class ProcessDefinitionCollectionGenerator implements CollectionDataGener
                 where += " and lower(pd.process_id) like lower({" + paramCount + "})";
             }else if(filter.getFilter().equals("byProcessName")){
                 where += " and lower(pd.process_name) like lower({" + paramCount + "})";
+            }else if(filter.getFilter().equals("byUpdatedDate")){
+                where += " and updated_date between ({" + paramCount + "} and {" + paramCount + "})";
+            }else if(filter.getFilter().equals("byLogin")){
+                where += " and lower(p.login) like lower({" + paramCount + "})";
             }
 
             if (filter.getFilter().equals("isLast")){
                 isLastFilter = ((BooleanValue)filter.getCriterion(0)).get();
             }else {
-                params.add(filter.getCriterion(0));
-                paramCount++;
+                if(filter.getFilter().equals("byUpdatedDate")){
+                    params.add(filter.getCriterion(0));
+                    params.add(filter.getCriterion(1));
+                    paramCount = paramCount + 2;
+                }else {
+                    params.add(filter.getCriterion(0));
+                    paramCount++;
+                }
             }
         }
 
@@ -69,8 +79,10 @@ public class ProcessDefinitionCollectionGenerator implements CollectionDataGener
         }
 
         String query = "select pd.id, pd.file_name, pd.process_id, pd.process_name, pd.version, pd.category, " +
-                "s.name as status from process_definition pd " +
+                "s.name as status, pd.updated_date, p.login " +
+                "from process_definition pd " +
                 "join status s on s.id = pd.status " +
+                "join person p on p.id = pd.updated_by " +
                 "where lower(s.name) in ('draft', 'active')" + where + sort;
 
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, offset, limit);
@@ -94,6 +106,8 @@ public class ProcessDefinitionCollectionGenerator implements CollectionDataGener
                 result.set("category", rowCount, collection.get(i).getValue("category"));
                 result.set("status", rowCount, collection.get(i).getValue("status"));
                 result.set("last", rowCount, new BooleanValue(isLast));
+                result.set("updated_date", rowCount, collection.get(i).getValue("created_date"));
+                result.set("login", rowCount, collection.get(i).getValue("login"));
 
                 rowCount++;
             }

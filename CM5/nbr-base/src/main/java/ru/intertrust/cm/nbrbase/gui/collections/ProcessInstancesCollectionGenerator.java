@@ -3,6 +3,7 @@ package ru.intertrust.cm.nbrbase.gui.collections;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -40,7 +41,26 @@ public class ProcessInstancesCollectionGenerator implements CollectionDataGenera
     public IdentifiableObjectCollection findCollection(List<? extends Filter> filters, SortOrder sortOrder, int offset, int limit) {
         GenericIdentifiableObjectCollection result = new GenericIdentifiableObjectCollection();
 
-        List<ProcessInstanceInfo> instancesInfos = processService.getProcessInstanceInfos(offset, limit);
+        String name = null;
+        Date startDateBegin = null;
+        Date startDateEnd = null;
+        Date finishDateBegin = null;
+        Date finishDateEnd = null;
+
+        for (Filter filter : filters) {
+            if (filter.getFilter().equalsIgnoreCase("byName")){
+                name = ((StringValue) filter.getCriterion(0)).get();
+            }else if (filter.getFilter().equalsIgnoreCase("bySatrtDate")){
+                startDateBegin = ((DateTimeValue) filter.getCriterion(0)).get();
+                startDateEnd = ((DateTimeValue) filter.getCriterion(1)).get();
+            }else if (filter.getFilter().equalsIgnoreCase("byFinishDate")){
+                finishDateBegin = ((DateTimeValue) filter.getCriterion(0)).get();
+                finishDateEnd = ((DateTimeValue) filter.getCriterion(1)).get();
+            }
+        }
+
+        List<ProcessInstanceInfo> instancesInfos = processService.getProcessInstanceInfos(
+                offset, limit, name, startDateBegin, startDateEnd, finishDateBegin, finishDateEnd, sortOrder);
 
         List<FieldConfig> fieldConfigs = new ArrayList<>();
         fieldConfigs.add(new StringFieldConfig("name", true, false, 256, false));

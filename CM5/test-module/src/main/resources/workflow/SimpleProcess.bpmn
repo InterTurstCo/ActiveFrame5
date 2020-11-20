@@ -131,7 +131,7 @@ execution.setVariable("col", col);]]></script>
     <sequenceFlow id="flow19" sourceRef="send-notification" targetRef="endevent1"></sequenceFlow>
     <dataObject id="version" name="version" itemSubjectRef="xsd:string">
       <extensionElements>
-        <activiti:value>1.0.0.4</activiti:value>
+        <activiti:value>1.0.0.5</activiti:value>
       </extensionElements>
     </dataObject>
   </process>

@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
@@ -45,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -490,7 +492,7 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit, String name, Date startDateBegin, Date startDateEnd, Date finishDateBegin, Date finishDateEnd, SortOrder sortOrder) {
         throw new UnsupportedOperationException();
     }
 

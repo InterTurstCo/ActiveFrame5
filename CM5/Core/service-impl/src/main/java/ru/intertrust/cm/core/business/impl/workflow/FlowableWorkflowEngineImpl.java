@@ -5,10 +5,12 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.ValuedDataObject;
@@ -39,6 +41,8 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
 import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
 import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
@@ -284,31 +288,70 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit) {
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(
+            int offset, int limit, String name,
+            Date startDateBegin, Date startDateEnd,
+            Date finishDateBegin, Date finishDateEnd,
+            SortOrder sortOrder) {
+
         HistoricProcessInstanceQuery query = historyService.createHistoricProcessInstanceQuery();
-        List<HistoricProcessInstance> processInstances = query.listPage(offset, limit);
+
+        for (SortCriterion sortCriterion : sortOrder) {
+            if (sortCriterion.getField().equalsIgnoreCase("name")){
+                query.orderByProcessDefinitionId();
+            }else if (sortCriterion.getField().equalsIgnoreCase("start_date")){
+                query.orderByProcessInstanceStartTime();
+            } if (sortCriterion.getField().equalsIgnoreCase("finish_date")){
+                query.orderByProcessInstanceStartTime();
+            }
+            if (sortCriterion.getOrder() == SortCriterion.Order.DESCENDING){
+                query.desc();
+            }else{
+                query.asc();
+            }
+        }
+
+        boolean emptyResult = false;
+        if (name != null) {
+            List<ProcessDefinition> definitions =  repositoryService.createProcessDefinitionQuery().
+                    processDefinitionKeyLike(name).latestVersion().list();
+            emptyResult = definitions.size() == 0;
+
+            if (!emptyResult) {
+                query.processDefinitionKeyIn(definitions.stream().map(
+                        def -> def.getKey()).collect(Collectors.toList()));
+            }
+        }
+        if (startDateBegin != null){
+            query.startedAfter(startDateBegin).startedBefore(startDateEnd);
+        }
+        if (finishDateBegin != null){
+            query.finishedAfter(finishDateBegin).finishedBefore(finishDateEnd);
+        }
 
         List<ProcessInstanceInfo> result = new ArrayList<>();
 
-        for (HistoricProcessInstance processInstance : processInstances) {
-            ProcessInstanceInfo info = new ProcessInstanceInfo();
-            info.setId(processInstance.getId());
-            info.setName(processInstance.getProcessDefinitionKey());
-            info.setStart(processInstance.getStartTime());
-            if (processInstance.getEndTime() != null) {
-                info.setFinish(processInstance.getEndTime());
-            }else{
-                List<ProcessInstance> activeProcessInstances = runtimeService.createProcessInstanceQuery().
-                        processInstanceId(processInstance.getId()).list();
-                if (activeProcessInstances.size() > 0) {
-                    info.setSuspended(activeProcessInstances.get(0).isSuspended());
+        if (!emptyResult) {
+            List<HistoricProcessInstance> processInstances = query.listPage(offset, limit);
+            for (HistoricProcessInstance processInstance : processInstances) {
+                ProcessInstanceInfo info = new ProcessInstanceInfo();
+                info.setId(processInstance.getId());
+                info.setName(processInstance.getProcessDefinitionKey());
+                info.setStart(processInstance.getStartTime());
+                if (processInstance.getEndTime() != null) {
+                    info.setFinish(processInstance.getEndTime());
+                } else {
+                    List<ProcessInstance> activeProcessInstances = runtimeService.createProcessInstanceQuery().
+                            processInstanceId(processInstance.getId()).list();
+                    if (activeProcessInstances.size() > 0) {
+                        info.setSuspended(activeProcessInstances.get(0).isSuspended());
+                    }
                 }
+                info.setDefinitionId(processInstance.getProcessDefinitionId());
+
+                result.add(info);
             }
-            info.setDefinitionId(processInstance.getProcessDefinitionId());
-
-            result.add(info);
         }
-
 
         return result;
     }

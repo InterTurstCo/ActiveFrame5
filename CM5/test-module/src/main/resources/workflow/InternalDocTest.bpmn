@@ -64,7 +64,7 @@ CTX.save();]]></script>
     </boundaryEvent>
     <dataObject id="version" name="version" itemSubjectRef="xsd:string">
       <extensionElements>
-        <activiti:value>1.0.0.1</activiti:value>
+        <activiti:value>1.0.0.2</activiti:value>
       </extensionElements>
     </dataObject>
   </process>
