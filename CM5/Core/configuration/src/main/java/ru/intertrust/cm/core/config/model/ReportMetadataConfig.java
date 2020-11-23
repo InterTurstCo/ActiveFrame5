@@ -50,6 +50,8 @@ public class ReportMetadataConfig implements Dto{
 
     @Attribute(required=false)
     private String reportParameterResolver;
+    @Attribute(required = false, empty = "jasper")
+    private String constructor;
     
     public String getName() {
         return name;
@@ -112,6 +114,14 @@ public class ReportMetadataConfig implements Dto{
     }
     public void setReportGeneratorClass(String reportGeneratorClass) {
         this.reportGeneratorClass = reportGeneratorClass;
+    }
+
+    public String getConstructor() {
+        return constructor;
+    }
+
+    public void setConstructor(String constructor) {
+        this.constructor = constructor;
     }
 
     public String getReportParameterResolver() {

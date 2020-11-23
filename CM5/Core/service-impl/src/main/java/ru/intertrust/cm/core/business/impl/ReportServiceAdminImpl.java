@@ -150,6 +150,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 reportTemplateObject = createDomainObject("report_template");
                 reportTemplateObject.setString("name", reportMetadata.getName());
                 reportTemplateObject.setLong("reportHash", Long.valueOf(reportHash));
+                reportTemplateObject.setString("constructor", reportMetadata.getConstructor());
                 updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
 
             } else {
