@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.List;
@@ -118,4 +119,23 @@ public interface BaseAttachmentService {
      */
     List<DomainObject> copyAllAttachmentsFrom(Id sourceDomainObjectId, Id destinationDomainObjectId,
                                               Map<String, String> attachmentTypeMap);
+
+    /**
+     * Проверяет указанный тип доступа к вложению для текущего пользователя
+     *
+     * @param attachId вложение
+     * @param permission тип доступа
+     * @return признак того, что у пользователя есть доступ этого типа
+     */
+    boolean checkAccess(Id attachId, DomainObjectPermission.Permission permission);
+
+    /**
+     * Проверяет указанный тип доступа к вложению
+     *
+     * @param attachId вложение
+     * @param userId пользователь
+     * @param permission тип доступа
+     * @return признак того, что у пользователя есть доступ этого типа
+     */
+    boolean checkAccess(Id attachId, Id userId, DomainObjectPermission.Permission permission);
 }

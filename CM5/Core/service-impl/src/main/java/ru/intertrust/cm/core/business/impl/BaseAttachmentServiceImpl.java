@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -58,6 +59,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     private CurrentUserAccessor currentUserAccessor;
     @Autowired
     private PermissionService permissionService;
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -142,10 +145,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
-            Id userId = currentUserAccessor.getCurrentUserId();
-            if (userId != null) {
-                checkAccessWithException(attachmentDomainObjectId, userId, DomainObjectPermission.Permission.ReadAttachment);
-            }
+            checkAccessWithException(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment);
             InputStream inFile = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream remoteInputStream = wrapStream(inFile);
             return remoteInputStream;
@@ -159,10 +159,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
-            Id userId = currentUserAccessor.getCurrentUserId();
-            if (userId != null) {
-                checkAccessWithException(attachmentDomainObjectId, userId, DomainObjectPermission.Permission.ReadAttachment);
-            }
+            checkAccessWithException(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment);
             AccessToken accessToken = createSystemAccessToken();
             DomainObject attachmentObject = domainObjectDao.find(attachmentDomainObjectId, accessToken);
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
@@ -277,6 +274,9 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
     @Override
     public DomainObject copyAttachment(Id attachmentDomainObjectId, Id destinationDomainObjectId, String destinationAttachmentType) {
+
+        checkAccessWithException(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment);
+
         DomainObject attachDomainObject = crudService.find(attachmentDomainObjectId);
 
         DomainObject attachmentCopyDomainObject = createAttachmentDomainObjectFor(destinationDomainObjectId, destinationAttachmentType);
@@ -310,6 +310,12 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         List<DomainObject> attachmentCopyDomainObjects = new ArrayList<>(attachmentDomainObjectIds.size());
 
         for(Id attachmentDomainObjectId : attachmentDomainObjectIds) {
+
+            if (!checkAccess(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment)) {
+                /* При массовом копировании вложений те, к которым нет доступа, просто пропускаем */
+                continue;
+            }
+
             DomainObject attachDomainObject =
                     copyAttachment(attachmentDomainObjectId, destinationDomainObjectId, destinationAttachmentType);
             attachmentCopyDomainObjects.add(attachDomainObject);
@@ -397,22 +403,31 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         this.crudService = crudService;
     }
 
-    /**
-     * Проверяет указанный тип доступа к вложению
-     *
-     * @param attachId вложение
-     * @param userId пользователь
-     * @param permission тип доступа
-     * @return признак того, что у пользователя есть доступ этого типа
-     */
+    @Override
     public boolean checkAccess(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
+
+        if (userId == null || userGroupCache.isPersonSuperUser(userId)) {
+            return true;
+        }
+
         DomainObjectPermission permissions = permissionService.getObjectPermission(attachId, userId);
         return permissions.getPermission().contains(permission);
     }
 
+    @Override
+    public boolean checkAccess(Id attachId, DomainObjectPermission.Permission permission) {
+        return checkAccess(attachId, currentUserAccessor.getCurrentUserId(), permission);
+    }
+
+    private void checkAccessWithException(Id attachId, DomainObjectPermission.Permission permission) {
+        checkAccessWithException(attachId, currentUserAccessor.getCurrentUserId(), permission);
+    }
+
     private void checkAccessWithException(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
         if (!checkAccess(attachId, userId, permission)) {
-            throw new AccessException();
+            throw new AccessException(
+                    "User " + userId.toStringRepresentation() + " have no permission " + permission.name()
+                            + " to attachment " + attachId.toStringRepresentation());
         }
     }
 }

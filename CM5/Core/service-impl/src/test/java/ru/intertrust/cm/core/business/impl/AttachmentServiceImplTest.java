@@ -30,6 +30,7 @@ import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -133,6 +134,9 @@ public class AttachmentServiceImplTest {
         private CurrentUserAccessor currentUserAccessor;
 
         @Mock
+        private UserGroupGlobalCache userGroupCache;
+
+        @Mock
         AccessToken accessToken;
 
         @Mock
@@ -180,6 +184,19 @@ public class AttachmentServiceImplTest {
         @Bean
         public CurrentUserAccessor getCurrentUserAccessor() {
             return currentUserAccessor;
+        }
+
+        @Bean
+        public UserGroupGlobalCache getUserGroupCache() {
+
+            doAnswer(new Answer() {
+                @Override
+                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    return true;
+                }
+            }).when(userGroupCache).isPersonSuperUser(any(Id.class));
+
+            return userGroupCache;
         }
 
         public PlainFormBuilder plainFormBuilder(){
