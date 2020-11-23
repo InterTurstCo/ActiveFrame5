@@ -166,6 +166,10 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                     for (DomainObject attachment : attachments) {
                         attachmentService.deleteAttachment(attachment.getId());
                     }
+                    List<DomainObject> attachmentsDX = getAttachments("report_template_attach_dx", reportTemplateObject.getId());
+                    for (DomainObject attachmentDX : attachmentsDX) {
+                        attachmentService.deleteAttachment(attachmentDX.getId());
+                    }
                     updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
                 }
             }
@@ -232,6 +236,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             //Удаляем сначала все связанные вложения
             List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_template_attach", "report_template", accessToken);
             deleteDomainObjects(attachments, accessToken);
+            List<DomainObject> attachmentsDX = domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_template_attach_dx", "report_template", accessToken);
+            deleteDomainObjects(attachmentsDX, accessToken);
             //Удаляем сначала все связанные результаты генерации и их вложения
             List<DomainObject> results = (domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_result", "template_id", accessToken));
             for (DomainObject childObject : results) {
