@@ -15,14 +15,16 @@ import ru.intertrust.cm.core.gui.model.DomainObjectMappingId;
 public class DomainObjectMappingImpl implements DomainObjectMapping {
 
     @Autowired(required = false)
-    private List<DomainObjectMapper> mapperObjects = new ArrayList<>();
+    private List<DomainObjectMapper> mapperObjects;
 
     private HashMap<String, DomainObjectMapper> mapperReestr = new HashMap<>();
 
     @PostConstruct
     private void init(){
-        for (DomainObjectMapper mapperObject : mapperObjects) {
-            mapperReestr.put(mapperObject.getTypeName().toLowerCase(), mapperObject);
+        if (mapperObjects != null) {
+            for (DomainObjectMapper mapperObject : mapperObjects) {
+                mapperReestr.put(mapperObject.getTypeName().toLowerCase(), mapperObject);
+            }
         }
     }
 

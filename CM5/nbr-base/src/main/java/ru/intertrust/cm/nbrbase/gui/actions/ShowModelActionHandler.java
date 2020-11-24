@@ -38,7 +38,7 @@ public class ShowModelActionHandler extends SimpleActionHandler {
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {
         try {
-            ShowFileActionData actionData = new ShowFileActionData();
+                ShowFileActionData actionData = new ShowFileActionData();
 
             Id objectId = context.getRootObjectId();
             String typeName = domainObjectMapping.getTypeName(objectId);
@@ -68,7 +68,7 @@ public class ShowModelActionHandler extends SimpleActionHandler {
             actionData.setInline(true);
             return actionData;
         }catch(Exception ex){
-            throw new FatalException("Error fiew file", ex);
+            throw new FatalException("Error view file", ex);
         }
     }
 }
