@@ -1959,18 +1959,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 value = domainObject.getValue(fieldConfig.getName());
             }
 
-            if (value != null && value.get() != null && fieldConfig instanceof StringFieldConfig) {
+            if (fieldConfig instanceof StringFieldConfig) {
                 StringFieldConfig stringFieldConfig = (StringFieldConfig) fieldConfig;
-                if (stringFieldConfig.getEncrypted() != null
-                        && stringFieldConfig.getEncrypted()) {
-                    String str = (String) value.get();
-                    if (wasUpdated(domainObject, stringFieldConfig, str)) {
-                        value = new StringValue(MD5Utils.getMD5AsHex(str));
-                        domainObject.setValue(fieldConfig.getName(), value);
+                if (value != null && value.get() != null) {
+                    if (stringFieldConfig.getEncrypted() != null
+                            && stringFieldConfig.getEncrypted()) {
+                        String str = (String) value.get();
+                        if (wasUpdated(domainObject, stringFieldConfig, str)) {
+                            value = new StringValue(MD5Utils.getMD5AsHex(str));
+                            domainObject.setValue(fieldConfig.getName(), value);
+                        }
                     }
+                } else if ((value == null || value.get() == null)
+                        && stringFieldConfig.isNotNull() && stringFieldConfig.getDefaultValue() != null) {
+                    value = new StringValue(stringFieldConfig.getDefaultValue());
                 }
             }
-
             initializeDomainParameter(fieldConfig, value, parameters);
         }
     }

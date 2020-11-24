@@ -856,6 +856,7 @@
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
         <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
         <xs:attribute name="encrypted" use="optional" type="xs:string"/>
+        <xs:attribute name="default-value" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="textType">

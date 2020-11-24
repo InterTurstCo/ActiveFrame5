@@ -144,7 +144,7 @@
             <boolean name="forceMaster"/>
             <boolean name="lockUpdate"/>
             <long name="reportHash"/>
-            <string name="constructor" length="32" not-null="true"/>
+            <string name="constructor" length="32" not-null="true" default-value="jasper"/>
             <string name="type" length="32" not-null="false" />
         </fields>
         <uniqueKey>

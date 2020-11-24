@@ -20,13 +20,21 @@ public class StringFieldConfig extends FieldConfig {
     @Attribute(required = false)
     private Boolean encrypted;
 
+    @Attribute(name = "default-value", required = false)
+    private String defaultValue;
+
     public StringFieldConfig() {
     }
 
     public StringFieldConfig(String name, boolean notNull, boolean immutable, int length, Boolean encrypted) {
+        this(name, notNull, immutable, length, encrypted, null);
+    }
+
+    public StringFieldConfig(String name, boolean notNull, boolean immutable, int length, Boolean encrypted, String defaultValue) {
         super(name, notNull, immutable);
         this.length = length;
         this.encrypted = encrypted;
+        this.defaultValue = defaultValue;
     }
 
     public int getLength() {
@@ -47,6 +55,14 @@ public class StringFieldConfig extends FieldConfig {
 
     public boolean isEncrypted() {
         return Boolean.TRUE.equals(encrypted);
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     @Override
@@ -71,6 +87,10 @@ public class StringFieldConfig extends FieldConfig {
             return false;
         }
 
+        if (defaultValue != null ? !defaultValue.equals(that.defaultValue) : that.defaultValue != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -78,6 +98,7 @@ public class StringFieldConfig extends FieldConfig {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + length;
+        result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
         return result;
     }
 
