@@ -468,7 +468,12 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
 
                 ProcessDiagramGenerator generator = processEngine.
                         getProcessEngineConfiguration().getProcessDiagramGenerator();
-                List<String> highLightedActivities = runtimeService.getActiveActivityIds(processInstanceId);
+                List<String> highLightedActivities = null;
+                if (processInstance.get(0).getEndTime() == null) {
+                    highLightedActivities = runtimeService.getActiveActivityIds(processInstanceId);
+                }else{
+                    highLightedActivities = Collections.emptyList();
+                }
                 InputStream pngStream = generator.generateDiagram(model, "jpg", highLightedActivities,
                         Collections.emptyList(), true);
                 ByteArrayOutputStream pngOutStram = new ByteArrayOutputStream();
@@ -478,7 +483,7 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
                 return null;
             }
         }catch(Exception ex){
-            throw new FatalException("Error create model diagramm");
+            throw new FatalException("Error create model diagramm", ex);
         }
 
     }
