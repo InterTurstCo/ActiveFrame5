@@ -25,13 +25,4 @@ public interface Id extends Dto {
      */
     public String toStringRepresentation();
 
-    /**
-     * Возвращает идентификатор переданного объекта (см. {@link IdentifiableObject#getId()}).
-     * @param identifiableObject - объект, не может быть {@code null};
-     * @return идентификатор объекта
-     */
-    static Id fromObject (IdentifiableObject identifiableObject) {
-        return identifiableObject.getId();
-    }
-
 }
