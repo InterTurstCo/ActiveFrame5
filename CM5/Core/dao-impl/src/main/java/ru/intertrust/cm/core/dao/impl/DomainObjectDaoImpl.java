@@ -2431,18 +2431,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return new RdbmsId(parentType, id.getId());
     }
 
-    private String getDOTypeName(RdbmsId id) {
-        String result = domainObjectTypeIdCache.getName(id);
-        if (result == null){
-            throw new ObjectNotFoundException(id);
-        }
-        return result;
-    }
-
     // CMFIVE-27416
     private String getDOTypeName(Id id) {
         if (id instanceof RdbmsId) {
-            return getDOTypeName((RdbmsId)id);
+            String result = domainObjectTypeIdCache.getName(((RdbmsId)id).getTypeId());
+            if (result == null){
+                throw new ObjectNotFoundException(id);
+            }
+            return result;
         }
         return null;
     }
