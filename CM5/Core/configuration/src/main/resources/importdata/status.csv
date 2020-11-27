@@ -1,24 +1,25 @@
 TYPE_NAME=Status; KEYS=Name
-"Name	";Description
-"Active	";Активный
-"Draft	";Черновик
-"Active4	";Активный4
-"Active3	";Активный3
-"Negotiation	";Ожидание
-"Agree	";Согласован
-"Sign	";Подписан
-"Registration	";Регистрация
-"Registred	";Загрегистрирован
-"AdditionalNegotiation	";Доп. согласование
-"OnRevision	";На рассмотрении
-"Send	";Отправлен
-"Acquired	";Получен
-"Complete	";Завершён
-"Pretermit	";Неизвестный
-"Sleep	";Спит
-"Ready	";Готов
-"Wait	";Ожидает
-"Run	";Запущен
+Name;Description
+Active;Активный
+Draft;Черновик
+Active4;Активный4
+Active3;Активный3
+Negotiation;Ожидание
+Agree;Согласован
+Sign;Подписан
+Registration;Регистрация
+Registred;Загрегистрирован
+AdditionalNegotiation;Доп. согласование
+OnRevision;На рассмотрении
+Send;Отправлен
+Acquired;Получен
+Complete;Завершён
+Pretermit;Неизвестный
+Sleep;Спит
+Ready;Готов
+Wait;Ожидает
+Run;Запущен
 Fault;Ошибка
 Terminate;Остановлен
 Inactive;Не активный
+Trash;Корзина

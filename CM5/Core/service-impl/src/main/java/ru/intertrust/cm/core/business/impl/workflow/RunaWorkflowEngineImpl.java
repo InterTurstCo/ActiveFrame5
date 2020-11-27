@@ -10,6 +10,10 @@ import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
+import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -42,6 +46,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -474,5 +479,60 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
     @Override
     public String getEngeneName() {
         return ENGENE_NAME;
+    }
+
+    @Override
+    public ProcessTemplateInfo getProcessTemplateInfo(byte[] tempale) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(int offset, int limit, String name, Date startDateBegin, Date startDateEnd, Date finishDateBegin, Date finishDateEnd, SortOrder sortOrder) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String getLastProcessDefinitionId(String processDefinitionKey) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void suspendProcessInstance(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void activateProcessInstance(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deleteProcessInstance(String processInstanceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] getProcessTemplateModel(byte[] template) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] getProcessInstanceModel(String processInstanceId) {
+        throw new UnsupportedOperationException();
     }
 }

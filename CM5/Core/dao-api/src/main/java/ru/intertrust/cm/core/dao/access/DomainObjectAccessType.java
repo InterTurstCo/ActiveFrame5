@@ -19,12 +19,17 @@ public class DomainObjectAccessType implements AccessType {
      * Доступ на удаление объекта
      */
     public static final DomainObjectAccessType DELETE = new DomainObjectAccessType(3);
+    /**
+     * Доступ на чтение содержимого вложения. Сейчас права с таким доступом хранятся только для вложений и только в собственной таблице ACL
+     * (даже если есть наследование прав). При этом вложение считается общедоступным, когда ни для одного пользователя права не указаны.
+     */
+    public static final DomainObjectAccessType READ_ATTACH = new DomainObjectAccessType(4);
 
     private int type;
 
     /**
      * Прямое создание объектов AccessType невозможно.
-     * Используйте предопределённые экземпляры {@link #READ}, {@link #WRITE} и {@link #DELETE}.
+     * Используйте предопределённые экземпляры {@link #READ}, {@link #WRITE}, {@link #DELETE} и {@link #READ_ATTACH}.
      * 
      * @param type Внутренний идентификатор типа доступа
      */
@@ -39,12 +44,12 @@ public class DomainObjectAccessType implements AccessType {
 
     @Override
     public String toString() {
-        switch(type){
+        switch(type) {
             case 1:  return "READ";
             case 2:  return "WRITE";
             case 3:  return "DELETE";
-            default: throw new IllegalArgumentException("Access tyepe is not defined");
-        
+            case 4:  return "READ_ATTACHMENT";
+            default: throw new IllegalArgumentException("Access type is not defined");
         }
     }
     

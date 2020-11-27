@@ -42,6 +42,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.ScriptContext;
 import ru.intertrust.cm.core.business.api.ScriptService;
@@ -55,11 +56,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
-import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
-import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
-import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
-import ru.intertrust.cm.core.config.search.ParentLinkConfig;
-import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.Subject;
@@ -77,6 +74,9 @@ public class DomainObjectIndexAgentTest {
 
     @Mock private AccessControlService accessControlService;
     @Mock private AttachmentContentDao attachmentContentDao;
+
+    @Mock private SolrServerWrapperMap solrServerWrapperMap;
+    @Mock private SolrServerWrapper solrServerWrapper;
 
     @InjectMocks
     DomainObjectIndexAgent testee = new DomainObjectIndexAgent();
@@ -103,6 +103,8 @@ public class DomainObjectIndexAgentTest {
     @Before
     public void init() {
         initMocks(this);
+        when(solrServerWrapperMap.getRegularSolrServerWrapper()).thenReturn(solrServerWrapper);
+        when(solrServerWrapper.getQueue()).thenReturn(requestQueue);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -110,6 +112,7 @@ public class DomainObjectIndexAgentTest {
     public void testSaveGenericDocument_RootObjectManyFields() {
         // Модель конфигурации области поиска
         IndexedFieldConfig stringField = mock(IndexedFieldConfig.class);
+        IndexedFieldScriptConfig scriptConfig = mock(IndexedFieldScriptConfig.class);
         when(stringField.getName()).thenReturn("StringField");
         IndexedFieldConfig ruStringField = mock(IndexedFieldConfig.class);
         when(ruStringField.getName()).thenReturn("RuStringField");
@@ -131,7 +134,8 @@ public class DomainObjectIndexAgentTest {
         when(customField.getSolrPrefix()).thenReturn("custom");
         IndexedFieldConfig scriptField = mock(IndexedFieldConfig.class);
         when(scriptField.getName()).thenReturn("ScriptField");
-        when(scriptField.getScript()).thenReturn("evaluate");
+        when(scriptField.getScriptConfig()).thenReturn(scriptConfig);
+        when(scriptConfig.getScript()).thenReturn("evaluate");
         // Поля поисковой области, вычисляемые скриптами
         /*IndexedFieldConfig scriptStringField = mock(IndexedFieldConfig.class);
         when(scriptStringField.getName()).thenReturn("ScriptStringField");
@@ -167,11 +171,11 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType("TestType", "TestType")).thenReturn(true);
         when(configHelper.getFieldTypes(same(stringField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         when(configHelper.getFieldTypes(same(ruStringField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList("ru"), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList("ru"))));
         when(configHelper.getFieldTypes(same(ruEnGeTextField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList("ru", "en", "ge"), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList("ru", "en", "ge"))));
         when(configHelper.getFieldTypes(same(longField), anyString())).thenReturn(
                 Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG)));
         when(configHelper.getFieldTypes(same(decimalField), anyString())).thenReturn(
@@ -181,9 +185,9 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.getFieldTypes(same(referenceField), anyString())).thenReturn(
                 Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF)));
         when(configHelper.getFieldTypes(same(doelField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), true, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), true)));
         when(configHelper.getFieldTypes(same(scriptField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         when(configHelper.getFieldTypes(same(customField), anyString())).thenReturn(
                 Collections.<SearchFieldType>singleton(new CustomSearchFieldType("custom_")));
         /*when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
@@ -289,7 +293,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
         when(configHelper.getFieldTypes(same(stringField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
@@ -357,7 +361,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
         when(configHelper.getFieldTypes(same(stringField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
@@ -426,7 +430,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
         when(configHelper.getFieldTypes(same(stringField), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
@@ -592,7 +596,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
         when(configHelper.getFieldTypes(Mockito.any(IndexedFieldConfig.class), anyString())).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
@@ -688,7 +692,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType("ParentType", "ChildType")).thenReturn(true);
         when(configHelper.getFieldTypes(same(childTypeField), eq("ChildType"))).thenReturn(
-                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""), false, false)));
+                Collections.<SearchFieldType>singleton(new TextSearchFieldType(Arrays.asList(""))));
         when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList(""));
 
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);

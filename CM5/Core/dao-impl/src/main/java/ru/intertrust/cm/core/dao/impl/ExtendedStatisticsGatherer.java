@@ -125,9 +125,9 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     }
 
     @Override
-    public void notifyUpdate(DomainObject obj, AccessToken accessToken) {
+    public void notifyUpdate(DomainObject obj, AccessToken accessToken, boolean stampChanged) {
         final long t1 = System.nanoTime();
-        delegate.notifyUpdate(obj, accessToken);
+        delegate.notifyUpdate(obj, accessToken, stampChanged);
         final long executionTime = System.nanoTime() - t1;
         NOTIFY_UPDATE.log(executionTime, false);
     }

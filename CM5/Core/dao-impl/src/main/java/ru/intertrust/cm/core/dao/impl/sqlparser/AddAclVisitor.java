@@ -36,14 +36,16 @@ public class AddAclVisitor extends BasicVisitor {
 
     private static Map<String, SelectBody> aclSelectBodyCache = new ConcurrentHashMap<>();
 
-    private static WithItem aclWithItem = null;
+    private static WithItem aclWithItemGroups = null;
+    private static WithItem aclWithItemStamps = null;
 
     /**
-     * Метод для тестов, используется для "стерилизации" контекста.
+     * Очистка кэша
      */
-    protected static void clearStaticFields() {
+    public static void clearCache() {
         aclSelectBodyCache = new ConcurrentHashMap<>();
-        aclWithItem = null;
+        aclWithItemGroups = null;
+        aclWithItemStamps = null;
     }
 
     private ConfigurationExplorer configurationExplorer;
@@ -55,6 +57,7 @@ public class AddAclVisitor extends BasicVisitor {
     private Select select = null;
 
     private boolean aclWithItemAdded = false;
+    private boolean stampWithItemAdded = false;
 
     private HashMap<PlainSelect, List<List<FromItemAccessor>>> tableGroups = new HashMap<PlainSelect, List<List<FromItemAccessor>>>();
 
@@ -83,12 +86,22 @@ public class AddAclVisitor extends BasicVisitor {
 
         if (!aclWithItemAdded) {
             List<WithItem> list = select.getWithItemsList();
-            list.add(0, aclWithItem);
+            list.add(0, aclWithItemGroups);
             if (list.size() > 1 && list.get(1).isRecursive()) {
                 list.get(0).setRecursive(true);
                 list.get(1).setRecursive(false);
             }
             aclWithItemAdded = true;
+        }
+
+        if (!stampWithItemAdded && aclWithItemStamps != null){
+            List<WithItem> list = select.getWithItemsList();
+            list.add(0, aclWithItemStamps);
+            if (list.size() > 1 && list.get(1).isRecursive()) {
+                list.get(0).setRecursive(true);
+                list.get(1).setRecursive(false);
+            }
+            stampWithItemAdded = true;
         }
 
         return aclSubSelect;
@@ -110,8 +123,11 @@ public class AddAclVisitor extends BasicVisitor {
             SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
             Select aclSelect = aclSqlParser.getSelectStatement();
 
-            if (aclWithItem == null) {
-                aclWithItem = aclSelect.getWithItemsList().get(0);
+            if (aclWithItemGroups == null) {
+                aclWithItemGroups = aclSelect.getWithItemsList().get(0);
+            }
+            if (aclWithItemStamps == null && aclSelect.getWithItemsList().size() > 1) {
+                aclWithItemStamps = aclSelect.getWithItemsList().get(1);
             }
 
             aclSelectBodyCache.put(tableName, aclSelect.getSelectBody());
@@ -152,7 +168,6 @@ public class AddAclVisitor extends BasicVisitor {
             // добавляем подзапрос на права в случае если не стоит флаг
             // read-everybody
             if (needToAddAclSubQuery(table)) {
-                // plainSelect.setFromItem(createAclSubSelect(table));
                 addTableToTableGroup(new FromItemAccessor(plainSelect), plainSelect);
             }
         } else {
@@ -171,7 +186,6 @@ public class AddAclVisitor extends BasicVisitor {
                     // добавляем подзапрос на права в случае если не стоит флаг
                     // read-everybody
                     if (needToAddAclSubQuery(table)) {
-                        // join.setRightItem(createAclSubSelect(table));
                         addTableToTableGroup(new FromItemAccessor(join), plainSelect);
                     }
                 } else {

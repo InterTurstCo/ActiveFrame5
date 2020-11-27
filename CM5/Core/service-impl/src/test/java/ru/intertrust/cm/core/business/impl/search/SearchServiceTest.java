@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.lang.reflect.Field;
@@ -52,6 +53,7 @@ import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 
 @SuppressWarnings("unchecked")
 @RunWith(PowerMockRunner.class)
@@ -63,6 +65,8 @@ public class SearchServiceTest {
     @Mock private SearchConfigHelper configHelper;
     @Mock private NamedCollectionRetriever namedCollectionRetriever;
     @Mock private QueryCollectionRetriever queryCollectionRetriever;
+    @Mock private SolrServerWrapperMap solrServerWrapperMap;
+    @Mock private SolrServerWrapper solrServerWrapper;
 
     @InjectMocks private SearchServiceImpl service = new SearchServiceImpl();
 
@@ -76,6 +80,13 @@ public class SearchServiceTest {
         Field resultsLimit = SearchServiceImpl.class.getDeclaredField("RESULTS_LIMIT");
         resultsLimit.setAccessible(true);
         resultsLimit.set(service, 5000);
+        when(solrServerWrapperMap.getRegularSolrServerWrapper()).thenReturn(solrServerWrapper);
+        when(solrServerWrapperMap.getSolrServerWrapper(SolrServerWrapper.REGULAR)).thenReturn(solrServerWrapper);
+        when(solrServerWrapper.getSolrServer()).thenReturn(solrServer);
+        SearchAreaConfig areaConfig = mock(SearchAreaConfig.class);
+        when(areaConfig.getSolrServerKey()).thenReturn(SolrServerWrapper.REGULAR);
+        when(solrServerWrapperMap.isCntxSolrServer(SolrServerWrapper.REGULAR)).thenReturn(false);
+        when(configHelper.getSearchAreaDetailsConfig(anyString())).thenReturn(areaConfig);
     }
 
     @Test

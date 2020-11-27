@@ -49,6 +49,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -91,12 +92,23 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     @Autowired
     private StatusDao statusDao;
 
+    @Autowired
+    private DomainObjectMapping domainObjectMapping;
+
     @Override
     public List<ActionContext> getActions(Id domainObjectId) {
         try {
             List<ActionContext> list = new ArrayList<ActionContext>();
             if (domainObjectId != null) {
-                DomainObject domainObject = crudservice.find(domainObjectId);
+
+                String typeName = getTypeName(domainObjectId);
+                DomainObject domainObject = null;
+                if (domainObjectMapping.isSupportedType(typeName)){
+                    Object object = domainObjectMapping.getObject(domainObjectId);
+                    domainObject = domainObjectMapping.toDomainObject(typeName, object);
+                }else{
+                    domainObject = crudservice.find(domainObjectId);
+                }
 
                 Collection<ActionContextConfig> actionContextConfigs = configurationExplorer.getConfigs(ActionContextConfig.class);
                 for (ActionContextConfig actionContextConfig : actionContextConfigs) {
@@ -187,33 +199,35 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                 }
 
                 //Действия по процессам
-                List<DomainObject> tasks = processService.getUserDomainObjectTasks(domainObject.getId());
-                for (DomainObject task : tasks) {
-                    //Проверяем наличие настроенных действий в задаче
-                    String taskAction = task.getString("Actions");
-                    if (taskAction != null && taskAction.length() > 0) {
-                        String[] taskActionArray = taskAction.split(";");
-                        for (String taskActionAndName : taskActionArray) {
-                            String[] taskActionAndNameArr = taskActionAndName.split("=");
-                            String taskActionItem = taskActionAndNameArr[0];
-                            String taskActionName = taskActionAndNameArr[1];
+                if (!domainObjectMapping.isSupportedType(typeName)){
+                    List<DomainObject> tasks = processService.getUserDomainObjectTasks(domainObject.getId());
+                    for (DomainObject task : tasks) {
+                        //Проверяем наличие настроенных действий в задаче
+                        String taskAction = task.getString("Actions");
+                        if (taskAction != null && taskAction.length() > 0) {
+                            String[] taskActionArray = taskAction.split(";");
+                            for (String taskActionAndName : taskActionArray) {
+                                String[] taskActionAndNameArr = taskActionAndName.split("=");
+                                String taskActionItem = taskActionAndNameArr[0];
+                                String taskActionName = taskActionAndNameArr[1];
+                                //Проверка прав на задачи процесса
+                                String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId") + "." + taskActionItem;
+                                if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId())
+                                        || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)) {
+                                    ActionContext taskActionContext = getCompleteTaskActionContext(matrixAction, taskActionName, domainObjectId);
+                                    fillCompleteTaskContext(taskActionContext, taskActionItem, taskActionName, task);
+                                    list.add(taskActionContext);
+                                }
+                            }
+                        } else {
                             //Проверка прав на задачи процесса
-                            String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId") + "." + taskActionItem;
+                            String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId");
                             if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId())
                                     || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)) {
-                                ActionContext taskActionContext = getCompleteTaskActionContext(matrixAction, taskActionName, domainObjectId);
-                                fillCompleteTaskContext(taskActionContext, taskActionItem, taskActionName, task);
+                                ActionContext taskActionContext = getCompleteTaskActionContext(matrixAction, task.getString("Name"), domainObjectId);
+                                fillCompleteTaskContext(taskActionContext, null, task.getString("Name"), task);
                                 list.add(taskActionContext);
                             }
-                        }
-                    } else {
-                        //Проверка прав на задачи процесса
-                        String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId");
-                        if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId())
-                                || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)) {
-                            ActionContext taskActionContext = getCompleteTaskActionContext(matrixAction, task.getString("Name"), domainObjectId);
-                            fillCompleteTaskContext(taskActionContext, null, task.getString("Name"), task);
-                            list.add(taskActionContext);
                         }
                     }
                 }
@@ -222,6 +236,14 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         } catch (Exception ex) {
             throw new ActionServiceException("Error on getActions", ex);
         }
+    }
+
+    private String getTypeName(Id domainObjectId){
+        String typeName = domainObjectMapping.getTypeName(domainObjectId);
+        if (typeName == null){
+            typeName = crudservice.getDomainObjectType(domainObjectId);
+        }
+        return typeName;
     }
 
     private ActionContext getCompleteTaskActionContext(String complateTaskActionName, String description, Id rootDomainObjectId) throws Exception{

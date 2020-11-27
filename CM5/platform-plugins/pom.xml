@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>1.0.1-4-SNAPSHOT</version>
+        <version>1.1.17-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -22,6 +22,14 @@
             <artifactId>spring-context</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
@@ -31,6 +39,18 @@
             <type>pom</type>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

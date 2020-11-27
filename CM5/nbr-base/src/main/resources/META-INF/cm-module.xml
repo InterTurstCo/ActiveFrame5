@@ -17,11 +17,13 @@
     </server-components-packages>	
 
     <configuration-paths>
+
         <!-- Коллекции -->
         <configuration-path>ru/intertrust/cm/nbrbase/collections/person.xml</configuration-path>
         <configuration-path>ru/intertrust/cm/nbrbase/collections/user_group.xml</configuration-path>
         <configuration-path>ru/intertrust/cm/nbrbase/collections/shedule.xml</configuration-path>
         <configuration-path>ru/intertrust/cm/nbrbase/collections/audit.xml</configuration-path>
+        <configuration-path>ru/intertrust/cm/nbrbase/collections/workflow.xml</configuration-path>
         
         <!-- Формы -->
         <configuration-path>ru/intertrust/cm/nbrbase/forms/tmpl_widgets.xml</configuration-path>
@@ -30,7 +32,8 @@
         <configuration-path>ru/intertrust/cm/nbrbase/forms/form_user_group_person.xml</configuration-path>
         <configuration-path>ru/intertrust/cm/nbrbase/forms/form_user_group.xml</configuration-path>
         <configuration-path>ru/intertrust/cm/nbrbase/forms/form_event_log.xml</configuration-path>
-        
+        <configuration-path>ru/intertrust/cm/nbrbase/forms/workflow.xml</configuration-path>
+
         <!-- Действия -->
         <configuration-path>ru/intertrust/cm/nbrbase/actions.xml</configuration-path>
         

@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>1.0.1-4-SNAPSHOT</version>
+    <version>1.1.17-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -31,10 +31,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <aspectj.version>1.9.2</aspectj.version>
 
-        <spring.version>5.1.5.RELEASE</spring.version>
+        <spring.version>5.2.6.RELEASE</spring.version>
         <spring.integration.mail.version>4.1.3.RELEASE</spring.integration.mail.version>
-        <activiti.version>5.19.0.1</activiti.version>
+        <flowable.version>6.5.0</flowable.version>
         <gwt.version>2.7.0</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
@@ -163,6 +164,12 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
@@ -180,15 +187,28 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-indexer</artifactId>
+                <version>${spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
             <!-- AspectJ -->
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.8.5</version>
+                <version>${aspectj.version}</version>
             </dependency>
 
             <!-- Activiti (BPM) -->
-            <dependency>
+            <!--dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-engine</artifactId>
                 <version>${activiti.version}</version>
@@ -197,6 +217,18 @@
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-spring</artifactId>
                 <version>${activiti.version}</version>
+            </dependency-->
+
+            <!-- Flowable BPM -->
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-engine</artifactId>
+                <version>${flowable.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-spring</artifactId>
+                <version>${flowable.version}</version>
             </dependency>
 
             <!-- Runa WFE -->
@@ -297,16 +329,14 @@
             </dependency>
 
             <!-- Database driver -->
-
             <dependency>
-                <groupId>postgresql</groupId>
+                <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.2-1002.jdbc4</version>
+                <version>42.2.6</version>
                 <scope>provided</scope>
             </dependency>
 
             <!-- Testing -->
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -581,6 +611,18 @@
 				<version>3.2.1</version>
 		    </dependency>
 
+            <!-- Keycloak integration -->
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-servlet-filter-adapter</artifactId>
+                <version>11.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-admin-client</artifactId>
+                <version>11.0.2</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>
@@ -724,6 +766,45 @@
                     </configuration>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>aspectj-maven-plugin</artifactId>
+                    <version>1.5</version>
+                    <dependencies>
+                        <!-- NB: You must use Maven 2.0.9 or above or these are ignored (see MNG-2972) -->
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjrt</artifactId>
+                            <version>${aspectj.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjtools</artifactId>
+                            <version>${aspectj.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>test-compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <outxml>true</outxml>
+                        <aspectLibraries>
+                            <aspectLibrary>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-aspects</artifactId>
+                            </aspectLibrary>
+                        </aspectLibraries>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <complianceLevel>${maven.compiler.target}</complianceLevel>
+                    </configuration>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -820,7 +901,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 

@@ -12,6 +12,7 @@ public enum SystemField {
     created_date(DateTimeFieldConfig.class),
     updated_date(DateTimeFieldConfig.class),
     status(ReferenceFieldConfig.class, GenericDomainObject.STATUS_DO),
+    security_stamp(ReferenceFieldConfig.class, GenericDomainObject.SECURITY_STAMP_DO),
     created_by(ReferenceFieldConfig.class, GenericDomainObject.PERSON_DOMAIN_OBJECT),
     updated_by(ReferenceFieldConfig.class, GenericDomainObject.PERSON_DOMAIN_OBJECT),
     access_object_id(ReferenceFieldConfig.class);

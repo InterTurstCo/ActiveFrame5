@@ -1,11 +1,17 @@
 package ru.intertrust.cm.core.business.api;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
+import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
 
 /**
@@ -65,13 +71,20 @@ public interface ProcessService {
     /**
      * Установка шаблона процесса
      * 
-     * @param processDefinition
-     *            описания процесса в виде строки
-     * @param processName
-     *            имя файла
+     * @param processDefinitionId
+     *            ID процесса в таблице process_definition
      * @return возвращается идентификатор шаблона процесса
      */
-    String deployProcess(byte[] processDefinition, String processName);
+    String deployProcess(Id processDefinitionId);
+
+    /**
+     * Сохранение процесса в хранилище
+     * @param processDefinition описание процесса
+     * @param deploy имя сохраняемого файла
+     * @param deploy флаг необходимости устанавливать процесс в движок WF
+     * @return идентификатор сохраненного процесса
+     */
+    Id saveProcess(byte[] processDefinition, String fileName, boolean deploy);
 
     /**
      * Удаление шаблона процесса(каскадно или нет). При каскадном удалении
@@ -166,4 +179,82 @@ public interface ProcessService {
      * @return Имя движка процессов
      */
     String getEngeneName();
-}
+
+    /**
+     * Получение информации об экземпляре процесса
+     * @param processInstanceId
+     * @return
+     */
+    ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId);
+
+    /**
+     * Получение информации о запущенных процессах
+     * @param offset
+     * @param limit
+     * @param name
+     * @param startDateBegin
+     * @param startDateEnd
+     * @param finishDateBegin
+     * @param finishDateEnd
+     * @param sortOrder
+     * @return
+     */
+    List<ProcessInstanceInfo> getProcessInstanceInfos(
+            int offset, int limit, String name,
+            Date startDateBegin, Date startDateEnd,
+            Date finishDateBegin, Date finishDateEnd,
+            SortOrder sortOrder);
+
+    /**
+     * Получение задач процесса
+     * @param processInstanceId
+     * @return
+     */
+    List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit);
+
+    /**
+     * Поучение переменных процесса
+     * @param processInstanceId
+     * @return
+     */
+    Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit);
+
+    /**
+     * Получение идентификатора крайней версии процесса с переданным ключем
+     * @param processDefinitionKey
+     * @return
+     */
+    Id getLastProcessDefinitionId(String processDefinitionKey);
+
+    /**
+     * Приостановить процесс
+     * @param processInstanceId
+     */
+    void suspendProcessInstance(String processInstanceId);
+
+    /**
+     * Возобновить процесс
+     * @param processInstanceId
+     */
+    void activateProcessInstance(String processInstanceId);
+
+    /**
+     * Удаление экземпляра процесса
+     * @param processInstanceId
+     */
+    void deleteProcessInstance(String processInstanceId);
+
+
+    /**
+     * Получение диаграммы шаблона процесса в виде png изображения
+     * @param processDefinitionId
+     * @return
+     */
+    byte[] getProcessTemplateModel(Id processDefinitionId);
+
+    /**
+     * Получение диагараммы экземпляра процесса с подсвеченными элементами модели в виде png изображения
+     * @param processInstanceId
+     * @return
+     */
+    byte[] getProcessInstanceModel(String processInstanceId);}

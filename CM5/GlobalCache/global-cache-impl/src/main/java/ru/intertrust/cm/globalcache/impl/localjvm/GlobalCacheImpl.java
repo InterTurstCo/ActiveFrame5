@@ -72,7 +72,7 @@ public class GlobalCacheImpl implements GlobalCache {
     public static final int KEY_ENTRIES_SUSPICIOUS_QTY = 20;
 
     @Autowired
-    private ConfigurationExplorer explorer;
+    protected ConfigurationExplorer explorer;
 
     @Autowired
     private DomainEntitiesCloner domainEntitiesCloner;

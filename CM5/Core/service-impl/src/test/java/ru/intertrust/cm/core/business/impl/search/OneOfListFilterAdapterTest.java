@@ -36,7 +36,7 @@ public class OneOfListFilterAdapterTest {
         Id id = mock(Id.class);
         when(id.toStringRepresentation()).thenReturn("id001");
         OneOfListFilter filter = new OneOfListFilter("TestField", Arrays.asList(new ReferenceValue(id)));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF)));
         SearchQuery query = mock(SearchQuery.class);
         String result = adapter.getFilterString(filter, query);
@@ -53,7 +53,7 @@ public class OneOfListFilterAdapterTest {
         when(id3.toStringRepresentation()).thenReturn("id003");
         OneOfListFilter filter = new OneOfListFilter("TestField",
                 Arrays.asList(new ReferenceValue(id1), new ReferenceValue(id2), new ReferenceValue(id3)));
-        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class), anyListOf(String.class)))
                 .thenReturn(Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.REF)));
         SearchQuery query = mock(SearchQuery.class);
         String result = adapter.getFilterString(filter, query);

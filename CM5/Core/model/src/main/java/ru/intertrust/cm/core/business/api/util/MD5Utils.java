@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import ru.intertrust.cm.core.model.FatalException;
 
 public class MD5Utils {
 
@@ -15,26 +16,11 @@ public class MD5Utils {
      * @return MD5 хеш.
      */
     public static String getMD5AsHex(String message) {
-        if (message == null || message.length() < 1) {
-            return null;
-        }
-
-        String digest = null;
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hash = md.digest(message.getBytes("UTF-8"));
-            // converting byte array to Hexadecimal String
-            StringBuilder sb = new StringBuilder(2 * hash.length);
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            digest = sb.toString();
+            return getMD5AsHex(message.getBytes("UTF-8"));
         } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
+            throw new FatalException("Error create md5 hash", ex);
         }
-        return digest;
     }
 
     /**
@@ -60,4 +46,31 @@ public class MD5Utils {
         }
         return digest;
     }
+
+    /**
+     * Получение MD5 хеша для переданного сообщения
+     * @param message сообщение для кодирования
+     * @return MD5 хеш.
+     */
+    public static String getMD5AsHex(byte[] message) {
+        if (message == null || message.length < 1) {
+            return null;
+        }
+
+        String digest = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hash = md.digest(message);
+            // converting byte array to Hexadecimal String
+            StringBuilder sb = new StringBuilder(2 * hash.length);
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            digest = sb.toString();
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return digest;
+    }
+
 }

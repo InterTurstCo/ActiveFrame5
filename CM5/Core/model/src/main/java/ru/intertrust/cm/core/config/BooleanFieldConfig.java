@@ -9,6 +9,13 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
  */
 public class BooleanFieldConfig extends FieldConfig {
 
+    public BooleanFieldConfig() {
+    }
+
+    public BooleanFieldConfig(String name, boolean notNull, boolean immutable) {
+        super(name, notNull, immutable);
+    }
+
     @Override
     public FieldType getFieldType() {
         return FieldType.BOOLEAN;

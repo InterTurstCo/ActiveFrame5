@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -26,6 +27,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
 import java.util.*;
@@ -82,6 +84,9 @@ public class DomainObjectDaoImplTest {
     @Mock
     private UserGroupGlobalCache userGroupCache;
 
+    @Mock
+    protected SecurityStamp securityStamp;
+
     @Before
     public void setUp() throws Exception {
         initConfigs();
@@ -95,6 +100,7 @@ public class DomainObjectDaoImplTest {
         queryHelper.setConfigurationExplorer(configurationExplorer);
         queryHelper.setCurrentUserAccessor(currentUserAccessor);
         queryHelper.setUserGroupCache(userGroupCache);
+        ReflectionTestUtils.setField(queryHelper, "securityStamp", securityStamp);
         domainObjectDaoImpl.setDomainObjectQueryHelper(queryHelper);
         
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
@@ -114,8 +120,8 @@ public class DomainObjectDaoImplTest {
 
         String checkCreateQuery =
                 "insert into \"person\" (\"id\", \"id_type\", \"created_date\", \"updated_date\", \"created_by\", \"created_by_type\", \"updated_by\", "
-                + "\"updated_by_type\", \"status\", \"status_type\", \"access_object_id\", \"email\", \"login\", \"password\", \"boss\", \"boss_type\") "
-                + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "\"updated_by_type\", \"status\", \"status_type\", \"security_stamp\", \"security_stamp_type\", \"access_object_id\", \"email\", \"login\", \"password\", \"boss\", \"boss_type\") "
+                + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         Query query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query.getQuery());
@@ -165,7 +171,7 @@ public class DomainObjectDaoImplTest {
         domainObject.setModifiedDate(currentDate);
 
         String checkUpdateQuery = "update \"person\" set \"updated_date\"=?, \"updated_by\"=?, "
-                + "\"updated_by_type\"=?, \"status\"=?, \"email\"=?, \"login\"=?, "
+                + "\"updated_by_type\"=?, \"status\"=?, \"status_type\"=?, \"security_stamp\"=?, \"security_stamp_type\"=?, \"email\"=?, \"login\"=?, "
                 + "\"password\"=?, \"boss\"=?, \"boss_type\"=? where \"id\"=? and date_trunc('milliseconds', \"updated_date\")=?";
 
         Query query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig, true);
@@ -203,7 +209,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
+                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"security_stamp\", assignment.\"security_stamp_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
                 + "from \"assignment\" assignment where 1=1 and " +
                 "exists (select 1 from \"assignment_read\" r " +
                 "where r.\"group_id\" in (select \"parent_group_id\" from cur_user_groups) and r.\"object_id\" = assignment.\"access_object_id\")";
@@ -216,7 +222,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
+                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"security_stamp\", assignment.\"security_stamp_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
                 + "from \"assignment\" assignment where 1=1 and assignment.\"id_type\" = " +
                 ":result_type_id and exists (select 1 from \"assignment_read\" r " +
                 "where r.\"group_id\" in (select \"parent_group_id\" from cur_user_groups) and r.\"object_id\" = assignment.\"access_object_id\")";
@@ -229,7 +235,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" from \"person\" person left outer join \"internal_employee\" " +
+                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" from \"person\" person left outer join \"internal_employee\" " +
                 "internal_employee on (person.\"id\" = internal_employee.\"id\" and " +
                 "person.\"id_type\" = internal_employee.\"id_type\") where 1=1 and " +
                 "exists (select 1 from \"person_read\" r " +
@@ -243,7 +249,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
+                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
                 + "from \"person\" person where 1=1 and person.\"id_type\" = :result_type_id and " +
                 "exists (select 1 from \"person_read\" r " +
                 "where r.\"group_id\" in (select \"parent_group_id\" from cur_user_groups) and r.\"object_id\" = person.\"access_object_id\")";
@@ -256,7 +262,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
+                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
                 + "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where 1=1 and " +
                 "exists (select 1 from \"person_read\" r " +
@@ -271,7 +277,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" " +
+                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where 1=1 and internal_employee.\"id_type\" = :result_type_id and " +
                 "exists (select 1 from \"person_read\" r " +
@@ -286,7 +292,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
+                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"security_stamp\", assignment.\"security_stamp_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
                 + "from \"assignment\" assignment where assignment.\"author\" = :domain_object_id "
                 + "and \"author_type\" = :domain_object_typeid and " +
                 "exists (select 1 from \"assignment_read\" r " +
@@ -302,7 +308,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
+                "select assignment.\"id\", assignment.\"id_type\", assignment.\"created_date\", assignment.\"updated_date\", assignment.\"created_by\", assignment.\"created_by_type\", assignment.\"updated_by\", assignment.\"updated_by_type\", assignment.\"status\", assignment.\"status_type\", assignment.\"security_stamp\", assignment.\"security_stamp_type\", assignment.\"access_object_id\", assignment.\"author\", assignment.\"author_type\" "
                 + "from \"assignment\" assignment " +
                 "where assignment.\"author\" = :domain_object_id and \"author_type\" = :domain_object_typeid and " +
                 "assignment.\"id_type\" = :result_type_id and " +
@@ -319,7 +325,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
+                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
                 + "from \"internal_employee\" internal_employee "
                 + "inner join \"person\" person on internal_employee.\"id\" = person.\"id\" "
                 + "where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
@@ -337,7 +343,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" " +                
+                "select internal_employee.\"id\", internal_employee.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where person.\"boss\" = :domain_object_id and " +
                 "\"boss_type\" = :domain_object_typeid and person.\"id_type\" = :result_type_id and " +
@@ -354,7 +360,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
+                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
                 + "from \"person\" person left outer join " +
                 "\"internal_employee\" internal_employee on (person.\"id\" = internal_employee.\"id\" and " +
                 "person.\"id_type\" = internal_employee.\"id_type\") where person.\"boss\" = :domain_object_id and " +
@@ -370,7 +376,7 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
                 "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
                 "where gm.\"person_id\" = :user_id) " +
-                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
+                "select person.\"id\", person.\"id_type\", person.\"created_date\", person.\"updated_date\", person.\"created_by\", person.\"created_by_type\", person.\"updated_by\", person.\"updated_by_type\", person.\"status\", person.\"status_type\", person.\"security_stamp\", person.\"security_stamp_type\", person.\"access_object_id\", person.\"email\", person.\"login\", person.\"password\", person.\"boss\", person.\"boss_type\" "
                 + "from \"person\" person where person.\"boss\" = :domain_object_id and " +
                 "\"boss_type\" = :domain_object_typeid and person.\"id_type\" = :result_type_id and " +
                 "exists (select 1 from \"person_read\" r " +

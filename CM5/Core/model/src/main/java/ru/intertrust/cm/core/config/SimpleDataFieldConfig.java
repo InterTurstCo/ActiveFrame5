@@ -18,14 +18,18 @@ public class SimpleDataFieldConfig {
     @Attribute(required = true)
     private boolean storage;
 
+    @Attribute(required = false)
+    private Boolean multivalue;
+
     public SimpleDataFieldConfig() {
     }
 
-    public SimpleDataFieldConfig(String name, SimpleDataFieldType type, boolean index, boolean storage) {
+    public SimpleDataFieldConfig(String name, SimpleDataFieldType type, boolean index, boolean storage, boolean multivalue) {
         this.name = name;
         this.type = type;
         this.index = index;
         this.storage = storage;
+        this.multivalue = multivalue;
     }
 
     public String getName() {
@@ -58,6 +62,14 @@ public class SimpleDataFieldConfig {
 
     public void setStorage(boolean storage) {
         this.storage = storage;
+    }
+
+    public Boolean isMultivalue() {
+        return multivalue;
+    }
+
+    public void setMultivalue(Boolean multivalue) {
+        this.multivalue = multivalue;
     }
 
     @Override

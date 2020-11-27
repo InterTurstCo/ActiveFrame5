@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +25,14 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
             return null;
         }
         String fieldName = filter.getFieldName();
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         if (types.size() == 0) {
             return null;
         }
         ArrayList<String> fields = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":[")
@@ -53,6 +50,22 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
     @Override
     public boolean isCompositeFilter(TimeIntervalFilter filter) {
         return false;
+    }
+
+    @Override
+    public List<String> getFieldNames(TimeIntervalFilter filter, SearchQuery query) {
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
+        ArrayList<String> names = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
+                    names.add(field);
+                }
+            }
+        }
+        return names;
+
     }
 
     private static String dateToString(Date time) {

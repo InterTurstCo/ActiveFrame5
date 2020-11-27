@@ -34,6 +34,8 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     private static final Logger logger = LoggerFactory.getLogger(SearchConfigHelper.class);
 
+    private static final Map<IndexedFieldScriptConfig.ScriptReturnType, SimpleSearchFieldType.Type> searchFieldTypes = new HashMap<>(4);
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -60,8 +62,8 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
     private Map<Pair<String, String>, List<String>> supportedLanguagesMap =
             Collections.synchronizedMap(new HashMap<Pair<String, String>, List<String>>());
 
-    private Map<Pair<String, Collection<String>>, Set<SearchFieldType>> fieldTypesMap =
-            Collections.synchronizedMap(new HashMap<Pair<String, Collection<String>>, Set<SearchFieldType>>());
+    private Map<Trio<String, Collection<String>, Collection<String>>, Set<SearchFieldType>> fieldTypesMap =
+            Collections.synchronizedMap(new HashMap<Trio<String, Collection<String>, Collection<String>>, Set<SearchFieldType>>());
 
     private Map<Trio<String, List<String>, String>, Set<String>> objectTypesContainingFieldMap =
             Collections.synchronizedMap(new HashMap<Trio<String, List<String>, String>, Set<String>>());
@@ -93,15 +95,17 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         private IndexedDomainObjectConfig[] objectConfigChain;
         private String areaName;
         private String targetObjectType;
+        private String solrServerKey;
 
         SearchAreaDetailsConfig() {
         }
 
         SearchAreaDetailsConfig(List<IndexedDomainObjectConfig> objectConfigChain,
-                String areaName, String targetObjectType) {
+                String areaName, String targetObjectType, String solrServerKey) {
             this.objectConfigChain = objectConfigChain.toArray(new IndexedDomainObjectConfig[objectConfigChain.size()]);
             this.areaName = areaName;
             this.targetObjectType = targetObjectType;
+            this.solrServerKey = solrServerKey;
         }
 
         /**
@@ -137,6 +141,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
          */
         public String getTargetObjectType() {
             return targetObjectType;
+        }
+
+        public String getSolrServerKey() {
+            return solrServerKey;
         }
 
         @Override
@@ -175,6 +183,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+    }
+
+    public SearchAreaConfig getSearchAreaDetailsConfig(String areaName) {
+        return configurationExplorer.getConfig(SearchAreaConfig.class, areaName);
     }
 
     @PostConstruct
@@ -385,15 +397,15 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         result = new ArrayList<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
-            processConfigList(objectType, area.getName(), null, area.getTargetObjects(),
-                    new LinkedList<IndexedDomainObjectConfig>(), result);
+            processConfigList(objectType, area.getName(), null, area.getSolrServerKey(),
+                    area.getTargetObjects(), new LinkedList<IndexedDomainObjectConfig>(), result);
         }
 
         effectiveConfigsMap.put(objectType, result);
         return result;
     }
 
-    private void processConfigList(String objectType, String areaName, String targetObjectType,
+    private void processConfigList(String objectType, String areaName, String targetObjectType, String solrServerKey,
             Collection<? extends IndexedDomainObjectConfig> list, LinkedList<IndexedDomainObjectConfig> parents,
             ArrayList<SearchAreaDetailsConfig> result) {
         for (IndexedDomainObjectConfig config : list) {
@@ -405,16 +417,16 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             if (isSuitableType(config.getType(), objectType)) {
                 /*DomainObjectFilter filter = createFilter(config);
                 if (filter == null || filter.filter(object)) {*/
-                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType));
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerKey));
                 //}
             }
             for (IndexedContentConfig contentConfig : config.getContentObjects()) {
                 //if (object.getTypeName().equalsIgnoreCase(contentConfig.getType())) {
                 if (isSuitableType(contentConfig.getType(), objectType)) {
-                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType));
+                    result.add(new SearchAreaDetailsConfig(parents, areaName, targetObjectType, solrServerKey));
                 }
             }
-            processConfigList(objectType, areaName, targetObjectType, config.getLinkedObjects(), parents, result);
+            processConfigList(objectType, areaName, targetObjectType, solrServerKey, config.getLinkedObjects(), parents, result);
             parents.removeFirst();
         }
     }
@@ -520,12 +532,11 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                     result.add(new SimpleSearchFieldType(dataType, !analyzed.isSingleResult()));
                 } else {
                     result.add(new TextSearchFieldType(getSupportedLanguages(config), !analyzed.isSingleResult(),
-                        config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
+                            config.getSearchBy()));
                 }
             }
-        } else if (config.getScript() != null) {
-            result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), false,
-                    config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
+        } else if (config.getScriptConfig() != null) {
+            result = getScriptFieldType(config);
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
             if (fieldConfig == null) {
@@ -533,10 +544,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             }
             SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(fieldConfig.getFieldType());
             if (dataType != null) {
-                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, false));
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, config.getMultiValued()));
             } else {
                 result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(config),
-                        false, config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING));
+                        config.getMultiValued(), config.getSearchBy()));
             }
         }
 
@@ -549,21 +560,29 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
      * 
      * @param name имя индексируемого поля
      * @param areas набор областей поиска
+     * @param srcTargetTypes набор целевых типов
      * @return набор типов индексируемых полей
      */
-    public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {
-        Pair<String, Collection<String>> key = new Pair<>(name, areas);
+    public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas, Collection<String> srcTargetTypes) {
+        Trio<String, Collection<String>, Collection<String>> key = new Trio<>(name, areas, srcTargetTypes);
 
         Set<SearchFieldType> result = fieldTypesMap.get(key);
         if (result != null) {
             return result;
         }
 
+        Collection<String> targetTypes = new HashSet<>(srcTargetTypes != null ? srcTargetTypes.size() : 0);
+        if (srcTargetTypes != null) {
+            for (String srcTargetType : srcTargetTypes) {
+                targetTypes.add(srcTargetType.toLowerCase());
+            }
+        }
+
         result = new HashSet<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
             if (areas.contains(area.getName())) {
-                findFieldTypes(name, area.getTargetObjects(), result);
+                findFieldTypes(name, area.getTargetObjects(), targetTypes, true, result);
             }
         }
 
@@ -571,16 +590,25 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         return result;
     }
 
-    private void findFieldTypes(String fieldName, Collection<? extends IndexedDomainObjectConfig> configs,
-            Set<SearchFieldType> types) {
+    private void findFieldTypes(String fieldName,
+                                Collection<? extends IndexedDomainObjectConfig> configs,
+                                Collection<String> targetTypes,
+                                boolean bUseTargetTypes,
+                                Set<SearchFieldType> types) {
         for (IndexedDomainObjectConfig config : configs) {
-            for (IndexedFieldConfig field : config.getFields()) {
-                if (fieldName.equalsIgnoreCase(field.getName())) {
-                    types.addAll(getFieldTypes(field, config.getType()));
-                    break;      // No more fields with this name should be in this object config
+            if ((!bUseTargetTypes) || (bUseTargetTypes && targetTypes.contains(config.getType().toLowerCase()))) {
+                for (IndexedFieldConfig field : config.getFields()) {
+                    if (fieldName.equalsIgnoreCase(field.getName())) {
+                        types.addAll(getFieldTypes(field, config.getType()));
+                        break;      // No more fields with this name should be in this object config
+                    }
                 }
+                // ищем в дочерних элементах области, у которой тип совпал, без учета типа дочерних объектов
+                findFieldTypes(fieldName, config.getLinkedObjects(), targetTypes, false, types);
+            } else {
+                // для остальных областей ищем с учетом типа дочерних объектов
+                findFieldTypes(fieldName, config.getLinkedObjects(), targetTypes, true, types);
             }
-            findFieldTypes(fieldName, config.getLinkedObjects(), types);
         }
     }
 
@@ -779,6 +807,30 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         return AttachmentService.NAME.equals(fieldName)
                 || AttachmentService.DESCRIPTION.equals(fieldName)
                 || AttachmentService.CONTENT_LENGTH.equals(fieldName);
+    }
+
+    private Set<SearchFieldType> getScriptFieldType(IndexedFieldConfig config) {
+        Set<SearchFieldType> result = null;
+        if (config != null && config.getScriptConfig() != null) {
+            switch (config.getScriptConfig().getScriptReturnType()) {
+                case BOOLEAN:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.BOOL, config.getMultiValued()));
+                    break;
+                case DATE:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, config.getMultiValued()));
+                    break;
+                case LONG:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, config.getMultiValued()));
+                    break;
+                case DECIMAL:
+                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DOUBLE, config.getMultiValued()));
+                    break;
+                default:
+                    result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), config.getMultiValued(),
+                            config.getSearchBy()));
+            }
+        }
+        return result;
     }
 
     public void clearCache(){

@@ -10,7 +10,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>1.0.1-4-SNAPSHOT</version>
+        <version>1.1.17-SNAPSHOT</version>
     </parent>
 
     <dependencies>
@@ -23,14 +23,26 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-engine</artifactId>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
         </dependency>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
-        </dependency>                
+        </dependency>
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-servlet-filter-adapter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>service-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
    
 </project>

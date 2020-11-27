@@ -1,21 +1,14 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.IdService;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SearchQuery;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.DecimalFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -31,11 +24,38 @@ public abstract class CollectionRetriever {
         RELEVANCE_SORT.add(new SortCriterion(SearchQuery.RELEVANCE, SortCriterion.Order.DESCENDING));
     }
 
+    public static void sortByRelevance(IdentifiableObjectCollection collection) {
+        if (collection != null) {
+            collection.sort(RELEVANCE_SORT);
+        }
+    }
+
+    public static void truncCollection(IdentifiableObjectCollection collection, int maxResults) {
+        // cокращение до maxResult
+        if (collection != null && collection.size() > maxResults) {
+            int cnt = 0;
+            Iterator<IdentifiableObject> iterator = collection.iterator();
+            while (iterator.hasNext()) {
+                iterator.next();
+                if (cnt >= maxResults) {
+                    iterator.remove();
+                } else {
+                    cnt ++;
+                }
+            }
+        }
+    }
+
     protected CollectionRetriever() {
         SpringApplicationContext.getContext().getAutowireCapableBeanFactory().autowireBean(this);
     }
 
-    public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents, int maxResults);
+    public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
+                                                                 Map<String, Map<String, List<String>>> highlightings,
+                                                                 int maxResults);
+
+    public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,
+                                                                 int maxResults);
 
     protected void addWeightsAndSort(IdentifiableObjectCollection objects, SolrDocumentList solrDocs) {
         Map<Id, Float> weights = new HashMap<Id, Float>();

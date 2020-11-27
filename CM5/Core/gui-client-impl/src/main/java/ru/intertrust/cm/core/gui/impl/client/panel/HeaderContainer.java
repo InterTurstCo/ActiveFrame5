@@ -5,6 +5,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -236,18 +237,16 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
     AsyncCallback<Void> callback = new AsyncCallback<Void>() {
       @Override
       public void onSuccess(Void result) {
-        if (!Window.Location.getPath().contains("BusinessUniverse.html")) {
+        /*Window.Location.assign(GWT.getHostPageBaseURL() +
+                Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1) +
+                Window.Location.getQueryString());
+        Window.Location.reload();*/
 
-          Window.Location.assign(GWT.getHostPageBaseURL() +
-              Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1) +
-              Window.Location.getQueryString());
-          Window.Location.reload();
-        } else {
+        Window.Location.replace(GWT.getHostPageBaseURL() +
+            Window.Location.getPath().substring(Window.Location.getPath().lastIndexOf("/") + 1) + "?t=" + System.currentTimeMillis()
+            );
+        //Window.Location.reload();
 
-          Window.Location.assign(GWT.getHostPageBaseURL() +
-              BusinessUniverseConstants.LOGIN_PAGE +
-              Window.Location.getQueryString());
-        }
       }
 
       @Override
@@ -256,6 +255,7 @@ public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDi
             BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE));
       }
     };
+
     BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
   }
 

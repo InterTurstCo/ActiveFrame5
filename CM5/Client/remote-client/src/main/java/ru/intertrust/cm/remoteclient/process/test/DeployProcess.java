@@ -7,6 +7,7 @@ import java.io.IOException;
 import javax.naming.NamingException;
 
 import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 /**
@@ -30,8 +31,8 @@ public class DeployProcess extends ClientBase {
             super.execute(args);
 
             byte[] processDef = getProcessAsByteArray("../../test-module/src/main/resources/workflow/InternalDocTest.bpmn");
-            String defId = getProcessService("admin").deployProcess(processDef,
-                    "InternalDocTest.bpmn");
+            Id defId = getProcessService("admin").saveProcess(processDef,
+                    "InternalDocTest.bpmn", true);
 
             log("Test complete");
         } finally {

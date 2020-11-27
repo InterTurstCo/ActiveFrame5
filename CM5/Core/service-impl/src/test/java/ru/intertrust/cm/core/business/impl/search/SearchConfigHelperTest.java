@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -165,9 +166,10 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_B");
         when(config.getDoel()).thenReturn(null);
+        when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
     }
 
     @Test
@@ -205,20 +207,25 @@ public class SearchConfigHelperTest {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
         when(config.getName()).thenReturn("String_Ca");
         when(config.getDoel()).thenReturn("String_Ca");
+        when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_C");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
     }
 
     @Test
     public void testGetFieldType_Calculated() {
         IndexedFieldConfig config = mock(IndexedFieldConfig.class);
+        IndexedFieldScriptConfig scriptConfig = mock(IndexedFieldScriptConfig.class);
         when(config.getName()).thenReturn("Calculated");
         when(config.getDoel()).thenReturn(null);
-        when(config.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
+        when(config.getSearchBy()).thenReturn(IndexedFieldConfig.SearchBy.WORDS);
+        when(config.getScriptConfig()).thenReturn(scriptConfig);
+        when(scriptConfig.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
+        when(scriptConfig.getScriptReturnType()).thenReturn(IndexedFieldScriptConfig.ScriptReturnType.STRING);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, false));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false));
     }
 
     @Test
@@ -229,7 +236,8 @@ public class SearchConfigHelperTest {
         when(config.getDoel()).thenReturn(null);
         Set<SearchFieldType> types = testee.getFieldTypes(config, "Type_B");
         assertEquals(types.size(), 1);
-        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false, true));
+        assertEquals(types.iterator().next(), new TextSearchFieldType(Arrays.asList("ru", "en"), false,
+                IndexedFieldConfig.SearchBy.SUBSTRING));
     }
 
     @Test
@@ -247,7 +255,8 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_Once() {
         // Поле встречается один раз в одной области поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("Long_C", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_C"));
+        Set<SearchFieldType> types = testee.getFieldTypes("Long_C", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь тип LONG, а не " + types,
                 types.size() == 1 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG)));
     }
@@ -256,7 +265,8 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_TwiceSameArea() {
         // Поле встречается 2 раза в одной области поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_D", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_D"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_D", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь тип DATE, а не " + types,
                 types.size() == 1 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE)));
     }
@@ -265,25 +275,27 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_TwiceDifferentAreas() {
         // Поле встречается 2 раза в разных областях поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("String_A", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_A", "Type_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("String_A", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь тип STRING, а не " + types,
-                types.size() == 1 && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false, false)));
+                types.size() == 1 && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false)));
     }
 
     @Test
     public void testGetFieldType_TwiceDifferentTypes() {
         // Поле встречается 2 раза в разных областях поиска и имеет разные типы
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchFieldType> types = testee.getFieldTypes("DiffType", areas);
+        HashSet<String> targetTypes = new HashSet<>(Arrays.asList("Type_A", "Type_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DiffType", areas, targetTypes);
         assertTrue("Поле Long_C должно иметь типы STRING и DATE, а не " + types, types.size() == 2
-                && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false, false))
+                && types.contains(new TextSearchFieldType(Arrays.asList("ru", "en"), false))
                 && types.contains(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE)));
     }
 
     @Test
     public void testGetFieldTypes_None() {
         // Поле отсутствует в заданной области поиска (но присутствует в другой)
-        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_C", Collections.singleton("Area_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_C", Collections.singleton("Area_B"),  Collections.singleton("Type_B"));
         assertTrue("Поле DateTime_C отсутствует в конфигурации области Area_B", types.size() == 0);
     }
 

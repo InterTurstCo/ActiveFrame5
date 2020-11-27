@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Коллекция объектов, наделённых идентификатором
@@ -145,6 +146,11 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     public int size() {
         return list.size();
     }
+    
+    @Override
+    public Stream<IdentifiableObject> stream() {
+        return ((List<IdentifiableObject>)(List<?>)this.list).stream();
+    }
 
     @Override
     public ListIterator<IdentifiableObject> iterator() {
@@ -256,7 +262,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private void addEmptyValuesIfNeeded(int size) {
             if (fieldValues.size() < size){
                 fieldValues.ensureCapacity(size);
-                for (int i = 0; i < size - fieldValues.size(); ++i) {
+                int cnt = size - fieldValues.size();
+                for (int i = 0; i < cnt; ++i) {
                     fieldValues.add(null);
                 }
             }

@@ -6,6 +6,8 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.simpledata.EqualSimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.LikeSimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleData;
+import ru.intertrust.cm.core.business.api.simpledata.SimpleSearchOrder;
+import ru.intertrust.cm.core.business.api.simpledata.SumpleSearchOrderDirection;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 import java.util.*;
@@ -31,6 +33,7 @@ public class TestSimpleData extends ClientBase {
 
             // Создаем 2 объекта
             SimpleData data = new SimpleData("test-simple-data");
+            data.setString("test-string-single", "xxx");
             data.setString("test-string", "xxx", "yyy", "zzz");
             data.setBoolean("test-boolean", true, false);
             data.setLong("test-long", 10, 20);
@@ -39,6 +42,7 @@ public class TestSimpleData extends ClientBase {
             storage.save(data);
 
             SimpleData data2 = new SimpleData("test-simple-data");
+            data2.setString("test-string-single", "yyy");
             data2.setString("test-string", "xxx", "yyy", "zzz");
             data2.setBoolean("test-boolean", true, false);
             data2.setLong("test-long", 10, 20);
@@ -97,6 +101,20 @@ public class TestSimpleData extends ClientBase {
             assertTrue("Find by id boolean fields", findData.getString("test-boolean") != null);
             assertTrue("Find by id date fields", findData.getString("test-date") != null);
             assertTrue("Find by id datetime fields", findData.getString("test-date-time") != null);
+
+            // Сортировка asc
+            result = storage.find("test-simple-data", null, Arrays.asList("test-string-single"),
+                    Collections.singletonList(new SimpleSearchOrder("test-string-single", SumpleSearchOrderDirection.ASC)));
+            assertTrue("Check order asc", result.get(0).getString("test-string-single").get(0).equals("xxx"));
+
+            // Сортировка desc
+            result = storage.find("test-simple-data", null, Arrays.asList("test-string-single"),
+                    Collections.singletonList(new SimpleSearchOrder("test-string-single", SumpleSearchOrderDirection.DESС)));
+            assertTrue("Check order desc", result.get(0).getString("test-string-single").get(0).equals("yyy"));
+
+            // лимит
+            result = storage.find("test-simple-data", null, null, null, 1);
+            assertTrue("Check limit", result.size() == 1);
 
             // Удаление по ID
             storage.delete(data.getId());

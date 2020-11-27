@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.search;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -17,6 +18,9 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
+import javax.resource.NotSupportedException;
 
 public class NamedCollectionRetriever extends CollectionRetriever {
 
@@ -36,6 +40,16 @@ public class NamedCollectionRetriever extends CollectionRetriever {
     public NamedCollectionRetriever(String collectionName, List<? extends Filter> filters) {
         this.collectionName = collectionName;
         this.collectionFilters = filters;
+    }
+
+    @Override
+    public IdentifiableObjectCollection queryCollection(SolrDocumentList found,
+                                                        Map<String, Map<String, List<String>>> highlightings,
+                                                        int maxResults) {
+        throw new RuntimeException("Not implemented: " +
+                "NamedCollectionRetriever.queryCollection(SolrDocumentList found, " +
+                "Map<String, Map<String, List<String>>> highlightings, " +
+                "int maxResults");
     }
 
     @Override

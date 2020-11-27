@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
@@ -37,6 +39,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
@@ -167,6 +170,7 @@ public class SqlQueryModifierTest {
         domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
         domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
         domainObjectQueryHelper.setUserGroupCache(userGroupCache);
+        ReflectionTestUtils.setField(domainObjectQueryHelper, "securityStamp", mock(SecurityStamp.class));
     }
 
     @Test

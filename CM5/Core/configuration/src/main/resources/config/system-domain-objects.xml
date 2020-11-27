@@ -35,6 +35,7 @@
             <string name="MimeType" length="128"/>
             <string name="Description" length="128"/>
             <long name="ContentLength"/>
+            <string name="FieldName" length="256"/>
         </fields>
         <indices>
             <index>
@@ -291,4 +292,36 @@
             <date-time name="delete_after" not-null="true"/>
         </fields>
     </domain-object-type>
+
+    <!-- Реестр установленных процессов   -->
+    <domain-object-type name="process_definition" initial-status="Draft">
+        <fields>
+            <string name="file_name" length="256" not-null="true"/>
+            <string name="process_id" length="256" not-null="true"/>
+            <string name="process_name" length="256" not-null="true"/>
+            <text name="description" />
+            <string name="version" length="64" not-null="true"/>
+            <string name="definition_id" length="64"/>
+            <string name="category" length="128" not-null="true"/>
+            <string name="hash" length="128" not-null="true"/>
+        </fields>
+
+        <uniqueKey>
+            <field name="process_id"/>
+            <field name="version"/>
+        </uniqueKey>
+
+        <uniqueKey>
+            <field name="hash"/>
+        </uniqueKey>
+
+        <uniqueKey>
+            <field name="definition_id"/>
+        </uniqueKey>
+
+        <attachment-types>
+            <attachment-type name="process_definition_model" />
+        </attachment-types>
+    </domain-object-type>
+
 </configuration>

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,15 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         if (SearchFilter.EVERYWHERE.equals(fieldName)) {
             throw new SearchException("Поиск пустого значения может осущетсвляться только в конкретном поле");
         }
-        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
         ArrayList<String> fields = new ArrayList<>(types.size());
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":[")
-                            .append(isTextType(type) ? "\"\"" : "*")
+                            .append(type != null && type.isTextType() ? "\"\"" : "*")
                             .append(" TO *]")
                             .toString());
                 }
@@ -43,7 +44,18 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         return false;
     }
 
-    private boolean isTextType(SearchFieldType type) {
-        return type instanceof TextSearchFieldType || type instanceof SpecialTextSearchFieldType;
+    @Override
+    public List<String> getFieldNames(EmptyValueFilter filter, SearchQuery query) {
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
+        ArrayList<String> names = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
+                    names.add(field);
+                }
+            }
+        }
+        return names;
     }
 }

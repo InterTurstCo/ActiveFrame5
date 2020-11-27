@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -68,6 +69,7 @@ public class StampedSynchronizedGlobalCacheImplTest {
         public ConfigurationExplorer configurationExplorer() {
             ConfigurationExplorer result = mock(ConfigurationExplorer.class);
             when(result.getConfigs(any())).thenReturn(Collections.emptyList());
+            when(result.getReadWriteLock()).thenReturn(new ReentrantReadWriteLock());
             return result;
         }
 

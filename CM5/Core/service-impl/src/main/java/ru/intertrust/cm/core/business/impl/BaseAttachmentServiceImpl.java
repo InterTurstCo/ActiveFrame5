@@ -2,11 +2,14 @@ package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import javax.annotation.Nonnull;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -17,11 +20,13 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 
@@ -39,6 +44,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
   
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(RemoteAttachmentServiceImpl.class);
 
+    private static final String FIELD_ATTACH_NAME = "name";
+
     @Autowired
     private AttachmentContentDao attachmentContentDao;
     @Autowired
@@ -53,6 +60,10 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private PermissionService permissionService;
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -65,9 +76,9 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             String domainObjectType = domainObjectTypeIdCache.getName(objectId);
 
-            String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+            String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
-            attachmentDomainObject.setReference(attchmentLinkedField, objectId);
+            attachmentDomainObject.setReference(attachmentLinkedField, objectId);
             return attachmentDomainObject;
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
@@ -105,6 +116,11 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     protected DomainObject saveAttachment(InputStream contentStream, DomainObject attachmentDomainObject) {
         AccessToken accessToken = createSystemAccessToken();
 
+        // Удаление старого вложения для не новых доменных объектов
+        if (!attachmentDomainObject.isNew()){
+            attachmentContentDao.deleteContent(attachmentDomainObject);
+        }
+
         String fileName = attachmentDomainObject.getString(NAME);
         String attachmentType = attachmentDomainObject.getTypeName();
         Id parentId = attachmentDomainObject.getReference(configurationExplorer.getAttachmentParentType(attachmentType));
@@ -132,6 +148,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
+            checkAccessWithException(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment);
             InputStream inFile = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream remoteInputStream = wrapStream(inFile);
             return remoteInputStream;
@@ -145,6 +162,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
+            checkAccessWithException(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment);
             AccessToken accessToken = createSystemAccessToken();
             DomainObject attachmentObject = domainObjectDao.find(attachmentDomainObjectId, accessToken);
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
@@ -258,7 +276,43 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     }
 
     @Override
+    public DomainObject findAttachmentDomainObjectFor(@Nonnull Id domainObjectId, @Nonnull String attachmentType, @Nonnull String attachmentName) {
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
+            String domainObjectType = domainObjectTypeIdCache.getName(domainObjectId);
+
+            String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+
+            // Размер пачки данных
+            int batchSize = 100;
+            // пачка с данными
+            List<DomainObject> batch = null;
+            // Номер пачкиы
+            int batchNum = 0;
+            /* здесь будет результат поиска */
+            DomainObject res;
+            do {
+                batch = domainObjectDao.findLinkedDomainObjects(
+                        domainObjectId, attachmentType, attachmentLinkedField, batchNum * batchSize, batchSize, accessToken);
+                res = batch.stream()
+                        .filter(att -> att.getString(FIELD_ATTACH_NAME).equals(attachmentName))
+                        .findAny().orElse(null);
+                batchNum++;
+                // Если количество записей в пачке совпадает с переденным limit значит есть еще данные в хранилище, получаем итерационно
+            } while (batch.size() == batchSize && res == null);
+
+            return res;
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
+    @Override
     public DomainObject copyAttachment(Id attachmentDomainObjectId, Id destinationDomainObjectId, String destinationAttachmentType) {
+
+        checkAccessWithException(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment);
+
         DomainObject attachDomainObject = crudService.find(attachmentDomainObjectId);
 
         DomainObject attachmentCopyDomainObject = createAttachmentDomainObjectFor(destinationDomainObjectId, destinationAttachmentType);
@@ -292,6 +346,12 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         List<DomainObject> attachmentCopyDomainObjects = new ArrayList<>(attachmentDomainObjectIds.size());
 
         for(Id attachmentDomainObjectId : attachmentDomainObjectIds) {
+
+            if (!checkAccess(attachmentDomainObjectId, DomainObjectPermission.Permission.ReadAttachment)) {
+                /* При массовом копировании вложений те, к которым нет доступа, просто пропускаем */
+                continue;
+            }
+
             DomainObject attachDomainObject =
                     copyAttachment(attachmentDomainObjectId, destinationDomainObjectId, destinationAttachmentType);
             attachmentCopyDomainObjects.add(attachDomainObject);
@@ -377,5 +437,33 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
     public void setCrudService(CrudService crudService) {
         this.crudService = crudService;
+    }
+
+    @Override
+    public boolean checkAccess(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
+
+        if (userId == null || userGroupCache.isPersonSuperUser(userId)) {
+            return true;
+        }
+
+        DomainObjectPermission permissions = permissionService.getObjectPermission(attachId, userId);
+        return permissions.getPermission().contains(permission);
+    }
+
+    @Override
+    public boolean checkAccess(Id attachId, DomainObjectPermission.Permission permission) {
+        return checkAccess(attachId, currentUserAccessor.getCurrentUserId(), permission);
+    }
+
+    private void checkAccessWithException(Id attachId, DomainObjectPermission.Permission permission) {
+        checkAccessWithException(attachId, currentUserAccessor.getCurrentUserId(), permission);
+    }
+
+    private void checkAccessWithException(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
+        if (!checkAccess(attachId, userId, permission)) {
+            throw new AccessException(
+                    "User " + userId.toStringRepresentation() + " have no permission " + permission.name()
+                            + " to attachment " + attachId.toStringRepresentation());
+        }
     }
 }

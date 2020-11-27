@@ -67,11 +67,11 @@ public class TestRunaProcess extends ClientBase {
 
             // Установка процесса
             byte[] processDef = getProcessAsByteArray("templates/runa/test-1.par");
-            String defId = getProcessService("admin").deployProcess(processDef, "test-1");
+            Id defId = getProcessService("admin").saveProcess(processDef, "test-1", true);
             assertTrue("Deploy process", defId != null);
 
             // Повторная установка процесса
-            String defId2 = getProcessService("admin").deployProcess(processDef, "test-1");
+            Id defId2 = getProcessService("admin").saveProcess(processDef, "test-1", true);
             assertTrue("Secondary deploy process", defId2 != null && !defId.equals(defId2));
 
 

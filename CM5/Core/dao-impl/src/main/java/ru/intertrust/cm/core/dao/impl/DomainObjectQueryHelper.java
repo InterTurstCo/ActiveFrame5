@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -42,6 +43,9 @@ public class DomainObjectQueryHelper {
     
     @Autowired
     protected UserGroupGlobalCache userGroupCache;
+
+    @Autowired
+    protected SecurityStamp securityStamp;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -240,16 +244,34 @@ public class DomainObjectQueryHelper {
         String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, baseTypeName);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(topLevelParentType);
 
-        appendWithPart(query);
+        appendWithPart(query, typeName);
         if (topLevelParentType.equalsIgnoreCase(baseTypeName)) {
-            appendBaseTypeSubQuery(query, originalLinkedTypeOrAlias, childAclReadTable);
+            appendBaseTypeSubQuery(query, originalLinkedTypeOrAlias, childAclReadTable, typeName);
         } else {
             final boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
-            appendInheritedTypeSubQuery(query, isAuditLog, originalLinkedTypeOrAlias, childAclReadTable, topLevelParentType, domainObjectBaseTable);
+            appendInheritedTypeSubQuery(query, isAuditLog, originalLinkedTypeOrAlias, childAclReadTable, topLevelParentType, domainObjectBaseTable, typeName);
         }
     }
 
-    protected void appendInheritedTypeSubQuery(StringBuilder query, boolean isAuditLog, String originalLinkedTypeOrAlias, String aclReadTable, String topLevelParentType, String domainObjectBaseTable) {
+    protected void appendInheritedTypeSubQuery(StringBuilder query, boolean isAuditLog, String originalLinkedTypeOrAlias, String aclReadTable, String topLevelParentType, String domainObjectBaseTable, String typeName) {
+
+        if (securityStamp.isSupportSecurityStamp(typeName)){
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            if (matrixReferenceTypeName == null){
+                query.append(" AND exists (select 1 from ").append(topLevelParentType).
+                        append(" root_type where root_type.id = ").append(typeName).append(".id ").
+                        append(" and  (root_type.security_stamp IS NULL").
+                        append(" OR root_type.security_stamp IN (SELECT stamp from person_stamp_values)))");
+            }else{
+                String baseTypePermissionsFrom = configurationExplorer.getDomainObjectRootType(matrixReferenceTypeName);
+                query.append(" AND EXISTS (SELECT 1 FROM ").append(baseTypePermissionsFrom).append(" ptf ").
+                        append("INNER JOIN ").append(domainObjectBaseTable).append(" rt ON ptf.id = rt.access_object_id ").
+                        append("WHERE rt.id = ").append(typeName).append(".id and ptf.id = ").
+                        append("rt.access_object_id ").
+                        append("AND (ptf.security_stamp is null or ptf.security_stamp IN (SELECT stamp FROM person_stamp_values)))");
+            }
+        }
+
         query.append(" and exists (select 1 from ").append(wrap(aclReadTable)).append(" r");
 
         if (isAuditLog) {
@@ -270,12 +292,28 @@ public class DomainObjectQueryHelper {
         query.append(")");
     }
 
-    protected void appendBaseTypeSubQuery(StringBuilder query, String originalLinkedTypeOrAlias, String childAclReadTable) {
-        query.append(" and exists (select 1 from ").append(wrap(childAclReadTable)).append(" r");
+    protected void appendBaseTypeSubQuery(StringBuilder query, String originalLinkedTypeOrAlias, String childAclReadTable, String typeName) {
 
+        if (securityStamp.isSupportSecurityStamp(typeName)){
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            if (matrixReferenceTypeName == null){
+                query.append(" AND (").append(typeName).append(".security_stamp IS NULL ").
+                        append(" OR ").append(typeName).append(".security_stamp IN (").
+                        append("SELECT stamp ").
+                        append("FROM person_stamp_values))");
+            }else{
+                String baseTypePermissionsFrom = configurationExplorer.getDomainObjectRootType(matrixReferenceTypeName);
+                query.append(" AND EXISTS (SELECT 1 FROM ").append(baseTypePermissionsFrom).append(" ptf ").
+                        append("WHERE ptf.id = ").append(typeName).append(".access_object_id ").
+                        append("AND (ptf.security_stamp is null or ptf.security_stamp IN (SELECT stamp FROM person_stamp_values)))");
+            }
+        }
+
+        query.append(" and exists (select 1 from ").append(wrap(childAclReadTable)).append(" r");
         query.append(" where r.").append(GROUP_ID_COL).append(" in (select ").append(PARENT_GROUP_ID_COL).append(" from cur_user_groups) and ");
         query.append("r.").append(OBJECT_ID_COL).append(" = ").append(originalLinkedTypeOrAlias).append(".").append(ACCESS_OBJECT_ID_COL);
         query.append(")");
+
     }
 
     protected boolean accessRightsCheckIsNeeded(String typeName) {
@@ -356,7 +394,7 @@ public class DomainObjectQueryHelper {
         return query.toString();
     }
 
-    protected void appendWithPart(StringBuilder query) {
+    protected void appendWithPart(StringBuilder query, String typeName) {
         StringBuilder withSubQuery = new StringBuilder();
 
         String subString = query.substring(0, 3);
@@ -372,6 +410,12 @@ public class DomainObjectQueryHelper {
                 append("inner join ").append(wrap("group_group")).append(" gg on gg.").
                 append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup")).
                 append(" where gm.").append(wrap("person_id")).append(" = :user_id)");
+
+        if (securityStamp.isSupportSecurityStamp(typeName)){
+            withSubQuery.append(", person_stamp_values as (").
+                    append("SELECT stamp FROM person_stamp ").
+                    append("WHERE person = :user_id)");
+        }
 
         if (hasWithKeyword) {
             withSubQuery.append(", ");
@@ -461,6 +505,8 @@ public class DomainObjectQueryHelper {
         query.append(", ").append(tableAlias).append(".").append(wrap(UPDATED_BY_TYPE_COLUMN));
         query.append(", ").append(tableAlias).append(".").append(wrap(STATUS_FIELD_NAME));
         query.append(", ").append(tableAlias).append(".").append(wrap(STATUS_TYPE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(SECURITY_STAMP_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(SECURITY_STAMP_TYPE_COLUMN));
         query.append(", ").append(tableAlias).append(".").append(wrap(ACCESS_OBJECT_ID));
     }
     

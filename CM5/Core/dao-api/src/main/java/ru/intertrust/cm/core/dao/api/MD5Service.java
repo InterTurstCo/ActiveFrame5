@@ -21,4 +21,10 @@ public interface MD5Service {
      */
     String getMD5As32Base(String message);
 
+    /**
+     * Получение 16-ричного MD5 хеша для переданного сообщения
+     * @param message сообщение для кодирования
+     * @return MD5 хеш.
+     */
+    String getMD5AsHex(byte[] message);
 }

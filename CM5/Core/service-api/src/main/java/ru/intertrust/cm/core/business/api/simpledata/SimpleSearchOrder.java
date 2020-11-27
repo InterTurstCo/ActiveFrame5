@@ -1,8 +1,18 @@
 package ru.intertrust.cm.core.business.api.simpledata;
 
-public class SimpleSearchOrder {
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+public class SimpleSearchOrder implements Dto {
     private String fieldName;
     private SumpleSearchOrderDirection direction;
+
+    public SimpleSearchOrder() {
+    }
+
+    public SimpleSearchOrder(String fieldName, SumpleSearchOrderDirection direction) {
+        this.fieldName = fieldName;
+        this.direction = direction;
+    }
 
     public String getFieldName() {
         return fieldName;

@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.impl.server.ActionServiceImpl;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
@@ -214,6 +215,12 @@ public class ActionServiceTest {
             configurationSerializer.setModuleService(moduleSerevice);
             Configuration configuration = configurationSerializer.deserializeConfiguration();
             return new ConfigurationExplorerImpl(configuration);
+        }
+
+        @Bean
+        public DomainObjectMapping domainObjectMapping(){
+            DomainObjectMapping result = Mockito.mock(DomainObjectMapping.class);
+            return result;
         }
     }
     

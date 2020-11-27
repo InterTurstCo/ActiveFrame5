@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Author: Denis Mitavskiy
@@ -57,4 +58,7 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
     ArrayList<FieldConfig> getFieldsConfiguration();
 
     int size();
+    
+    Stream<IdentifiableObject> stream();
+    
 }

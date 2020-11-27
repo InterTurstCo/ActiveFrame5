@@ -23,6 +23,7 @@
     <xs:element name="action-group" type="act:actionGroupType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-group-ref" type="act:actionGroupRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="simple-upload-action" type="act:simpleUploadActionType" substitutionGroup="act:abstract-action"/>
     <xs:element name="workflow-actions" type="act:workflowActionsType"/>
     <xs:element name="workflow-action" type="act:workflowActionType"/>
 
@@ -169,6 +170,16 @@
             <xs:extension base="act:actionEntryType">
                 <xs:attribute name="action-handler" type="xs:string" use="required"/>
                 <xs:attribute name="re-read-in-same-transaction" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="simpleUploadActionType">
+        <xs:complexContent>
+            <xs:extension base="act:actionEntryType">
+                <xs:attribute name="action-handler" type="xs:string" use="required"/>
+                <xs:attribute name="multiple-file" type="xs:boolean" use="optional" default="false"/>
+                <xs:attribute name="file-extensions" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

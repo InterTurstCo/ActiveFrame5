@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,9 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
 
     @Autowired
     protected DataStructureDao dataStructureDao;
+
+    @Autowired
+    private UserTransactionService userTransactionService;
 
     /**
      * Обрабатывает изменение конфигурации поля типа доменного объекта
@@ -159,8 +163,13 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
                 if (!newFieldConfig.isNotNull()) {
                     dataStructureDao.setColumnNotNull(domainObjectTypeConfig, newFieldConfig, false);
                 } else {
-                    throw new ConfigurationException("Configuration loading aborted: cannot set not-null on " +
-                            domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                    // Так как эта операция не безопасна, выполняем ее только в транзакции. Если транзакции нет выбрасываем исключение
+                    if (userTransactionService.getTransactionId() == null) {
+                        throw new ConfigurationException("Configuration loading aborted: cannot set not-null on " +
+                                domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                    }else {
+                        dataStructureDao.setColumnNotNull(domainObjectTypeConfig, newFieldConfig, true);
+                    }
                 }
             }
         }

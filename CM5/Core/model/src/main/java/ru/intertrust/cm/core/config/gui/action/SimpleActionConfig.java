@@ -18,8 +18,7 @@ public class SimpleActionConfig extends ActionConfig {
         super();
         this.actionHandler = actionHandler;
     }
-    
-    
+
     @Attribute(name = "action-handler")
     private String actionHandler;
 
@@ -28,7 +27,11 @@ public class SimpleActionConfig extends ActionConfig {
 
     @Override
     public String getComponentName() {
-        return "simple.action";
+        if (super.getComponentName() != null && !super.getComponentName().isEmpty()){
+            return super.getComponentName();
+        }else {
+            return "simple.action";
+        }
     }
 
     public String getActionHandler() {

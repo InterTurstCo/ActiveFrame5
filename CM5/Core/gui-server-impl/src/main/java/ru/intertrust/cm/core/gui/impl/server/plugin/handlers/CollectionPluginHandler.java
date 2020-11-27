@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -74,6 +75,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     @Autowired
     private CrudService crudService;
+
+    @Autowired
+    private DomainObjectMapping domainObjectMapping;
 
     private boolean expandable; //dummy for testing
 
@@ -406,11 +410,20 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters, offset, count);
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(columnPropertiesMap);
         for (IdentifiableObject identifiableObject : collection) {
-            boolean typeIsExpandable = expandableTypes.contains(crudService.getDomainObjectType(identifiableObject.getId()));
+            String typeName = getTypeName(identifiableObject.getId());
+            boolean typeIsExpandable = expandableTypes.contains(typeName);
             items.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMappings, typeIsExpandable));
 
         }
         return items;
+    }
+
+    private String getTypeName(Id domainObjectId){
+        String typeName = domainObjectMapping.getTypeName(domainObjectId);
+        if (typeName == null){
+            typeName = crudService.getDomainObjectType(domainObjectId);
+        }
+        return typeName;
     }
 
     public ArrayList<CollectionRowItem> getSimpleSearchRows(String collectionName, int offset, int count,

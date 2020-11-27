@@ -2,7 +2,8 @@
 <xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
            targetNamespace="https://cm5.intertrust.ru/config" xmlns:con="https://cm5.intertrust.ru/config"
            xmlns:act="https://cm5.intertrust.ru/config/action" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules">
+           xmlns:evt="https://cm5.intertrust.ru/config/event" xmlns:rul="https://cm5.intertrust.ru/config/rules"
+           version="1.1">
 
     <xs:import namespace="https://cm5.intertrust.ru/config/action" schemaLocation="actions.xsd"/>
     <xs:import namespace="https://cm5.intertrust.ru/config/event" schemaLocation="events.xsd"/>
@@ -855,6 +856,7 @@
         <xs:attribute name="not-null" use="optional" type="xs:string"/>
         <xs:attribute name="immutable" use="optional" type="xs:boolean"/>
         <xs:attribute name="encrypted" use="optional" type="xs:string"/>
+        <xs:attribute name="default-value" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="textType">
@@ -1019,6 +1021,24 @@
         </xs:choice>
     </xs:complexType>
 
+    <xs:complexType name="scriptType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="return-type" use="optional">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="string"></xs:enumeration>
+                            <xs:enumeration value="date"></xs:enumeration>
+                            <xs:enumeration value="boolean"></xs:enumeration>
+                            <xs:enumeration value="long"></xs:enumeration>
+                            <xs:enumeration value="decimal"></xs:enumeration>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:simpleType name="doelType">
         <xs:restriction base="xs:string">
             <xs:whiteSpace value="collapse"/>
@@ -1092,6 +1112,7 @@
         <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
         <xs:attribute name="matrix-reference-field" type="xs:string" use="optional"/>
         <xs:attribute name="borrow-permissisons" type="con:BorrowPermissisonsEnum" use="optional"/>
+        <xs:attribute name="support-security-stamp" type="xs:boolean" use="optional" default="false"/>
     </xs:complexType>
 
     <xs:complexType name="matrixReferenceMapping">
@@ -1113,6 +1134,8 @@
             <xs:element name="write" type="con:permissionsType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="delete" type="con:permissionsType" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="read-attachment" type="con:permissionsType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="create-child" type="con:createChildPermissionsType" maxOccurs="unbounded" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -3361,12 +3384,70 @@
 
     <xs:complexType name="searchAreaType">
         <xs:sequence>
+            <xs:element name="solr-server-url" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element name="content-search-by" minOccurs="0" maxOccurs="1">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="words"></xs:enumeration>
+                        <xs:enumeration value="substring"></xs:enumeration>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="target-filter-name" minOccurs="0" maxOccurs="1" type="xs:string"/>
+            <xs:element type="con:highlightingConfig" name="highlighting-config" minOccurs="0"
+                        maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:targetDomainObjectType" name="target-domain-object" minOccurs="1"
                         maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="con:replacementPolicyType" name="replace" use="optional"
                       xmlns:con="https://cm5.intertrust.ru/config"/>
+    </xs:complexType>
+
+    <xs:complexType name="highlightingConfig">
+        <xs:sequence>
+            <xs:element type="con:highlightingRawParam" name="hl-raw-param" minOccurs="0"
+                        maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute name="enable" type="xs:boolean" default="true"/>
+        <xs:attribute name="hl-require-match" type="xs:boolean" default="true"/>
+        <xs:attribute name="hl-phrase" type="xs:boolean" default="true"/>
+        <xs:attribute name="hl-multiterm" type="xs:boolean" default="true"/>
+        <xs:attribute name="hl-pre-tag" default="&lt;hl&gt;">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:maxLength value="20"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="hl-post-tag" default="&lt;/hl&gt;">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:maxLength value="20"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="hl-snippet-count" default="5">
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="1"/>
+                    <xs:maxInclusive value="20"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="hl-frag-size" default="50">
+            <xs:simpleType>
+                <xs:restriction base="xs:int">
+                    <xs:minInclusive value="10"/>
+                    <xs:maxInclusive value="1000"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="highlightingRawParam">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="value" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="indexedDomainObjectType" abstract="true">
@@ -3403,15 +3484,42 @@
                         <xs:restriction base="xs:string">
                             <xs:enumeration value="words"></xs:enumeration>
                             <xs:enumeration value="substring"></xs:enumeration>
+                            <xs:enumeration value="exactmatch"></xs:enumeration>
                         </xs:restriction>
                     </xs:simpleType>
                 </xs:attribute>
+                <xs:attribute name="show-in-results" type="xs:boolean" use="optional"/>
+                <xs:attribute name="multi-valued" type="xs:boolean" use="optional"/>
+                <xs:attribute type="xs:string" name="target-field-name" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="indexedContentType">
+        <xs:sequence>
+            <xs:element type="con:indexedContentField" name="content-field" minOccurs="0" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
         <xs:attribute type="xs:string" name="type" use="required"/>
+        <xs:attribute type="xs:string" name="parent-fk-field" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="indexedContentField">
+        <xs:attribute type="xs:boolean" name="show-in-results" use="optional"/>
+        <xs:attribute type="xs:string" name="target-field-name" use="required"/>
+        <xs:attribute name="type" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="refid"></xs:enumeration>
+                    <xs:enumeration value="mimetype"></xs:enumeration>
+                    <xs:enumeration value="length"></xs:enumeration>
+                    <xs:enumeration value="name"></xs:enumeration>
+                    <xs:enumeration value="path"></xs:enumeration>
+                    <xs:enumeration value="description"></xs:enumeration>
+                    <xs:enumeration value="highlighting"></xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="linkedDomainObjectType">
@@ -3457,7 +3565,8 @@
             <xs:element name="java-class" type="con:javaClassType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="spring-bean" type="con:springBeanType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="doel" type="con:doelType" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="script" type="xs:string"/>
+            <!--xs:element name="script" type="xs:string"/-->
+            <xs:element name="script" type="con:scriptType" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
 
@@ -4571,6 +4680,7 @@
                                 <xs:attribute name="type" type="con:SimpleDataFieldType" use="required"/>
                                 <xs:attribute name="index" type="xs:boolean" use="required"/>
                                 <xs:attribute name="storage" type="xs:boolean" use="required"/>
+                                <xs:attribute name="multivalue" type="xs:boolean" use="optional" default="false"/>
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>

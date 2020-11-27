@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import java.util.Objects;
 import org.simpleframework.xml.Attribute;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -34,6 +35,18 @@ public class MatrixReferenceMappingPermissionConfig implements Dto{
     public void setMapTo(String mapTo) {
         this.mapTo = mapTo;
     }
-    
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatrixReferenceMappingPermissionConfig that = (MatrixReferenceMappingPermissionConfig) o;
+        return Objects.equals(mapFrom, that.mapFrom) &&
+                Objects.equals(mapTo, that.mapTo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mapFrom, mapTo);
+    }
 }

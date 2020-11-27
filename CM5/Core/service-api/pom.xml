@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>core</artifactId>
-        <version>1.0.1-4-SNAPSHOT</version>
+        <version>1.1.17-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -42,6 +42,10 @@
         <dependency>    
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-javaflow</artifactId>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -33,6 +33,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -69,6 +70,7 @@ import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
@@ -211,6 +213,9 @@ public class CollectionsDaoImplTest {
     private GlobalCacheManager globalCacheManager;
 
     @Mock
+    private SecurityStamp securityStamp;
+
+    @Mock
     private ServerComponentService serverComponentService;
 
     private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
@@ -248,6 +253,7 @@ public class CollectionsDaoImplTest {
         domainObjectQueryHelper.setUserGroupCache(userGroupCache);
         domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
         domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
+        ReflectionTestUtils.setField(domainObjectQueryHelper, "securityStamp", securityStamp);
         collectionsDaoImpl.setDomainObjectQueryHelper(domainObjectQueryHelper);
     }
 

@@ -32,7 +32,15 @@ public class MD5ServiceImpl implements MD5Service {
         }
         return MD5Utils.getMD5As32Base(message);
     }
-    
+
+    @Override
+    public String getMD5AsHex(byte[] message) {
+        if (message == null || message.length < 1) {
+            return null;
+        }
+        return MD5Utils.getMD5AsHex(message);
+    }
+
     public static void main(String [] args){
         System.out.println("Text");
         String md5 = new MD5ServiceImpl().getMD5AsHex("Text");
