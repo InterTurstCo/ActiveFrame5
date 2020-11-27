@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
+import javax.annotation.Nonnull;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -68,6 +69,15 @@ public interface BaseAttachmentService {
      * @return список ДО Вложений
      */
     List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType);
+
+    /**
+     * Получает доменный объект вложения определённого типа с указанным названием
+     * @param domainObjectId ID ДО, для которого находятся вложения
+     * @param attachmentType типа вложения
+     * @param attachmentName название вложения
+     * @return ДО вложения или <code>null</code>
+     */
+    DomainObject findAttachmentDomainObjectFor(@Nonnull Id domainObjectId, @Nonnull String attachmentType, @Nonnull String attachmentName);
 
     /**
      * Копирует вложение по идентификатору

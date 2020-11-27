@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import javax.annotation.Nonnull;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
@@ -42,6 +43,8 @@ import java.util.Map;
 public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService {
   
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(RemoteAttachmentServiceImpl.class);
+
+    private static final String FIELD_ATTACH_NAME = "name";
 
     @Autowired
     private AttachmentContentDao attachmentContentDao;
@@ -267,6 +270,39 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             }while(batch.size() == batchSize);
 
             return sortById(result);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
+    @Override
+    public DomainObject findAttachmentDomainObjectFor(@Nonnull Id domainObjectId, @Nonnull String attachmentType, @Nonnull String attachmentName) {
+        try {
+            String user = currentUserAccessor.getCurrentUser();
+            AccessToken accessToken = accessControlService.createAccessToken(user, domainObjectId, DomainObjectAccessType.READ);
+            String domainObjectType = domainObjectTypeIdCache.getName(domainObjectId);
+
+            String attachmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
+
+            // Размер пачки данных
+            int batchSize = 100;
+            // пачка с данными
+            List<DomainObject> batch = null;
+            // Номер пачкиы
+            int batchNum = 0;
+            /* здесь будет результат поиска */
+            DomainObject res;
+            do {
+                batch = domainObjectDao.findLinkedDomainObjects(
+                        domainObjectId, attachmentType, attachmentLinkedField, batchNum * batchSize, batchSize, accessToken);
+                res = batch.stream()
+                        .filter(att -> att.getString(FIELD_ATTACH_NAME).equals(attachmentName))
+                        .findAny().orElse(null);
+                batchNum++;
+                // Если количество записей в пачке совпадает с переденным limit значит есть еще данные в хранилище, получаем итерационно
+            } while (batch.size() == batchSize && res == null);
+
+            return res;
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
