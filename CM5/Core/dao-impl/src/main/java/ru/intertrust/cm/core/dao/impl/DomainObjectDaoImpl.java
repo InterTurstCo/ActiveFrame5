@@ -658,7 +658,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         final RdbmsId firstRdbmsId = (RdbmsId) ids[0];
         final DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId.getTypeId()));
+                .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId));
         final String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjectTypeConfig.getName());
 
         // Получаем удаляемый доменный объект для вызова точек расширения и
@@ -780,7 +780,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
-                        getDOTypeName(rdbmsId.getTypeId()));
+                        getDOTypeName(rdbmsId));
 
         String query = generateDeleteQuery(domainObjectTypeConfig);
 
@@ -927,7 +927,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         validateIdType(id);
 
         Map<String, Object> parameters = initializeExistsParameters(id);
-        long total = switchableJdbcTemplate.queryForObject(generateExistsQuery(getDOTypeName(rdbmsId.getTypeId())), parameters,
+        long total = switchableJdbcTemplate.queryForObject(generateExistsQuery(getDOTypeName(rdbmsId)), parameters,
                 Long.class);
 
         return total > 0;
@@ -983,7 +983,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private DomainObject findInDbById(Id id, AccessToken accessToken, boolean lock) {
         RdbmsId rdbmsId = (RdbmsId) id;
-        String typeName = getDOTypeName(rdbmsId.getTypeId());
+        String typeName = getDOTypeName(rdbmsId);
         String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, lock);
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
         DomainObject result = masterJdbcTemplate.query(query, parameters, new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
@@ -2431,14 +2431,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return new RdbmsId(parentType, id.getId());
     }
 
-    private String getDOTypeName(Integer typeId) {
-        return domainObjectTypeIdCache.getName(typeId);
+    private String getDOTypeName(RdbmsId id) {
+        String result = domainObjectTypeIdCache.getName(id);
+        if (result == null){
+            throw new ObjectNotFoundException(id);
+        }
+        return result;
     }
 
     // CMFIVE-27416
     private String getDOTypeName(Id id) {
         if (id instanceof RdbmsId) {
-            return getDOTypeName(((RdbmsId)id).getTypeId());
+            return getDOTypeName((RdbmsId)id);
         }
         return null;
     }
