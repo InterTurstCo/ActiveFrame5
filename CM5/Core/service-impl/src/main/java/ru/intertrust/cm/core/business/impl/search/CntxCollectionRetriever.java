@@ -61,7 +61,7 @@ public class CntxCollectionRetriever extends CollectionRetriever {
             int idsSize = ids.size();
             for (int cnt = 0; cnt < idsSize; cnt += MAX_IDS_PER_QUERY) {
                 if (cntxFilterName != null) {
-                    ArrayList<Filter> filters = new ArrayList<>(1);
+                    ArrayList<Filter> filters = new ArrayList<>(idsSize);
                     filters.add(createIdFilter(ids.subList(cnt, Math.min(cnt + MAX_IDS_PER_QUERY, idsSize))));
                     result.append(collectionsService.findCollection(collectionName,
                             new SortOrder(), filters, 0, Math.min(MAX_IDS_PER_QUERY, idsSize)));

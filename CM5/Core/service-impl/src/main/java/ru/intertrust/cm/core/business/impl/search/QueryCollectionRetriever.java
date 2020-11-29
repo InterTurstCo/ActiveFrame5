@@ -50,8 +50,6 @@ public class QueryCollectionRetriever extends CollectionRetriever {
             ids.add(new ReferenceValue(id));
         }
 
-        int fetchSize = maxResults;
-
         List<Value> modifiedParams = new ArrayList<>();
         int index = 0;
         if (sqlParameters != null){
@@ -76,17 +74,11 @@ public class QueryCollectionRetriever extends CollectionRetriever {
         String modifiedQuery = "select * from (" + sqlQuery + ") orig where " + listQuery;
 
         IdentifiableObjectCollection result = collectionsService.
-                findCollectionByQuery(modifiedQuery, modifiedParams, 0, fetchSize);
+                findCollectionByQuery(modifiedQuery, modifiedParams, 0, Math.max(ids.size(), maxResults));
 
         addWeightsAndSort(result, documents);
+        truncCollection(result, maxResults);
         return result;
     }
 
-    private int estimateFetchSize(int prevFetchSize, int collectedCount, int requiredSize) {
-        if (collectedCount == 0) {
-            ++collectedCount;
-        }
-        double factor = (double) requiredSize / collectedCount;
-        return (int) Math.round(Math.ceil(prevFetchSize * factor));
-    }
 }
