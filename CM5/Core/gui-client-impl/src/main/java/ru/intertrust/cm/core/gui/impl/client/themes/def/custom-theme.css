@@ -379,7 +379,7 @@ div.gwt-Good-Label {
 }
 
 .gwt-custom-TreeItem-selected .treeItemSelectionDecorator {
-    background: url(http://free.selcet.com.ua/folder-list-selected-bg.png) no-repeat scroll 100% 0;
+    background: url(images/folder-list-selected-bg.png) no-repeat scroll 100% 0;
 }
 
 .treeItemTitle {
@@ -394,7 +394,7 @@ div.gwt-Good-Label {
 }
 
 .gwt-custom-TreeItem-selected .treeItemTitle {
-    background: url(http://free.selcet.com.ua/folder-list-selected-bg.png) no-repeat scroll 0 100%;
+    background: url(images/folder-list-selected-bg.png) no-repeat scroll 0 100%;
 }
 
 .treeItemCounter {
