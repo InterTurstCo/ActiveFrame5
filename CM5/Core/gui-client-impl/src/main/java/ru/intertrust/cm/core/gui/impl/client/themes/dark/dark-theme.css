@@ -348,7 +348,7 @@
     /*margin-left: 5px;*/
 }
 .gwt-custom-TreeItem-selected .treeItemTitle {
-    background: url(http://free.selcet.com.ua/folder-list-selected-bg.png) no-repeat scroll 0 100%;
+    background: url(images/folder-list-selected-bg.png) no-repeat scroll 0 100%;
 }
 .treeItemTitle {
     margin-left: -4px;
