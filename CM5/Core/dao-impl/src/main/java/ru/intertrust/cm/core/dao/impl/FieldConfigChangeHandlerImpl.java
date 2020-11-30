@@ -48,6 +48,8 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof DateTimeWithTimeZoneFieldConfig && oldFieldConfig instanceof DateTimeFieldConfig) {
             handle((DateTimeWithTimeZoneFieldConfig) newFieldConfig, (DateTimeFieldConfig) oldFieldConfig, domainObjectTypeConfig);
+        } else if (newFieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof LongFieldConfig) {
+            handle((StringFieldConfig) newFieldConfig, (LongFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
     }
 
@@ -62,6 +64,10 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
     }
 
     private void handle(TextFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+        dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
+    }
+
+    private void handle(StringFieldConfig newFieldConfig, LongFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
         dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
     }
 
@@ -152,7 +158,9 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         if (!newFieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
                 !columnInfo.getDataType().startsWith(dataStructureDao.getSqlType(newFieldConfig)) &&
                 !(TextFieldConfig.class.equals(newFieldConfig.getClass()) &&
-                        StringFieldConfig.class.equals(oldFieldConfig.getClass()))) {
+                        StringFieldConfig.class.equals(oldFieldConfig.getClass()) ||
+                StringFieldConfig.class.equals(newFieldConfig.getClass()) &&
+                        LongFieldConfig.class.equals(oldFieldConfig.getClass()))) {
             throw new ConfigurationException("Configuration loading aborted: cannot change field type of " +
                     domainObjectTypeConfig.getName() + " from " +
                     oldFieldConfig.getClass().getName() + " to " + newFieldConfig.getClass().getName());
