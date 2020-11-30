@@ -462,7 +462,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     private void checkAccessWithException(Id attachId, Id userId, DomainObjectPermission.Permission permission) {
         if (!checkAccess(attachId, userId, permission)) {
             throw new AccessException(
-                    "User " + userId.toStringRepresentation() + " have no permission " + permission.name()
+                    "User " + userId.toStringRepresentation() + " has no permission " + permission.name()
                             + " to attachment " + attachId.toStringRepresentation());
         }
     }
