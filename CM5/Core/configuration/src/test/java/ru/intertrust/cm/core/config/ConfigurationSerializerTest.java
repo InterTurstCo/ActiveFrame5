@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.util.StreamUtils;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
@@ -10,10 +11,7 @@ import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -211,5 +209,19 @@ public class ConfigurationSerializerTest {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/simple-data.xml");
         Configuration conf = configurationSerializer.deserializeLoadedConfiguration(serializedConfiguration);
         assertNotNull(conf);
+    }
+
+    @Test
+    public void testDeserializeSearchArea() throws Exception {
+        // десериализация xml
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/search-area.xml");
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
+
+        // Обратная сериализация в xml
+        String serializedConfiguration = ConfigurationSerializer.serializeConfiguration(configuration);
+
+        //повторная десериализация сгенеренного xml
+        Configuration newConfiguration = configurationSerializer.deserializeConfiguration(serializedConfiguration);
+        assertEquals(configuration, newConfiguration);
     }
 }

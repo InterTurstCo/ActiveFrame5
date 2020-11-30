@@ -113,7 +113,7 @@ public class ConfigurationSerializer {
             schemaValidator.validate();
             return createSerializerInstance().read(Configuration.class, configurationString);
         } catch (Exception e) {
-            throw new ConfigurationException("Failed to deserialize configuration");
+            throw new ConfigurationException("Failed to deserialize configuration", e);
         }
     }
 
