@@ -4,6 +4,8 @@ package ru.intertrust.cm.core.business.api.access;
  * Сервис интеграции с IDP
  */
 public interface IdpService {
+    public static final String IDP_ALTER_UID_TYPE = "idp";
+
     /**
      * Создание пользователя
      * @param userInfo

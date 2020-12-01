@@ -15,14 +15,21 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+
 import org.keycloak.adapters.servlet.KeycloakOIDCFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.access.IdpService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+
 
 public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
+    public static final Logger logger = LoggerFactory.getLogger(PlatformKeycloakFilter.class);
     private boolean useIdp;
+    private PersonService personService;
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
@@ -33,12 +40,15 @@ public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
 
         IdpService idpService = ctx.getBean(IdpService.class);
         useIdp = idpService.getConfig().isIdpAuthentication();
+
+        personService = ctx.getBean(PersonService.class);
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         if (useIdp) {
-            // Подкладываем свой FilterChain, чтобы можно было перехватить вызов doFilter и произвести фейковую аутентификацию
+            // Подкладываем свой FilterChain, чтобы можно было перехватить вызов doFilter у родительского класса
+            // и произвести фейковую аутентификацию
             PlatformFilterChainWrapper platformChain = new PlatformFilterChainWrapper(chain);
             super.doFilter(req, res, platformChain);
         }else{
@@ -55,11 +65,20 @@ public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
 
         @Override
         public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-            // Выполняем фейковую аутентификацию, для того чтоб работали EJB
             HttpServletRequest httpRequest = (HttpServletRequest)request;
+            HttpServletResponse httpResponse = (HttpServletResponse)response;
+
+            // Выполняем фейковую аутентификацию, для того чтоб работали EJB
             LoginContext lc = login(httpRequest.getUserPrincipal().getName(), httpRequest.getUserPrincipal().getName());
 
-            origChain.doFilter(request, response);
+            // Выполняем поиск пользователя с данным UNID
+            DomainObject person = personService.findPersonByAltUid(httpRequest.getUserPrincipal().getName(), IdpService.IDP_ALTER_UID_TYPE);
+            if (person == null){
+                httpResponse.setStatus(403);
+                logger.warn("Not find person with alter uid = " + httpRequest.getUserPrincipal().getName());
+            }else {
+                origChain.doFilter(request, response);
+            }
 
             try {
                 lc.logout();

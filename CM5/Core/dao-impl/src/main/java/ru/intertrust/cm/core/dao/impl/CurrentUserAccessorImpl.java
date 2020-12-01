@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.access.IdpService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -104,7 +105,7 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                 // Вычисление пользователя по UNID
                 if (result != null && isUuid(result)){
                     // Получаем персону по UUID
-                    DomainObject person = getPersonServiceDao().findPersonByUnid(result);
+                    DomainObject person = getPersonServiceDao().findPersonByAltUid(result, IdpService.IDP_ALTER_UID_TYPE);
                     if (person == null) {
                         result = null;
                     } else {

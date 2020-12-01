@@ -107,7 +107,6 @@ public class TestKeycloakAdmin implements PlatformWebService {
                 throw new FatalException("Incorrect disable user");
             }
 
-
             // Удаление пользователя
             idpService.deleteUser(newUserUnid);
 

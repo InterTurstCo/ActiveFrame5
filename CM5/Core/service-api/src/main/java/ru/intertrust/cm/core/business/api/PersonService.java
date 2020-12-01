@@ -28,4 +28,12 @@ public interface PersonService {
      * @return уникальный идентификатор персоны, осуществляющей операцию
      */
     String getCurrentPersonUid();
+
+    /**
+     * Получение персоны по альтернативному идентификатору
+     * @param alterUid
+     * @param alterUidType
+     * @return
+     */
+    DomainObject findPersonByAltUid(String alterUid, String alterUidType);
 }
