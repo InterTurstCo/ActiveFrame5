@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 
-import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
@@ -21,7 +20,7 @@ public class RowItem implements Dto {
     }
 
     public void setValueByKey(String key, String value) {
-        values.put(key, SafeHtmlUtils.fromString(value).asString());
+        values.put(key, value);
     }
 
     public void setObjectId(Id objectId) {
