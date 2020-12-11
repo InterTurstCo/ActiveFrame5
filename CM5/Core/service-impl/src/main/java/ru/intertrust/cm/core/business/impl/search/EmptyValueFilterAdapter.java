@@ -30,13 +30,15 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":[")
+                            // двойные кавычки выбраны для того, чтобы пустую строку ("") отличать от отсутствия данных (null)
+                            // TODO подумать нужно ли это различие
                             .append(type != null && type.isTextType() ? "\"\"" : "*")
                             .append(" TO *]")
                             .toString());
                 }
             }
         }
-        return "-" + SolrUtils.joinStrings("OR", fields);
+        return "-(" + SolrUtils.joinStrings("OR", fields) + ")";
     }
 
     @Override
