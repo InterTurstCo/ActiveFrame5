@@ -109,7 +109,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                         "configuration. This may mean that configuration structure has changed since last configuration load", e);
             }
 
-            ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
+            ConfigurationExplorerImpl oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
+            oldConfigurationExplorer.init();
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
             boolean schemaUpdatedByAutoMigration = false;

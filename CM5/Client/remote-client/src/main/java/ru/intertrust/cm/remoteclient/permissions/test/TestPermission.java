@@ -739,6 +739,19 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getPersonId("administrator"), Permission.Delete);
             checkPermissions(test40.getId(), etalon, "Test 40");
 
+            // Проверка переопределения матрицы
+            Id person6 = getPersonId("person6");
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            DomainObject personAltUids = notAdminCrudservice.createDomainObject("person_alt_uids");
+            personAltUids.setString("alter_uid", "xxx");
+            personAltUids.setString("alter_uid_type", "yyy");
+            personAltUids.setLong("idx", 0L);
+            personAltUids.setReference("person", person6);
+            personAltUids = notAdminCrudservice.save(personAltUids);
+            personAltUids.setString("alter_uid", "zzz");
+            personAltUids = notAdminCrudservice.save(personAltUids);
+            notAdminCrudservice.delete(personAltUids.getId());
+            assertTrue("Extends access matrix", true);
 
 
             if (hasError) {

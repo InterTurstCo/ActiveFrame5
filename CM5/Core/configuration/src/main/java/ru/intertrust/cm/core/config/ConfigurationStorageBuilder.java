@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.AnnotationScanCallback;
 import ru.intertrust.cm.core.util.AnnotationScanner;
@@ -40,11 +42,13 @@ public class ConfigurationStorageBuilder {
 
     private ConfigurationExplorer configurationExplorer;
     private ConfigurationStorage configurationStorage;
+    private ModuleService moduleService;
     private Lock writeLock;
 
-    public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
+    public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage, ModuleService moduleService) {
         this.configurationExplorer = configurationExplorer;
         this.configurationStorage = configurationStorage;
+        this.moduleService = moduleService;
         this.writeLock = configurationExplorer.getReadWriteLock().writeLock();
     }
 
@@ -296,7 +300,7 @@ public class ConfigurationStorageBuilder {
             AccessMatrixStatusConfig result = null;
 
             //Получение конфигурации матрицы
-            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
+            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
             if (accessMatrixConfig == null) {
                 //Если матрица не найдена то ищем матрицу для родительского типа
                 DomainObjectTypeConfig doConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
@@ -537,7 +541,7 @@ public class ConfigurationStorageBuilder {
                 domainObjectType = getParentTypeOfAuditLog(domainObjectType);
             }
 
-            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
+            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
 
             if (accessMatrixConfig == null) {
                 DomainObjectTypeConfig domainObjectTypeConfig =
@@ -1146,8 +1150,6 @@ public class ConfigurationStorageBuilder {
 
     }
 
-
-
     @Deprecated
     private void fillReadPermittedToEverybodyMapFromStatus(AccessMatrixConfig accessMatrixConfig) {
         for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
@@ -1170,6 +1172,320 @@ public class ConfigurationStorageBuilder {
 
     private void unlock() {
         writeLock.unlock();
+    }
+
+    public AccessMatrixConfig fillAccessMatrixByObjectType(String domainObjectType) {
+        AccessMatrixConfig result = null;
+        Collection<AccessMatrixConfig> allAccessMatrixList = configurationExplorer.getConfigs(AccessMatrixConfig.class);
+
+        // Получаем все матрицы для типа
+        List<AccessMatrixConfig> accessMatrixForType = new ArrayList<>();
+        for (AccessMatrixConfig accessMatrix : allAccessMatrixList) {
+            if (accessMatrix.getType().equalsIgnoreCase(domainObjectType)){
+                accessMatrixForType.add(accessMatrix);
+            }
+        }
+
+        // если матриц несколько получаем итоговую, исходя из алгоритма наследования или замещения
+        if (accessMatrixForType.size() > 1){
+            result = getActualAccessMatrix(accessMatrixForType);
+        }
+        // Если матрица одна возвращаем ee
+        else if (accessMatrixForType.size() == 1){
+            result = accessMatrixForType.get(0);
+        }
+        // Если матриц нет ни одной, сохраняем NULL матрицуЮ, чтоб более не производить вычислений для этого типа
+        else{
+            result = NullValues.ACCESS_MATRIX_CONFIG;
+        }
+
+        configurationStorage.accessMatrixByObjectType.put(domainObjectType, result);
+        return result;
+    }
+
+    /**
+     * Получение актуальной матрицы доступа.
+     * Метод работает исходя из того, что валидация была ранее уже пройдена,
+     * и не будет каких либо зацикливаний или неоднозначностей в вычислении матрицы
+     * @param accessMatrixesForType
+     * @return
+     */
+    private AccessMatrixConfig getActualAccessMatrix(List<AccessMatrixConfig> accessMatrixesForType) {
+        AccessMatrixConfig result = null;
+        // Выстраиваем цепочку матриц с учетом зависимостей
+        List<AccessMatrixConfig> orderedAccessMatrix = new ArrayList<>();
+        // цикл по модулям с учетом зависимостей
+        for (ModuleConfiguration moduleConfig : moduleService.getModuleList()){
+            // цикл по матрицам для типа
+            for (AccessMatrixConfig accessMatrix : accessMatrixesForType) {
+                // Если найдена матрица для модуля добавляем в результат
+                if (accessMatrix.getModuleName().equals(moduleConfig.getName())){
+                    orderedAccessMatrix.add(accessMatrix);
+                    break;
+                }
+            }
+        }
+
+        // Цикл по матрицам с учетом их зависимостей
+        for (AccessMatrixConfig accessMatrix : orderedAccessMatrix) {
+            // делаем самую первую матрицу актуальной
+            if (result == null){
+                result = accessMatrix;
+            }else{
+                // Если не первая матрица "Замещающая" то в результирующую переменную записываем ее
+                if (accessMatrix.getExtendType() == AccessMatrixConfig.AccessMatrixExtendType.replace){
+                    result = accessMatrix;
+                }
+                // Если не первая матрица объединяется, то вычисляем результат объединения
+                else{
+                    result = getMergedAccessMatrix(result, accessMatrix);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Объединение матриц
+     * @param parent
+     * @param child
+     * @return
+     */
+    private AccessMatrixConfig getMergedAccessMatrix(AccessMatrixConfig parent, AccessMatrixConfig child) {
+        AccessMatrixConfig result = new AccessMatrixConfig();
+        result.setType(parent.getType());
+        result.setModuleName(parent.getModuleName());
+        result.setReadEverybody(parent.isReadEverybody() != null && parent.isReadEverybody() ||
+                child.isReadEverybody() != null && child.isReadEverybody());
+        result.setBorrowPermissisons(getMaxBorrowPermissisons(parent.getBorrowPermissisons(), child.getBorrowPermissisons()));
+        result.setCreateConfig(getMergedCreateConfig(parent.getCreateConfig(), child.getCreateConfig()));
+        result.setStatus(getMergedAccessMatrixStatusesConfig(parent.getStatus(), child.getStatus()));
+        return result;
+    }
+
+    /**
+     * Получение объединения конфигурации прав для статусов доменных объектов
+     * @param parentStatusConfig
+     * @param childStatusConfig
+     * @return
+     */
+    private List<AccessMatrixStatusConfig> getMergedAccessMatrixStatusesConfig(
+            List<AccessMatrixStatusConfig> parentStatusConfig, List<AccessMatrixStatusConfig> childStatusConfig) {
+        Map<String, AccessMatrixStatusConfig> result = new HashMap<>();
+
+        for (AccessMatrixStatusConfig statusConfig : parentStatusConfig){
+            result.put(statusConfig.getName(), statusConfig);
+        }
+
+        for (AccessMatrixStatusConfig statusConfig : childStatusConfig){
+            if (result.containsKey(statusConfig.getName())){
+                result.put(statusConfig.getName(),
+                        getMergedAccessMatrixStatusConfig(result.get(statusConfig.getName()), statusConfig));
+            }else{
+                result.put(statusConfig.getName(), statusConfig);
+            }
+        }
+
+        return new ArrayList<>(result.values());
+    }
+
+    /**
+     * Слияние прав на один статус
+     * @param parentAccessMatrixStatusConfig
+     * @param childAccessMatrixStatusConfig
+     * @return
+     */
+    private AccessMatrixStatusConfig getMergedAccessMatrixStatusConfig(AccessMatrixStatusConfig parentAccessMatrixStatusConfig,
+                                                                       AccessMatrixStatusConfig childAccessMatrixStatusConfig) {
+        AccessMatrixStatusConfig result = new AccessMatrixStatusConfig();
+        result.setName(parentAccessMatrixStatusConfig.getName());
+        List<BaseOperationPermitConfig> resultPermissions = new ArrayList<>();
+        result.setPermissions(resultPermissions);
+
+        // типы в настройке прав createChild которые встречались в parent
+        Set<String> createChildTypes = new HashSet<>();
+        // имена действий в настройке прав executeAction которые встречались в parent
+        Set<String> executeActionNames = new HashSet<>();
+        // флаг наличия настройки прав чтения в parent
+        boolean read = false;
+        // флаг наличия настройки прав записи в parent
+        boolean write = false;
+        // флаг наличия настройки прав удаления в parent
+        boolean delete = false;
+        // флаг наличия настройки прав чтения вложения в parent
+        boolean readAttachment = false;
+
+        // цикл по правам родительской настройки
+        for (BaseOperationPermitConfig parentPermitConfig : parentAccessMatrixStatusConfig.getPermissions()){
+            // Форируем итоговые права на read
+            if (parentPermitConfig instanceof ReadConfig) {
+                ReadConfig resultPermitConfig = new ReadConfig();
+                resultPermitConfig.setPermitEverybody(((ReadConfig) parentPermitConfig).isPermitEverybody());
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                read = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof ReadConfig) {
+                        resultPermitConfig.setPermitEverybody(resultPermitConfig.isPermitEverybody() ||
+                                ((ReadConfig)childPermitConfig).isPermitEverybody());
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+            // Форируем итоговые права на write
+            else if(parentPermitConfig instanceof WriteConfig){
+                WriteConfig resultPermitConfig = new WriteConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                write = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof WriteConfig) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+            // Форируем итоговые права на delete
+            else if(parentPermitConfig instanceof DeleteConfig){
+                DeleteConfig resultPermitConfig = new DeleteConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                delete = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof DeleteConfig) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+            // Форируем итоговые права на создание связи, учитываем имя связываемого
+            else if(parentPermitConfig instanceof CreateChildConfig){
+                CreateChildConfig resultPermitConfig = new CreateChildConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+                resultPermitConfig.setType(((CreateChildConfig) parentPermitConfig).getType());
+
+                resultPermissions.add(resultPermitConfig);
+                createChildTypes.add(resultPermitConfig.getType().toLowerCase());
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof CreateChildConfig &&
+                            ((CreateChildConfig)childPermitConfig).getType().equalsIgnoreCase(
+                                    ((CreateChildConfig) parentPermitConfig).getType())) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+            // Форируем итоговые права на выполнение действия, учитываем имя действия
+            else if(parentPermitConfig instanceof ExecuteActionConfig){
+                ExecuteActionConfig resultPermitConfig = new ExecuteActionConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+                resultPermitConfig.setName(((ExecuteActionConfig) parentPermitConfig).getName());
+
+                resultPermissions.add(resultPermitConfig);
+                executeActionNames.add(resultPermitConfig.getName().toLowerCase());
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof ExecuteActionConfig &&
+                            ((ExecuteActionConfig)childPermitConfig).getName().equalsIgnoreCase(
+                                    ((ExecuteActionConfig) parentPermitConfig).getName())) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+            // Форируем итоговые права на чтение вложений
+            else if(parentPermitConfig instanceof ReadAttachmentConfig){
+                ReadAttachmentConfig resultPermitConfig = new ReadAttachmentConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                readAttachment = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof ReadAttachmentConfig) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+        }
+
+        // цикл по правам дочерней настройки статуса, ищем те настройки, которые не встречались в родителе
+        for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+           if (childPermitConfig instanceof ReadConfig && !read){
+               resultPermissions.add(childPermitConfig);
+           }else if (childPermitConfig instanceof WriteConfig && !write) {
+               resultPermissions.add(childPermitConfig);
+           }else if (childPermitConfig instanceof DeleteConfig && !delete) {
+               resultPermissions.add(childPermitConfig);
+           }else if (childPermitConfig instanceof ReadAttachmentConfig && !readAttachment) {
+               resultPermissions.add(childPermitConfig);
+           }else if (childPermitConfig instanceof CreateChildConfig &&
+                   !createChildTypes.contains(((CreateChildConfig) childPermitConfig).getType())) {
+               resultPermissions.add(childPermitConfig);
+           }else if (childPermitConfig instanceof ExecuteActionConfig &&
+                   !executeActionNames.contains(((ExecuteActionConfig) childPermitConfig).getName())) {
+               resultPermissions.add(childPermitConfig);
+           }
+        }
+
+        return result;
+    }
+
+    /**
+     * Получение объеденения прав на создание
+     * @param parentСreateConfig
+     * @param childCreateConfig
+     * @return
+     */
+    private AccessMatrixCreateConfig getMergedCreateConfig(AccessMatrixCreateConfig parentСreateConfig,
+                                                           AccessMatrixCreateConfig childCreateConfig) {
+        AccessMatrixCreateConfig result = new AccessMatrixCreateConfig();
+        if (parentСreateConfig != null) {
+            result.getPermitGroups().addAll(parentСreateConfig.getPermitGroups());
+        }
+        if (childCreateConfig != null){
+            result.getPermitGroups().addAll(childCreateConfig.getPermitGroups());
+        }
+        return result;
+    }
+
+    /**
+     * Получение максимального значения типа заимствования
+     * @param parentBorrowPermissisons
+     * @param childBorrowPermissisons
+     * @return
+     */
+    private AccessMatrixConfig.BorrowPermissisonsMode getMaxBorrowPermissisons(
+            AccessMatrixConfig.BorrowPermissisonsMode parentBorrowPermissisons,
+            AccessMatrixConfig.BorrowPermissisonsMode childBorrowPermissisons) {
+        AccessMatrixConfig.BorrowPermissisonsMode result = null;
+
+        if (parentBorrowPermissisons == null && childBorrowPermissisons == null){
+            result = null;
+        }else if (parentBorrowPermissisons != null && childBorrowPermissisons == null){
+            result = parentBorrowPermissisons;
+        }else if (parentBorrowPermissisons == null && childBorrowPermissisons != null){
+            result = childBorrowPermissisons;
+        }else if (parentBorrowPermissisons == childBorrowPermissisons){
+            result = parentBorrowPermissisons;
+        }else{
+            Map<AccessMatrixConfig.BorrowPermissisonsMode, Integer> borrowPermissisonsModeWeight = new HashMap<>();
+            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.none, 0);
+            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.read, 1);
+            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete, 2);
+            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.all, 3);
+
+            if (borrowPermissisonsModeWeight.get(parentBorrowPermissisons) >
+                    borrowPermissisonsModeWeight.get(childBorrowPermissisons)){
+                result = parentBorrowPermissisons;
+            }else{
+                result = childBorrowPermissisons;
+            }
+        }
+        return result;
     }
 
     private class TypesDelegatingAccessCheckToBuilderData {

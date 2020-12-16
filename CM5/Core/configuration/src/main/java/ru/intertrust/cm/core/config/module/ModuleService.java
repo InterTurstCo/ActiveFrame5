@@ -27,4 +27,24 @@ public interface ModuleService {
      * @return
      */
     List<ModuleConfiguration> getModuleList();
+
+    /**
+     * Получение корневых модулей
+     * @return
+     */
+    List<ModuleConfiguration> getRootModules();
+
+    /**
+     * Получение дочерних модулей
+     * @param moduleName
+     * @return
+     */
+    List<ModuleConfiguration> getChildModules(String moduleName);
+
+    /**
+     * Получение родительских модулей
+     * @param moduleName
+     * @return
+     */
+    List<ModuleConfiguration> getParentModules(String moduleName);
 }

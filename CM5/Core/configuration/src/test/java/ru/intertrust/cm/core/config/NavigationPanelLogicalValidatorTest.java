@@ -84,7 +84,9 @@ public class NavigationPanelLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        return new ConfigurationExplorerImpl(configuration,true);
+        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration,true);
+        result.init();
+        return result;
     }
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {

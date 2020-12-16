@@ -161,7 +161,9 @@ public class FileSystemAttachmentStorageImplTest {
             ConfigurationClassesCache.getInstance().build();
             ConfigurationSerializer serializer = new ConfigurationSerializer();
             Configuration configuration = serializer.deserializeLoadedConfiguration(conf);
-            return new ConfigurationExplorerImpl(configuration);
+            ConfigurationExplorerImpl result =  new ConfigurationExplorerImpl(configuration);
+            result.init();
+            return result;
         } catch (Exception e) {
             throw new RuntimeException("Something went wrong...", e);
         }

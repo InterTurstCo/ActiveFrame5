@@ -339,6 +339,7 @@ public class CollectionsDaoImplTest {
         configuration.getConfigurationList().add(globalSettingsConfig);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
         collectionQueryCache.setConfigurationExplorer(configurationExplorer);
 

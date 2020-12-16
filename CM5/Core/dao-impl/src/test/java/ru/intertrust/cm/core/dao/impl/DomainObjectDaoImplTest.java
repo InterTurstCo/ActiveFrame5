@@ -520,6 +520,7 @@ public class DomainObjectDaoImplTest {
         configuration.getConfigurationList().add(globalSettings);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
         domainObjectDaoImpl.setConfigurationExplorer(configurationExplorer);
     }
 
@@ -546,7 +547,8 @@ public class DomainObjectDaoImplTest {
         configuration.getConfigurationList().add(dot);
         configuration.getConfigurationList().add(globalSettings);
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
 
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
         Assert.assertNotNull(dot);

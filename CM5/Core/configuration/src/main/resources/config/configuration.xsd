@@ -1113,6 +1113,8 @@
         <xs:attribute name="matrix-reference-field" type="xs:string" use="optional"/>
         <xs:attribute name="borrow-permissisons" type="con:BorrowPermissisonsEnum" use="optional"/>
         <xs:attribute name="support-security-stamp" type="xs:boolean" use="optional" default="false"/>
+        <xs:attribute name="extendable" type="xs:boolean" default="false"/>
+        <xs:attribute name="extend-type" type="con:AccessMatrixExtendType"/>
     </xs:complexType>
 
     <xs:complexType name="matrixReferenceMapping">
@@ -4700,4 +4702,10 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <xs:simpleType name="AccessMatrixExtendType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="extend"/>
+            <xs:enumeration value="replace"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

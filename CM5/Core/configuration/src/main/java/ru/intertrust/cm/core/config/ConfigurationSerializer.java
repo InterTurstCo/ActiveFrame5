@@ -248,9 +248,10 @@ public class ConfigurationSerializer {
             final List<TopLevelConfig> destinationTopLevelConfigs = destination.getConfigurationList();
             final List<TopLevelConfig> sourceTopLevelConfigs = source.getConfigurationList();
             for (TopLevelConfig sourceTopLevelConfig : sourceTopLevelConfigs) {
-                final boolean isMigrationScript = sourceTopLevelConfig instanceof MigrationScriptConfig;
-                if (isMigrationScript) {
+                if (sourceTopLevelConfig instanceof MigrationScriptConfig) {
                     ((MigrationScriptConfig) sourceTopLevelConfig).setModuleName(source.getModuleName());
+                }else if (sourceTopLevelConfig instanceof AccessMatrixConfig){
+                    ((AccessMatrixConfig) sourceTopLevelConfig).setModuleName(source.getModuleName());
                 }
                 destinationTopLevelConfigs.add(sourceTopLevelConfig);
             }
