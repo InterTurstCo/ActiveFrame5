@@ -75,13 +75,7 @@ public class KeycloakIdpServiceImpl implements IdpService {
 
     @Override
     public String createUser(UserInfo userInfo) {
-
-        UserRepresentation userRepresentation = new UserRepresentation();
-        userRepresentation.setUsername(userInfo.getUsername());
-        userRepresentation.setEmail(userInfo.getEmail());
-        userRepresentation.setFirstName(userInfo.getFirstName());
-        userRepresentation.setLastName(userInfo.getLastName());
-        userRepresentation.setEnabled(userInfo.isEnable());
+        UserRepresentation userRepresentation = newUserRepresentation(userInfo);
 
         Response response = keycloak.realm(config.getRealm()).users().create(userRepresentation);
         if (response.getStatus() != 201){
@@ -94,16 +88,23 @@ public class KeycloakIdpServiceImpl implements IdpService {
 
     @Override
     public String updateUser(UserInfo userInfo) {
-        UserRepresentation userRepresentation = new UserRepresentation();
+        UserRepresentation userRepresentation = newUserRepresentation(userInfo);
         userRepresentation.setId(userInfo.getUnid());
+
+        keycloak.realm(config.getRealm()).users().get(userInfo.getUnid()).update(userRepresentation);
+        return userInfo.getUnid();
+    }
+
+    private UserRepresentation newUserRepresentation(UserInfo userInfo) {
+        UserRepresentation userRepresentation = new UserRepresentation();
         userRepresentation.setUsername(userInfo.getUsername());
         userRepresentation.setEmail(userInfo.getEmail());
         userRepresentation.setFirstName(userInfo.getFirstName());
         userRepresentation.setLastName(userInfo.getLastName());
         userRepresentation.setEnabled(userInfo.isEnable());
-
-        keycloak.realm(config.getRealm()).users().get(userInfo.getUnid()).update(userRepresentation);
-        return userInfo.getUnid();
+        userRepresentation.setAttributes(userInfo.getAttributes());
+        userRepresentation.setRequiredActions(userInfo.getRequiredActions());
+        return userRepresentation;
     }
 
     @Override

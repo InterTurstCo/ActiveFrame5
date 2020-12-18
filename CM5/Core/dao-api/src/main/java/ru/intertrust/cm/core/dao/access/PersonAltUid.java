@@ -20,7 +20,15 @@ public class PersonAltUid {
     public void setAlterUidType(String alterUidType) {
         this.alterUidType = alterUidType;
     }
-    
+
+    public String getAlterUid() {
+        return alterUid;
+    }
+
+    public void setAlterUid(String alterUid) {
+        this.alterUid = alterUid;
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
