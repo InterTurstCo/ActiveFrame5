@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.model.FatalException;
 
 public class KeycloakIdpServiceImpl implements IdpService {
 
-    @Value("${keycloak.ralm.name:}")
+    @Value("${keycloak.realm.name:}")
     private String realmName;
 
     @Value("${keycloak.realm.public.key:}")
