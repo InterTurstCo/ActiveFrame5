@@ -79,6 +79,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         this.distributiveConfiguration = configuration;
         this.skipLogicalValidation = skipLogicalValidation;
         this.context = context;
+        this.moduleService = context.getBean(ModuleService.class);
         // Ненадо вызывать из конструктора так как вызывается из beans.xml спрингом
         //init();
     }
