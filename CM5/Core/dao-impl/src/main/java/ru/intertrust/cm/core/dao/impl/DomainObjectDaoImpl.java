@@ -1708,8 +1708,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         parameters.put("updated_by_type", currentUserType);
 
         if (isUpdateStatus) {
-            parameters.put("status", ((RdbmsId) domainObject.getStatus()).getId());
-            parameters.put("status_type", ((RdbmsId) domainObject.getStatus()).getTypeId());
+            parameters.put("status", domainObject.getStatus() == null ? null : ((RdbmsId) domainObject.getStatus()).getId());
+            parameters.put("status_type", domainObject.getStatus() == null ? null : ((RdbmsId) domainObject.getStatus()).getTypeId());
         }
 
         if (domainObject.getStamp() != null) {
