@@ -1,23 +1,31 @@
 package ru.intertrust.cm.core.business.impl.access;
 
-import java.util.List;
-import javax.annotation.PostConstruct;
-import javax.ws.rs.core.Response;
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.keycloak.OAuth2Constants;
+import org.keycloak.admin.client.ClientBuilderWrapper;
+import org.keycloak.admin.client.JacksonProvider;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.business.api.access.IdpConfig;
-import ru.intertrust.cm.core.business.api.access.IdpService;
+import ru.intertrust.cm.core.business.api.access.IdpAdminService;
 import ru.intertrust.cm.core.business.api.access.UserInfo;
 import ru.intertrust.cm.core.model.FatalException;
 
-public class KeycloakIdpServiceImpl implements IdpService {
+import javax.annotation.PostConstruct;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.util.List;
+
+public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
     @Value("${keycloak.realm.name:}")
     private String realmName;
-
-    @Value("${keycloak.realm.public.key:}")
-    private String realmPublicKey;
 
     @Value("${keycloak.url:}")
     private String url;
@@ -25,11 +33,11 @@ public class KeycloakIdpServiceImpl implements IdpService {
     @Value("${keycloak.client.id:}")
     private String clientId;
 
-    @Value("${keycloak.admin.login:}")
-    private String adminLogin;
+    @Value("${keycloak.admin.client.id:}")
+    private String adminClientId;
 
-    @Value("${keycloak.admin.password:}")
-    private String adminPassword;
+    @Value("${keycloak.admin.secret:}")
+    private String adminSecret;
 
     @Value("${keycloak.disable.trust.manager:false}")
     private boolean disableTrustManager;
@@ -49,28 +57,57 @@ public class KeycloakIdpServiceImpl implements IdpService {
 
 
     @PostConstruct
-    public void init(){
+    public void init() {
 
         config = new KeycloakConfig();
-        config.setRealm(realmName);
         config.setServerUrl(url);
-        config.setRealmPublicKey(realmPublicKey);
+        config.setRealm(realmName);
         config.setClientId(clientId);
-        config.setAdminLogin(adminLogin);
-        config.setAdminPassword(adminPassword);
+        config.setAdminClientId(adminClientId);
+        config.setAdminSecret(adminSecret);
         config.setDisableTrustManager(disableTrustManager);
         config.setTruststore(truststore);
         config.setTruststorePassword(truststorePassword);
         config.setIdpAuthentication(idpAuthentication);
 
         if (url != null && !url.isEmpty()) {
-            keycloak = Keycloak.getInstance(
-                    config.getServerUrl(),
-                    "master",
-                    config.getAdminLogin(),
-                    config.getAdminPassword(),
-                    "admin-cli");
+
+            keycloak = KeycloakBuilder.builder().
+                    serverUrl(config.getServerUrl()).
+                    realm(config.getRealm()).
+                    clientId(config.getAdminClientId()).
+                    clientSecret(config.getAdminSecret()).
+                    grantType(OAuth2Constants.CLIENT_CREDENTIALS).
+                    resteasyClient(createRestClient(
+                            createSslContext(config.getTruststore(), config.getTruststorePassword()),
+                            config.isDisableTrustManager())).
+                    build();
         }
+    }
+
+    private SSLContext createSslContext(String trustStore, String trustStorePassword){
+        try {
+
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(new FileInputStream(trustStore),
+                    trustStorePassword.toCharArray());
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(
+                    TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init(ks);
+
+            SSLContext sslContext = SSLContext.getInstance("SSL");
+
+            sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+            return sslContext;
+        }catch(Exception ex){
+            throw new FatalException("Error create ssl context", ex);
+        }
+    }
+
+    private ResteasyClient createRestClient(SSLContext sslContext, boolean disableTrustManager) {
+        ClientBuilder clientBuilder = ClientBuilderWrapper.create(sslContext, disableTrustManager);
+        clientBuilder.register(JacksonProvider.class, 100);
+        return (ResteasyClient)clientBuilder.build();
     }
 
     @Override
@@ -121,6 +158,9 @@ public class KeycloakIdpServiceImpl implements IdpService {
 
     @Override
     public UserInfo findUserByUserName(String userName) {
+
+        init();
+
         List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName);
         if (searchResult.size() == 0 ){
             return null;

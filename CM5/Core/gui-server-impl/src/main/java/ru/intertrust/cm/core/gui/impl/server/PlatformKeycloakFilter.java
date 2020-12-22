@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.access.IdpService;
+import ru.intertrust.cm.core.business.api.access.IdpAdminService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 
 
@@ -38,8 +38,8 @@ public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
         ApplicationContext ctx = WebApplicationContextUtils
                 .getRequiredWebApplicationContext(filterConfig.getServletContext());
 
-        IdpService idpService = ctx.getBean(IdpService.class);
-        useIdp = idpService.getConfig().isIdpAuthentication();
+        IdpAdminService idpAdminService = ctx.getBean(IdpAdminService.class);
+        useIdp = idpAdminService.getConfig().isIdpAuthentication();
 
         personService = ctx.getBean(PersonService.class);
     }
@@ -72,7 +72,7 @@ public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
             LoginContext lc = login(httpRequest.getUserPrincipal().getName(), httpRequest.getUserPrincipal().getName());
 
             // Выполняем поиск пользователя с данным UNID
-            DomainObject person = personService.findPersonByAltUid(httpRequest.getUserPrincipal().getName(), IdpService.IDP_ALTER_UID_TYPE);
+            DomainObject person = personService.findPersonByAltUid(httpRequest.getUserPrincipal().getName(), IdpAdminService.IDP_ALTER_UID_TYPE);
             if (person == null){
                 httpResponse.setStatus(403);
                 logger.warn("Not find person with alter uid = " + httpRequest.getUserPrincipal().getName());

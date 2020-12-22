@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ru.intertrust.cm.core.business.api.access.IdpService;
+import ru.intertrust.cm.core.business.api.access.IdpAdminService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -65,7 +65,7 @@ public class AuthenticationFilter implements Filter {
 
     private EventLogService eventLogService;
 
-    private IdpService idpService;
+    private IdpAdminService idpAdminService;
 
     private CurrentUserAccessor currentUserAccessor;
     /**
@@ -93,9 +93,9 @@ public class AuthenticationFilter implements Filter {
 
         eventLogService = ctx.getBean(EventLogService.class);
 
-        idpService = ctx.getBean(IdpService.class);
+        idpAdminService = ctx.getBean(IdpAdminService.class);
 
-        useIdp = idpService.getConfig().isIdpAuthentication();
+        useIdp = idpAdminService.getConfig().isIdpAuthentication();
 
         currentUserAccessor = ctx.getBean(CurrentUserAccessor.class);
     }

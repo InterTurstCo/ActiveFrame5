@@ -18,28 +18,22 @@ public interface IdpConfig {
     String getRealm();
 
     /**
-     * Получениеи публичного ключа области аутентификации
-     * @return
-     */
-    String getRealmPublicKey();
-
-    /**
      * Получение идентификатора клиента
      * @return
      */
     String getClientId();
 
     /**
-     * Получение логина администратора для модификации настроек IDP сервера из системы
+     * Получение приватного ключа административного клиента
      * @return
      */
-    String getAdminLogin();
+    String getAdminSecret();
 
     /**
-     * Получение пароля администратора для модификации настроек IDP сервера из системы
+     * Получение идентификатора административного клиента
      * @return
      */
-    String getAdminPassword();
+    String getAdminClientId();
 
     /**
      * Возвращает флаг проверки SSL сервера IDP
