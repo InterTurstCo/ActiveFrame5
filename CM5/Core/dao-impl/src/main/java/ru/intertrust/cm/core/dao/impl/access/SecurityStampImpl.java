@@ -132,7 +132,7 @@ public class SecurityStampImpl implements SecurityStamp, AfterClearGlobalCacheEx
                 String matrixType = configurationExplorer.getMatrixReferenceTypeName(typeName);
                 if (matrixType != null){
                     AccessMatrixConfig referenceMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(matrixType);
-                    if (referenceMatrix != null){
+                    if (referenceMatrix != null && referenceMatrix.isSupportSecurityStamp() != null){
                         result = referenceMatrix.isSupportSecurityStamp();
                     }
                 }
