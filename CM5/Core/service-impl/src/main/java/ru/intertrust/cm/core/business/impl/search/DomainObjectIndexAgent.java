@@ -61,11 +61,11 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
-        log.debug("DomainObjectIndexAgent: onAfterSave(): " +
-                (domainObject != null ? ("" + domainObject.getTypeName() + " / " + domainObject.getId()) : "null"));
-
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
         ArrayList<String> toDelete = new ArrayList<>();
+
+        String cmjField = domainObject.getString("cmjfield");
+
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             if (isCntxSolrServer(config.getSolrServerKey())) {
                 // Context search
@@ -80,7 +80,6 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             List<Id> mainIds = calculateMainObjects(domainObject.getId(), config.getObjectConfigChain());
 
             if (mainIds.size() > 0) {
-                String cmjField = domainObject.getString("cmjfield");
                 if (cmjField != null && cmjField.startsWith("Tn$_")) {
                     // отдельная обработка для нетиповвых объектов
                     reindexTnObject(solrDocs, toDelete, domainObject, config, mainIds, domainObject.getTypeName());
@@ -121,9 +120,6 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
-        log.debug("DomainObjectIndexAgent: onBeforeDelete(): " +
-                (deletedDomainObject != null ? ("" + deletedDomainObject.getTypeName() + " / " + deletedDomainObject.getId()) : "null"));
-
         String cmjField = deletedDomainObject.getString("cmjfield");
 
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
@@ -157,9 +153,6 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
-        log.debug("DomainObjectIndexAgent: onAfterDelete(): " +
-                (deletedDomainObject != null ? ("" + deletedDomainObject.getTypeName() + " / " + deletedDomainObject.getId()) : "null"));
-
         String cmjField = deletedDomainObject.getString("cmjfield");
 
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
@@ -181,16 +174,16 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             }
         }
         if (solrIds.size() > 0) {
+            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(new UpdateRequest().deleteById(solrIds));
             if (log.isInfoEnabled()) {
                 log.info("" + solrIds.size() + " Solr document(s) queued for deleting");
             }
-            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(new UpdateRequest().deleteById(solrIds));
         }
         if (solrDocs.size() > 0) {
+            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addDocuments(solrDocs);
             if (log.isInfoEnabled()) {
                 log.info("" + solrDocs.size() + " Solr document(s) queued for indexing");
             }
-            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addDocuments(solrDocs);
         }
     }
 
