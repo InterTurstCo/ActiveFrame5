@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * кеш после изменения логина пользователя (если это будет поддерживаться) и после изменения состава групп Superusers, Administrators.
  * @author atsvetkov
  */
-public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
+public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache, AfterClearGlobalCacheExtentionHandler {
 
 //    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
     
@@ -110,4 +111,8 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
         return isInfoSecAuditor;    
     }
 
+    @Override
+    public void onClearGlobalCache() {
+        cleanCache();
+    }
 }

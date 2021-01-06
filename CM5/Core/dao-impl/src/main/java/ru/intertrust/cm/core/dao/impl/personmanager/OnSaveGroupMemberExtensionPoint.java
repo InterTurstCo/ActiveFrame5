@@ -43,18 +43,7 @@ public class OnSaveGroupMemberExtensionPoint implements AfterSaveExtensionHandle
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         clearCaches(domainObject.getReference("person_id"), groupChanged(changedFields));
-
-        Id usergroupId = domainObject.getReference("UserGroup");
-        if (usergroupId != null) {
-            AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveGroupMemberExtensionPoint");
-            DomainObject userGroup = domainObjectDao.find(usergroupId, accessToken);
-
-            String groupName = userGroup.getString("group_name");
-            // если изменяется состав группы Superusers и InfoSecAuditor, нужно очищать кеш пользователей в AccessControlService
-            if (GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(groupName) || GenericDomainObject.INFO_SEC_AUDITOR_GROUP.equals(groupName)) {
-                userGroupGlobalCache.cleanCache();
-            }
-        }
+        clearUserGroupGlobalCache(domainObject);
     }
 
     private void clearCaches(Id personId, boolean clearGlobalCache) {
@@ -67,9 +56,28 @@ public class OnSaveGroupMemberExtensionPoint implements AfterSaveExtensionHandle
 
     }
 
+    private void clearUserGroupGlobalCache(DomainObject domainObject){
+        Id usergroupId = domainObject.getReference("UserGroup");
+        if (usergroupId != null) {
+            AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveGroupMemberExtensionPoint");
+            DomainObject userGroup = domainObjectDao.find(usergroupId, accessToken);
+
+            String groupName = userGroup.getString("group_name");
+            // если изменяется состав группы Superusers и InfoSecAuditor, нужно очищать кеш пользователей в AccessControlService
+            if (GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(groupName)
+                    || GenericDomainObject.INFO_SEC_AUDITOR_GROUP.equals(groupName)
+                    || GenericDomainObject.ADMINISTRATORS_STATIC_GROUP.equals(groupName)) {
+                userGroupGlobalCache.cleanCache();
+                // Сбрасываем глобальный кэш, чтобы userGroupGlobalCache применилось на всех нодах
+                globalCacheClient.clear();
+            }
+        }
+    }
+
     @Override
     public void onAfterDelete(DomainObject deletedDomainObject) {
         clearCaches(deletedDomainObject.getReference("person_id"), true);
+        clearUserGroupGlobalCache(deletedDomainObject);
     }
 
     private boolean groupChanged(List<FieldModification> changedFields) {
