@@ -1,5 +1,7 @@
 package ru.intertrust.cm.plugins.permission;
 
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -7,19 +9,18 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.plugin.Plugin;
-import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.plugins.PluginBase;
+import ru.intertrust.cm.plugins.PlatformPluginBase;
 
 import javax.ejb.EJBContext;
 import javax.transaction.Status;
 import java.util.Collections;
-import java.util.Map;
 
 @Plugin(name = "DeleteDynamicGroups",
         description = "Удаление динамических групп доступа",
         transactional = false)
-public class DeleteDynamicGroups extends PluginBase implements PluginHandler {
+public class DeleteDynamicGroups extends PlatformPluginBase {
+    public static final String GROUP_PARAM = "group";
 
     @Autowired
     private CollectionsService collectionsService;
@@ -28,24 +29,24 @@ public class DeleteDynamicGroups extends PluginBase implements PluginHandler {
     private CrudService crudService;
 
     @Override
-    public String execute(EJBContext context, String param) {
-        Map<String, String> params = getParametersMap(param);
+    public void execute() {
+        if (getCommandLine().hasOption(HELP_PARAM) || !getCommandLine().hasOption(GROUP_PARAM)) {
+            logHelpMessage("Plugin delete dynamic group");
+        } else {
+            String groupName = getCommandLine().getOptionValue(GROUP_PARAM);
+            if (groupName == null) {
+                throw new FatalException("Params need contains group name for delete. Param format: group=group_name");
+            }
+            info("Delete group " + groupName);
 
-        String groupName = params.get("group");
-        if (groupName == null){
-            throw new FatalException("Params need contains group name for delete. Param format: group=group_name");
+            // Получаем все группы
+            IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
+                    "select id from user_group where group_name = {0}",
+                    Collections.singletonList(new StringValue(groupName)));
+            for (IdentifiableObject row : collection) {
+                deleteGroup(getContext(), row);
+            }
         }
-        info("Delete group " + groupName);
-
-        // Получаем все группы
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
-                "select id from user_group where group_name = {0}",
-                Collections.singletonList(new StringValue(groupName)));
-        for (IdentifiableObject row : collection) {
-            deleteGroup(context, row);
-        }
-
-        return getLog();
     }
 
     private void deleteGroup(EJBContext context, IdentifiableObject row) {
@@ -65,5 +66,13 @@ public class DeleteDynamicGroups extends PluginBase implements PluginHandler {
                 info("Warning! Error rollback transaction");
             }
         }
+    }
+
+    @Override
+    protected Options createOptions() {
+        Options options = new Options();
+        options.addOption(new Option(HELP_PARAM, "Prints this help message."));
+        options.addOption(new Option(GROUP_PARAM, true, "Group name fore delete."));
+        return options;
     }
 }
