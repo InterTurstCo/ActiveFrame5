@@ -158,6 +158,7 @@ public class DomainObjectQueryHelperTest {
         configuration.getConfigurationList().add(globalSettings);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
         domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
         domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);

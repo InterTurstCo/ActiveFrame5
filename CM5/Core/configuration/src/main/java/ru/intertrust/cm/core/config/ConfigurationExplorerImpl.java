@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -55,6 +56,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Autowired
     private ApplicationContext context;
 
+    @Autowired
+    private ModuleService moduleService;
+
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
@@ -75,7 +79,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         this.distributiveConfiguration = configuration;
         this.skipLogicalValidation = skipLogicalValidation;
         this.context = context;
-        init();
+        if (context != null) {
+            this.moduleService = context.getBean(ModuleService.class);
+        }
+        // Ненадо вызывать из конструктора так как вызывается из beans.xml спрингом
+        //init();
     }
 
     public Set<ConfigChange> copyFrom(ConfigurationExplorerImpl another) {
@@ -121,9 +129,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         this.skipLogicalValidation = false;
     }
 
-    private void init() {
+    /**
+     * Инициализация. Вызывается spring-ом при создании бина (в beans.xml указано init-method="init")
+     */
+    public void init() {
         configStorage = new ConfigurationStorage(configuration);
-        configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
+        configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage, moduleService);
         plainFormBuilder = new PlainFormBuilderImpl(this);
         configurationStorageBuilder.buildConfigurationStorage();
         this.skipLogicalValidation = skipLogicalValidation;
@@ -499,8 +510,19 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             domainObjectType = getParentTypeOfAuditLog(domainObjectType);
         }
 
+        lock();
+        try {
+            AccessMatrixConfig accessMatrixConfig =
+                    configStorage.accessMatrixByObjectType.get(domainObjectType);
+            if (accessMatrixConfig != null) {
+                return convertNull(accessMatrixConfig);
+            }
+        } finally {
+            unlock();
+        }
+
         //Получение конфигурации матрицы, здесь НЕЛЬЗЯ учитывать наследование, так как вызывающие методы должны получить матрицу непосредственно для переданного типа
-        return getConfig(AccessMatrixConfig.class, domainObjectType);
+        return convertNull(configurationStorageBuilder.fillAccessMatrixByObjectType(domainObjectType));
     }
 
     /**
@@ -941,5 +963,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     private void unlock() {
         readWriteLock.readLock().unlock();
+    }
+
+    public ModuleService getModuleService(){
+        return moduleService;
     }
 }

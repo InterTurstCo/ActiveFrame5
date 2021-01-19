@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.config.search;
 
 import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Order;
 
 import java.util.Objects;
 
+@Order(elements={"indexed-field", "indexed-content", "linked-domain-object", "target-collection", "filter"})
 public class TargetDomainObjectConfig extends IndexedDomainObjectConfig {
 
     @Element(name = "target-collection", required = false)

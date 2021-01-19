@@ -1075,6 +1075,19 @@
             <permit-group name="AllPersons" />
         </create>
     </access-matrix>
-    
 
+    <!-- Переопределенная матрица person_alt_uids -->
+    <access-matrix type="person_alt_uids" read-everybody="true" extend-type="replace">
+        <create>
+            <permit-group name="AllPersons"/>
+        </create>
+        <status name="*">
+            <write>
+                <permit-group name="AllPersons"/>
+            </write>
+            <delete>
+                <permit-group name="AllPersons"/>
+            </delete>
+        </status>
+    </access-matrix>
 </configuration>

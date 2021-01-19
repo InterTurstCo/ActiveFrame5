@@ -13,6 +13,7 @@ import javax.interceptor.Interceptors;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -57,6 +58,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     private ConfigurationDbValidator configurationDbValidator;
     @Autowired
     private DataStructureDao dataStructureDao;
+    @Autowired
+    private ApplicationContext applicationContext;
     @EJB
     private StatisticsGatherer statisticsGatherer;
 
@@ -109,7 +112,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                         "configuration. This may mean that configuration structure has changed since last configuration load", e);
             }
 
-            ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
+            ConfigurationExplorerImpl oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, applicationContext, true);
+            oldConfigurationExplorer.init();
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
             boolean schemaUpdatedByAutoMigration = false;

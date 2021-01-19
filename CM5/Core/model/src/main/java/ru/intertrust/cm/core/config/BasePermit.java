@@ -10,6 +10,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class BasePermit implements Dto{
 
+    public BasePermit(){
+    }
+
+    public BasePermit(String name){
+        this.name = name;
+    }
+
     @Attribute(required = true)
     private String name;
 

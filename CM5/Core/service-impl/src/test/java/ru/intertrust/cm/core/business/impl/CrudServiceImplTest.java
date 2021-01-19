@@ -51,6 +51,8 @@ public class CrudServiceImplTest {
         ConfigurationClassesCache.getInstance().build();
         Configuration configuration = createConfiguration();
         ConfigurationExplorerImpl configExplorer = new ConfigurationExplorerImpl(configuration);
+        configExplorer.init();
+
         crudService.setConfigurationExplorer(configExplorer);
 
         DomainObjectTypeIdCache domainObjectTypeIdCache = mock(DomainObjectTypeIdCache.class);

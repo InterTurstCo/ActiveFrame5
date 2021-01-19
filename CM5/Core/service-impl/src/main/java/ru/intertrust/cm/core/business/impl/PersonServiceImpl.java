@@ -47,4 +47,9 @@ public class PersonServiceImpl implements PersonService {
     public String getCurrentPersonUid() {
         return currentUserAccessor.getCurrentUser();
     }
+
+    @Override
+    public DomainObject findPersonByAltUid(String alterUid, String alterUidType) {
+        return personServiceDao.findPersonByAltUid(alterUid, alterUidType);
+    }
 }

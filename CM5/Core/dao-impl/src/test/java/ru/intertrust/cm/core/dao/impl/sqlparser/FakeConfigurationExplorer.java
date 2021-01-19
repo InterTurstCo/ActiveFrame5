@@ -30,6 +30,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
             if (hasAccessMatrix) {
                 matrixConfig = new AccessMatrixConfig();
                 matrixConfig.setType(typeConfig.getName());
+                matrixConfig.setModuleName("test");
             }
         }
 
@@ -172,7 +173,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
         if (matrices == null) {
             return null;
         } else {
-            AccessMatrixConfig matrixConfig = (AccessMatrixConfig) matrices.get(childTypeName);
+            AccessMatrixConfig matrixConfig = (AccessMatrixConfig) matrices.get("test:" + childTypeName);
             if (matrixConfig == null) {
                 String parentType = getConfig(DomainObjectTypeConfig.class, childTypeName).getExtendsAttribute();
                 if (parentType != null) {
@@ -200,7 +201,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
 
     @Override
     public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
-        return getConfig(AccessMatrixConfig.class, domainObjectType);
+        return getConfig(AccessMatrixConfig.class, "test:"+domainObjectType);
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.access.IdpConfig;
-import ru.intertrust.cm.core.business.api.access.IdpService;
+import ru.intertrust.cm.core.business.api.access.IdpAdminService;
 import ru.intertrust.cm.core.business.api.access.UserInfo;
 import ru.intertrust.cm.core.gui.impl.server.cmd.model.ErrorPlatformWebServiceResult;
 import ru.intertrust.cm.core.gui.impl.server.cmd.model.PlatformWebService;
@@ -21,12 +21,19 @@ public class TestKeycloakAdmin implements PlatformWebService {
     private static Logger logger = LoggerFactory.getLogger(TestKeycloakAdmin.class);
 
     @Autowired
-    private IdpService idpService;
+    private IdpAdminService idpAdminService;
 
     @Override
     public PlatformWebServiceResult execute(List<FileItem> bytes, Map<String, String[]> data) {
         try {
             logger.info("Start test KeycloakAdmin");
+
+            // Поиск
+            // Поиск несуществующего
+            UserInfo findUserInfoTest = idpAdminService.findUserByUserName("xxx");
+            if (findUserInfoTest != null){
+                throw new FatalException("Incorrect find not exists user");
+            }
 
             // Создание
             UserInfo userInfo = new UserInfo();
@@ -35,13 +42,13 @@ public class TestKeycloakAdmin implements PlatformWebService {
             userInfo.setLastName("last_name_" + System.currentTimeMillis());
             userInfo.setFirstName("first_name_" + System.currentTimeMillis());
             userInfo.setEmail("" + System.currentTimeMillis() + "@cm.ru");
-            String newUserUnid = idpService.createUser(userInfo);
+            String newUserUnid = idpAdminService.createUser(userInfo);
             if (newUserUnid == null){
                 throw new FatalException("Error create user");
             }
 
             // Получение по ID
-            UserInfo getUserInfo = idpService.getUserByUnid(newUserUnid);
+            UserInfo getUserInfo = idpAdminService.getUserByUnid(newUserUnid);
             if (getUserInfo == null ||
                     !userInfo.getEmail().equals(getUserInfo.getEmail()) ||
                     !userInfo.getFirstName().equals(getUserInfo.getFirstName()) ||
@@ -52,7 +59,7 @@ public class TestKeycloakAdmin implements PlatformWebService {
             }
 
             // Поиск по username
-            UserInfo findUserInfo = idpService.findUserByUserName(userInfo.getUsername());
+            UserInfo findUserInfo = idpAdminService.findUserByUserName(userInfo.getUsername());
             if (findUserInfo == null ||
                     !userInfo.getEmail().equals(findUserInfo.getEmail()) ||
                     !userInfo.getFirstName().equals(findUserInfo.getFirstName()) ||
@@ -67,12 +74,12 @@ public class TestKeycloakAdmin implements PlatformWebService {
             findUserInfo.setFirstName("first_name_" + System.currentTimeMillis());
             findUserInfo.setEmail("" + System.currentTimeMillis() + "@cm.ru");
             findUserInfo.setEnable(false);
-            String updateUnid = idpService.updateUser(findUserInfo);
+            String updateUnid = idpAdminService.updateUser(findUserInfo);
             if (!updateUnid.equals(newUserUnid)){
                 throw new FatalException("Incorrect update return value");
             }
 
-            UserInfo updateUserInfo = idpService.getUserByUnid(updateUnid);
+            UserInfo updateUserInfo = idpAdminService.getUserByUnid(updateUnid);
             if (updateUserInfo == null ||
                     !updateUserInfo.getEmail().equals(findUserInfo.getEmail()) ||
                     !updateUserInfo.getFirstName().equals(findUserInfo.getFirstName()) ||
@@ -82,47 +89,45 @@ public class TestKeycloakAdmin implements PlatformWebService {
             }
 
             // Получение конфигурации
-            IdpConfig config = idpService.getConfig();
+            IdpConfig config = idpAdminService.getConfig();
             if (config == null ||
-                    config.getAdminLogin() == null ||
-                    config.getAdminPassword() == null ||
+                    config.getAdminClientId() == null ||
+                    config.getAdminSecret() == null ||
                     config.getClientId() == null ||
                     config.getRealm() == null ||
-                    config.getRealmPublicKey() == null ||
                     config.getServerUrl() == null){
                 throw new FatalException("Config is incorrect");
             }
 
             // Включение пользователя
-            idpService.enableUser(newUserUnid);
-            UserInfo enableUserInfo = idpService.getUserByUnid(newUserUnid);
+            idpAdminService.enableUser(newUserUnid);
+            UserInfo enableUserInfo = idpAdminService.getUserByUnid(newUserUnid);
             if (!enableUserInfo.isEnable()){
                 throw new FatalException("Incorrect enable user");
             }
 
             // Выключение пользователя
-            idpService.disableUser(newUserUnid);
-            UserInfo disabledUserInfo = idpService.getUserByUnid(newUserUnid);
+            idpAdminService.disableUser(newUserUnid);
+            UserInfo disabledUserInfo = idpAdminService.getUserByUnid(newUserUnid);
             if (disabledUserInfo.isEnable()){
                 throw new FatalException("Incorrect disable user");
             }
 
-
             // Удаление пользователя
-            idpService.deleteUser(newUserUnid);
+            idpAdminService.deleteUser(newUserUnid);
 
             // Проверка что не найден
-            UserInfo deleteUserInfo = idpService.findUserByUserName(updateUserInfo.getUsername());
+            UserInfo deleteUserInfo = idpAdminService.findUserByUserName(updateUserInfo.getUsername());
             if (deleteUserInfo != null){
                 throw new FatalException("Incorrect delete user");
             }
 
             // Проверка что не найден 2
             try {
-                deleteUserInfo = idpService.getUserByUnid(newUserUnid);
+                deleteUserInfo = idpAdminService.getUserByUnid(newUserUnid);
                 throw new FatalException("Incorrect get deleted user");
             }catch(NotFoundException correctException){
-                System.out.println("Error OK");
+                logger.info("Correct error");
             }
 
             logger.info("Finish test KeycloakAdmin");

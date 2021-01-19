@@ -215,18 +215,17 @@ public class NamedCollectionRetrieverTest {
             }
         });
 
-        int expectedResults = idCount / 2;
+        int expectedResults = idCount;
         if (maxResults > 0 && maxResults < expectedResults) {
             expectedResults = maxResults;
         }
-        final int expectedCalls = expectedResults + NamedCollectionRetriever.MAX_IDS_PER_QUERY - 1
+
+        final int expectedCalls = (idCount + NamedCollectionRetriever.MAX_IDS_PER_QUERY - 1)
                 / NamedCollectionRetriever.MAX_IDS_PER_QUERY;
         final int[] expectedFilterSize = new int[expectedCalls];
-        final int[] expectedMaxResults = new int[expectedCalls];
         for (int i = 0; i < expectedCalls; ++i) {
             expectedFilterSize[i] = Math.min(NamedCollectionRetriever.MAX_IDS_PER_QUERY,
                     idCount - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY);
-            expectedMaxResults[i] = maxResults == 0 ? 0 : maxResults - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY / 2;
         }
 
         when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
@@ -242,7 +241,6 @@ public class NamedCollectionRetrieverTest {
 
                         assertThat(callNum, Matchers.lessThan(expectedCalls));
                         assertEquals(expectedFilterSize[callNum], filter.getCriterionKeys().size());
-                        assertEquals(expectedMaxResults[callNum], maxResults);
                         ++callNum;
 
                         IdentifiableObjectCollection coll = new GenericIdentifiableObjectCollection();
@@ -252,11 +250,9 @@ public class NamedCollectionRetrieverTest {
                         for (int i = 0; i < filter.getCriterionKeys().size(); ++i) {
                             try {
                                 RdbmsId id = (RdbmsId) filter.getCriterion(i).get();
-                                if (id.getId() % 2 == 0) {
-                                    coll.setId(coll.size(), id);
-                                    if (coll.size() == maxResults) {
-                                        break;
-                                    }
+                                coll.setId(coll.size(), id);
+                                if (coll.size() == maxResults) {
+                                    break;
                                 }
                             } catch (Exception e) {
                                 System.err.println("Error processing iteration #" + i);

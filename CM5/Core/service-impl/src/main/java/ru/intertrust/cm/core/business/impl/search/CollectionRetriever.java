@@ -32,7 +32,7 @@ public abstract class CollectionRetriever {
 
     public static void truncCollection(IdentifiableObjectCollection collection, int maxResults) {
         // cокращение до maxResult
-        if (collection != null && collection.size() > maxResults) {
+        if (maxResults > 0 && collection != null && collection.size() > maxResults) {
             int cnt = 0;
             Iterator<IdentifiableObject> iterator = collection.iterator();
             while (iterator.hasNext()) {

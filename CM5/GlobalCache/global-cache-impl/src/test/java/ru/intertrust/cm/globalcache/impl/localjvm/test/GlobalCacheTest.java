@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -75,7 +76,9 @@ public class GlobalCacheTest {
         public ConfigurationExplorer configurationExplorer() throws Exception {
             ConfigurationSerializer configurationSerializer = createConfigurationSerializer("global-cache-test.xml");
             ru.intertrust.cm.core.config.base.Configuration config = configurationSerializer.deserializeConfiguration();
-            return new ConfigurationExplorerImpl(config);
+            ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(config);
+            result.init();
+            return result;
         }
 
         @Bean
@@ -143,6 +146,11 @@ public class GlobalCacheTest {
             confCore.setModuleUrl(moduleUrl);
 
             return result;
+        }
+
+        @Bean
+        public ModuleService moduleService() {
+            return mock(ModuleService.class);
         }
 
     }

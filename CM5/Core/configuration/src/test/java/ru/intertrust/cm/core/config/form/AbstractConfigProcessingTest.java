@@ -40,7 +40,9 @@ public abstract class AbstractConfigProcessingTest {
     protected ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(configPath);
         Configuration config = configurationSerializer.deserializeConfiguration();
-        return new ConfigurationExplorerImpl(config, context,true);
+        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(config, context,true);
+        result.init();
+        return result;
     }
 
     private ConfigurationSerializer createConfigurationSerializer(String confPath) throws Exception {

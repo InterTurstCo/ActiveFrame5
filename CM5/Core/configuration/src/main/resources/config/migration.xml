@@ -21,7 +21,7 @@
         <before-auto-migration>
             <native-command>
                 <![CDATA[
-                CREATE TABLE "security_stamp" (
+                CREATE TABLE IF NOT EXISTS "security_stamp" (
                     "id" BIGINT NOT NULL
                     ,"id_type" INTEGER
                     ,"created_date" TIMESTAMP NOT NULL

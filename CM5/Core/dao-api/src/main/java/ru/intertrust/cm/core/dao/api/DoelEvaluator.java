@@ -25,6 +25,7 @@ public interface DoelEvaluator {
      */
     <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken);
 
+    DoelExpression createReverseExpression(DoelExpression expr, String sourceType, boolean allowRefToAnyType);
     DoelExpression createReverseExpression(DoelExpression expr, String sourceType);
     DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType);
 }

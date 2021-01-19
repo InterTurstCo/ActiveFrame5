@@ -73,24 +73,24 @@ public class NamedCollectionRetriever extends CollectionRetriever {
             }
         }
 
+        int idFilterSize = idFilter.getCriterionKeys().size();
         IdentifiableObjectCollection result = null;
-        if (idFilter.getCriterionKeys().size() > MAX_IDS_PER_QUERY) {
+        if (idFilterSize > MAX_IDS_PER_QUERY) {
             //CMFIVE-5387 workaround: splitting query having too many IDs into smaller portions
             if (log.isDebugEnabled()) {
-                log.debug("Too meany IDs requested (" + idFilter.getCriterionKeys().size()
+                log.debug("Too meany IDs requested (" + idFilterSize
                         + "), splitting DB queries by " + MAX_IDS_PER_QUERY + " IDs");
             }
             ArrayList<ReferenceValue> partIds = new ArrayList<>(MAX_IDS_PER_QUERY);
-            for (int part = 0; part < (idFilter.getCriterionKeys().size() + MAX_IDS_PER_QUERY - 1) / MAX_IDS_PER_QUERY;
-                    ++part) {
-                int partSize = Math.min(MAX_IDS_PER_QUERY, idFilter.getCriterionKeys().size() - part * MAX_IDS_PER_QUERY);
+            for (int part = 0; part < (idFilterSize + MAX_IDS_PER_QUERY - 1) / MAX_IDS_PER_QUERY; ++part) {
+                int partSize = Math.min(MAX_IDS_PER_QUERY, idFilterSize - part * MAX_IDS_PER_QUERY);
                 for (int i = 0; i < partSize; ++i) {
                     partIds.add(idFilter.getCriterion(i + part * MAX_IDS_PER_QUERY));
                 }
                 IdsIncludedFilter partialIdFilter = new IdsIncludedFilter(partIds);
                 modifiedFilters.add(partialIdFilter);
                 IdentifiableObjectCollection partialResult = collectionsService.findCollection(collectionName,
-                        new SortOrder(), modifiedFilters, 0, maxResults);
+                        new SortOrder(), modifiedFilters, 0, MAX_IDS_PER_QUERY);
                 if (log.isDebugEnabled()) {
                     log.debug("Part " + part + ": " + partialResult.size() + " object(s) fetched");
                 }
@@ -99,12 +99,6 @@ public class NamedCollectionRetriever extends CollectionRetriever {
                 } else {
                     result.append(partialResult);
                 }
-                if (maxResults != 0) {      // maxResults==0 on call means unlimited result
-                    maxResults -= partialResult.size();
-                    if (maxResults <= 0) {
-                        break;
-                    }
-                }
                 // preparing for next iteration
                 modifiedFilters.remove(modifiedFilters.size() - 1);
                 partIds.clear();
@@ -112,10 +106,11 @@ public class NamedCollectionRetriever extends CollectionRetriever {
             //CMFIVE-5387 ----------
         } else {
             modifiedFilters.add(idFilter);
-            result = collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
+            result = collectionsService.findCollection(collectionName,
+                    new SortOrder(), modifiedFilters,0, Math.max(found.size(), Math.max(idFilterSize, maxResults)));
         }
-
         addWeightsAndSort(result, found);
+        truncCollection(result, maxResults);
         return result;
     }
 

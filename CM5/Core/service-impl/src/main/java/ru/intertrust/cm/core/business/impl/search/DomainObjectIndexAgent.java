@@ -8,16 +8,12 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
-import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.config.search.*;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.extension.*;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Компонент, осуществляющий индексацию доменных объектов при их изменении.
@@ -32,17 +28,30 @@ import java.util.Map;
  */
 @ExtensionPoint
 public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
-        implements AfterSaveAfterCommitExtensionHandler, AfterDeleteAfterCommitExtensionHandler {
+        implements AfterSaveAfterCommitExtensionHandler, AfterDeleteAfterCommitExtensionHandler,
+        BeforeDeleteExtensionHandler {
+
+    private static final Set<String> sysFields = new HashSet<>(Arrays.asList(
+        "id",
+        SolrFields.OBJECT_ID,
+        SolrFields.AREA,
+        SolrFields.TARGET_TYPE,
+        SolrFields.OBJECT_TYPE,
+        SolrFields.MAIN_OBJECT_ID,
+        SolrFields.MODIFIED
+        ));
+
+    private static final ObjectCache<String, List<Id>> cache = new ObjectCache<>();
 
     @PostConstruct
-    public void postInit(){
+    public void postInit() {
         super.init();
     }
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         // Проверка включения агента индексирования
-        if (configHelper.isDisableIndexing()){
+        if (configHelper.isDisableIndexing()) {
             return;
         }
 
@@ -51,8 +60,12 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         if (configs.size() == 0) {
             return;
         }
+
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
         ArrayList<String> toDelete = new ArrayList<>();
+
+        String cmjField = domainObject.getString("cmjfield");
+
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             if (isCntxSolrServer(config.getSolrServerKey())) {
                 // Context search
@@ -65,17 +78,17 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             }
 
             List<Id> mainIds = calculateMainObjects(domainObject.getId(), config.getObjectConfigChain());
+
             if (mainIds.size() > 0) {
-                reindexObjectAndChildren(solrDocs, domainObject, config, mainIds);
+                if (cmjField != null && cmjField.startsWith("Tn$_")) {
+                    // отдельная обработка для нетиповвых объектов
+                    reindexTnObject(solrDocs, toDelete, domainObject, config, mainIds, domainObject.getTypeName());
+                } else {
+                    // отдельная обработка для нетиповвых полей
+                    reindexObjectAndChildren(solrDocs, domainObject, config, mainIds);
+                }
             } else {
                 toDelete.add(createUniqueId(domainObject, config));
-            }
-        }
-        if (solrDocs.size() > 0) {
-            // requestQueue.addDocuments(solrDocs);
-            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addDocuments(solrDocs);
-            if (log.isInfoEnabled()) {
-                log.info("" + solrDocs.size() + " Solr document(s) queued for indexing");
             }
         }
         if (toDelete.size() > 0) {
@@ -85,12 +98,53 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 log.info("" + toDelete.size() + " Solr document(s) queued for deleting");
             }
         }
+        if (solrDocs.size() > 0) {
+            // requestQueue.addDocuments(solrDocs);
+            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addDocuments(solrDocs);
+            if (log.isInfoEnabled()) {
+                log.info("" + solrDocs.size() + " Solr document(s) queued for indexing");
+            }
+        }
+    }
+
+    @Override
+    public void onBeforeDelete(DomainObject deletedDomainObject) {
+        // Проверка включения агента индексирования
+        if (configHelper.isDisableIndexing()) {
+            return;
+        }
+
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
+                configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
+        if (configs.size() == 0) {
+            return;
+        }
+
+        String cmjField = deletedDomainObject.getString("cmjfield");
+
+        for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
+            if (isCntxSolrServer(config.getSolrServerKey())) {
+                // Context search
+                continue;
+            }
+            if (configHelper.isAttachmentObject(deletedDomainObject)) {
+                continue;
+            }
+
+            if (cmjField != null && cmjField.startsWith("Tn$_")) {
+                // отдельная обработка для нетиповвых объектов
+                List<Id> mainIds = calculateMainObjects(deletedDomainObject.getId(), config.getObjectConfigChain());
+                if (!mainIds.isEmpty()) {
+                    cache.put(generateCacheKey(deletedDomainObject.getId(), config.getAreaName()), mainIds);
+                }
+            }
+        }
     }
 
     @Override
     public void onAfterDelete(DomainObject deletedDomainObject) {
         // Проверка включения агента индексирования
-        if (configHelper.isDisableIndexing()){
+        if (configHelper.isDisableIndexing()) {
             return;
         }
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
@@ -98,44 +152,45 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         if (configs.size() == 0) {
             return;
         }
+
+        String cmjField = deletedDomainObject.getString("cmjfield");
+
+        ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
         ArrayList<String> solrIds = new ArrayList<>(configs.size());
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             if (isCntxSolrServer(config.getSolrServerKey())) {
                 // Context search
                 continue;
             }
+
             solrIds.add(createUniqueId(deletedDomainObject, config));
+
+            if (cmjField != null && cmjField.startsWith("Tn$_")) {
+                // отдельная обработка для нетиповвых объектов
+                List<Id> mainIds = cache.fetchAndRemove(generateCacheKey(deletedDomainObject.getId(), config.getAreaName()));
+                if (mainIds != null && !mainIds.isEmpty()) {
+                    reindexTnObject(solrDocs, solrIds, deletedDomainObject, config, mainIds, deletedDomainObject.getTypeName());;
+                }
+            }
         }
-        solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(new UpdateRequest().deleteById(solrIds));
-        if (log.isInfoEnabled()) {
-            log.info("" + solrIds.size() + " Solr document(s) queued for deleting");
+        if (solrIds.size() > 0) {
+            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(new UpdateRequest().deleteById(solrIds));
+            if (log.isInfoEnabled()) {
+                log.info("" + solrIds.size() + " Solr document(s) queued for deleting");
+            }
+        }
+        if (solrDocs.size() > 0) {
+            solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addDocuments(solrDocs);
+            if (log.isInfoEnabled()) {
+                log.info("" + solrDocs.size() + " Solr document(s) queued for indexing");
+            }
         }
     }
 
     private void reindexObjectAndChildren(List<SolrInputDocument> solrDocs, DomainObject object,
-            SearchConfigHelper.SearchAreaDetailsConfig config, List<Id> mainIds) {
+                                          SearchConfigHelper.SearchAreaDetailsConfig config, List<Id> mainIds) {
         for (Id mainId : mainIds) {
-            SolrInputDocument doc = new SolrInputDocument();
-
-            // System fields
-            doc.addField(SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
-            doc.addField(SolrFields.AREA, config.getAreaName());
-            doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
-            doc.addField(SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
-            doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-            doc.addField(SolrFields.MODIFIED, object.getModifiedDate());
-
-            // Business fields
-            for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                Map<SearchFieldType, ?> values = calculateField(object, fieldConfig);
-                for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
-                    SearchFieldType type = entry.getKey();
-                    for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
-                        doc.addField(fieldName, entry.getValue());
-                    }
-                }
-            }
-            doc.addField("id", createUniqueId(object, config));
+            SolrInputDocument doc = createSolsDocByDomainObject(object, mainId, config);
             solrDocs.add(doc);
         }
 
@@ -183,9 +238,215 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             if (log.isInfoEnabled()) {
                 log.info("Attachment queued for indexing");
             }
-        }else{
+        } else {
             log.debug("Indexing attachment " + object.getString("name") + " is ignored by file extension");
         }
+    }
+
+    private void reindexTnObject(List<SolrInputDocument> solrDocs, ArrayList<String> toDelete,
+                                 DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config,
+                                 List<Id> mainIds, String tnType) {
+        List<SolrInputDocument> tmpSolrDocs = new ArrayList<>();
+        List<String> tmpTodelete = new ArrayList<>();
+        String areaName = config.getAreaName();
+        if (areaName == null) {
+            return;
+        }
+        AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
+        for (Id mainId : mainIds) {
+            // SolrInputDocument doc = createSolsDocByDomainObject(object, mainId, config);
+            // tmpSolrDocs.add(doc);
+            // по mainId находим все дочерние объекты данного типа
+            // Выбираем главный объект
+            DomainObject mainDomainObject = object != null && object.getId().equals(mainId) ?
+                    object : domainObjectDao.find(mainId, accessToken);
+            if (mainDomainObject == null) {
+                continue;
+            }
+            // Находим конфигурацию
+            List<SearchConfigHelper.SearchAreaDetailsConfig> mainConfigs =
+                    configHelper.findEffectiveConfigs(mainDomainObject.getTypeName());
+            if (mainConfigs.size() == 0) {
+                return;
+            }
+            for (SearchConfigHelper.SearchAreaDetailsConfig mainConfig : mainConfigs) {
+                if (areaName.equalsIgnoreCase(mainConfig.getAreaName()) && !isCntxSolrServer(mainConfig.getSolrServerKey())) {
+                    for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configHelper.findChildConfigs(mainConfig)) {
+                        String linkedType = linkedConfig.getObjectConfig().getType();
+                        if (!tnType.equalsIgnoreCase(linkedType)) {
+                            continue;
+                        }
+                        for (DomainObject child : findChildren(mainId, linkedConfig, tnType)) {
+                            if (tnType.equalsIgnoreCase(child.getTypeName())) {
+                                List<SearchConfigHelper.SearchAreaDetailsConfig> configs = configHelper.findEffectiveConfigs(child.getTypeName());
+                                for (SearchConfigHelper.SearchAreaDetailsConfig cfg : configs) {
+                                    if (!areaName.equalsIgnoreCase(cfg.getAreaName())) {
+                                        // другая область поиска, пропускаем
+                                        continue;
+                                    }
+                                    if (isCntxSolrServer(cfg.getSolrServerKey())) {
+                                        // Context search
+                                        continue;
+                                    }
+                                    if (configHelper.isAttachmentObject(child)) {
+                                        // Если это вложение, то пропускаем
+                                        continue;
+                                    } else {
+                                        // если это объект, то дополняем solr-документ полями дочерних объектов
+                                        SolrInputDocument doc = createSolsDocByDomainObject(child, mainId, cfg);
+                                        tmpSolrDocs.add(doc);
+                                        tmpTodelete.add(createUniqueId(child, cfg));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        solrDocs.addAll(compactSolrDocList(tmpSolrDocs));
+        toDelete.addAll(tmpTodelete);
+    }
+
+    private List<SolrInputDocument> compactSolrDocList(List<SolrInputDocument> srcSolrDocs) {
+        List<SolrInputDocument> solrDocs = new ArrayList<>();
+        if (srcSolrDocs != null) {
+            solrDocs.addAll(srcSolrDocs);
+            // перебираем список документов и уплотняем следующим образом:
+            // если в документах списки непустых полей не пересекаются или значения непустых полей совпадают,
+            // то сливаем такие документы в один. В противном случае копируем непустие поля в пустие с соответствующими именами
+            Iterator<SolrInputDocument> iterator = solrDocs.iterator();
+            // Удалаем пустые документы
+            while (iterator.hasNext()) {
+                SolrInputDocument solrDoc = iterator.next();
+                if (isSolrDocEmpty(solrDoc)) {
+                    iterator.remove();
+                }
+            }
+            // копируем непустые поля
+            for (int idx1 = 0; idx1 < solrDocs.size(); idx1++) {
+                for (int idx2 = idx1 + 1 ; idx2 < solrDocs.size(); idx2++) {
+                    copyNonEmptyFields(solrDocs.get(idx1), solrDocs.get(idx2));
+                }
+            }
+            // удаляем совпадающие
+            for (int idx1 = 0; idx1 < solrDocs.size(); idx1++) {
+                for (int idx2 = solrDocs.size() - 1; idx2 > idx1; idx2--) {
+                    if (isSolrDocsEqual(solrDocs.get(idx1), solrDocs.get(idx2))) {
+                        solrDocs.remove(idx2);
+                    }
+                }
+            }
+        }
+        return solrDocs;
+    }
+
+    private boolean isSolrDocEmpty(SolrInputDocument solrDoc) {
+        boolean isEmpty = true;
+        Collection<String> fields = new ArrayList<>(solrDoc.getFieldNames());
+        for (String field : fields) {
+            if (!sysFields.contains(field)) {
+                Object value = solrDoc.getFieldValue(field);
+                isEmpty &= value == null;
+                if (!isEmpty) {
+                    break;
+                }
+            }
+        }
+        return isEmpty;
+    }
+
+    private boolean isSolrDocsEqual(SolrInputDocument solrDoc1, SolrInputDocument solrDoc2) {
+        boolean isEqual = true;
+        Collection<String> fields1 = new ArrayList<>(solrDoc1.getFieldNames());
+        Collection<String> fields2 = new ArrayList<>(solrDoc2.getFieldNames());
+        for (String field : fields1) {
+            if (fields2.contains(field)) {
+                fields2.remove(field);
+            }
+            if (!sysFields.contains(field)) {
+                Object value1 = solrDoc1.getFieldValue(field);
+                Object value2 = solrDoc2.getFieldValue(field);
+                isEqual &= (value1 != null ? value1.equals(value2) : value2 == null);
+                if (!isEqual) {
+                    break;
+                }
+            }
+        }
+        if (isEqual) {
+            for (String field : fields2) {
+                if (!sysFields.contains(field)) {
+                    Object value1 = solrDoc1.getFieldValue(field);
+                    Object value2 = solrDoc2.getFieldValue(field);
+                    isEqual &= (value1 != null ? value1.equals(value2) : value2 == null);
+                    if (!isEqual) {
+                        break;
+                    }
+                }
+            }
+        }
+        return isEqual;
+    }
+
+    private void copyNonEmptyFields(SolrInputDocument solrDoc1, SolrInputDocument solrDoc2) {
+        Collection<String> fields1 = new ArrayList<>(solrDoc1.getFieldNames());
+        Collection<String> fields2 = new ArrayList<>(solrDoc2.getFieldNames());
+        for (String field : fields1) {
+            if (fields2.contains(field)) {
+                fields2.remove(field);
+            }
+            if (!sysFields.contains(field)) {
+                Object value1 = solrDoc1.getFieldValue(field);
+                Object value2 = solrDoc2.getFieldValue(field);
+                if (value1 != null && value2 == null) {
+                    solrDoc2.addField(field, value1);
+                }
+                if (value1 == null && value2 != null) {
+                    solrDoc1.addField(field, value2);
+                }
+            }
+        }
+        for (String field : fields2) {
+            if (!sysFields.contains(field)) {
+                Object value1 = solrDoc1.getFieldValue(field);
+                Object value2 = solrDoc2.getFieldValue(field);
+                if (value1 != null && value2 == null) {
+                    solrDoc2.addField(field, value1);
+                }
+                if (value1 == null && value2 != null) {
+                    solrDoc1.addField(field, value2);
+                }
+            }
+        }
+    }
+
+    private SolrInputDocument createSolsDocByDomainObject(DomainObject domainObject,
+                                                          Id mainId, SearchConfigHelper.SearchAreaDetailsConfig config) {
+        SolrInputDocument doc = new SolrInputDocument();
+        // System fields
+        doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
+        doc.addField(SolrFields.AREA, config.getAreaName());
+        doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
+        doc.addField(SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
+        doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+        doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
+
+        // Business fields
+        for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
+            Map<SearchFieldType, ?> values = calculateField(domainObject, fieldConfig);
+            for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
+                SearchFieldType type = entry.getKey();
+                for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
+                    doc.addField(fieldName, entry.getValue());
+                }
+            }
+        }
+        doc.addField("id", createUniqueId(domainObject, config));
+        return doc;
+    }
+
+    private String generateCacheKey(Id id, String areaName) {
+        return (id != null ? id.toStringRepresentation() : "null")  + ":" + (areaName != null ? areaName : "null");
     }
 
 /*
@@ -220,4 +481,5 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         return new TextSearchFieldType(configHelper.getSupportedLanguages(), multiple, false);    //*****
     }
 */
+
 }

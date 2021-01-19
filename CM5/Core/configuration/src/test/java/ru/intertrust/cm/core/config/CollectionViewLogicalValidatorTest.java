@@ -67,7 +67,9 @@ public class CollectionViewLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        return new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration);
+        result.init();
+        return result;
     }
 
     private ModuleService createModuleService(String configPath) throws MalformedURLException {

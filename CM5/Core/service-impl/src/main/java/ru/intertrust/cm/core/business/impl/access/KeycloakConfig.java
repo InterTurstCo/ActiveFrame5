@@ -5,9 +5,8 @@ import ru.intertrust.cm.core.business.api.access.IdpConfig;
 public class KeycloakConfig implements IdpConfig {
     private String serverUrl;
     private String realm;
-    private String realmPublicKey;
-    private String adminLogin;
-    private String adminPassword;
+    private String adminClientId;
+    private String adminSecret;
     private String clientId;
     private boolean disableTrustManager;
     private String truststore;
@@ -33,35 +32,12 @@ public class KeycloakConfig implements IdpConfig {
     }
 
     @Override
-    public String getRealmPublicKey() {
-        return realmPublicKey;
-    }
-
-    public void setRealmPublicKey(String realmPublicKey) {
-        this.realmPublicKey = realmPublicKey;
-    }
-
-    @Override
     public String getClientId() {
         return clientId;
     }
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
-    }
-
-    @Override
-    public String getAdminLogin() {
-        return adminLogin;
-    }
-
-    public void setAdminLogin(String adminLogin) {
-        this.adminLogin = adminLogin;
-    }
-
-    @Override
-    public String getAdminPassword() {
-        return adminPassword;
     }
 
     @Override
@@ -77,10 +53,6 @@ public class KeycloakConfig implements IdpConfig {
     @Override
     public String getTruststorePassword() {
         return truststorePassword;
-    }
-
-    public void setAdminPassword(String adminPassword) {
-        this.adminPassword = adminPassword;
     }
 
     public void setDisableTrustManager(boolean disableTrustManager) {
@@ -102,5 +74,23 @@ public class KeycloakConfig implements IdpConfig {
 
     public void setIdpAuthentication(boolean idpAuthentication) {
         this.idpAuthentication = idpAuthentication;
+    }
+
+    @Override
+    public String getAdminClientId() {
+        return adminClientId;
+    }
+
+    public void setAdminClientId(String adminClientId) {
+        this.adminClientId = adminClientId;
+    }
+
+    @Override
+    public String getAdminSecret() {
+        return adminSecret;
+    }
+
+    public void setAdminSecret(String adminSecret) {
+        this.adminSecret = adminSecret;
     }
 }

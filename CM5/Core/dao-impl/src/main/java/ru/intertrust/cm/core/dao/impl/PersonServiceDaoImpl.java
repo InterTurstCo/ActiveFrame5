@@ -56,25 +56,8 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
     }
 
     @Override
-    @Cacheable(value="persons", key = "#unid")
-    public DomainObject findPersonByUnid(String unid) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-
-        List<Value> params = new ArrayList<Value>();
-        params.add(new StringValue(unid.toLowerCase()));
-
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(unid) = {0}", params, 0, 0, accessToken);
-        if (collection.size() == 0) {
-            return null;
-        }
-
-        DomainObject person = domainObjectDao.find(collection.get(0).getId(), accessToken);
-        return person;
-    }
-
-    @Override
-    @CacheEvict(value = "persons", key = "#login")
-    public void personUpdated(String login) {
+    @CacheEvict(value = "persons", key = "#key")
+    public void personUpdated(String key) {
         // метод пустой, т.к. удаление объекта из кеша происходит в Spring
     }
 

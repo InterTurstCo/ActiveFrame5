@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.search.*;
 import ru.intertrust.cm.core.dao.doel.DoelValidator;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.annotation.PostConstruct;
@@ -564,6 +565,26 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
      * @return набор типов индексируемых полей
      */
     public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas, Collection<String> srcTargetTypes) {
+        if (name == null) {
+            String msgAreas = "";
+            String msgTargetTypes = "";
+            if (areas != null) {
+                for (String tmp : areas) {
+                    msgAreas += (msgAreas.isEmpty() ? "" : ", ") + (tmp != null ? tmp : "null");
+                }
+            }
+            if (srcTargetTypes != null) {
+                for (String tmp : srcTargetTypes) {
+                    msgTargetTypes += (msgTargetTypes.isEmpty() ? "" : ", ") + (tmp != null ? tmp : "null");
+                }
+            }
+            String msg = "Search parameter/filter contains null as indexed fieldName (areas: " + msgAreas + "; targetTypes: " + msgTargetTypes + ")";
+            if (logger.isErrorEnabled()) {
+                logger.error(msg);
+            }
+            throw new FatalException(" Ошибка конфигурации поиска, обратитесь к администратору. Описание ошибки: " + msg);
+            // return new HashSet<>();
+        }
         Trio<String, Collection<String>, Collection<String>> key = new Trio<>(name, areas, srcTargetTypes);
 
         Set<SearchFieldType> result = fieldTypesMap.get(key);
@@ -598,7 +619,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         for (IndexedDomainObjectConfig config : configs) {
             if ((!bUseTargetTypes) || (bUseTargetTypes && targetTypes.contains(config.getType().toLowerCase()))) {
                 for (IndexedFieldConfig field : config.getFields()) {
-                    if (fieldName.equalsIgnoreCase(field.getName())) {
+                    if (fieldName != null && fieldName.equalsIgnoreCase(field.getName())) {
                         types.addAll(getFieldTypes(field, config.getType()));
                         break;      // No more fields with this name should be in this object config
                     }

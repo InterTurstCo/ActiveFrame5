@@ -14,12 +14,19 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public abstract class BaseOperationPermitConfig implements Dto {
 
-
     @ElementListUnion({
             @ElementList(entry = "permit-role", type = PermitRole.class, inline = true, required = false),
             @ElementList(entry = "permit-group", type = PermitGroup.class, inline = true, required = false),
     })
     private List<BasePermit> permitConfigs = new ArrayList<>();
+
+
+    public BaseOperationPermitConfig(){
+    }
+
+    public BaseOperationPermitConfig( List<BasePermit> permitConfigs){
+        this.permitConfigs = permitConfigs;
+    }
 
 
     public List<BasePermit> getPermitConfigs() {

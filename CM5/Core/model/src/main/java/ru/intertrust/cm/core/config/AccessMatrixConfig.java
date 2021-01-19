@@ -42,13 +42,26 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(name= "support-security-stamp", required = false)
     private Boolean supportSecurityStamp;
 
+    @Attribute(name= "extendable", required = false)
+    private Boolean extendable;
+
+    @Attribute(name= "extend-type", required = false)
+    private AccessMatrixExtendType extendType;
+
+    private String moduleName;
+
     public static enum BorrowPermissisonsMode{
         none,
         read,
         readWriteDelete,
         all
     }
-    
+
+    public static enum AccessMatrixExtendType{
+        extend,
+        replace
+    }
+
     public String getType() {
         return type;
     }
@@ -94,17 +107,19 @@ public class AccessMatrixConfig implements TopLevelConfig {
                 borrowPermissisons == that.borrowPermissisons &&
                 Objects.equals(accessMatrixCreateConfig, that.accessMatrixCreateConfig) &&
                 Objects.equals(matrixReferenceMappingConfig, that.matrixReferenceMappingConfig) &&
-                Objects.equals(supportSecurityStamp, that.supportSecurityStamp);
+                Objects.equals(supportSecurityStamp, that.supportSecurityStamp) &&
+                Objects.equals(extendable, that.extendable) &&
+                extendType == that.extendType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, readEverybody, status, matrixReference, borrowPermissisons, accessMatrixCreateConfig, matrixReferenceMappingConfig, supportSecurityStamp);
+        return Objects.hash(type, readEverybody, status, matrixReference, borrowPermissisons, accessMatrixCreateConfig, matrixReferenceMappingConfig, supportSecurityStamp, extendable, extendType);
     }
 
     @Override
     public String getName() {
-        return type;
+        return moduleName + ":" + type;
     }
 
     @Override
@@ -152,6 +167,8 @@ public class AccessMatrixConfig implements TopLevelConfig {
                 ", accessMatrixCreateConfig=" + accessMatrixCreateConfig +
                 ", matrixReferenceMappingConfig=" + matrixReferenceMappingConfig +
                 ", supportSecurityStamp=" + supportSecurityStamp +
+                ", extendable=" + extendable +
+                ", extendType=" + extendType +
                 '}';
     }
 
@@ -161,5 +178,29 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     public void setSupportSecurityStamp(Boolean supportSecurityStamp) {
         this.supportSecurityStamp = supportSecurityStamp;
+    }
+
+    public Boolean getExtendable() {
+        return extendable;
+    }
+
+    public void setExtendable(Boolean extendable) {
+        this.extendable = extendable;
+    }
+
+    public AccessMatrixExtendType getExtendType() {
+        return extendType;
+    }
+
+    public void setExtendType(AccessMatrixExtendType extendType) {
+        this.extendType = extendType;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 }

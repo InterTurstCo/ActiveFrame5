@@ -35,13 +35,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 
 public abstract class DomainObjectIndexAgentBase {
 
     protected static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
-    protected Logger log = LoggerFactory.getLogger(getClass());
+    protected Logger log = LoggerFactory.getLogger(DomainObjectIndexAgentBase.class);
 
     @Autowired
     protected SolrServerWrapperMap solrServerWrapperMap;
@@ -80,13 +82,21 @@ public abstract class DomainObjectIndexAgentBase {
     }
 
     protected List<DomainObject> findChildren(Id objectId, SearchConfigHelper.SearchAreaDetailsConfig config) {
+        return findChildren(objectId, config, null);
+    }
+
+    protected List<DomainObject> findChildren(Id objectId, SearchConfigHelper.SearchAreaDetailsConfig config, String objectType) {
+        String objectTypeFromConfig = config.getObjectConfig().getType();
+        if (objectType != null && !objectType.equalsIgnoreCase(objectTypeFromConfig)) {
+            return Collections.emptyList();
+        }
         String parentLink = ((LinkedDomainObjectConfig) config.getObjectConfig()).getParentLink().getDoel();
         DoelExpression parentExpr = DoelExpression.parse(parentLink);
         DoelExpression linkedExpr;
         try {
-            linkedExpr = doelEvaluator.createReverseExpression(parentExpr, config.getObjectConfig().getType());
+            linkedExpr = doelEvaluator.createReverseExpression(parentExpr, objectTypeFromConfig, objectType != null);
         } catch (DoelException e) {
-            log.warn("Can't calculate children of type " + config.getObjectConfig().getType() + ": " + e.getMessage()
+            log.warn("Can't calculate children of type " + objectTypeFromConfig + ": " + e.getMessage()
                     + "; manual/scheduled calculation required");
             return Collections.emptyList();
         }
@@ -211,14 +221,18 @@ public abstract class DomainObjectIndexAgentBase {
             for (Iterator<Id> itr = ids.iterator(); itr.hasNext(); ) {
                 Id id = itr.next();
                 DomainObject object = domainObjectDao.find(id, accessToken);
-                if (!configHelper.isSuitableType(config.getType(), object.getTypeName())) {
+                if (object != null) {
+                    if (!configHelper.isSuitableType(config.getType(), object.getTypeName())) {
+                        itr.remove();
+                        continue;
+                    }
+                    DomainObjectFilter filter = configHelper.createFilter(config);
+                    if (filter != null && !filter.filter(object)) {
+                        itr.remove();
+                        continue;
+                    }
+                } else {
                     itr.remove();
-                    continue;
-                }
-                DomainObjectFilter filter = configHelper.createFilter(config);
-                if (filter != null && !filter.filter(object)) {
-                    itr.remove();
-                    continue;
                 }
                 if (parentConfig != null) {
                     List<ReferenceValue> values = doelEvaluator.evaluate(
@@ -357,6 +371,53 @@ public abstract class DomainObjectIndexAgentBase {
             return new InputStreamReader(getStream());
         }
 
+    }
+
+    protected static class ObjectCache<K, T> {
+        private static final int cacheSize = 1000;
+        private static final long delta = 10*60*1000;
+        private ConcurrentMap<K, CacheValue<T>> cache = new ConcurrentHashMap<>();
+
+        private static class CacheValue<T> {
+            private final long modified;
+            private final T object;
+
+            private CacheValue(long modified, T object) {
+                this.modified = modified;
+                this.object = object;
+            }
+
+            public T getObject() {
+                return object;
+            }
+        }
+
+        public void put(K key, T object) {
+            cache.put(key, new CacheValue(new Date().getTime(), object));
+            int cnt = 5;
+            long deltaLocal = delta;
+            while (cache.size() > cacheSize && cnt > 0) {
+                removeOld(deltaLocal);
+                deltaLocal /= 10;
+                cnt--;
+            }
+        }
+
+        public T fetchAndRemove(K key) {
+            CacheValue<T> value = cache.remove(key);
+            return value != null ? value.getObject() : null;
+        }
+
+        private void removeOld(long delta) {
+            Iterator<Map.Entry<K, CacheValue<T>>> iterator = cache.entrySet().iterator();
+            long border = new Date().getTime() - delta;
+            while (iterator.hasNext()) {
+                Map.Entry<K, CacheValue<T>> entry = iterator.next();
+                if (entry.getValue().modified < border) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
 }

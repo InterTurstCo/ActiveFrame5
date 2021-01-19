@@ -20,9 +20,6 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 
 @ExtensionPoint
 public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
@@ -343,7 +340,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
     }
 
     private String generateCacheKey(Id id, String areaName) {
-        return (id != null ? id.toStringRepresentation() : "null")  + ":" + (areaName != null ? areaName : "null")  ;
+        return (id != null ? id.toStringRepresentation() : "null")  + ":" + (areaName != null ? areaName : "null");
     }
 
     private void putSolrDocsToQueue (Map<String, List<SolrInputDocument>> solrDocs) {
@@ -411,53 +408,6 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
 
         public Map<String, SolrInputDocument> getSolrDocs() {
             return solrDocs;
-        }
-    }
-
-    private static class ObjectCache<K, T> {
-        private static final int cacheSize = 1000;
-        private static final long delta = 10*60*1000;
-        private ConcurrentMap<K, CacheValue<T>> cache = new ConcurrentHashMap<>();
-
-        private static class CacheValue<T> {
-            private final long modified;
-            private final T object;
-
-            private CacheValue(long modified, T object) {
-                this.modified = modified;
-                this.object = object;
-            }
-
-            public T getObject() {
-                return object;
-            }
-        }
-
-        public void put(K key, T object) {
-            cache.put(key, new CacheValue(new Date().getTime(), object));
-            int cnt = 5;
-            long deltaLocal = delta;
-            while (cache.size() > cacheSize && cnt > 0) {
-                removeOld(deltaLocal);
-                deltaLocal /= 10;
-                cnt--;
-            }
-        }
-
-        public T fetchAndRemove(K key) {
-            CacheValue<T> value = cache.remove(key);
-            return value != null ? value.getObject() : null;
-        }
-
-        private void removeOld(long delta) {
-            Iterator<Map.Entry<K, CacheValue<T>>> iterator = cache.entrySet().iterator();
-            long border = new Date().getTime() - delta;
-            while (iterator.hasNext()) {
-                Map.Entry<K, CacheValue<T>> entry = iterator.next();
-                if (entry.getValue().modified < border) {
-                    iterator.remove();
-                }
-            }
         }
     }
 }

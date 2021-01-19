@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -54,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Vlad
@@ -288,6 +290,12 @@ public class AttachmentServiceImplTest {
         public NavigationPanelLogicalValidator navigationPanelLogicalValidator() {
             return new NavigationPanelLogicalValidator(configurationExplorer());
         }
+
+        @Bean
+        public ModuleService moduleService() {
+            return mock(ModuleService.class);
+        }
+
     }
 
     @BeforeClass
@@ -493,7 +501,8 @@ public class AttachmentServiceImplTest {
         configuration.getConfigurationList().add(dot);
         configuration.getConfigurationList().add(globalSettings);
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration, context);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration, context);
+        configurationExplorer.init();
 
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
         Assert.assertNotNull(dot);

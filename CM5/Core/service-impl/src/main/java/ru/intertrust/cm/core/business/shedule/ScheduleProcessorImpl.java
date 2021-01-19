@@ -159,7 +159,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 taskExecution.setTimestamp(ScheduleService.SCHEDULE_COMPLETE, new Date());
                 taskExecution.setLong(ScheduleService.SCHEDULE_RESULT, ScheduleResult.Timeout.toLong());
                 taskExecution.setString(ScheduleService.SCHEDULE_RESULT_DESCRIPTION,
-                        "Schedule task cancal by timeout");
+                        "Scheduled task terminated due to timeout");
             } else {
                 //Если процесс завершился штатным образом без таймаута
                 taskExecution = domainObjectDao.setStatus(taskExecutionId,

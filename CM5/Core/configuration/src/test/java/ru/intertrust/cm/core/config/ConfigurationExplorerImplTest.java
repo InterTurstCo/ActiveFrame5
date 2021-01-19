@@ -52,6 +52,7 @@ public class ConfigurationExplorerImplTest {
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config,true);
+        configExplorer.init();
     }
 
     @Test
@@ -81,6 +82,7 @@ public class ConfigurationExplorerImplTest {
                 createConfigurationSerializer(DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH);
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config,true);
+        configExplorer.init();
 
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs =
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
@@ -206,6 +208,7 @@ public class ConfigurationExplorerImplTest {
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config,true);
+        configExplorer.init();
 
         String parent = configExplorer.getDomainObjectParentType("Employee");
         assertEquals("Person", parent);
@@ -242,6 +245,7 @@ public class ConfigurationExplorerImplTest {
         expectedException.expectMessage("Loop in the hierarchy, typeName: A2");
 
         configExplorer = new ConfigurationExplorerImpl(config);
+        configExplorer.init();
     }
 
     @Test

@@ -178,7 +178,8 @@ public class SqlQueryModifierTest {
         Configuration configuration = new Configuration();
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         configuration.getConfigurationList().add(globalSettings);
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer, userGroupCache,
                 currentUserAccessor, domainObjectQueryHelper);
         SqlQueryParser sqlQueryParser = new SqlQueryParser(PLAIN_SELECT_QUERY);

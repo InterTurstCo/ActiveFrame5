@@ -185,22 +185,32 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
                 return Collections.emptyList();
             }
-            ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
-            for (DomainObject groupGroupSetting : groupGroupSettings) {
-                final Id childGroupId = groupGroupSetting.getReference("child_group_id");
-                if (childGroupId != null) {
-                    childGroupIds.add(childGroupId);
+            // CMSEVEN-2643 При очень большом количестве записей можем упасть в методе domainObjectDao.find(List<Id>),
+            // поэтому, если записей более 1000, всегда выполняем запрос к базе
+            if (groupGroupSettings.size() > 1000){
+                return getChildGroupsUsingQuery(parent, accessToken);
+            }else {
+                ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
+                for (DomainObject groupGroupSetting : groupGroupSettings) {
+                    final Id childGroupId = groupGroupSetting.getReference("child_group_id");
+                    if (childGroupId != null) {
+                        childGroupIds.add(childGroupId);
+                    }
                 }
+                return domainObjectDao.find(childGroupIds, accessToken);
             }
-            return domainObjectDao.find(childGroupIds, accessToken);
         } else {
-            Filter filter = new Filter();
-            filter.setFilter("byParent");
-            filter.addCriterion(0, new ReferenceValue(parent));
-
-            return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
-                    Collections.singletonList(filter), null, 0, 0, accessToken));
+            return getChildGroupsUsingQuery(parent, accessToken);
         }
+    }
+
+    private List<DomainObject> getChildGroupsUsingQuery(Id parent, AccessToken accessToken) {
+        Filter filter = new Filter();
+        filter.setFilter("byParent");
+        filter.addCriterion(0, new ReferenceValue(parent));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     @Override

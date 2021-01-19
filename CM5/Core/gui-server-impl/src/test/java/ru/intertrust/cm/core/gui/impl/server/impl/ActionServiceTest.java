@@ -41,6 +41,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -214,7 +215,9 @@ public class ActionServiceTest {
 
             configurationSerializer.setModuleService(moduleSerevice);
             Configuration configuration = configurationSerializer.deserializeConfiguration();
-            return new ConfigurationExplorerImpl(configuration);
+            ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration);
+            result.init();
+            return result;
         }
 
         @Bean
@@ -222,6 +225,12 @@ public class ActionServiceTest {
             DomainObjectMapping result = Mockito.mock(DomainObjectMapping.class);
             return result;
         }
+
+        @Bean
+        public ModuleService moduleService() {
+            return mock(ModuleService.class);
+        }
+
     }
     
 }

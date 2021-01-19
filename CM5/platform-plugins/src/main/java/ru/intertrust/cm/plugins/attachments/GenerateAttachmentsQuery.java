@@ -1,17 +1,18 @@
 package ru.intertrust.cm.plugins.attachments;
 
+import org.apache.commons.cli.Options;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.plugin.Plugin;
 import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.plugins.PluginBase;
+import ru.intertrust.cm.plugins.PlatformPluginBase;
 
 import javax.ejb.EJBContext;
 
 @Plugin(name = "GenerateAttachmentsQuery",
         description = "Формирование запросов для анализа хранилища вложений",
         transactional = false)
-public class GenerateAttachmentsQuery extends PluginBase implements PluginHandler {
+public class GenerateAttachmentsQuery implements PluginHandler {
 
     @Autowired
     private ConfigurationExplorer configExplorer;

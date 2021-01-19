@@ -571,7 +571,8 @@ public class DoelResolver implements DoelEvaluator {
     }
 
     //@Deprecated
-    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
+    @Override
+    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType, boolean allowRefToAnyType) {
         StringBuilder reverseExpr = new StringBuilder();
         String currentType = sourceType;
         for (DoelExpression.Element doelElem : expr.getElements()) {
@@ -592,7 +593,7 @@ public class DoelResolver implements DoelEvaluator {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
                     currentType = refConfig.getType();
-                    if (ReferenceFieldConfig.ANY_TYPE.equals(currentType)) {
+                    if (ReferenceFieldConfig.ANY_TYPE.equals(currentType) && !allowRefToAnyType) {
                         throw new DoelException("Can't reverse expression that uses untyped reference fields (*)");
                     }
                 } else {
@@ -610,6 +611,13 @@ public class DoelResolver implements DoelEvaluator {
     }
 
     //@Deprecated
+    @Override
+    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
+        return createReverseExpression(expr, sourceType, false);
+    }
+
+    //@Deprecated
+    @Override
     public DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType) {
         return createReverseExpression(expr.cutByCount(count), sourceType);
     }

@@ -10,16 +10,13 @@ import ru.intertrust.cm.core.model.FatalException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 public class ModuleServiceImpl implements ModuleService {
     private static final String MODULE_XSD = "config/module.xsd";
     private ModuleGraf fileGraf;
     private List<ModuleConfiguration> moduleList = new ArrayList<ModuleConfiguration>();
+    private List<ModuleConfiguration> rootModuleList = new ArrayList<ModuleConfiguration>();
 
     public void init() {
         URL url = null;
@@ -45,6 +42,9 @@ public class ModuleServiceImpl implements ModuleService {
             while (fileGraf.hasMoreElements()) {
                 ModuleNode moduleNode = fileGraf.nextElement();
                 moduleList.add(moduleNode.getModuleConfiguration());
+                if (moduleNode.dependOn.size() == 0){
+                    rootModuleList.add(moduleNode.getModuleConfiguration());
+                }
             }
 
         } catch (Exception ex) {
@@ -62,6 +62,32 @@ public class ModuleServiceImpl implements ModuleService {
 
     public List<ModuleConfiguration> getModuleList() {
         return moduleList;
+    }
+
+    @Override
+    public List<ModuleConfiguration> getRootModules() {
+        return rootModuleList;
+    }
+
+    @Override
+    public List<ModuleConfiguration> getChildModules(String moduleName) {
+        List<ModuleConfiguration> result = new ArrayList<>();
+        for (ModuleNode node : fileGraf.getModuleNodes()) {
+            if (node.getDependOn().contains(moduleName)){
+                result.add(node.getModuleConfiguration());
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<ModuleConfiguration> getParentModules(String moduleName) {
+        List<ModuleConfiguration> result = new ArrayList<>();
+        ModuleNode moduleNode = fileGraf.getModuleNode(moduleName);
+        for (String parent : moduleNode.getDependOn()) {
+            result.add(fileGraf.getModuleNode(parent).getModuleConfiguration());
+        }
+        return result;
     }
 
     /**
@@ -243,6 +269,24 @@ public class ModuleServiceImpl implements ModuleService {
 
             return result;
         }
+
+        /**
+         * Получение модуля по имени
+         * @param moduleName
+         * @return
+         */
+        public ModuleNode getModuleNode(String moduleName){
+            return importFilesGraf.get(moduleName);
+        }
+
+        /**
+         * Возвращает все модули без сортировки, без учета зависимотей друг от друга
+         * @return
+         */
+        public Collection<ModuleNode> getModuleNodes(){
+            return importFilesGraf.values();
+        }
+
     }
 
 }

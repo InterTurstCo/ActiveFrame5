@@ -35,7 +35,7 @@ public class EmptyValueFilterAdapterTest {
 
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
         String result = adapter.getFilterString(filter, query);
-        assertEquals("-cm_t_testfield:[\"\" TO *]", result);
+        assertEquals("-(cm_t_testfield:[\"\" TO *])", result);
     }
 
     @Test
@@ -48,7 +48,7 @@ public class EmptyValueFilterAdapterTest {
 
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
         String result = adapter.getFilterString(filter, query);
-        assertEquals("-cm_l_testfield:[* TO *]", result);
+        assertEquals("-(cm_l_testfield:[* TO *])", result);
     }
 
     @Test
@@ -74,8 +74,8 @@ public class EmptyValueFilterAdapterTest {
         String result = adapter.getFilterString(filter, query);
         assertTrue("Поисковый запрос должен иметь вид -(zzzz OR zzzz ...),"
                 + " где каждый zzzz - выражение вида cm_xx_testfield:[* TO *] или cm_t_testfield:[\"\" TO *]",
-                result.matches("^-\\((cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\] OR ){7}"
-                + "cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\]\\)$"));
+                result.matches("^-\\(\\((cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\] OR ){7}"
+                + "cm_[a-z]+_testfield:\\[(\"\"|\\*) TO \\*\\]\\)\\)$"));
         assertTrue(result.contains("cm_r_testfield:"));
         assertTrue(result.contains("cm_dts_testfield:"));
         assertTrue(result.contains("cm_t_testfield:"));
