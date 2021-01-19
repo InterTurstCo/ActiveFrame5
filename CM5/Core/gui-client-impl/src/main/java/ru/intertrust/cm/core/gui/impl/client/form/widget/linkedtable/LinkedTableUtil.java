@@ -473,8 +473,8 @@ public class LinkedTableUtil {
         }
 
         private void drawNonClickableCell(String text, Panel container) {
-            HTML htmlCellText = new HTML(text);
-            container.add(htmlCellText);
+            Label textLabel = new Label(text);
+            container.add(textLabel);
         }
 
         private void drawColumnAction(SummaryTableActionColumnConfig summaryTableActionColumnConfig,
