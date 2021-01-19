@@ -1908,7 +1908,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                
+
                 <link name="SingleRowPlugin" display-text="Плагин SingleRow">
                     <plugin>
                         <custom name="single.row.plugin">
@@ -1916,7 +1916,23 @@
                         </custom>
                     </plugin>
                 </link>
-                
+
+                <link name="color_widget_test_link" display-text="Виджет выбора цвета">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="color">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                    <act:action-separator order="50"/>
+                                    <act:action-ref name-ref="aCreate"/>
+                                </act:tool-bar>
+                                <collection-ref name="color_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
                 <link name="lnk_audit-ref" ref-link-name="lnk_audit"/>
                 
             </child-links>
