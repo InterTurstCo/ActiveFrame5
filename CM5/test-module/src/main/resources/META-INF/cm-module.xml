@@ -117,6 +117,11 @@
         <configuration-path>contacts-module/configuration/form/nbr_test_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/nbr_test_collection.xml</configuration-path>
 
+        <!-- Объекты для тестирования виджета выбора цвета (colorpicker)-->
+        <configuration-path>contacts-module/configuration/data/color_domain_objects.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/color_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/color_collection.xml</configuration-path>
+
         <!-- Плагин SingleRow -->
         <configuration-path>module-configuration/single-row-plugin.xml</configuration-path>
 
@@ -190,6 +195,7 @@
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-pos-appointments.csv</import-file>
 
         <import-file>importdata/nbr_schema.csv</import-file>
+        <import-file>importdata/import-color.csv</import-file>
     </import-files>
 
     <import-reports>

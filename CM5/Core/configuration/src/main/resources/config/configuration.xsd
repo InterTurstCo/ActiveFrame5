@@ -2233,6 +2233,18 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:colorPickerType" name="color-picker" substitutionGroup="con:widget"/>
+    <xs:complexType name="colorPickerType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:element type="con:editableTableBrowserType" name="editable-table-browser" substitutionGroup="con:widget"/>
     <xs:complexType name="editableTableBrowserType">
         <xs:complexContent>

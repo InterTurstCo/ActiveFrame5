@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <!-- Форма объекта с виджетом цвета для теста -->
+    <form name="color_form" domain-object-type="color" is-default="true">
+
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="toggle-edit and not preview" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or preview" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOn" permissions="Write" rendered="toggle-edit and preview" merged="true"/>
+        </act:tool-bar>
+
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+
+            <body display-single-tab="true">
+                <tab name="Основная информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="name_label"/>
+                                    </td>
+                                    <td>
+                                        <widget id="name_value"/>
+                                    </td>
+                                </tr>
+                                <!-- Виджет выбора цвета с меткой -->
+                                <tr>
+                                    <td>
+                                        <widget id="hex_code_label"/>
+                                    </td>
+                                    <td>
+                                        <widget id="hex_code_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="header">
+                <text>Тестовая форма для проверки работы виджета выбора цвета (color-picker)</text>
+            </label>
+
+            <!--Название цвета-->
+            <label id="name_label">
+                <text>Название</text>
+            </label>
+            <text-box id="name_value">
+                <field-path value="name"/>
+            </text-box>
+
+            <!-- Код цвета -->
+            <label id="hex_code_label">
+                <text>Цвет</text>
+            </label>
+            <color-picker id="hex_code_value">
+                <field-path value="hex_code"/>
+            </color-picker>
+
+        </widget-config>
+    </form>
+
+</configuration>
