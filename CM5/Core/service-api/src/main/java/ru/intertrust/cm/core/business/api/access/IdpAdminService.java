@@ -1,10 +1,12 @@
 package ru.intertrust.cm.core.business.api.access;
 
+import java.util.List;
+
 /**
  * Сервис интеграции с IDP
  */
 public interface IdpAdminService {
-    public static final String IDP_ALTER_UID_TYPE = "idp";
+    String IDP_ALTER_UID_TYPE = "idp";
 
     /**
      * Создание пользователя
@@ -51,6 +53,8 @@ public interface IdpAdminService {
      * @param unid
      */
     void enableUser(String unid);
+
+    void sendEmail(String unid, List<String> requiredActions);
 
     /**
      * Получение конфигурации idp провайдера для интеграционных задач

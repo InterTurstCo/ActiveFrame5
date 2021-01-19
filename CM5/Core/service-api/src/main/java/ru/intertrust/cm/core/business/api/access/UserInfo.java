@@ -14,6 +14,7 @@ public class UserInfo {
     private boolean enable;
     private Map<String, List<String>> attributes;
     private List<String> requiredActions;
+    private String temporaryPassword;
 
     public String getUnid() {
         return unid;
@@ -79,6 +80,14 @@ public class UserInfo {
         this.requiredActions = requiredActions;
     }
 
+    public String getTemporaryPassword() {
+        return temporaryPassword;
+    }
+
+    public void setTemporaryPassword(String temporaryPassword) {
+        this.temporaryPassword = temporaryPassword;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,13 +99,14 @@ public class UserInfo {
                 && Objects.equals(getFirstName(), userInfo.getFirstName())
                 && Objects.equals(getLastName(), userInfo.getLastName())
                 && Objects.equals(getAttributes(), userInfo.getAttributes())
-                && Objects.equals(getRequiredActions(), userInfo.getRequiredActions());
+                && Objects.equals(getRequiredActions(), userInfo.getRequiredActions())
+                && Objects.equals(getTemporaryPassword(), userInfo.getTemporaryPassword());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getUnid(), getUsername(), getEmail(), getFirstName(),
-                getLastName(), isEnable(), getAttributes(), getRequiredActions());
+                getLastName(), isEnable(), getAttributes(), getRequiredActions(), getTemporaryPassword());
     }
 
     @Override

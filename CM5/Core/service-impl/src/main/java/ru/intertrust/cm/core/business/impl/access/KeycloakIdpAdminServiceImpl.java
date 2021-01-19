@@ -1,11 +1,13 @@
 package ru.intertrust.cm.core.business.impl.access;
 
+import java.util.Collections;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.ClientBuilderWrapper;
 import org.keycloak.admin.client.JacksonProvider;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.business.api.access.IdpConfig;
@@ -141,7 +143,19 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
         userRepresentation.setEnabled(userInfo.isEnable());
         userRepresentation.setAttributes(userInfo.getAttributes());
         userRepresentation.setRequiredActions(userInfo.getRequiredActions());
+        String temporaryPassword = userInfo.getTemporaryPassword();
+        if (temporaryPassword != null) {
+            addPassword(userRepresentation, temporaryPassword);
+        }
         return userRepresentation;
+    }
+
+    private void addPassword(UserRepresentation userRepresentation, String temporaryPassword) {
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setTemporary(true);
+        credential.setValue(temporaryPassword);
+        credential.setType("password");
+        userRepresentation.setCredentials(Collections.singletonList(credential));
     }
 
     @Override
@@ -162,11 +176,11 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
         init();
 
         List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName);
-        if (searchResult.size() == 0 ){
+        if (searchResult.size() == 0 ) {
             return null;
-        }else if(searchResult.size() == 1){
+        } else if(searchResult.size() == 1) {
             return getUserInfo(searchResult.get(0));
-        }else{
+        } else {
             throw new FatalException("Find more then one user with name " + userName);
         }
     }
@@ -199,6 +213,11 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
             userInfo.setEnable(true);
             updateUser(userInfo);
         }
+    }
+
+    @Override
+    public void sendEmail(String unid, List<String> requiredActions) {
+        keycloak.realm(config.getRealm()).users().get(unid).executeActionsEmail(requiredActions);
     }
 
     @Override
