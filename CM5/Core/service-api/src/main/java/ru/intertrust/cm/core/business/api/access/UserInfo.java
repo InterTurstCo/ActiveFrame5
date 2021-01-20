@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.access;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +15,7 @@ public class UserInfo {
     private boolean enable;
     private Map<String, List<String>> attributes;
     private List<String> requiredActions;
-    private String temporaryPassword;
+    private List<CredentialInfo> credentialInfoList;
 
     public String getUnid() {
         return unid;
@@ -65,7 +66,7 @@ public class UserInfo {
     }
 
     public Map<String, List<String>> getAttributes() {
-        return attributes;
+        return attributes == null ? Collections.emptyMap() : attributes;
     }
 
     public void setAttributes(Map<String, List<String>> attributes) {
@@ -73,19 +74,19 @@ public class UserInfo {
     }
 
     public List<String> getRequiredActions() {
-        return requiredActions;
+        return requiredActions == null ? Collections.emptyList() : requiredActions;
     }
 
     public void setRequiredActions(List<String> requiredActions) {
         this.requiredActions = requiredActions;
     }
 
-    public String getTemporaryPassword() {
-        return temporaryPassword;
+    public List<CredentialInfo> getCredentialInfoList() {
+        return credentialInfoList == null ? Collections.emptyList() : credentialInfoList;
     }
 
-    public void setTemporaryPassword(String temporaryPassword) {
-        this.temporaryPassword = temporaryPassword;
+    public void setCredentialInfoList(List<CredentialInfo> credentialInfoList) {
+        this.credentialInfoList = credentialInfoList;
     }
 
     @Override
@@ -99,14 +100,13 @@ public class UserInfo {
                 && Objects.equals(getFirstName(), userInfo.getFirstName())
                 && Objects.equals(getLastName(), userInfo.getLastName())
                 && Objects.equals(getAttributes(), userInfo.getAttributes())
-                && Objects.equals(getRequiredActions(), userInfo.getRequiredActions())
-                && Objects.equals(getTemporaryPassword(), userInfo.getTemporaryPassword());
+                && Objects.equals(getRequiredActions(), userInfo.getRequiredActions());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(getUnid(), getUsername(), getEmail(), getFirstName(),
-                getLastName(), isEnable(), getAttributes(), getRequiredActions(), getTemporaryPassword());
+                getLastName(), isEnable(), getAttributes(), getRequiredActions());
     }
 
     @Override

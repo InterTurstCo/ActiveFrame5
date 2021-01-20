@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.business.impl.access;
 
-import java.util.Collections;
+import java.util.stream.Collectors;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.ClientBuilderWrapper;
@@ -10,6 +10,7 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.beans.factory.annotation.Value;
+import ru.intertrust.cm.core.business.api.access.CredentialInfo;
 import ru.intertrust.cm.core.business.api.access.IdpConfig;
 import ru.intertrust.cm.core.business.api.access.IdpAdminService;
 import ru.intertrust.cm.core.business.api.access.UserInfo;
@@ -143,19 +144,21 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
         userRepresentation.setEnabled(userInfo.isEnable());
         userRepresentation.setAttributes(userInfo.getAttributes());
         userRepresentation.setRequiredActions(userInfo.getRequiredActions());
-        String temporaryPassword = userInfo.getTemporaryPassword();
-        if (temporaryPassword != null) {
-            addPassword(userRepresentation, temporaryPassword);
-        }
+
+        List<CredentialRepresentation> credentials = userInfo.getCredentialInfoList().stream()
+                .map(this::newCredentialRepresentation)
+                .collect(Collectors.toList());
+        userRepresentation.setCredentials(credentials);
+
         return userRepresentation;
     }
 
-    private void addPassword(UserRepresentation userRepresentation, String temporaryPassword) {
+    private CredentialRepresentation newCredentialRepresentation(CredentialInfo credentialInfo) {
         CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setTemporary(true);
-        credential.setValue(temporaryPassword);
-        credential.setType("password");
-        userRepresentation.setCredentials(Collections.singletonList(credential));
+        credential.setTemporary(credentialInfo.isTemporary());
+        credential.setValue(credential.getValue());
+        credential.setType(credentialInfo.getType());
+        return credential;
     }
 
     @Override
