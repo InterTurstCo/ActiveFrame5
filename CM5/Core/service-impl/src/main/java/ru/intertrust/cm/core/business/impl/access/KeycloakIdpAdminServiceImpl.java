@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.access;
 
+import java.util.Collections;
 import java.util.stream.Collectors;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.keycloak.OAuth2Constants;
@@ -178,14 +179,22 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
         init();
 
-        List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName);
+        List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName, true);
         if (searchResult.size() == 0 ) {
             return null;
-        } else if(searchResult.size() == 1) {
+        } else if (searchResult.size() == 1) {
             return getUserInfo(searchResult.get(0));
         } else {
             throw new FatalException("Find more then one user with name " + userName);
         }
+    }
+
+    @Override
+    public List<UserInfo> findUsersByUserName(String userName) {
+        init();
+
+        List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName);
+        return searchResult.stream().map(this::getUserInfo).collect(Collectors.toList());
     }
 
     private UserInfo getUserInfo(UserRepresentation userRepresentation) {

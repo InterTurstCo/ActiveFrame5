@@ -43,6 +43,13 @@ public interface IdpAdminService {
     UserInfo findUserByUserName(String userName);
 
     /**
+     * Поиск группы пользователей по вхождению в поле userName
+     * @param userName
+     * @return
+     */
+    List<UserInfo> findUsersByUserName(String userName);
+
+    /**
      * Отключение пользователя
      * @param unid
      */
