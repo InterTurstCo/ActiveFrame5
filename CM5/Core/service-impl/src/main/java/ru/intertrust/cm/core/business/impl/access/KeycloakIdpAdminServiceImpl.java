@@ -156,7 +156,7 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
     private CredentialRepresentation newCredentialRepresentation(CredentialInfo credentialInfo) {
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setTemporary(credentialInfo.isTemporary());
-        credential.setValue(credential.getValue());
+        credential.setValue(credentialInfo.getValue());
         credential.setType(credentialInfo.getType());
         return credential;
     }
