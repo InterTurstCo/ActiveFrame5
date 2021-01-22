@@ -611,25 +611,38 @@
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="test_type_46_1" >
+    <domain-object-type name="test_type_48" extends="test_type_45">
         <fields>
-            <reference name="test_type_46" type="test_type_46" not-null="true"/>
+            <string name="stringField2" length="128"/>
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="test_type_47" extends="test_type_46">
+    <domain-object-type name="test_type_48_1" >
+        <fields>
+            <reference name="test_type_48" type="test_type_48" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_48_2" >
+        <fields>
+            <reference name="test_type_45" type="test_type_45" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+
+    <domain-object-type name="test_type_49" extends="test_type_48">
         <fields>
             <string name="stringField3" length="128"/>
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="test_type_47_1" >
+    <domain-object-type name="test_type_49_1" >
         <fields>
-            <reference name="test_type_47" type="test_type_47" not-null="true"/>
+            <reference name="test_type_49" type="test_type_49" not-null="true"/>
         </fields>
     </domain-object-type>
 
-    <domain-object-type name="test_type_47_2" extends="test_type_47_1" >
+    <domain-object-type name="test_type_49_2" extends="test_type_49_1" >
         <fields>
             <string name="stringField" length="128" />
         </fields>
@@ -649,7 +662,7 @@
 
     <access-matrix type="test_type_44_1" matrix-reference-field="test_type_44"/>
 
-    <access-matrix type="test_type_46" support-security-stamp="true">
+    <access-matrix type="test_type_46">
         <create>
             <permit-group name="AllPersons"/>
         </create>
@@ -660,9 +673,21 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="test_type_46_1" matrix-reference-field="test_type_46"/>
+    <access-matrix type="test_type_48" support-security-stamp="true">
+        <create>
+            <permit-group name="AllPersons"/>
+        </create>
+        <status name="*">
+            <read><permit-group name="AllPersons"/></read>
+            <write><permit-group name="AllPersons"/></write>
+            <delete><permit-group name="AllPersons"/></delete>
+        </status>
+    </access-matrix>
 
-    <access-matrix type="test_type_47_1" matrix-reference-field="test_type_47"/>
+    <access-matrix type="test_type_48_1" matrix-reference-field="test_type_48"/>
+    <access-matrix type="test_type_48_2" matrix-reference-field="test_type_45"/>
+
+    <access-matrix type="test_type_49_1" matrix-reference-field="test_type_49"/>
 
     <!-- Завершение Проверка грифов -->
 

@@ -44,20 +44,21 @@ public class TestStamp extends ClientBase {
             findOrCreateStamps();
             activateStampedTypes("test_type_44", false);
             activateStampedTypes("test_type_45", false);
-            activateStampedTypes("test_type_46", false);
+            activateStampedTypes("test_type_48", false);
             activateStampedTypes("test_type_47", false);
 
             // Создаем персону для теста
             testPerson = createTestPerson();
             testLogin = testPerson.getString("login");
 
-            DomainObject testType44 = testOneObject("test_type_44", null);
-            DomainObject testType46 = testOneObject("test_type_46", null);
-            DomainObject testType47 = testOneObject("test_type_47", null);
-            DomainObject testType44_1 = testOneObject("test_type_44_1", testType44);
-            DomainObject testType46_1 = testOneObject("test_type_46_1", testType46);
-            DomainObject testType47_1 = testOneObject("test_type_47_1", testType47);
-            DomainObject testType47_2 = testOneObject("test_type_47_2", testType47);
+            DomainObject testType44 = testOneObject("test_type_44",null, null);
+            DomainObject testType48 = testOneObject("test_type_48",null, null);
+            DomainObject testType49 = testOneObject("test_type_49",null, null);
+            DomainObject testType44_1 = testOneObject("test_type_44_1", "test_type_44", testType44);
+            DomainObject testType48_1 = testOneObject("test_type_48_1", "test_type_48", testType48);
+            DomainObject testType48_2 = testOneObject("test_type_48_2", "test_type_45", testType48);
+            DomainObject testType49_1 = testOneObject("test_type_49_1", "test_type_49", testType49);
+            DomainObject testType49_2 = testOneObject("test_type_49_2", "test_type_49", testType49);
 
             if (hasError){
                 log("Test filed");
@@ -69,7 +70,7 @@ public class TestStamp extends ClientBase {
         }
     }
 
-    private DomainObject testOneObject(String typeName, DomainObject owner) throws Exception {
+    private DomainObject testOneObject(String typeName, String ownerRefField, DomainObject owner) throws Exception {
         deletePersonStamp(testPerson.getId(), stamp1.getId());
         String query = "select id from " + typeName + "  where id = {0}";
 
@@ -82,7 +83,7 @@ public class TestStamp extends ClientBase {
         DomainObject testDomainObject = getCrudService().createDomainObject(typeName);
         testDomainObject.setString("stringField", "_" + System.currentTimeMillis());
         if (owner != null) {
-            testDomainObject.setReference(owner.getTypeName(), owner);
+            testDomainObject.setReference(ownerRefField, owner);
         }else {
             testDomainObject.setReference("security_stamp", stamp1);
         }

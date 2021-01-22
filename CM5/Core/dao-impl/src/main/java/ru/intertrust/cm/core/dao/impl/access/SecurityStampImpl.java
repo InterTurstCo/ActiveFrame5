@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
@@ -77,11 +76,17 @@ public class SecurityStampImpl implements SecurityStamp, AfterClearGlobalCacheEx
         boolean result = getGlobalConfig().contains(typeName.toLowerCase());
 
         if (!result){
-            // Проверяем все родительские типы
-            for (String parentType: configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(typeName)) {
-                if (getGlobalConfig().contains(parentType.toLowerCase())){
-                    result = true;
-                    break;
+            // Проверяем все типы в ветке иерархии, сначала для root
+            String rootType = configurationExplorer.getDomainObjectRootType(typeName);
+            result = getGlobalConfig().contains(rootType.toLowerCase());
+
+            // потом все дочки
+            if (!result) {
+                for (DomainObjectTypeConfig childType : configurationExplorer.findChildDomainObjectTypes(rootType, true)) {
+                    if (getGlobalConfig().contains(childType.getName().toLowerCase())) {
+                        result = true;
+                        break;
+                    }
                 }
             }
         }
@@ -93,14 +98,16 @@ public class SecurityStampImpl implements SecurityStamp, AfterClearGlobalCacheEx
                 String referenceMatrixType = configurationExplorer.getMatrixReferenceTypeName(typeName);
                 if (referenceMatrixType != null) {
 
-                    // Проверяем включен ли у типа откуда заимствуем права
-                    result = getGlobalConfig().contains(typeName.toLowerCase());
+                    // Получаем root тип для типа, откуда заимствуем матрицу
+                    String rootReferenceMatrixType = configurationExplorer.getDomainObjectRootType(referenceMatrixType);
+
+                    // Проверяем включено ли для него
+                    result = getGlobalConfig().contains(rootReferenceMatrixType);
 
                     if (!result){
-
-                        // Проверяем у родительских типов, отнотительно того, откуда заимствуем права
-                        for (String parentType: configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(referenceMatrixType)) {
-                            if (getGlobalConfig().contains(parentType.toLowerCase())){
+                        // Проверяем есть ли в иерархии типа хоть один тип с поддержкой грифов
+                        for (DomainObjectTypeConfig childType : configurationExplorer.findChildDomainObjectTypes(rootReferenceMatrixType, true)) {
+                            if (getGlobalConfig().contains(childType.getName().toLowerCase())) {
                                 result = true;
                                 break;
                             }
@@ -131,11 +138,41 @@ public class SecurityStampImpl implements SecurityStamp, AfterClearGlobalCacheEx
                 // Права заимствуются, ищем матрицу, которую заимствуем и смотрим настройки грифов там.
                 String matrixType = configurationExplorer.getMatrixReferenceTypeName(typeName);
                 if (matrixType != null){
-                    AccessMatrixConfig referenceMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(matrixType);
-                    if (referenceMatrix != null && referenceMatrix.isSupportSecurityStamp() != null){
-                        result = referenceMatrix.isSupportSecurityStamp();
+                    // Относительно найденного типа берем рутовый тип
+                    String matrixRootType = configurationExplorer.getDomainObjectRootType(matrixType);
+                    // Проверяем есть ли матрица у root Типа
+                    result = isSupportStampByAccessMatrix(matrixRootType);
+
+                    if (!result) {
+                        // Проверяем есть хоть одна дочка с грифом
+                        result = isChildSupportStampByAccessMatrix(matrixRootType);
                     }
                 }
+            }
+        }
+
+        // Если хоть один наследник поддерживает грифы, то и базовый тип должен поддерживать грифы,
+        // чтоб корректно работал запрос типа select * from base_type
+        if (!result) {
+            result = isChildSupportStampByAccessMatrix(typeName);
+        }
+
+        return result;
+    }
+
+    /**
+     * Проверка поддерживает ли конфигурация на уровне матриц грифы для хотя бы одного дочернего типа
+     * @param typeName
+     * @return
+     */
+    private boolean isChildSupportStampByAccessMatrix(String typeName){
+        boolean result = false;
+        Collection<DomainObjectTypeConfig> childTypeConfigs =
+                configurationExplorer.findChildDomainObjectTypes(typeName, true);
+        for (DomainObjectTypeConfig childTypeConfig : childTypeConfigs) {
+            if (isSupportStampByAccessMatrix(childTypeConfig.getName())){
+                result = true;
+                break;
             }
         }
 
