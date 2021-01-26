@@ -12,42 +12,30 @@ import net.sf.jsqlparser.expression.WindowRange;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.SetStatement;
-import net.sf.jsqlparser.statement.StatementVisitor;
-import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.alter.Alter;
+import net.sf.jsqlparser.statement.alter.sequence.AlterSequence;
+import net.sf.jsqlparser.statement.comment.Comment;
 import net.sf.jsqlparser.statement.create.index.CreateIndex;
+import net.sf.jsqlparser.statement.create.schema.CreateSchema;
+import net.sf.jsqlparser.statement.create.sequence.CreateSequence;
+import net.sf.jsqlparser.statement.create.synonym.CreateSynonym;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.view.AlterView;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.execute.Execute;
+import net.sf.jsqlparser.statement.grant.Grant;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.merge.Merge;
 import net.sf.jsqlparser.statement.replace.Replace;
-import net.sf.jsqlparser.statement.select.Distinct;
-import net.sf.jsqlparser.statement.select.First;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.LateralSubSelect;
-import net.sf.jsqlparser.statement.select.OrderByElement;
-import net.sf.jsqlparser.statement.select.OrderByVisitor;
-import net.sf.jsqlparser.statement.select.PivotVisitor;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectBody;
-import net.sf.jsqlparser.statement.select.SelectItem;
-import net.sf.jsqlparser.statement.select.SelectItemVisitor;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.Skip;
-import net.sf.jsqlparser.statement.select.SubJoin;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import net.sf.jsqlparser.statement.select.TableFunction;
-import net.sf.jsqlparser.statement.select.ValuesList;
-import net.sf.jsqlparser.statement.select.WithItem;
+import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.show.ShowTablesStatement;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
+import net.sf.jsqlparser.statement.upsert.Upsert;
+import net.sf.jsqlparser.statement.values.ValuesStatement;
 
 public class BasicVisitor extends ExpressionVisitorAdapter implements ExpressionVisitor, FromItemVisitor, ItemsListVisitor, OrderByVisitor, PivotVisitor,
         SelectItemVisitor, SelectVisitor, StatementVisitor {
@@ -65,8 +53,10 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
 
     @Override
     public void visit(SubJoin subjoin) {
-        if (subjoin.getJoin() != null) {
-            visit(subjoin.getJoin());
+        if (subjoin.getJoinList() != null) {
+            for (Join join : subjoin.getJoinList()) {
+                visit(join);
+            }
         }
         if (subjoin.getLeft() != null) {
             subjoin.getLeft().accept(this);
@@ -121,6 +111,11 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
     }
 
     @Override
+    public void visit(ParenthesisFromItem aThis) {
+
+    }
+
+    @Override
     public void visit(OrderByElement orderBy) {
         orderBy.getExpression().accept(this);
     }
@@ -150,8 +145,8 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
             plainSelect.getFromItem().accept(this);
         }
 
-        if (plainSelect.getGroupByColumnReferences() != null) {
-            for (Expression expression : plainSelect.getGroupByColumnReferences()) {
+        if (plainSelect.getGroupBy() != null && plainSelect.getGroupBy().getGroupByExpressions() != null) {
+            for (Expression expression : plainSelect.getGroupBy().getGroupByExpressions()) {
                 expression.accept(this);
             }
         }
@@ -239,6 +234,11 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
     }
 
     @Override
+    public void visit(ValuesStatement aThis) {
+
+    }
+
+    @Override
     public void visit(Select select) {
         if (select.getWithItemsList() != null) {
             for (WithItem withItem : select.getWithItemsList()) {
@@ -248,6 +248,66 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
         if (select.getSelectBody() != null) {
             select.getSelectBody().accept(this);
         }
+    }
+
+    @Override
+    public void visit(Upsert upsert) {
+
+    }
+
+    @Override
+    public void visit(UseStatement use) {
+
+    }
+
+    @Override
+    public void visit(Block block) {
+
+    }
+
+    @Override
+    public void visit(DescribeStatement describe) {
+
+    }
+
+    @Override
+    public void visit(ExplainStatement aThis) {
+
+    }
+
+    @Override
+    public void visit(ShowStatement aThis) {
+
+    }
+
+    @Override
+    public void visit(DeclareStatement aThis) {
+
+    }
+
+    @Override
+    public void visit(Grant grant) {
+
+    }
+
+    @Override
+    public void visit(CreateSequence createSequence) {
+
+    }
+
+    @Override
+    public void visit(AlterSequence alterSequence) {
+
+    }
+
+    @Override
+    public void visit(CreateFunctionalStatement createFunctionalStatement) {
+
+    }
+
+    @Override
+    public void visit(CreateSynonym createSynonym) {
+
     }
 
     @Override
@@ -327,6 +387,16 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
     }
 
     @Override
+    public void visit(Comment comment) {
+
+    }
+
+    @Override
+    public void visit(Commit commit) {
+
+    }
+
+    @Override
     public void visit(Delete delete) {
 
     }
@@ -362,12 +432,22 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
     }
 
     @Override
+    public void visit(CreateSchema aThis) {
+
+    }
+
+    @Override
     public void visit(CreateTable createTable) {
 
     }
 
     @Override
     public void visit(CreateView createView) {
+
+    }
+
+    @Override
+    public void visit(AlterView alterView) {
 
     }
 
@@ -388,6 +468,16 @@ public class BasicVisitor extends ExpressionVisitorAdapter implements Expression
 
     @Override
     public void visit(SetStatement set) {
+
+    }
+
+    @Override
+    public void visit(ShowColumnsStatement set) {
+
+    }
+
+    @Override
+    public void visit(ShowTablesStatement showTables) {
 
     }
 

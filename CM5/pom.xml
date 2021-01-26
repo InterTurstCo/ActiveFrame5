@@ -511,7 +511,7 @@
             <dependency>
                 <groupId>com.github.jsqlparser</groupId>
                 <artifactId>jsqlparser</artifactId>
-                <version>0.9.5</version>
+                <version>4.0</version>
             </dependency>
 
             <dependency>

@@ -412,9 +412,9 @@ public class SqlQueryModifier {
 
         plainSelect.setSelectItems(selectItems);
 
-        if (plainSelect.getGroupByColumnReferences() != null) {
-            List<Expression> groupByExpressions = new ArrayList<>(plainSelect.getGroupByColumnReferences().size());
-            for (Expression expression : plainSelect.getGroupByColumnReferences()) {
+        if (plainSelect.getGroupBy() != null) {
+            List<Expression> groupByExpressions = new ArrayList<>(plainSelect.getGroupBy().getGroupByExpressions());
+            for (Expression expression : plainSelect.getGroupBy().getGroupByExpressions()) {
                 groupByExpressions.add(expression);
 
                 if (!(expression instanceof Column)) {
@@ -440,7 +440,7 @@ public class SqlQueryModifier {
                 }
             }
 
-            plainSelect.setGroupByColumnReferences(groupByExpressions);
+            plainSelect.getGroupBy().setGroupByExpressions(groupByExpressions);
         }
     }
 
