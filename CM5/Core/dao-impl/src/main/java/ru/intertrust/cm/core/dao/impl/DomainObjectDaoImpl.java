@@ -667,12 +667,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // пользователя.
         final AccessToken systemAccessToken = createSystemAccessToken();
 
-        DomainObject[] deletedObjects = new DomainObject[ids.length];
-        int i = 0;
+        List<DomainObject> deletedObjects = new ArrayList<>(ids.length);
         for (Id id : ids) {
             DomainObject deletedObject = find(id, systemAccessToken);
-            deletedObjects[i++] = deletedObject;
-            // Прверка наличия доменного объекта
+            // Проверка наличия доменного объекта
             if (deletedObject == null) {
                 // Если взведен флаг игнорировать отсутствие ДО то пропускаем
                 // идентификатор, иначе бросаем исключение
@@ -682,13 +680,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     throw new ObjectNotFoundException(id);
                 }
             }
+            deletedObjects.add(deletedObject);
             Set<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
             // Точка расширения до удаления
             for (String typeName : parentTypes) {
                 extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName).onBeforeDelete(deletedObject);
             }
-            // вызваем обработчики с неуказанным фильтром
+            // вызываем обработчики с неуказанным фильтром
             extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, "").onBeforeDelete(deletedObject);
 
             // Пересчет прав непосредственно перед удалением объекта из базы,
@@ -696,10 +695,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
         }
 
-        // непосредственно удаление из базыы
+        // непосредственно удаление из базы
         int deleted = internalDelete(ids, ignoreObjectNotFound);
 
-        // Удалене из кэша
+        // Удаление из кэша
         for (Id id : ids) {
             domainObjectCacheService.evict(id);
             globalCacheClient.notifyDelete(id);
@@ -708,27 +707,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // Трассировка сохранения со стеком вызова. Нужна для поиска
         // ObjectNotFoundException
         if (logger.isTraceEnabled()) {
-            String message = "Delete domain objects:\n";
-            for (int q = 0; q < deletedObjects.length; q++) {
-                message += "DomainObject-" + q + ": " + deletedObjects[q].toString();
+            StringBuilder message = new StringBuilder("Delete domain objects:");
+            for (int q = 0; q < deletedObjects.size(); q++) {
+                message.append("\nDomainObject-").append(q).append(": ").append(deletedObjects.get(q));
             }
-            message += "\nCall stack:\n";
+            message.append("\nCall stack:\n");
             StackTraceElement[] stackElements = Thread.currentThread().getStackTrace();
             // Начинать надо с первого, так как нулевой это метод
             // getStackTrace()
             for (int q = 1; q < stackElements.length; q++) {
                 StackTraceElement stackTraceElement = stackElements[q];
-                message += "\t" + stackTraceElement.toString() + "\n";
+                message.append('\t').append(stackTraceElement).append('\n');
             }
-
-            logger.trace(message);
+            logger.trace(message.toString());
         }
 
         // Пишем в аудит лог
         for (DomainObject deletedObject : deletedObjects) {
-            if (deletedObject == null) {
-                continue;
-            }
             String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(deletedObject.getTypeName());
             Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
 
@@ -738,10 +733,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // Точка расширения после удаления, вызывается с установкой фильтра
         // текущего типа и всех наследников
         for (DomainObject deletedObject : deletedObjects) {
-            if (deletedObject == null) {
-                continue;
-            }
-
             // Добавляем слушателя коммита транзакции, чтобы вызвать точки
             // расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
