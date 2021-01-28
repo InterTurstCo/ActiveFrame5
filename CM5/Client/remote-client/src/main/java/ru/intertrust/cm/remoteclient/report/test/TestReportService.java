@@ -55,7 +55,7 @@ public class TestReportService extends ClientBase {
             initServices();
 
             //Установка отчетов
-            deployReport("../reports/reports/all-employee");
+            deployReport("Client/reports/reports/all-employee");
             ReportResult result = null;
             //Генерация отчета
             Map params = new HashMap();
@@ -75,16 +75,16 @@ public class TestReportService extends ClientBase {
             params.put("REPLACE_RESULT", Boolean.TRUE);
             result = generateReport("all-employee", params, "theard");
 
-            deployReport("../reports/reports/employee-groups");
+            deployReport("Client/reports/reports/employee-groups");
             result = generateReport("employee-groups", null);
 
-            deployReport("../reports/reports/all-employee-scriptlet");
+            deployReport("Client/reports/reports/all-employee-scriptlet");
             result = generateReport("all-employee-scriptlet", null);
 
-            deployReport("../reports/reports/all-employee-ds");
+            deployReport("Client/reports/reports/all-employee-ds");
             result = generateReport("all-employee-ds", null);
 
-            deployReport("../reports/reports/test-resource-service");
+            deployReport("Client/reports/reports/test-resource-service");
             result = generateReport("test-resource-service", null);
 
             params.clear();
@@ -100,7 +100,7 @@ public class TestReportService extends ClientBase {
             }
             writeToFile(acyncResult.get().getReport(), new File(acyncResult.get().getFileName()));*/
 
-            deployReport("../reports/reports/test-xml-to-html");
+            deployReport("Client/reports/reports/test-xml-to-html");
             result = generateReport("test-xml-to-html", null);
 
             log("Test complete at " + (System.currentTimeMillis() - start));

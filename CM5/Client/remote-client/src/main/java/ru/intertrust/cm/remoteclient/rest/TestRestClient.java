@@ -136,7 +136,7 @@ public class TestRestClient {
             assert(type42.getValue("status") != null);
 
             // test create attachment
-            File uploadFile = new File("test.rtf");
+            File uploadFile = new File("Client/remote-client/test.rtf");
             DomainObject attachmentInfo = client.createAttachment(type42.getId(), "test_type_42_attch", uploadFile);
             assert(attachmentInfo != null);
             assert(attachmentInfo.getId() != null);

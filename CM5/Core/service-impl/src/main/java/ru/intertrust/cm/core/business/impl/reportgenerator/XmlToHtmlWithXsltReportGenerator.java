@@ -30,8 +30,6 @@ public abstract class XmlToHtmlWithXsltReportGenerator implements ReportGenerato
             Source xslt = new StreamSource(new File(templateFolder, (String)parameters.get(XSLT_TEMPLATE)));
 
             TransformerFactory factory = TransformerFactory.newInstance();
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
             Transformer transformer = factory.newTransformer(xslt);
