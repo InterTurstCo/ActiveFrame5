@@ -94,7 +94,7 @@ public class SecurityStampImpl implements SecurityStamp, AfterClearGlobalCacheEx
         if (!result){
             // Проверяем типы, откуда заимствуем права
             AccessMatrixConfig accessmatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
-            if (accessmatrix.getMatrixReference() != null) {
+            if (accessmatrix != null && accessmatrix.getMatrixReference() != null) {
                 String referenceMatrixType = configurationExplorer.getMatrixReferenceTypeName(typeName);
                 if (referenceMatrixType != null) {
 
