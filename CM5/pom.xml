@@ -499,7 +499,7 @@
             <dependency>
                 <groupId>com.github.jsqlparser</groupId>
                 <artifactId>jsqlparser</artifactId>
-                <version>4.1-SNAPSHOT</version>
+                <version>4.1-RC1</version>
             </dependency>
 
             <dependency>
