@@ -207,18 +207,6 @@
                 <version>${aspectj.version}</version>
             </dependency>
 
-            <!-- Activiti (BPM) -->
-            <!--dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-engine</artifactId>
-                <version>${activiti.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-spring</artifactId>
-                <version>${activiti.version}</version>
-            </dependency-->
-
             <!-- Flowable BPM -->
             <dependency>
                 <groupId>org.flowable</groupId>
@@ -511,7 +499,7 @@
             <dependency>
                 <groupId>com.github.jsqlparser</groupId>
                 <artifactId>jsqlparser</artifactId>
-                <version>4.0</version>
+                <version>4.1-SNAPSHOT</version>
             </dependency>
 
             <dependency>
