@@ -1,45 +1,23 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.interceptor.Interceptors;
-
 import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRExporter;
-import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.export.JRHtmlExporter;
+import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
-
+import net.sf.jasperreports.export.Exporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StreamUtils;
-
 import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
@@ -54,6 +32,21 @@ import ru.intertrust.cm.core.report.ScriptletClassLoader;
 import ru.intertrust.cm.core.service.api.ReportDS;
 import ru.intertrust.cm.core.service.api.ReportGenerator;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
@@ -148,7 +141,7 @@ public class ReportResultBuilder extends ReportServiceBase {
                     print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
                 }
                 connection.close();
-                JRExporter exporter = null;
+                Exporter exporter = null;
                 String extension = null;
     
                 String format = getFormat(reportMetadata, params);
@@ -163,7 +156,7 @@ public class ReportResultBuilder extends ReportServiceBase {
                     exporter = new JRXlsExporter();
                     extension = XLS_FORMAT;
                 } else if (HTML_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new JRHtmlExporter();
+                    exporter = new HtmlExporter();
                     extension = HTML_FORMAT;
                 } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
                     exporter = new JRXlsxExporter();
@@ -177,16 +170,19 @@ public class ReportResultBuilder extends ReportServiceBase {
                     extension = PDF_FORMAT;
                 }
     
-                
-    
                 String reportName = getReportName(reportMetadata, extension, inParams);
     
                 resultFile = new File(resultFolder, reportName);
-    
-                exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME,
-                        resultFile.getPath());
-                exporter.exportReport();
+
+
+                SimpleExporterInput simpleExporterInput = new SimpleExporterInput(print);
+                exporter.setExporterInput(simpleExporterInput);
+
+                try(FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
+                    SimpleOutputStreamExporterOutput output = new SimpleOutputStreamExporterOutput(fos);
+                    exporter.setExporterOutput(output);
+                    exporter.exportReport();
+                }
             }
 
             return resultFile;

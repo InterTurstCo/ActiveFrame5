@@ -41,7 +41,7 @@
         </dependency>
         <dependency>    
             <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports-javaflow</artifactId>
+            <artifactId>jasperreports</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flowable</groupId>
