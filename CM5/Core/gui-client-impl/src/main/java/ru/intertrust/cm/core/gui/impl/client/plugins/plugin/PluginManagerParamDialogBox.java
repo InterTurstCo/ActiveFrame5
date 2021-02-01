@@ -39,7 +39,7 @@ public class PluginManagerParamDialogBox extends DialogBox{
         AbsolutePanel panel = new AbsolutePanel();
         panel.addStyleName("dialog-box-content");
 
-        panel.add(new Label("Параметр для плагина(палгинов)"));
+        panel.add(new Label("Параметр для плагина (плагинов)"));
 
         parameterTextBox = new TextBox();
         parameterTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
