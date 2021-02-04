@@ -222,12 +222,12 @@
             <string name="name" length="256" not-null="true" />
             <string name="task_class" length="256" not-null="true" />
             <long name="task_type" not-null="true" />
-            <string name="year" length="8" not-null="true" />
-            <string name="month" length="8" not-null="true" />
-            <string name="day_of_month" length="8" not-null="true" />
-            <string name="day_of_week" length="8" not-null="true" />
-            <string name="hour" length="8" not-null="true" />
-            <string name="minute" length="8" not-null="true" />
+            <string name="year" length="64" not-null="true" />
+            <string name="month" length="64" not-null="true" />
+            <string name="day_of_month" length="64" not-null="true" />
+            <string name="day_of_week" length="64" not-null="true" />
+            <string name="hour" length="64" not-null="true" />
+            <string name="minute" length="64" not-null="true" />
             <long name="timeout" not-null="true" />
             <long name="priority" not-null="true" />
             <text name="parameters" not-null="false" />
