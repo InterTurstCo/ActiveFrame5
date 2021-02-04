@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.search;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.SolrInputField;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -212,6 +213,18 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             String linkName = configHelper.getAttachmentParentLinkName(object.getTypeName(),
                     config.getObjectConfig().getType());
             List<Id> mainIds = calculateMainObjects(object.getReference(linkName), config.getObjectConfigChain());
+            Double boostValue = null;
+            if (mainIds != null && !mainIds.isEmpty()) {
+                for (IndexedContentConfig contentConfig : config.getObjectConfig().getContentObjects()) {
+                    // Проверка соответствия типа вложения и типа в конфигурации <indexed-content>
+                    // на случай нескольких <indexed-content>
+                    if (contentConfig.getType().equalsIgnoreCase(object.getTypeName())) {
+                        boostValue = contentConfig.getIndexBoostValue();
+                        // если совпал тип вложения и тип <indexed-content>, то считаем, что дальше искать не нужно
+                        break;
+                    }
+                }
+            }
             for (Id mainId : mainIds) {
                 ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
                 request.addContentStream(new SolrAttachmentFeeder(object));
@@ -231,8 +244,11 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(object, config));
                 request.setParam("uprefix", "cm_c_");
                 request.setParam("fmap.content", SolrFields.CONTENT);
+                // TODO сделать для нескольких полей контента
+                if (boostValue != null) {
+                    request.setParam("boost." + SolrFields.CONTENT, boostValue.toString());
+                }
                 //request.setParam("extractOnly", "true");
-
                 solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(request);
             }
             if (log.isInfoEnabled()) {
@@ -396,25 +412,33 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 fields2.remove(field);
             }
             if (!sysFields.contains(field)) {
-                Object value1 = solrDoc1.getFieldValue(field);
-                Object value2 = solrDoc2.getFieldValue(field);
+                // Object value1 = solrDoc1.getFieldValue(field);
+                // Object value2 = solrDoc2.getFieldValue(field);
+                SolrInputField solrInputField1 = solrDoc1.getField(field);
+                SolrInputField solrInputField2 = solrDoc2.getField(field);
+                Object value1 = solrInputField1 != null ? solrInputField1.getValue() : null;
+                Object value2 = solrInputField2 != null ? solrInputField2.getValue() : null;
                 if (value1 != null && value2 == null) {
-                    solrDoc2.addField(field, value1);
+                    solrDoc2.addField(field, value1, solrInputField1.getBoost());
                 }
                 if (value1 == null && value2 != null) {
-                    solrDoc1.addField(field, value2);
+                    solrDoc1.addField(field, value2, solrInputField2.getBoost());
                 }
             }
         }
         for (String field : fields2) {
             if (!sysFields.contains(field)) {
-                Object value1 = solrDoc1.getFieldValue(field);
-                Object value2 = solrDoc2.getFieldValue(field);
+                // Object value1 = solrDoc1.getFieldValue(field);
+                // Object value2 = solrDoc2.getFieldValue(field);
+                SolrInputField solrInputField1 = solrDoc1.getField(field);
+                SolrInputField solrInputField2 = solrDoc2.getField(field);
+                Object value1 = solrInputField1 != null ? solrInputField1.getValue() : null;
+                Object value2 = solrInputField2 != null ? solrInputField2.getValue() : null;
                 if (value1 != null && value2 == null) {
-                    solrDoc2.addField(field, value1);
+                    solrDoc2.addField(field, value1, solrInputField1.getBoost());
                 }
                 if (value1 == null && value2 != null) {
-                    solrDoc1.addField(field, value2);
+                    solrDoc1.addField(field, value2, solrInputField2.getBoost());
                 }
             }
         }
@@ -433,11 +457,16 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
 
         // Business fields
         for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
+            Double boostValue = fieldConfig.getIndexBoostValue();
             Map<SearchFieldType, ?> values = calculateField(domainObject, fieldConfig);
             for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
                 SearchFieldType type = entry.getKey();
                 for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
-                    doc.addField(fieldName, entry.getValue());
+                    if (boostValue != null) {
+                        doc.addField(fieldName, entry.getValue(), boostValue.floatValue());
+                    } else {
+                        doc.addField(fieldName, entry.getValue());
+                    }
                 }
             }
         }

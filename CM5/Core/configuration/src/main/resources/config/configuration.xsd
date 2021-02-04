@@ -3504,7 +3504,8 @@
                 </xs:attribute>
                 <xs:attribute name="show-in-results" type="xs:boolean" use="optional"/>
                 <xs:attribute name="multi-valued" type="xs:boolean" use="optional"/>
-                <xs:attribute type="xs:string" name="target-field-name" use="optional"/>
+                <xs:attribute name="target-field-name" type="xs:string" use="optional"/>
+                <xs:attribute name="index-boost-value" type="xs:decimal" use="optional" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -3514,8 +3515,9 @@
             <xs:element type="con:indexedContentField" name="content-field" minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
-        <xs:attribute type="xs:string" name="type" use="required"/>
-        <xs:attribute type="xs:string" name="parent-fk-field" use="optional"/>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+        <xs:attribute name="parent-fk-field" type="xs:string" use="optional"/>
+        <xs:attribute name="index-boost-value" type="xs:decimal" use="optional" />
     </xs:complexType>
 
     <xs:complexType name="indexedContentField">

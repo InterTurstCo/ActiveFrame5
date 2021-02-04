@@ -15,6 +15,9 @@ public class IndexedContentConfig implements Serializable {
     @Attribute(name = "parent-fk-field", required = false)
     private String parentFkField;
 
+    @Attribute(name = "index-boost-value", required = false)
+    private Double indexBoostValue;
+
     @ElementList(entry = "content-field", inline = true, required = false)
     private List<ContentFieldConfig> fields = new ArrayList<>();
 
@@ -26,11 +29,16 @@ public class IndexedContentConfig implements Serializable {
         return parentFkField;
     }
 
+    public Double getIndexBoostValue() {
+        return indexBoostValue;
+    }
+
     @Override
     public int hashCode() {
         int hash = type.hashCode();
         hash = hash * 31 ^ (parentFkField != null ? parentFkField.hashCode() : 0);
         hash = hash * 31 ^ (fields!= null ? fields.hashCode() : 0);
+        hash = hash * 31 ^ (indexBoostValue != null ? indexBoostValue.hashCode() : 0);
         return hash;
     }
 
@@ -50,6 +58,7 @@ public class IndexedContentConfig implements Serializable {
 
         return type.equals(other.type)
                 && (getFields() == null ? other.fields == null : getFields().equals(other.fields))
-                && (parentFkField == null ? other.parentFkField == null : parentFkField.equals(other.parentFkField));
+                && (parentFkField == null ? other.parentFkField == null : parentFkField.equals(other.parentFkField))
+                && (indexBoostValue == null ? other.indexBoostValue == null : indexBoostValue.equals(other.indexBoostValue));
     }
 }

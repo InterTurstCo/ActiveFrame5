@@ -53,6 +53,9 @@ public class IndexedFieldConfig implements Serializable {
     @Attribute(name = "target-field-name", required = false)
     private String targetFieldName;
 
+    @Attribute(name = "index-boost-value", required = false)
+    private Double indexBoostValue;
+
     public String getTargetFieldName() {
         return targetFieldName != null && !targetFieldName.isEmpty() ?  targetFieldName : name;
     }
@@ -99,6 +102,10 @@ public class IndexedFieldConfig implements Serializable {
         return multiValued != null ? multiValued.booleanValue() : false;
     }
 
+    public Double getIndexBoostValue() {
+        return indexBoostValue;
+    }
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
@@ -110,6 +117,7 @@ public class IndexedFieldConfig implements Serializable {
         hash = hash * 31 ^ (multiValued != null ? multiValued.hashCode() : 0);
         hash = hash * 31 ^ (targetFieldName != null ? targetFieldName.hashCode() : 0);
         hash = hash * 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
+        hash = hash * 31 ^ (indexBoostValue != null ? indexBoostValue.hashCode() : 0);
         return hash;
     }
 
@@ -130,6 +138,7 @@ public class IndexedFieldConfig implements Serializable {
                 && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults))
                 && (targetFieldName == null ? other.targetFieldName == null : targetFieldName.equals(other.targetFieldName))
                 && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued))
-                && (searchBy == null ? other.searchBy == null : searchBy.equals(other.searchBy));
+                && (searchBy == null ? other.searchBy == null : searchBy.equals(other.searchBy))
+                && (indexBoostValue == null ? other.indexBoostValue == null : indexBoostValue.equals(other.indexBoostValue));
     }
 }

@@ -164,6 +164,22 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             String linkName = configHelper.getAttachmentParentLinkName(attachmentObject.getTypeName(),
                     attachmentConfig.getObjectConfig().getType());
             List<Id> mainIds = calculateMainObjects(attachmentObject.getReference(linkName), attachmentConfig.getObjectConfigChain());
+            Map<String, ContentFieldConfig> contentFieldConfigs = new HashMap<>();
+            Double boostValue = null;
+            if (mainIds != null && !mainIds.isEmpty()) {
+                for (IndexedContentConfig contentConfig : attachmentConfig.getObjectConfig().getContentObjects()) {
+                    // Проверка соответствия типа вложения и типа в конфигурации <indexed-content>
+                    // на случай нескольких <indexed-content>
+                    if (contentConfig.getType().equalsIgnoreCase(attachmentObject.getTypeName())) {
+                        for (ContentFieldConfig contentFieldConfig : contentConfig.getFields()) {
+                            contentFieldConfigs.put(contentFieldConfig.getType().getFieldType(), contentFieldConfig);
+                        }
+                        boostValue = contentConfig.getIndexBoostValue();
+                        // если совпал тип вложения и тип <indexed-content>, то считаем, что дальше искать не нужно
+                        break;
+                    }
+                }
+            }
             for (Id mainId : mainIds) {
                 ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
                 request.addContentStream(new SolrAttachmentFeeder(attachmentObject));
@@ -174,12 +190,6 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
                         ThreadSafeDateFormat.format(attachmentObject.getModifiedDate(), DATE_PATTERN));
-                Map<String, ContentFieldConfig> contentFieldConfigs = new HashMap<>();
-                for (IndexedContentConfig contentConfig : attachmentConfig.getObjectConfig().getContentObjects()){
-                    for (ContentFieldConfig contentFieldConfig : contentConfig.getFields()) {
-                        contentFieldConfigs.put(contentFieldConfig.getType().getFieldType(), contentFieldConfig);
-                    }
-                }
                 for (ContentFieldConfig contentFieldConfig : contentFieldConfigs.values()) {
                     switch (contentFieldConfig.getType()) {
                         case NAME :
@@ -218,7 +228,9 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrUtils.ID_FIELD, createUniqueId(attachmentObject, attachmentConfig));
                 request.setParam("uprefix", "cm_c_");
                 request.setParam("fmap.content", SolrFields.CONTENT);
-
+                if (boostValue != null) {
+                    request.setParam("boost." + SolrFields.CONTENT, boostValue.toString());
+                }
                 solrServerWrapperMap.getSolrServerWrapper(solrServerKey).getQueue().addRequest(request);
 
                 // Добавляем поля родительского документа
@@ -325,6 +337,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
         if (object != null && solrDoc != null) {
             // Business fields
             for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
+                Double boostValue = fieldConfig.getIndexBoostValue();
                 Map<SearchFieldType, ?> values = calculateField(object, fieldConfig);
                 for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
                     SearchFieldType type = entry.getKey();
@@ -332,7 +345,11 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                         Map<String, Object> fieldModifier = new HashMap<>(1);
                         fieldModifier.put(action == IndexingAction.ADD && !fieldConfig.getMultiValued() ?
                                 IndexingAction.UPDATE.getText() : action.getText(), entry.getValue());
-                        solrDoc.addField(fieldName, fieldModifier);
+                        if (boostValue != null) {
+                            solrDoc.addField(fieldName, fieldModifier, boostValue.floatValue());
+                        } else {
+                            solrDoc.addField(fieldName, fieldModifier);
+                        }
                     }
                 }
             }
