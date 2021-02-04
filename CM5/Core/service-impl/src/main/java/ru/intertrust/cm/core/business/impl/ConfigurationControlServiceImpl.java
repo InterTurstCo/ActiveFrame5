@@ -112,6 +112,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
                 }
             }
         } catch (Exception ex) {
+            logger.error("Error update configuration", ex);
             throw RemoteSuitableException.convert(ex);
         }
     }

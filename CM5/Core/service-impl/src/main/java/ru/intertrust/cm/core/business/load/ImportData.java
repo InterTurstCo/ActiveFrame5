@@ -320,6 +320,8 @@ public class ImportData {
                     rows++;
                 }
             }
+
+            commitTransaction(transaction);
         }
     }
 

@@ -11,6 +11,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -26,6 +27,7 @@ import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class ImportDataServiceImpl implements ImportDataService {
+    private static final Logger logger = Logger.getLogger(ImportDataServiceImpl.class);
 
     @Autowired
     private ApplicationContext springContext;
@@ -54,6 +56,7 @@ public class ImportDataServiceImpl implements ImportDataService {
             ImportData importData = (ImportData) springContext.getBean(ImportData.PERSON_IMPORT_BEAN);
             return importData.importData(importFileAsByteArray, encoding, owerwrite, attachmentBasePath, context.getUserTransaction());
         } catch (Exception ex) {
+            logger.error("Error import data", ex);
             throw new FatalException("Error load data", ex);
         }
     }
