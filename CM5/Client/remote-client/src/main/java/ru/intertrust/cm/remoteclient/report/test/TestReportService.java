@@ -71,7 +71,18 @@ public class TestReportService extends ClientBase {
             result = generateReport("all-employee", params, "first");
             //и еще раз генерим тот же отчет
             result = generateReport("all-employee", null, "second");
+
+            // Отчет в формате XLSX
+            params.clear();
+            params.put("FORMAT", "XLSX");
+            result = generateReport("all-employee", params, "second");
+
+            // Отчет в формате XLS
+            params.put("FORMAT", "XLS");
+            result = generateReport("all-employee", params, "second");
+
             //Проверка точки расширения
+            params.clear();
             params.put("REPLACE_RESULT", Boolean.TRUE);
             result = generateReport("all-employee", params, "theard");
 

@@ -166,6 +166,12 @@
             <artifactId>keycloak-admin-client</artifactId>
         </dependency>
 
+        <!-- Poi for JasperReports -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+       </dependency>
+
     </dependencies>
 
     <profiles>
