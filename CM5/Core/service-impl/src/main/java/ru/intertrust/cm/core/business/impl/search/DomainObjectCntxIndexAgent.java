@@ -53,11 +53,21 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
+        if (domainObject == null) {
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(domainObject.getTypeName());
         if (configs.size() == 0) {
             return;
         }
+
+        if (log.isInfoEnabled()) {
+            log.info("DomainObjectCntxIndexAgent::onAfterSave: domainObject.id=" +
+                    (domainObject.getId() != null ? domainObject.getId().toString() : "null"));
+        }
+
         Map<String, List<SolrInputDocument>> solrDocs = new HashMap<>();
         // Map<String, List<String>> toDelete = new HashMap<>();
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
@@ -90,11 +100,21 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
+        if (deletedDomainObject == null) {
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
         if (configs.size() == 0) {
             return;
         }
+
+        if (log.isInfoEnabled()) {
+            log.info("DomainObjectCntxIndexAgent::onBeforeDelete: deletedDomainObject.id=" +
+                    (deletedDomainObject.getId() != null ? deletedDomainObject.getId().toString() : "null"));
+        }
+
         Map<String, List<SolrInputDocument>> solrDocs = new HashMap<>();
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             if (!isCntxSolrServer(config.getSolrServerKey())) {
@@ -121,11 +141,21 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
+        if (deletedDomainObject == null) {
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
         if (configs.size() == 0) {
             return;
         }
+
+        if (log.isInfoEnabled()) {
+            log.info("DomainObjectCntxIndexAgent::onAfterDelete: deletedDomainObject.id=" +
+                    (deletedDomainObject.getId() != null ? deletedDomainObject.getId().toString() : "null"));
+        }
+
         Map<String, List<SolrInputDocument>> solrDocs = new HashMap<>();
         Map<String, List<String>> solrIds = new HashMap<>();
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {

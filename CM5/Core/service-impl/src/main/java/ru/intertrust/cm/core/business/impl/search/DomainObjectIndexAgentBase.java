@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHa
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.model.DoelException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 
 import javax.annotation.PostConstruct;
@@ -209,46 +210,66 @@ public abstract class DomainObjectIndexAgentBase {
     }
 
     protected List<Id> calculateMainObjects(Id objectId, IndexedDomainObjectConfig[] configChain) {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
         ArrayList<Id> ids = new ArrayList<>();
-        ids.add(objectId);
-        for (IndexedDomainObjectConfig config : configChain) {
-            ParentLinkConfig parentConfig = null;
-            if (LinkedDomainObjectConfig.class.isAssignableFrom(config.getClass())) {
-                parentConfig = ((LinkedDomainObjectConfig) config).getParentLink();
-            }
-            ArrayList<ReferenceValue> refs = new ArrayList<>();
-            for (Iterator<Id> itr = ids.iterator(); itr.hasNext(); ) {
-                Id id = itr.next();
-                DomainObject object = domainObjectDao.find(id, accessToken);
-                if (object != null) {
-                    if (!configHelper.isSuitableType(config.getType(), object.getTypeName())) {
-                        itr.remove();
+        if (objectId != null) {
+            ids.add(objectId);
+            if (configChain != null) {
+                AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
+                for (IndexedDomainObjectConfig config : configChain) {
+                    if (config == null) {
                         continue;
                     }
-                    DomainObjectFilter filter = configHelper.createFilter(config);
-                    if (filter != null && !filter.filter(object)) {
-                        itr.remove();
-                        continue;
+                    ParentLinkConfig parentConfig = null;
+                    if (LinkedDomainObjectConfig.class.isAssignableFrom(config.getClass())) {
+                        parentConfig = ((LinkedDomainObjectConfig) config).getParentLink();
                     }
-                } else {
-                    itr.remove();
+                    ArrayList<ReferenceValue> refs = new ArrayList<>();
+                    for (Iterator<Id> itr = ids.iterator(); itr.hasNext(); ) {
+                        Id id = itr.next();
+                        if (id == null) {
+                            itr.remove();
+                            continue;
+                        }
+                        try {
+                            DomainObject object = domainObjectDao.find(id, accessToken);
+                            if (object != null) {
+                                if (!configHelper.isSuitableType(config.getType(), object.getTypeName())) {
+                                    itr.remove();
+                                    continue;
+                                }
+                                DomainObjectFilter filter = configHelper.createFilter(config);
+                                if (filter != null && !filter.filter(object)) {
+                                    itr.remove();
+                                    continue;
+                                }
+                            } else {
+                                itr.remove();
+                                continue;
+                            }
+                        } catch (ObjectNotFoundException e) {
+                            itr.remove();
+                            log.error("ObjectNotFoundException: " + e.getMessage());
+                            continue;
+                        }
+                        if (parentConfig != null) {
+                            List<ReferenceValue> values = doelEvaluator.evaluate(
+                                    DoelExpression.parse(parentConfig.getDoel()), id, accessToken);
+                            refs.addAll(values);
+                        }
+                    }
+                    if (parentConfig == null) {
+                        return ids;
+                    }
+                    if (refs.size() == 0) {
+                        return Collections.emptyList();
+                    }
+                    ids = new ArrayList<>(refs.size());
+                    for (ReferenceValue ref : refs) {
+                        if (ref != null && ref.get() != null) {
+                            ids.add(ref.get());
+                        }
+                    }
                 }
-                if (parentConfig != null) {
-                    List<ReferenceValue> values = doelEvaluator.evaluate(
-                            DoelExpression.parse(parentConfig.getDoel()), id, accessToken);
-                    refs.addAll(values);
-                }
-            }
-            if (parentConfig == null) {
-                return ids;
-            }
-            if (refs.size() == 0) {
-                return Collections.emptyList();
-            }
-            ids = new ArrayList<>(refs.size());
-            for (ReferenceValue ref : refs) {
-                ids.add(ref.get());
             }
         }
         return ids;

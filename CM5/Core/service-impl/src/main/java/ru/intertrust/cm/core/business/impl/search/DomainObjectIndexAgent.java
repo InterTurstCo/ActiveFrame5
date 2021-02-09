@@ -56,10 +56,19 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
+        if (domainObject == null) {
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(domainObject.getTypeName());
         if (configs.size() == 0) {
             return;
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("DomainObjectIndexAgent::onAfterSave: domainObject.id=" +
+                    (domainObject.getId() != null ? domainObject.getId().toString() : "null"));
         }
 
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
@@ -97,6 +106,9 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(new UpdateRequest().deleteById(toDelete));
             if (log.isInfoEnabled()) {
                 log.info("" + toDelete.size() + " Solr document(s) queued for deleting");
+                for (String delId : toDelete) {
+                    log.info("toDelete.id=" + delId);
+                }
             }
         }
         if (solrDocs.size() > 0) {
@@ -115,10 +127,19 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             return;
         }
 
+        if (deletedDomainObject == null) {
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
         if (configs.size() == 0) {
             return;
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("DomainObjectIndexAgent::onBeforeDelete: deletedDomainObject.id=" +
+                    (deletedDomainObject.getId() != null ? deletedDomainObject.getId().toString() : "null"));
         }
 
         String cmjField = deletedDomainObject.getString("cmjfield");
@@ -148,10 +169,20 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         if (configHelper.isDisableIndexing()) {
             return;
         }
+
+        if (deletedDomainObject == null) {
+            return;
+        }
+
         List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
                 configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
         if (configs.size() == 0) {
             return;
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("DomainObjectIndexAgent::onAfterDelete: deletedDomainObject.id=" +
+                    (deletedDomainObject.getId() != null ? deletedDomainObject.getId().toString() : "null"));
         }
 
         String cmjField = deletedDomainObject.getString("cmjfield");
@@ -170,7 +201,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 // отдельная обработка для нетиповвых объектов
                 List<Id> mainIds = cache.fetchAndRemove(generateCacheKey(deletedDomainObject.getId(), config.getAreaName()));
                 if (mainIds != null && !mainIds.isEmpty()) {
-                    reindexTnObject(solrDocs, solrIds, deletedDomainObject, config, mainIds, deletedDomainObject.getTypeName());;
+                    reindexTnObject(solrDocs, solrIds, deletedDomainObject, config, mainIds, deletedDomainObject.getTypeName());
                 }
             }
         }
@@ -178,6 +209,10 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             solrServerWrapperMap.getRegularSolrServerWrapper().getQueue().addRequest(new UpdateRequest().deleteById(solrIds));
             if (log.isInfoEnabled()) {
                 log.info("" + solrIds.size() + " Solr document(s) queued for deleting");
+                for (String delId : solrIds) {
+                    log.info("toDelete.id=" + delId);
+                }
+
             }
         }
         if (solrDocs.size() > 0) {
