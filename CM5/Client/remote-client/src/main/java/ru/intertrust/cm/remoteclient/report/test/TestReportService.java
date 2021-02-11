@@ -92,6 +92,9 @@ public class TestReportService extends ClientBase {
             deployReport("Client/reports/reports/all-employee-scriptlet");
             result = generateReport("all-employee-scriptlet", null);
 
+            deployReport("Client/reports/reports/all-employee-scriptlet-in-subreport");
+            result = generateReport("all-employee-scriptlet-in-subreport", null);
+
             deployReport("Client/reports/reports/all-employee-ds");
             result = generateReport("all-employee-ds", null);
 
@@ -137,6 +140,8 @@ public class TestReportService extends ClientBase {
         File reportResultFile = new File("report-result", fileName);
 
         StreamUtils.copy(reportStream, new FileOutputStream(reportResultFile));
+
+        log("Report generated on " + reportResultFile);
         return result;
     }
 

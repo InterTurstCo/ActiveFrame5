@@ -10,7 +10,7 @@ import javax.naming.NamingException;
 import java.util.concurrent.ExecutorService;
 
 /**
- * Фабрика построителей подотчетов, в пуле потоков сервера приложений
+ * Фабрика построителей подотчетов в пуле потоков сервера приложений
  */
 public class PlatformJRSubreportRunnerFactory extends ThreadPoolSubreportRunnerFactory {
 
@@ -24,7 +24,8 @@ public class PlatformJRSubreportRunnerFactory extends ThreadPoolSubreportRunnerF
     @Override
     public JRSubreportRunner createSubreportRunner(JRFillSubreport fillSubreport, JRBaseFiller subreportFiller)
     {
-        return new ThreadExecutorSubreportRunner(fillSubreport, subreportFiller, getAsExecutorService());
+        return new PlatformThreadExecutorSubreportRunner(fillSubreport, subreportFiller, getAsExecutorService(),
+                Thread.currentThread().getContextClassLoader());
     }
 
     private ExecutorService getAsExecutorService(){
