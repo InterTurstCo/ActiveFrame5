@@ -11,9 +11,7 @@ import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
-import net.sf.jasperreports.export.Exporter;
-import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
+import net.sf.jasperreports.export.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -179,7 +177,12 @@ public class ReportResultBuilder extends ReportServiceBase {
                 exporter.setExporterInput(simpleExporterInput);
 
                 try(FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
-                    SimpleOutputStreamExporterOutput output = new SimpleOutputStreamExporterOutput(fos);
+                    ExporterOutput output = null;
+                    if (HTML_FORMAT.equalsIgnoreCase(format)){
+                        output = new SimpleHtmlExporterOutput(fos);
+                    }else {
+                        output = new SimpleOutputStreamExporterOutput(fos);
+                    }
                     exporter.setExporterOutput(output);
                     exporter.exportReport();
                 }

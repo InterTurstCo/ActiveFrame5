@@ -81,6 +81,10 @@ public class TestReportService extends ClientBase {
             params.put("FORMAT", "XLS");
             result = generateReport("all-employee", params, "second");
 
+            // Отчет в формате HTML
+            params.put("FORMAT", "HTML");
+            result = generateReport("all-employee", params, "second");
+
             //Проверка точки расширения
             params.clear();
             params.put("REPLACE_RESULT", Boolean.TRUE);

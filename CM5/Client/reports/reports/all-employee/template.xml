@@ -6,5 +6,6 @@
 		<format>DOCX</format>
 		<format>XLSX</format>
 		<format>XLS</format>
+		<format>HTML</format>
 	</formats>
 </ReportMetadataConfig>
