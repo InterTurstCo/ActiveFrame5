@@ -26,6 +26,18 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.remoteclient.AssertExeption;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
+/**
+ * ВСЕ тесты проходят только если в группе "Administrators" всего два пользователя - "administrator" и "person1".
+ * Такой состав определен в тестовых данных, дополнительно формировать группы не нужно.
+ *
+ * Состав групп можно проверить запросом:
+ * select * from user_group g
+ * inner join group_group gg on (g.id = gg.parent_group_id)
+ * inner join group_member m on (gg.child_group_id = m.usergroup)
+ * inner join person p on (p.id = m.person_id)
+ * where g.group_name = 'Administrators'
+ *
+ */
 public class TestPermission extends ClientBase {
     private Random random = new Random();
     
@@ -488,8 +500,8 @@ public class TestPermission extends ClientBase {
             //Проверка прав на аудит
             DomainObject test13Do = createTest13();
             Id test13AuditId = getTest13AuditLog(test13Do.getId());
-            test13Do = ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).find(test13Do.getId());
-            AccessVerificationService accessVerificationService = ((AccessVerificationService.Remote) getService("AccessVerificationServiceImpl", AccessVerificationService.Remote.class, "person1", "admin"));
+            test13Do = ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person2", "admin")).find(test13Do.getId());
+            AccessVerificationService accessVerificationService = ((AccessVerificationService.Remote) getService("AccessVerificationServiceImpl", AccessVerificationService.Remote.class, "person2", "admin"));
             assertTrue("Test 13 check read access", accessVerificationService.isReadPermitted(test13AuditId));
 
             assertTrue("Test 13 check write access", accessVerificationService.isWritePermitted(test13AuditId));
@@ -708,47 +720,58 @@ public class TestPermission extends ClientBase {
             notAdminCrudservice.save(test37);
             log("CMFIVE-35534 OK");
 
-            // CMFIVE-33965
-            DomainObject test38 = getCrudService().createDomainObject("test_type_38");
+            // CMFIVE-33965 Права группы Administrators
+            // CMFIVE-33965 - 1. Матрица с read-everybody="true"
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "administrator", "admin");
+            DomainObject test38 = notAdminCrudservice.createDomainObject("test_type_38");
             test38.setString("name", "_" + System.currentTimeMillis());
-            test38 = getCrudService().save(test38);
+            test38 = notAdminCrudservice.save(test38);
+            test38 = notAdminCrudservice.save(test38);
 
+            // Права есть хоть и acl пустой
             etalon = new EtalonPermissions();
-            etalon.addPermission(getPersonId("administrator"), Permission.Read);
-            etalon.addPermission(getPersonId("administrator"), Permission.Write);
-            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
             checkPermissions(test38.getId(), etalon, "Test 38");
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "administrator", "admin");
+            notAdminCrudservice.delete(test38.getId());
 
-            DomainObject test39 = getCrudService().createDomainObject("test_type_39");
+            // CMFIVE-33965 - 2. Матрица с правами write группем Administrators
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "administrator", "admin");
+            DomainObject test39 = notAdminCrudservice.createDomainObject("test_type_39");
             test39.setString("name", "_" + System.currentTimeMillis());
-            test39 = getCrudService().save(test39);
+            test39 = notAdminCrudservice.save(test39);
+            test39 = notAdminCrudservice.save(test39);
 
+            // Права есть, ACL не пустой
             etalon = new EtalonPermissions();
-            etalon.addPermission(getPersonId("administrator"), Permission.Read);
             etalon.addPermission(getPersonId("administrator"), Permission.Write);
-            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
+            etalon.addPermission(getPersonId("person1"), Permission.Write);
             checkPermissions(test39.getId(), etalon, "Test 39");
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "administrator", "admin");
+            notAdminCrudservice.delete(test39.getId());
 
-            DomainObject test40 = getCrudService().createDomainObject("test_type_40");
+            // CMFIVE-33965 - 3. Матрицы нет совсем
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "administrator", "admin");
+            DomainObject test40 = notAdminCrudservice.createDomainObject("test_type_40");
             test40.setString("name", "_" + System.currentTimeMillis());
-            test40 = getCrudService().save(test40);
+            test40 = notAdminCrudservice.save(test40);
+            test40 = notAdminCrudservice.save(test40);
 
+            // Права есть хоть и acl пустой
             etalon = new EtalonPermissions();
-            etalon.addPermission(getPersonId("administrator"), Permission.Read);
-            etalon.addPermission(getPersonId("administrator"), Permission.Write);
-            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
             checkPermissions(test40.getId(), etalon, "Test 40");
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "administrator", "admin");
+            notAdminCrudservice.delete(test40.getId());
 
             // Проверка переопределения матрицы
             Id person6 = getPersonId("person6");
             notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             DomainObject personAltUids = notAdminCrudservice.createDomainObject("person_alt_uids");
-            personAltUids.setString("alter_uid", "xxx");
-            personAltUids.setString("alter_uid_type", "yyy");
+            personAltUids.setString("alter_uid", "xxx" + System.currentTimeMillis());
+            personAltUids.setString("alter_uid_type", "yyy_");
             personAltUids.setLong("idx", 0L);
             personAltUids.setReference("person", person6);
             personAltUids = notAdminCrudservice.save(personAltUids);
-            personAltUids.setString("alter_uid", "zzz");
+            personAltUids.setString("alter_uid", "zzz" + System.currentTimeMillis());
             personAltUids = notAdminCrudservice.save(personAltUids);
             notAdminCrudservice.delete(personAltUids.getId());
             assertTrue("Extends access matrix", true);

@@ -5,8 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
@@ -40,7 +39,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     private DatabaseAccessAgent databaseAgent;
 
     @Autowired
-    PermissionServiceDao permissionServiceDao;
+    private PermissionServiceDao permissionServiceDao;
 
     @Autowired
     DynamicGroupService dynamicGroupService;
@@ -108,7 +107,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
     }
 
-    private AccessToken createAccessToken(String login, Id objectId, AccessType type, boolean log) throws AccessException {
+    private AccessToken createAccessToken(String login, Id objectId, AccessType accessType, boolean log) throws AccessException {
 
         final Id personId = getUserIdByLogin(login);
         final int personIdInt = (int) ((RdbmsId) personId).getId();
@@ -119,28 +118,119 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
         boolean deferred = false;
-        if (DomainObjectAccessType.READ.equals(type)) {
-            deferred = true; // Проверка прав на чтение объекта осуществляется при его выборке
-        } else { // Для всех других типов доступа к доменному объекту производим запрос в БД
-            
+        if (DomainObjectAccessType.READ.equals(accessType)) {
+            // Проверка прав на чтение объекта осуществляется при его выборке
+            deferred = true;
+        } else {
             objectId = getRelevantObjectId(objectId);
-            if (!databaseAgent.checkDomainObjectAccess(personIdInt, objectId, type)) {
+            String typeName = domainObjectTypeIdCache.getName(objectId);
+
+            // Получаем актуальную конфигурацию матрицы доступа для статуса
+            AccessMatrixStatusConfig matrixStatusConfig = getMatrixStatusConfig(objectId, accessType);
+
+            // В случае заимсвования прав может быть настроен мапинг
+            List<AccessType> mappedAccessTypes = databaseAgent.getMatrixReferencePermission(typeName, accessType);
+
+            // Права есть, если хотя бы по одному из AccessType доступ разрешен
+            boolean hasAccess = false;
+            for (AccessType mappedAccessType : mappedAccessTypes) {
+                // Проверка на то, что в конфигурации указаны права на тип
+                if (isTypeBasedAccess(mappedAccessType, matrixStatusConfig)) {
+                    // Проверяем есть ли права на тип у текущего пользователя
+                    if (permissionServiceDao.hasUserTypePermission(personId, mappedAccessType, matrixStatusConfig)){
+                        hasAccess = true;
+                    }
+                } else {
+                    // Индивидуальные права на на объект
+                    // Производим запрос в БД к таблице _acl (mappedAccessType учитывается внутри checkDomainObjectAccess)
+                    if (databaseAgent.checkDomainObjectAccess(personIdInt, objectId, accessType)) {
+                        hasAccess = true;
+                    }
+                }
+            }
+
+            if (!hasAccess){
                 if (log) {
                     eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, false);
                 }
+
                 String message = String.format(
                         MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
-                        login,type,objectId);
+                        login, accessType, objectId);
                 throw new AccessException(message);
             }
         }
 
-        AccessToken token = new SimpleAccessToken(new UserSubject(personIdInt), objectId, type, deferred);
+        AccessToken token = new SimpleAccessToken(new UserSubject(personIdInt), objectId, accessType, deferred);
 
-        if (log && (DomainObjectAccessType.WRITE.equals(type) || DomainObjectAccessType.DELETE.equals(type))) {
+        if (log && (DomainObjectAccessType.WRITE.equals(accessType) || DomainObjectAccessType.DELETE.equals(accessType))) {
             eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, true);
         }
         return token;
+    }
+
+    /**
+     * Проверка на то что доменный объект в данном статусе имеет права на тип для данного типа доступа
+     * @param accessType
+     * @return
+     */
+    private boolean isTypeBasedAccess(AccessType accessType, AccessMatrixStatusConfig matrixStatusConfig) {
+        // вычисляем зависят ли права от контекста
+        return permissionServiceDao.isWithoutContextPermissionConfig(matrixStatusConfig, accessType);
+    }
+
+    private boolean isReferencePermissions(AccessType accessType, AccessMatrixConfig.BorrowPermissisonsMode borrowPermissisonsMode){
+        boolean result = false;
+        if (borrowPermissisonsMode == null
+                || borrowPermissisonsMode == AccessMatrixConfig.BorrowPermissisonsMode.all){
+            result = true;
+        }else if (borrowPermissisonsMode == AccessMatrixConfig.BorrowPermissisonsMode.read
+                && accessType == DomainObjectAccessType.READ){
+            result = true;
+        }else if (borrowPermissisonsMode == AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete
+                && (accessType == DomainObjectAccessType.READ
+                || accessType == DomainObjectAccessType.WRITE
+                || accessType == DomainObjectAccessType.DELETE)){
+            result = true;
+        }
+        return result;
+    }
+
+    /**
+     * Получение настройки прав доступа для доменного объекта в текущем статусе
+     * @return
+     */
+    private AccessMatrixStatusConfig getMatrixStatusConfig(Id objectId, AccessType accessType){
+        // Получаем матрицу для типа
+        String typeName = domainObjectTypeIdCache.getName(objectId);
+        AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
+
+        // Получаем матрицу для типа с учетом заимствования
+        if (matrixConfig.getMatrixReference() != null){
+            String refTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            if (isReferencePermissions(accessType, matrixConfig.getBorrowPermissisons())){
+                matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(refTypeName);
+                typeName = refTypeName;
+            }
+        }
+
+        // Получаем актуальную конфигурацию матрицы доступа для статуса
+        AccessMatrixStatusConfig matrixStatusConfig = null;
+
+        // Проверяем надо ли учитывать статус при вычислении прав
+        if (matrixConfig.getStatus() != null
+                && matrixConfig.getStatus().size() == 1
+                && matrixConfig.getStatus().get(0).equals("*")){
+            // Для всех статусов одинаковые права, проверяем зависят ли настройки от контекста
+            matrixStatusConfig = matrixConfig.getStatus().get(0);
+        }else{
+            // Получаем статус доменного объекта
+            String status = databaseAgent.getStatus(objectId);
+            // Получаем настройку прав для этого статуса
+            matrixStatusConfig = configurationExplorer.getAccessMatrixByObjectTypeAndStatus(typeName, status);
+        }
+
+        return matrixStatusConfig;
     }
 
     /**
@@ -161,6 +251,12 @@ public class AccessControlServiceImpl implements AccessControlService {
         return accessMatrix != null;
     }
 
+    /**
+     * В случае если это объект аудита - возвращает идентификатор аудируемого объекта,
+     * иначе возвращается переданный идентификатор.
+     * @param id
+     * @return
+     */
     private Id getRelevantObjectId(Id id) {
         if (id == null) {
             return null;
@@ -248,7 +344,7 @@ public class AccessControlServiceImpl implements AccessControlService {
             // CMFIVE-5892 В большинстве случаев права мы получим при первом же вызове, но если нет прав 
             // то получим ошибку затем пересчитываем права у тех ДО к которым устанавливаем связь и еще раз пробуем получить токен
             try{
-                //Первая попытка получить accessTocken
+                //Первая попытка получить accessToken
                 result = createAccessToken(login, parentObjects, types, true);
             }catch(AccessException ex){
                 //Может не быть прав на создание, потому что еще не пересчитаны права на ДО куда ссылаются immutable поля
@@ -309,7 +405,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public AccessToken createAccessToken(String login, Id[] objectIds, AccessType type, boolean requireAll)
+    public AccessToken createAccessToken(String login, Id[] objectIds, AccessType accessType, boolean requireAll)
             throws AccessException {
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
@@ -319,29 +415,63 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        Id[] ids;
+        // сюда складываем id объектов на которые есть запрашиваемое право
+        Set<Id> ids = new HashSet<>();
         boolean deferred = false;
         AccessToken token;
         
-        if (DomainObjectAccessType.READ.equals(type)) {
+        if (DomainObjectAccessType.READ.equals(accessType)) {
             deferred = true;
-            token = new MultiObjectAccessToken(new UserSubject(personIdInt), objectIds, type, deferred);
+            token = new MultiObjectAccessToken(new UserSubject(personIdInt), objectIds, accessType, deferred);
         } else {
-            ids = databaseAgent.checkMultiDomainObjectAccess(personIdInt, objectIds, type);
-            if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
+
+            // Здесь собираем id объектов права на которые вычисляются через acl
+            Set<Id> aclPermission = new HashSet<>();
+            for (Id objectId : objectIds) {
+                String typeName = domainObjectTypeIdCache.getName(objectId);
+
+                // Получаем актуальную конфигурацию матрицы доступа для статуса
+                AccessMatrixStatusConfig matrixStatusConfig = getMatrixStatusConfig(objectId, accessType);
+
+                // В случае заимсвования прав может быть настроен мапинг
+                List<AccessType> mappedAccessTypes = databaseAgent.getMatrixReferencePermission(typeName, accessType);
+
+                // Права есть, если хотя бы по одному из AccessType доступ разрешен
+                for (AccessType mappedAccessType : mappedAccessTypes) {
+                    if (isTypeBasedAccess(mappedAccessType, matrixStatusConfig)) {
+                        // проверяем есть ли права на тип у текущего пользователя
+                        if (permissionServiceDao.hasUserTypePermission(personId, mappedAccessType, matrixStatusConfig)) {
+                            // добавляем id в список, по этому списку потом сформируется AccessToken
+                            ids.add(objectId);
+                        }
+                    } else {
+                        // Собираем id объектов с правами управляемыми с помощью acl объекта
+                        aclPermission.add(objectId);
+                    }
+                }
+            }
+
+            // Вычисляем права на те объекты, на которые права формируются acl-ем одним обращением
+            ids.addAll(Arrays.asList(databaseAgent.checkMultiDomainObjectAccess(
+                    personIdInt, aclPermission.toArray(new Id[aclPermission.size()]) , accessType)));
+
+            if (requireAll ? ids.size() < objectIds.length : ids.size() == 0) {
                 String message = String.format(
-                        MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
-                        login, type, Arrays.toString(objectIds));
+                        MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO,
+                                GuiContext.getUserLocale()),
+                        login, accessType, Arrays.toString(objectIds));
                 String childType = "";
-                if (type instanceof CreateChildAccessType) {
-                    childType = ((CreateChildAccessType) type).getChildType();
+                if (accessType instanceof CreateChildAccessType) {
+                    childType = ((CreateChildAccessType) accessType).getChildType();
                     message = String.format(
-                            MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_CHILD, GuiContext.getUserLocale()),
-                            login,type,childType);
+                            MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_CHILD,
+                                    GuiContext.getUserLocale()),
+                            login, accessType, childType);
                 }
                 throw new AccessException(message);
             }
-            token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids, type, deferred);   
+            token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids.toArray(new Id[ids.size()]),
+                    accessType, deferred);
         }
 
         return token;
@@ -364,10 +494,35 @@ public class AccessControlServiceImpl implements AccessControlService {
         AccessToken token;
         
         for (int i=0; i<objectIds.length; i++) {
-            if (databaseAgent.checkDomainObjectAccess(personIdInt, objectIds[i], types[i])){
-                ids.add(objectIds[i]);
-                accessTypes.add(types[i]);
-            }            
+            String typeName = domainObjectTypeIdCache.getName(objectIds[i]);
+            // Получаем актуальную конфигурацию матрицы доступа для статуса
+            AccessMatrixStatusConfig matrixStatusConfig = getMatrixStatusConfig(objectIds[i], types[i]);
+
+            // В случае заимсвования прав может быть настроен мапинг
+            List<AccessType> mappedAccessTypes = databaseAgent.getMatrixReferencePermission(typeName, types[i]);
+            // Права есть, если хотя бы по одному из AccessType доступ разрешен
+            for (AccessType mappedAccessType : mappedAccessTypes) {
+
+                // Проверка на то, что в конфигурации указаны права на тип
+                if (isTypeBasedAccess(mappedAccessType, matrixStatusConfig)) {
+                    // Проверяем есть ли права на тип у текущего пользователя
+                    if (permissionServiceDao.hasUserTypePermission(personId, mappedAccessType, matrixStatusConfig)) {
+                        // Достаточно одного разрешающего права
+                        if (!ids.contains(objectIds[i])) {
+                            ids.add(objectIds[i]);
+                            accessTypes.add(types[i]);
+                        }
+                    }
+                }
+                // mappedAccessType учитывается внутри checkDomainObjectAccess
+                else if (databaseAgent.checkDomainObjectAccess(personIdInt, objectIds[i], types[i])) {
+                    // Достаточно одного разрешающего права
+                    if (!ids.contains(objectIds[i])) {
+                        ids.add(objectIds[i]);
+                        accessTypes.add(types[i]);
+                    }
+                }
+            }
         }
         
         if (requireAll ? ids.size() < objectIds.length : ids.size() == 0) {
@@ -392,29 +547,6 @@ public class AccessControlServiceImpl implements AccessControlService {
                 accessTypes.toArray(new AccessType[accessTypes.size()]), 
                 deferred);   
 
-        return token;
-    }
-    
-    
-    @Override
-    public AccessToken createAccessToken(String login, Id objectId, AccessType[] types, boolean requireAll)
-            throws AccessException {
-
-        Id personId = getUserIdByLogin(login);
-        Integer personIdInt = (int) ((RdbmsId) personId).getId();
-        boolean isSuperUser = isPersonSuperUser(personId);
-
-        if (isSuperUser || isAdministrator(personId)) {
-            return new SuperUserAccessToken(new UserSubject(personIdInt));
-        }
-
-        AccessType[] granted = databaseAgent.checkDomainObjectMultiAccess(personIdInt, objectId, types);
-        if (requireAll ?
-                granted.length < types.length : granted.length == 0) {
-            throw new AccessException();
-        }
-        
-        AccessToken token = new MultiTypeAccessToken(new UserSubject(personIdInt), objectId, types);
         return token;
     }
 

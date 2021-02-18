@@ -203,7 +203,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         List<AclData> aclDataList = new ArrayList<AclData>();
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getPermissions()) {
             AccessType accessType = getAccessType(operationPermitConfig);
-            aclDataList.add(processOperationPermissions(invalidContextId, operationPermitConfig, accessType));
+            // Проверяем что матрица должна формировать acl для текущего типа, права на read всегда храним в базе
+            if (accessType == DomainObjectAccessType.READ || !isWithoutContextPermissionConfig(accessMatrixConfig, accessType)) {
+                aclDataList.add(processOperationPermissions(invalidContextId, operationPermitConfig, accessType));
+            }
         }
 
         //Добавляем без дублирования в newAclInfos
@@ -911,8 +914,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String objectType = domainObjectTypeIdCache.getName(rdbmsObjectId.getTypeId());
         String permissionType = objectType;
         String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(permissionType);
+        MatrixRefInfo matrixRefInfo = null;
         if (matrixRefType != null) {
-            permissionType = getMatrixRefType(objectType, matrixRefType, rdbmsObjectId);
+            matrixRefInfo = getMatrixRefInfo(objectType, matrixRefType, rdbmsObjectId);
+            permissionType = matrixRefInfo.type;
         }
 
         final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
@@ -991,7 +996,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
                     if (operation.equals(AccessControlConverter.OP_READ)) {
                         if (accessMatrix.getMatrixReference() != null) {
-                            setMappedPermission(personPermission, Permission.Read);
+                            setMappedPermission(accessMatrix, personPermission, Permission.Read);
                         } else {
                             personPermission.getPermission().add(Permission.Read);
                         }
@@ -1000,13 +1005,13 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                         }
                     } else if (operation.equals(AccessControlConverter.OP_WRITE)) {
                         if (accessMatrix.getMatrixReference() != null) {
-                            setMappedPermission(personPermission, Permission.Write);
+                            setMappedPermission(accessMatrix, personPermission, Permission.Write);
                         } else {
                             personPermission.getPermission().add(Permission.Write);
                         }
                     } else if (operation.equals(AccessControlConverter.OP_DELETE)) {
                         if (accessMatrix.getMatrixReference() != null) {
-                            setMappedPermission(personPermission, Permission.Delete);
+                            setMappedPermission(accessMatrix, personPermission, Permission.Delete);
                         } else {
                             personPermission.getPermission().add(Permission.Delete);
                         }
@@ -1015,14 +1020,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                     } else if (operation.startsWith(AccessControlConverter.OP_EXEC_ACTION_PREF)) {
                         String action = operation.substring(2);
                         if (accessMatrix.getMatrixReference() != null) {
-                            setMappedActions(personPermission, action);
+                            setMappedActions(accessMatrix, personPermission, action);
                         } else {
                             personPermission.getActions().add(action);
                         }
                     } else if (operation.startsWith(AccessControlConverter.OP_CREATE_CHILD_PREF)) {
                         String childType = operation.substring(2);
                         if (accessMatrix.getMatrixReference() != null) {
-                            setMappedCreateTypes(personPermission, childType);
+                            setMappedCreateTypes(accessMatrix, personPermission, childType);
                         } else {
                             personPermission.getCreateChildTypes().add(childType);
                         }
@@ -1034,118 +1039,244 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 return result;
             }
 
-            private void setMappedActions(DomainObjectPermission personPermission, String action) {
-                MatrixReferenceMappingConfig matrixReferenceMappingConfig = accessMatrix.getMatrixReferenceMappingConfig();
-                if (matrixReferenceMappingConfig != null) {
-                    List<MatrixReferenceMappingPermissionConfig> permissionConfigs = matrixReferenceMappingConfig.getPermission();
-                    if (permissionConfigs != null) {
-                        for (MatrixReferenceMappingPermissionConfig matrixMapping : permissionConfigs) {
-                            if (matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.EXECUTE + ":" + action)) {
-                                String mapTo = matrixMapping.getMapTo();
-                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
-                                personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
-                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
-                            }
-                        }
-                    }
-                }else{
-                    personPermission.getActions().add(action);
-                }
-            }
-
-            private void setMappedCreateTypes(DomainObjectPermission personPermission, String childType) {
-                MatrixReferenceMappingConfig matrixReferenceMappingConfig = accessMatrix.getMatrixReferenceMappingConfig();
-                if (matrixReferenceMappingConfig != null) {
-                    List<MatrixReferenceMappingPermissionConfig> permission = matrixReferenceMappingConfig.getPermission();
-                    if (permission != null) {
-                        for (MatrixReferenceMappingPermissionConfig matrixMapping : permission) {
-                            if (matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.CREATE_CHILD + ":" + childType)) {
-                                String mapTo = matrixMapping.getMapTo();
-                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
-                                personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
-                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
-                            }
-                        }
-                    }
-                }
-            }
-
-            private void setMappedPermission(DomainObjectPermission personPermission, Permission permission) {
-                MatrixReferenceMappingConfig matrixReferenceMappingConfig = accessMatrix.getMatrixReferenceMappingConfig();
-                if (matrixReferenceMappingConfig != null) {
-                    List<MatrixReferenceMappingPermissionConfig> permissionConfigs = matrixReferenceMappingConfig.getPermission();
-                    if (permissionConfigs != null) {
-                        for (MatrixReferenceMappingPermissionConfig matrixMapping : permissionConfigs) {
-                            String mapTo = matrixMapping.getMapTo();
-                            String mapFrom = matrixMapping.getMapFrom();
-                            if (permission.equals(Permission.Read) && mapFrom.equals(MatrixReferenceMappingPermissionConfig.READ)) {
-                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
-                                personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
-                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
-                            } else if (permission.equals(Permission.Write) && mapFrom.equals(MatrixReferenceMappingPermissionConfig.WRITE)) {
-                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
-                                personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
-                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
-                            } else if (permission.equals(Permission.Delete) && mapFrom.equals(MatrixReferenceMappingPermissionConfig.DELETE)) {
-                                personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
-                                personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
-                                personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
-                            }
-                        }
-                    }
-                } else {
-                    //Используем дефалтовый мапинг
-                    personPermission.getPermission().add(permission);
-                    if (permission.equals(Permission.Write)) {
-                        personPermission.getPermission().add(Permission.Delete);
-                    }
-                }
-            }
-
-            private List<Permission> getPermissionFromMatrixRef(String mapTo) {
-                switch (mapTo) {
-                    case MatrixReferenceMappingPermissionConfig.READ:
-                        return Collections.singletonList(Permission.Read);
-                    case MatrixReferenceMappingPermissionConfig.WRITE:
-                        return Collections.singletonList(Permission.Write);
-                    case MatrixReferenceMappingPermissionConfig.DELETE:
-                        return Collections.singletonList(Permission.Delete);
-                }
-                return Collections.emptyList();
-            }
-
-            private List<String> getActionsFromMatrixRef(String mapTo) {
-                if (mapTo.startsWith(MatrixReferenceMappingPermissionConfig.EXECUTE)) {
-                    return Collections.singletonList(mapTo.split(":")[1]);
-                }
-                return Collections.emptyList();
-            }
-
-            private List<String> getCreateChildFromMatrixRef(String mapTo) {
-                if (mapTo.startsWith(MatrixReferenceMappingPermissionConfig.CREATE_CHILD)) {
-                    return Collections.singletonList(mapTo.split(":")[1]);
-                }
-                return Collections.emptyList();
-            }
         });
 
         if (res == null) {
-            res = Collections.emptyList();
+            res = new ArrayList<>();
         }
+
         if (isAttach && attachReadAccessNotRestricted && personId != null) {
             /* Добавляем право на чтение вложения, если по каким-то причинам (общедоступно и на чтение, и на чтение содержимого) оно ещё не проставлено */
             DomainObjectPermission personPermission = res.stream().filter(p -> personId.equals(p.getPersonId())).findAny().orElse(null);
             if (personPermission == null) {
                 personPermission = new DomainObjectPermission();
                 personPermission.setPersonId(personId);
-                res = new ArrayList<>(res);
                 res.add(personPermission);
             }
             if (!personPermission.getPermission().contains(Permission.ReadAttachment)) {
                 personPermission.getPermission().add(Permission.ReadAttachment);
             }
         }
+
+
+        if (accessMatrix != null) {
+            // Получение статуса непосредственно объекта и объекта откуда заимствуем права если права заимствованные
+            String origStatus = getStatusFor(domainObjectId);
+            String refStatus = matrixRefType != null ? getStatusFor(matrixRefInfo.id) : null;
+
+            AccessMatrixStatusConfig origMatrixStatusConfig =
+                    configurationExplorer.getAccessMatrixByObjectTypeAndStatus(objectType, origStatus);
+            AccessMatrixStatusConfig refMatrixStatusConfig = matrixRefType != null ?
+                    configurationExplorer.getAccessMatrixByObjectTypeAndStatus(permissionType, refStatus) : null;
+            AccessMatrixStatusConfig combinedMatrixStatusConfig = getCombinedMatrixConfig(
+                    accessMatrix, origMatrixStatusConfig, refMatrixStatusConfig);
+
+            if (combinedMatrixStatusConfig != null) {
+                // Если передана персона, то вычисляем для нее, если нет, то вычисляем для ВСЕХ! персон
+                if (personId != null) {
+                    for (BaseOperationPermitConfig permissions : combinedMatrixStatusConfig.getPermissions()) {
+                        appendTypePermission(res, accessMatrix, personId, combinedMatrixStatusConfig, permissions);
+                    }
+                } else {
+                    // Вычисляем для всех персон ( TODO очень тяжелая ветка, надо бы ее запретить если не используется нигде кроме тестов)
+                    List<Id> personsId = masterNamedParameterJdbcTemplate.query(
+                            "select id, id_type from person", Collections.emptyMap(), new RowMapper<Id>() {
+                                @Override
+                                public Id mapRow(ResultSet rs, int rowNum) throws SQLException {
+                                    return new RdbmsId(rs.getInt("id_type"), rs.getLong("id"));
+                                }
+                            });
+                    for (Id onePersonId : personsId) {
+                        for (BaseOperationPermitConfig permissions : combinedMatrixStatusConfig.getPermissions()) {
+                            appendTypePermission(res, accessMatrix, onePersonId, combinedMatrixStatusConfig, permissions);
+                        }
+                    }
+                }
+            }
+        }
+
         return res;
+    }
+
+    /**
+     * Получение матрицы для комбининируемых прав
+     * @param accessMatrix
+     * @param origMatrixStatusConfig
+     * @param refMatrixStatusConfig
+     * @return
+     */
+    private AccessMatrixStatusConfig getCombinedMatrixConfig(AccessMatrixConfig accessMatrix,
+                                                             AccessMatrixStatusConfig origMatrixStatusConfig,
+                                                             AccessMatrixStatusConfig refMatrixStatusConfig) {
+        AccessMatrixStatusConfig result = new AccessMatrixStatusConfig();
+
+        if (accessMatrix.getMatrixReference() == null
+                || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.none){
+            result = origMatrixStatusConfig;
+        }else if (accessMatrix.getBorrowPermissisons() == null
+                || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.all){
+            result = refMatrixStatusConfig;
+        }else if (accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.read){
+            if (origMatrixStatusConfig != null) {
+                for (BaseOperationPermitConfig permissions : origMatrixStatusConfig.getPermissions()) {
+                    if (permissions instanceof WriteConfig
+                            || permissions instanceof DeleteConfig
+                            || permissions instanceof CreateChildConfig
+                            || permissions instanceof ExecuteActionConfig
+                            || permissions instanceof ReadAttachmentConfig) {
+                        result.getPermissions().add(permissions);
+                    }
+                }
+            }
+            if (refMatrixStatusConfig != null) {
+                for (BaseOperationPermitConfig permissions : refMatrixStatusConfig.getPermissions()) {
+                    if (permissions instanceof ReadConfig) {
+                        result.getPermissions().add(permissions);
+                    }
+                }
+            }
+        }else if (accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete){
+            if (origMatrixStatusConfig != null) {
+                for (BaseOperationPermitConfig permissions : origMatrixStatusConfig.getPermissions()) {
+                    if (permissions instanceof CreateChildConfig
+                            || permissions instanceof ExecuteActionConfig
+                            || permissions instanceof ReadAttachmentConfig) {
+                        result.getPermissions().add(permissions);
+                    }
+                }
+            }
+            if (refMatrixStatusConfig != null) {
+                for (BaseOperationPermitConfig permissions : refMatrixStatusConfig.getPermissions()) {
+                    if (permissions instanceof ReadConfig
+                            || permissions instanceof WriteConfig
+                            || permissions instanceof DeleteConfig) {
+                        result.getPermissions().add(permissions);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private void appendTypePermission(List<DomainObjectPermission> result, AccessMatrixConfig accessMatrix, Id personId,
+                                      AccessMatrixStatusConfig matrixStatusConfig,
+                                      BaseOperationPermitConfig permissionsConfig){
+
+        AccessType accessType = getAccessType(permissionsConfig);
+
+        // в случае безконтекстных прав на тип формируем информацию о правах на объект. Кроме read; read всегда получится из базы
+        if (accessType != DomainObjectAccessType.READ && isWithoutContextPermissionConfig(matrixStatusConfig, accessType)){
+            if (hasUserTypePermission(personId, accessType, matrixStatusConfig)){
+
+                // Получаем или создаем объект прав
+                DomainObjectPermission personPermission = result.stream().filter(p -> personId.equals(p.getPersonId())).
+                        findAny().orElse(null);
+                if (personPermission == null){
+                    personPermission = new DomainObjectPermission();
+                    personPermission.setPersonId(personId);
+                    result.add(personPermission);
+                }
+
+                // Формируем состав обекта доступа, кроме read; read всегда получится из базы
+                if (accessType == DomainObjectAccessType.WRITE){
+                    if (accessMatrix.getMatrixReference() != null
+                            && (accessMatrix.getBorrowPermissisons() == null
+                            || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete
+                            || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.all)) {
+                        setMappedPermission(accessMatrix, personPermission, Permission.Write);
+                    }else {
+                        personPermission.getPermission().add(Permission.Write);
+                    }
+                }else if (accessType == DomainObjectAccessType.DELETE){
+                    if (accessMatrix.getMatrixReference() != null
+                            && (accessMatrix.getBorrowPermissisons() == null
+                            || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete
+                            || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.all)) {
+                        setMappedPermission(accessMatrix, personPermission, Permission.Delete);
+                    }else {
+                        personPermission.getPermission().add(Permission.Delete);
+                    }
+                }else if (accessType == DomainObjectAccessType.READ_ATTACH){
+                    // TODO не реализован маппинг прав чтения вложения
+                    personPermission.getPermission().add(Permission.ReadAttachment);
+                }else if (accessType instanceof CreateChildAccessType){
+                    if (accessMatrix.getMatrixReference() != null
+                            && (accessMatrix.getBorrowPermissisons() == null
+                            || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.all)) {
+                        setMappedCreateTypes(accessMatrix, personPermission,
+                                ((CreateChildAccessType) accessType).getChildType());
+                    }else {
+                        personPermission.getCreateChildTypes().add(((CreateChildAccessType) accessType).getChildType());
+                    }
+                }else if (accessType instanceof ExecuteActionAccessType){
+                    if (accessMatrix.getMatrixReference() != null
+                            && (accessMatrix.getBorrowPermissisons() == null
+                            || accessMatrix.getBorrowPermissisons() == AccessMatrixConfig.BorrowPermissisonsMode.all)) {
+                        setMappedActions(accessMatrix, personPermission,
+                                ((ExecuteActionAccessType) accessType).getActionName());
+                    }else {
+                        personPermission.getActions().add(((ExecuteActionAccessType) accessType).getActionName());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Проверка имеет ли пользователь права на тип для данного доменного объекта
+     * @param personId
+     * @param accessType
+     * @return
+     */
+    @Override
+    public boolean hasUserTypePermission(Id personId, AccessType accessType, AccessMatrixStatusConfig matrixStatusConfig) {
+        // Собираем группы, которым разрешен доступ
+        Set<String> groups = new HashSet<>();
+        for (BaseOperationPermitConfig permitConfig : matrixStatusConfig.getPermissions()) {
+            // Получаем только раздел конфигурации, соответствующий проверяемому типу доступа
+            if (checkAccessType(permitConfig, accessType)) {
+                for (BasePermit basePermit : permitConfig.getPermitConfigs()) {
+                    // Здесь могут быть только группы, иначе сюда не попадем, поэтому не анализируем имя класса в basePermit
+                    groups.add(basePermit.getName());
+                }
+            }
+        }
+
+        return checkUserGroups(personId, groups);
+    }
+
+    @Override
+    public boolean checkUserGroup(Id userId, String groupName) {
+        return checkUserGroups(userId, Collections.singleton(groupName));
+    }
+
+    @Override
+    public boolean checkUserGroups(Id userId, Set<String> groupNames) {
+        if (groupNames.size() == 0){
+            return false;
+        }
+
+        String query = getQueryForCheckUserGroup();
+
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("user_id", ((RdbmsId)userId).getId());
+        parameters.put("group_names", new ArrayList<>(groupNames));
+        Integer result = masterNamedParameterJdbcTemplate.queryForObject(query, parameters, Integer.class);
+        return result > 0;
+    }
+
+    private String getQueryForCheckUserGroup() {
+        StringBuilder query = new StringBuilder();
+
+        query.append("select count(*) from ").append(wrap("user_group")).append(" ug ");
+        query.append("inner join ").append(wrap("group_group")).append(" gg on ug.").append(wrap("id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
+                .append(" = gm.").append(wrap("usergroup"));
+        query.append("where gm.").append(wrap("person_id")).append(" = :user_id and ug.").append(wrap("group_name"))
+                .append(" in ( :group_names )");
+        return query.toString();
     }
 
     private StringBuilder createObjectPermissionsSubQuery(String aclTableName, String domainObjectBaseTable, boolean useAccessObjectId, Id personId) {
@@ -1188,26 +1319,29 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param id
      * @return
      */
-    private String getMatrixRefType(String childType, String parentType, RdbmsId id) {
+    private MatrixRefInfo getMatrixRefInfo(String childType, String parentType, RdbmsId id) {
         String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
         String rootForParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, parentType);
         String query =
-                "select p.id_type from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
+                "select p.id_type, c.access_object_id from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", id.getId());
 
-        int typeId = switchableNamedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>() {
+        MatrixRefInfo matrixRefInfo = switchableNamedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<MatrixRefInfo>() {
 
             @Override
-            public Integer extractData(ResultSet rs) throws SQLException,
+            public MatrixRefInfo extractData(ResultSet rs) throws SQLException,
                     DataAccessException {
                 rs.next();
-                return rs.getInt("id_type");
+                MatrixRefInfo result = new MatrixRefInfo();
+                result.type = domainObjectTypeIdCache.getName(rs.getInt("id_type"));
+                result.id = new RdbmsId(rs.getInt("id_type"), rs.getLong("access_object_id"));
+                return result;
             }
         });
+        return matrixRefInfo;
 
-        return domainObjectTypeIdCache.getName(typeId);
     }
 
     private void regRecalcInvalidAcl(Set<Id> invalidContext) {
@@ -1404,19 +1538,19 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             //Исключаем доменные объекты с заимствованными правами и с правами на чтение всем        
             String typeName = domainObjectTypeIdCache.getName(domainObject);
             AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
-            if (matrixConfig != null)
-                if (matrixConfig.getMatrixReference() == null) {
+            if (matrixConfig != null && matrixConfig.getMatrixReference() == null) {
 
-                    //Получение динамической группы текущего пользователя.
-                    Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
+                //Получение динамической группы текущего пользователя.
+                Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
 
-                    //Добавляем права группе
-                    if (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) {
-                        insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
-                    }
-                    insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
-                    insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
+                //Добавляем права группе
+                if (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) {
+                    insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
                 }
+
+                insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
+                insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
+            }
         }
     }
 
@@ -1504,5 +1638,172 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         List<Id> checkedIds = switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, extractorFunction);
         return new HashSet<>(checkedIds);
+    }
+
+    /**
+     * Проверка на то что конфигурация прав не зависит от контекста
+     * @return
+     */
+    @Override
+    public boolean isWithoutContextPermissionConfig(AccessMatrixStatusConfig matrixStatusConfig, AccessType accessType){
+        // выполняем поиск до тех пор, пока не найдем любую роль или контектную динамичсескую группу
+        for (BaseOperationPermitConfig permitConfig : matrixStatusConfig.getPermissions()) {
+            // Анализируем только раздел конфигурации, соответствующий проверяемому типу доступа
+            if (checkAccessType(permitConfig, accessType)) {
+                for (BasePermit basePermit : permitConfig.getPermitConfigs()) {
+                    // безконтекстными могут быть только группы
+                    if (basePermit instanceof PermitGroup) {
+                        PermitGroup permitGroup = (PermitGroup) basePermit;
+                        // Проверяем статичная группа или нет
+                        StaticGroupConfig staticGroupConfig =
+                                configurationExplorer.getConfig(StaticGroupConfig.class, permitGroup.getName());
+                        // Проверяем найдена ли статичная группа
+                        if (staticGroupConfig == null) {
+                            // Если статичная группа не найдена то ищем динамическую группу с таким же именем
+                            DynamicGroupConfig dynamicGroupConfig =
+                                    configurationExplorer.getConfig(DynamicGroupConfig.class, permitGroup.getName());
+                            // для группы проверяем контекстная она или нет
+                            if (dynamicGroupConfig.getContext() != null
+                                    && dynamicGroupConfig.getContext().getDomainObject() != null
+                                    && dynamicGroupConfig.getContext().getDomainObject().getType() != null) {
+                                return false;
+                            }
+                        }
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Проверка соответствия настройки прав в матрице проверяемому типу доступа
+     * @param permitConfig
+     * @param accessType
+     * @return
+     */
+    @Override
+    public boolean checkAccessType(BaseOperationPermitConfig permitConfig, AccessType accessType) {
+        boolean result = false;
+        if ((permitConfig instanceof WriteConfig) && accessType.equals(DomainObjectAccessType.WRITE)){
+            result = true;
+        }else if((permitConfig instanceof DeleteConfig) && accessType.equals(DomainObjectAccessType.DELETE)){
+            result = true;
+        }else if((permitConfig instanceof CreateChildConfig)
+                && accessType.equals(new CreateChildAccessType(((CreateChildConfig)permitConfig).getType()))){
+            result = true;
+        }else if((permitConfig instanceof ExecuteActionConfig)
+                && accessType.equals(new ExecuteActionAccessType(((ExecuteActionConfig)permitConfig).getName()))){
+            result = true;
+        }else if((permitConfig instanceof ReadAttachmentConfig)
+                && accessType.equals(DomainObjectAccessType.READ_ATTACH)){
+            result = true;
+        }else if((permitConfig instanceof ReadConfig)
+                && accessType.equals(DomainObjectAccessType.READ)){
+            result = true;
+        }
+        return result;
+    }
+
+
+    public static class MatrixRefInfo{
+        private String type;
+        private Id id;
+    }
+
+    private void setMappedPermission(AccessMatrixConfig accessMatrix, DomainObjectPermission personPermission, Permission permission) {
+        MatrixReferenceMappingConfig matrixReferenceMappingConfig = accessMatrix.getMatrixReferenceMappingConfig();
+        if (matrixReferenceMappingConfig != null) {
+            List<MatrixReferenceMappingPermissionConfig> permissionConfigs = matrixReferenceMappingConfig.getPermission();
+            if (permissionConfigs != null) {
+                for (MatrixReferenceMappingPermissionConfig matrixMapping : permissionConfigs) {
+                    String mapTo = matrixMapping.getMapTo();
+                    String mapFrom = matrixMapping.getMapFrom();
+                    if (permission.equals(Permission.Read) && mapFrom.equals(MatrixReferenceMappingPermissionConfig.READ)) {
+                        personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
+                        personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
+                        personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
+                    } else if (permission.equals(Permission.Write) && mapFrom.equals(MatrixReferenceMappingPermissionConfig.WRITE)) {
+                        personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
+                        personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
+                        personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
+                    } else if (permission.equals(Permission.Delete) && mapFrom.equals(MatrixReferenceMappingPermissionConfig.DELETE)) {
+                        personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
+                        personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
+                        personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
+                    }
+                }
+            }
+        } else {
+            //Используем дефалтовый мапинг
+            personPermission.getPermission().add(permission);
+            if (permission.equals(Permission.Write)) {
+                personPermission.getPermission().add(Permission.Delete);
+            }
+        }
+    }
+
+    private List<Permission> getPermissionFromMatrixRef(String mapTo) {
+        switch (mapTo) {
+            case MatrixReferenceMappingPermissionConfig.READ:
+                return Collections.singletonList(Permission.Read);
+            case MatrixReferenceMappingPermissionConfig.WRITE:
+                return Collections.singletonList(Permission.Write);
+            case MatrixReferenceMappingPermissionConfig.DELETE:
+                return Collections.singletonList(Permission.Delete);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> getActionsFromMatrixRef(String mapTo) {
+        if (mapTo.startsWith(MatrixReferenceMappingPermissionConfig.EXECUTE)) {
+            return Collections.singletonList(mapTo.split(":")[1]);
+        }
+        return Collections.emptyList();
+    }
+
+    private List<String> getCreateChildFromMatrixRef(String mapTo) {
+        if (mapTo.startsWith(MatrixReferenceMappingPermissionConfig.CREATE_CHILD)) {
+            return Collections.singletonList(mapTo.split(":")[1]);
+        }
+        return Collections.emptyList();
+    }
+
+    private void setMappedActions(AccessMatrixConfig accessMatrix, DomainObjectPermission personPermission, String action) {
+        MatrixReferenceMappingConfig matrixReferenceMappingConfig = accessMatrix.getMatrixReferenceMappingConfig();
+        if (matrixReferenceMappingConfig != null) {
+            List<MatrixReferenceMappingPermissionConfig> permissionConfigs = matrixReferenceMappingConfig.getPermission();
+            if (permissionConfigs != null) {
+                for (MatrixReferenceMappingPermissionConfig matrixMapping : permissionConfigs) {
+                    if (matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.EXECUTE + ":" + action)) {
+                        String mapTo = matrixMapping.getMapTo();
+                        personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
+                        personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
+                        personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
+                    }
+                }
+            }
+        }else{
+            personPermission.getActions().add(action);
+        }
+    }
+
+    private void setMappedCreateTypes(AccessMatrixConfig accessMatrix, DomainObjectPermission personPermission, String childType) {
+        MatrixReferenceMappingConfig matrixReferenceMappingConfig = accessMatrix.getMatrixReferenceMappingConfig();
+        if (matrixReferenceMappingConfig != null) {
+            List<MatrixReferenceMappingPermissionConfig> permission = matrixReferenceMappingConfig.getPermission();
+            if (permission != null) {
+                for (MatrixReferenceMappingPermissionConfig matrixMapping : permission) {
+                    if (matrixMapping.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.CREATE_CHILD + ":" + childType)) {
+                        String mapTo = matrixMapping.getMapTo();
+                        personPermission.getPermission().addAll(getPermissionFromMatrixRef(mapTo));
+                        personPermission.getActions().addAll(getActionsFromMatrixRef(mapTo));
+                        personPermission.getCreateChildTypes().addAll(getCreateChildFromMatrixRef(mapTo));
+                    }
+                }
+            }
+        }
     }
 }

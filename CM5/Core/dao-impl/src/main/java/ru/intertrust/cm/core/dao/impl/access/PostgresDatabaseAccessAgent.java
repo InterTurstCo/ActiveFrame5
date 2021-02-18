@@ -197,7 +197,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      * @return права которые необходимо проверить на данных у типа, права
      *         которого заимствуются
      */
-    private List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType) {
+    @Override
+    public List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType) {
 
         if (DomainObjectAccessType.READ_ATTACH.equals(accessType)) {
             return Collections.singletonList(accessType);
@@ -779,30 +780,6 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     @Override
-    public boolean checkUserGroup(int userId, String groupName) {
-        String query = getQueryForCheckUserGroup();
-
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("user_id", userId);
-        parameters.put("group_name", groupName);
-        Integer result = jdbcTemplate.queryForObject(query, parameters, Integer.class);
-        return result > 0;
-    }
-
-    private String getQueryForCheckUserGroup() {
-        StringBuilder query = new StringBuilder();
-
-        query.append("select count(*) from ").append(wrap("user_group")).append(" ug ");
-        query.append("inner join ").append(wrap("group_group")).append(" gg on ug.").append(wrap("id"))
-                .append(" = gg.").append(wrap("parent_group_id"));
-        query.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
-        query.append("where gm.").append(wrap("person_id")).append(" = :user_id and ug.").append(wrap("group_name"))
-                .append(" = :group_name");
-        return query.toString();
-    }
-
-    @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
         AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
         logger.trace("Access matrix to {}: {}", objectType, accessMatrix);
@@ -839,6 +816,22 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         logger.trace("Check type is {}", checkType);
 
         return isAllowedToCreateObjectType(userId, checkType);
+    }
+
+    @Override
+    public String getStatus(Id objectId) {
+        String typeName = domainObjectTypeIdCache.getName(objectId);
+        String rootType = configurationExplorer.getDomainObjectRootType(typeName);
+
+        String query = "select s.name from status s join " + rootType + " t on t.status = s.id where t.id = :id";
+        List<String> queryResult = jdbcTemplate.queryForList(query,
+                Collections.singletonMap("id", ((RdbmsId)objectId).getId()),
+                String.class);
+        if (queryResult.size() > 0){
+            return queryResult.get(0);
+        }else{
+            return null;
+        }
     }
 
     /**
