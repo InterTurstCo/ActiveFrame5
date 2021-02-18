@@ -66,7 +66,7 @@ public class TestDynamicGroup extends ClientBase {
         try {
             // Зачитываем конфигурацию
             String line;
-            try(InputStream fis = new FileInputStream("test_dynamic_groups.csv")) {
+            try(InputStream fis = new FileInputStream("Client/remote-client/test_dynamic_groups.csv")) {
                 try (BufferedReader br = new BufferedReader(new InputStreamReader(fis, Charset.forName("windows-1251")))) {
                     boolean start = false;
                     while ((line = br.readLine()) != null) {
@@ -116,8 +116,6 @@ public class TestDynamicGroup extends ClientBase {
             
             test33DynGroup = prsonService.findDynamicGroup("test_type_33_person_group", doWithoutGroup.getId());
             assertTrue("Dyn Group fith filter exists", test33DynGroup == null);
-            
-            log("Test dynamic group success");
 
         } finally {
             try {
@@ -130,6 +128,11 @@ public class TestDynamicGroup extends ClientBase {
                 // Игнорируем ошибку в finally чтобы не потерять ошибку в try
             }
 
+            if (hasError) {
+                log("Test ERROR");
+            }else{
+                log("Test OK");
+            }
         }
 
     }
