@@ -24,6 +24,9 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.access.IdpAdminService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.UserCredentials;
+import ru.intertrust.cm.core.business.api.dto.UserUid;
+import ru.intertrust.cm.core.gui.api.server.LoginService;
 
 
 public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
@@ -77,6 +80,14 @@ public class PlatformKeycloakFilter extends KeycloakOIDCFilter {
                 httpResponse.setStatus(403);
                 logger.warn("Not find person with alter uid = " + httpRequest.getUserPrincipal().getName());
             }else {
+                // Сохраняем пользователя в сесии
+                UserCredentials credentials = (UserCredentials) httpRequest.getSession().getAttribute(
+                        LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+                if (credentials == null){
+                    httpRequest.getSession().setAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE,
+                            new UserUid(person.getString("login")));
+                }
+                // Вызываем цепочку фильтров
                 origChain.doFilter(request, response);
             }
 
