@@ -70,6 +70,15 @@
         </act:action>
     </act:tool-bar>
 
+    <act:tool-bar plugin="report.package.import.plugin">
+        <act:action name="deploy-report-package.action" componentName="deploy-report-package.action" text="Загрузить отчёты" rendered="true"
+                    image="images/icons/favorite-panel-off.png">
+            <act:after-execution>
+                <act:on-success-message text="Отчеты успешно загружены"/>
+            </act:after-execution>
+        </act:action>
+    </act:tool-bar>
+
     <act:tool-bar plugin="configuration.deployer.plugin">
         <act:action name="deploy.configuration.action" componentName="deploy.configuration.action" text="Загрузить конфигурацию" rendered="true"
                     imageClass="configurationUploader" display="toggleButton"
