@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.gui.impl.client.plugins.reportpackagedeploy;
+package ru.intertrust.cm.core.gui.impl.client.plugins.reportupload;
 
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;

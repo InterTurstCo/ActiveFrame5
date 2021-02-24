@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
-import ru.intertrust.cm.core.gui.impl.client.plugins.reportpackagedeploy.ReportPackageImportPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportPackageImportPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;

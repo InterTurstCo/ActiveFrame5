@@ -41,7 +41,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin.HierarchySu
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.plugin.PluginManager;
 import ru.intertrust.cm.core.gui.impl.client.plugins.report.ReportPlugin;
-import ru.intertrust.cm.core.gui.impl.client.plugins.reportpackagedeploy.ReportPackageImportPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportPackageImportPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportUploadPlugin;
 import ru.intertrust.cm.core.gui.impl.client.rules.ExpressionException;
 import ru.intertrust.cm.core.gui.impl.client.rules.ExpressionHelper;

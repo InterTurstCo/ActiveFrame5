@@ -165,7 +165,7 @@ public class BusinessUniverseConstants {
     public static final String SELECT_CONFIG_TYPE = "Выберите тип конфигурации";
     public static final String CONFIG_FILES_TYPE = "Тип конфигурации:";
     public static final String ADD_REPORT_FILES = "Добавьте файлы шаблона отчета:";
-    public static final String ADD_REPORTS_PACKAGE = "Добавьте архив отчетов:";
+    public static final String ADD_REPORTS_PACKAGE = "Добавьте пакет отчетов (jar):";
 
     public static final String MONTH_SWITCH_BUTTON = "Задачи дня";
     public static final String WEEK_SWITCH_BUTTON = "Суббота, Воскресенье";
