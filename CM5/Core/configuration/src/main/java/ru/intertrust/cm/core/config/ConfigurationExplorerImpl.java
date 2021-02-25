@@ -209,27 +209,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     }
 
-    @Override
-    public AttachmentTypesConfig getAttachmentTypesConfigWithInherit(DomainObjectTypeConfig domainObjectTypeConfig) {
-        AttachmentTypesConfig resultConfig = new AttachmentTypesConfig();
-        while (domainObjectTypeConfig != null) {
-            AttachmentTypesConfig attachmentTypesConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
-            List<AttachmentTypeConfig> attachmentTypeConfigs = attachmentTypesConfig != null ?
-                    attachmentTypesConfig.getAttachmentTypeConfigs() : null;
-            if (attachmentTypeConfigs != null) {
-                resultConfig.getAttachmentTypeConfigs().addAll(attachmentTypeConfigs);
-            }
-            String parentTypeName = domainObjectTypeConfig.getExtendsAttribute();
-            domainObjectTypeConfig = parentTypeName != null ? getDomainObjectTypeConfig(parentTypeName) : null;
-        }
-        return resultConfig;
-    }
-
-    @Override
-    public AttachmentTypesConfig getAttachmentTypesConfigWithInherit(String domainObjectTypeName) {
-        return getAttachmentTypesConfigWithInherit(getDomainObjectTypeConfig(domainObjectTypeName));
-    }
-
     public List<LogicalErrors> validateGui() {
         List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 

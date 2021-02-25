@@ -242,16 +242,6 @@ public class StubConfigurationExplorer implements ConfigurationExplorer {
     }
 
     @Override
-    public AttachmentTypesConfig getAttachmentTypesConfigWithInherit(DomainObjectTypeConfig domainObjectTypeConfig) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public AttachmentTypesConfig getAttachmentTypesConfigWithInherit(String domainObjectTypeName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getAttachmentParentType(String attachmentType) {
         throw new UnsupportedOperationException();
    }

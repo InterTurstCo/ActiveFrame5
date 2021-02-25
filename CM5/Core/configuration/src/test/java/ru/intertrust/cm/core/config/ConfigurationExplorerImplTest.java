@@ -293,7 +293,7 @@ public class ConfigurationExplorerImplTest {
         AttachmentTypesConfig attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
         assertNotNull(attachmentTypeConfig);
         assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
-        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectType);
+        attachmentTypeConfig = ConfigurationExplorerUtils.getAttachmentTypesConfigWithInherit(configExplorer, domainObjectType);
         assertNotNull(attachmentTypeConfig);
         assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
 
@@ -301,7 +301,7 @@ public class ConfigurationExplorerImplTest {
         assertNotNull(domainObjectTypeConfig);
         attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
         assertNull(attachmentTypeConfig);
-        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectTypeExt1);
+        attachmentTypeConfig = ConfigurationExplorerUtils.getAttachmentTypesConfigWithInherit(configExplorer, domainObjectTypeExt1);
         assertNotNull(attachmentTypeConfig);
         assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
 
@@ -309,9 +309,13 @@ public class ConfigurationExplorerImplTest {
         assertNotNull(domainObjectTypeConfig);
         attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
         assertNull(attachmentTypeConfig);
-        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectTypeConfig);
+        attachmentTypeConfig = ConfigurationExplorerUtils.getAttachmentTypesConfigWithInherit(configExplorer, domainObjectTypeConfig);
         assertNotNull(attachmentTypeConfig);
         assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+
+        attachmentTypeConfig = ConfigurationExplorerUtils.getAttachmentTypesConfigWithInherit(null, domainObjectTypeConfig);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 0);
     }
 
     private ConfigurationSerializer createConfigurationSerializer(String ... configPaths) throws Exception {

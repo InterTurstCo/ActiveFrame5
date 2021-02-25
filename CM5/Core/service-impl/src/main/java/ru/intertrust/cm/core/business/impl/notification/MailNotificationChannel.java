@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannel;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.MailNotificationException;
@@ -157,8 +158,8 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                     documentWithAttachment.getTypeName());
 
             // Получаем тип вложения к данному типу документа
-            List<AttachmentTypeConfig> attachmentTypeConfigs =
-                    configurationExplorer.getAttachmentTypesConfigWithInherit(documentWithAttachmentTypeConfig).getAttachmentTypeConfigs();
+            List<AttachmentTypeConfig> attachmentTypeConfigs = ConfigurationExplorerUtils.
+                    getAttachmentTypesConfigWithInherit(configurationExplorer, documentWithAttachmentTypeConfig).getAttachmentTypeConfigs();
             for (AttachmentTypeConfig attachmentTypeConfig : attachmentTypeConfigs) {
                 List<DomainObject> linkedAttachments = domainObjectDao.findLinkedDomainObjects(documentWithAttachmentId, attachmentTypeConfig.getName(),
                         documentWithAttachment.getTypeName(), systemAccessToken);
