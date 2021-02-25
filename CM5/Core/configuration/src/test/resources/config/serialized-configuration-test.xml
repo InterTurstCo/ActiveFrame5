@@ -30,6 +30,18 @@
          <attachment-type name="Outgoing_Document_Content"/>
       </attachment-types>
    </domain-object-type>
+   <domain-object-type name="Outgoing_Document_ext1" extends="Outgoing_Document">
+      <fields>
+         <string name="NameExt1" not-null="false" immutable="false" length="256"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Outgoing_Document_ext2" extends="Outgoing_Document_ext1">
+      <fields>
+         <string name="NameExt2" not-null="false" immutable="false" length="512"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
    <domain-object-type name="Assignment">
       <fields>
          <reference name="Outgoing_Document" not-null="true" immutable="false" type="Employee"/>

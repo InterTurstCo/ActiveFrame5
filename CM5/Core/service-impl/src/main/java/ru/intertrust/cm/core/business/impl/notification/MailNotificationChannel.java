@@ -157,7 +157,9 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                     documentWithAttachment.getTypeName());
 
             // Получаем тип вложения к данному типу документа
-            for (AttachmentTypeConfig attachmentTypeConfig : documentWithAttachmentTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+            List<AttachmentTypeConfig> attachmentTypeConfigs =
+                    configurationExplorer.getAttachmentTypesConfigWithInherit(documentWithAttachmentTypeConfig).getAttachmentTypeConfigs();
+            for (AttachmentTypeConfig attachmentTypeConfig : attachmentTypeConfigs) {
                 List<DomainObject> linkedAttachments = domainObjectDao.findLinkedDomainObjects(documentWithAttachmentId, attachmentTypeConfig.getName(),
                         documentWithAttachment.getTypeName(), systemAccessToken);
                 for (DomainObject attachmentObject : linkedAttachments) {

@@ -364,4 +364,19 @@ public interface ConfigurationExplorer {
      */
     default void validate(){
     }
+
+    /**
+     * Полуение конфигурации вложений с учетом наследования доменного объекта
+     * @param domainObjectTypeConfig конфигурация доменного объекта
+     * @return конфигурация вложений
+     */
+    AttachmentTypesConfig getAttachmentTypesConfigWithInherit(DomainObjectTypeConfig domainObjectTypeConfig);
+
+    /**
+     * Полуение конфигурации вложений с учетом наследования доменного объекта
+     * @param domainObjectTypeName имя типа доменного объекта
+     * @return конфигурация вложений
+     */
+    AttachmentTypesConfig getAttachmentTypesConfigWithInherit(String domainObjectTypeName);
+
 }

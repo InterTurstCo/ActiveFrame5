@@ -172,6 +172,10 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
         isTemplate = template;
     }
 
+    /**
+     * Получение конфигурации вложений (БЕЗ УЧЕТА НАСЛЕДОВАНИЯ ДО)
+     * @return конфигурация
+     */
     public AttachmentTypesConfig getAttachmentTypesConfig() {
         return attachmentTypesConfig;
     }

@@ -283,6 +283,37 @@ public class ConfigurationExplorerImplTest {
         assertTrue(result4.contains("ref_do_3_2"));
     }
 
+    @Test
+    public void testGetAttacmentTypeConfig() {
+        String domainObjectType = "Outgoing_Document";
+        String domainObjectTypeExt1 = "Outgoing_Document_ext1";
+        String domainObjectTypeExt2 = "Outgoing_Document_ext2";
+        DomainObjectTypeConfig domainObjectTypeConfig = configExplorer.getDomainObjectTypeConfig(domainObjectType);
+        assertNotNull(domainObjectTypeConfig);
+        AttachmentTypesConfig attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectType);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+
+        domainObjectTypeConfig = configExplorer.getDomainObjectTypeConfig(domainObjectTypeExt1);
+        assertNotNull(domainObjectTypeConfig);
+        attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
+        assertNull(attachmentTypeConfig);
+        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectTypeExt1);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+
+        domainObjectTypeConfig = configExplorer.getDomainObjectTypeConfig(domainObjectTypeExt2);
+        assertNotNull(domainObjectTypeConfig);
+        attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
+        assertNull(attachmentTypeConfig);
+        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectTypeConfig);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+    }
+
     private ConfigurationSerializer createConfigurationSerializer(String ... configPaths) throws Exception {
         ConfigurationClassesCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
 
