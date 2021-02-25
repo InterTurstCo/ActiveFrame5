@@ -209,8 +209,11 @@ public class AccessControlServiceImpl implements AccessControlService {
         if (matrixConfig.getMatrixReference() != null){
             String refTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
             if (isReferencePermissions(accessType, matrixConfig.getBorrowPermissisons())){
-                matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(refTypeName);
-                typeName = refTypeName;
+                // так как тип объекта refTypeName, откуда берем матрицу, может не совпадать с реальным
+                // из за возможного наличия матриц у наследника, получаем реальный тип объекта куда ссылается reference поле
+                String realRefTypeName = permissionServiceDao.getRealMatrixReferenceTypeName(refTypeName, objectId);
+                matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(realRefTypeName);
+                typeName = realRefTypeName;
             }
         }
 

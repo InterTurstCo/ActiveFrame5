@@ -1231,6 +1231,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      */
     @Override
     public boolean hasUserTypePermission(Id personId, AccessType accessType, AccessMatrixStatusConfig matrixStatusConfig) {
+        // если нет матрицы для статуса то прав нет на тип
+        if (matrixStatusConfig == null){
+            return false;
+        }
         // Собираем группы, которым разрешен доступ
         Set<String> groups = new HashSet<>();
         for (BaseOperationPermitConfig permitConfig : matrixStatusConfig.getPermissions()) {
@@ -1646,6 +1650,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      */
     @Override
     public boolean isWithoutContextPermissionConfig(AccessMatrixStatusConfig matrixStatusConfig, AccessType accessType){
+        // если нет настроек матрицы для статуса то прав нет на объект и не важно в acl или в типе эти настройки,
+        // более экономично вычислить права отностительно типа, поэтому возвращаем true
+        if (matrixStatusConfig == null){
+            return true;
+        }
+
         // выполняем поиск до тех пор, пока не найдем любую роль или контектную динамичсескую группу
         for (BaseOperationPermitConfig permitConfig : matrixStatusConfig.getPermissions()) {
             // Анализируем только раздел конфигурации, соответствующий проверяемому типу доступа
@@ -1805,5 +1815,20 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 }
             }
         }
+    }
+
+    @Override
+    public String getRealMatrixReferenceTypeName(String refTypeName, Id objectId) {
+        // Получаем родительский типб чтоб сделать запрос с атрибутом access_object_id
+        String typeName = domainObjectTypeIdCache.getName(objectId);
+        String rooTypeName = configurationExplorer.getDomainObjectRootType(typeName);
+
+        String query = "select m.name from " + rooTypeName + " t " +
+                "join " + refTypeName + " r on r.id = t.access_object_id " +
+                "join domain_object_type_id m on m.id = r.id_type " +
+                "where t.id = :id";
+
+        return masterNamedParameterJdbcTemplate.queryForObject(
+                query, Collections.singletonMap("id", ((RdbmsId)objectId).getId()), String.class);
     }
 }

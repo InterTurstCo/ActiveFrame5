@@ -691,6 +691,58 @@
 
     <!-- Завершение Проверка грифов -->
 
+    <!-- Проверка прав на типы https://jira.inttrust.ru:8443/browse/CMSEVEN-4412?focusedCommentId=1167610&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-1167610  -->
+    <domain-object-type name="test_type_50">
+        <fields>
+            <string name="stringField" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <access-matrix type="test_type_50" read-everybody="true"/>
+
+    <domain-object-type name="test_type_51" extends="test_type_50">
+        <fields>
+            <string name="stringField2" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <access-matrix type="test_type_51">
+        <create>
+            <permit-group name="AllPersons"/>
+        </create>
+        <status name="*">
+            <write>
+                <permit-group name="AllPersons"/>
+            </write>
+            <delete>
+                <permit-role name="test_type_50_author"/>
+            </delete>
+        </status>
+    </access-matrix>
+
+    <context-role name="test_type_50_author">
+        <context>
+            <domain-object type="test_type_50"/>
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>created_by</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
+    <domain-object-type name="test_type_52">
+        <fields>
+            <string name="stringField" length="128" />
+            <reference name="test_type_50" type="test_type_50" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <access-matrix type="test_type_52" matrix-reference-field="test_type_50"/>
+
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->

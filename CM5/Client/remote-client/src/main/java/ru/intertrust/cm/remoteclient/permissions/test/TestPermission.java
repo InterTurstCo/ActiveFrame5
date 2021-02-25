@@ -54,6 +54,10 @@ public class TestPermission extends ClientBase {
         return (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
     }
 
+    private CrudService.Remote getCrudService(String login, String password) throws NamingException{
+        return (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, login, password);
+    }
+
     private CollectionsService.Remote getCollectionService() throws NamingException{
         return (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
     }
@@ -775,6 +779,17 @@ public class TestPermission extends ClientBase {
             personAltUids = notAdminCrudservice.save(personAltUids);
             notAdminCrudservice.delete(personAltUids.getId());
             assertTrue("Extends access matrix", true);
+
+            // Проверка прав на типы
+            DomainObject testType51 = getCrudService().createDomainObject("test_type_51");
+            testType51 = getCrudService().save(testType51);
+
+            DomainObject testType52 = getCrudService().createDomainObject("test_type_52");
+            testType52.setReference("test_type_50", testType51);
+            testType52 = getCrudService().save(testType52);
+
+            testType52.setString("stringField", "_" + System.currentTimeMillis());
+            testType52 = getCrudService("person5", "admin").save(testType52);
 
 
             if (hasError) {

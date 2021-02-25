@@ -194,4 +194,15 @@ public interface PermissionServiceDao {
      * @return
      */
     boolean hasUserTypePermission(Id personId, AccessType accessType, AccessMatrixStatusConfig matrixStatusConfig);
+
+    /**
+     * Получение имени типа, у которго заимствует права конкретный доменный объект
+     * (очень не хватает access_object_id_type для этого :(((, было бы гораздо проще)
+     * Путем анализа матриц невозможно получить однозначнго имя типа, у которого мы заимствуем права, так как
+     * матрицы могут быть и у дочерних доменных объектов.
+     * @param refTypeName имя типа, у которого заимствуем права полученное путем анализа матриц доступа.
+     * @param objectId ид доменного объекта
+     * @return
+     */
+    String getRealMatrixReferenceTypeName(String refTypeName, Id objectId);
 }
