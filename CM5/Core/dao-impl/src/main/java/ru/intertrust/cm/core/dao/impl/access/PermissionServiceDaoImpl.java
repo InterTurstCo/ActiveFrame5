@@ -1823,12 +1823,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String typeName = domainObjectTypeIdCache.getName(objectId);
         String rooTypeName = configurationExplorer.getDomainObjectRootType(typeName);
 
-        String query = "select m.name from " + rooTypeName + " t " +
+        String query = "select m.name as tName from " + rooTypeName + " t " +
                 "join " + refTypeName + " r on r.id = t.access_object_id " +
                 "join domain_object_type_id m on m.id = r.id_type " +
                 "where t.id = :id";
-
-        return masterNamedParameterJdbcTemplate.queryForObject(
-                query, Collections.singletonMap("id", ((RdbmsId)objectId).getId()), String.class);
+        final String result = masterNamedParameterJdbcTemplate.query(
+                query, Collections.singletonMap("id", ((RdbmsId)objectId).getId()), (ResultSetExtractor<String>) rs -> rs.next() ? rs.getString("tName") : null);
+        return result == null ? refTypeName : result;
     }
 }
