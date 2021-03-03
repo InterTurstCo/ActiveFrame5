@@ -76,6 +76,18 @@
             <groupId>org.flowable</groupId>
             <artifactId>flowable-spring</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable5-compatibility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable5-spring-compatibility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable5-spring</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>ru.runa.wfe</groupId>
