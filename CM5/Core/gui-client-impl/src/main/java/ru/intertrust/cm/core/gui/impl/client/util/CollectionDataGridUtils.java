@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -167,11 +168,15 @@ public class CollectionDataGridUtils {
     private static List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
                                                                        List<InitialFilterConfig> previous,
                                                                        Set<String> visibleUiFiltersNames){
+        List<String> currentNames = new ArrayList<>();
+        for (InitialFilterConfig curr : current) {
+            currentNames.add(curr.getName());
+        }
         List<InitialFilterConfig> merged = new ArrayList<>(previous);
         Iterator<InitialFilterConfig> iterator = merged.iterator();
         while (iterator.hasNext()){
             InitialFilterConfig config = iterator.next();
-            if(visibleUiFiltersNames.contains(config.getName())){
+            if( visibleUiFiltersNames.contains(config.getName()) || currentNames.contains(config.getName())){
                 iterator.remove();
             }
         }
