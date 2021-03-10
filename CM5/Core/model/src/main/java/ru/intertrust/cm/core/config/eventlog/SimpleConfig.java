@@ -33,4 +33,11 @@ public class SimpleConfig implements Dto {
     public int hashCode() {
         return (enable ? 1 : 0);
     }
+
+    @Override
+    public String toString() {
+        return "SimpleConfig{" +
+                "enable=" + enable +
+                '}';
+    }
 }

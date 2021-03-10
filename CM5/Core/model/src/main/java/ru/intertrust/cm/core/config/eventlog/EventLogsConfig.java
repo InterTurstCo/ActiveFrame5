@@ -72,4 +72,14 @@ public class EventLogsConfig implements Dto {
         result = 31 * result + (domainObjectAccess != null ? domainObjectAccess.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "EventLogsConfig{" +
+                "loginConfig=" + loginConfig +
+                ", logoutConfig=" + logoutConfig +
+                ", downloadAttachment=" + downloadAttachment +
+                ", domainObjectAccess=" + domainObjectAccess +
+                '}';
+    }
 }

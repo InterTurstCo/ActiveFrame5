@@ -139,6 +139,11 @@ public class ConfigurationStorageBuilder {
         try {
             if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
                 configurationStorage.globalSettings = (GlobalSettingsConfig) config;
+
+                if (log.isTraceEnabled()) {
+                    log.trace("Global settings initialized:\n\tEvent logs configuration:\n\t\t" +
+                            configurationStorage.globalSettings.getEventLogsConfig().toString());
+                }
             }
         } finally {
             unlock();
