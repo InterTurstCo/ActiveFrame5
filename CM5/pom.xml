@@ -40,7 +40,7 @@
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
         <openapi.generator.version>4.2.3</openapi.generator.version>
-        <jasper.version>5.5.1</jasper.version>
+        <jasper.version>6.16.0</jasper.version>
 
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
@@ -266,12 +266,16 @@
                 </exclusions>
             </dependency>
 
-            <!-- JasperReports 5.5.1-->
+            <!-- JasperReports javaflow 6.16.0-->
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports-javaflow</artifactId>
                 <version>${jasper.version}</version>
                 <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.jdt</groupId>
+                        <artifactId>ecj</artifactId>
+                    </exclusion>
                     <exclusion>
                         <artifactId>jdtcore</artifactId>
                         <groupId>eclipse</groupId>
@@ -328,7 +332,7 @@
                 </exclusions>
             </dependency-->
 
-            <!--dependency>
+            <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports-functions</artifactId>
                 <version>${jasper.version}</version>
@@ -342,19 +346,19 @@
                         <artifactId>bcprov-jdk15on</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency-->
+            </dependency>
 
-            <!--dependency>
+            <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports-fonts</artifactId>
                 <version>${jasper.version}</version>
-            </dependency-->
+            </dependency>
 
-            <!--dependency>
+            <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi</artifactId>
                 <version>4.1.1</version>
-            </dependency-->
+            </dependency>
 
             <!-- Logging -->
             <dependency>

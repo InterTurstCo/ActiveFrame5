@@ -1,15 +1,24 @@
 package net.sf.jasperreports.engine.export.ooxml;
 
+import net.sf.jasperreports.engine.JRPrintElementIndex;
 import net.sf.jasperreports.engine.JasperReportsContext;
+import net.sf.jasperreports.engine.PrintPageFormat;
 import net.sf.jasperreports.engine.export.CutsInfo;
 
 import java.io.Writer;
 
 public class SochiDocxTableHelper extends DocxTableHelper {
 
-    protected SochiDocxTableHelper(JasperReportsContext jasperReportsContext,
-                                   Writer writer, CutsInfo xCuts, boolean pageBreak) {
-        super(jasperReportsContext, writer, xCuts, pageBreak);
+    /**
+     * @param jasperReportsContext
+     * @param writer
+     * @param xCuts
+     * @param pageBreak
+     * @param pageFormat
+     * @param frameIndex
+     */
+    protected SochiDocxTableHelper(JasperReportsContext jasperReportsContext, Writer writer, CutsInfo xCuts, boolean pageBreak, PrintPageFormat pageFormat, JRPrintElementIndex frameIndex) {
+        super(jasperReportsContext, writer, xCuts, pageBreak, pageFormat, frameIndex);
     }
 
     @Override

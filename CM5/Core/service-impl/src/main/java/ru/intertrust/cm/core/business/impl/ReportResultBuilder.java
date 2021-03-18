@@ -1,13 +1,19 @@
 package ru.intertrust.cm.core.business.impl;
 
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.export.JRHtmlExporter;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.export.HtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
+import net.sf.jasperreports.export.Exporter;
+import net.sf.jasperreports.export.SimpleExporterInput;
+import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -106,19 +112,19 @@ public class ReportResultBuilder extends ReportServiceBase {
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
             File resultFile = null;
             File resultFolder = getResultFolder();
-            
+
             //Если задан кастомный класс генератора используем его
             if (reportMetadata.getReportGeneratorClass() != null){
                 Class<?> generatorClass = scriptletClassLoader.loadClass(reportMetadata.getReportGeneratorClass());
                 ReportGenerator reportGenerator =
                         (ReportGenerator) applicationContext.getAutowireCapableBeanFactory().createBean(
                                 generatorClass, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-                
+
                 try (InputStream reportStream = reportGenerator.generate(reportMetadata, templateFolder, params)) {
                     resultFile = new File(resultFolder, getReportName(reportMetadata, reportGenerator.getFormat(), inParams));
                     StreamUtils.copy(reportStream, new FileOutputStream(resultFile));
                 }
-                
+
             }else{
                 Connection connection = getConnection();
                 JasperPrint print = null;
@@ -134,11 +140,11 @@ public class ReportResultBuilder extends ReportServiceBase {
                     print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
                 }
                 connection.close();
-                JRExporter exporter = null;
+                Exporter exporter = null;
                 String extension = null;
-    
+
                 String format = getFormat(reportMetadata, params);
-    
+
                 if (RTF_FORMAT.equalsIgnoreCase(format)) {
                     exporter = new JRRtfExporter();
                     extension = RTF_FORMAT;
@@ -149,7 +155,7 @@ public class ReportResultBuilder extends ReportServiceBase {
                     exporter = new JRXlsExporter();
                     extension = XLS_FORMAT;
                 } else if (HTML_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new JRHtmlExporter();
+                    exporter = new HtmlExporter();
                     extension = HTML_FORMAT;
                 } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
                     exporter = new JRXlsxExporter();
@@ -162,14 +168,20 @@ public class ReportResultBuilder extends ReportServiceBase {
                     exporter = new JRPdfExporter();
                     extension = PDF_FORMAT;
                 }
-    
+
                 String reportName = getReportName(reportMetadata, extension, inParams);
-    
+
                 resultFile = new File(resultFolder, reportName);
 
-                exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
-                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, resultFile.getPath());
-                exporter.exportReport();
+
+                SimpleExporterInput simpleExporterInput = new SimpleExporterInput(print);
+                exporter.setExporterInput(simpleExporterInput);
+
+                try(FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
+                    SimpleOutputStreamExporterOutput output = new SimpleOutputStreamExporterOutput(fos);
+                    exporter.setExporterOutput(output);
+                    exporter.exportReport();
+                }
             }
 
             return resultFile;

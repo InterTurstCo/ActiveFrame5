@@ -17,32 +17,33 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 		int rowCount = grid.getRowCount();
 		if (rowCount > 0 && grid.getColumnCount() > 63)
 		{
-			throw new JRException("The DOCX format does not support more than 63 columns in a table.");
+			throw
+					new JRException(
+							EXCEPTION_MESSAGE_KEY_COLUMN_COUNT_OUT_OF_RANGE,
+							new Object[]{grid.getColumnCount()}
+					);
 		}
 
 		// an empty page is encountered;
 		// if it's the first one in a series of consecutive empty pages, emptyPageState == false, otherwise emptyPageState == true
-		if(rowCount == 0 && (pageIndex < endPageIndex || !emptyPageState))
+		if (rowCount == 0 && (pageIndex < endPageIndex || !emptyPageState))
 		{
 			tableHelper =
 					new SochiDocxTableHelper(
 							jasperReportsContext,
 							docWriter,
 							xCuts,
-							false
+							false,
+							pageFormat,
+							frameIndex
 					);
-			int maxReportIndex = jasperPrintList.size() - 1;
+			int maxReportIndex = exporterInput.getItems().size() - 1;
 
 			// while the first and last page in the JasperPrint list need single breaks, all the others require double-breaking
 			boolean twice =
 					(pageIndex > startPageIndex && pageIndex < endPageIndex && !emptyPageState)
 							||(reportIndex < maxReportIndex && pageIndex == endPageIndex);
 			tableHelper.getParagraphHelper().exportEmptyPage(pageAnchor, bookmarkIndex, twice);
-			tableHelper.exportSection(
-					reportIndex < maxReportIndex && pageIndex == endPageIndex,
-					jasperPrint.getPageWidth(),
-					jasperPrint.getPageHeight()
-			);
 			bookmarkIndex++;
 			emptyPageState = true;
 			return;
@@ -53,10 +54,14 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 						jasperReportsContext,
 						docWriter,
 						xCuts,
-						frameIndex == null && (reportIndex != 0 || pageIndex != startPageIndex)
+						frameIndex == null && (reportIndex != 0 || pageIndex != startPageIndex),
+						pageFormat,
+						frameIndex
 				);
 
 		tableHelper.exportHeader();
+
+		boolean isFlexibleRowHeight = getCurrentItemConfiguration().isFlexibleRowHeight();
 
 		for(int row = 0; row < rowCount; row++)
 		{
@@ -64,6 +69,7 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 			//int emptyCellWidth = 0;
 
 			boolean allowRowResize = false;
+			int maxTopPadding = 0; //for some strange reason, the top margin applies to all cells in the row
 			int maxBottomPadding = 0; //for some strange reason, the bottom margin affects the row height; subtracting it here
 			GridRow gridRow = grid.getRow(row);
 			int rowSize = gridRow.size();
@@ -71,17 +77,29 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 			{
 				JRExporterGridCell gridCell = gridRow.get(col);
 				JRLineBox box = gridCell.getBox();
-				if (
-						box != null
-								&& box.getBottomPadding() != null
-								&& maxBottomPadding < box.getBottomPadding().intValue()
-				)
+				if (box != null)
 				{
-					maxBottomPadding = box.getBottomPadding().intValue();
+					Integer topPadding = box.getTopPadding() + Math.round(box.getTopPen().getLineWidth());
+					if (
+							topPadding != null
+									&& maxTopPadding < topPadding
+					)
+					{
+						maxTopPadding = topPadding;
+					}
+
+					Integer bottomPadding = box.getBottomPadding();
+					if (
+							bottomPadding != null
+									&& maxBottomPadding < bottomPadding
+					)
+					{
+						maxBottomPadding = bottomPadding;
+					}
 				}
 
 				allowRowResize =
-						flexibleRowHeight
+						isFlexibleRowHeight
 								&& (allowRowResize
 								|| (gridCell.getElement() instanceof JRPrintText
 								|| (gridCell.getType() == JRExporterGridCell.TYPE_OCCUPIED_CELL
@@ -89,7 +107,13 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 						)
 						);
 			}
+			tableHelper.setRowMaxTopPadding(maxTopPadding);
+
 			int rowHeight = gridLayout.getRowHeight(row) - maxBottomPadding;
+			if (row == 0 && frameIndex == null)
+			{
+				rowHeight -= Math.min(rowHeight, pageFormat.getTopMargin());
+			}
 
 			tableHelper.exportRowHeader(
 					rowHeight,
@@ -111,14 +135,14 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 					OccupiedGridCell occupiedGridCell = (OccupiedGridCell)gridCell;
 					ElementGridCell elementGridCell = (ElementGridCell)occupiedGridCell.getOccupier();
 					tableHelper.exportOccupiedCells(elementGridCell, startPage, bookmarkIndex, pageAnchor);
-					if(startPage)
+					if (startPage)
 					{
 						// increment the bookmarkIndex for the first cell in the sheet, due to page anchor creation
 						bookmarkIndex++;
 					}
 					col += elementGridCell.getColSpan() - 1;
 				}
-				else if(gridCell.getType() == JRExporterGridCell.TYPE_ELEMENT_CELL)
+				else if (gridCell.getType() == JRExporterGridCell.TYPE_ELEMENT_CELL)
 				{
 					if (emptyCellColSpan > 0)
 					{
@@ -165,7 +189,7 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 					emptyCellColSpan++;
 					//emptyCellWidth += gridCell.getWidth();
 					tableHelper.exportEmptyCell(gridCell, 1, startPage, bookmarkIndex, pageAnchor);
-					if(startPage)
+					if (startPage)
 					{
 						// increment the bookmarkIndex for the first cell in the sheet, due to page anchor creation
 						bookmarkIndex++;
@@ -182,11 +206,7 @@ public class SochiJRDocxExporter extends JRDocxExporter {
 			tableHelper.exportRowFooter();
 		}
 
-		tableHelper.exportFooter(
-				frameIndex == null && reportIndex != jasperPrintList.size() - 1 && pageIndex == endPageIndex ,
-				jasperPrint.getPageWidth(),
-				jasperPrint.getPageHeight()
-		);
+		tableHelper.exportFooter();
 		// if a non-empty page was exported, the series of previous empty pages is ended
 		emptyPageState = false;
 	}
