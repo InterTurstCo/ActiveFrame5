@@ -104,15 +104,15 @@
             <groupId>net.tascalate.javaflow</groupId>
             <artifactId>net.tascalate.javaflow.api</artifactId>
             <version>2.6.0</version>
-            <scope>compile</scope>
-            <optional>true</optional>
+            <!--scope>compile</scope>
+            <optional>true</optional-->
         </dependency>
 
-        <!--dependency>
+        <dependency>
             <groupId>org.eclipse.jdt.core.compiler</groupId>
             <artifactId>ecj</artifactId>
             <version>4.4</version>
-        </dependency-->
+        </dependency>
 
         <!-- Added for Unit tests-->
         <dependency>
