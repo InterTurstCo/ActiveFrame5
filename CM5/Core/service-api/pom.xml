@@ -39,9 +39,9 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <dependency>    
+        <dependency>
             <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
+            <artifactId>jasperreports-javaflow</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flowable</groupId>

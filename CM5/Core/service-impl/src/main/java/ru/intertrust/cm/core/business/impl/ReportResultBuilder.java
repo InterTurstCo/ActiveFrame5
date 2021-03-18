@@ -1,17 +1,13 @@
 package ru.intertrust.cm.core.business.impl;
 
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRParameter;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.export.HtmlExporter;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
 import net.sf.jasperreports.engine.export.JRRtfExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
-import net.sf.jasperreports.export.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -45,7 +41,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 /**
  * @author Denis Mitavskiy
  *         Date: 09.01.2017
@@ -139,7 +134,7 @@ public class ReportResultBuilder extends ReportServiceBase {
                     print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
                 }
                 connection.close();
-                Exporter exporter = null;
+                JRExporter exporter = null;
                 String extension = null;
     
                 String format = getFormat(reportMetadata, params);
@@ -154,7 +149,7 @@ public class ReportResultBuilder extends ReportServiceBase {
                     exporter = new JRXlsExporter();
                     extension = XLS_FORMAT;
                 } else if (HTML_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new HtmlExporter();
+                    exporter = new JRHtmlExporter();
                     extension = HTML_FORMAT;
                 } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
                     exporter = new JRXlsxExporter();
@@ -172,20 +167,9 @@ public class ReportResultBuilder extends ReportServiceBase {
     
                 resultFile = new File(resultFolder, reportName);
 
-
-                SimpleExporterInput simpleExporterInput = new SimpleExporterInput(print);
-                exporter.setExporterInput(simpleExporterInput);
-
-                try(FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
-                    ExporterOutput output = null;
-                    if (HTML_FORMAT.equalsIgnoreCase(format)){
-                        output = new SimpleHtmlExporterOutput(fos);
-                    }else {
-                        output = new SimpleOutputStreamExporterOutput(fos);
-                    }
-                    exporter.setExporterOutput(output);
-                    exporter.exportReport();
-                }
+                exporter.setParameter(JRExporterParameter.JASPER_PRINT, print);
+                exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, resultFile.getPath());
+                exporter.exportReport();
             }
 
             return resultFile;

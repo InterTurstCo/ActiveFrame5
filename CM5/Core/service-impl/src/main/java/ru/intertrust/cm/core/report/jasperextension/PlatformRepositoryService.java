@@ -17,9 +17,21 @@ public class PlatformRepositoryService implements RepositoryService{
 
     private JasperReportsContext jasperReportsContext;
 
-    public PlatformRepositoryService(JasperReportsContext jasperReportsContext) 
-    {
+    public PlatformRepositoryService(JasperReportsContext jasperReportsContext) {
         this.jasperReportsContext = jasperReportsContext;
+    }
+
+    @Override
+    public void setContext(RepositoryContext repositoryContext) {
+    }
+
+    @Override
+    public void revertContext() {
+    }
+
+    @Override
+    public InputStream getInputStream(String s) {
+        return null;
     }
 
     @Override

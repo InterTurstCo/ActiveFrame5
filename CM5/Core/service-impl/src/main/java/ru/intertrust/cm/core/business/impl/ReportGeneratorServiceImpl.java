@@ -79,32 +79,32 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private CellStyle createTitleStyle(Workbook workBook) {
         CellStyle titleStyle = workBook.createCellStyle();
-        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setAlignment(CellStyle.ALIGN_CENTER);
         Font fontTitle = workBook.createFont();
-        fontTitle.setBold(true);
+        fontTitle.setBoldweight(Font.BOLDWEIGHT_BOLD);
         titleStyle.setFont(fontTitle);
         return titleStyle;
     }
 
     private CellStyle createHeaderStyle(Workbook workBook) {
         CellStyle headerStyle = workBook.createCellStyle();
-        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setAlignment(CellStyle.ALIGN_CENTER);
         headerStyle.setWrapText(true);
-        headerStyle.setBorderBottom(BorderStyle.MEDIUM);
-        headerStyle.setBorderTop(BorderStyle.MEDIUM);
-        headerStyle.setBorderLeft(BorderStyle.MEDIUM);
-        headerStyle.setBorderRight(BorderStyle.MEDIUM);
+        headerStyle.setBorderBottom(CellStyle.BORDER_MEDIUM);
+        headerStyle.setBorderTop(CellStyle.BORDER_MEDIUM);
+        headerStyle.setBorderLeft(CellStyle.BORDER_MEDIUM);
+        headerStyle.setBorderRight(CellStyle.BORDER_MEDIUM);
         headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
         Font fontHeader = workBook.createFont();
-        fontHeader.setBold(true);
+        fontHeader.setBoldweight(Font.BOLDWEIGHT_BOLD);
         headerStyle.setFont(fontHeader);
         return headerStyle;
     }
 
     private CellStyle createRowStyle(Workbook workBook) {
         CellStyle rowStyle = workBook.createCellStyle();
-        rowStyle.setAlignment(HorizontalAlignment.LEFT);
+        rowStyle.setAlignment(CellStyle.ALIGN_LEFT);
         return rowStyle;
     }
 
@@ -129,29 +129,29 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         Cell cell = row.createCell(column);
         if (value instanceof Boolean) {
             cell.setCellValue(((Boolean)value).booleanValue());
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
+            dataStyle.setAlignment(CellStyle.ALIGN_CENTER);
         } else if (value instanceof Integer) {
             cell.setCellValue(((Integer)value).intValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle.setAlignment(CellStyle.ALIGN_RIGHT);
         } else if (value instanceof Long) {
             cell.setCellValue(((Long)value).longValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle.setAlignment(CellStyle.ALIGN_RIGHT);
         } else if (value instanceof Float) {
             cell.setCellValue(((Float)value).doubleValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle.setAlignment(CellStyle.ALIGN_RIGHT);
         } else if (value instanceof Double) {
             cell.setCellValue(((Double)value).doubleValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle.setAlignment(CellStyle.ALIGN_RIGHT);
         } else if (value instanceof BigDecimal) {
             cell.setCellValue(((BigDecimal)value).doubleValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle.setAlignment(CellStyle.ALIGN_RIGHT);
         } else if (value instanceof Date) {
             cell.setCellValue(((Date)value));
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
+            dataStyle.setAlignment(CellStyle.ALIGN_CENTER);
             dataStyle.setDataFormat(dateFormatIdx);
         } else if (value instanceof Calendar) {
             cell.setCellValue(((Calendar) value));
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
+            dataStyle.setAlignment(CellStyle.ALIGN_CENTER);
             dataStyle.setDataFormat(dateFormatIdx);
         } else {
             cell.setCellValue(value != null ? value.toString() : "");
