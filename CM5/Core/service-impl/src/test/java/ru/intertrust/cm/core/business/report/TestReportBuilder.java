@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.business.report;
 
+import net.sf.jasperreports.engine.export.HtmlExporter;
+import net.sf.jasperreports.export.Exporter;
+import net.sf.jasperreports.export.ExporterConfiguration;
+import net.sf.jasperreports.export.ExporterInput;
+import net.sf.jasperreports.export.ExporterOutput;
+import net.sf.jasperreports.export.ReportExportConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.ReportParameterResolver;
 import ru.intertrust.cm.core.business.impl.ReportResultBuilder;
+import ru.intertrust.cm.core.business.impl.report.HtmlExporterProvider;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 

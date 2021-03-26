@@ -131,6 +131,7 @@ public abstract class ClientBase {
         optionNamesList.add("log");
         optionNamesList.add(APP_NAME);
         optionNamesList.add(MODULE_NAME);
+        optionNamesList.add(CLIENT);
         if (optionNames != null) {
             for (int i = 0; i < optionNames.length; i++) {
                 optionNamesList.add(optionNames[i]);

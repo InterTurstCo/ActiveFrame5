@@ -4,16 +4,12 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.export.HtmlExporter;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.export.JRRtfExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
-import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
-import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
-import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
 import net.sf.jasperreports.export.Exporter;
+import net.sf.jasperreports.export.ExporterConfiguration;
+import net.sf.jasperreports.export.ExporterInput;
+import net.sf.jasperreports.export.ExporterOutput;
+import net.sf.jasperreports.export.ReportExportConfiguration;
 import net.sf.jasperreports.export.SimpleExporterInput;
-import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -24,6 +20,8 @@ import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.ReportParameterResolver;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+import ru.intertrust.cm.core.business.impl.report.ExporterProvider;
+import ru.intertrust.cm.core.business.impl.report.ExporterProviderFactory;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.ReportServiceException;
@@ -57,13 +55,6 @@ import java.util.regex.Pattern;
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ReportResultBuilder extends ReportServiceBase {
     private static final String DATE_PATTERN = "dd_MM_yyyy HH_mm_ss";
-    public static final String PDF_FORMAT = "PDF";
-    public static final String RTF_FORMAT = "RTF";
-    public static final String XLS_FORMAT = "XLS";
-    public static final String HTML_FORMAT = "HTML";
-    public static final String DOCX_FORMAT = "DOCX";
-    public static final String XLSX_FORMAT = "XLSX";
-    public static final String SOCHI_DOCX_FORMAT = "SOCHIDOCX";
 
     public static final String MASK_NAME = "{name}";  //имя отчёта(из метаданных)
     public static final String MASK_DESCR = "{description}"; //описание отчёта(из метаданных)
@@ -84,6 +75,9 @@ public class ReportResultBuilder extends ReportServiceBase {
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+
+    @Autowired
+    private ExporterProviderFactory exporterProviderFactory;
 
     private Pattern fileNamePattern = Pattern.compile("\\{P\\$([^\\}]*)\\}");
 
@@ -114,7 +108,7 @@ public class ReportResultBuilder extends ReportServiceBase {
             File resultFolder = getResultFolder();
 
             //Если задан кастомный класс генератора используем его
-            if (reportMetadata.getReportGeneratorClass() != null){
+            if (reportMetadata.getReportGeneratorClass() != null) {
                 Class<?> generatorClass = scriptletClassLoader.loadClass(reportMetadata.getReportGeneratorClass());
                 ReportGenerator reportGenerator =
                         (ReportGenerator) applicationContext.getAutowireCapableBeanFactory().createBean(
@@ -125,61 +119,22 @@ public class ReportResultBuilder extends ReportServiceBase {
                     StreamUtils.copy(reportStream, new FileOutputStream(resultFile));
                 }
 
-            }else{
-                Connection connection = getConnection();
-                JasperPrint print = null;
-                if (reportMetadata.getDataSourceClass() == null) {
-                    print = JasperFillManager.fillReport(templateFile.getPath(), params, connection);
-                } else {
-                    Class<?> reportDSClass = Thread.currentThread()
-                            .getContextClassLoader().loadClass(reportMetadata.getDataSourceClass());
-                    ReportDS reportDS = (ReportDS) reportDSClass.newInstance();
-                    JRDataSource ds = reportDS.getJRDataSource(
-                            connection, params);
-                    params.put(JRParameter.REPORT_CONNECTION, connection);
-                    print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
-                }
-                connection.close();
-                Exporter exporter = null;
-                String extension = null;
+            } else {
+                JasperPrint print = getJasperPrint(reportMetadata, params, templateFile);
 
                 String format = getFormat(reportMetadata, params);
+                ExporterProvider exporterProvider = exporterProviderFactory.createExporterProvider(format);
 
-                if (RTF_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new JRRtfExporter();
-                    extension = RTF_FORMAT;
-                } else if (DOCX_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new JRDocxExporter();
-                    extension = DOCX_FORMAT;
-                } else if (XLS_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new JRXlsExporter();
-                    extension = XLS_FORMAT;
-                } else if (HTML_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new HtmlExporter();
-                    extension = HTML_FORMAT;
-                } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new JRXlsxExporter();
-                    extension = XLSX_FORMAT;
-                } else if (SOCHI_DOCX_FORMAT.equalsIgnoreCase(format)) {
-                    exporter = new SochiJRDocxExporter();
-                    extension = DOCX_FORMAT;
-                } else {
-                    // По умолчанию PDF
-                    exporter = new JRPdfExporter();
-                    extension = PDF_FORMAT;
-                }
+                String reportName = getReportName(reportMetadata, exporterProvider.getExtension(), inParams);
 
-                String reportName = getReportName(reportMetadata, extension, inParams);
-
-                resultFile = new File(resultFolder, reportName);
-
-
+                Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
+                        = exporterProvider.getExporter();
                 SimpleExporterInput simpleExporterInput = new SimpleExporterInput(print);
                 exporter.setExporterInput(simpleExporterInput);
 
-                try(FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
-                    SimpleOutputStreamExporterOutput output = new SimpleOutputStreamExporterOutput(fos);
-                    exporter.setExporterOutput(output);
+                resultFile = new File(resultFolder, reportName);
+                try (FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
+                    exporterProvider.setExporterOutput(exporter, fos);
                     exporter.exportReport();
                 }
             }
@@ -188,6 +143,24 @@ public class ReportResultBuilder extends ReportServiceBase {
         } finally {
             Thread.currentThread().setContextClassLoader(defaultClassLoader);
         }
+    }
+
+    private JasperPrint getJasperPrint(ReportMetadataConfig reportMetadata, Map<String, Object> params, File templateFile) throws Exception {
+        JasperPrint print;
+        try (Connection connection = getConnection()) {
+            if (reportMetadata.getDataSourceClass() == null) {
+                print = JasperFillManager.fillReport(templateFile.getPath(), params, connection);
+            } else {
+                Class<?> reportDSClass = Thread.currentThread()
+                        .getContextClassLoader().loadClass(reportMetadata.getDataSourceClass());
+                ReportDS reportDS = (ReportDS) reportDSClass.newInstance();
+                JRDataSource ds = reportDS.getJRDataSource(
+                        connection, params);
+                params.put(JRParameter.REPORT_CONNECTION, connection);
+                print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
+            }
+        }
+        return print;
     }
 
     private String getReportName(ReportMetadataConfig reportMetadata, String extension, Map<String, Object> inParams){
