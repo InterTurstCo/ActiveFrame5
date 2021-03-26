@@ -44,9 +44,15 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
         List<Value> params = new ArrayList<Value>();
+        // Регистронезависимость сохраняем, но сначала проверяем с учетм регистра, и только затем - без
+        params.add(new StringValue(login));
         params.add(new StringValue(login.toLowerCase()));
 
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(login) = {0}", params, 0, 0, accessToken);
+        String sqlQuery = "select id, 0 as orderfield from person where login = {0} " +
+                "union " +
+                "select id, 1 as orderfield from person where lower(login) = {1} " +
+                "order by orderfield";
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(sqlQuery, params, 0, 1, accessToken);
         if (collection.size() == 0) {
             throw new IllegalArgumentException("Person not found: " + login);
         }
