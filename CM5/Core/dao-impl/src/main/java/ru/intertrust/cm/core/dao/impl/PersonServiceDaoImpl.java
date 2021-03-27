@@ -52,7 +52,9 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
                 "union " +
                 "select id, 1 as orderfield from person where lower(login) = {1} " +
                 "order by orderfield";
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(sqlQuery, params, 0, 1, accessToken);
+
+        // TODO убрал limit 1, т.к. он ставится перед order by и запрос падает, а тикет срочный, нужно поправить!
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(sqlQuery, params, 0, 0, accessToken);
         if (collection.size() == 0) {
             throw new IllegalArgumentException("Person not found: " + login);
         }
