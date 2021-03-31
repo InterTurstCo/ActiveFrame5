@@ -5,9 +5,11 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.AccessMatrixConfig.BorrowPermissisonsMode;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReadAttachmentConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -148,5 +150,14 @@ public class AccessControlUtility {
                 && accessMatrix.getMatrixReference() != null 
                 && accessMatrix.getBorrowPermissisons() != null 
                 && accessMatrix.getBorrowPermissisons() == BorrowPermissisonsMode.read;
+    }
+
+    public static boolean isMatrixReferenceWithReadAttachPermissionConfig(AccessMatrixConfig accessMatrix){
+        if (accessMatrix == null || accessMatrix.getStatus() == null) {
+            return false;
+        }
+        return accessMatrix.getStatus().stream()
+                .flatMap(status -> status.getPermissions().stream())
+                .anyMatch(permission -> permission instanceof ReadAttachmentConfig);
     }
 }

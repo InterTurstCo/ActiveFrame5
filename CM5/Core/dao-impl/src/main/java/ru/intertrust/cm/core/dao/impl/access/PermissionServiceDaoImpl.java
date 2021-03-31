@@ -725,15 +725,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             return false;
         }
         
-        //Праверка заимствуют ли права
+        //Проверка заимствуют ли права
         if (accessMatrix.getMatrixReference() != null){
             //Если права комбинированные то удалять надо, если нет то записей быть не должно
-            boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
-            if (combinateAccessReference){
-                return true;
-            }else{
-                return false;
-            }
+            boolean combineAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
+            //Также удалять нужно, если у нас вложение с настроенными правами доступа на чтение содержимого
+            boolean isAttachmentWithConfiguredPermissions = configurationExplorer.isAttachmentType(objectType)
+                    && AccessControlUtility.isMatrixReferenceWithReadAttachPermissionConfig(accessMatrix);
+            return combineAccessReference || isAttachmentWithConfiguredPermissions;
         }
         
         //В остальных случаях записи должны быть, мы их удаляем
