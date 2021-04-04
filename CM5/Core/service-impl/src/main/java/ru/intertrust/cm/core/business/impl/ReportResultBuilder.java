@@ -90,7 +90,7 @@ public class ReportResultBuilder extends ReportServiceBase {
      * @return
      * @throws Exception
      */
-    public File generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
+    public ReportFile generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
             throws Exception {
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
         Map<String, Object> params = new HashMap<String, Object>();
@@ -104,8 +104,9 @@ public class ReportResultBuilder extends ReportServiceBase {
             ScriptletClassLoader scriptletClassLoader =
                     new ScriptletClassLoader(templateFile.getParentFile().getPath(), defaultClassLoader);
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
-            File resultFile = null;
+
             File resultFolder = getResultFolder();
+            ReportFile reportFile = null;
 
             //Если задан кастомный класс генератора используем его
             if (reportMetadata.getReportGeneratorClass() != null) {
@@ -113,18 +114,23 @@ public class ReportResultBuilder extends ReportServiceBase {
                 ReportGenerator reportGenerator =
                         (ReportGenerator) applicationContext.getAutowireCapableBeanFactory().createBean(
                                 generatorClass, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, true);
-
+                // Имя файла на серверной стороне
+                String tmpFileName = getTmpReportName(reportMetadata, reportGenerator.getFormat());
+                // Имя файла для записи в базу и веб-клиента
+                String reportName = getReportName(reportMetadata, reportGenerator.getFormat(), inParams);
                 try (InputStream reportStream = reportGenerator.generate(reportMetadata, templateFolder, params)) {
-                    resultFile = new File(resultFolder, getReportName(reportMetadata, reportGenerator.getFormat(), inParams));
+                    File resultFile = new File(resultFolder, tmpFileName);
                     StreamUtils.copy(reportStream, new FileOutputStream(resultFile));
+                    reportFile = new ReportFile(reportName, resultFile);
                 }
-
             } else {
                 JasperPrint print = getJasperPrint(reportMetadata, params, templateFile);
 
                 String format = getFormat(reportMetadata, params);
                 ExporterProvider exporterProvider = exporterProviderFactory.createExporterProvider(format);
-
+                // Имя файла на серверной стороне
+                String tmpFileName = getTmpReportName(reportMetadata,exporterProvider.getExtension());
+                // Имя файла для записи в базу и веб-клиента
                 String reportName = getReportName(reportMetadata, exporterProvider.getExtension(), inParams);
 
                 Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
@@ -132,14 +138,15 @@ public class ReportResultBuilder extends ReportServiceBase {
                 SimpleExporterInput simpleExporterInput = new SimpleExporterInput(print);
                 exporter.setExporterInput(simpleExporterInput);
 
-                resultFile = new File(resultFolder, reportName);
+                File resultFile = new File(resultFolder, tmpFileName);
                 try (FileOutputStream fos = new FileOutputStream(resultFile.getPath())) {
                     exporterProvider.setExporterOutput(exporter, fos);
                     exporter.exportReport();
                 }
+                reportFile = new ReportFile(reportName, resultFile);
             }
 
-            return resultFile;
+            return reportFile;
         } finally {
             Thread.currentThread().setContextClassLoader(defaultClassLoader);
         }
@@ -193,6 +200,10 @@ public class ReportResultBuilder extends ReportServiceBase {
         result += "." + extension;
 
         return result;
+    }
+
+    private String getTmpReportName(ReportMetadataConfig reportMetadata, String extension){
+        return reportMetadata.getName() + " " + ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
     }
 
     /**
@@ -258,5 +269,33 @@ public class ReportResultBuilder extends ReportServiceBase {
         }
 
         return format;
+    }
+
+    public static class ReportFile {
+        // Имя файла для записи в базу и веб-клиента
+        private String reportFileName;
+        // Файл на серверной стороне
+        private File reportFile;
+
+        public ReportFile(String reportFileName, File reportFile) {
+            this.reportFileName = reportFileName;
+            this.reportFile = reportFile;
+        }
+
+        public String getReportFileName() {
+            return reportFileName;
+        }
+
+        public void setReportFileName(String reportFileName) {
+            this.reportFileName = reportFileName;
+        }
+
+        public File getReportFile() {
+            return reportFile;
+        }
+
+        public void setReportFile(File reportFile) {
+            this.reportFile = reportFile;
+        }
     }
 }

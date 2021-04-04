@@ -36,6 +36,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
@@ -329,7 +330,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
                 //Формирование отчета
                 // todo: this method should accept DataSource and if it's MASTER - support transaction
-                File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
+                ReportResultBuilder.ReportFile result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
                 if (logger.isDebugEnabled()) {
                     logger.debug("Generated Report, name: " + name + ". Params: " + originalParams);
                 }
@@ -342,7 +343,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 	                if (postProcessorsList!=null){
 		                for (String postProcName : postProcessorsList) {
 		                	ReportPostProcessor postProcClass = (ReportPostProcessor) applicationContext.getBean(postProcName);
-		                	postProcClass.format(result);
+		                	postProcClass.format(result != null ? result.getReportFile() : null);
 						}
 	                }
                 }
@@ -351,10 +352,10 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 //Сначала для точек расширения у которых указан фильтр
                 AfterGenerateReportExtentionHandler extentionHandler =
                         extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, name);
-                extentionHandler.onAfterGenerateReport(name, parameters, result);
+                extentionHandler.onAfterGenerateReport(name, parameters, result != null ? result.getReportFile() : null);
                 //После для точек расширения у которых не указан фильтр
                 extentionHandler = extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, "");
-                extentionHandler.onAfterGenerateReport(name, parameters, result);
+                extentionHandler.onAfterGenerateReport(name, parameters, result != null ? result.getReportFile() : null);
 
                 if (logger.isDebugEnabled()) {
                     logger.debug("Saving Report, name: " + name + ". Params: " + originalParams);
@@ -367,13 +368,15 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                     logger.debug("Creating Report result, name: " + name + ". Params: " + originalParams);
                 }
                 ReportResult reportResult = new ReportResult();
-                reportResult.setFileName(result.getName());
-                reportResult.setReport(getReportStream(new FileInputStream(result)));
+                reportResult.setFileName(result.getReportFileName());
+                reportResult.setReport(getReportStream(new FileInputStream(result != null ? result.getReportFile() : null)));
                 reportResult.setTemplateName(name);
                 reportResult.setResultId(resultId);
 
                 //Удаляем временный файл
-                result.delete();
+                if (result != null) {
+                    result.getReportFile().delete();
+                }
                 ejbContext.getUserTransaction().commit();
 
                 return reportResult;
@@ -404,46 +407,48 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
     protected abstract RemoteInputStream getReportStream(InputStream report);
 
-    private Id saveResult(ReportMetadataConfig reportMetadata, File result, DomainObject template,
-            Map<String, Object> params, Integer keepDays) throws Exception {
+    private Id saveResult(ReportMetadataConfig reportMetadata, ReportResultBuilder.ReportFile result, DomainObject template,
+                          Map<String, Object> params, Integer keepDays) throws Exception {
         Id resultId = null;
-        if ((keepDays != null && keepDays > 0) || (reportMetadata.getKeepDays() != null && reportMetadata.getKeepDays() > 0)) {
-            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        if (result != null) {
+            if ((keepDays != null && keepDays > 0) || (reportMetadata.getKeepDays() != null && reportMetadata.getKeepDays() > 0)) {
+                AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-            //Создаем объект
-            DomainObject reportResult = createDomainObject("report_result");
-            reportResult.setString("name", result.getName());
-            reportResult.setReference("template_id", template.getId());
-            reportResult.setReference("owner", currentUserAccessor.getCurrentUserId());
-            Calendar calendar = Calendar.getInstance();
-            if (keepDays != null && keepDays > 0) {
-                calendar.add(Calendar.DAY_OF_MONTH, keepDays);
-            } else {
-                calendar.add(Calendar.DAY_OF_MONTH, reportMetadata.getKeepDays());
-            }
-            reportResult.setTimestamp("keep_to", calendar.getTime());
-            reportResult = domainObjectDao.save(reportResult, accessToken);
-            resultId = reportResult.getId();
+                //Создаем объект
+                DomainObject reportResult = createDomainObject("report_result");
+                reportResult.setString("name", result.getReportFileName());
+                reportResult.setReference("template_id", template.getId());
+                reportResult.setReference("owner", currentUserAccessor.getCurrentUserId());
+                Calendar calendar = Calendar.getInstance();
+                if (keepDays != null && keepDays > 0) {
+                    calendar.add(Calendar.DAY_OF_MONTH, keepDays);
+                } else {
+                    calendar.add(Calendar.DAY_OF_MONTH, reportMetadata.getKeepDays());
+                }
+                reportResult.setTimestamp("keep_to", calendar.getTime());
+                reportResult = domainObjectDao.save(reportResult, accessToken);
+                resultId = reportResult.getId();
 
-            //Сохраняем результат как вложение вложения
-            DomainObject reportAttachment =
-                    attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
-            reportAttachment.setString("name", "report");
-
-            DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(new FileInputStream(result), false);
-
-            attachmentService.saveAttachment(directRemoteInputStream, reportAttachment);
-
-            //Сохраняем параметры как вложение
-            if (params != null) {
-                DomainObject paramAttachment =
+                //Сохраняем результат как вложение вложения
+                DomainObject reportAttachment =
                         attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
-                paramAttachment.setString("name", "params");
+                reportAttachment.setString("name", "report");
 
-                ByteArrayInputStream bis = new ByteArrayInputStream(getParametersAsByteArray(params));
-                directRemoteInputStream = new DirectRemoteInputStream(bis, false);
+                DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(new FileInputStream(result.getReportFile()), false);
 
-                attachmentService.saveAttachment(directRemoteInputStream, paramAttachment);
+                attachmentService.saveAttachment(directRemoteInputStream, reportAttachment);
+
+                //Сохраняем параметры как вложение
+                if (params != null) {
+                    DomainObject paramAttachment =
+                            attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
+                    paramAttachment.setString("name", "params");
+
+                    ByteArrayInputStream bis = new ByteArrayInputStream(getParametersAsByteArray(params));
+                    directRemoteInputStream = new DirectRemoteInputStream(bis, false);
+
+                    attachmentService.saveAttachment(directRemoteInputStream, paramAttachment);
+                }
             }
         }
         return resultId;
