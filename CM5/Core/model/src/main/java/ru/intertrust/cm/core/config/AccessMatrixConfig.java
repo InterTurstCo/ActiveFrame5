@@ -156,21 +156,6 @@ public class AccessMatrixConfig implements TopLevelConfig {
         this.borrowPermissisons = borrowPermissisons;
     }
 
-    @Override
-    public String toString() {
-        return "AccessMatrixConfig{" +
-                "type='" + type + '\'' +
-                ", readEverybody=" + readEverybody +
-                ", status=" + status +
-                ", matrixReference='" + matrixReference + '\'' +
-                ", borrowPermissisons=" + borrowPermissisons +
-                ", accessMatrixCreateConfig=" + accessMatrixCreateConfig +
-                ", matrixReferenceMappingConfig=" + matrixReferenceMappingConfig +
-                ", supportSecurityStamp=" + supportSecurityStamp +
-                ", extendable=" + extendable +
-                ", extendType=" + extendType +
-                '}';
-    }
 
     public Boolean isSupportSecurityStamp() {
         return supportSecurityStamp;
@@ -202,5 +187,22 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
+    }
+
+    @Override
+    public String toString() {
+        return "AccessMatrixConfig{" +
+                "type='" + type + '\'' +
+                ", readEverybody=" + readEverybody +
+                ", status=" + status +
+                ", matrixReference='" + matrixReference + '\'' +
+                ", borrowPermissisons=" + borrowPermissisons +
+                ", accessMatrixCreateConfig=" + accessMatrixCreateConfig +
+                ", matrixReferenceMappingConfig=" + matrixReferenceMappingConfig +
+                ", supportSecurityStamp=" + supportSecurityStamp +
+                ", extendable=" + extendable +
+                ", extendType=" + extendType +
+                ", moduleName=" + moduleName +
+                '}';
     }
 }

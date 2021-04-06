@@ -5,26 +5,30 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
-import static org.mockito.Matchers.anyString;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class AccessMatrixExtensionTest {
+public class AccessMatrixLogicalValidatorTest {
 
     @Mock
     private ModuleService moduleService;
 
     @Before
-    public void init(){
+    public void init() {
         // Формируем следующую структуру модулей:
         //
         //            module3
@@ -53,6 +57,7 @@ public class AccessMatrixExtensionTest {
         modules.add(module5);
         ModuleConfiguration module6 = new ModuleConfiguration("module6", "module5");
         modules.add(module6);
+
         when(moduleService.getModuleList()).thenReturn(modules);
 
         when(moduleService.getRootModules()).thenReturn(Arrays.asList(module1, module2));
@@ -64,7 +69,7 @@ public class AccessMatrixExtensionTest {
             }else if (arguments[0].equals("module2")){
                 return Arrays.asList(module4, module5);
             }else if (arguments[0].equals("module5")){
-                return Arrays.asList(module6);
+                return Collections.singletonList(module6);
             }
             return Collections.emptyList();
         });
@@ -108,7 +113,7 @@ public class AccessMatrixExtensionTest {
         accessConfig.setType("type1");
         AccessMatrixStatusConfig statusConfig = new AccessMatrixStatusConfig();
         statusConfig.setName("status1");
-        statusConfig.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group1")), false));
+        statusConfig.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group1")), false));
         accessConfig.getStatus().add(statusConfig);
         configuration.getConfigurationList().add(accessConfig);
 
@@ -133,7 +138,7 @@ public class AccessMatrixExtensionTest {
         access1Config.setExtendable(true);
         AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
         status1Config.setName("status1");
-        status1Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group1")), false));
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group1")), false));
         access1Config.getStatus().add(status1Config);
         configuration.getConfigurationList().add(access1Config);
 
@@ -143,7 +148,7 @@ public class AccessMatrixExtensionTest {
         access2Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.extend);
         AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
         status2Config.setName("status1");
-        status2Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group2")), false));
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group2")), false));
         access2Config.getStatus().add(status2Config);
         configuration.getConfigurationList().add(access2Config);
 
@@ -153,16 +158,16 @@ public class AccessMatrixExtensionTest {
         AccessMatrixStatusConfig checkStatus1Config = configExplorer.getAccessMatrixByObjectTypeAndStatus(
                 "type1", "status1");
         assertNotNull(checkStatus1Config);
-        assertTrue(checkStatus1Config.getName().equals("status1"));
-        assertTrue(checkStatus1Config.getPermissions().size() == 1);
+        assertEquals("status1", checkStatus1Config.getName());
+        assertEquals(1, checkStatus1Config.getPermissions().size());
         assertTrue(checkStatus1Config.getPermissions().get(0) instanceof ReadConfig);
-        assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().size() == 2);
+        assertEquals(2, ((ReadConfig) checkStatus1Config.getPermissions().get(0)).getPermitConfigs().size());
         assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().contains(new PermitGroup("group1")));
         assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().contains(new PermitGroup("group2")));
     }
 
     @Test
-    public void testReplaceMatrix(){
+    public void testReplaceMatrix() {
         Configuration configuration = new Configuration();
         DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
         type1Config.setName("type1");
@@ -174,7 +179,7 @@ public class AccessMatrixExtensionTest {
         access1Config.setExtendable(true);
         AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
         status1Config.setName("status1");
-        status1Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group1")), false));
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group1")), false));
         access1Config.getStatus().add(status1Config);
         configuration.getConfigurationList().add(access1Config);
 
@@ -184,7 +189,7 @@ public class AccessMatrixExtensionTest {
         access2Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
         AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
         status2Config.setName("status1");
-        status2Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group2")), false));
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group2")), false));
         access2Config.getStatus().add(status2Config);
         configuration.getConfigurationList().add(access2Config);
 
@@ -194,11 +199,65 @@ public class AccessMatrixExtensionTest {
         AccessMatrixStatusConfig checkStatus1Config = configExplorer.getAccessMatrixByObjectTypeAndStatus(
                 "type1", "status1");
         assertNotNull(checkStatus1Config);
-        assertTrue(checkStatus1Config.getName().equals("status1"));
-        assertTrue(checkStatus1Config.getPermissions().size() == 1);
+        assertEquals("status1", checkStatus1Config.getName());
+        assertEquals(1, checkStatus1Config.getPermissions().size());
         assertTrue(checkStatus1Config.getPermissions().get(0) instanceof ReadConfig);
-        assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().size() == 1);
-        assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().contains(new PermitGroup("group2")));
+        assertEquals(1, checkStatus1Config.getPermissions().get(0).getPermitConfigs().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0).getPermitConfigs().contains(new PermitGroup("group2")));
+    }
+
+    /**
+     * Проверяет ситуацию, когда у нас наследуется 2 модуля, в каждом из которых переопределяется тип.
+     * 1 раз с extend, 2ой раз с replace.
+     * Такой случай запрещен в ситеме и генерируется исключение
+     */
+    @Test (expected = FatalBeanException.class)
+    public void testReplaceMatrix_with_2_branches() {
+        Configuration configuration = new Configuration();
+        DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
+        type1Config.setName("type1");
+        configuration.getConfigurationList().add(type1Config);
+
+        AccessMatrixConfig access1Config = new AccessMatrixConfig();
+        access1Config.setType("type1");
+        access1Config.setModuleName("module1");
+        access1Config.setExtendable(true);
+        AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
+        status1Config.setName("status1");
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group1")), false));
+        access1Config.getStatus().add(status1Config);
+        configuration.getConfigurationList().add(access1Config);
+
+        AccessMatrixConfig access2Config = new AccessMatrixConfig();
+        access2Config.setType("type1");
+        access2Config.setModuleName("module3");
+        access2Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
+        AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
+        status2Config.setName("status1");
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group2")), false));
+        access2Config.getStatus().add(status2Config);
+        configuration.getConfigurationList().add(access2Config);
+
+        AccessMatrixConfig access4Config = new AccessMatrixConfig();
+        access4Config.setType("type1");
+        access4Config.setModuleName("module4");
+        access4Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.extend);
+        AccessMatrixStatusConfig status4Config = new AccessMatrixStatusConfig();
+        status4Config.setName("status4");
+        status4Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group4")), false));
+        access4Config.getStatus().add(status4Config);
+        configuration.getConfigurationList().add(access4Config);
+
+        try {
+            createConfigurationExplorer(configuration);
+        } catch (FatalBeanException e) {
+            String message = e.getMessage();
+            assertNotNull(message);
+            assertTrue(message.contains("Configuration of access-matrix with name 'type1' was validated with errors"));
+            assertTrue(message.contains("1 Content:"));
+            assertTrue(message.contains("Access matrix for type type1 in module module3 has extend-type='replace', therefore access matrix is uncertainty"));
+            throw e;
+        }
     }
 
     @Test
@@ -213,7 +272,7 @@ public class AccessMatrixExtensionTest {
         access1Config.setModuleName("module1");
         AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
         status1Config.setName("status1");
-        status1Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group1")), false));
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group1")), false));
         access1Config.getStatus().add(status1Config);
         configuration.getConfigurationList().add(access1Config);
 
@@ -222,7 +281,7 @@ public class AccessMatrixExtensionTest {
         access2Config.setModuleName("module1");
         AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
         status2Config.setName("status1");
-        status2Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group2")), false));
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group2")), false));
         access2Config.getStatus().add(status2Config);
         configuration.getConfigurationList().add(access2Config);
 
@@ -253,7 +312,7 @@ public class AccessMatrixExtensionTest {
         access3Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
         AccessMatrixStatusConfig status3Config = new AccessMatrixStatusConfig();
         status3Config.setName("status1");
-        status3Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group3")), false));
+        status3Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group3")), false));
         access3Config.getStatus().add(status3Config);
         configuration.getConfigurationList().add(access3Config);
         checkConfigValidation(configuration, "У промежуточной матрицы не установлен флаг расширяемый", "is not root, but parent matrix is not marked as extendable");
@@ -265,7 +324,7 @@ public class AccessMatrixExtensionTest {
         access4Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
         AccessMatrixStatusConfig status4Config = new AccessMatrixStatusConfig();
         status4Config.setName("status1");
-        status4Config.getPermissions().add(new ReadConfig(Arrays.asList(new PermitGroup("group4")), false));
+        status4Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("group4")), false));
         access4Config.getStatus().add(status4Config);
         configuration.getConfigurationList().add(access4Config);
         checkConfigValidation(configuration, "Неопределенность в получение окончательной матрицы", "has extend-type='replace', therefore access matrix is uncertainty");
