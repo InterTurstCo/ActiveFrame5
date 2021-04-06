@@ -47,7 +47,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
             if (colCntx > 0) {
                 logger.debug("generateXLS: generate header");
-                sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, colCntx - 1));
+                if (colCntx > 1) {
+                    sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, colCntx - 1));
+                }
                 int colIdx = 0;
                 row = sheet.createRow(++ rowIdx);
                 for (Map.Entry<String, String> colEntry : columns.entrySet()) {
