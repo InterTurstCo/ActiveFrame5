@@ -974,6 +974,8 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ru.txt" format="snowball" />
         <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
         <!-- less aggressive: <filter class="solr.RussianLightStemFilterFactory"/> -->
       </analyzer>
     </fieldType>
@@ -1026,6 +1028,8 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ru_en.txt" format="snowball" />
         <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
         <filter class="solr.SynonymFilterFactory" synonyms="custom_files/synonyms_stem_ru_en.txt" ignoreCase="true" expand="true"/>
         <!--filter class="solr.FlattenGraphFilterFactory"/--> 
       </analyzer>
@@ -1036,6 +1040,8 @@
         <tokenizer class="solr.StandardTokenizerFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ru.txt" format="snowball" />
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
         <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
         <filter class="solr.SynonymFilterFactory" synonyms="custom_files/synonyms_stem_ru.txt" ignoreCase="true" expand="true"/>
         <!--filter class="solr.FlattenGraphFilterFactory"/--> 
