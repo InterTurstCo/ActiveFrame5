@@ -33,7 +33,11 @@
                 text="Редактировать" imageClass="actionBar-edit" permissions="Write"/>
     <act:action name="aOpenLink" componentName="open.link.action" order="150" dirtySensitivity="false"
                 text="open link"/>
+    <!-- Выгрузить все записи представления -->
     <act:action name="aSaveCsv" componentName="save-csv.action" order="500" dirtySensitivity="false"
+                immediate="true" text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
+    <!-- Выгрузить все записи представления, если нет отмеченных, или только отмеченные, если таковые есть -->
+    <act:action name="aSaveExtCsv" componentName="save-ext-csv.action" order="600" dirtySensitivity="false"
                 immediate="true" text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
 
     <act:tool-bar plugin="search.result.toolbar" >
@@ -89,7 +93,7 @@
         <act:action-ref name-ref="aRefresh"/>
         <act:action-separator order="50"/>
         <act:action-ref name-ref="aDelete"/>
-        <act:action-ref name-ref="aSaveCsv"/>
+        <act:action-ref name-ref="aSaveExtCsv"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="form.plugin">

@@ -131,6 +131,23 @@ public class JsonUtil {
 
     }
 
+    public static void prepareJsonSelectedIdsFilter(JSONObject requestObj, List<Id> selectedIds, String filterAttributeName) {
+        if (selectedIds == null || selectedIds.isEmpty()) {
+            return;
+        }
+        JSONObject jsonFilterObject = new JSONObject();
+        JSONArray jsonIdsArr = new JSONArray();
+        int index = 0;
+        for (Id id : selectedIds) {
+            if (id != null) {
+                jsonIdsArr.set(index, new JSONString(id.toStringRepresentation()));
+                index++;
+            }
+        }
+        jsonFilterObject.put("selectedIds", jsonIdsArr);
+        requestObj.put(filterAttributeName, jsonFilterObject);
+    }
+
     public static void prepareJsonHierarchicalFiltersConfig(JSONObject requestObj, CollectionExtraFiltersConfig extraFiltersConfig,
                                                             String filterAttributeName) {
         if (extraFiltersConfig == null) {

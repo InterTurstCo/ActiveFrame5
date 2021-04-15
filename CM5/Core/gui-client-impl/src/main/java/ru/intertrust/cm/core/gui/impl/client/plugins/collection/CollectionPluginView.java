@@ -497,6 +497,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
         JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
         JsonUtil.prepareJsonHierarchicalFiltersConfig(requestObj, hierarchicalFiltersConfig,
             "jsonHierarchicalFilters");
+        JsonUtil.prepareJsonSelectedIdsFilter(requestObj, saveToCsvEvent.getSelectedIds(), "jsonSelectedIdsFilter");
         csvController.doPostRequest(requestObj.toString());
 
       }

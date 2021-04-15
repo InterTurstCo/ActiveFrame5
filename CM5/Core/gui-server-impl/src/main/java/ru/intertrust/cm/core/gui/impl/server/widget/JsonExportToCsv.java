@@ -32,17 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.Case;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
@@ -54,11 +44,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
-import ru.intertrust.cm.core.gui.model.csv.JsonExtendedSearchCSVRequest;
-import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
-import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
+import ru.intertrust.cm.core.gui.model.csv.*;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
@@ -169,6 +155,8 @@ public class JsonExportToCsv {
         Map<String, CollectionColumnProperties> columnPropertiesMap = JsonUtil.convertToColumnPropertiesMap(columnParams);
         JsonInitialFilters jsonInitialFilters = csvRequest.getJsonInitialFilters();
         JsonInitialFilters jsonHierarchicalFilters = csvRequest.getJsonHierarchicalFilters();
+        JsonSelectedIdsFilter jsonSelectedIdsFilter = csvRequest.getJsonSelectedIdsFilter();
+
         List<Filter> filters = prepareFilters(columnPropertiesMap, jsonInitialFilters, jsonHierarchicalFilters);
 
         response.setHeader("Content-Disposition", "attachment; filename=" + collectionName + ".csv");
@@ -182,6 +170,12 @@ public class JsonExportToCsv {
         printHeader(writer, columnPropertiesMap);
         writer.append(" \n");
         if (simpleSearchQuery.isEmpty()) {
+            // Добавление фильтра по id, если есть
+            List<ReferenceValue> ids = jsonSelectedIdsFilter != null ? jsonSelectedIdsFilter.getFilterIds() : null;
+            IdsIncludedFilter idFilter = ids != null && !ids.isEmpty() ? new IdsIncludedFilter(ids) : null;
+            if (idFilter != null) {
+                filters.add(idFilter);
+            }
             printBodyBatch(writer, collectionName, sortOrder, filters, columnPropertiesMap);
         } else {
             IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, area, collectionName, CHUNK_SIZE);
