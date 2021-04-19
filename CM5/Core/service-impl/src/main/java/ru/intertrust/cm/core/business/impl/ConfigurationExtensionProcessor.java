@@ -471,9 +471,10 @@ public class ConfigurationExtensionProcessor {
         Configuration configuration = new Configuration();
         configuration.setConfigurationList(configurationList);
 
-        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration, context, false);
-        result.init();
-        return result;
+        final ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration, context, false);
+        configurationExplorer.init();
+
+        return configurationExplorer;
     }
 
     private Set<ConfigChange> applyNewExplorer(ConfigurationExplorer newExplorer) {
