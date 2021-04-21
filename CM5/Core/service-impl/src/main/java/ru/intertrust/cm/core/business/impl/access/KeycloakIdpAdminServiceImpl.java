@@ -120,7 +120,7 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
         Response response = keycloak.realm(config.getRealm()).users().create(userRepresentation);
         if (response.getStatus() != 201){
-            throw new FatalException("Error create user");
+            throw new FatalException("Error create user with userName = " + userInfo.getUsername() + " error code = " + response.getStatus());
         }
 
         UserInfo createUserInfo = findUserByUserName(userInfo.getUsername());
