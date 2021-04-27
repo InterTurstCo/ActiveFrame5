@@ -1,47 +1,11 @@
 package ru.intertrust.cm.core.business.shedule;
 
-import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_DAY_OF_MONTH;
-import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_DAY_OF_WEEK;
-import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_HOUR;
-import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_MINUTE;
-import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_MONTH;
-import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_YEAR;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Future;
-
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.annotation.security.RunAs;
-import javax.ejb.EJB;
-import javax.ejb.EJBContext;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.business.api.ClusterManager;
+import ru.intertrust.cm.core.business.api.ClusterManagerInitializationHolder;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -66,6 +30,42 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
+import javax.ejb.EJB;
+import javax.ejb.EJBContext;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
+import javax.interceptor.Interceptors;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_DAY_OF_MONTH;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_DAY_OF_WEEK;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_HOUR;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_MINUTE;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_MONTH;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_YEAR;
 
 @Singleton(name = "SchedulerBean")
 @Interceptors(SpringBeanAutowiringInterceptor.class)
@@ -112,15 +112,15 @@ public class SchedulerBean {
     @Autowired
     private ClusterManager clusterManager;
 
+    @Autowired
+    private ClusterManagerInitializationHolder clusterManagerInitializationHolder;
 
     @Value("${excluded.task.list:}")
     private String excludedTaskList;
     
     private Set<String> excludedTask;
     
-    private List<StartedTask> startedTasks = new ArrayList<StartedTask>();
-    
-    
+    private List<StartedTask> startedTasks = new ArrayList<>();
 
     /**
      * Входная функция сервиса периодических заданий. Вызывается контейнером раз
@@ -130,6 +130,11 @@ public class SchedulerBean {
     public void backgroundProcessing() {
         try {
             if (configurationLoader.isConfigurationLoaded() && scheduleTaskLoader.isLoaded() && scheduleTaskLoader.isEnable()) {
+
+                if (!clusterManagerInitializationHolder.isInitialized()) {
+                    logger.debug("ClusterManager is not initialized yet. Background processing will be skipped...");
+                    return;
+                }
 
                 //Проверка, является ли нода менеджером периодических заданий
                 if (clusterManager.hasRole(ScheduleService.SCHEDULE_MANAGER_ROLE_NAME)) {
@@ -225,6 +230,16 @@ public class SchedulerBean {
 
     private void checkTimeout() {
         try {
+            if (!clusterManagerInitializationHolder.isInitialized()) {
+                logger.debug("ClusterManager is not initialized yet. Background processing will be skipped...");
+                return;
+            }
+
+            // TODO startedTasks guard by container lock... Maybe I can remove EJB locks for SchedulerBean...
+            if (startedTasks.isEmpty()) {
+                return;
+            }
+
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             ejbContext.getUserTransaction().begin();
             //Перебираем задачи в обратном порядке, чтоб можно было "на лету" удалять из списка
@@ -295,6 +310,11 @@ public class SchedulerBean {
 
     private void executeTasks() {
         try {
+            if (!clusterManagerInitializationHolder.isInitialized()) {
+                logger.debug("ClusterManager is not initialized yet. Tasks execution will be skipped...");
+                return;
+            }
+
             //Проверка, является ли нода исполнителем периодических заданий
             if (clusterManager.hasRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME)) {
                 AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
@@ -343,24 +363,22 @@ public class SchedulerBean {
                 }
             }
         } catch (Exception ex) {
-            logger.error("Error on run shedule task", ex);
+            logger.error("Error on run schedule task", ex);
             try {
                 if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
                     ejbContext.getUserTransaction().rollback();
                 }
-            } catch (Exception ignoreEx) {
+            } catch (Exception ignore) {
             }
         }
     }
 
     private boolean isExcludedTask(String taskName){
         if (excludedTask == null){
-            excludedTask = new HashSet<String>();
+            excludedTask = new HashSet<>();
             if (excludedTaskList != null && !excludedTaskList.isEmpty()){
                 String[] excludedTaskArray = excludedTaskList.split("[,; ]");
-                for (String excludedTaskItem : excludedTaskArray) {
-                    excludedTask.add(excludedTaskItem);
-                }
+                Collections.addAll(excludedTask, excludedTaskArray);
             }
         }
         
@@ -460,7 +478,7 @@ public class SchedulerBean {
      */
     @PreDestroy
     public void shutdown() {
-        logger.debug("Cancal all tasks by shutdown event");
+        logger.debug("Cancel all tasks by shutdown event");
         for (int i = startedTasks.size() - 1; i >= 0; i--) {
             StartedTask startedTask = startedTasks.get(i);
             //Проверка завершена ли задача
