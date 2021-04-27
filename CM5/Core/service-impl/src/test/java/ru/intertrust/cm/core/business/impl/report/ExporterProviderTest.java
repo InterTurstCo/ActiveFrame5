@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.business.impl.report;
 
-import net.sf.jasperreports.engine.export.HtmlExporter;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.export.JRRtfExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.*;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
@@ -82,6 +79,17 @@ public class ExporterProviderTest {
         assertEquals(JRXlsxExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.XLSX_FORMAT.getFormat(), provider.getExtension());
         assertEquals(ReportBuilderFormats.XLSX_FORMAT.getFormat(), provider.getType());
+    }
+
+    @Test
+    public void jRCsvExporterProvider() {
+        JRCsvExporterProvider provider = new JRCsvExporterProvider();
+        Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
+                = provider.getExporter();
+
+        assertEquals(JRCsvExporter.class, exporter.getClass());
+        assertEquals(ReportBuilderFormats.CSV_FORMAT.getFormat(), provider.getExtension());
+        assertEquals(ReportBuilderFormats.CSV_FORMAT.getFormat(), provider.getType());
     }
 
     @Test

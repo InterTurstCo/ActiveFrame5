@@ -93,6 +93,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     public static final String HTML_FORMAT = "HTML";
     public static final String DOCX_FORMAT = "DOCX";
     public static final String XLSX_FORMAT = "XLSX";
+    public static final String CSV_FORMAT = "CSV";
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;

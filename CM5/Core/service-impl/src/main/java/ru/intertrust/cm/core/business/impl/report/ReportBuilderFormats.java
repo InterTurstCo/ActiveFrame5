@@ -7,6 +7,7 @@ public enum ReportBuilderFormats {
     HTML_FORMAT("HTML"),
     DOCX_FORMAT("DOCX"),
     XLSX_FORMAT("XLSX"),
+    CSV_FORMAT("CSV"),
     SOCHI_DOCX_FORMAT("SOCHIDOCX");
 
     private final String format;
