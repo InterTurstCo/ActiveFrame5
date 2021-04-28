@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePl
 
 import static org.junit.Assert.assertEquals;
 
-public class NavigationTreeOluginViewTest {
+public class NavigationTreeLoginViewTest {
 
     @Test
     public void testCreateLoginUrl(){
@@ -37,7 +37,7 @@ public class NavigationTreeOluginViewTest {
         loginPath = ReflectionTestUtils.invokeMethod(view, "getLoginPath", "xxxxx://sdoagm101lv:8080/agm/BusinessUniverse.html");
         assertEquals(loginPath, "xxxxx://sdoagm101lv:8080/agm/BusinessUniverse.html");
 
-        // Регистр не должен изменится
+        // Регистр не должен измениться
         loginPath = ReflectionTestUtils.invokeMethod(view, "getLoginPath", "HTTP://SdoAgm101lv:8080/Agm/BusinessUniverse.html");
         assertEquals(loginPath, "HTTP://SdoAgm101lv:8080/Agm/Login.html");
     }

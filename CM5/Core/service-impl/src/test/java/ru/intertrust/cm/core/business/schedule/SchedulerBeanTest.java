@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.intertrust.cm.core.business.api.ClusterManager;
+import ru.intertrust.cm.core.business.api.ClusterManagerInitializationHolder;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -113,6 +114,13 @@ public class SchedulerBeanTest {
             return mock(StatusDao.class);
         }
 
+        @Bean
+        public ClusterManagerInitializationHolder clusterManagerInitializationHolder() {
+            ClusterManagerInitializationHolder holder = mock(ClusterManagerInitializationHolder.class);
+            when(holder.isInitialized()).thenReturn(true);
+            return holder;
+        }
+
     }
 
     private static class SchedulerBeanWithCustomCalendar extends SchedulerBean {
@@ -127,7 +135,7 @@ public class SchedulerBeanTest {
         private void setCalendar(Calendar calendar) {
             this.calendar = calendar;
         }
-    };
+    }
 
     @Autowired
     private SchedulerBeanWithCustomCalendar schedulerBean;
@@ -160,6 +168,8 @@ public class SchedulerBeanTest {
 
         IdentifiableObjectCollection deadExecutions = mock(IdentifiableObjectCollection.class);
         when(schedulerDao.getDeadScheduleExecution()).thenReturn(deadExecutions);
+
+        @SuppressWarnings("unchecked")
         Iterator<IdentifiableObject> deadIterator = mock(Iterator.class);
         when(deadIterator.hasNext()).thenReturn(false);
         when(deadExecutions.iterator()).thenReturn(deadIterator);
@@ -167,6 +177,8 @@ public class SchedulerBeanTest {
         this.identifiableObject = mock(IdentifiableObject.class);
 
         IdentifiableObjectCollection tasks = mock(IdentifiableObjectCollection.class);
+
+        @SuppressWarnings("unchecked")
         Iterator<IdentifiableObject> tasksIterator = mock(Iterator.class);
         when(tasksIterator.hasNext()).thenReturn(true).thenReturn(false);
         when(tasksIterator.next()).thenReturn(this.identifiableObject);
