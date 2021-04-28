@@ -30,15 +30,12 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
         List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
         Collection<AccessMatrixConfig> configList = configurationExplorer.getConfigs(AccessMatrixConfig.class);
-        Map<String, List<AccessMatrixConfig>> typesAccessMatrixes = new HashMap<>();
+        Map<String, List<AccessMatrixConfig>> accessMatrixConfigsByType = new HashMap<>();
         for (AccessMatrixConfig matrixConfig : configList) {
             // Группируем матрицы для типов, для валидации наследования
-            List<AccessMatrixConfig> typeAccessMatrixes = typesAccessMatrixes.get(matrixConfig.getType().toLowerCase());
-            if (typeAccessMatrixes == null){
-                typeAccessMatrixes = new ArrayList<>();
-                typesAccessMatrixes.put(matrixConfig.getType().toLowerCase(), typeAccessMatrixes);
-            }
-            typeAccessMatrixes.add(matrixConfig);
+            List<AccessMatrixConfig> accessMatrixConfigs
+                    = accessMatrixConfigsByType.computeIfAbsent(matrixConfig.getType().toLowerCase(), k -> new ArrayList<>());
+            accessMatrixConfigs.add(matrixConfig);
 
             // Логическа валидация
             LogicalErrors logicalErrors = LogicalErrors.getInstance(matrixConfig.getName(), "access-matrix");
@@ -80,11 +77,13 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
         }
 
         // Проверка наследования матриц
-        for (String typeName : typesAccessMatrixes.keySet()){
-            List<AccessMatrixConfig> typeAccessMatrixes = typesAccessMatrixes.get(typeName);
+        for (Map.Entry<String, List<AccessMatrixConfig>> entry : accessMatrixConfigsByType.entrySet()) {
+            String typeName = entry.getKey();
+            List<AccessMatrixConfig> accessMatrixConfigs = entry.getValue();
+
             // Валидацию выполняем только если более одной матрицы на тип
-            if (typeAccessMatrixes.size() > 1){
-                LogicalErrors logicalErrors = validateMatrixExtension(typeName, typeAccessMatrixes);
+            if (accessMatrixConfigs.size() > 1) {
+                LogicalErrors logicalErrors = validateMatrixExtension(typeName, accessMatrixConfigs);
                 if (logicalErrors.getErrorCount() > 0) {
                     logicalErrorsList.add(logicalErrors);
                 }
@@ -97,56 +96,51 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
     /**
      * Логическая валидация расширения матриц
      * @param typeName
-     * @param typeAccessMatrixes
+     * @param accessMatrixConfigs
      */
-    private LogicalErrors validateMatrixExtension(String typeName, List<AccessMatrixConfig> typeAccessMatrixes) {
+    private LogicalErrors validateMatrixExtension(String typeName, List<AccessMatrixConfig> accessMatrixConfigs) {
         LogicalErrors result = LogicalErrors.getInstance(typeName, "access-matrix");
 
         // Проверяем дублирование матриц в модуле
-        Set<String> modulesWithMatrix = new HashSet<>();
-        for (AccessMatrixConfig accessMatrixConfig : typeAccessMatrixes){
-            if (!modulesWithMatrix.add(accessMatrixConfig.getModuleName().toLowerCase())){
-                result.addError("Module " + accessMatrixConfig.getModuleName() +
-                        " contains more then one access-matrix fore " + typeName);
-            }
-        }
+        result.addErrors(validateDuplicationsInModule(typeName, accessMatrixConfigs));
 
         // Дальнейшая валидация строится на том, что в одном модуле может быть только одна матрица
         if (result.getErrorCount() == 0) {
             // Строим граф матриц
-            MatrixGraph matrixGraph = new MatrixGraph(typeAccessMatrixes);
+            MatrixGraph matrixGraph = new MatrixGraph(accessMatrixConfigs);
             // Проверяем нет ли нескольких корневых матриц
             // (корневая матрица такая, у которой в родительских модулях нет матриц для этого же типа)
-            if (matrixGraph.getRootMatrixes().size() > 1){
+            if (matrixGraph.getRootMatrices().size() > 1) {
                 result.addError("Configurations contains more then one root access matrix for type " + typeName);
             }
 
             // Проверяем что корневая матрица разрешает наследование
-            AccessMatrixConfig rootMatrix = matrixGraph.getRootMatrixes().get(0);
-            if (rootMatrix.getExtendable() == null || !rootMatrix.getExtendable()){
+            AccessMatrixConfig rootMatrix = matrixGraph.getRootMatrices().get(0);
+            if (rootMatrix.getExtendable() == null || !rootMatrix.getExtendable()) {
                 result.addError("Access matrix for type " + typeName + " in module " + rootMatrix.getModuleName() +
                         " is not extendable, but config contains another access matrix configs for this type");
             }
 
             // Проверяем что у корневой матрицы нет типа наследования
-            if (rootMatrix.getExtendType() != null){
+            if (rootMatrix.getExtendType() != null) {
                 result.addError("Access matrix for type " + typeName + " in module " + rootMatrix.getModuleName() +
                         " is root, but contains extend-type attribute");
             }
 
             // Проверяем что у не корневых матриц у всех есть атрибут extend-type
-            for (AccessMatrixConfig matrixConfig : matrixGraph.getNotRootMatrixes()){
-                if (matrixConfig.getExtendType() == null){
+            List<AccessMatrixConfig> notRootMatrices = matrixGraph.getNotRootMatrices();
+            for (AccessMatrixConfig matrixConfig : notRootMatrices){
+                if (matrixConfig.getExtendType() == null) {
                     result.addError("Access matrix for type " + typeName + " in module " + rootMatrix.getModuleName() +
                             " is not root, but extend-type attribute is empty");
                 }
             }
 
             // Проверяем что у всех дочерних матриц родительская матрица разрешает наследование
-            for (AccessMatrixConfig matrixConfig : matrixGraph.getNotRootMatrixes()){
-                List<AccessMatrixConfig> parentMatrixConfigs = matrixGraph.getParentMatrixes(matrixConfig.getModuleName());
-                for (AccessMatrixConfig parentMatrixConfig : parentMatrixConfigs){
-                    if (parentMatrixConfig.getExtendable() == null || !parentMatrixConfig.getExtendable()){
+            for (AccessMatrixConfig matrixConfig : notRootMatrices) {
+                List<AccessMatrixConfig> parentMatrixConfigs = matrixGraph.getParentMatrices(matrixConfig.getModuleName());
+                for (AccessMatrixConfig parentMatrixConfig : parentMatrixConfigs) {
+                    if (parentMatrixConfig.getExtendable() == null || !parentMatrixConfig.getExtendable()) {
                         result.addError("Access matrix for type " + typeName + " in module " + rootMatrix.getModuleName() +
                                 " is not root, but parent matrix is not marked as extendable");
                     }
@@ -158,7 +152,7 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
             boolean hasMoreThenOneChild = hasMoreThenOneChildMatrix(matrixGraph, rootMatrix.getModuleName());
             // Если есть ветвления проверяем есть ли матрица с типом replace
             if (hasMoreThenOneChild) {
-                for (AccessMatrixConfig childMatrixConfig : matrixGraph.getNotRootMatrixes()) {
+                for (AccessMatrixConfig childMatrixConfig : notRootMatrices) {
                     if (childMatrixConfig.getExtendType() == AccessMatrixConfig.AccessMatrixExtendType.replace) {
                         result.addError("Access matrix for type " + typeName + " in module " + childMatrixConfig.getModuleName() +
                                 " has extend-type='replace', therefore access matrix is uncertainty");
@@ -169,12 +163,25 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
         return result;
     }
 
+    private List<String> validateDuplicationsInModule(String typeName, List<AccessMatrixConfig> accessMatrixConfigs) {
+        List<String> errors = new ArrayList<>(1);
+
+        Set<String> modulesWithMatrix = new HashSet<>();
+        for (AccessMatrixConfig accessMatrixConfig : accessMatrixConfigs) {
+            if (!modulesWithMatrix.add(accessMatrixConfig.getModuleName().toLowerCase())) {
+                errors.add("Module " + accessMatrixConfig.getModuleName() +
+                        " contains more then one access-matrix fore " + typeName);
+            }
+        }
+        return errors;
+    }
+
     /**
      * Рекурсивная функция, проверяющая есть ли у переданого модуля, разные ветки дочерних модулей, которые переопределяют матрицу
      * @return
      */
     private boolean hasMoreThenOneChildMatrix(MatrixGraph matrixGraph, String module) {
-        List<AccessMatrixConfig> children = matrixGraph.getChildMatrixes(module);
+        List<AccessMatrixConfig> children = matrixGraph.getChildMatrices(module);
         boolean result = children.size() > 1;
         if (!result) {
             for (AccessMatrixConfig config : children) {
@@ -192,15 +199,15 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
      * Класс, описывапющий граф матриц
      */
     public class MatrixGraph {
-        private Map<String, AccessMatrixConfig> matrixByModule = new HashMap<>();
-        private Map<String, MatrixNode> matrixNodes = new HashMap<>();
-        private Set<String> rootMatrix = new HashSet<>();
+        private final Map<String, AccessMatrixConfig> accessMatrixConfigByModule = new HashMap<>();
+        private final Map<String, MatrixNode> matrixNodes = new HashMap<>();
+        private final Set<String> rootMatrices = new HashSet<>();
 
-        public MatrixGraph(List<AccessMatrixConfig> typeAccessMatrixes){
-            for (AccessMatrixConfig accessMatrixConfig : typeAccessMatrixes) {
-                matrixByModule.put(accessMatrixConfig.getModuleName().toLowerCase(), accessMatrixConfig);
-                matrixNodes.put(accessMatrixConfig.getModuleName().toLowerCase(),
-                        new MatrixNode(accessMatrixConfig.getModuleName()));
+        public MatrixGraph(List<AccessMatrixConfig> accessMatrixConfigs) {
+            for (AccessMatrixConfig accessMatrixConfig : accessMatrixConfigs) {
+                String moduleNameLowerCase = accessMatrixConfig.getModuleName().toLowerCase();
+                accessMatrixConfigByModule.put(moduleNameLowerCase, accessMatrixConfig);
+                matrixNodes.put(moduleNameLowerCase, new MatrixNode(accessMatrixConfig.getModuleName()));
             }
 
             // Строим зависимости
@@ -209,9 +216,9 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
             }
 
             // Получаем корневые матрицы
-            for (MatrixNode matrixNode :matrixNodes.values()) {
-                if (matrixNode.parents.size() == 0){
-                    rootMatrix.add(matrixNode.module.toLowerCase());
+            for (MatrixNode matrixNode : matrixNodes.values()) {
+                if (matrixNode.parents.size() == 0) {
+                    rootMatrices.add(matrixNode.module.toLowerCase());
                 }
             }
         }
@@ -226,46 +233,54 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
             if (currentMatrixNode == null) {
                 currentMatrixNode = parentMatrixNode;
             }
-            for (ModuleConfiguration childModules : moduleService.getChildModules(parentModule.getName())){
+            for (ModuleConfiguration childModule : moduleService.getChildModules(parentModule.getName())) {
+
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Attempting to add configuration module {} to node {} as a child", childModule, currentMatrixNode);
+                }
+
                 if (currentMatrixNode != null) {
-                    MatrixNode childMatrixNode = matrixNodes.get(childModules.getName().toLowerCase());
+                    MatrixNode childMatrixNode = matrixNodes.get(childModule.getName().toLowerCase());
                     if (childMatrixNode != null) {
                         currentMatrixNode.children.add(childMatrixNode.module.toLowerCase());
                         childMatrixNode.parents.add(currentMatrixNode.module.toLowerCase());
                     }
                 }
-                addChildModules(childModules, currentMatrixNode);
+                addChildModules(childModule, currentMatrixNode);
             }
         }
 
-        public List<AccessMatrixConfig> getRootMatrixes() {
-            return rootMatrix.stream()
-                    .map(item -> matrixByModule.get(item))
+        public List<AccessMatrixConfig> getRootMatrices() {
+            return rootMatrices.stream()
+                    .map(accessMatrixConfigByModule::get)
                     .collect(Collectors.toList());
         }
 
-        public List<AccessMatrixConfig> getNotRootMatrixes() {
+        public List<AccessMatrixConfig> getNotRootMatrices() {
             List<AccessMatrixConfig> result = new ArrayList<>();
-            for (AccessMatrixConfig config : matrixByModule.values()) {
-                if (!rootMatrix.contains(config.getModuleName().toLowerCase())){
+            for (AccessMatrixConfig config : accessMatrixConfigByModule.values()) {
+                if (!rootMatrices.contains(config.getModuleName().toLowerCase())){
                     result.add(config);
                 }
             }
             return result;
         }
 
-        public List<AccessMatrixConfig> getChildMatrixes(String module) {
-            if (matrixNodes.get(module.toLowerCase()) != null) {
-                return matrixNodes.get(module.toLowerCase()).children.stream().map(item -> matrixByModule.get(item)).
-                        collect(Collectors.toList());
-            }else{
+        public List<AccessMatrixConfig> getChildMatrices(String module) {
+            MatrixNode matrixNode = matrixNodes.get(module.toLowerCase());
+            if (matrixNode != null) {
+                return matrixNode.children
+                        .stream()
+                        .map(accessMatrixConfigByModule::get)
+                        .collect(Collectors.toList());
+            } else {
                 return Collections.emptyList();
             }
         }
 
-        public List<AccessMatrixConfig> getParentMatrixes(String module) {
+        public List<AccessMatrixConfig> getParentMatrices(String module) {
             if (matrixNodes.get(module.toLowerCase()) != null) {
-                return matrixNodes.get(module.toLowerCase()).parents.stream().map(item -> matrixByModule.get(item)).
+                return matrixNodes.get(module.toLowerCase()).parents.stream().map(accessMatrixConfigByModule::get).
                         collect(Collectors.toList());
             } else {
                 return Collections.emptyList();
@@ -273,10 +288,10 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
         }
     }
 
-    public class MatrixNode {
-        private String module;
-        private List<String> parents = new ArrayList<>();
-        private List<String> children = new ArrayList<>();
+    public static class MatrixNode {
+        private final String module;
+        private final List<String> parents = new ArrayList<>();
+        private final List<String> children = new ArrayList<>();
 
         public MatrixNode(String module){
             this.module = module;

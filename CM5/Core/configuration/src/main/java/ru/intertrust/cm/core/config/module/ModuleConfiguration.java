@@ -180,4 +180,25 @@ public class ModuleConfiguration implements Dto {
     public LocalizationFilesConfiguration getLocalisationFiles() {
         return localisationFiles;
     }
+
+    @Override
+    public String toString() {
+        return "ModuleConfiguration{" +
+                "schemaLocation='" + schemaLocation + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", depends=" + depends +
+                ", extensionPointsPackages=" + extensionPointsPackages +
+                ", configurationElementsPackages=" + configurationElementsPackages +
+                ", guiComponentsPackages=" + guiComponentsPackages +
+                ", serverComponentsPackages=" + serverComponentsPackages +
+                ", importFiles=" + importFiles +
+                ", configurationSchemaPath='" + configurationSchemaPath + '\'' +
+                ", configurationPaths=" + configurationPaths +
+                ", importReports=" + importReports +
+                ", deployProcesses=" + deployProcesses +
+                ", localisationFiles=" + localisationFiles +
+                ", moduleUrl=" + moduleUrl +
+                '}';
+    }
 }

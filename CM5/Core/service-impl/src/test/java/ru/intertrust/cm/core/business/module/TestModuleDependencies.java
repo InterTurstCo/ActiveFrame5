@@ -11,63 +11,60 @@ import org.junit.Test;
 
 import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.model.FatalException;
 
-public class TestModuleDependences {
-    private Random rnd = new Random();
+public class TestModuleDependencies {
+    private final Random rnd = new Random();
     
     @Test
     public void testModuleOrder() {
         ModuleServiceImpl moduleService = new ModuleServiceImpl();
-        ModuleServiceImpl.ModuleGraf graf = moduleService.new ModuleGraf();
+        ModuleServiceImpl.ModuleGraph graf = moduleService.new ModuleGraph();
 
         String[] testBaseNodes = new String[]{"1:5", "2:1,5", "3", "4", "5:3,4", "6:2,5"};        
-        Reestr reestr = fillGraf(graf, testBaseNodes);
+        Reestr reestr = fillGraph(graf, testBaseNodes);
         
         graf.check();
 
         String correctOrder1 = "435126";
         String correctOrder2 = "345126";
-        String orderedFiles = "";
+        StringBuilder orderedFiles = new StringBuilder();
         while (graf.hasMoreElements()) {
             ModuleServiceImpl.ModuleNode file = graf.nextElement();
-            orderedFiles += reestr.getAlias(file.getName());
+            orderedFiles.append(reestr.getAlias(file.getName()));
         }
         Assert.assertTrue(
-                orderedFiles.equals(correctOrder1) ||
-                orderedFiles.equals(correctOrder2));                
+                orderedFiles.toString().equals(correctOrder1) ||
+                orderedFiles.toString().equals(correctOrder2));
     }
 
-    @Test
+    @Test (expected = FatalException.class)
     public void testCyclicModules() {
         ModuleServiceImpl moduleService = new ModuleServiceImpl();
-        ModuleServiceImpl.ModuleGraf graf = moduleService.new ModuleGraf();
+        ModuleServiceImpl.ModuleGraph graph = moduleService.new ModuleGraph();
 
-        String[] testBaseNodes = new String[]{"1", "2:1", "3", "4:6", "5:3,4", "6:2,5"};        
-        fillGraf(graf, testBaseNodes);
-        try{
-            graf.check();
-        }catch(Exception ex){
-            Assert.assertTrue(ex.getMessage().startsWith("Check dependenses"));
-            return;
+        String[] testBaseNodes = new String[] {"1", "2:1", "3", "4:6", "5:3,4", "6:2,5"};
+        fillGraph(graph, testBaseNodes);
+        try {
+            graph.check();
+        } catch(FatalException ex) {
+            Assert.assertTrue(ex.getMessage().startsWith("Check dependencies"));
+            throw ex;
         }
-        //Не должны доходить до этой строки
-        Assert.assertTrue(false);
     }
     
     
     /**
      * Заполняет в случайном порядке
-     * @param graf
+     * @param graph
      * @param nodeGroups
      */
-    private Reestr fillGraf(ModuleServiceImpl.ModuleGraf graf, String[]... nodeGroups) {
+    private Reestr fillGraph(ModuleServiceImpl.ModuleGraph graph, String[]... nodeGroups) {
         Reestr reestr = new Reestr(); 
         
-        List<String> items = new ArrayList<String>();
+        List<String> items = new ArrayList<>();
         for (String[] nodeGroup : nodeGroups) {
-            for (String node : nodeGroup) {
-                items.add(node);
-            }
+            Collections.addAll(items, nodeGroup);
         }
         
         
@@ -85,14 +82,14 @@ public class TestModuleDependences {
             
             ModuleConfiguration conf = new ModuleConfiguration();
             conf.setName(reestr.getName(nodeDesc[0]));
-            graf.addModuleConfiguration(conf , nodeDep);
+            graph.addModuleConfiguration(conf , nodeDep);
         }        
         return reestr;
     }
     
     private class Reestr{
-        Hashtable<String, String> nameForAlias = new Hashtable<String, String>();
-        Hashtable<String, String> aliasForName = new Hashtable<String, String>();
+        Hashtable<String, String> nameForAlias = new Hashtable<>();
+        Hashtable<String, String> aliasForName = new Hashtable<>();
         
         private String getName(String alias){
             String result = nameForAlias.get(alias);

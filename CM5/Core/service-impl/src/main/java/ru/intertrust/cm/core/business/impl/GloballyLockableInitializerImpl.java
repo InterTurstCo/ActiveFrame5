@@ -105,7 +105,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Override
     public void finish() throws Exception {
         logger.info("on Finish");
-        if(isMainServer){
+        if (isMainServer) {
             interserverLockingService.unlock(LOCK_KEY);
         }
     }
