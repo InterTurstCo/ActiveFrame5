@@ -143,7 +143,7 @@ public class AuthenticationFilter implements Filter {
                 // Поверяем разрешена ли basic аутентификация
                 if (securityConfig.getActiveProviders().contains(ApplicationSecurityManager.BASIC_AUTHENTICATION_TYPE)) {
                     String authCredentials = request.getHeader("Authorization");
-                    if (authCredentials != null && !authCredentials.trim().toString().isEmpty()) {
+                    if (authCredentials != null && !authCredentials.trim().isEmpty()) {
 
                         try {
                             final String encodedUserPassword = authCredentials.replaceFirst("Basic"
@@ -161,6 +161,7 @@ public class AuthenticationFilter implements Filter {
                             final String password = tokenizer.nextToken();
 
                             // Выполяем реальную аутентификациию
+                            log.trace("Login by basic authentication...");
                             strongAuthentication(request, username, password);
 
                             credentials = new UserUidWithPassword(username, password);
@@ -180,6 +181,7 @@ public class AuthenticationFilter implements Filter {
                         session.setAttribute(ApplicationSecurityManager.LOGIN_FORM_DATA, null);
                         try {
                             // Выполяем реальную аутентификациию
+                            log.trace("Login by form authentication...");
                             strongAuthentication(request, loginData.getUserUid(), loginData.getPassword());
 
                             credentials = loginData;
@@ -193,6 +195,8 @@ public class AuthenticationFilter implements Filter {
 
                 if (credentials == null) {
                     for (AuthenticationProvider authenticationProvider : authenticationProviders) {
+
+                        log.trace("Login with authentication provider...");
                         credentials = authenticationProvider.login(request, response);
                         if (credentials != null) {
                             currentAuthenticationType = ApplicationSecurityManager.PROVIDER_AUTHENTICATION_TYPE;
@@ -222,9 +226,11 @@ public class AuthenticationFilter implements Filter {
                     }
                     session.setAttribute(LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
                     session.setAttribute(ApplicationSecurityManager.HIDE_LOGOUT_BUTTON, isHideLogoutButton(currentAuthenticationType, currentAuthenticationProvider));
+                    log.trace("Rise Login success event...");
                     eventLogService.logLogInEvent(credentials.getUserUid(), request.getRemoteAddr(), true);
                 } catch (Exception ex) {
                     forwardToLogin(servletRequest, servletResponse, true);
+                    log.trace("Rise Login unsuccess event...");
                     eventLogService.logLogInEvent(credentials.getUserUid(), request.getRemoteAddr(), false);
                 }
             } else {

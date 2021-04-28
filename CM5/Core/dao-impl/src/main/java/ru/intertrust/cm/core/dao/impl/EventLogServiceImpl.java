@@ -92,8 +92,11 @@ public class EventLogServiceImpl implements EventLogService {
     private boolean isLoginEventEnabled() {
         EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
         if (eventLogsConfiguration != null && eventLogsConfiguration.getLoginConfig() != null) {
-            return eventLogsConfiguration.getLoginConfig().isEnable();
+            boolean enabled = eventLogsConfiguration.getLoginConfig().isEnable();
+            logger.debug("Login events are enabled = {}", enabled);
+            return enabled;
         }
+        logger.debug("Login events are disabled");
         return false;
     }
 
@@ -136,11 +139,13 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     private boolean isLogoutEventEnabled() {
-
         EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
         if (eventLogsConfiguration != null && eventLogsConfiguration.getLogoutConfig() != null) {
-            return eventLogsConfiguration.getLogoutConfig().isEnable();
+            boolean enabled = eventLogsConfiguration.getLogoutConfig().isEnable();
+            logger.debug("Logout events are enabled = {}", enabled);
+            return enable;
         }
+        logger.debug("Logout events are disabled");
         return false;
     }
 
