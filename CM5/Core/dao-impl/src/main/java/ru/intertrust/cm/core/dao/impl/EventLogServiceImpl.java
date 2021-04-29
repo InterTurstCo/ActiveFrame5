@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.Local;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
@@ -14,8 +16,6 @@ import javax.interceptor.Interceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -25,21 +25,20 @@ import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogCleaner;
 import ru.intertrust.cm.core.dao.api.EventLogService;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
-@Stateless
+@Singleton
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Local(EventLogService.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class EventLogServiceImpl implements EventLogService {
 
-    private final static Logger logger = LoggerFactory.getLogger(EventLogServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(EventLogServiceImpl.class);
     
     private static final String USER_EVENT_LOG = "user_event_log";
 
