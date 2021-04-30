@@ -46,8 +46,8 @@ public class SimpleUploadController {
                 UploadActionContext uploadContext = new UploadActionContext();
                 uploadContext.setUploadedFiles(uploadedFiles);
 
-                ActionHandler handler = (ActionHandler)context.getBean(actionHandler);
-                UploadActionData result = (UploadActionData)handler.executeAction(uploadContext);
+                ActionHandler<?, ?> handler = context.getBean(actionHandler, ActionHandler.class);
+                handler.executeAction(uploadContext);
 
             }
             return "Success " + uploadedFiles.size();

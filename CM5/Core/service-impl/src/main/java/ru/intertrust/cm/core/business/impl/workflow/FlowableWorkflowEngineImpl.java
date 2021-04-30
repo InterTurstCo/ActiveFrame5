@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.business.impl.workflow;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -131,7 +131,7 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             RepositoryService repositoryService = processEngine.getRepositoryService();
             DeploymentBuilder db = repositoryService.createDeployment();
             db.enableDuplicateFiltering();
-            final String text = new String(processDefinition, Charset.forName("UTF-8"));
+            final String text = new String(processDefinition, StandardCharsets.UTF_8);
             db.addString(processName, text);
             db.name(processName);
             Deployment depl = db.deploy();
@@ -226,7 +226,7 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public boolean isSupportTemplate(byte[] processDefinition, String processName) {
+    public boolean isSupportTemplate(String processName) {
         return processName.toLowerCase().endsWith("bpmn");
     }
 

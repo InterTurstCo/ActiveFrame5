@@ -151,11 +151,10 @@ public interface WorkflowEngine {
 
     /**
      * Проверка поддерживает ли движок устанавливаемый шаблон процессов
-     * @param processDefinition
      * @param processName
      * @return
      */
-    boolean isSupportTemplate(byte[] processDefinition, String processName);
+    boolean isSupportTemplate(String processName);
 
     /**
      * Возвращает имя движка процессов

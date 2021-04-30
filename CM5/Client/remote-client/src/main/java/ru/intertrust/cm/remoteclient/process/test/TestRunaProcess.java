@@ -32,6 +32,8 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
+import static ru.intertrust.cm.remoteclient.process.test.CommonMethods.deployProcess;
+
 /**
  * Тестовый клиент к подсистеме процессов.
  *
@@ -47,7 +49,7 @@ public class TestRunaProcess extends ClientBase {
             ex.printStackTrace();
         }
         // Пауза для IDE, чтоб обновилась output консоль
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
     }
 
     public void execute(String[] args) throws Exception {
@@ -65,13 +67,13 @@ public class TestRunaProcess extends ClientBase {
                 person = getCrudService().save(person);
             }
 
+            final ProcessService processService = getProcessService("admin");
             // Установка процесса
-            byte[] processDef = getProcessAsByteArray("templates/runa/test-1.par");
-            Id defId = getProcessService("admin").saveProcess(processDef, "test-1", true);
+            final Id defId = deployProcess(processService, "templates/runa/test-1.par", "test-1", true);
             assertTrue("Deploy process", defId != null);
 
             // Повторная установка процесса
-            Id defId2 = getProcessService("admin").saveProcess(processDef, "test-1", true);
+            Id defId2 = deployProcess(processService, "templates/runa/test-1.par", "test-1", true);
             assertTrue("Secondary deploy process", defId2 != null && !defId.equals(defId2));
 
 
@@ -123,17 +125,17 @@ public class TestRunaProcess extends ClientBase {
             personActionService = getActionService("person5");
             actions = personActionService.getActions(attachment.getId());
             SimpleActionContext context = (SimpleActionContext) actions.get(0);
-            SimpleActionConfig config = (SimpleActionConfig) context.getActionConfig();
+            SimpleActionConfig config = context.getActionConfig();
             assertTrue("Action count to task 1", actions.size() == 1 && config.getProperty("complete.activity.id").equals("ID11"));
 
             //Попытка завершить задачу другим пользователем, у кого нет задачи
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
+                config = context.getActionConfig();
                 try {
-                    getProcessService("person1").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                            (String) config.getProperty("complete.task.action"));
+                    getProcessService("person1").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                            config.getProperty("complete.task.action"));
                     assertTrue("Complete not person task", false);
                 } catch (Exception ignoreEx) {
                     //Правильная ошибка
@@ -143,14 +145,14 @@ public class TestRunaProcess extends ClientBase {
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person5").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person5").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             // Получение всех задач по документу который не прикреплен к
             // процессу. Должно получится 0 задач
-            List<DomainObject> tasks = getProcessService("admin").getUserDomainObjectTasks(attachmentNotInProcess
+            List<DomainObject> tasks = processService.getUserDomainObjectTasks(attachmentNotInProcess
                     .getId());
             log("Find " + tasks.size()
                     + " tasks for noattached to process document");
@@ -162,15 +164,15 @@ public class TestRunaProcess extends ClientBase {
             personActionService = getActionService("person2");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to task 2", actions.size() == 1 && config.getProperty("complete.activity.id").equals("ID16"));
 
             // Получение всех задач по документу и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person2").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person2").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             //Получение задачь у пользователя 3, подписывающего
@@ -179,7 +181,7 @@ public class TestRunaProcess extends ClientBase {
             personActionService = getActionService("person3");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to task 3", actions.size() == 2 && config.getProperty("complete.activity.id").equals("ID27")
                     && (config.getProperty("complete.task.action").equals("first-action") || config.getProperty("complete.task.action").equals("second-action")));
 
@@ -187,17 +189,17 @@ public class TestRunaProcess extends ClientBase {
             personActionService = getActionService("person4");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to task 3", actions.size() == 2 && config.getProperty("complete.activity.id").equals("ID27")
                     && (config.getProperty("complete.task.action").equals("first-action") || config.getProperty("complete.task.action").equals("second-action")));
 
             Set<String> completeTaskIds = new HashSet<>();
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
+                config = context.getActionConfig();
                 if (!completeTaskIds.contains(config.getProperty("complete.task.id"))) {
-                    getProcessService("person4").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                            (String) config.getProperty("complete.task.action"));
+                    getProcessService("person4").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                            config.getProperty("complete.task.action"));
                     completeTaskIds.add(config.getProperty("complete.task.id"));
                 }
             }
@@ -206,21 +208,21 @@ public class TestRunaProcess extends ClientBase {
             personActionService = getActionService("person1");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to AllPersons group", actions.size() == 1 && config.getProperty("complete.activity.id").equals("ID95"));
 
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person1").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person1").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             // Проверка Изменения вложения и создания новго из процесса
             attachment = getCrudService().find(attachment.getId());
             assertTrue("Change domain object from process", attachment.getString("test_text").startsWith("Изменен в процессе"));
             String testText = attachment.getString("test_text");
-            String createdId = testText.substring(testText.length() - 16, testText.length());
+            String createdId = testText.substring(testText.length() - 16);
             DomainObject createdDomainObject = getCrudService().find(new RdbmsId(createdId));
             assertTrue("Create domain object from process", createdDomainObject.getString("test_text").equals("Создан в процессе"));
 
@@ -228,14 +230,14 @@ public class TestRunaProcess extends ClientBase {
             // определенным результатом
             // Для руны надо подождать минуту, чтоб успели синхронизироватся задачи
             //Thread.sleep(60000);
-            tasks = getProcessService("admin").getUserDomainObjectTasks(attachment.getId());
+            tasks = processService.getUserDomainObjectTasks(attachment.getId());
             log("Find " + tasks.size() + " tasks");
             for (DomainObject task : tasks) {
                 if ("ID35".equals(task.getString("ActivityId"))) {
                     // Получаем все доступные действия
                     String taskActions = task.getString("Actions");
                     log("All actions = " + taskActions);
-                    getProcessService("admin").completeTask(task.getId(), null, "YES");
+                    processService.completeTask(task.getId(), null, "YES");
                     log("Complete " + task.getId());
                 }
             }
@@ -306,7 +308,7 @@ public class TestRunaProcess extends ClientBase {
             // Проверка получения данных запросом
             attachment = getCrudService().find(attachment.getId());
             testText = attachment.getString("test_text");
-            String personId = testText.substring(testText.length() - 16, testText.length());
+            String personId = testText.substring(testText.length() - 16);
             DomainObject personDomObj =  getCrudService().find(new RdbmsId(personId));
             assertTrue("Check find by query", personDomObj.getString("login").equals("person1"));
 
@@ -324,30 +326,6 @@ public class TestRunaProcess extends ClientBase {
         }
     }
 
-    private byte[] getProcessAsByteArray(String processPath) throws IOException {
-        FileInputStream stream = null;
-        ByteArrayOutputStream out = null;
-        try {
-            stream = new FileInputStream(processPath);
-            out = new ByteArrayOutputStream();
-
-            int read = 0;
-            byte[] buffer = new byte[1024];
-            while ((read = stream.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-            }
-
-            return out.toByteArray();
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
-
     private DomainObject getEmployee(String employeeName) throws NamingException {
         DomainObject result = null;
         IdentifiableObjectCollection collection =
@@ -360,26 +338,26 @@ public class TestRunaProcess extends ClientBase {
     }
 
     private CollectionsService.Remote getCollectionService() throws NamingException {
-        return (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
+        return getService("CollectionsServiceImpl", CollectionsService.Remote.class);
     }
 
     private CrudService.Remote getCrudService() throws NamingException {
-        return (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
+        return getService("CrudServiceImpl", CrudService.Remote.class);
     }
 
     private ActionService getActionService(String login) throws NamingException {
         ActionService actionService =
-                (ActionService) getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
+                getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
         return actionService;
     }
 
     private ProcessService getProcessService(String login) throws NamingException {
-        ProcessService service = (ProcessService) getService("ProcessService", ProcessService.Remote.class, login, "admin");
+        ProcessService service = getService("ProcessService", ProcessService.Remote.class, login, "admin");
         return service;
     }
 
     private PersonManagementService.Remote getPersonManagementService() throws NamingException {
-        PersonManagementService.Remote personService = (PersonManagementService.Remote) getService(
+        PersonManagementService.Remote personService = getService(
                 "PersonManagementService", PersonManagementService.Remote.class);
         return personService;
     }

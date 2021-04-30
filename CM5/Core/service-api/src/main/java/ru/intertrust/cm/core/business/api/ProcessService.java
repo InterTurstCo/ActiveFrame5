@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -79,12 +81,12 @@ public interface ProcessService {
 
     /**
      * Сохранение процесса в хранилище
-     * @param processDefinition описание процесса
-     * @param deploy имя сохраняемого файла
+     * @param processDefinitionProvider provider, передающий описание процесса
+     * @param fileName имя сохраняемого файла
      * @param deploy флаг необходимости устанавливать процесс в движок WF
      * @return идентификатор сохраненного процесса
      */
-    Id saveProcess(byte[] processDefinition, String fileName, boolean deploy);
+    Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, boolean deploy);
 
     /**
      * Удаление шаблона процесса(каскадно или нет). При каскадном удалении
@@ -168,11 +170,10 @@ public interface ProcessService {
 
     /**
      * Проверка поддерживает ли движок устанавливаемый шаблон процессов
-     * @param processDefinition
      * @param processName
      * @return
      */
-    boolean isSupportTemplate(byte[] processDefinition, String processName);
+    boolean isSupportTemplate(String processName);
 
     /**
      * Получение активного в данный момент движка процессов

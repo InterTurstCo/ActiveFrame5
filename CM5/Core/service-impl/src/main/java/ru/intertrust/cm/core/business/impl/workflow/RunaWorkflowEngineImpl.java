@@ -448,7 +448,7 @@ public class RunaWorkflowEngineImpl extends AbstactWorkflowEngine {
     }
 
     @Override
-    public boolean isSupportTemplate(byte[] processDefinition, String processName) {
+    public boolean isSupportTemplate(String processName) {
         return processName.toLowerCase().endsWith("par");
     }
 

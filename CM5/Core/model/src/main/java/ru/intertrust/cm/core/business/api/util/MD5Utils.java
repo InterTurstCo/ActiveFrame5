@@ -1,12 +1,11 @@
 package ru.intertrust.cm.core.business.api.util;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import ru.intertrust.cm.core.model.FatalException;
 
 public class MD5Utils {
 
@@ -16,11 +15,7 @@ public class MD5Utils {
      * @return MD5 хеш.
      */
     public static String getMD5AsHex(String message) {
-        try {
-            return getMD5AsHex(message.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException ex) {
-            throw new FatalException("Error create md5 hash", ex);
-        }
+        return getMD5AsHex(message.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -36,11 +31,9 @@ public class MD5Utils {
         String digest = null;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            byte[] hash = md.digest(message.getBytes("UTF-8"));
+            byte[] hash = md.digest(message.getBytes(StandardCharsets.UTF_8));
             BigInteger bigInteger = new BigInteger(hash);
             return  bigInteger.toString(32);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -61,16 +54,20 @@ public class MD5Utils {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] hash = md.digest(message);
-            // converting byte array to Hexadecimal String
-            StringBuilder sb = new StringBuilder(2 * hash.length);
-            for (byte b : hash) {
-                sb.append(String.format("%02x", b & 0xff));
-            }
-            digest = sb.toString();
+            digest = bytesToHex(hash);
         } catch (NoSuchAlgorithmException ex) {
             Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
         }
         return digest;
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        // converting byte array to Hexadecimal String
+        StringBuilder sb = new StringBuilder(2 * bytes.length);
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
     }
 
 }

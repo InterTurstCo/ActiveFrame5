@@ -18,13 +18,12 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 import javax.naming.NamingException;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static ru.intertrust.cm.remoteclient.process.test.CommonMethods.deployProcess;
 
 /**
  * Тестовый клиент к подсистеме процессов.
@@ -40,7 +39,7 @@ public class TestProcess extends ClientBase {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        Thread.currentThread().sleep(1000);
+        Thread.sleep(1000);
     }
 
     public void execute(String[] args) throws Exception {
@@ -58,8 +57,8 @@ public class TestProcess extends ClientBase {
                 person = getCrudService().save(person);
             }
 
-            byte[] processDef = getProcessAsByteArray("Client/remote-client/templates/TestSimpleProcess.bpmn");
-            Id defId = getProcessService("admin").saveProcess(processDef,
+            final ProcessService processService = getProcessService("admin");
+            Id defId = deployProcess(processService, "Client/remote-client/templates/TestSimpleProcess.bpmn",
                     "SimpleProcess.bpmn", true);
 
             // Создание документа, который НЕ будет прикреплен к процессу
@@ -104,17 +103,17 @@ public class TestProcess extends ClientBase {
             personActionService = getActionService("person5");
             actions = personActionService.getActions(attachment.getId());
             SimpleActionContext context = (SimpleActionContext) actions.get(0);
-            SimpleActionConfig config = (SimpleActionConfig) context.getActionConfig();
+            SimpleActionConfig config = context.getActionConfig();
             assertTrue("Action count to task 1", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask1"));
 
             //Попытка завершить задачу другим пользователем, у кого нет задачи
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
+                config = context.getActionConfig();
                 try {
-                    getProcessService("person1").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                            (String) config.getProperty("complete.task.action"));
+                    getProcessService("person1").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                            config.getProperty("complete.task.action"));
                     assertTrue("Complete not person task", false);
                 } catch (Exception ignoreEx) {
                     //Правильная ошибка
@@ -124,9 +123,9 @@ public class TestProcess extends ClientBase {
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person5").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person5").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             // Получение всех задач по документу который не прикреплен к
@@ -141,22 +140,22 @@ public class TestProcess extends ClientBase {
             personActionService = getActionService("person2");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to task 2", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask2"));
 
             // Получение всех задач по документу и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person2").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person2").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             //Получение задачь у пользователя 3, подписывающего
             personActionService = getActionService("person3");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to task 3", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask6")
                     && config.getProperty("complete.task.action").equals("first-action"));
 
@@ -164,15 +163,15 @@ public class TestProcess extends ClientBase {
             personActionService = getActionService("person4");
             actions = personActionService.getActions(attachment.getId());
             context = (SimpleActionContext) actions.get(0);
-            config = (SimpleActionConfig) context.getActionConfig();
+            config = context.getActionConfig();
             assertTrue("Action count to task 3", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask6")
                     && config.getProperty("complete.task.action").equals("second-action"));
 
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person4").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person4").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             // Получение всех задач пользователя по документу и их завершение с
@@ -215,11 +214,11 @@ public class TestProcess extends ClientBase {
             }
 
             //Проверка наличия уведомления у пользователя person1
-            List<Value> params = new ArrayList<Value>();
+            List<Value> params = new ArrayList<>();
             params.add(new ReferenceValue(attachment.getId()));
 
             //Пауза чтоб отправились асинхронные уведомления
-            Thread.currentThread().sleep(10000);
+            Thread.sleep(10000);
 
             IdentifiableObjectCollection collection = getCollectionService().findCollectionByQuery("select n.id from notification n where n.context_object = {0}", params);
             assertTrue("Send message", collection.size() == 1);
@@ -265,7 +264,7 @@ public class TestProcess extends ClientBase {
             assertTrue("Check timer start", attachment.getString("test_text").endsWith("Получили уведомление 5."));
 
             //Спим более минуты, должен сработать таймер
-            Thread.currentThread().sleep(120000);
+            Thread.sleep(120000);
             attachment = getCrudService().find(attachment.getId());
             assertTrue("Check timer end", attachment.getString("test_text").endsWith("Сработал таймер."));
 
@@ -275,9 +274,9 @@ public class TestProcess extends ClientBase {
             // Получение всех задач по документу и их завершение
             for (ActionContext actionContext : actions) {
                 context = (SimpleActionContext) actionContext;
-                config = (SimpleActionConfig) context.getActionConfig();
-                getProcessService("person5").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
-                        (String) config.getProperty("complete.task.action"));
+                config = context.getActionConfig();
+                getProcessService("person5").completeTask(new RdbmsId(config.getProperty("complete.task.id")), null,
+                        config.getProperty("complete.task.action"));
             }
 
             //Проверяем что таймер еще не сработал
@@ -285,7 +284,7 @@ public class TestProcess extends ClientBase {
             assertTrue("Check timer 2 start", attachment.getString("test_text").endsWith("Сработал таймер."));
 
             //Спим более минуты, должен сработать второй таймер
-            Thread.currentThread().sleep(120000);
+            Thread.sleep(120000);
 
             //Проверяем таймер повторно
             attachment = getCrudService().find(attachment.getId());
@@ -305,30 +304,6 @@ public class TestProcess extends ClientBase {
         }
     }
 
-    private byte[] getProcessAsByteArray(String processPath) throws IOException {
-        FileInputStream stream = null;
-        ByteArrayOutputStream out = null;
-        try {
-            stream = new FileInputStream(processPath);
-            out = new ByteArrayOutputStream();
-
-            int read = 0;
-            byte[] buffer = new byte[1024];
-            while ((read = stream.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-            }
-
-            return out.toByteArray();
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
-
     private DomainObject getEmployee(String employeeName) throws NamingException {
         DomainObject result = null;
         IdentifiableObjectCollection collection =
@@ -341,27 +316,22 @@ public class TestProcess extends ClientBase {
     }
 
     private CollectionsService.Remote getCollectionService() throws NamingException {
-        return (CollectionsService.Remote) getService("CollectionsServiceImpl", CollectionsService.Remote.class);
+        return getService("CollectionsServiceImpl", CollectionsService.Remote.class);
     }
 
     private CrudService.Remote getCrudService() throws NamingException {
-        return (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
+        return getService("CrudServiceImpl", CrudService.Remote.class);
     }
 
     private ActionService getActionService(String login) throws NamingException {
-        ActionService actionService =
-                (ActionService) getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
-        return actionService;
+        return getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
     }
 
     private ProcessService getProcessService(String login) throws NamingException {
-        ProcessService service = (ProcessService) getService("ProcessService", ProcessService.Remote.class, login, "admin");
-        return service;
+        return getService("ProcessService", ProcessService.Remote.class, login, "admin");
     }
 
     private PersonManagementService.Remote getPersonManagementService() throws NamingException {
-        PersonManagementService.Remote personService = (PersonManagementService.Remote) getService(
-                "PersonManagementService", PersonManagementService.Remote.class);
-        return personService;
+        return getService("PersonManagementService", PersonManagementService.Remote.class);
     }
 }

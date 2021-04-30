@@ -2,15 +2,17 @@ package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.IOHelpService;
 import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.InputStreamProvider;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
@@ -31,7 +33,6 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import javax.ejb.Local;
@@ -40,7 +41,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Date;
@@ -71,10 +71,17 @@ public class ProcessServiceImpl implements ProcessService {
     private PersonManagementService personManagementService;
 
     @Autowired
-    private MD5Service md5Service;
+    private AttachmentService attachmentService;
 
     @Autowired
-    private AttachmentService attachmentService;
+    private IOHelpService ioHelpService;
+
+    @org.springframework.beans.factory.annotation.Value("${workflow.use.check.sum.to.upload:true}")
+    private boolean useCheckSum;
+
+    public void setUseCheckSum(boolean useCheckSum) {
+        this.useCheckSum = useCheckSum;
+    }
 
     @Override
     public String startProcess(String processName, Id attachedObjectId,
@@ -96,22 +103,23 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public Id saveProcess(byte[] processDefinition, String fileName, boolean deploy) {
+    public Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, boolean deploy) {
+        ProcessDefinitionData processDefinitionData = getProcessDefinitionData(processDefinitionProvider);
+        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, deploy);
+    }
+
+    private Id saveProcessInner(byte[] processDefinition, String hash, String fileName, boolean deploy) {
 
         ProcessTemplateInfo info = workflowEngine.getProcessTemplateInfo(processDefinition);
-        Id result = null;
 
         // Проверяем что версия не пустая
-        if (info.getVersion() == null){
+        if (info.getVersion() == null) {
             throw new FatalException("Version is not defined in process definition " + fileName);
         }
 
-        if (!info.getVersion().matches("\\d+\\.\\d+.\\d+.\\d+")){
+        if (!info.getVersion().matches("\\d+\\.\\d+.\\d+.\\d+")) {
             throw new FatalException("Version has incorrect format in process definition " + fileName + ". Need #.#.#.# format.");
         }
-
-        // Вычисляем хэш сохраняемого шаблона
-        String newHash = md5Service.getMD5AsHex(processDefinition);
 
         // Поиск процесса по имени и версии
         Map<String, Value> key = new HashMap<>();
@@ -120,14 +128,23 @@ public class ProcessServiceImpl implements ProcessService {
         DomainObject processDefinitionObject = crudService.findByUniqueKey("process_definition", key);
 
         // Если найдено проверяем соответствие хэша шаблона
-        if (processDefinitionObject != null){
-            // Проверяем соответствие хэшей
-            if (!newHash.equals(processDefinitionObject.getString("hash"))){
-                // Попытка сохранить другой шаблон с повторяющимися именем и версией
-                throw new FatalException("Process definition with name " + fileName +
-                        " and version " + info.getVersion() + " alredy exists.");
+        if (processDefinitionObject != null) {
+            // Проверяем соответствие хэшей, при необходимости
+            if (useCheckSum) {
+                if (hash == null) {
+                    throw new FatalException("MD5 sum must not be null when workflow.use.check.sum.to.upload enabled!" +
+                            " ProcessDefinition name is " + fileName);
+                }
+                final String storedHash = processDefinitionObject.getString("hash");
+                // Если изначально использование проверки hash было выключено, а потом включили, то ошибки не будет
+                if (!StringUtils.isEmpty(storedHash) && !hash.equals(storedHash)){
+                    // Попытка сохранить другой шаблон с повторяющимися именем и версией
+                    throw new FatalException("Process definition with name " + fileName +
+                            " and version " + info.getVersion() + " already exists.");
+                }
             }
-        }else {
+
+        } else {
             // Ничего не найдено, создаем
             processDefinitionObject = crudService.createDomainObject("process_definition");
 
@@ -137,7 +154,7 @@ public class ProcessServiceImpl implements ProcessService {
             processDefinitionObject.setString("version", info.getVersion());
             processDefinitionObject.setString("category", info.getCategory());
             processDefinitionObject.setString("description", info.getDescription());
-            processDefinitionObject.setString("hash", newHash);
+            processDefinitionObject.setString("hash", hash);
 
             processDefinitionObject = crudService.save(processDefinitionObject);
 
@@ -152,9 +169,8 @@ public class ProcessServiceImpl implements ProcessService {
                 deployProcess(processDefinitionObject.getId());
             }
         }
-        result = processDefinitionObject.getId();
 
-        return result;
+        return processDefinitionObject.getId();
     }
 
     @Override
@@ -292,7 +308,7 @@ public class ProcessServiceImpl implements ProcessService {
                 taskDomainObject = crudService.save(taskDomainObject);
 
                 for (WorkflowTaskAddressee wfTaskAddressee : task.getAddressee()) {
-                    DomainObject assignee = null;
+                    DomainObject assignee;
                     if (wfTaskAddressee.isGroup()) {
                         assignee = crudService.createDomainObject("Assignee_Group");
                         assignee.setReference("UserGroup", personManagementService.getGroupId(wfTaskAddressee.getName()));
@@ -309,8 +325,8 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public boolean isSupportTemplate(byte[] processDefinition, String processName) {
-        return workflowEngine.isSupportTemplate(processDefinition, processName);
+    public boolean isSupportTemplate(String processName) {
+        return workflowEngine.isSupportTemplate(processName);
     }
 
     @Override
@@ -380,8 +396,6 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public byte[] getProcessTemplateModel(Id processDefinitionId) {
         try {
-
-            DomainObject processDefinition = crudService.find(processDefinitionId);
             List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(processDefinitionId);
 
             // Ожидаем что только одно вложение привязано к доменному объекту
@@ -403,6 +417,36 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public byte[] getProcessInstanceModel(String processInstanceId) {
         return workflowEngine.getProcessInstanceModel(processInstanceId);
+    }
+
+    private ProcessDefinitionData getProcessDefinitionData(InputStreamProvider processDefinitionProvider) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        String hash = null;
+        if (useCheckSum) {
+            hash = ioHelpService.copyWithEolControlAndMd5(processDefinitionProvider, os);
+        } else {
+            ioHelpService.copyWithEolControl(processDefinitionProvider, os);
+        }
+        return new ProcessDefinitionData(os.toByteArray(), hash);
+    }
+
+    private static class ProcessDefinitionData {
+        private final byte[] processDefinition;
+        private final String md5sum;
+
+        private ProcessDefinitionData(byte[] processDefinition, String md5sum) {
+
+            this.processDefinition = processDefinition;
+            this.md5sum = md5sum;
+        }
+
+        private byte[] getProcessDefinition() {
+            return processDefinition;
+        }
+
+        private String getMd5sum() {
+            return md5sum;
+        }
     }
 }
 

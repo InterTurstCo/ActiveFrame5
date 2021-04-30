@@ -1,0 +1,6 @@
+Don't touch this file!!!
+
+This file is necessary for work with the MD5 check sum. If you want to change this file,
+don't forget to change md5 sum in constants in IOHelpServiceTest.
+
+File can be with CRLF or LF EOL. Before test I'll prepare EOL manually to avoid bugs.

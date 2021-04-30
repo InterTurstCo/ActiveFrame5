@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -303,10 +304,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     private void processWorkflowUpdate(String processDataString, String fileName) {
         byte[] process = Base64.decodeBase64(processDataString);
-        if (processService.isSupportTemplate(process, fileName)) {
-            processService.saveProcess(process, fileName, true);
-        }else{
-            throw new FatalException("Process template " + fileName + " is not support by workflow engene");
+        if (processService.isSupportTemplate(fileName)) {
+            processService.saveProcess(() -> new ByteArrayInputStream(process), fileName, true);
+        } else {
+            throw new FatalException("Process template " + fileName + " is not support by workflow engine");
         }
     }
 

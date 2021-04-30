@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
+import static ru.intertrust.cm.remoteclient.process.test.CommonMethods.deployProcesses;
+
 /**
  * Тестовый клиент к подсистеме процессов.
  * @author larin
@@ -149,27 +151,8 @@ public class TestProcessInternalDoc extends ClientBase {
                 resolutionCards.put(i, resolutionCard);
             }
 
+            deployProcesses(service);
 
-            byte[] processDef = getProcessAsByteArray("templates/testInternalDoc/InternalDoc.bpmn");
-            Id defId = service.saveProcess(processDef,
-                    "InternalDoc.bpmn", true);
-
-            processDef = getProcessAsByteArray("templates/testInternalDoc/Negotiation.bpmn");
-            defId = service.saveProcess(processDef,
-                    "Negotiation.bpmn", true);
-            
-            processDef = getProcessAsByteArray("templates/testInternalDoc/Registration.bpmn");
-            defId = service.saveProcess(processDef,
-                    "Registration.bpmn", true);
-            
-            processDef = getProcessAsByteArray("templates/testInternalDoc/DocExecution.bpmn");
-            defId = service.saveProcess(processDef,
-                    "DocExecution.bpmn", true);
-            
-            processDef = getProcessAsByteArray("templates/testInternalDoc/CommissionExecution.bpmn");
-            defId = service.saveProcess(processDef,
-                    "CommissionExecution.bpmn", true);
-            
             attachment.setReference("docAuthor", docAuthor);
             attachment.setReference("Registrant", registrant);
             attachment = crudService.save(attachment);
@@ -299,29 +282,6 @@ public class TestProcessInternalDoc extends ClientBase {
         }
     }
 
-    private byte[] getProcessAsByteArray(String processPath) throws IOException {
-        FileInputStream stream = null;
-        ByteArrayOutputStream out = null;
-        try {
-            stream = new FileInputStream(processPath);
-            out = new ByteArrayOutputStream();
-
-            int read = 0;
-            byte[] buffer = new byte[1024];
-            while ((read = stream.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-            }
-
-            return out.toByteArray();
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-        }
-    }
     private DomainObject createEmployee() throws NamingException{
     	CrudService crudService = getCrudService();
     	//Создание согласующего
