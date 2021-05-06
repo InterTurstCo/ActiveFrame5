@@ -1,24 +1,15 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -31,6 +22,9 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.*;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -38,6 +32,9 @@ import net.sf.jasperreports.engine.JasperCompileManager;
 import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.PropertyResolver;
+import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
@@ -77,6 +74,14 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);
     private static Collection<DomainObjectTypeConfig> configurations;
 
+    private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
+    private static final String CONFIG_FILE = "report-import-config.xml";
+
+    @Autowired
+    private PropertyResolver propertyResolver;
+
+    @Autowired
+    private ImportDataService importDataService;
 
     private int getReportHash(DeployReportData deployReportData) throws Exception{
         Map<Integer, Integer> hashMap = new HashMap<>();
@@ -447,6 +452,63 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         logger.info("End recompile all reports");
     }
 
+    @Override
+    public void importReportPackage(File reportPackageFile) throws Exception {
+        logMessage("importReportPackage >>>", "reportPackageFile=", reportPackageFile != null ? reportPackageFile.getAbsolutePath() : null);
+        String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
+        logMessage("importReportPackage === 1", "pathForTempFilesStore=", pathForTempFilesStore);
+        File packageFilesPath = this.unzipFile(pathForTempFilesStore, reportPackageFile);
+        logMessage("importReportPackage === 2", "packageFilesPath=", packageFilesPath != null ? packageFilesPath.getAbsolutePath() : null);
+        ReportImportConfig reportImportConfig = loadImportConfig(packageFilesPath, CONFIG_FILE);
+        if (reportImportConfig == null) {
+            throw new Exception("Ошибка при загрузки конфигурации импорта отчетов.");
+        }
+        List<CsvFile> csvFiles = reportImportConfig.getCsvFiles();
+        logMessage("importReportPackage === 3", "csvFiles.count=", csvFiles != null ? csvFiles.size() : null);
+        if (csvFiles != null) {
+            for (CsvFile csvFile : csvFiles) {
+                logMessage("importReportPackage === 3.1", "csvFile=", csvFile);
+                File file = new File(packageFilesPath, csvFile != null ? csvFile.getFilePath() : null);
+                logMessage("importReportPackage === 3.2", "file=", file != null ? file.getAbsolutePath() : null);
+                importDataService.importData(readFile(file), csvFile.getCodePage(), csvFile.getOverwrite());
+                logMessage("importReportPackage === 3.3", "import of csvFile=", csvFile, "ok");
+            }
+        }
+        List<ReportTemplate> reportTemplates = reportImportConfig.getReportTemplates();
+        logMessage("importReportPackage === 4", "reportTemplates.count=", reportTemplates != null ? reportTemplates.size() : null);
+        if (reportTemplates != null) {
+            for (ReportTemplate reportTemplate : reportTemplates) {
+                List<TemplateFilePath> templateFiles = reportTemplate != null ? reportTemplate.getTemplateFiles() : null;
+                logMessage("importReportPackage === 4.1", "reportTemplate.files.count=", templateFiles != null ? templateFiles.size() : null);
+                if (templateFiles != null && !templateFiles.isEmpty()) {
+                    DeployReportData deployData = new DeployReportData();
+                    for (TemplateFilePath templateFile : templateFiles) {
+                        if (templateFile != null) {
+                            logMessage("importReportPackage === 4.2", "templateFile=", templateFile);
+                            File file = new File(packageFilesPath, templateFile.getFilePath());
+                            DeployReportItem deployItem = new DeployReportItem();
+                            deployItem.setName(file.getName());
+                            deployItem.setBody(readFile(file));
+                            deployData.getItems().add(deployItem);
+                        }
+                    }
+                    logMessage("importReportPackage === 4.3", "deploying report template ...");
+                    this.deploy(deployData, true);
+                    logMessage("importReportPackage === 4.4", "deploy of report template ok");
+                }
+            }
+        }
+        try {
+            logMessage("importReportPackage === 5", "deleting catalog", packageFilesPath.getAbsolutePath());
+            boolean b = deleteFile(packageFilesPath);
+            logMessage("importReportPackage === 5.1", "deleted", b);
+        } catch (Throwable e) {
+            logMessage("importReportPackage === 5.2", "Error deleting tmp files", e.getMessage());
+        }
+        logMessage("importReportPackage <<<");
+    }
+
+
     private DeployReportData getReportData(Id templateId, AccessToken accessToken) {
         DeployReportData result = new DeployReportData();
         List<DomainObject> attachments = getAttachments("report_template_attach", templateId);
@@ -491,5 +553,217 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
+    private ReportImportConfig loadImportConfig(File dirPath, String configFile) throws Exception {
+        logMessage("loadImportConfig >>>", "dirPath=", dirPath != null ? dirPath.getAbsolutePath() : null, "configFile=", configFile);
+        JAXBContext jc = JAXBContext.newInstance(ReportImportConfig.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        File configFilePath = new File(dirPath, configFile);
+        logMessage("loadImportConfig === 1", "configFilePath=", configFilePath != null ? configFilePath.getAbsolutePath() : null, "configFile=", configFile);
+        ReportImportConfig reportImportConfig = (ReportImportConfig) unmarshaller.unmarshal(configFilePath);
+        logMessage("loadImportConfig <<<", "configFilePath=", configFilePath != null ? configFilePath.getAbsolutePath() : null, "configFile=", configFile);
+        return reportImportConfig;
+    }
 
+    private File unzipFile(String path, File jarFile) throws Exception {
+        logMessage("unzipFile >>>", "path=", path, "jarFile=", jarFile != null ? jarFile.getAbsolutePath() : null);
+        File destDir = new File(path, this.getUniqueName());
+        logMessage("unzipFile === 1", "destDir=", destDir != null ? destDir.getAbsolutePath() : null);
+        destDir.mkdirs();
+        InputStream zipFileStream = new FileInputStream(jarFile);
+        // TODO кодировка
+        try (ZipInputStream zis = new ZipInputStream(zipFileStream, Charset.defaultCharset())) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                File file = new File(destDir, entry.getName());
+
+                if (!file.toPath().normalize().startsWith(destDir.toPath())) {
+                    throw new IOException("Файл (" + file.toPath() + ") находится вне каталога: " + destDir.toPath());
+                }
+
+                if (entry.isDirectory()) {
+                    file.mkdirs();
+                    continue;
+                }
+
+                byte[] buffer = new byte[4096];
+                file.getParentFile().mkdirs();
+                BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(file));
+                int count;
+
+                while ((count = zis.read(buffer)) != -1) {
+                    out.write(buffer, 0, count);
+                }
+                out.close();
+            }
+        } catch (IOException e) {
+            throw new Exception(e);
+        }
+        logMessage("unzipFile <<<", "destDir=", destDir != null ? destDir.getAbsolutePath() : null);
+        return destDir;
+    }
+
+    private String getUniqueName() {
+        return UUID.randomUUID().toString().replace("-", "") + "_report_package";
+    }
+
+    private boolean deleteFile(File path) {
+        boolean retVal = false;
+        if (path != null && path.exists()) {
+            retVal = true;
+            File[] files = path.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        retVal &= deleteFile(file);
+                    } else {
+                        retVal &= file.delete();
+                    }
+                }
+            }
+            retVal &= path.delete();
+        }
+        return retVal;
+    }
+
+    private void logMessage(Object... data) {
+        if (logger.isDebugEnabled()) {
+            String logMsg = "";
+            if (data != null) {
+                for (Object msg : data) {
+                    logMsg += (msg != null ? msg.toString() : "null") + " ";
+                }
+            } else {
+                logMsg = "null";
+            }
+            logger.debug(logMsg);
+        }
+    }
+
+    @XmlRootElement(name = "report-import-config")
+    @XmlAccessorType(XmlAccessType.PROPERTY)
+    private static class ReportImportConfig implements Serializable {
+        private static final long serialVersionUID = 1L;
+
+        @XmlElementWrapper(name = "csv")
+        @XmlElement(name = "file-path")
+        private List<CsvFile> csvFiles;
+
+        @XmlElementWrapper(name = "templates")
+        @XmlElement(name = "template")
+        private List<ReportTemplate> reportTemplates;
+
+        public ReportImportConfig() {
+            super();
+        }
+
+        public List<CsvFile> getCsvFiles() {
+            return csvFiles;
+        }
+
+        public List<ReportTemplate> getReportTemplates() {
+            return reportTemplates;
+        }
+    }
+
+    @XmlAccessorType(XmlAccessType.PROPERTY)
+    private static class CsvFile implements Serializable {
+        private static final long serialVersionUID = 2L;
+
+        private String filePath;
+
+        @XmlAttribute(name = "overwrite")
+        private Boolean overwrite;
+
+        private String codePage;
+
+        public CsvFile() {
+            super();
+        }
+
+        public String getFilePath() {
+            return filePath;
+        }
+
+        @XmlValue
+        public void setFilePath(String filePath) {
+            if (filePath != null) {
+                filePath = filePath.replaceAll("\n", "")
+                        .replaceAll("\r", "").trim();
+            }
+            this.filePath = filePath;
+        }
+
+        public String getCodePage() {
+            return codePage;
+        }
+
+        @XmlAttribute(name = "code-page")
+        public void setCodePage(String codePage) throws Exception {
+            if (codePage == null) {
+                this.codePage = Charset.forName("cp1251").name();
+            } else {
+                try {
+                    this.codePage = Charset.forName(codePage).name();
+                } catch (UnsupportedCharsetException e) {
+                    this.codePage = Charset.forName("cp1251").name();
+                    throw new RuntimeException("Неверно указана кодировка csv-файла в конфигурации " + CONFIG_FILE + ": " + codePage);
+                }
+            }
+        }
+
+        public boolean getOverwrite() {
+            return overwrite != null ? overwrite.booleanValue() : true;
+        }
+
+        @Override
+        public String toString() {
+            return "CsvFile:{file-path=" + (filePath != null ? filePath : "null") + "; " +
+                    "code-page=" + getCodePage() + "; " +
+                    "overwrite=" + getOverwrite() + "}";
+        }
+    }
+
+    @XmlAccessorType(XmlAccessType.PROPERTY)
+    private static class ReportTemplate implements Serializable {
+        private static final long serialVersionUID = 3L;
+
+        @XmlElement(name = "file-path")
+        private List<TemplateFilePath> templateFiles;
+
+        public ReportTemplate() {
+            super();
+        }
+
+        public List<TemplateFilePath> getTemplateFiles() {
+            return templateFiles;
+        }
+    }
+
+    @XmlAccessorType(XmlAccessType.PROPERTY)
+    private static class TemplateFilePath implements Serializable {
+        private static final long serialVersionUID = 4L;
+
+        private String filePath;
+
+        public TemplateFilePath() {
+            super();
+        }
+
+        public String getFilePath() {
+            return filePath;
+        }
+
+        @XmlValue
+        public void setFilePath(String filePath) {
+            if (filePath != null) {
+                filePath = filePath.replaceAll("\n", "")
+                        .replaceAll("\r", "").trim();
+            }
+            this.filePath = filePath;
+        }
+
+        @Override public String toString() {
+            return filePath != null ? filePath : "null";
+        }
+    }
 }

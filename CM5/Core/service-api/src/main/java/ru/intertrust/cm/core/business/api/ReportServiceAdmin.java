@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 
+import java.io.File;
+
 /**
  * Административный интерфейс работы с отчетами
  * @author larin
@@ -31,8 +33,12 @@ public interface ReportServiceAdmin {
 
     /**
      * Перекомпиляция всех установленных отчетов
-     * @param name
      */
     void recompileAll();
 
+    /**
+     * Импорт пакета отчетов
+     * @param reportPackageFile - файл пакета отчетов
+     */
+    void importReportPackage(File reportPackageFile) throws Exception;
 }
