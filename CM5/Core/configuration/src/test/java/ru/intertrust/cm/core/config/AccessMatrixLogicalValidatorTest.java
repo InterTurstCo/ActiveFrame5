@@ -43,39 +43,71 @@ public class AccessMatrixLogicalValidatorTest {
         //                    \
         //                      module6
         //
+        //
+        //  Создадим еще одну структуру модулей, которые не зависят от первой группы
+        //
+        //        m2    (Модуль 3 зависит от модуля 1, Модуль 2 зависит от модуля 1 и от модуля 3)
+        //     /
+        // m1      ^
+        //     \
+        //        m3
+        //
+        //  Линейная структура с множеством потомков
+        //
+        // grandgrandfather - grandfather - father - child
+        //
 
-        List<ModuleConfiguration> modules = new ArrayList<>();
+
         ModuleConfiguration module1 = new ModuleConfiguration("module1");
-        modules.add(module1);
         ModuleConfiguration module2 = new ModuleConfiguration("module2");
-        modules.add(module2);
         ModuleConfiguration module3 = new ModuleConfiguration("module3", "module1");
-        modules.add(module3);
         ModuleConfiguration module4 = new ModuleConfiguration("module4", "module1", "module2");
-        modules.add(module4);
         ModuleConfiguration module5 = new ModuleConfiguration("module5", "module2");
-        modules.add(module5);
         ModuleConfiguration module6 = new ModuleConfiguration("module6", "module5");
-        modules.add(module6);
+
+        ModuleConfiguration m1 = new ModuleConfiguration("m1");
+        ModuleConfiguration m3 = new ModuleConfiguration("m3", "m1");
+        ModuleConfiguration m2 = new ModuleConfiguration("m2", "m1", "m3");
+
+        ModuleConfiguration grandGrandFather = new ModuleConfiguration("grandgrandfather");
+        ModuleConfiguration grandFather = new ModuleConfiguration("grandfather", "grandgrandfather");
+        ModuleConfiguration father = new ModuleConfiguration("father", "grandfather");
+        ModuleConfiguration child = new ModuleConfiguration("child", "father");
+
+        List<ModuleConfiguration> modules = new ArrayList<>(
+                Arrays.asList(
+                        module1, module2, module3, module4, module5, module6,
+                        m1, m2, m3,
+                        grandGrandFather, grandFather, father, child)
+        );
 
         when(moduleService.getModuleList()).thenReturn(modules);
+        when(moduleService.getRootModules()).thenReturn(Arrays.asList(module1, module2, m1, grandGrandFather));
 
-        when(moduleService.getRootModules()).thenReturn(Arrays.asList(module1, module2));
-
-        when(moduleService.getChildModules(anyString())).thenAnswer( invocation-> {
+        when(moduleService.getChildModules(anyString())).thenAnswer(invocation -> {
             Object[] arguments = invocation.getArguments();
-            if (arguments[0].equals("module1")){
+            if (arguments[0].equals("module1")) {
                 return Arrays.asList(module3, module4);
-            }else if (arguments[0].equals("module2")){
+            } else if (arguments[0].equals("module2")) {
                 return Arrays.asList(module4, module5);
-            }else if (arguments[0].equals("module5")){
+            } else if (arguments[0].equals("module5")) {
                 return Collections.singletonList(module6);
+            } else if (arguments[0].equals("m1")) {
+                return Arrays.asList(m2, m3);
+            } else if (arguments[0].equals("m3")) {
+                return Collections.singletonList(m2);
+            } else if (arguments[0].equals("grandgrandfather")) {
+                return Collections.singletonList(grandFather);
+            } else if (arguments[0].equals("grandfather")) {
+                return Collections.singletonList(father);
+            } else if (arguments[0].equals("father")) {
+                return Collections.singletonList(child);
             }
             return Collections.emptyList();
         });
     }
 
-    private ConfigurationExplorer createConfigurationExplorer(Configuration configuration){
+    private ConfigurationExplorer createConfigurationExplorer(Configuration configuration) {
 
         // Добавляем GlobalSettings к конфигурации если еще нет
         boolean hasGlobalConfig = false;
@@ -211,7 +243,7 @@ public class AccessMatrixLogicalValidatorTest {
      * 1 раз с extend, 2ой раз с replace.
      * Такой случай запрещен в ситеме и генерируется исключение
      */
-    @Test (expected = FatalBeanException.class)
+    @Test(expected = FatalBeanException.class)
     public void testReplaceMatrix_with_2_branches() {
         Configuration configuration = new Configuration();
         DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
@@ -260,8 +292,131 @@ public class AccessMatrixLogicalValidatorTest {
         }
     }
 
+    /**
+     * Проверяем ситуацию, когда модуль переопределяет матрицу, но сам является дочерним модулем
+     * (т.е. при построении графа он встретится несколько раз, сценарий запроса CMFIVE-53680)
+     */
     @Test
-    public void testValidateAccessMatrixExtensions(){
+    public void testReplaceMatrix_when_module_with_replace_matrix_is_child_to_root_and_child_another() {
+        Configuration configuration = new Configuration();
+        DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
+        type1Config.setName("t1");
+        configuration.getConfigurationList().add(type1Config);
+
+        AccessMatrixConfig access1Config = new AccessMatrixConfig();
+        access1Config.setType("t1");
+        access1Config.setModuleName("m1");
+        access1Config.setExtendable(true);
+        AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
+        status1Config.setName("s1");
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("g1")), false));
+        access1Config.getStatus().add(status1Config);
+        configuration.getConfigurationList().add(access1Config);
+
+        AccessMatrixConfig access2Config = new AccessMatrixConfig();
+        access2Config.setType("t1");
+        access2Config.setModuleName("m2");
+        access2Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
+        AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
+        status2Config.setName("s1");
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("g2")), false));
+        access2Config.getStatus().add(status2Config);
+        configuration.getConfigurationList().add(access2Config);
+
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(configuration);
+
+        assertNotNull(configurationExplorer.getAccessMatrixByObjectType("t1"));
+        AccessMatrixStatusConfig checkStatus1Config = configurationExplorer
+                .getAccessMatrixByObjectTypeAndStatus("t1", "s1");
+        assertNotNull(checkStatus1Config);
+        assertEquals("s1", checkStatus1Config.getName());
+        assertEquals(1, checkStatus1Config.getPermissions().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0) instanceof ReadConfig);
+        assertEquals(1, checkStatus1Config.getPermissions().get(0).getPermitConfigs().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0).getPermitConfigs().contains(new PermitGroup("g2")));
+    }
+
+    @Test
+    public void testReplaceMatrix_replace_grandfather_type() {
+        Configuration configuration = new Configuration();
+        DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
+        type1Config.setName("t1");
+        configuration.getConfigurationList().add(type1Config);
+
+        AccessMatrixConfig access1Config = new AccessMatrixConfig();
+        access1Config.setType("t1");
+        access1Config.setModuleName("module2");
+        access1Config.setExtendable(true);
+        AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
+        status1Config.setName("s1");
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("g1")), false));
+        access1Config.getStatus().add(status1Config);
+        configuration.getConfigurationList().add(access1Config);
+
+        AccessMatrixConfig access2Config = new AccessMatrixConfig();
+        access2Config.setType("t1");
+        access2Config.setModuleName("module6");
+        access2Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
+        AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
+        status2Config.setName("s1");
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("g2")), false));
+        access2Config.getStatus().add(status2Config);
+        configuration.getConfigurationList().add(access2Config);
+
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(configuration);
+
+        assertNotNull(configurationExplorer.getAccessMatrixByObjectType("t1"));
+        AccessMatrixStatusConfig checkStatus1Config = configurationExplorer
+                .getAccessMatrixByObjectTypeAndStatus("t1", "s1");
+        assertNotNull(checkStatus1Config);
+        assertEquals("s1", checkStatus1Config.getName());
+        assertEquals(1, checkStatus1Config.getPermissions().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0) instanceof ReadConfig);
+        assertEquals(1, checkStatus1Config.getPermissions().get(0).getPermitConfigs().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0).getPermitConfigs().contains(new PermitGroup("g2")));
+    }
+    @Test
+    public void testReplaceMatrix_replace_grand_grandfather_type() {
+        Configuration configuration = new Configuration();
+        DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
+        type1Config.setName("t1");
+        configuration.getConfigurationList().add(type1Config);
+
+        AccessMatrixConfig access1Config = new AccessMatrixConfig();
+        access1Config.setType("t1");
+        access1Config.setModuleName("grandgrandfather");
+        access1Config.setExtendable(true);
+        AccessMatrixStatusConfig status1Config = new AccessMatrixStatusConfig();
+        status1Config.setName("s1");
+        status1Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("g1")), false));
+        access1Config.getStatus().add(status1Config);
+        configuration.getConfigurationList().add(access1Config);
+
+        AccessMatrixConfig access2Config = new AccessMatrixConfig();
+        access2Config.setType("t1");
+        access2Config.setModuleName("child");
+        access2Config.setExtendType(AccessMatrixConfig.AccessMatrixExtendType.replace);
+        AccessMatrixStatusConfig status2Config = new AccessMatrixStatusConfig();
+        status2Config.setName("s1");
+        status2Config.getPermissions().add(new ReadConfig(Collections.singletonList(new PermitGroup("g2")), false));
+        access2Config.getStatus().add(status2Config);
+        configuration.getConfigurationList().add(access2Config);
+
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(configuration);
+
+        assertNotNull(configurationExplorer.getAccessMatrixByObjectType("t1"));
+        AccessMatrixStatusConfig checkStatus1Config = configurationExplorer
+                .getAccessMatrixByObjectTypeAndStatus("t1", "s1");
+        assertNotNull(checkStatus1Config);
+        assertEquals("s1", checkStatus1Config.getName());
+        assertEquals(1, checkStatus1Config.getPermissions().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0) instanceof ReadConfig);
+        assertEquals(1, checkStatus1Config.getPermissions().get(0).getPermitConfigs().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0).getPermitConfigs().contains(new PermitGroup("g2")));
+    }
+
+    @Test
+    public void testValidateAccessMatrixExtensions() {
         Configuration configuration = new Configuration();
         DomainObjectTypeConfig type1Config = new DomainObjectTypeConfig();
         type1Config.setName("type1");

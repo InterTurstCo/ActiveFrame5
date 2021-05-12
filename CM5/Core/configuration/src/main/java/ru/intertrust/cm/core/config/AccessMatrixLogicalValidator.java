@@ -231,6 +231,8 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
         private void addChildModules(ModuleConfiguration parentModule, MatrixNode parentMatrixNode) {
             MatrixNode currentMatrixNode = matrixNodes.get(parentModule.getName().toLowerCase());
             if (currentMatrixNode == null) {
+                // Это необходимо, если у нас переопределение идет через несколько модулей, а не у ближайшего дочернего
+                // см. тесты testReplaceMatrix_replace_grandfather_type, testReplaceMatrix_replace_grand_grandfather_type
                 currentMatrixNode = parentMatrixNode;
             }
             for (ModuleConfiguration childModule : moduleService.getChildModules(parentModule.getName())) {
@@ -290,8 +292,8 @@ public class AccessMatrixLogicalValidator implements ConfigurationValidator {
 
     public static class MatrixNode {
         private final String module;
-        private final List<String> parents = new ArrayList<>();
-        private final List<String> children = new ArrayList<>();
+        private final Set<String> parents = new LinkedHashSet<>();
+        private final Set<String> children = new LinkedHashSet<>();
 
         public MatrixNode(String module){
             this.module = module;
