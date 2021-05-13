@@ -10,9 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
@@ -68,7 +66,7 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
         guiService.logout(getThreadLocalRequest());
         
         //Вызов точки расширения после логаута, в точках расширения должны удалятся ранее сохраненные информация о пользователе
-        AuthenticationExtentionHandler authExtHandler = extensionService.getExtentionPoint(AuthenticationExtentionHandler.class, null);
+        AuthenticationExtentionHandler authExtHandler = extensionService.getExtensionPoint(AuthenticationExtentionHandler.class, null);
         authExtHandler.onAfterLogout(getThreadLocalRequest(), getThreadLocalResponse());        
     }
 

@@ -97,7 +97,7 @@ public class ConfigurationLoaderImpl implements ConfigurationLoader {
         if (springApplicationContext.getContext() != null) {
             ExtensionService extensionService = springApplicationContext.getContext()
                     .getBean(ExtensionService.class);
-            OnLoadConfigurationExtensionHandler extension = extensionService.getExtentionPoint(
+            OnLoadConfigurationExtensionHandler extension = extensionService.getExtensionPoint(
                     OnLoadConfigurationExtensionHandler.class, null);
             extension.onLoad();
         }

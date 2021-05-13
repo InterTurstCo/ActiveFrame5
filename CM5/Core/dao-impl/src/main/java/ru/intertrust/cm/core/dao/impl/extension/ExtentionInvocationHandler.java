@@ -34,7 +34,7 @@ public class ExtentionInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args)
             throws Throwable {
         try {
-            List<ExtensionPointHandler> interfaceClass = extensionService.getExtentionPointList(
+            List<ExtensionPointHandler> interfaceClass = extensionService.getExtensionPointList(
                     (Class<? extends ExtensionPointHandler>) proxy.getClass().getInterfaces()[0], filter);
 
             for (ExtensionPointHandler extentionPointBase : interfaceClass) {

@@ -457,7 +457,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                         // запускаем в отдельном потоке чтоб освободить очередь для сообщений об инвалидации
                         ExecutorService executor = Executors.newSingleThreadExecutor();
                         executor.execute(() -> {
-                            OnReceiveDiagnosticMessage extensionPoint = extensionService.getExtentionPoint(OnReceiveDiagnosticMessage.class, null);
+                            OnReceiveDiagnosticMessage extensionPoint = extensionService.getExtensionPoint(OnReceiveDiagnosticMessage.class, null);
                             extensionPoint.onMessage(invalidation.getDiagnosticData());
                         });
                         executor.shutdown();

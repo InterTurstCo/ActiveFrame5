@@ -67,9 +67,9 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 // Вызов точки расширения после создания после коммита
                 String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
                 for (String parentType : parentTypes) {
-                    extensionService.getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, parentType).onAfterCreate(domainObject);
+                    extensionService.getExtensionPoint(AfterCreateAfterCommitExtentionHandler.class, parentType).onAfterCreate(domainObject);
                 }
-                extensionService.getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, "").onAfterCreate(domainObject);
+                extensionService.getExtensionPoint(AfterCreateAfterCommitExtentionHandler.class, "").onAfterCreate(domainObject);
             }
         }
 
@@ -79,9 +79,9 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 // Вызов точки расширения после смены статуса после коммита
                 String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
                 for (String parentType : parentTypes) {
-                    extensionService.getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, parentType).onAfterChangeStatus(domainObject);
+                    extensionService.getExtensionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, parentType).onAfterChangeStatus(domainObject);
                 }
-                extensionService.getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, "").onAfterChangeStatus(domainObject);
+                extensionService.getExtensionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, "").onAfterChangeStatus(domainObject);
             }
         }
 
@@ -92,9 +92,9 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
                 final List<FieldModification> fieldModificationList = domainObjectsModification.getFieldModificationList(domainObject.getId());
                 for (String typeName : parentTypes) {
-                    extensionService.getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName).onAfterSave(domainObject, fieldModificationList);
+                    extensionService.getExtensionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName).onAfterSave(domainObject, fieldModificationList);
                 }
-                extensionService.getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, "").onAfterSave(domainObject, fieldModificationList);
+                extensionService.getExtensionPoint(AfterSaveAfterCommitExtensionHandler.class, "").onAfterSave(domainObject, fieldModificationList);
             }
         }
 
@@ -102,9 +102,9 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             // Вызов точки расширения после удаления после коммита
             String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(deletedDomainObject.getTypeName());
             for (String typeName : parentTypes) {
-                extensionService.getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName).onAfterDelete(deletedDomainObject);
+                extensionService.getExtensionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName).onAfterDelete(deletedDomainObject);
             }
-            extensionService.getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, "").onAfterDelete(deletedDomainObject);
+            extensionService.getExtensionPoint(AfterDeleteAfterCommitExtensionHandler.class, "").onAfterDelete(deletedDomainObject);
         }
     }
 }

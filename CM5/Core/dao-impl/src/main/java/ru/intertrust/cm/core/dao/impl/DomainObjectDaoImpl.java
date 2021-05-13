@@ -199,10 +199,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // Вызов точки расширения после смены статуса
         String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
         for (String typeName : parentTypes) {
-            extensionService.getExtentionPoint(AfterChangeStatusExtentionHandler.class, typeName).onAfterChangeStatus(domainObject);
+            extensionService.getExtensionPoint(AfterChangeStatusExtentionHandler.class, typeName).onAfterChangeStatus(domainObject);
         }
         // вызываем обработчики с неуказанным фильтром
-        extensionService.getExtentionPoint(AfterChangeStatusExtentionHandler.class, "").onAfterChangeStatus(domainObject);
+        extensionService.getExtensionPoint(AfterChangeStatusExtentionHandler.class, "").onAfterChangeStatus(domainObject);
 
         return result;
     }
@@ -349,10 +349,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObject domainObject = domainObjects[i];
             List<FieldModification> fieldsModification = domainObjectModifications[i].getFieldModifications();
             for (String typeName : parentTypes) {
-                extensionService.getExtentionPoint(BeforeSaveExtensionHandler.class, typeName).onBeforeSave(domainObject, fieldsModification);
+                extensionService.getExtensionPoint(BeforeSaveExtensionHandler.class, typeName).onBeforeSave(domainObject, fieldsModification);
             }
             // вызываем обработчики с неуказанным фильтром
-            extensionService.getExtentionPoint(BeforeSaveExtensionHandler.class, "").onBeforeSave(domainObject, fieldsModification);
+            extensionService.getExtensionPoint(BeforeSaveExtensionHandler.class, "").onBeforeSave(domainObject, fieldsModification);
         }
 
         DomainObjectVersion.AuditLogOperation operation = null;
@@ -389,9 +389,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             // Вызов точки расширения после сохранения
             for (String typeName : parentTypes) {
-                extensionService.getExtentionPoint(AfterSaveExtensionHandler.class, typeName).onAfterSave(domainObject, doChangedFields);
+                extensionService.getExtensionPoint(AfterSaveExtensionHandler.class, typeName).onAfterSave(domainObject, doChangedFields);
             }
-            extensionService.getExtentionPoint(AfterSaveExtensionHandler.class, "").onAfterSave(domainObject, doChangedFields);
+            extensionService.getExtensionPoint(AfterSaveExtensionHandler.class, "").onAfterSave(domainObject, doChangedFields);
 
         }
 
@@ -685,10 +685,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             // Точка расширения до удаления
             for (String typeName : parentTypes) {
-                extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName).onBeforeDelete(deletedObject);
+                extensionService.getExtensionPoint(BeforeDeleteExtensionHandler.class, typeName).onBeforeDelete(deletedObject);
             }
             // вызываем обработчики с неуказанным фильтром
-            extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, "").onBeforeDelete(deletedObject);
+            extensionService.getExtensionPoint(BeforeDeleteExtensionHandler.class, "").onBeforeDelete(deletedObject);
 
             // Пересчет прав непосредственно перед удалением объекта из базы,
             // чтобы не нарушать целостность данных
@@ -739,9 +739,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             listener.addDeletedDomainObject(deletedObject);
 
             for (String typeName : parentTypes) {
-                extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName).onAfterDelete(deletedObject);
+                extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, typeName).onAfterDelete(deletedObject);
             }
-            extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
+            extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
         }
 
         return deleted;

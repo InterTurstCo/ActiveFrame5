@@ -4,11 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
-import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
-import ru.intertrust.cm.core.business.api.dto.DeployReportData;
-import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
+import ru.intertrust.cm.core.business.api.extensions.AfterUploadReportPackageExtension;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
@@ -16,18 +15,8 @@ import ru.intertrust.cm.core.gui.model.action.DeployReportPackageActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.*;
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 @ComponentName("deploy-report-package.action")
 public class DeployReportPackageActionHandler extends ActionHandler<DeployReportPackageActionContext, ActionData> {
@@ -35,9 +24,10 @@ public class DeployReportPackageActionHandler extends ActionHandler<DeployReport
 
     @Autowired
     private ReportServiceAdmin reportServiceAdmin;
-
     @Autowired
     private PropertyResolver propertyResolver;
+    @Autowired
+    private ExtensionService extensionService;
 
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
@@ -84,7 +74,14 @@ public class DeployReportPackageActionHandler extends ActionHandler<DeployReport
         File jarFile = new File(pathForTempFilesStore, reportPackage.getTemporaryName());
         logMessage("importReportPackage === 2", "jarFile=", jarFile != null ? jarFile.getAbsolutePath() : null);
         reportServiceAdmin.importReportPackage(jarFile);
+
+        callExtensions(jarFile);
         logMessage("importReportPackage <<<");
+    }
+
+    private void callExtensions(File jarFile) {
+        AfterUploadReportPackageExtension ep = extensionService.getExtensionPoint(AfterUploadReportPackageExtension.class, null);
+        ep.execute(jarFile);
     }
 
     private static void logMessage(Object... data) {

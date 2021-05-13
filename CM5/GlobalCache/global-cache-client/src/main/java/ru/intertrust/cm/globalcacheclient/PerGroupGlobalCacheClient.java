@@ -127,7 +127,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     public void clearCurrentNode() {
         globalCache.clear();
         AfterClearGlobalCacheExtentionHandler handler = 
-                extensionService.getExtentionPoint(AfterClearGlobalCacheExtentionHandler.class, null);
+                extensionService.getExtensionPoint(AfterClearGlobalCacheExtentionHandler.class, null);
         handler.onClearGlobalCache();
     }
 

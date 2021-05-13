@@ -169,7 +169,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
             domainObjectTypeIdCache.build();
             configurationLoader.onLoadComplete();
-            extensionService.getExtentionPoint(NotManagerDataLoadApplicationInitializer.class, null).notManagerinitialize();
+            extensionService.getExtensionPoint(NotManagerDataLoadApplicationInitializer.class, null).notManagerinitialize();
             //++
             scheduleTaskLoader.load();
             configurationLoader.applyConfigurationExtensionCleaningOutInvalid();
@@ -195,10 +195,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         domainObjectTypeIdCache.build();
 
         initialDataLoader.load();
-        extensionService.getExtentionPoint(PreDataLoadApplicationInitializer.class, null).initialize();
+        extensionService.getExtensionPoint(PreDataLoadApplicationInitializer.class, null).initialize();
         importSystemData.load();
         importReportsData.load();
-        extensionService.getExtentionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
+        extensionService.getExtensionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
 
         scheduleTaskLoader.load();
         configurationLoader.applyConfigurationExtensionCleaningOutInvalid();

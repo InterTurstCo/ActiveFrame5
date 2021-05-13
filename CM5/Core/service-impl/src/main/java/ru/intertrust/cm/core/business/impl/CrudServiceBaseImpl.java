@@ -23,7 +23,6 @@ import ru.intertrust.cm.core.model.CrudException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -255,10 +254,10 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             //Точка расширения после создания
             String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(name);
             for (String typeName : parentTypes) {
-                extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName).onAfterCreate(domainObject);
+                extensionService.getExtensionPoint(AfterCreateExtentionHandler.class, typeName).onAfterCreate(domainObject);
             }
             //вызываем обработчики с неуказанным фильтром
-            extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, "").onAfterCreate(domainObject);
+            extensionService.getExtensionPoint(AfterCreateExtentionHandler.class, "").onAfterCreate(domainObject);
 
             return domainObject;
         } catch (Exception ex) {

@@ -62,15 +62,14 @@ public class ExtensionServiceImpl implements ExtensionService {
      */
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getExtentionPoint(
-            Class<T> extentionPointInterface,
+    public <T> T getExtensionPoint(
+            Class<T> extensionPointInterface,
             String filter) {
         init(ExtensionService.PLATFORM_CONTEXT, localApplicationContext);
 
-        ExtentionInvocationHandler handler = new ExtentionInvocationHandler(
-                this, filter);
-        T proxy = (T) Proxy.newProxyInstance(extentionPointInterface.getClassLoader(),
-                new Class<?>[]{extentionPointInterface}, handler);
+        ExtentionInvocationHandler handler = new ExtentionInvocationHandler(this, filter);
+        T proxy = (T) Proxy.newProxyInstance(extensionPointInterface.getClassLoader(),
+                new Class<?>[] {extensionPointInterface}, handler);
         return proxy;
     }
 
@@ -180,14 +179,14 @@ public class ExtensionServiceImpl implements ExtensionService {
     /**
      * Получает список точек расширения определенного интерфейса
      */
-    public List<ExtensionPointHandler> getExtentionPointList(
-            Class<? extends ExtensionPointHandler> extentionPointInterface,
+    public List<ExtensionPointHandler> getExtensionPointList(
+            Class<? extends ExtensionPointHandler> extensionPointInterface,
             String filter) {
         List<ExtensionPointHandler> result = new ArrayList<ExtensionPointHandler>();
 
         // Получаем все хандлеры точек расширения по интерфейсу
         Map<String, List<ExtensionPointHandler>> oneTypeExtensions = reestr
-                .get(extentionPointInterface);
+                .get(extensionPointInterface);
 
         // Проверка на наличие точек расширения определенного интерфейса
         if (oneTypeExtensions != null) {

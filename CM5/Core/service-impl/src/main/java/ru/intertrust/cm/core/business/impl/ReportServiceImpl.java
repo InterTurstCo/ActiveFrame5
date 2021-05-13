@@ -36,7 +36,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.client.ClientHttpRequest;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
@@ -323,10 +322,10 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 //Вызов точки расширения до генерации отчета
                 //Сначала для точек расширения у которых указан фильтр
                 BeforeGenerateReportExtensionHandler beforeExtentionHandler =
-                        extensionService.getExtentionPoint(BeforeGenerateReportExtensionHandler.class, name);
+                        extensionService.getExtensionPoint(BeforeGenerateReportExtensionHandler.class, name);
                 beforeExtentionHandler.onBeforeGenerateReport(name, parameters);
                 //Вызов точек расширения у кого не указан фильтр
-                beforeExtentionHandler = extensionService.getExtentionPoint(BeforeGenerateReportExtensionHandler.class, "");
+                beforeExtentionHandler = extensionService.getExtensionPoint(BeforeGenerateReportExtensionHandler.class, "");
                 beforeExtentionHandler.onBeforeGenerateReport(name, parameters);
 
                 //Формирование отчета
@@ -352,10 +351,10 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 //Вызов точки расширения после генерации отчета
                 //Сначала для точек расширения у которых указан фильтр
                 AfterGenerateReportExtentionHandler extentionHandler =
-                        extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, name);
+                        extensionService.getExtensionPoint(AfterGenerateReportExtentionHandler.class, name);
                 extentionHandler.onAfterGenerateReport(name, parameters, result != null ? result.getReportFile() : null);
                 //После для точек расширения у которых не указан фильтр
-                extentionHandler = extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, "");
+                extentionHandler = extensionService.getExtensionPoint(AfterGenerateReportExtentionHandler.class, "");
                 extentionHandler.onAfterGenerateReport(name, parameters, result != null ? result.getReportFile() : null);
 
                 if (logger.isDebugEnabled()) {

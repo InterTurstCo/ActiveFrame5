@@ -19,7 +19,7 @@ public interface ExtensionService {
      * @param extentionPointInterface
      * @return
      */
-    <T> T getExtentionPoint(Class<T> extentionPointInterface, String filter);
+    <T> T getExtensionPoint(Class<T> extentionPointInterface, String filter);
 
     /**
      * Инициализация точек расширения из другого спринг контекста

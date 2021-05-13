@@ -127,7 +127,7 @@ public class AuthenticationFilter implements Filter {
 
             //Вызов точки расширения до аутентификации. Точка расширения может проставить атрибут LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE
             //И вызов диалога аутентификации не произойдет
-            AuthenticationExtentionHandler authExtHandler = extensionService.getExtentionPoint(AuthenticationExtentionHandler.class, null);
+            AuthenticationExtentionHandler authExtHandler = extensionService.getExtensionPoint(AuthenticationExtentionHandler.class, null);
             authExtHandler.onBeforeAuthentication(request, response);
 
             // Получение данных аутентификации из сесии
