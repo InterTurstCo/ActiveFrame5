@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.business.impl.access;
 
-import java.util.Collections;
 import java.util.stream.Collectors;
+
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.ClientBuilderWrapper;
 import org.keycloak.admin.client.JacksonProvider;
@@ -10,7 +11,10 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import reactor.util.StringUtils;
 import ru.intertrust.cm.core.business.api.access.CredentialInfo;
 import ru.intertrust.cm.core.business.api.access.IdpConfig;
 import ru.intertrust.cm.core.business.api.access.IdpAdminService;
@@ -18,6 +22,7 @@ import ru.intertrust.cm.core.business.api.access.UserInfo;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import javax.ws.rs.client.ClientBuilder;
@@ -27,6 +32,8 @@ import java.security.KeyStore;
 import java.util.List;
 
 public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
+
+    private static final Logger logger = LoggerFactory.getLogger(KeycloakIdpAdminServiceImpl.class);
 
     @Value("${keycloak.realm.name:}")
     private String realmName;
@@ -55,38 +62,54 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
     @Value("${idp.authentication:false}")
     private boolean idpAuthentication;
 
-
     private Keycloak keycloak;
     private KeycloakConfig config;
-
 
     @PostConstruct
     public void init() {
 
-        config = new KeycloakConfig();
-        config.setServerUrl(url);
-        config.setRealm(realmName);
-        config.setClientId(clientId);
-        config.setAdminClientId(adminClientId);
-        config.setAdminSecret(adminSecret);
-        config.setDisableTrustManager(disableTrustManager);
-        config.setTruststore(truststore);
-        config.setTruststorePassword(truststorePassword);
-        config.setIdpAuthentication(idpAuthentication);
+        config = KeycloakConfig.getBuilder()
+                .setServerUrl(url)
+                .setRealm(realmName)
+                .setAdminClientId(adminClientId)
+                .setAdminSecret(adminSecret)
+                .setClientId(clientId)
+                .setEnableSsl(StringUtils.startsWithIgnoreCase(url, "https"))
+                .setDisableTrustManager(disableTrustManager)
+                .setTruststore(truststore)
+                .setTruststorePassword(truststorePassword)
+                .setIdpAuthentication(idpAuthentication)
+                .createKeycloakConfig();
+
 
         if (url != null && !url.isEmpty()) {
 
             keycloak = KeycloakBuilder.builder().
                     serverUrl(config.getServerUrl()).
+                    grantType(OAuth2Constants.CLIENT_CREDENTIALS).
                     realm(config.getRealm()).
                     clientId(config.getAdminClientId()).
                     clientSecret(config.getAdminSecret()).
-                    grantType(OAuth2Constants.CLIENT_CREDENTIALS).
-                    resteasyClient(createRestClient(
-                            createSslContext(config.getTruststore(), config.getTruststorePassword()),
-                            config.isDisableTrustManager())).
+                    resteasyClient(createRestClient()).
                     build();
         }
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        keycloak.close();
+    }
+
+    private ResteasyClient createRestClient() {
+        ClientBuilder clientBuilder;
+        if (config.isSslEnabled()) {
+            SSLContext sslContext = createSslContext(config.getTruststore(), config.getTruststorePassword());
+            clientBuilder = ClientBuilderWrapper.create(sslContext, disableTrustManager);
+        } else {
+            clientBuilder = new ResteasyClientBuilder().connectionPoolSize(10);
+        }
+        clientBuilder.register(JacksonProvider.class, 100);
+        return (ResteasyClient) clientBuilder.build();
     }
 
     private SSLContext createSslContext(String trustStore, String trustStorePassword){
@@ -103,15 +126,9 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
             sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
             return sslContext;
-        }catch(Exception ex){
+        } catch(Exception ex) {
             throw new FatalException("Error create ssl context", ex);
         }
-    }
-
-    private ResteasyClient createRestClient(SSLContext sslContext, boolean disableTrustManager) {
-        ClientBuilder clientBuilder = ClientBuilderWrapper.create(sslContext, disableTrustManager);
-        clientBuilder.register(JacksonProvider.class, 100);
-        return (ResteasyClient)clientBuilder.build();
     }
 
     @Override
@@ -176,9 +193,6 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
     @Override
     public UserInfo findUserByUserName(String userName) {
-
-        init();
-
         List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName, true);
         if (searchResult.size() == 0 ) {
             return null;
@@ -191,8 +205,6 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
     @Override
     public List<UserInfo> findUsersByUserName(String userName) {
-        init();
-
         List<UserRepresentation> searchResult = keycloak.realm(config.getRealm()).users().search(userName);
         return searchResult.stream().map(this::getUserInfo).collect(Collectors.toList());
     }
