@@ -2,6 +2,9 @@ package ru.intertrust.cm.core.business.impl.access;
 
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.OAuth2Constants;
@@ -11,8 +14,6 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.util.StringUtils;
 import ru.intertrust.cm.core.business.api.access.CredentialInfo;
@@ -32,8 +33,6 @@ import java.security.KeyStore;
 import java.util.List;
 
 public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
-
-    private static final Logger logger = LoggerFactory.getLogger(KeycloakIdpAdminServiceImpl.class);
 
     @Value("${keycloak.realm.name:}")
     private String realmName;
@@ -134,14 +133,26 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
     @Override
     public String createUser(UserInfo userInfo) {
         UserRepresentation userRepresentation = newUserRepresentation(userInfo);
-
-        Response response = keycloak.realm(config.getRealm()).users().create(userRepresentation);
-        if (response.getStatus() != 201){
-            throw new FatalException("Error create user with userName = " + userInfo.getUsername() + " error code = " + response.getStatus());
+        try (Response response = keycloak.realm(config.getRealm()).users().create(userRepresentation)) {
+            if (response.getStatus() != 201) {
+                String reason = getRawMessage(response);
+                throw new FatalException("Error create user = " + userInfo
+                        + ". Error code = " + response.getStatus() + ". Reason = " + reason
+                );
+            }
         }
 
         UserInfo createUserInfo = findUserByUserName(userInfo.getUsername());
         return createUserInfo.getUnid();
+    }
+
+    private String getRawMessage(Response response) {
+        ErrorMessage errorMessage = response.readEntity(ErrorMessage.class);
+        String message = errorMessage.getErrorMessage();
+        if (message == null) {
+            message = errorMessage.getError();
+        }
+        return message;
     }
 
     @Override
@@ -181,7 +192,15 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
 
     @Override
     public void deleteUser(String unid) {
-        keycloak.realm(config.getRealm()).users().delete(unid);
+        try (Response response = keycloak.realm(config.getRealm()).users().delete(unid)) {
+
+            if (response.getStatus() != 204) {
+                String reason = getRawMessage(response);
+                throw new FatalException("Error delete unid = " + unid
+                        + ". Error code = " + response.getStatus() + ". Reason = " + reason
+                );
+            }
+        }
     }
 
     @Override
@@ -247,5 +266,26 @@ public class KeycloakIdpAdminServiceImpl implements IdpAdminService {
     @Override
     public IdpConfig getConfig() {
         return config;
+    }
+
+    @JsonAutoDetect
+    private static class ErrorMessage {
+
+        private final String errorMessage;
+        private final String error;
+
+        @JsonCreator
+        public ErrorMessage(@JsonProperty("errorMessage") String errorMessage, @JsonProperty("error") String error) {
+            this.errorMessage = errorMessage;
+            this.error = error;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        public String getError() {
+            return error;
+        }
     }
 }
