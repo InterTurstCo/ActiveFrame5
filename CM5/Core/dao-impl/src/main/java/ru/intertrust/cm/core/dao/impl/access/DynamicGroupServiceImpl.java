@@ -371,7 +371,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 .createSystemAccessToken(this.getClass().getName());
 
         String query = "select t.id from user_group t where object_id = {0}";
-        List<Value> params = new ArrayList<>();
+        List<Value<?>> params = new ArrayList<>();
         params.add(new ReferenceValue(domainObjectId));
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, 0, 0, accessToken);
 
