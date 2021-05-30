@@ -1,6 +1,4 @@
-package ru.intertrust.cm.core.dao.impl;
-
-import ru.intertrust.cm.core.dao.api.ActionListener;
+package ru.intertrust.cm.core.dao.api;
 
 /**
  * Базовая реализация интерфейса {@link ActionListener}. Все методы не делают ничего.

@@ -37,6 +37,7 @@ import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.DynamicGroupSettings;
 import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.BaseActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
@@ -660,15 +661,14 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         RecalcGroupSynchronization rg = this.userTransactionService.getListener(RecalcGroupSynchronization.class);
         
         if (rg == null) {
-            rg = new RecalcGroupSynchronization();
-            this.userTransactionService.addListener(rg);
+            this.userTransactionService.addListener(rg = new RecalcGroupSynchronization());
         }
         
         return rg;
         
     }
 
-    public class RecalcGroupSynchronization implements ActionListener {
+    public class RecalcGroupSynchronization extends BaseActionListener {
         
         private final Set<Id> groupIds = new HashSet<>();
         private final List<Id> contextsForDelete = new ArrayList<>();
@@ -699,14 +699,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             } catch (final Exception ex) {
                 throw RemoteSuitableException.convert(ex);
             }
-        }
-
-        @Override
-        public void onAfterCommit () {
-        }
-
-        @Override
-        public void onRollback () {
         }
         
     }

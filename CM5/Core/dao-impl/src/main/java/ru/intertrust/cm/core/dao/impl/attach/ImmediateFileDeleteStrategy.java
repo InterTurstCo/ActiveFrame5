@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.config.DeleteFileConfig;
+import ru.intertrust.cm.core.dao.api.BaseActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.core.dao.impl.BaseActionListener;
 
 public class ImmediateFileDeleteStrategy implements FileDeleteStrategy {
 

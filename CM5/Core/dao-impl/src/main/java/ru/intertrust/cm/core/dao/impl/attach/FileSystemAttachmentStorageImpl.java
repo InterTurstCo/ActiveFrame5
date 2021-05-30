@@ -26,11 +26,11 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.DeleteFileConfig;
 import ru.intertrust.cm.core.config.FolderStorageConfig;
+import ru.intertrust.cm.core.dao.api.BaseActionListener;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.dao.impl.BaseActionListener;
 
 public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
