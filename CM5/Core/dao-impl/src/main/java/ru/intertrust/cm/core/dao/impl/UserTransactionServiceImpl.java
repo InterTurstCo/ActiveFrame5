@@ -27,18 +27,6 @@ import java.util.Set;
  * @author Vlad Simonenko, Gleb Nozdrachev
 */
 public class UserTransactionServiceImpl implements UserTransactionService{
-    
-    private static <T> T findListener (final Class<T> clazz, final List<?> actionListeners){
-
-        for (final Object listener : actionListeners) {
-            if (clazz.equals(listener.getClass())){
-                return clazz.cast(listener);
-            }
-        }
-
-        return null;
-        
-    }
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
@@ -76,7 +64,21 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         }
 
         final List<?> actionListeners = (List<?>)this.getTxReg().getResource(ListenerBasedSynchronization.class);
-        return actionListeners == null ? null : findListener(clazz, actionListeners);
+        T result = null;
+        
+        if (actionListeners != null) {
+            for (final Object listener : actionListeners) {
+                if (clazz.equals(listener.getClass())) {
+                    if (result == null) {
+                        result = clazz.cast(listener);
+                    } else {
+                        throw new RuntimeException("More than 1 listeners registered for '" + clazz + "'");
+                    }
+                }
+            }
+        }
+        
+        return result;
         
     }
 
@@ -116,18 +118,18 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         private static final Class<?>[] listenersFirst = new Class<?>[] {DomainObjectDaoImpl.CacheCommitNotifier.class};
         private static final Class<?>[] listenersLast  = new Class<?>[] {DynamicGroupServiceImpl.RecalcGroupSynchronization.class};
         
-        private static final Set<Class<?>> listenersSpec = new HashSet<Class<?>>() {
+        private static final Set<Class<?>> listenersFirstAndLast = new HashSet<Class<?>>() {
             {
                 this.addAll(Arrays.asList(listenersFirst));
                 this.addAll(Arrays.asList(listenersLast));
             }
         };
         
-        private List<ActionListener> actionListeners;
+        private final List<ActionListener> actionListeners;
         private final CurrentDataSourceContext currentDataSourceContext;
 
-        public ListenerBasedSynchronization (final List<ActionListener> list, final CurrentDataSourceContext currentDataSourceContext) {
-            this.actionListeners = list;
+        public ListenerBasedSynchronization (final List<ActionListener> actionListeners, final CurrentDataSourceContext currentDataSourceContext) {
+            this.actionListeners = actionListeners;
             this.currentDataSourceContext = currentDataSourceContext;
         }
 
@@ -146,7 +148,7 @@ public class UserTransactionServiceImpl implements UserTransactionService{
                     this.notifyListeners(Operation.AfterCommit);
                 }
             } finally {
-                this.actionListeners = Collections.emptyList();
+                this.actionListeners.clear();
             }
         }
         
@@ -154,9 +156,8 @@ public class UserTransactionServiceImpl implements UserTransactionService{
             
             this.notifyListeners(listenersFirst, operation);
             
-            for (int i = this.actionListeners.size() - 1; i >= 0; i--) {
-                final ActionListener listener = this.actionListeners.get(i);
-                if (!listenersSpec.contains(listener.getClass())) {
+            for (final ActionListener listener : this.actionListeners) {
+                if (!listenersFirstAndLast.contains(listener.getClass())) {
                     this.notifyListener(listener, operation);
                 }
             }
@@ -167,9 +168,10 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         
         private void notifyListeners (final Class<?>[] listeners, final Operation operation) {
             for (final Class<?> clazz : listeners) {
-                final ActionListener listener = (ActionListener)findListener(clazz, this.actionListeners);
-                if (listener != null) {
-                    this.notifyListener(listener, operation);
+                for (final ActionListener listener : this.actionListeners) {
+                    if (clazz.equals(listener.getClass())) {
+                        this.notifyListener(listener, operation);
+                    }
                 }
             }
         }
