@@ -90,7 +90,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
             List<Id> mainIds = calculateMainObjects(domainObject.getId(), config.getObjectConfigChain());
 
             if (mainIds.size() > 0) {
-                if (cmjField != null && cmjField.startsWith("Tn$_")) {
+                if (cmjField != null) {
                     // отдельная обработка для нетиповвых объектов
                     reindexTnObject(solrDocs, toDelete, domainObject, config, mainIds, domainObject.getTypeName());
                 } else {
@@ -153,7 +153,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                 continue;
             }
 
-            if (cmjField != null && cmjField.startsWith("Tn$_")) {
+            if (cmjField != null) {
                 // отдельная обработка для нетиповвых объектов
                 List<Id> mainIds = calculateMainObjects(deletedDomainObject.getId(), config.getObjectConfigChain());
                 if (!mainIds.isEmpty()) {
@@ -197,7 +197,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
 
             solrIds.add(createUniqueId(deletedDomainObject, config));
 
-            if (cmjField != null && cmjField.startsWith("Tn$_")) {
+            if (cmjField != null) {
                 // отдельная обработка для нетиповвых объектов
                 List<Id> mainIds = cache.fetchAndRemove(generateCacheKey(deletedDomainObject.getId(), config.getAreaName()));
                 if (mainIds != null && !mainIds.isEmpty()) {
