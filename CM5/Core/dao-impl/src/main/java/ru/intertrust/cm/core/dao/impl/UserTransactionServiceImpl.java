@@ -156,7 +156,8 @@ public class UserTransactionServiceImpl implements UserTransactionService{
             
             this.notifyListeners(listenersFirst, operation);
             
-            for (final ActionListener listener : this.actionListeners) {
+            for (int i = 0; i < this.actionListeners.size(); i++) {
+                final ActionListener listener = this.actionListeners.get(i);
                 if (!listenersFirstAndLast.contains(listener.getClass())) {
                     this.notifyListener(listener, operation);
                 }
@@ -168,7 +169,8 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         
         private void notifyListeners (final Class<?>[] listeners, final Operation operation) {
             for (final Class<?> clazz : listeners) {
-                for (final ActionListener listener : this.actionListeners) {
+                for (int i = 0; i < this.actionListeners.size(); i++) {
+                    final ActionListener listener = this.actionListeners.get(i);
                     if (clazz.equals(listener.getClass())) {
                         this.notifyListener(listener, operation);
                     }
