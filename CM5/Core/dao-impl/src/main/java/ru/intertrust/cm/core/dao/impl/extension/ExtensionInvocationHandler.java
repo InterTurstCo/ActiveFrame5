@@ -15,13 +15,12 @@ import ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl;
  * @author larin
  * 
  */
-public class ExtentionInvocationHandler implements InvocationHandler {
-    private ExtensionServiceImpl extensionService;
-    private String filter;
+public class ExtensionInvocationHandler implements InvocationHandler {
+    private final ExtensionServiceImpl extensionService;
+    private final String filter;
 
-    public ExtentionInvocationHandler(ExtensionServiceImpl extentionService,
-            String filter) {
-        this.extensionService = extentionService;
+    public ExtensionInvocationHandler(ExtensionServiceImpl extensionService, String filter) {
+        this.extensionService = extensionService;
         this.filter = filter;
     }
 
@@ -45,5 +44,4 @@ public class ExtentionInvocationHandler implements InvocationHandler {
             throw e.getCause();
         }
     }
-
 }

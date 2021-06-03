@@ -1,5 +1,26 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperFillManager;
@@ -30,21 +51,6 @@ import ru.intertrust.cm.core.report.ScriptletClassLoader;
 import ru.intertrust.cm.core.service.api.ReportDS;
 import ru.intertrust.cm.core.service.api.ReportGenerator;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.interceptor.Interceptors;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 /**
  * @author Denis Mitavskiy
  *         Date: 09.01.2017
@@ -54,19 +60,21 @@ import java.util.regex.Pattern;
 @Interceptors({SpringBeanAutowiringInterceptor.class, ReportsDataSourceSetter.class})
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ReportResultBuilder extends ReportServiceBase {
+
     private static final String DATE_PATTERN = "dd_MM_yyyy HH_mm_ss";
 
-    public static final String MASK_NAME = "{name}";  //имя отчёта(из метаданных)
-    public static final String MASK_DESCR = "{description}"; //описание отчёта(из метаданных)
-    public static final String MASK_LONG_DATE = "{long-date}"; //дата и время построения
-    public static final String MASK_SHORT_DATE = "{short-date}"; //дата отчёта
-    public static final String MASK_CREATOR = "{creator}"; //логин текущего пользователя
+    private static final String MASK_NAME = "{name}";  //имя отчёта(из метаданных)
+    private static final String MASK_DESCR = "{description}"; //описание отчёта(из метаданных)
+    private static final String MASK_LONG_DATE = "{long-date}"; //дата и время построения
+    private static final String MASK_SHORT_DATE = "{short-date}"; //дата отчёта
+    private static final String MASK_CREATOR = "{creator}"; //логин текущего пользователя
     private static final String DATE_LONG_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String DATE_SHORT_PATTERN = "dd-MM-yyyy";
+    private static final Pattern fileNamePattern = Pattern.compile("\\{P\\$([^\\}]*)\\}");
 
     @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
     private String defaultReportFormat;
-    
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -79,23 +87,16 @@ public class ReportResultBuilder extends ReportServiceBase {
     @Autowired
     private ExporterProviderFactory exporterProviderFactory;
 
-    private Pattern fileNamePattern = Pattern.compile("\\{P\\$([^\\}]*)\\}");
-
     /**
      * Генерация отчета
-     * @param reportMetadata
-     * @param templateFolder
-     * @param inParams
-     * @param dataSource
-     * @return
-     * @throws Exception
      */
-    public ReportFile generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
+    @Nonnull
+    ReportFile generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
             throws Exception {
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         //Копируем, чтоб не изменять исходный объект
-        if (inParams != null){
+        if (inParams != null) {
             params.putAll(inParams);
         }
         try {
@@ -106,7 +107,7 @@ public class ReportResultBuilder extends ReportServiceBase {
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
 
             File resultFolder = getResultFolder();
-            ReportFile reportFile = null;
+            ReportFile reportFile;
 
             //Если задан кастомный класс генератора используем его
             if (reportMetadata.getReportGeneratorClass() != null) {
@@ -208,11 +209,9 @@ public class ReportResultBuilder extends ReportServiceBase {
 
     /**
      * Получение списка параметров в маске в формате
-     * @param mask
-     * @return
      */
     private List<String> getParamsInMask(String mask) {
-        List<String> result = new ArrayList();
+        List<String> result = new ArrayList<>();
         Matcher matcher = fileNamePattern.matcher(mask);
         while(matcher.find()){
             result.add(matcher.group(1));
@@ -221,8 +220,7 @@ public class ReportResultBuilder extends ReportServiceBase {
     }
 
     private Connection getConnection() throws ClassNotFoundException, SQLException {
-        String connectionString = null;
-        connectionString = "jdbc:sochi:local";
+        String connectionString = "jdbc:sochi:local";
 
         //Загрузка драйвера
         Class.forName("ru.intertrust.cm.core.jdbc.JdbcDriver");
@@ -231,7 +229,7 @@ public class ReportResultBuilder extends ReportServiceBase {
     }
 
     private File getResultFolder() throws IOException {
-        //Чтобы небыло конфликтов генерим отчеты каждый в своей папке
+        //Чтобы не было конфликтов генерим отчеты каждый в своей папке
         File tmpFolder = new File(getTempFolder(), UUID.randomUUID().toString());
         tmpFolder.mkdirs();
         tmpFolder.deleteOnExit();
@@ -240,9 +238,6 @@ public class ReportResultBuilder extends ReportServiceBase {
 
     /**
      * Получение формата отчета
-     * @param reportMetadata
-     * @param params
-     * @return
      */
     private String getFormat(ReportMetadataConfig reportMetadata, Map<String, Object> params) {
 
