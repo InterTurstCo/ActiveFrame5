@@ -374,12 +374,12 @@ div.gwt-Good-Label {
 }
 
 .treeItemSelectionDecorator {
-    height: 25px;
+    /*height: 25px;*/
     /*padding-right: 15px;*/
 }
 
 .gwt-custom-TreeItem-selected .treeItemSelectionDecorator {
-    background: url(images/folder-list-selected-bg.png) no-repeat scroll 100% 0;
+    /*background: url(images/folder-list-selected-bg.png) no-repeat scroll 100% 0;*/
 }
 
 .treeItemTitle {
@@ -400,8 +400,8 @@ div.gwt-Good-Label {
 .treeItemCounter {
     position: absolute;
     top: 0px;
-    right: -17px;
-    padding: 1px 3px;
+    right: -33px;
+    padding: 2px 3px 0px 3px;
     border-radius: 3px;
     color: #fafafa;
     text-shadow: 1px 1px 0 #0B0086;
