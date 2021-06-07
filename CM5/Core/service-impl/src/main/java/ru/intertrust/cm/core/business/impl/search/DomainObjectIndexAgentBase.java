@@ -91,11 +91,13 @@ public abstract class DomainObjectIndexAgentBase {
         if (objectType != null && !objectType.equalsIgnoreCase(objectTypeFromConfig)) {
             return Collections.emptyList();
         }
-        String parentLink = ((LinkedDomainObjectConfig) config.getObjectConfig()).getParentLink().getDoel();
+        ParentLinkConfig parentLinkConfig = ((LinkedDomainObjectConfig) config.getObjectConfig()).getParentLink();
+        String parentLink = parentLinkConfig.getDoel();
         DoelExpression parentExpr = DoelExpression.parse(parentLink);
         DoelExpression linkedExpr;
         try {
-            linkedExpr = doelEvaluator.createReverseExpression(parentExpr, objectTypeFromConfig, objectType != null);
+            linkedExpr = doelEvaluator.createReverseExpression(parentExpr, objectTypeFromConfig,
+                    objectType != null, parentLinkConfig.getTypesAsArray());
         } catch (DoelException e) {
             log.warn("Can't calculate children of type " + objectTypeFromConfig + ": " + e.getMessage()
                     + "; manual/scheduled calculation required");

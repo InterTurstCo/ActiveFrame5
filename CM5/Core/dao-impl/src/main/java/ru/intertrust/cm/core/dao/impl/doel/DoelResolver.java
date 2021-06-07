@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 
 import net.sf.jsqlparser.expression.Alias;
@@ -570,17 +571,24 @@ public class DoelResolver implements DoelEvaluator {
         return where;
     }
 
-    //@Deprecated
     @Override
-    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType, boolean allowRefToAnyType) {
+    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType,
+                                                  boolean allowRefToAnyType) {
+        return createReverseExpression(expr, sourceType, allowRefToAnyType, null);
+    }
+
+    @Override
+    public DoelExpression createReverseExpression(DoelExpression expr, String sourceType,
+                                                  boolean allowRefToAnyType, @Nullable String[] types) {
         StringBuilder reverseExpr = new StringBuilder();
         String currentType = sourceType;
+        int anyTypeIndex = 0;
         for (DoelExpression.Element doelElem : expr.getElements()) {
             if (reverseExpr.length() > 0) {
                 reverseExpr.insert(0, ".");
             }
             if (doelElem.getFunctions() != null && doelElem.getFunctions().length > 0 ) {
-                //TODO add reversible funtionns processing
+                //TODO add reversible functions processing
                 throw new DoelException("Can't reverse expression that contains functions");
             }
             if (DoelExpression.ElementType.FIELD == doelElem.getElementType()) {
@@ -593,8 +601,16 @@ public class DoelResolver implements DoelEvaluator {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
                     currentType = refConfig.getType();
-                    if (ReferenceFieldConfig.ANY_TYPE.equals(currentType) && !allowRefToAnyType) {
-                        throw new DoelException("Can't reverse expression that uses untyped reference fields (*)");
+                    if (ReferenceFieldConfig.ANY_TYPE.equals(currentType)) {
+                        if (allowRefToAnyType) {
+                            // Если any type допускается, но types для замены не заданы, то будет работать
+                            // в случае, если объект с any type - последний в цепочке
+                            if (types != null && anyTypeIndex < types.length) {
+                                currentType = types[anyTypeIndex++];
+                            }
+                        } else {
+                            throw new DoelException("Can't reverse expression that uses untyped reference fields (*)");
+                        }
                     }
                 } else {
                     throw new DoelException("Can't reverse expression that contains non-reference fields");
