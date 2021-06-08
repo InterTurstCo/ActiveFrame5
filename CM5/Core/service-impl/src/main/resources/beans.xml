@@ -6,18 +6,22 @@
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/context
      http://www.springframework.org/schema/context/spring-context.xsd
      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
-     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:annotation-config/>
     
     <context:component-scan base-package="ru.intertrust.cm.core ru.intertrust.cm.core.business.impl.report" />
     
     <aop:aspectj-autoproxy/>
+
+    <task:executor id="mainTaskExecutor" pool-size="${cm.tasks.executor.pool.size:5-15}"
+                   queue-capacity="100" rejection-policy="DISCARD" />
 
     <tx:annotation-driven transaction-manager="transactionManager" mode="aspectj" />
 

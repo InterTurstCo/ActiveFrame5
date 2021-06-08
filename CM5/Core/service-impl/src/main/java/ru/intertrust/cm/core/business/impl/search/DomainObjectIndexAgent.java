@@ -4,6 +4,7 @@ import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.SolrInputField;
+import org.springframework.scheduling.annotation.Async;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -49,6 +50,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         super.init();
     }
 
+    @Async ("mainTaskExecutor")
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         // Проверка включения агента индексирования
