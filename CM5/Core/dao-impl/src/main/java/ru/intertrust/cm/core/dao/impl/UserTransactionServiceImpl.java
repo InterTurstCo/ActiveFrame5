@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
@@ -15,7 +17,6 @@ import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,8 @@ import java.util.Set;
  * @author Vlad Simonenko, Gleb Nozdrachev
 */
 public class UserTransactionServiceImpl implements UserTransactionService{
+
+    private static final Logger log = LoggerFactory.getLogger(UserTransactionServiceImpl.class);
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
@@ -42,17 +45,20 @@ public class UserTransactionServiceImpl implements UserTransactionService{
     public void addListener (final ActionListener actionListener) {
         
         if (this.getTransactionId() == null) {
-            return; // не обрабатываем вне транзакции
+            return;
         }
         
-        List<ActionListener> actionListeners = (List<ActionListener>)this.getTxReg().getResource(ListenerBasedSynchronization.class);
+        ListenerBasedSynchronization mainListener = (ListenerBasedSynchronization)this.getTxReg().getResource(ListenerBasedSynchronization.class);
         
-        if (actionListeners == null) {
-            this.getTxReg().putResource(ListenerBasedSynchronization.class, actionListeners = new ArrayList<>());
-            this.getTxReg().registerInterposedSynchronization(new ListenerBasedSynchronization(actionListeners, this.currentDataSourceContext));
+        if (mainListener == null) {
+            this.getTxReg().putResource(ListenerBasedSynchronization.class, mainListener = new ListenerBasedSynchronization(this.currentDataSourceContext));
+            this.getTxReg().registerInterposedSynchronization(mainListener);
         }
         
-        actionListeners.add(actionListener);
+        if (mainListener.actionListenersCheck.add(actionListener)) {
+            mainListener.actionListeners.add(actionListener);
+            log.debug("UserTransactionServiceImpl / addListener: actionListener = {}", actionListener);
+        }
         
     }
 
@@ -60,19 +66,19 @@ public class UserTransactionServiceImpl implements UserTransactionService{
     public <T> T getListener (final Class<T> clazz){
         
         if (this.getTransactionId() == null) {
-            return null; // не обрабатываем вне транзакции
+            return null;
         }
 
-        final List<?> actionListeners = (List<?>)this.getTxReg().getResource(ListenerBasedSynchronization.class);
+        final ListenerBasedSynchronization mainListener = (ListenerBasedSynchronization)this.getTxReg().getResource(ListenerBasedSynchronization.class);
         T result = null;
         
-        if (actionListeners != null) {
-            for (final Object listener : actionListeners) {
-                if (clazz.equals(listener.getClass())) {
+        if (mainListener != null) {
+            for (final Object actionListener : mainListener.actionListeners) {
+                if (clazz.equals(actionListener.getClass())) {
                     if (result == null) {
-                        result = clazz.cast(listener);
+                        result = clazz.cast(actionListener);
                     } else {
-                        throw new RuntimeException("More than 1 listeners registered for '" + clazz + "'");
+                        throw new RuntimeException("More than 1 action-listeners registered for '" + clazz + "'");
                     }
                 }
             }
@@ -125,17 +131,17 @@ public class UserTransactionServiceImpl implements UserTransactionService{
             }
         };
         
-        private final List<ActionListener> actionListeners;
+        private final List<ActionListener> actionListeners = new ArrayList<>();
+        private final Set<ActionListener> actionListenersCheck = new HashSet<>();
         private final CurrentDataSourceContext currentDataSourceContext;
 
-        public ListenerBasedSynchronization (final List<ActionListener> actionListeners, final CurrentDataSourceContext currentDataSourceContext) {
-            this.actionListeners = actionListeners;
+        public ListenerBasedSynchronization (final CurrentDataSourceContext currentDataSourceContext) {
             this.currentDataSourceContext = currentDataSourceContext;
         }
 
         @Override
         public void beforeCompletion () {
-            this.currentDataSourceContext.reset(); // устанавливаем источник данных в МАСТЕР
+            this.currentDataSourceContext.reset();
             this.notifyListeners(Operation.BeforeCommit);
         }
 
@@ -153,18 +159,18 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         }
         
         private void notifyListeners (final Operation operation) {
-            
+
             this.notifyListeners(listenersFirst, operation);
-            
+
             for (int i = 0; i < this.actionListeners.size(); i++) {
                 final ActionListener listener = this.actionListeners.get(i);
                 if (!listenersFirstAndLast.contains(listener.getClass())) {
                     this.notifyListener(listener, operation);
                 }
             }
-            
+
             this.notifyListeners(listenersLast, operation);
-            
+
         }
         
         private void notifyListeners (final Class<?>[] listeners, final Operation operation) {
