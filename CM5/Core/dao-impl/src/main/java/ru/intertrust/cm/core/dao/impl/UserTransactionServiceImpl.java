@@ -155,6 +155,7 @@ public class UserTransactionServiceImpl implements UserTransactionService{
                 }
             } finally {
                 this.actionListeners.clear();
+                this.actionListenersCheck.clear();
             }
         }
         
