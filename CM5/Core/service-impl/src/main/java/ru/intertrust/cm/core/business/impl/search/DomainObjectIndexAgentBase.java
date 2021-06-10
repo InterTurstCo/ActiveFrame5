@@ -70,7 +70,9 @@ public abstract class DomainObjectIndexAgentBase {
     @org.springframework.beans.factory.annotation.Value("${attachment.index.exclusion:avi,asf,mpg,mpeg,mpe,vob,mp4,m4v,3gp,3gpp,flv,swf,mov,divx,webm,wav,wma,mp3,ogg,aac,ac3,jpg,jpeg,bmp}")
     private String attachmentIndexExclusionConfig;
 
-    private Set<String> exclusionSet = new HashSet<>();
+    private final Set<String> exclusionSet = new HashSet<>();
+
+    public abstract void index(DomainObject domainObject);
 
     // @PostConstruct
     protected void init(){

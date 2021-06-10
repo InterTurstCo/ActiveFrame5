@@ -53,6 +53,12 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
     @Async ("mainTaskExecutor")
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
+        index(domainObject);
+    }
+
+
+    @Override
+    public void index(DomainObject domainObject) {
         // Проверка включения агента индексирования
         if (configHelper.isDisableIndexing()) {
             return;
