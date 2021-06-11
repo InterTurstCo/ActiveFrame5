@@ -170,7 +170,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
         //Для отладки =================
 
         String reportServerUrl = globalServerSettingsService.getString("report.server.url");
-        if (!reportServer && reportServerUrl != null && !reportServerUrl.equalsIgnoreCase("local")) {
+        if (!reportServer && reportServerUrl != null && !"local".equalsIgnoreCase(reportServerUrl)) {
             return processByReportServer(name, parameters, reportServerUrl);
         }
         return processLocally(name, parameters, keepDays, dataSource);

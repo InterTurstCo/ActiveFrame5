@@ -39,11 +39,12 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
-    private Map<Integer, Object> parameters = new HashMap<Integer, Object>();
-    private Map<Integer, Integer> nullParameterType = new HashMap<Integer, Integer>();
-    private String query;
 
-    public JdbcPreparedStatement(SochiClient client, String query) {
+    private final Map<Integer, Object> parameters = new HashMap<>();
+    private final Map<Integer, Integer> nullParameterType = new HashMap<>();
+    private final String query;
+
+    JdbcPreparedStatement(SochiClient client, String query) {
         super(client);
         this.query = query;
     }
@@ -56,8 +57,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             int paramNum = 0;
 
             while (sql.contains("?")) {
-
-                sql = sql.replaceFirst("\\?", "{" + paramNum + "}");
+                sql = sql.replaceFirst("\\?", "{" + paramNum + '}');
                 paramNum++;
             }
 
@@ -67,11 +67,12 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
         }
     }
 
-    private List<Value> getParams() {
-        List<Value> result = new ArrayList<Value>();
+    @SuppressWarnings("unchecked")
+    private List<Value<?>> getParams() {
+        List<Value<?>> result = new ArrayList<>();
 
         for (int index = 1; index <= parameters.size(); index++) {
-            Value parameter = null;
+            Value<?> parameter;
             Object value = parameters.get(index);
             if (value == null) {
                 parameter = getNullValue(index);
@@ -90,7 +91,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             } else if (value instanceof Id) {
                 parameter = new ReferenceValue((Id) value);
             } else if (value instanceof List) {
-                List<Id> ids = (List) value;
+                List<Id> ids = (List<Id>) value;
                 List<Value<?>> values = new ArrayList<>(ids.size());
                 for (Id id : ids) {
                     values.add(new ReferenceValue(id));
@@ -108,26 +109,23 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     /**
      * Получение значения null параметра с нужным типом
-     * @param index
-     * @return
      */
-    private Value getNullValue(int index) {
-        Value result = null;
+    private Value<?> getNullValue(int index) {
         int type = nullParameterType.get(index);
         if (type == Types.INTEGER) {
-            result = new LongValue();
-        } else if (type == Types.BOOLEAN) {
-            result = new BooleanValue();
-        } else if (type == Types.DATE || type == Types.TIMESTAMP || type == Types.TIME) {
-            result = new DateTimeValue();
-        } else {
-            result = new StringValue();
+            return new LongValue();
         }
-        return result;
+        if (type == Types.BOOLEAN) {
+            return new BooleanValue();
+        }
+        if (type == Types.DATE || type == Types.TIMESTAMP || type == Types.TIME) {
+            return new DateTimeValue();
+        }
+        return new StringValue();
     }
 
     @Override
-    public int executeUpdate() throws SQLException {
+    public int executeUpdate() {
         throw new UnsupportedOperationException();
     }
 
@@ -143,21 +141,18 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setByte(int parameterIndex, byte x) throws SQLException {
+    public void setByte(int parameterIndex, byte x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setShort(int parameterIndex, short x) throws SQLException {
+    public void setShort(int parameterIndex, short x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public void setInt(int parameterIndex, int x) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -166,21 +161,18 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setFloat(int parameterIndex, float x) throws SQLException {
+    public void setFloat(int parameterIndex, float x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setDouble(int parameterIndex, double x) throws SQLException {
+    public void setDouble(int parameterIndex, double x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBigDecimal(int parameterIndex, BigDecimal x) throws SQLException {
+    public void setBigDecimal(int parameterIndex, BigDecimal x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -189,9 +181,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setBytes(int parameterIndex, byte[] x) throws SQLException {
+    public void setBytes(int parameterIndex, byte[] x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -202,43 +193,37 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public void setTime(int parameterIndex, Time x) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp value) throws SQLException {
         addParameter(parameterIndex, value);
-
     }
 
     @Override
-    public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x, int length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
+    public void setUnicodeStream(int parameterIndex, InputStream x, int length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
+    public void setBinaryStream(int parameterIndex, InputStream x, int length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void clearParameters() throws SQLException {
+    public void clearParameters() {
         parameters.clear();
         resetPartition();
     }
 
     @Override
-    public void setObject(int parameterIndex, Object x, int targetSqlType) throws SQLException {
+    public void setObject(int parameterIndex, Object x, int targetSqlType) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -252,62 +237,53 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void addBatch() throws SQLException {
+    public void addBatch() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
+    public void setCharacterStream(int parameterIndex, Reader reader, int length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setRef(int parameterIndex, Ref x) throws SQLException {
+    public void setRef(int parameterIndex, Ref x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBlob(int parameterIndex, Blob x) throws SQLException {
+    public void setBlob(int parameterIndex, Blob x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setClob(int parameterIndex, Clob x) throws SQLException {
+    public void setClob(int parameterIndex, Clob x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public void setArray(int parameterIndex, Array x) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public ResultSetMetaData getMetaData() throws SQLException {
+    public ResultSetMetaData getMetaData() {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -317,128 +293,108 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @Override
-    public void setURL(int parameterIndex, URL x) throws SQLException {
-        throw new UnsupportedOperationException();
-
-    }
-
-    @Override
-    public ParameterMetaData getParameterMetaData() throws SQLException {
+    public void setURL(int parameterIndex, URL x) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setRowId(int parameterIndex, RowId x) throws SQLException {
+    public ParameterMetaData getParameterMetaData() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setNString(int parameterIndex, String value) throws SQLException {
+    public void setRowId(int parameterIndex, RowId x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setNCharacterStream(int parameterIndex, Reader value, long length) throws SQLException {
+    public void setNString(int parameterIndex, String value) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setNClob(int parameterIndex, NClob value) throws SQLException {
+    public void setNCharacterStream(int parameterIndex, Reader value, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
+    public void setNClob(int parameterIndex, NClob value) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+    public void setClob(int parameterIndex, Reader reader, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
+    public void setBlob(int parameterIndex, InputStream inputStream, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
+    public void setNClob(int parameterIndex, Reader reader, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
+    public void setSQLXML(int parameterIndex, SQLXML xmlObject) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
+    public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
+    public void setBinaryStream(int parameterIndex, InputStream x, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
+    public void setCharacterStream(int parameterIndex, Reader reader, long length) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
+    public void setAsciiStream(int parameterIndex, InputStream x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
+    public void setBinaryStream(int parameterIndex, InputStream x) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
+    public void setCharacterStream(int parameterIndex, Reader reader) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setClob(int parameterIndex, Reader reader) throws SQLException {
+    public void setNCharacterStream(int parameterIndex, Reader value) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+    public void setClob(int parameterIndex, Reader reader) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setNClob(int parameterIndex, Reader reader) throws SQLException {
+    public void setBlob(int parameterIndex, InputStream inputStream) {
         throw new UnsupportedOperationException();
+    }
 
+    @Override
+    public void setNClob(int parameterIndex, Reader reader) {
+        throw new UnsupportedOperationException();
     }
 
     private void addParameter(int parameterIndex, Object value) throws SQLException {
@@ -453,5 +409,4 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     public IdentifiableObjectCollection getCollectionPartition() throws Exception {
         return getCollectionPartition(getParams());
     }
-
 }

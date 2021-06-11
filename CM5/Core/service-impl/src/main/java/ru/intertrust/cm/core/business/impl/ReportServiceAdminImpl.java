@@ -1,16 +1,32 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URISyntaxException;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
+import javax.annotation.Nonnull;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -24,14 +40,21 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 
-import net.sf.jasperreports.engine.JRException;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import net.sf.jasperreports.engine.JasperCompileManager;
-
-import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.ImportDataService;
@@ -56,12 +79,8 @@ import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-
 /**
- * Имплементация сервися администрирования подсистемы отчетов
+ * Реализация сервиса администрирования подсистемы отчетов.
  *
  * @author larin
  */
@@ -71,8 +90,10 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ReportServiceAdminImpl extends ReportServiceBase implements ReportServiceAdmin {
 
-    private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ReportServiceAdminImpl.class);
     private static Collection<DomainObjectTypeConfig> configurations;
+    private static final boolean isWindows = System.getProperty("os.name").toLowerCase().contains("windows");
+    private static final int PATH_PART = isWindows ? 2 : 1;
 
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
     private static final String CONFIG_FILE = "report-import-config.xml";
@@ -83,7 +104,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     @Autowired
     private ImportDataService importDataService;
 
-    private int getReportHash(DeployReportData deployReportData) throws Exception{
+    private int getReportHash(DeployReportData deployReportData) {
         Map<Integer, Integer> hashMap = new HashMap<>();
         List<Integer> nameHash = new ArrayList<>();
         for (DeployReportItem item : deployReportData.getItems()) {
@@ -93,7 +114,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
         Collections.sort(nameHash);
         StringBuilder builder = new StringBuilder();
-        for(Integer item : nameHash){
+        for (Integer item : nameHash) {
             builder.append(item).append(hashMap.get(item));
         }
 
@@ -108,44 +129,31 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
         try {
             int reportHash = getReportHash(deployReportData);
-            ReportMetadataConfig reportMetadata = null;
-            for (DeployReportItem item : deployReportData.getItems()) {
-                //Ищем вложение с метаданными по имени
-                if (item.getName().equalsIgnoreCase(METADATA_FILE_MAME)) {
-                    reportMetadata = loadReportMetadata(item.getBody());
-                }
-            }
+            ReportMetadataConfig reportMetadata = deployReportData.getItems().stream()
+                    .filter(item -> METADATA_FILE_MAME.equalsIgnoreCase(item.getName())) // Ищем вложение с метаданными по имени
+                    .map(DeployReportItem::getBody)
+                    .map(this::loadReportMetadata)
+                    .findAny()
+                    .orElseThrow(() -> new ReportServiceException("Can not find " + METADATA_FILE_MAME + " in report template deploy data"));
+            logger.info("Deploy report {}", reportMetadata.getName());
+
             DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
-            if(reportTemplateObject != null && Long.valueOf(reportHash).equals(reportTemplateObject.getLong("reportHash"))){
+            if (reportTemplateObject != null && Long.valueOf(reportHash).equals(reportTemplateObject.getLong("reportHash"))) {
                 return;
             }
-
-
-
             //Получаем все новые вложения и ищем файл с метаинформацией
             File tmpFolder = new File(getTempFolder(), "deploy_report_" + System.currentTimeMillis());
-            //File tmpFolder = File.createTempFile("report_", "_template");
             tmpFolder.mkdirs();
             for (DeployReportItem item : deployReportData.getItems()) {
-                //Ищем вложение с метаданными по имени
-                if (item.getName().equalsIgnoreCase(METADATA_FILE_MAME)) {
-                    reportMetadata = loadReportMetadata(item.getBody());
-                }
                 //Сохраняем во временную директорию для компиляции
                 saveFile(item, tmpFolder);
             }
 
             compileReport(tmpFolder);
 
-            if (reportMetadata == null) {
-                throw new ReportServiceException("Can not find " + METADATA_FILE_MAME
-                        + " in report template deploy data");
-            }
-
-            logger.info("Deploy report " + reportMetadata.getName());
-
             //Получаем все вложения из временной директории и сохраняем их как вложения
             File[] filelist = tmpFolder.listFiles();
+            assert filelist != null;
 
             //Поиск шаблона по имени
             reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
@@ -154,13 +162,12 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             if (reportTemplateObject == null) {
                 reportTemplateObject = createDomainObject("report_template");
                 reportTemplateObject.setString("name", reportMetadata.getName());
-                reportTemplateObject.setLong("reportHash", Long.valueOf(reportHash));
+                reportTemplateObject.setLong("reportHash", (long) reportHash);
                 reportTemplateObject.setString("constructor", reportMetadata.getConstructor());
                 updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
-
             } else {
                 Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
-                reportTemplateObject.setLong("reportHash", Long.valueOf(reportHash));
+                reportTemplateObject.setLong("reportHash", (long) reportHash);
                 //Для существующих отчётов
                 if (dopLockUpdate == null) {
                     dopLockUpdate = false;
@@ -178,7 +185,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                     updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
                 }
             }
-
             tmpFolder.delete();
         } catch (SystemException ex) {
             throw ex;
@@ -186,7 +192,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             logger.error("Unexpected exception caught in deploy", ex);
             throw new ReportServiceException("Error deploy process", ex);
         }
-
     }
 
     private void updateReportTemplate(DomainObject reportTemplateObject, ReportMetadataConfig reportMetadata, File[] filelist, boolean lockUpdate) throws IOException {
@@ -210,19 +215,11 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             //Удаляем, больше нам не нужен
             file.delete();
         }
-
-
     }
 
     private void saveFile(DeployReportItem item, File tmpFolder) throws IOException {
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(new File(tmpFolder, item.getName()));
+        try (FileOutputStream out = new FileOutputStream(new File(tmpFolder, item.getName()))) {
             out.write(item.getBody());
-        } finally {
-            if (out != null) {
-                out.close();
-            }
         }
     }
 
@@ -255,7 +252,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
-
     }
 
     private void deleteCascade(String doName, Id objectId) {
@@ -268,21 +264,20 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                         List<DomainObject> results = (domainObjectDao.findLinkedDomainObjects(objectId, dObject.getName(),
                                 fieldConfig.getName(),
                                 accessControlService.createSystemAccessToken(this.getClass().getName())));
-                        if (results.size() == 0)
+                        if (results.isEmpty()) {
                             continue;
+                        }
                         // Если есть типы ссылающиеся на этот ДО, идем глубже
-                        if (results.size() > 0 && hasRef) {
+                        if (hasRef) {
                             for (DomainObject r : results) {
                                 deleteCascade(dObject.getName(), r.getId());
                             }
                         }
                         //удаляем строки со ссылкой на исходный ДО
-                        if (results.size() > 0) {
+                        if (!results.isEmpty()) {
                             deleteDomainObjects(results,
                                     accessControlService.createSystemAccessToken(this.getClass().getName()));
-
                         }
-
                     }
                 }
             }
@@ -306,30 +301,27 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
-    private void compileReport(File tempFolder) throws IOException, JRException, NoSuchMethodException,
-            SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            InstantiationException, ClassNotFoundException, URISyntaxException {
+    private void compileReport(File tempFolder) throws IOException, SecurityException, IllegalArgumentException {
 
         File[] filelist = tempFolder.listFiles();
+        assert filelist != null;
 
-        List<File> javaFiles = new ArrayList<File>();
-        List<File> jrxmlFiles = new ArrayList<File>();
+        List<File> javaFiles = new ArrayList<>();
+        List<File> jrxmlFiles = new ArrayList<>();
 
         // Разбираем файлы по коллекциям
-        for (int i = 0; i < filelist.length; i++) {
-            String fileName = filelist[i].getName();
+        for (File file : filelist) {
+            String fileName = file.getName();
             if (fileName.indexOf(".java") > 0) {
-                javaFiles.add(filelist[i]);
+                javaFiles.add(file);
             } else if (fileName.indexOf(".jrxml") > 0) {
-                jrxmlFiles.add(filelist[i]);
+                jrxmlFiles.add(file);
             }
         }
-
         // Компиляция джава файлов
-        if (javaFiles.size() > 0) {
+        if (!javaFiles.isEmpty()) {
             scriptletCompilation(javaFiles, tempFolder);
         }
-
         // Компиляция шаблонов
         for (File jrxmlFile : jrxmlFiles) {
             compileJasper(jrxmlFile);
@@ -342,7 +334,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             ScriptletClassLoader scriptletClassLoader =
                     new ScriptletClassLoader(fileName.getParent(), defaultClassLoader);
             Thread.currentThread().setContextClassLoader(scriptletClassLoader);
-            logger.debug("Compile template " + fileName);
+            logger.debug("Compile template {}", fileName);
             String jasperLocation = fileName.getPath().replace(".jrxml", ".jasper");
             JasperCompileManager.compileReportToFile(fileName.getPath(), jasperLocation);
         } catch (Exception ex) {
@@ -352,26 +344,20 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
     }
 
-    private void scriptletCompilation(List<File> javaFiles, File tempFolder) throws IOException, NoSuchMethodException,
-            SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-            InstantiationException, ClassNotFoundException, URISyntaxException {
+    private void scriptletCompilation(List<File> javaFiles, File tempFolder)
+            throws IOException, SecurityException, IllegalArgumentException {
 
         for (File file : javaFiles) {
-            logger.debug("Compile class " + file.getName());
+            logger.debug("Compile class {}", file.getName());
         }
-
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-        if (compiler == null){
-        	throw new FatalException("Application start with JRE, but need JDK");
+        if (compiler == null) {
+            throw new FatalException("Application start with JRE, but need JDK");
         }
-        
+        StandardJavaFileManager stdFileManager = compiler.getStandardFileManager(null, Locale.getDefault(), null);
 
-        StandardJavaFileManager stdFileManager = compiler
-                .getStandardFileManager(null, Locale.getDefault(), null);
-
-        Iterable<? extends JavaFileObject> compilationUnits = stdFileManager
-                .getJavaFileObjectsFromFiles(javaFiles);
-        ArrayList<String> compileOptions = new ArrayList<String>();
+        Iterable<? extends JavaFileObject> compilationUnits = stdFileManager.getJavaFileObjectsFromFiles(javaFiles);
+        ArrayList<String> compileOptions = new ArrayList<>();
 
         compileOptions.add("-cp");
         compileOptions.add(getCompileClassPath());
@@ -381,7 +367,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         compileOptions.add("utf-8");
         compileOptions.add("-g");
 
-        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
 
         CompilationTask compilerTask = compiler.getTask(null, stdFileManager,
                 diagnostics, compileOptions, null, compilationUnits);
@@ -390,20 +376,20 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         stdFileManager.close();
 
         if (!status) {
-            String message = "";
+            StringBuilder message = new StringBuilder();
             for (Diagnostic<? extends JavaFileObject> diagnostic : diagnostics.getDiagnostics()) {
-                message += diagnostic.toString() + "\n";
+                message.append(diagnostic.toString()).append('\n');
             }
-            throw new ReportServiceException(message);
+            throw new ReportServiceException(message.toString());
         }
     }
 
-    private String getCompileClassPath() throws IOException, URISyntaxException {
+    private String getCompileClassPath() throws IOException {
         String[] rootPackages = new String[]{"net", "ru", "com", "org", "lotus"};
         //Получаем библиотеки для runtime компилятора
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        //Список найденых jar библиотек. Необходим чтоб не дублировать jar-ы
-        List<String> paths = new ArrayList<String>();
+        //Список найденных jar библиотек. Необходим чтоб не дублировать jar-ы
+        Set<String> paths = new HashSet<>();
         StringBuilder cp = new StringBuilder();
 
         String path;
@@ -411,29 +397,28 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             Enumeration<URL> urls = classLoader.getResources(rootPackage);
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
-                if (url.getPath().contains(".jar")) {
-                    if ("vfs".equals(url.getProtocol())) {
-                        int end = url.toString().indexOf(".jar") + 4;
-                        URL urlToJar = new URL(url.toString().substring(0, end));
-                        URLConnection conn = urlToJar.openConnection();
-                        VirtualFile vf = (VirtualFile) conn.getContent();
-                        File physicalFile = vf.getPhysicalFile();
-                        String dirName = physicalFile.getParent();
-                        String fileName = vf.getName();
-                        path = new File(dirName, fileName).getPath();
-                    } else { // process "file:" and other urls as usual
-                        int end = url.getPath().indexOf(".jar") + 4;
-                        int start = url.getPath().indexOf(":/") + 2;
-                        path = url.getPath().substring(start, end);
-                    }
-                    if (!paths.contains(path)) {
-                        cp.append(path).append(File.pathSeparator);
-                        paths.add(path);
-                    }
+                String urlPath = url.getPath();
+                if (!urlPath.contains(".jar")) {
+                    continue;
+                }
+                if ("vfs".equals(url.getProtocol())) {
+                    int end = url.toString().indexOf(".jar") + 4;
+                    URL urlToJar = new URL(url.toString().substring(0, end));
+                    VirtualFile vf = (VirtualFile) urlToJar.openConnection().getContent();
+                    String dirName = vf.getPhysicalFile().getParent();
+                    path = new File(dirName, vf.getName()).getPath();
+                } else { // process "file:" and other urls as usual
+                    int end = urlPath.indexOf(".jar") + 4;
+                    // In Windows: "file:/D:/programs..."
+                    // In *nix: "file:/opt/wildfly..."
+                    int start = urlPath.indexOf(":/") + PATH_PART;
+                    path = urlPath.substring(start, end);
+                }
+                if (paths.add(path)) {
+                    cp.append(path).append(File.pathSeparatorChar);
                 }
             }
         }
-
         return cp.toString();
     }
 
@@ -443,9 +428,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, name, lockupdate from report_template", 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
-            DeployReportData deployReportData = getReportData(identifiableObject.getId(), accessToken);
-            if (deployReportData.getItems().size() > 0) {
-                logger.info("Recompile report " + identifiableObject.getString("name"));
+            DeployReportData deployReportData = getReportData(identifiableObject.getId());
+            if (!deployReportData.getItems().isEmpty()) {
+                logger.info("Recompile report {}", identifiableObject.getString("name"));
                 deploy(deployReportData, identifiableObject.getBoolean("lockupdate") != null && identifiableObject.getBoolean("lockupdate"));
             }
         }
@@ -453,13 +438,13 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     }
 
     @Override
-    public void importReportPackage(File reportPackageFile) throws Exception {
-        logMessage("importReportPackage >>>", "reportPackageFile=", reportPackageFile != null ? reportPackageFile.getAbsolutePath() : null);
+    public void importReportPackage(@Nonnull File reportPackageFile) throws Exception {
+        logMessage("importReportPackage >>>", "reportPackageFile=", reportPackageFile.getAbsolutePath());
         String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
         logMessage("importReportPackage === 1", "pathForTempFilesStore=", pathForTempFilesStore);
         File packageFilesPath = this.unzipFile(pathForTempFilesStore, reportPackageFile);
-        logMessage("importReportPackage === 2", "packageFilesPath=", packageFilesPath != null ? packageFilesPath.getAbsolutePath() : null);
-        ReportImportConfig reportImportConfig = loadImportConfig(packageFilesPath, CONFIG_FILE);
+        logMessage("importReportPackage === 2", "packageFilesPath=", packageFilesPath.getAbsolutePath());
+        ReportImportConfig reportImportConfig = loadImportConfig(packageFilesPath);
         if (reportImportConfig == null) {
             throw new Exception("Ошибка при загрузки конфигурации импорта отчетов.");
         }
@@ -468,8 +453,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         if (csvFiles != null) {
             for (CsvFile csvFile : csvFiles) {
                 logMessage("importReportPackage === 3.1", "csvFile=", csvFile);
-                File file = new File(packageFilesPath, csvFile != null ? csvFile.getFilePath() : null);
-                logMessage("importReportPackage === 3.2", "file=", file != null ? file.getAbsolutePath() : null);
+                File file = new File(packageFilesPath, csvFile.getFilePath());
+                logMessage("importReportPackage === 3.2", "file=", file.getAbsolutePath());
                 importDataService.importData(readFile(file), csvFile.getCodePage(), csvFile.getOverwrite());
                 logMessage("importReportPackage === 3.3", "import of csvFile=", csvFile, "ok");
             }
@@ -509,7 +494,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     }
 
 
-    private DeployReportData getReportData(Id templateId, AccessToken accessToken) {
+    private DeployReportData getReportData(Id templateId) {
         DeployReportData result = new DeployReportData();
         List<DomainObject> attachments = getAttachments("report_template_attach", templateId);
         for (DomainObject attachment : attachments) {
@@ -524,7 +509,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         return result;
     }
 
-    protected byte[] getAttachmentContent(DomainObject attachment) {
+    private byte[] getAttachmentContent(DomainObject attachment) {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
         try {
@@ -532,7 +517,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
 
-            int read = 0;
+            int read;
             byte[] buffer = new byte[1024];
             while ((read = contentStream.read(buffer)) > 0) {
                 attachmentBytes.write(buffer, 0, read);
@@ -548,26 +533,26 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 if (inputStream != null) {
                     inputStream.close(true);
                 }
-            } catch (IOException ignoreEx) {
+            } catch (IOException ignored) {
             }
         }
     }
 
-    private ReportImportConfig loadImportConfig(File dirPath, String configFile) throws Exception {
-        logMessage("loadImportConfig >>>", "dirPath=", dirPath != null ? dirPath.getAbsolutePath() : null, "configFile=", configFile);
+    private ReportImportConfig loadImportConfig(File dirPath) throws Exception {
+        logMessage("loadImportConfig >>>", "dirPath=", dirPath != null ? dirPath.getAbsolutePath() : null, "configFile=", ReportServiceAdminImpl.CONFIG_FILE);
         JAXBContext jc = JAXBContext.newInstance(ReportImportConfig.class);
         Unmarshaller unmarshaller = jc.createUnmarshaller();
-        File configFilePath = new File(dirPath, configFile);
-        logMessage("loadImportConfig === 1", "configFilePath=", configFilePath != null ? configFilePath.getAbsolutePath() : null, "configFile=", configFile);
+        File configFilePath = new File(dirPath, ReportServiceAdminImpl.CONFIG_FILE);
+        logMessage("loadImportConfig === 1", "configFilePath=", configFilePath.getAbsolutePath(), "configFile=", ReportServiceAdminImpl.CONFIG_FILE);
         ReportImportConfig reportImportConfig = (ReportImportConfig) unmarshaller.unmarshal(configFilePath);
-        logMessage("loadImportConfig <<<", "configFilePath=", configFilePath != null ? configFilePath.getAbsolutePath() : null, "configFile=", configFile);
+        logMessage("loadImportConfig <<<", "configFilePath=", configFilePath.getAbsolutePath(), "configFile=", ReportServiceAdminImpl.CONFIG_FILE);
         return reportImportConfig;
     }
 
-    private File unzipFile(String path, File jarFile) throws Exception {
-        logMessage("unzipFile >>>", "path=", path, "jarFile=", jarFile != null ? jarFile.getAbsolutePath() : null);
+    private File unzipFile(String path, @Nonnull File jarFile) throws Exception {
+        logMessage("unzipFile >>>", "path=", path, "jarFile=", jarFile.getAbsolutePath());
         File destDir = new File(path, this.getUniqueName());
-        logMessage("unzipFile === 1", "destDir=", destDir != null ? destDir.getAbsolutePath() : null);
+        logMessage("unzipFile === 1", "destDir=", destDir.getAbsolutePath());
         destDir.mkdirs();
         InputStream zipFileStream = new FileInputStream(jarFile);
         // TODO кодировка
@@ -598,7 +583,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         } catch (IOException e) {
             throw new Exception(e);
         }
-        logMessage("unzipFile <<<", "destDir=", destDir != null ? destDir.getAbsolutePath() : null);
+        logMessage("unzipFile <<<", "destDir=", destDir.getAbsolutePath());
         return destDir;
     }
 
@@ -626,23 +611,25 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     }
 
     private void logMessage(Object... data) {
-        if (logger.isDebugEnabled()) {
-            String logMsg = "";
-            if (data != null) {
-                for (Object msg : data) {
-                    logMsg += (msg != null ? msg.toString() : "null") + " ";
-                }
-            } else {
-                logMsg = "null";
-            }
-            logger.debug(logMsg);
+        if (!logger.isDebugEnabled()) {
+            return;
         }
+        String logMsg;
+        if (data != null) {
+            StringBuilder sb = new StringBuilder();
+            for (Object msg : data) {
+                sb.append(msg).append(" ");
+            }
+            logMsg = sb.toString();
+        } else {
+            logMsg = "null";
+        }
+        logger.debug(logMsg);
     }
 
     @XmlRootElement(name = "report-import-config")
     @XmlAccessorType(XmlAccessType.PROPERTY)
     private static class ReportImportConfig implements Serializable {
-        private static final long serialVersionUID = 1L;
 
         @XmlElementWrapper(name = "csv")
         @XmlElement(name = "file-path")
@@ -667,7 +654,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
     @XmlAccessorType(XmlAccessType.PROPERTY)
     private static class CsvFile implements Serializable {
-        private static final long serialVersionUID = 2L;
 
         private String filePath;
 
@@ -698,7 +684,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
 
         @XmlAttribute(name = "code-page")
-        public void setCodePage(String codePage) throws Exception {
+        public void setCodePage(String codePage) {
             if (codePage == null) {
                 this.codePage = Charset.forName("cp1251").name();
             } else {
@@ -712,7 +698,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         }
 
         public boolean getOverwrite() {
-            return overwrite != null ? overwrite.booleanValue() : true;
+            return overwrite == null || overwrite;
         }
 
         @Override
@@ -725,7 +711,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
     @XmlAccessorType(XmlAccessType.PROPERTY)
     private static class ReportTemplate implements Serializable {
-        private static final long serialVersionUID = 3L;
 
         @XmlElement(name = "file-path")
         private List<TemplateFilePath> templateFiles;
@@ -741,7 +726,6 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
     @XmlAccessorType(XmlAccessType.PROPERTY)
     private static class TemplateFilePath implements Serializable {
-        private static final long serialVersionUID = 4L;
 
         private String filePath;
 
@@ -762,7 +746,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             this.filePath = filePath;
         }
 
-        @Override public String toString() {
+        @Override
+        public String toString() {
             return filePath != null ? filePath : "null";
         }
     }

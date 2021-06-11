@@ -1,29 +1,30 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * Класс предоставляет доступ к конфигурации источников данных
  */
 public class DefaultDataSourcesConfiguration {
 
-    @org.springframework.beans.factory.annotation.Value("${datasource.master:java:jboss/datasources/CM5}")
+    @Value("${datasource.master:java:jboss/datasources/CM5}")
     private String masterDataSourceJndiName;
 
-    @org.springframework.beans.factory.annotation.Value("${datasource.collections:java:jboss/datasources/CM5}")
+    @Value("${datasource.collections:java:jboss/datasources/CM5}")
     private String collectionsDataSourceJndiName;
 
-    @org.springframework.beans.factory.annotation.Value("${datasource.reports:java:jboss/datasources/CM5}")
+    @Value("${datasource.reports:java:jboss/datasources/CM5}")
     private String reportsDataSourceJndiName;
 
-    public String getMasterDataSourceJndiName() {
+    String getMasterDataSourceJndiName() {
         return masterDataSourceJndiName;
     }
 
-    public String getCollectionsDataSourceJndiName() {
+    String getCollectionsDataSourceJndiName() {
         return collectionsDataSourceJndiName;
     }
 
-    public String getReportsDataSourceJndiName() {
+    String getReportsDataSourceJndiName() {
         return reportsDataSourceJndiName;
     }
 }

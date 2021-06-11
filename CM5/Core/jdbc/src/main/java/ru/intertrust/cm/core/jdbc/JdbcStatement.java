@@ -5,17 +5,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.jdbc.JdbcDriver.ConnectMode;
 
 public class JdbcStatement implements Statement {
-    public static final int COLLECTION_LIMIT = 5000;
-    //public static final int COLLECTION_LIMIT = 5;
+
+    private static final int COLLECTION_LIMIT = 5000;
     private int collectionPartition = 0;
     private boolean closed = false;
     private int maxRows;
@@ -23,32 +22,28 @@ public class JdbcStatement implements Statement {
     protected SochiClient client;
     protected String sql = null;
 
-    public JdbcStatement(SochiClient client) {
+    JdbcStatement(SochiClient client) {
         this.client = client;
     }
 
     @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
+    public <T> T unwrap(Class<T> iface) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+    public boolean isWrapperFor(Class<?> iface) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int executeUpdate(String sql) throws SQLException {
+    public int executeUpdate(String sql) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -57,65 +52,57 @@ public class JdbcStatement implements Statement {
     }
 
     @Override
-    public int getMaxFieldSize() throws SQLException {
+    public int getMaxFieldSize() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setMaxFieldSize(int max) throws SQLException {
+    public void setMaxFieldSize(int max) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getMaxRows() throws SQLException {
+    public int getMaxRows() {
         return maxRows;
     }
 
     @Override
-    public void setMaxRows(int max) throws SQLException {
+    public void setMaxRows(int max) {
         this.maxRows = max;
     }
 
     @Override
-    public void setEscapeProcessing(boolean enable) throws SQLException {
+    public void setEscapeProcessing(boolean enable) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getQueryTimeout() throws SQLException {
+    public int getQueryTimeout() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setQueryTimeout(int seconds) throws SQLException {
+    public void setQueryTimeout(int seconds) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public void cancel() throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public SQLWarning getWarnings() throws SQLException {
+    public SQLWarning getWarnings() {
         return null;
-
     }
 
     @Override
-    public void clearWarnings() throws SQLException {
+    public void clearWarnings() {
     }
 
     @Override
-    public void setCursorName(String name) throws SQLException {
+    public void setCursorName(String name) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
@@ -131,181 +118,157 @@ public class JdbcStatement implements Statement {
     }
 
     @Override
-    public ResultSet getResultSet() throws SQLException {
+    public ResultSet getResultSet() {
         return this.resultSet;
-
     }
 
     @Override
-    public int getUpdateCount() throws SQLException {
+    public int getUpdateCount() {
         return 0;
     }
 
     @Override
-    public boolean getMoreResults() throws SQLException {
+    public boolean getMoreResults() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void setFetchDirection(int direction) throws SQLException {
+    public void setFetchDirection(int direction) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getFetchDirection() throws SQLException {
+    public int getFetchDirection() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void setFetchSize(int rows) throws SQLException {
+    public void setFetchSize(int rows) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getFetchSize() throws SQLException {
+    public int getFetchSize() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getResultSetConcurrency() throws SQLException {
+    public int getResultSetConcurrency() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getResultSetType() throws SQLException {
+    public int getResultSetType() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void addBatch(String sql) throws SQLException {
+    public void addBatch(String sql) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void clearBatch() throws SQLException {
+    public void clearBatch() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int[] executeBatch() throws SQLException {
+    public int[] executeBatch() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public Connection getConnection() throws SQLException {
+    public Connection getConnection() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public boolean getMoreResults(int current) throws SQLException {
+    public boolean getMoreResults(int current) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public ResultSet getGeneratedKeys() throws SQLException {
+    public ResultSet getGeneratedKeys() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
+    public int executeUpdate(String sql, int autoGeneratedKeys) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
+    public int executeUpdate(String sql, int[] columnIndexes) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int executeUpdate(String sql, String[] columnNames) throws SQLException {
+    public int executeUpdate(String sql, String[] columnNames) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public boolean execute(String sql, int[] columnIndexes) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
     public boolean execute(String sql, String[] columnNames) throws SQLException {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public int getResultSetHoldability() throws SQLException {
+    public int getResultSetHoldability() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public boolean isClosed() throws SQLException {
+    public boolean isClosed() {
         return closed;
     }
 
     @Override
-    public void setPoolable(boolean poolable) throws SQLException {
+    public void setPoolable(boolean poolable) {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public boolean isPoolable() throws SQLException {
+    public boolean isPoolable() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public void closeOnCompletion() throws SQLException {
+    public void closeOnCompletion() {
         throw new UnsupportedOperationException();
-
     }
 
     @Override
-    public boolean isCloseOnCompletion() throws SQLException {
+    public boolean isCloseOnCompletion() {
         throw new UnsupportedOperationException();
-
     }
 
     public IdentifiableObjectCollection getCollectionPartition() throws Exception {
-        return getCollectionPartition(null);
-    }    
-    
-    public IdentifiableObjectCollection getCollectionPartition(List<Value> params) throws Exception {
-        
+        return getCollectionPartition(Collections.emptyList());
+    }
+
+    IdentifiableObjectCollection getCollectionPartition(@Nonnull List<Value<?>> params) throws Exception {
+
         IdentifiableObjectCollection collection =
                 client.getCollectionService().findCollectionByQuery(
-                        sql, 
-                        params != null ? params : Collections.EMPTY_LIST,
-                        collectionPartition * COLLECTION_LIMIT, 
+                        sql,
+                        params,
+                        collectionPartition * COLLECTION_LIMIT,
                         COLLECTION_LIMIT);
         collectionPartition++;
         return collection;
     }
-    
-    protected void resetPartition(){
+
+    void resetPartition() {
         collectionPartition = 0;
     }
 }

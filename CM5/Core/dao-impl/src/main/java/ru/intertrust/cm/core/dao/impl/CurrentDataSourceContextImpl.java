@@ -1,18 +1,17 @@
 package ru.intertrust.cm.core.dao.impl;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 
 /**
- * Реализация итерфейса для получения/установления контекста используемого источника данных
+ * Реализация интерфейса для получения/установления контекста используемого источника данных
  */
 public class CurrentDataSourceContextImpl implements CurrentDataSourceContext {
 
     @Autowired
     private DefaultDataSourcesConfiguration defaultDataSourcesConfiguration;
 
-    private static ThreadLocal<String> currentDataSourceJndiName = new ThreadLocal<>();
+    private static final ThreadLocal<String> currentDataSourceJndiName = new ThreadLocal<>();
 
     /**
      * {@inheritDoc}
@@ -22,17 +21,19 @@ public class CurrentDataSourceContextImpl implements CurrentDataSourceContext {
         return currentDataSourceJndiName.get();
     }
 
+    @Override
     public String getDescription() {
         final String jndiName = get();
         if (jndiName == null || jndiName.equals(defaultDataSourcesConfiguration.getMasterDataSourceJndiName())) {
             return "MASTER";
-        } else if (jndiName.equals(defaultDataSourcesConfiguration.getCollectionsDataSourceJndiName())) {
-            return "COLLECTIONS";
-        } else if (jndiName.equals(defaultDataSourcesConfiguration.getReportsDataSourceJndiName())) {
-            return "REPORT";
-        } else {
-            return "UNKNOWN " + jndiName;
         }
+        if (jndiName.equals(defaultDataSourcesConfiguration.getCollectionsDataSourceJndiName())) {
+            return "COLLECTIONS";
+        }
+        if (jndiName.equals(defaultDataSourcesConfiguration.getReportsDataSourceJndiName())) {
+            return "REPORT";
+        }
+        return "UNKNOWN " + jndiName;
     }
 
     @Override
