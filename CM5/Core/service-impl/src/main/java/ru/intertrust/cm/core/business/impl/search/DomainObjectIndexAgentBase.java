@@ -2,17 +2,15 @@ package ru.intertrust.cm.core.business.impl.search;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
-import org.apache.solr.client.solrj.request.UpdateRequest;
-import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.ContentStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
+import ru.intertrust.cm.core.business.api.DomainObjectIndexer;
 import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -23,14 +21,10 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 
-public abstract class DomainObjectIndexAgentBase {
+public abstract class DomainObjectIndexAgentBase implements DomainObjectIndexer {
 
     protected static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
 
@@ -71,8 +65,6 @@ public abstract class DomainObjectIndexAgentBase {
     private String attachmentIndexExclusionConfig;
 
     private final Set<String> exclusionSet = new HashSet<>();
-
-    public abstract void index(DomainObject domainObject);
 
     // @PostConstruct
     protected void init(){
