@@ -643,105 +643,120 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (configurationExplorer.isAuditLogType(domainObjectType)) {
             throw new FatalException("It is not allowed to delete Audit Log using CRUD service, table: " + domainObjectType);
         }
-        deleteMany(new Id[] {id }, accessToken, false);
+        deleteMany(new Id[] {id }, accessToken, false, false);
+    }
+    
+    public int deleteQuickly(List<Id> ids, AccessToken accessToken) {
+        return delete(ids, accessToken, true);
     }
 
-    private int deleteMany(Id[] ids, AccessToken accessToken, boolean ignoreObjectNotFound) throws InvalidIdException,
+    private int deleteMany(Id[] ids, AccessToken accessToken, boolean ignoreObjectNotFound, boolean isQuickly) throws InvalidIdException,
             ObjectNotFoundException {
+        
+        String[] parentTypes = null;
+        List<DomainObject> deletedObjects = null;
+        
+        if (!isQuickly) {
 
-        checkIfAuditLog(ids);
+            checkIfAuditLog(ids);
 
-        for (Id id : ids) {
-            validateIdType(id);
-            accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
-        }
+            for (Id id : ids) {
+                validateIdType(id);
+                accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
+            }
 
-        final RdbmsId firstRdbmsId = (RdbmsId) ids[0];
-        final DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId));
-        final String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjectTypeConfig.getName());
+            final RdbmsId firstRdbmsId = (RdbmsId) ids[0];
+            final DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+                    .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId));
+            parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjectTypeConfig.getName());
 
-        // Получаем удаляемый доменный объект для вызова точек расширения и
-        // пересчета динамических групп. Чтение объекта
-        // идет от имени системы, т.к. прав на чтение может не быть у
-        // пользователя.
-        final AccessToken systemAccessToken = createSystemAccessToken();
-
-        List<DomainObject> deletedObjects = new ArrayList<>(ids.length);
-        for (Id id : ids) {
-            DomainObject deletedObject = find(id, systemAccessToken);
-            // Проверка наличия доменного объекта
-            if (deletedObject == null) {
-                // Если взведен флаг игнорировать отсутствие ДО то пропускаем
-                // идентификатор, иначе бросаем исключение
-                if (ignoreObjectNotFound) {
-                    continue;
-                } else {
-                    throw new ObjectNotFoundException(id);
+            // Получаем удаляемый доменный объект для вызова точек расширения и
+            // пересчета динамических групп. Чтение объекта
+            // идет от имени системы, т.к. прав на чтение может не быть у
+            // пользователя.
+            final AccessToken systemAccessToken = createSystemAccessToken();
+            deletedObjects = new ArrayList<>(ids.length);
+            
+            for (Id id : ids) {
+                DomainObject deletedObject = find(id, systemAccessToken);
+                // Проверка наличия доменного объекта
+                if (deletedObject == null) {
+                    // Если взведен флаг игнорировать отсутствие ДО то пропускаем
+                    // идентификатор, иначе бросаем исключение
+                    if (ignoreObjectNotFound) {
+                        continue;
+                    } else {
+                        throw new ObjectNotFoundException(id);
+                    }
                 }
-            }
-            deletedObjects.add(deletedObject);
-            Set<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
+                deletedObjects.add(deletedObject);
+                Set<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
-            // Точка расширения до удаления
-            for (String typeName : parentTypes) {
-                extensionService.getExtensionPoint(BeforeDeleteExtensionHandler.class, typeName).onBeforeDelete(deletedObject);
-            }
-            // вызываем обработчики с неуказанным фильтром
-            extensionService.getExtensionPoint(BeforeDeleteExtensionHandler.class, "").onBeforeDelete(deletedObject);
+                // Точка расширения до удаления
+                for (String typeName : parentTypes) {
+                    extensionService.getExtensionPoint(BeforeDeleteExtensionHandler.class, typeName).onBeforeDelete(deletedObject);
+                }
+                // вызываем обработчики с неуказанным фильтром
+                extensionService.getExtensionPoint(BeforeDeleteExtensionHandler.class, "").onBeforeDelete(deletedObject);
 
-            // Пересчет прав непосредственно перед удалением объекта из базы,
-            // чтобы не нарушать целостность данных
-            refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
+                // Пересчет прав непосредственно перед удалением объекта из базы,
+                // чтобы не нарушать целостность данных
+                refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
+            }
+
         }
 
         // непосредственно удаление из базы
         int deleted = internalDelete(ids, ignoreObjectNotFound);
-
-        // Удаление из кэша
-        for (Id id : ids) {
-            domainObjectCacheService.evict(id);
-            globalCacheClient.notifyDelete(id);
-        }
         
-        // Трассировка сохранения со стеком вызова. Нужна для поиска
-        // ObjectNotFoundException
-        if (logger.isTraceEnabled()) {
-            StringBuilder message = new StringBuilder("Delete domain objects:");
-            for (int q = 0; q < deletedObjects.size(); q++) {
-                message.append("\nDomainObject-").append(q).append(": ").append(deletedObjects.get(q));
+        if (!isQuickly) {
+
+            // Удаление из кэша
+            for (Id id : ids) {
+                domainObjectCacheService.evict(id);
+                globalCacheClient.notifyDelete(id);
             }
-            message.append("\nCall stack:\n");
-            StackTraceElement[] stackElements = Thread.currentThread().getStackTrace();
-            // Начинать надо с первого, так как нулевой это метод
-            // getStackTrace()
-            for (int q = 1; q < stackElements.length; q++) {
-                StackTraceElement stackTraceElement = stackElements[q];
-                message.append('\t').append(stackTraceElement).append('\n');
+            
+            // Трассировка сохранения со стеком вызова. Нужна для поиска
+            // ObjectNotFoundException
+            if (logger.isTraceEnabled()) {
+                StringBuilder message = new StringBuilder("Delete domain objects:");
+                for (int q = 0; q < deletedObjects.size(); q++) {
+                    message.append("\nDomainObject-").append(q).append(": ").append(deletedObjects.get(q));
+                }
+                message.append("\nCall stack:\n");
+                StackTraceElement[] stackElements = Thread.currentThread().getStackTrace();
+                // Начинать надо с первого, так как нулевой это метод
+                // getStackTrace()
+                for (int q = 1; q < stackElements.length; q++) {
+                    StackTraceElement stackTraceElement = stackElements[q];
+                    message.append('\t').append(stackTraceElement).append('\n');
+                }
+                logger.trace(message.toString());
             }
-            logger.trace(message.toString());
-        }
 
-        // Пишем в аудит лог
-        for (DomainObject deletedObject : deletedObjects) {
-            String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(deletedObject.getTypeName());
-            Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
+            // Пишем в аудит лог
+            for (DomainObject deletedObject : deletedObjects) {
+                String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(deletedObject.getTypeName());
+                Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
 
-            createAuditLog(deletedObject, deletedObject.getTypeName(), auditLogType, accessToken, DomainObjectVersion.AuditLogOperation.DELETE);
-        }
-
-        // Точка расширения после удаления, вызывается с установкой фильтра
-        // текущего типа и всех наследников
-        for (DomainObject deletedObject : deletedObjects) {
-            // Добавляем слушателя коммита транзакции, чтобы вызвать точки
-            // расширения после транзакции
-            DomainObjectActionListener listener = getTransactionListener();
-            listener.addDeletedDomainObject(deletedObject);
-
-            for (String typeName : parentTypes) {
-                extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, typeName).onAfterDelete(deletedObject);
+                createAuditLog(deletedObject, deletedObject.getTypeName(), auditLogType, accessToken, DomainObjectVersion.AuditLogOperation.DELETE);
             }
-            extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
+
+            // Точка расширения после удаления, вызывается с установкой фильтра
+            // текущего типа и всех наследников
+            for (DomainObject deletedObject : deletedObjects) {
+                // Добавляем слушателя коммита транзакции, чтобы вызвать точки
+                // расширения после транзакции
+                DomainObjectActionListener listener = getTransactionListener();
+                listener.addDeletedDomainObject(deletedObject);
+
+                for (String typeName : parentTypes) {
+                    extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, typeName).onAfterDelete(deletedObject);
+                }
+                extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
+            }
+            
         }
 
         return deleted;
@@ -816,8 +831,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    @Override
-    public int delete(List<Id> ids, AccessToken accessToken) {
+    private int delete(List<Id> ids, AccessToken accessToken, boolean isQuickly) {
         // TODO как обрабатывать ошибки при удалении каждого доменного
         // объекта...
 
@@ -826,12 +840,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         int count = 0;
         for (List<Id> idsByType : idsByTypes) {
             try {
-                count += deleteMany(idsByType.toArray(new Id[idsByType.size()]), accessToken, true);
+                count += deleteMany(idsByType.toArray(new Id[idsByType.size()]), accessToken, true, isQuickly);
             } catch (ObjectNotFoundException e) {
                 // ничего не делаем пока
             }
         }
         return count;
+    }
+
+    @Override
+    public int delete(List<Id> ids, AccessToken accessToken) {
+        return delete(ids, accessToken, false);
     }
 
     /**
