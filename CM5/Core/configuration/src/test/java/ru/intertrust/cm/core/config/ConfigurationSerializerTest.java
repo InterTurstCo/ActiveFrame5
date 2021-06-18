@@ -224,4 +224,18 @@ public class ConfigurationSerializerTest {
         Configuration newConfiguration = configurationSerializer.deserializeConfiguration(serializedConfiguration);
         assertEquals(configuration, newConfiguration);
     }
+
+    @Test
+    public void testDeserializeSearchAreaWithParentLinkAttr() throws Exception {
+        // десериализация xml
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/search-area-linked-objects.xml");
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
+
+        // Обратная сериализация в xml
+        String serializedConfiguration = ConfigurationSerializer.serializeConfiguration(configuration);
+
+        //повторная десериализация сгенеренного xml
+        Configuration newConfiguration = configurationSerializer.deserializeConfiguration(serializedConfiguration);
+        assertEquals(configuration, newConfiguration);
+    }
 }

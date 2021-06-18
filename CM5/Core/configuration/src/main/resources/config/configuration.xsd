@@ -3542,7 +3542,7 @@
         <xs:complexContent>
             <xs:extension base="con:indexedDomainObjectType">
                 <xs:choice maxOccurs="unbounded" minOccurs="0">
-                    <xs:element type="con:optionalDomainObjectAlgorithmType" name="parent-link" minOccurs="1"
+                    <xs:element type="con:parentLinkConfigType" name="parent-link" minOccurs="1"
                                 maxOccurs="1"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
@@ -3584,6 +3584,13 @@
             <!--xs:element name="script" type="xs:string"/-->
             <xs:element name="script" type="con:scriptType" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="parentLinkConfigType">
+        <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element name="doel" type="con:doelType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+        <xs:attribute name="types" type="xs:string" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="dialogWindowType">
