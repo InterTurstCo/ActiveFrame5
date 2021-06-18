@@ -33,7 +33,7 @@ public class  LinkConfig implements Dto,TopLevelConfig {
     private String image;
 
     @Attribute(name = "display-counter", required = false)
-    private boolean displayCounter = true;
+    private boolean displayCounter = false;
 
     @Attribute(name = "counter-type", required = false)
     private String counterType;

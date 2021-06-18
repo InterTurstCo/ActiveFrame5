@@ -570,7 +570,7 @@ public class NavigationTreePluginView extends PluginView {
 
             final RootNodeButton nodeButton = new RootNodeButton(linkConfig, baseAutoCut);
             if (linkConfig.getChildToOpen() != null) {
-                CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(nodeButton);
+                CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(nodeButton, linkConfig.isDisplayCounter());
                 String collectionToBeOpened = findCollectionForOpen(linkConfig);
                 CounterKey counterKey = new CounterKey(linkConfig.getName(), collectionToBeOpened);
                 counterRootNodeDecorator.setCounterKey(counterKey);
