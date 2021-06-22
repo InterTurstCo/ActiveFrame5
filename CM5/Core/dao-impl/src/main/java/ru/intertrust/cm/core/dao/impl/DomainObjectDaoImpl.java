@@ -652,18 +652,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private int deleteMany(Id[] ids, AccessToken accessToken, boolean ignoreObjectNotFound, boolean isQuickly) throws InvalidIdException,
             ObjectNotFoundException {
+
+        checkIfAuditLog(ids);
+
+        for (Id id : ids) {
+            validateIdType(id);
+            accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
+        }
         
         String[] parentTypes = null;
         List<DomainObject> deletedObjects = null;
         
         if (!isQuickly) {
-
-            checkIfAuditLog(ids);
-
-            for (Id id : ids) {
-                validateIdType(id);
-                accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
-            }
 
             final RdbmsId firstRdbmsId = (RdbmsId) ids[0];
             final DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
@@ -708,14 +708,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // непосредственно удаление из базы
         int deleted = internalDelete(ids, ignoreObjectNotFound);
+
+        // Удалене из кэша
+        for (Id id : ids) {
+            domainObjectCacheService.evict(id);
+            globalCacheClient.notifyDelete(id);
+        }
         
         if (!isQuickly) {
-
-            // Удаление из кэша
-            for (Id id : ids) {
-                domainObjectCacheService.evict(id);
-                globalCacheClient.notifyDelete(id);
-            }
             
             // Трассировка сохранения со стеком вызова. Нужна для поиска
             // ObjectNotFoundException
