@@ -90,7 +90,7 @@ public class ReportResultBuilder extends ReportServiceBase {
      * Генерация отчета
      */
     @Nonnull
-    ReportFile generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
+    public ReportFile generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
             throws Exception {
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
         Map<String, Object> params = new HashMap<>();
