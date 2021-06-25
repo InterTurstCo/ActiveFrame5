@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.DomainObjectFilter;
 import ru.intertrust.cm.core.business.api.DomainObjectIndexer;
 import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -25,6 +26,7 @@ import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 
+import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -205,6 +207,7 @@ public abstract class DomainObjectIndexAgentBase implements DomainObjectIndexer 
         }
     }
 
+    @Nonnull
     protected List<Id> calculateMainObjects(Id objectId, IndexedDomainObjectConfig[] configChain) {
         ArrayList<Id> ids = new ArrayList<>();
         if (objectId != null) {
@@ -435,6 +438,19 @@ public abstract class DomainObjectIndexAgentBase implements DomainObjectIndexer 
                 }
             }
         }
+    }
+
+    protected ContentStreamUpdateRequest getRequestWithCommonParams(DomainObject attachmentObject, SearchConfigHelper.SearchAreaDetailsConfig attachmentConfig, Id mainId) {
+        ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
+        request.addContentStream(new SolrAttachmentFeeder(attachmentObject));
+        request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_ID, attachmentObject.getId().toStringRepresentation());
+        request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.AREA, attachmentConfig.getAreaName());
+        request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.TARGET_TYPE, attachmentConfig.getTargetObjectType());
+        request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_TYPE, attachmentConfig.getObjectConfig().getType());
+        request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+        request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
+                ThreadSafeDateFormat.format(attachmentObject.getModifiedDate(), DATE_PATTERN));
+        return request;
     }
 
 }

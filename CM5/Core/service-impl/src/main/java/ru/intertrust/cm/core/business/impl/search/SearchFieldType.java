@@ -14,5 +14,4 @@ public interface SearchFieldType {
     boolean isQuote();
     // Признак текстового типа
     boolean isTextType();
-    //String preProcessSearchString(String searchString);
 }

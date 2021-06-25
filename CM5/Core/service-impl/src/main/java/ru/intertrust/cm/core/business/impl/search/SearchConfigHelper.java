@@ -432,9 +432,14 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
         }
     }
 
-    public List<SearchAreaDetailsConfig> findChildConfigs(SearchAreaDetailsConfig config) {
-        List<SearchAreaDetailsConfig> result = new ArrayList<>(config.getObjectConfig().getLinkedObjects().size());
-        for (LinkedDomainObjectConfig child : config.getObjectConfig().getLinkedObjects()) {
+    public List<SearchAreaDetailsConfig> findChildConfigs(SearchAreaDetailsConfig config, boolean nested) {
+        List<LinkedDomainObjectConfig> linkedObjects = config.getObjectConfig().getLinkedObjects();
+
+        List<SearchAreaDetailsConfig> result = new ArrayList<>(linkedObjects.size());
+        for (LinkedDomainObjectConfig child : linkedObjects) {
+            if (child.isNested() ^ nested) {
+                continue;
+            }
             SearchAreaDetailsConfig details = new SearchAreaDetailsConfig();
             details.objectConfigChain = new IndexedDomainObjectConfig[config.getObjectConfigChain().length + 1];
             details.objectConfigChain[0] = child;
@@ -446,6 +451,10 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
             result.add(details);
         }
         return result;
+    }
+
+    public List<SearchAreaDetailsConfig> findChildConfigs(SearchAreaDetailsConfig config) {
+        return findChildConfigs(config, false);
     }
 
     /**

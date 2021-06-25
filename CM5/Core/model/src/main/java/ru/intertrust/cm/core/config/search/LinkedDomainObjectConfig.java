@@ -12,6 +12,9 @@ public class LinkedDomainObjectConfig extends IndexedDomainObjectConfig {
     @Attribute(name = "reindex-on-parent", required = false)
     private String reindexOnParent;
 
+    @Attribute(name= "nested", required = false)
+    private boolean nested;
+
     @Element(name = "parent-link", required = true)
     private ParentLinkConfig parentLink;
 
@@ -21,6 +24,10 @@ public class LinkedDomainObjectConfig extends IndexedDomainObjectConfig {
 
     public ParentLinkConfig getParentLink() {
         return parentLink;
+    }
+
+    public boolean isNested() {
+        return nested;
     }
 
     @Override

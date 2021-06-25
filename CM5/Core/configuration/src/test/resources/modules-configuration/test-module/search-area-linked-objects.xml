@@ -299,8 +299,7 @@
                 </parent-link>
             </linked-domain-object>
 
-            <!--CMSEVEN-5123-->
-            <linked-domain-object type="Tn_Field_String">
+            <linked-domain-object type="Tn_Field_String" nested="true">
                 <indexed-field name="Productsummary" search-by="exactmatch">
                     <script>
                         if (ctx.get('cmjfield').equals('Productsummary_Description')){
@@ -326,9 +325,8 @@
                     <doel>Owner.HierRoot</doel>
                 </parent-link>
             </linked-domain-object>
-            <!--CMSEVEN-5123-->
 
-            <linked-domain-object type="Tn_Field_Dateonly">
+            <linked-domain-object type="Tn_Field_Dateonly" nested="true">
 
                 <indexed-field name="Introduced" solr-prefix="cm_dt">
                     <script>

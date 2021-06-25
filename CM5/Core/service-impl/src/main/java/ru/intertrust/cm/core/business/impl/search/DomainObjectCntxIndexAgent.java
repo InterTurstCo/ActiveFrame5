@@ -216,15 +216,8 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                 }
             }
             for (Id mainId : mainIds) {
-                ContentStreamUpdateRequest request = new ContentStreamUpdateRequest("/update/extract");
-                request.addContentStream(new SolrAttachmentFeeder(attachmentObject));
-                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_ID, attachmentObject.getId().toStringRepresentation());
-                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.AREA, attachmentConfig.getAreaName());
-                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.TARGET_TYPE, attachmentConfig.getTargetObjectType());
-                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.OBJECT_TYPE, attachmentConfig.getObjectConfig().getType());
-                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-                request.setParam(SolrUtils.PARAM_FIELD_PREFIX + SolrFields.MODIFIED,
-                        ThreadSafeDateFormat.format(attachmentObject.getModifiedDate(), DATE_PATTERN));
+                ContentStreamUpdateRequest request = getRequestWithCommonParams(attachmentObject, attachmentConfig, mainId);
+
                 for (ContentFieldConfig contentFieldConfig : contentFieldConfigs.values()) {
                     switch (contentFieldConfig.getType()) {
                         case NAME :
