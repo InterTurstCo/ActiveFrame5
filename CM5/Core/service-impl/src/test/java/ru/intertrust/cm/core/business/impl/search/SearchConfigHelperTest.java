@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -14,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
@@ -34,6 +37,9 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
+import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
+import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -358,5 +364,34 @@ public class SearchConfigHelperTest {
         List<String> langs = testee.getSupportedLanguages("String_C", "Area_A");
         assertTrue("Для поля String_C должен быть определён нетранслируемый язык",
                 langs.size() == 1 && langs.contains(""));
+    }
+
+    @Test
+    public void findApplicableTypes() {
+        IndexedFieldConfig indexedFieldConfig = mock(IndexedFieldConfig.class);
+        when(indexedFieldConfig.getName()).thenReturn("linkedField");
+
+        LinkedDomainObjectConfig linkedDomainObjectConfig = mock(LinkedDomainObjectConfig.class);
+        when(linkedDomainObjectConfig.isNested()).thenReturn(true);
+        when(linkedDomainObjectConfig.getFields()).thenReturn(Collections.singletonList(indexedFieldConfig));
+        when(linkedDomainObjectConfig.getType()).thenReturn("linkedType");
+
+        TargetDomainObjectConfig targetDomainObjectConfig = mock(TargetDomainObjectConfig.class);
+        when(targetDomainObjectConfig.getType()).thenReturn("TargetType");
+        when(targetDomainObjectConfig.getLinkedObjects()).thenReturn(Collections.singletonList(linkedDomainObjectConfig));
+
+        SearchAreaConfig searchAreaConfig = mock(SearchAreaConfig.class);
+        when(searchAreaConfig.getTargetObjects()).thenReturn(Collections.singletonList(targetDomainObjectConfig));
+
+        ConfigurationExplorer configurationExplorer = mock(ConfigurationExplorer.class);
+        when(configurationExplorer.getConfig(SearchAreaConfig.class, "TestArea")).thenReturn(searchAreaConfig);
+
+        testee.setConfigurationExplorer(configurationExplorer);
+
+        Collection<String> applicableTypes = testee.findApplicableTypes("linkedField",
+                Collections.singletonList("TestArea"), Collections.singletonList("TargetType"));
+
+        assertEquals(applicableTypes.size(), 1);
+        assertEquals("TargetType", applicableTypes.iterator().next());
     }
 }

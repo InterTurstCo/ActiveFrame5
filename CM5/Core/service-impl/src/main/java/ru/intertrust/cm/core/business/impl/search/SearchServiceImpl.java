@@ -97,12 +97,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
-        //return result;
     }
 
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
-        // return complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
         return commonSearch(query, targetCollectionName, maxResults, false);
     }
 
@@ -198,7 +196,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     
             // Выполнение запросов в Solr и формирование коллекции найденных документов
             int fetchLimit = maxResults;
-            while(true) {
+            while (true) {
                 SolrDocumentList found = solrMultiQuery.execute(fetchLimit, query);
                 if (fetchLimit <= 0) {
                     fetchLimit = found.size();
@@ -336,9 +334,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
 
-                if (types.size() > 1){
+                if (types.size() > 1) {
                     addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue);
-                }else if(types.size() == 1){
+                } else if (types.size() == 1) {
                     addFilterValue((String)types.toArray()[0], filterValue);
                 }
             }
@@ -409,7 +407,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     /*if (!SearchConfigHelper.ALL_TYPES.equals(entry.getKey())) {
                         solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
                     }*/
-                    if (solrQuery.getSorts().isEmpty()){
+                    if (solrQuery.getSorts().isEmpty()) {
                         solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
                                 .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                     }
@@ -509,7 +507,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
         @SuppressWarnings({"unchecked", "rawtypes"})
         private String composeQueryString(Collection<SearchFilter> filters, SearchQuery query, CombiningFilter.Op combineOperation) {
-            String queryString = "";
+            StringBuilder queryString = new StringBuilder();
             String operation = combineOperation == CombiningFilter.AND ? " AND " : " OR ";
             for (SearchFilter filter : filters) {
                 FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
@@ -517,7 +515,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 String filterValue = "";
                 if (adapter.isCompositeFilter(filter) && filter instanceof CombiningFilter) {
                     filterValue = composeQueryString(((CombiningFilter) filter).getFilters(), query, ((CombiningFilter) filter).getOperation());
-                    queryString += (!queryString.isEmpty() ? operation : "") + filterValue;
+                    queryString.append((queryString.length() > 0) ? operation : "").append(filterValue);
                     continue;
                 }
 
@@ -531,13 +529,13 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 } else {
-                    queryString += (!queryString.isEmpty() ? operation : "") + filterValue;
+                    queryString.append((queryString.length() > 0) ? operation : "").append(filterValue);
                     if (types.size() == 1) {
                         objectTypeSet.add((String) types.toArray()[0]);
                     }
                 }
             }
-            return filters.size() > 1 ? ("(" + queryString + ")") : queryString;
+            return filters.size() > 1 ? ("(" + queryString + ")") : queryString.toString();
         }
 
         public QueryResponse execute(SearchQuery query,

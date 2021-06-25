@@ -4,23 +4,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+import ru.intertrust.cm.core.business.api.dto.Trio;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.AttachmentTypesConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
-import ru.intertrust.cm.core.config.search.*;
+import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
+import ru.intertrust.cm.core.config.search.IndexedContentConfig;
+import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
+import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
+import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
+import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.dao.doel.DoelValidator;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.annotation.PostConstruct;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Класс, содержащий вспомогательные методы для облегчения работы с конфигурацией подсистемы поиска.
@@ -238,15 +263,32 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
     }
 
     private void addAllObjectTypesContainingField(String field, IndexedDomainObjectConfig root, Set<String> result) {
-        for (IndexedFieldConfig fieldConfig : root.getFields()) {
-            if (field == null || field.equalsIgnoreCase(fieldConfig.getName())) {
-                result.add(root.getType());
-                break;
-            }
+        String type = findType(field, root);
+        if (type != null) {
+            result.add(type);
         }
-        for (LinkedDomainObjectConfig linkedConfig : root.getLinkedObjects()) {
-            addAllObjectTypesContainingField(field, linkedConfig, result);
+
+        boolean hasInNested = root.getLinkedObjects().stream()
+                .filter(LinkedDomainObjectConfig::isNested)
+                .anyMatch(it -> findType(field, it) != null);
+        if (hasInNested) {
+            result.add(root.getType());
         }
+
+        root.getLinkedObjects().stream()
+                .filter(linkedConfig -> !linkedConfig.isNested())
+                .forEach(linkedConfig -> addAllObjectTypesContainingField(field, linkedConfig, result));
+    }
+
+    private String findType(String field, IndexedDomainObjectConfig root) {
+        String type = null;
+        boolean inRoot = root.getFields()
+                .stream()
+                .anyMatch(fieldConfig -> field == null || field.equalsIgnoreCase(fieldConfig.getName()));
+        if (inRoot) {
+            type = root.getType();
+        }
+        return type;
     }
 
     /**
