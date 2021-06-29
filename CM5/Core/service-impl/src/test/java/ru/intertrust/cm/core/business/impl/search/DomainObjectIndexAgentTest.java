@@ -920,7 +920,7 @@ public class DomainObjectIndexAgentTest {
         when(doelEvaluator.createReverseExpression(
                 DoelExpression.parse("doel.parent.link1"),
                 "TestType1",
-                false, null)).thenReturn(doelExpressionForLink1);
+                true, null)).thenReturn(doelExpressionForLink1);
 
         when(doelEvaluator
                 .evaluate(eq(doelExpressionForLink1), same(parentId), Mockito.any(AccessToken.class)))
@@ -930,7 +930,7 @@ public class DomainObjectIndexAgentTest {
         when(doelEvaluator.createReverseExpression(
                 DoelExpression.parse("doel.parent.link2"),
                 "TestType2",
-                false, null)).thenReturn(doelExpressionForLink2);
+                true, null)).thenReturn(doelExpressionForLink2);
 
         when(doelEvaluator
                 .evaluate(eq(doelExpressionForLink2), same(parentId), Mockito.any(AccessToken.class)))
@@ -1054,7 +1054,7 @@ public class DomainObjectIndexAgentTest {
         when(doelEvaluator.createReverseExpression(
                 DoelExpression.parse("doel.parent.link1"),
                 "TestType1",
-                false, null)).thenReturn(doelExpressionForLink1);
+                true, null)).thenReturn(doelExpressionForLink1);
 
         when(doelEvaluator
                 .evaluate(eq(doelExpressionForLink1), same(parentId), Mockito.any(AccessToken.class)))

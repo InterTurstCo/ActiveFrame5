@@ -272,7 +272,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
 
     private void addFields(SolrInputDocument doc, DomainObject domainObject, List<SearchConfigHelper.SearchAreaDetailsConfig> configs) {
         for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configs) {
-            for (DomainObject child : findChildren(domainObject.getId(), linkedConfig)) {
+            for (DomainObject child : findChildren(domainObject.getId(), linkedConfig, true)) {
                 addBusinessFields(child, linkedConfig, doc);
             }
         }

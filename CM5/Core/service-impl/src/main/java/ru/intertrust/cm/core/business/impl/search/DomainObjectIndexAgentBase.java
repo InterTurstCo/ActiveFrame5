@@ -79,21 +79,20 @@ public abstract class DomainObjectIndexAgentBase implements DomainObjectIndexer 
     }
 
     protected List<DomainObject> findChildren(Id objectId, SearchConfigHelper.SearchAreaDetailsConfig config) {
-        return findChildren(objectId, config, null);
+        return findChildren(objectId, config, false);
     }
 
-    protected List<DomainObject> findChildren(Id objectId, SearchConfigHelper.SearchAreaDetailsConfig config, String objectType) {
+    protected List<DomainObject> findChildren(Id objectId, SearchConfigHelper.SearchAreaDetailsConfig config, boolean allowRefToAnyType) {
         String objectTypeFromConfig = config.getObjectConfig().getType();
-        if (objectType != null && !objectType.equalsIgnoreCase(objectTypeFromConfig)) {
-            return Collections.emptyList();
-        }
+
         ParentLinkConfig parentLinkConfig = ((LinkedDomainObjectConfig) config.getObjectConfig()).getParentLink();
         String parentLink = parentLinkConfig.getDoel();
         DoelExpression parentExpr = DoelExpression.parse(parentLink);
         DoelExpression linkedExpr;
         try {
+            String[] typesAsArray = parentLinkConfig.getTypesAsArray();
             linkedExpr = doelEvaluator.createReverseExpression(parentExpr, objectTypeFromConfig,
-                    objectType != null, parentLinkConfig.getTypesAsArray());
+                    allowRefToAnyType, typesAsArray);
         } catch (DoelException e) {
             log.warn("Can't calculate children of type " + objectTypeFromConfig + ": " + e.getMessage()
                     + "; manual/scheduled calculation required");
