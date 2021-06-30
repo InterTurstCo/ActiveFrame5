@@ -1559,10 +1559,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         }
 
-        List<FieldConfig> feldConfigs = domainObjectTypeConfig
+        List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();
 
-        initializeDomainParameters(domainObject, feldConfigs, parameters);
+        initializeDomainParameters(domainObject, fieldConfigs, parameters);
 
         return parameters;
     }

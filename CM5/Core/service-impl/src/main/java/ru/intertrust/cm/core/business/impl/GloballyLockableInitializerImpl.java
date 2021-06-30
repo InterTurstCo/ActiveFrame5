@@ -126,12 +126,12 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             }
             try {
                 // если нет конфигукации предполагаем что необходимо создать все структуру базы.
-                if(!configurationLoader.isConfigurationTableExist()){
+                if (!configurationLoader.isConfigurationTableExist()) {
                     logger.info("no database-> create database structure");
                     configurationLoader.load();
                     executeInitialLoadingTasks();
                     statisticsGatherer.gatherStatistics();
-                }else{
+                } else {
                     logger.info("database exist-> update database structure");
                     domainObjectTypeIdCache.build();
                     configurationLoader.update();

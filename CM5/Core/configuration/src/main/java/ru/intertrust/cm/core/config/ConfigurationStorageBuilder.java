@@ -23,27 +23,34 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.AnnotationScanCallback;
 import ru.intertrust.cm.core.util.AnnotationScanner;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 import static ru.intertrust.cm.core.config.NullValues.isNull;
 
 public class ConfigurationStorageBuilder {
-    private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
 
     private static final String ALL_STATUSES_SIGN = "*";
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
 
-    private ConfigurationExplorer configurationExplorer;
-    private ConfigurationStorage configurationStorage;
-    private ModuleService moduleService;
-    private Lock writeLock;
+    private final ConfigurationExplorer configurationExplorer;
+    private final ConfigurationStorage configurationStorage;
+    private final ModuleService moduleService;
+    private final Lock writeLock;
 
     public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage, ModuleService moduleService) {
         this.configurationExplorer = configurationExplorer;
@@ -97,14 +104,14 @@ public class ConfigurationStorageBuilder {
         lock();
 
         try {
-            Pair<String, Class<?>> key = new Pair<String, Class<?>>(locale, config.getClass());
+            Pair<String, Class<?>> key = new Pair<>(locale, config.getClass());
             CaseInsensitiveMap<LocalizableConfig> typeMap = configurationStorage.localizedConfigMap.get(key);
             if (typeMap == null) {
                 typeMap = new CaseInsensitiveMap<>();
                 configurationStorage.localizedConfigMap.put(key, typeMap);
             }
 
-            LocalizableConfig clonedConfig = ObjectCloner.getInstance().cloneObject(config, config.getClass());
+            LocalizableConfig clonedConfig = ObjectCloner.getInstance().cloneObject(config);
             localize(locale, clonedConfig);
             typeMap.put(config.getName(), clonedConfig);
         } finally {
@@ -116,14 +123,11 @@ public class ConfigurationStorageBuilder {
         lock();
 
         try {
-            AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
-                @Override
-                public void onAnnotationFound(Object object, Field field) throws IllegalAccessException {
-                    if (field.get(object) != null) {
-                        String originalValue = (String) field.get(object);
-                        String localizedValue = MessageResourceProvider.getMessage(originalValue, locale);
-                        field.set(object, localizedValue);
-                    }
+            AnnotationScanner.scanAnnotation(config, Localizable.class, (object, field) -> {
+                if (field.get(object) != null) {
+                    String originalValue = (String) field.get(object);
+                    String localizedValue = MessageResourceProvider.getMessage(originalValue, locale);
+                    field.set(object, localizedValue);
                 }
             });
         } catch (IllegalAccessException e) {
@@ -229,7 +233,7 @@ public class ConfigurationStorageBuilder {
                 configurationStorage.localizedToolbarConfigMap.put(locale, toolbarMap);
             }
             if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
-                ToolBarConfig clonedConfig = ObjectCloner.getInstance().cloneObject(toolBarConfig, toolBarConfig.getClass());
+                ToolBarConfig clonedConfig = ObjectCloner.getInstance().cloneObject(toolBarConfig);
                 localize(locale, clonedConfig);
                 toolbarMap.put(clonedConfig.getPlugin(), clonedConfig);
             }
@@ -319,7 +323,7 @@ public class ConfigurationStorageBuilder {
                     if (accessStatusConfig.getName().equals("*")) {
                         result = accessStatusConfig;
                         break;
-                    } else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
+                    } else if (status.equalsIgnoreCase(accessStatusConfig.getName())) {
                         result = accessStatusConfig;
                         break;
                     }
@@ -342,7 +346,6 @@ public class ConfigurationStorageBuilder {
 
         try {
             //Получаем матрицу и смотрим атрибут matrix_reference_field
-            AccessMatrixConfig matrixConfig = null;
             DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
             if (childDomainObjectTypeConfig == null) {
                 return null; // todo: throw exception
@@ -351,6 +354,7 @@ public class ConfigurationStorageBuilder {
             String result = null;
 
             //Ищим матрицу для типа с учетом иерархии типов
+            AccessMatrixConfig matrixConfig;
             while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
                     && childDomainObjectTypeConfig.getExtendsAttribute() != null) {
                 childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
@@ -448,10 +452,10 @@ public class ConfigurationStorageBuilder {
             DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig)configurationStorage.topLevelConfigMap.get(DomainObjectTypeConfig.class).get(typeName);
             typesInAscendingOrder.add(typeConfig.getName());
             typesInAscendingOrder.addAll(typesHierarchy);
-            configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[typesInAscendingOrder.size()]));
+            configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[0]));
 
             Collections.reverse(typesHierarchy);
-            String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
+            String[] types = typesHierarchy.toArray(new String[0]);
             configurationStorage.domainObjectTypesHierarchy.put(typeName, types);
             return types;
         } finally {
@@ -509,9 +513,7 @@ public class ConfigurationStorageBuilder {
             }
 
             fillConfigurationMapsOfAttachmentDomainObjectType(newConfig);
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new ConfigurationException(e);
         } finally {
             unlock();
@@ -574,7 +576,7 @@ public class ConfigurationStorageBuilder {
         try {
             String[] hierarchy = configurationExplorer.getDomainObjectTypesHierarchy(domainObjectTypeConfigName);
 
-            List<String> allTypeNames = hierarchy == null ? new ArrayList<String>(1) : new ArrayList<String>(hierarchy.length + 1);
+            List<String> allTypeNames = hierarchy == null ? new ArrayList<>(1) : new ArrayList<>(hierarchy.length + 1);
             allTypeNames.add(domainObjectTypeConfigName);
             if (hierarchy != null) {
                 allTypeNames.addAll(Arrays.asList(hierarchy));
@@ -685,7 +687,7 @@ public class ConfigurationStorageBuilder {
 
             FormConfig formConfig = configurationExplorer.getPlainFormConfig(name);
             ObjectCloner cloner = ObjectCloner.getInstance();
-            FormConfig clonedConfig = cloner.cloneObject(formConfig, FormConfig.class);
+            FormConfig clonedConfig = cloner.cloneObject(formConfig);
             localize(currentLocale, clonedConfig);
 
             if (clonedConfig == null) {
@@ -859,9 +861,6 @@ public class ConfigurationStorageBuilder {
             fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
             fillAuditLogConfigMap(domainObjectTypeConfig);
 
-            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-
-            }
         }
 
         // fill inherited fields for audit types as well (they are already in top level configs)
@@ -871,7 +870,8 @@ public class ConfigurationStorageBuilder {
             fillFieldNamesConfigMap(domainObjectTypeConfig);
         }
 
-        //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
+        // Заполнение таблицы read-everybody. Вынесено сюда, потому что не для всех типов
+        // существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
         fillReadPermittedToEverybodyMap();
 
         fillEventLogDomainObjectAccessConfig();
@@ -990,7 +990,7 @@ public class ConfigurationStorageBuilder {
         }
 
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            final FieldConfig clonedConfig = ObjectCloner.getInstance().cloneObject(fieldConfig, fieldConfig.getClass());
+            final FieldConfig clonedConfig = ObjectCloner.getInstance().cloneObject(fieldConfig);
             clonedConfig.setNotNull(false);
             auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
 
@@ -1023,9 +1023,7 @@ public class ConfigurationStorageBuilder {
                 fillAuditLogConfigMap(attachmentDomainObjectTypeConfig);
 
             }
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new ConfigurationException(e);
         }
 
@@ -1048,7 +1046,7 @@ public class ConfigurationStorageBuilder {
     private void fillReadPermittedToEverybodyMap() {
         for (DomainObjectTypeConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
             String domainObjectType = config.getName();
-            Boolean readEverybody = isReadEverybodyForType(domainObjectType, new HashSet<String>());
+            Boolean readEverybody = isReadEverybodyForType(domainObjectType, new HashSet<>());
 
             if (readEverybody == null) {
                 readEverybody = false;
@@ -1180,7 +1178,6 @@ public class ConfigurationStorageBuilder {
     }
 
     public AccessMatrixConfig fillAccessMatrixByObjectType(String domainObjectType) {
-        AccessMatrixConfig result = null;
         Collection<AccessMatrixConfig> allAccessMatrixList = configurationExplorer.getConfigs(AccessMatrixConfig.class);
 
         // Получаем все матрицы для типа
@@ -1192,6 +1189,7 @@ public class ConfigurationStorageBuilder {
         }
 
         // если матриц несколько получаем итоговую, исходя из алгоритма наследования или замещения
+        AccessMatrixConfig result;
         if (accessMatrixForType.size() > 1){
             result = getActualAccessMatrix(accessMatrixForType);
         }
@@ -1212,17 +1210,17 @@ public class ConfigurationStorageBuilder {
      * Получение актуальной матрицы доступа.
      * Метод работает исходя из того, что валидация была ранее уже пройдена,
      * и не будет каких либо зацикливаний или неоднозначностей в вычислении матрицы
-     * @param accessMatrixesForType
+     * @param accessMatricesForType
      * @return
      */
-    private AccessMatrixConfig getActualAccessMatrix(List<AccessMatrixConfig> accessMatrixesForType) {
+    private AccessMatrixConfig getActualAccessMatrix(List<AccessMatrixConfig> accessMatricesForType) {
         AccessMatrixConfig result = null;
         // Выстраиваем цепочку матриц с учетом зависимостей
         List<AccessMatrixConfig> orderedAccessMatrix = new ArrayList<>();
         // цикл по модулям с учетом зависимостей
         for (ModuleConfiguration moduleConfig : moduleService.getModuleList()){
             // цикл по матрицам для типа
-            for (AccessMatrixConfig accessMatrix : accessMatrixesForType) {
+            for (AccessMatrixConfig accessMatrix : accessMatricesForType) {
                 // Если найдена матрица для модуля добавляем в результат
                 if (accessMatrix.getModuleName().equals(moduleConfig.getName())){
                     orderedAccessMatrix.add(accessMatrix);
@@ -1262,7 +1260,7 @@ public class ConfigurationStorageBuilder {
         result.setModuleName(parent.getModuleName());
         result.setReadEverybody(parent.isReadEverybody() != null && parent.isReadEverybody() ||
                 child.isReadEverybody() != null && child.isReadEverybody());
-        result.setBorrowPermissisons(getMaxBorrowPermissisons(parent.getBorrowPermissisons(), child.getBorrowPermissisons()));
+        result.setBorrowPermissisons(getMaxBorrowPermissions(parent.getBorrowPermissisons(), child.getBorrowPermissisons()));
         result.setCreateConfig(getMergedCreateConfig(parent.getCreateConfig(), child.getCreateConfig()));
         result.setStatus(getMergedAccessMatrixStatusesConfig(parent.getStatus(), child.getStatus()));
         return result;
@@ -1338,9 +1336,8 @@ public class ConfigurationStorageBuilder {
                         resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
                     }
                 }
-            }
-            // Форируем итоговые права на write
-            else if(parentPermitConfig instanceof WriteConfig){
+            } else if (parentPermitConfig instanceof WriteConfig){
+                // Форируем итоговые права на write
                 WriteConfig resultPermitConfig = new WriteConfig();
                 resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
 
@@ -1352,9 +1349,8 @@ public class ConfigurationStorageBuilder {
                         resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
                     }
                 }
-            }
-            // Форируем итоговые права на delete
-            else if(parentPermitConfig instanceof DeleteConfig){
+            } else if (parentPermitConfig instanceof DeleteConfig){
+                // Форируем итоговые права на delete
                 DeleteConfig resultPermitConfig = new DeleteConfig();
                 resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
 
@@ -1366,9 +1362,8 @@ public class ConfigurationStorageBuilder {
                         resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
                     }
                 }
-            }
-            // Форируем итоговые права на создание связи, учитываем имя связываемого
-            else if(parentPermitConfig instanceof CreateChildConfig){
+            } else if (parentPermitConfig instanceof CreateChildConfig){
+                // Форируем итоговые права на создание связи, учитываем имя связываемого
                 CreateChildConfig resultPermitConfig = new CreateChildConfig();
                 resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
                 resultPermitConfig.setType(((CreateChildConfig) parentPermitConfig).getType());
@@ -1383,9 +1378,8 @@ public class ConfigurationStorageBuilder {
                         resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
                     }
                 }
-            }
-            // Форируем итоговые права на выполнение действия, учитываем имя действия
-            else if(parentPermitConfig instanceof ExecuteActionConfig){
+            } else if (parentPermitConfig instanceof ExecuteActionConfig){
+                // Форируем итоговые права на выполнение действия, учитываем имя действия
                 ExecuteActionConfig resultPermitConfig = new ExecuteActionConfig();
                 resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
                 resultPermitConfig.setName(((ExecuteActionConfig) parentPermitConfig).getName());
@@ -1400,9 +1394,8 @@ public class ConfigurationStorageBuilder {
                         resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
                     }
                 }
-            }
-            // Форируем итоговые права на чтение вложений
-            else if(parentPermitConfig instanceof ReadAttachmentConfig){
+            } else if (parentPermitConfig instanceof ReadAttachmentConfig){
+                // Форируем итоговые права на чтение вложений
                 ReadAttachmentConfig resultPermitConfig = new ReadAttachmentConfig();
                 resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
 
@@ -1419,18 +1412,18 @@ public class ConfigurationStorageBuilder {
 
         // цикл по правам дочерней настройки статуса, ищем те настройки, которые не встречались в родителе
         for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
-           if (childPermitConfig instanceof ReadConfig && !read){
+           if (childPermitConfig instanceof ReadConfig && !read) {
                resultPermissions.add(childPermitConfig);
-           }else if (childPermitConfig instanceof WriteConfig && !write) {
+           } else if (childPermitConfig instanceof WriteConfig && !write) {
                resultPermissions.add(childPermitConfig);
-           }else if (childPermitConfig instanceof DeleteConfig && !delete) {
+           } else if (childPermitConfig instanceof DeleteConfig && !delete) {
                resultPermissions.add(childPermitConfig);
-           }else if (childPermitConfig instanceof ReadAttachmentConfig && !readAttachment) {
+           } else if (childPermitConfig instanceof ReadAttachmentConfig && !readAttachment) {
                resultPermissions.add(childPermitConfig);
-           }else if (childPermitConfig instanceof CreateChildConfig &&
+           } else if (childPermitConfig instanceof CreateChildConfig &&
                    !createChildTypes.contains(((CreateChildConfig) childPermitConfig).getType())) {
                resultPermissions.add(childPermitConfig);
-           }else if (childPermitConfig instanceof ExecuteActionConfig &&
+           } else if (childPermitConfig instanceof ExecuteActionConfig &&
                    !executeActionNames.contains(((ExecuteActionConfig) childPermitConfig).getName())) {
                resultPermissions.add(childPermitConfig);
            }
@@ -1441,15 +1434,15 @@ public class ConfigurationStorageBuilder {
 
     /**
      * Получение объеденения прав на создание
-     * @param parentСreateConfig
+     * @param parentCreateConfig
      * @param childCreateConfig
      * @return
      */
-    private AccessMatrixCreateConfig getMergedCreateConfig(AccessMatrixCreateConfig parentСreateConfig,
+    private AccessMatrixCreateConfig getMergedCreateConfig(AccessMatrixCreateConfig parentCreateConfig,
                                                            AccessMatrixCreateConfig childCreateConfig) {
         AccessMatrixCreateConfig result = new AccessMatrixCreateConfig();
-        if (parentСreateConfig != null) {
-            result.getPermitGroups().addAll(parentСreateConfig.getPermitGroups());
+        if (parentCreateConfig != null) {
+            result.getPermitGroups().addAll(parentCreateConfig.getPermitGroups());
         }
         if (childCreateConfig != null){
             result.getPermitGroups().addAll(childCreateConfig.getPermitGroups());
@@ -1459,45 +1452,45 @@ public class ConfigurationStorageBuilder {
 
     /**
      * Получение максимального значения типа заимствования
-     * @param parentBorrowPermissisons
-     * @param childBorrowPermissisons
+     * @param parentBorrowPermissions
+     * @param childBorrowPermissions
      * @return
      */
-    private AccessMatrixConfig.BorrowPermissisonsMode getMaxBorrowPermissisons(
-            AccessMatrixConfig.BorrowPermissisonsMode parentBorrowPermissisons,
-            AccessMatrixConfig.BorrowPermissisonsMode childBorrowPermissisons) {
-        AccessMatrixConfig.BorrowPermissisonsMode result = null;
+    private AccessMatrixConfig.BorrowPermissisonsMode getMaxBorrowPermissions(
+            AccessMatrixConfig.BorrowPermissisonsMode parentBorrowPermissions,
+            AccessMatrixConfig.BorrowPermissisonsMode childBorrowPermissions) {
 
-        if (parentBorrowPermissisons == null && childBorrowPermissisons == null){
+        AccessMatrixConfig.BorrowPermissisonsMode result;
+        if (parentBorrowPermissions == null && childBorrowPermissions == null) {
             result = null;
-        }else if (parentBorrowPermissisons != null && childBorrowPermissisons == null){
-            result = parentBorrowPermissisons;
-        }else if (parentBorrowPermissisons == null && childBorrowPermissisons != null){
-            result = childBorrowPermissisons;
-        }else if (parentBorrowPermissisons == childBorrowPermissisons){
-            result = parentBorrowPermissisons;
-        }else{
-            Map<AccessMatrixConfig.BorrowPermissisonsMode, Integer> borrowPermissisonsModeWeight = new HashMap<>();
-            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.none, 0);
-            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.read, 1);
-            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete, 2);
-            borrowPermissisonsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.all, 3);
+        } else if (parentBorrowPermissions != null && childBorrowPermissions == null) {
+            result = parentBorrowPermissions;
+        } else if (parentBorrowPermissions == null) { // && childBorrowPermissisons != null) {
+            result = childBorrowPermissions;
+        } else if (parentBorrowPermissions == childBorrowPermissions){
+            result = parentBorrowPermissions;
+        } else {
+            Map<AccessMatrixConfig.BorrowPermissisonsMode, Integer> borrowPermissionsModeWeight = new HashMap<>();
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.none, 0);
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.read, 1);
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete, 2);
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.all, 3);
 
-            if (borrowPermissisonsModeWeight.get(parentBorrowPermissisons) >
-                    borrowPermissisonsModeWeight.get(childBorrowPermissisons)){
-                result = parentBorrowPermissisons;
+            if (borrowPermissionsModeWeight.get(parentBorrowPermissions) >
+                    borrowPermissionsModeWeight.get(childBorrowPermissions)){
+                result = parentBorrowPermissions;
             }else{
-                result = childBorrowPermissisons;
+                result = childBorrowPermissions;
             }
         }
         return result;
     }
 
-    private class TypesDelegatingAccessCheckToBuilderData {
-        private Set<String> hierarchicalDelegates = new HashSet<>();
-        private Set<String> hierarchicalDelegatesInLowerCase = new HashSet<>();
-        private Set<String> matrixDelegates = new HashSet<>();
-        private Set<String> matrixDelegatesInLowerCase = new HashSet<>();
+    private static class TypesDelegatingAccessCheckToBuilderData {
+        private final Set<String> hierarchicalDelegates = new HashSet<>();
+        private final Set<String> hierarchicalDelegatesInLowerCase = new HashSet<>();
+        private final Set<String> matrixDelegates = new HashSet<>();
+        private final Set<String> matrixDelegatesInLowerCase = new HashSet<>();
 
         public Set<String> getHierarchicalDelegates() {
             return hierarchicalDelegates;

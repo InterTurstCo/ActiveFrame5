@@ -58,8 +58,8 @@ public class ConfigurationDaoImpl implements ConfigurationDao {
     @Override
     public String readLastSavedConfiguration() {
         try {
-                return jdbcTemplate.queryForObject(generateReadLastLoadedConfiguration(),
-                    Collections.<String, Object>emptyMap(), String.class);
+            return jdbcTemplate.queryForObject(generateReadLastLoadedConfiguration(),
+                    Collections.emptyMap(), String.class);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 
 import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.getSourceDomainObjectType;
 import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.isParentObject;
@@ -174,12 +175,14 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                                           DomainObjectTypeConfig oldDomainObjectTypeConfig) {
         boolean isAl = configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName());
         boolean isParent = isParentObject(domainObjectTypeConfig, configurationExplorer);
-        DomainObjectTypeConfig sourceDomainObjectTypeConfig = null;
 
         Integer usedId;
-
+        DomainObjectTypeConfig sourceDomainObjectTypeConfig = null;
         if (isAl) {
             sourceDomainObjectTypeConfig = getSourceDomainObjectType(domainObjectTypeConfig, configurationExplorer);
+            Objects.requireNonNull(sourceDomainObjectTypeConfig, "Cannot update audit log type "
+                    + domainObjectTypeConfig.getName() + ". Source Domain Object Type not found");
+
             usedId = domainObjectTypeIdDao.findIdByName(sourceDomainObjectTypeConfig.getName());
         } else {
             usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
