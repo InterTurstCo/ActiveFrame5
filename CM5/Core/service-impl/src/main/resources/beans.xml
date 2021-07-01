@@ -173,6 +173,10 @@
                     jndi-name="java:module/ReportGeneratorService!ru.intertrust.cm.core.business.api.ReportGeneratorService"
                     business-interface="ru.intertrust.cm.core.business.api.ReportGeneratorService"/>
 
+    <jee:local-slsb id="reportMergeService"
+                    jndi-name="java:module/ReportMergeService!ru.intertrust.cm.core.business.api.ReportMergeService"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportMergeService"/>
+
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
 
