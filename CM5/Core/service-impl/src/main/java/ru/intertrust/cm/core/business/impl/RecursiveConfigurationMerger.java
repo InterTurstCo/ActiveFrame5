@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfoConverter;
@@ -24,8 +26,7 @@ import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.isParentObjec
 */
 public class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader {
 
-    private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
-            "but not to modify or delete the existing one.";
+    private static final Logger logger = LoggerFactory.getLogger(RecursiveConfigurationMerger.class);
 
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
@@ -52,7 +53,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
         Collection<DomainObjectTypeConfig> configList =
                 configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
-        if(configList.isEmpty())  {
+        if (configList.isEmpty())  {
             return false;
         }
 
@@ -134,13 +135,17 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             super.loadDomainObjectConfig(domainObjectTypeConfig);
             createAclTablesFor(domainObjectTypeConfig);
         } else {
+            logger.trace("The table already exists. Attempting to update...");
+
             List<FieldConfig> newFieldConfigs = new ArrayList<>();
 
             for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
                 ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
                 if (columnInfo == null) {
+                    logger.trace("Add new field config {}", fieldConfig);
                     newFieldConfigs.add(fieldConfig);
                 } else {
+                    logger.trace("Attempting to update existing field config from {} to {}", columnInfo, fieldConfig);
                     fieldConfigDbValidator.validate(fieldConfig, domainObjectTypeConfig, columnInfo);
                     fieldConfigChangeHandler.handle(fieldConfig, ColumnInfoConverter.convert(columnInfo, fieldConfig),
                             domainObjectTypeConfig, configurationExplorer);
@@ -156,6 +161,8 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     }
 
     private void merge(DomainObjectTypeConfig domainObjectTypeConfig) {
+        logger.trace(domainObjectTypeConfig + " will be processed");
+
         if (domainObjectTypeConfig.isTemplate()) {
             return;
         }
@@ -164,11 +171,14 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                 oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeConfig.getName());
 
         if (oldDomainObjectTypeConfig == null) {
+            logger.trace("Type config not found in previous configuration. Attempting to load domain object type config");
             loadDomainObjectConfig(domainObjectTypeConfig);
         } else if (!domainObjectTypeConfig.equals(oldDomainObjectTypeConfig)) {
+            logger.trace("Type config was changed. Attempting to update domain object type config");
             validateExtendsAttribute(domainObjectTypeConfig, oldDomainObjectTypeConfig);
             updateDomainObjectConfig(domainObjectTypeConfig, oldDomainObjectTypeConfig);
         }
+        logger.trace("DomainObjectTypeConfig successfully processed");
     }
 
     private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
