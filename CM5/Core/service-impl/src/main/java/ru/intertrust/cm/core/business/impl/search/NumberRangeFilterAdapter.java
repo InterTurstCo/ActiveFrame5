@@ -32,14 +32,12 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
                 for (String field : type.getSolrFieldNames(fieldName)) {
-                    fields.add(new StringBuilder()
-                            .append(field)
-                            .append(":[")
-                            .append(numberToString(filter.getMin()))
-                            .append(" TO ")
-                            .append(numberToString(filter.getMax()))
-                            .append("]")
-                            .toString());
+                    fields.add(field +
+                            (filter.isMinInclusive() ? ":[" : ":{") +
+                            numberToString(filter.getMin()) +
+                            " TO " +
+                            numberToString(filter.getMax()) +
+                            (filter.isMaxInclusive() ? "]" : "}"));
                 }
             }
         }

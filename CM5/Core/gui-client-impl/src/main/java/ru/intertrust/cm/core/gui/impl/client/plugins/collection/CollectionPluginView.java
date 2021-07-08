@@ -449,7 +449,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
 
 
     // экспорт в csv
-    handlerRegistrations.add(eventBus.addHandler(SaveToCsvEvent.TYPE, createExportToCSVActionHahdler()));
+    handlerRegistrations.add(eventBus.addHandler(SaveToCsvEvent.TYPE, createExportToCSVActionHandler()));
 
     handlerRegistrations.add(eventBus.addHandler(CollectionChangeSelectionEvent.TYPE, new
         CollectionChangeSelectionEventHandler() {
@@ -481,7 +481,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
 
   }
 
-  public SaveToCsvEventHandler createExportToCSVActionHahdler() {
+  public SaveToCsvEventHandler createExportToCSVActionHandler() {
     return new SaveToCsvEventHandler() {
       @Override
       public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {

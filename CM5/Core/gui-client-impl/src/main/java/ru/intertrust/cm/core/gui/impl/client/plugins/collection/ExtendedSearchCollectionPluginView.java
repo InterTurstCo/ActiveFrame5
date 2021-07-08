@@ -32,7 +32,7 @@ public class ExtendedSearchCollectionPluginView extends CollectionPluginView {
 
 
     @Override
-    public SaveToCsvEventHandler createExportToCSVActionHahdler() {
+    public SaveToCsvEventHandler createExportToCSVActionHandler() {
         return new SaveToCsvEventHandler() {
             @Override
             public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {

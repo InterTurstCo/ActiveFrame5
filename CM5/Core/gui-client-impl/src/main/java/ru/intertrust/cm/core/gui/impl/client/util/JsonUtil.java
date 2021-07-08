@@ -160,11 +160,11 @@ public class JsonUtil {
 
 
     public static void prepareJsonExtendedSearchParams(JSONObject requestObj, SearchQuery searchQuery, String propertyName){
-        if(searchQuery == null){
+        if (searchQuery == null) {
             return;
         }
 
-        requestObj.put(propertyName, searchQueryToJson(searchQuery) );
+        requestObj.put(propertyName, searchQueryToJson(searchQuery));
     }
 
     private static void prepareFiltersConfigs(JSONObject filtersObj,

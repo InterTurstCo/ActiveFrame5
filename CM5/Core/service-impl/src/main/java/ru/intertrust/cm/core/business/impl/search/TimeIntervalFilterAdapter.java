@@ -33,14 +33,12 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
                 for (String field : type.getSolrFieldNames(fieldName)) {
-                    fields.add(new StringBuilder()
-                            .append(field)
-                            .append(":[")
-                            .append(dateToString(filter.getStartTime()))
-                            .append(" TO ")
-                            .append(dateToString(filter.getEndTime()))
-                            .append("]")
-                            .toString());
+                    fields.add(field +
+                            (filter.isStartInclusive() ? ":[" : ":{") +
+                            dateToString(filter.getStartTime()) +
+                            " TO " +
+                            dateToString(filter.getEndTime()) +
+                            (filter.isEndInclusive() ? "]" : "}"));
                 }
             }
         }
