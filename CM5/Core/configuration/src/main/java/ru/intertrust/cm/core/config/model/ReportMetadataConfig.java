@@ -32,7 +32,7 @@ public class ReportMetadataConfig implements Dto{
     
     @Attribute(required=false)
     private String dataSourceClass;
-    
+
     @Attribute(required=false)
     private String form;
     
@@ -50,9 +50,16 @@ public class ReportMetadataConfig implements Dto{
 
     @Attribute(required=false)
     private String reportParameterResolver;
+
     @Attribute(required = false, empty = "jasper")
     private String constructor;
-    
+
+    @Attribute(required=false)
+    private String groupKeyword;
+
+    @Attribute(required=false)
+    private String groupViewDescription;
+
     public String getName() {
         return name;
     }
@@ -130,5 +137,21 @@ public class ReportMetadataConfig implements Dto{
 
     public void setReportParameterResolver(String reportParameterResolver) {
         this.reportParameterResolver = reportParameterResolver;
+    }
+
+    public String getGroupKeyword() {
+        return groupKeyword;
+    }
+
+    public void setGroupKeyword(String groupKeyword) {
+        this.groupKeyword = groupKeyword;
+    }
+
+    public String getGroupViewDescription() {
+        return groupViewDescription;
+    }
+
+    public void setGroupViewDescription(String groupViewDescription) {
+        this.groupViewDescription = groupViewDescription;
     }
 }
