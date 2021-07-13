@@ -38,6 +38,9 @@ public class IndexedFieldConfig implements Serializable {
     @Attribute(name = "solr-prefix", required = false)
     private String solrPrefix;
 
+    @Element(name = "compound-field", required = false)
+    private CompoundFieldsConfig compoundFieldConfig;
+
     @Element(required = false)
     private String doel;
 
@@ -106,6 +109,10 @@ public class IndexedFieldConfig implements Serializable {
         return indexBoostValue;
     }
 
+    public CompoundFieldsConfig getCompoundFieldConfig() {
+        return compoundFieldConfig;
+    }
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
@@ -118,6 +125,7 @@ public class IndexedFieldConfig implements Serializable {
         hash = hash * 31 ^ (targetFieldName != null ? targetFieldName.hashCode() : 0);
         hash = hash * 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
         hash = hash * 31 ^ (indexBoostValue != null ? indexBoostValue.hashCode() : 0);
+        hash = hash * 31 ^ (compoundFieldConfig != null ? compoundFieldConfig.hashCode() : 0);
         return hash;
     }
 
@@ -139,6 +147,7 @@ public class IndexedFieldConfig implements Serializable {
                 && (targetFieldName == null ? other.targetFieldName == null : targetFieldName.equals(other.targetFieldName))
                 && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued))
                 && (searchBy == null ? other.searchBy == null : searchBy.equals(other.searchBy))
-                && (indexBoostValue == null ? other.indexBoostValue == null : indexBoostValue.equals(other.indexBoostValue));
+                && (indexBoostValue == null ? other.indexBoostValue == null : indexBoostValue.equals(other.indexBoostValue))
+                && (compoundFieldConfig == null ? other.compoundFieldConfig == null : compoundFieldConfig.equals(other.compoundFieldConfig));
     }
 }

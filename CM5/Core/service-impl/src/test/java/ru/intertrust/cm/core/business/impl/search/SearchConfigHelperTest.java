@@ -5,15 +5,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,11 +21,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 
@@ -35,6 +35,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.search.CompoundFieldConfig;
+import ru.intertrust.cm.core.config.search.CompoundFieldsConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
 import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
@@ -50,17 +52,16 @@ public class SearchConfigHelperTest {
 
     @Before
     public void setup() throws Exception {
-        InputStream resource = getClass().getClassLoader().getResourceAsStream("config/search-test.xml");
-        Reader reader = new InputStreamReader(resource, "UTF-8");
-        char[] buffer = new char[32768];
-        StringBuilder xml = new StringBuilder();
-        int read;
-        while ((read = reader.read(buffer)) != -1) {
-            xml.append(buffer, 0, read);
+        String xml;
+        try (InputStream resource = getClass().getClassLoader().getResourceAsStream("config/search-test.xml");
+                OutputStream bos = new ByteArrayOutputStream()) {
+            IOUtils.copy(resource, bos);
+            xml = bos.toString();
         }
+
         ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer serializer = new ConfigurationSerializer();
-        Configuration config = serializer.deserializeLoadedConfiguration(xml.toString());
+        Configuration config = serializer.deserializeLoadedConfiguration(xml);
         ConfigurationExplorerImpl explorer = new ConfigurationExplorerImpl(config);
         explorer.init();
 
@@ -393,5 +394,17 @@ public class SearchConfigHelperTest {
 
         assertEquals(applicableTypes.size(), 1);
         assertEquals("TargetType", applicableTypes.iterator().next());
+    }
+
+    @Test
+    public void getFieldTypesWithCompoundFieldsTest() {
+        List<IndexedFieldConfig> indexedFieldConfigs = testee.findIndexedFieldConfigs("String_B", "Area_D");
+        IndexedFieldConfig indexedFieldConfig = indexedFieldConfigs.get(0);
+        CompoundFieldsConfig compoundFieldsConfig = indexedFieldConfig.getCompoundFieldConfig();
+
+        List<CompoundFieldConfig> fieldPart = compoundFieldsConfig.getFieldPart();
+        Set<SearchFieldType> types = testee.getFieldTypes(indexedFieldConfig, fieldPart.get(0), "Type_B");
+
+        assertEquals(TextSearchFieldType.class, types.iterator().next().getClass());
     }
 }

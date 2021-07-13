@@ -25,6 +25,8 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.search.CompoundFieldConfig;
+import ru.intertrust.cm.core.config.search.CompoundFieldsConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
@@ -136,7 +138,7 @@ public class DomainObjectIndexAgentTest {
         IndexedFieldConfig referenceField = getIndexedFieldConfig("ReferenceField");
         IndexedFieldConfig doelField = getIndexedFieldConfig("DoelField", "doel^multiple.strings");
 
-        IndexedFieldConfig customField = getIndexedFieldConfig("CustomField", null, "custom", null);
+        IndexedFieldConfig customField = getIndexedFieldConfig("CustomField", null, "custom", null, null);
 
         IndexedFieldScriptConfig scriptConfig = mock(IndexedFieldScriptConfig.class);
         when(scriptConfig.getScript()).thenReturn("evaluate");
@@ -253,25 +255,31 @@ public class DomainObjectIndexAgentTest {
         verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
     }
 
-    private IndexedFieldConfig getIndexedFieldConfig(String field, String doel, String solrPrefix, IndexedFieldScriptConfig scriptConfig) {
+    private IndexedFieldConfig getIndexedFieldConfig(String field, String doel, String solrPrefix, IndexedFieldScriptConfig scriptConfig,
+                                                     CompoundFieldsConfig compoundFieldsConfig) {
         IndexedFieldConfig indexedField = mock(IndexedFieldConfig.class);
         when(indexedField.getName()).thenReturn(field);
         when(indexedField.getDoel()).thenReturn(doel);
         when(indexedField.getSolrPrefix()).thenReturn(solrPrefix);
         when(indexedField.getScriptConfig()).thenReturn(scriptConfig);
+        when(indexedField.getCompoundFieldConfig()).thenReturn(compoundFieldsConfig);
         return indexedField;
     }
 
     private IndexedFieldConfig getIndexedFieldConfig(String field, String doel) {
-        return getIndexedFieldConfig(field, doel, null, null);
+        return getIndexedFieldConfig(field, doel, null, null, null);
     }
 
     private IndexedFieldConfig getIndexedFieldConfig(String field, IndexedFieldScriptConfig scriptConfig) {
-        return getIndexedFieldConfig(field, null, null, scriptConfig);
+        return getIndexedFieldConfig(field, null, null, scriptConfig, null);
     }
 
     private IndexedFieldConfig getIndexedFieldConfig(String field) {
-        return getIndexedFieldConfig(field, null, null, null);
+        return getIndexedFieldConfig(field, null, null, null, null);
+    }
+
+    private IndexedFieldConfig getIndexedFieldConfig(String field, CompoundFieldsConfig compoundFieldsConfig) {
+        return getIndexedFieldConfig(field, null, null, null, compoundFieldsConfig);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -1071,5 +1079,120 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("TargetType"))));
         assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("ParentId"))));
         assertEquals( Arrays.asList("Value 1", "Value 2"), doc.getFieldValues("cm_rus_stringfield1"));
+    }
+
+    @Test
+    public void multipleNestedLinkedDocs_compound_fields() {
+        IndexedFieldScriptConfig indexedFieldScriptConfig1 = mock(IndexedFieldScriptConfig.class);
+        when(indexedFieldScriptConfig1.getScript()).thenReturn("TEST");
+        IndexedFieldScriptConfig indexedFieldScriptConfig2 = mock(IndexedFieldScriptConfig.class);
+        when(indexedFieldScriptConfig2.getScript()).thenReturn("TSET");
+
+        CompoundFieldConfig field1 = mock(CompoundFieldConfig.class);
+        CompoundFieldConfig field2 = mock(CompoundFieldConfig.class);
+        when(field1.getScriptConfig()).thenReturn(indexedFieldScriptConfig1);
+        when(field2.getScriptConfig()).thenReturn(indexedFieldScriptConfig2);
+
+        CompoundFieldsConfig compoundFieldsConfig = mock(CompoundFieldsConfig.class);
+        when(compoundFieldsConfig.getFieldPart()).thenReturn(Arrays.asList(field1, field2));
+        when(compoundFieldsConfig.getDelimiter()).thenReturn(", ");
+
+        // Собираем конфиги
+        IndexedFieldConfig stringField = getIndexedFieldConfig("StringField", compoundFieldsConfig);
+        ParentLinkConfig parentLinkConfig = getParentLinkConfig("doel.parent.link");
+        LinkedDomainObjectConfig linkedDomainObjectConfig = getLinkedDomainObjectConfig(parentLinkConfig,
+                Collections.singletonList(stringField),
+                "TestType");
+
+        SearchConfigHelper.SearchAreaDetailsConfig forLinked1 = getSearchAreaDetailsConfig(
+                new IndexedDomainObjectConfig[]{ linkedDomainObjectConfig },
+                linkedDomainObjectConfig, "testArea", "StringField");
+
+        TargetDomainObjectConfig testTarget = getTargetDomainObjectConfig("TargetType",
+                Collections.emptyList(), Collections.singletonList(linkedDomainObjectConfig));
+
+        SearchConfigHelper.SearchAreaDetailsConfig searchAreaDetailsConfig = getSearchAreaDetailsConfig(
+                new IndexedDomainObjectConfig[]{ testTarget },
+                testTarget, "testArea", "TargetType");
+
+        when(configHelper.findEffectiveConfigs(anyString())).thenReturn(Collections.singletonList(searchAreaDetailsConfig));
+        when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
+        when(configHelper.isSuitableType("TargetType", "TargetType")).thenReturn(true);
+
+        when(configHelper.findChildConfigs(searchAreaDetailsConfig, true))
+                .thenReturn(Collections.singletonList(forLinked1));
+
+
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
+
+        // Собираем объекты и настраиваем связи
+
+        Id parentId = idMock("ParentId");
+        DomainObject parent = mock(DomainObject.class);
+        when(parent.getTypeName()).thenReturn("TargetType");
+        when(parent.getId()).thenReturn(parentId);
+
+        DomainObject linked1 = mock(DomainObject.class);
+        Id id1 = idMock("linked1");
+        when(linked1.getId()).thenReturn(id1);
+        when(linked1.getTypeName()).thenReturn("TestType");
+        when(linked1.getModifiedDate()).thenReturn(new Date(55777L));
+        when(linked1.getValue("StringField")).thenReturn(new StringValue("Value 1"));
+        when(linked1.getReference("ParentLink")).thenReturn(parentId);
+
+        DomainObject linked2 = mock(DomainObject.class);
+        Id id2 = idMock("linked2");
+        when(linked2.getId()).thenReturn(id2);
+        when(linked2.getTypeName()).thenReturn("TestType");
+        when(linked2.getModifiedDate()).thenReturn(new Date(5777L));
+        when(linked2.getValue("StringField")).thenReturn(new StringValue("Value 2"));
+        when(linked2.getReference("ParentLink")).thenReturn(parentId);
+
+
+        TextSearchFieldType type = new TextSearchFieldType(Collections.singletonList("ru"));
+        when(configHelper.getFieldTypes(stringField, field1, "TestType")).thenReturn(Collections.singleton(type));
+        when(configHelper.getFieldTypes(stringField, field2, "TestType")).thenReturn(Collections.singleton(type));
+
+        when(scriptService.eval(eq("TEST"), any())).thenReturn("TEST");
+        when(scriptService.eval(eq("TSET"), any())).thenReturn("TSET");
+
+        when(domainObjectDao.find(anyList(), eq(mockToken))).then(invocationOnMock -> {
+            List list = invocationOnMock.getArgumentAt(0, List.class);
+            List<DomainObject> dObjs =new ArrayList<>(2);
+            for (Object id : list) {
+                if (id == id1) {
+                    dObjs.add(linked1);
+                } else if (id == id2) {
+                    dObjs.add(linked2);
+                }
+            }
+            return dObjs;
+        });
+
+        when(domainObjectDao.find(parentId, mockToken)).thenReturn(parent);
+
+        DoelExpression doelExpressionForLink = mock(DoelExpression.class);
+        when(doelEvaluator.createReverseExpression(
+                DoelExpression.parse("doel.parent.link"),
+                "TestType",
+                true, null)).thenReturn(doelExpressionForLink);
+
+        when(doelEvaluator
+                .evaluate(eq(doelExpressionForLink), same(parentId), Mockito.any(AccessToken.class)))
+                .thenReturn(Arrays.asList(new ReferenceValue(id1), new ReferenceValue(id2)));
+
+        testee.index(parent);
+
+        ArgumentCaptor<Collection> documents = ArgumentCaptor.forClass(Collection.class);
+        verify(requestQueue).addDocuments(documents.capture());
+        assertEquals(1, documents.getValue().size());
+        SolrInputDocument doc = (SolrInputDocument) documents.getValue().iterator().next();
+        assertThat(doc, hasEntry(equalTo("cm_id"), hasProperty("value", equalTo("ParentId"))));
+        assertThat(doc, hasEntry(equalTo("cm_area"), hasProperty("value", equalTo("testArea"))));
+        assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("TargetType"))));
+        assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("ParentId"))));
+        // 2 разных поля field1 и field2 попадают под оба условия, т.е. каждый ДО сформирует пару TEST, TSET
+        // Но т.к. порядок между полями должен быть сохранен, то они пишутся в 1 и во 2 часть списка и получаем TEST TEST TSET TSET
+        assertEquals( Collections.singletonList("TEST, TEST, TSET, TSET"), doc.getFieldValues("cm_ru_stringfield"));
     }
 }

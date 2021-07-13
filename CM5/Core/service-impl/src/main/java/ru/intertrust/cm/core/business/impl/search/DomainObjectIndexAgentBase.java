@@ -13,8 +13,10 @@ import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.config.search.CompoundFieldConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldScriptConfig;
 import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.ParentLinkConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -140,19 +142,42 @@ public abstract class DomainObjectIndexAgentBase implements DomainObjectIndexer 
     }
 
     protected Map<SearchFieldType, ?> calculateField(DomainObject object, IndexedFieldConfig config) {
+        return calculateField(object, config, null);
+    }
+    
+    protected Map<SearchFieldType, ?> calculateField(DomainObject object, IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig) {
         try {
-            Collection<SearchFieldType> types = configHelper.getFieldTypes(config, object.getTypeName());
+            Collection<SearchFieldType> types = configHelper.getFieldTypes(config, compoundFieldConfig, object.getTypeName());
             if (types.size() == 0) {
                 return Collections.emptyMap();
             }
 
+            return calcField(object, config, compoundFieldConfig, types);
+        } catch (Exception e) {
+            StringBuilder message = new StringBuilder("Field ").append(config.getName()).append(" calculation error");
             if (config.getScriptConfig() != null) {
-                SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
-                Object value = scriptService.eval(config.getScriptConfig().getScript(), context);
-                return Collections.singletonMap(types.iterator().next(), convertScriptValue(value));
+                message.append(" [script=").append(config.getScriptConfig().getScript()).append("]");
+            }
+            if (config.getDoel() != null) {
+                message.append(" [doel=").append(config.getDoel()).append("]");
+            }
+            log.error(message.toString(), e);
+            return Collections.emptyMap();
+        }
+    }
 
-            } else if (config.getDoel() != null) {
-                DoelExpression doel = DoelExpression.parse(config.getDoel());
+    private Map<SearchFieldType, Object> calcField(DomainObject object, IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig,
+                                                   Collection<SearchFieldType> types) {
+        IndexedFieldScriptConfig scriptConfig = getScriptConfig(config, compoundFieldConfig);
+        if (scriptConfig != null) {
+            SearchAreaFilterScriptContext context = new SearchAreaFilterScriptContext(object);
+            Object value = scriptService.eval(scriptConfig.getScript(), context);
+            return Collections.singletonMap(types.iterator().next(), convertScriptValue(value));
+
+        } else {
+            String doelStr = getDoel(config, compoundFieldConfig);
+            if (doelStr != null) {
+                DoelExpression doel = DoelExpression.parse(doelStr);
                 AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
                 List<Value> values = doelEvaluator.evaluate(doel, object.getId(), accessToken);
                 if (values.size() == 0) {
@@ -192,18 +217,29 @@ public abstract class DomainObjectIndexAgentBase implements DomainObjectIndexer 
                 Object value = convertValue(object.getValue(config.getName()));
                 return Collections.singletonMap(types.iterator().next(), value);
             }
-
-        } catch (Exception e) {
-            StringBuilder message = new StringBuilder("Field ").append(config.getName()).append(" calculation error");
-            if (config.getScriptConfig() != null) {
-                message.append(" [script=").append(config.getScriptConfig().getScript()).append("]");
-            }
-            if (config.getDoel() != null) {
-                message.append(" [doel=").append(config.getDoel()).append("]");
-            }
-            log.error(message.toString(), e);
-            return Collections.emptyMap();
         }
+    }
+
+    private String getDoel(IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig) {
+        String doel = config.getDoel();
+        if (doel != null) {
+            return doel;
+        }
+        if (compoundFieldConfig != null) {
+            return compoundFieldConfig.getDoel();
+        }
+        return null;
+    }
+
+    private IndexedFieldScriptConfig getScriptConfig(IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig) {
+        IndexedFieldScriptConfig scriptConfig = config.getScriptConfig();
+        if (scriptConfig != null) {
+            return scriptConfig;
+        }
+        if (compoundFieldConfig != null) {
+            return compoundFieldConfig.getScriptConfig();
+        }
+        return null;
     }
 
     @Nonnull

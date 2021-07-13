@@ -3476,6 +3476,14 @@
         <xs:attribute type="xs:string" name="type" use="required"/>
     </xs:complexType>
 
+    <xs:complexType name="compoundFieldsType">
+        <xs:choice>
+            <xs:element name="field-part" type="con:shortOptionalDomainObjectAlgorithmType" maxOccurs="unbounded"
+                        minOccurs="2" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="delimiter" default=" "/>
+    </xs:complexType>
+
     <xs:complexType name="indexedDomainObjectFilterType">
         <xs:choice minOccurs="0" maxOccurs="1">
             <xs:element name="class-name" minOccurs="0" maxOccurs="1" type="con:javaClassNameType"/>
@@ -3582,7 +3590,14 @@
             <xs:element name="java-class" type="con:javaClassType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="spring-bean" type="con:springBeanType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="doel" type="con:doelType" xmlns:con="https://cm5.intertrust.ru/config"/>
-            <!--xs:element name="script" type="xs:string"/-->
+            <xs:element name="script" type="con:scriptType" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="compound-field" type="con:compoundFieldsType" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="shortOptionalDomainObjectAlgorithmType">
+        <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element name="doel" type="con:doelType" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="script" type="con:scriptType" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>

@@ -137,7 +137,7 @@
             <indexed-content type="F_ContentRichText_Rkk"/>
             <indexed-content type="F_ContentFiles_Rkk"/>
 
-            <linked-domain-object type="Tn_Field_String">
+            <linked-domain-object type="Tn_Field_String" nested="true">
 
                 <indexed-field name="Number" search-by="exactmatch">
                     <script>
@@ -163,12 +163,22 @@
                     </script>
                 </indexed-field>
                 <indexed-field name="LeadingProduct" search-by="exactmatch">
-                    <script>
-                        if (ctx.get('cmjfield').equals('LeadingProductSubject') ||
-                        ctx.get('cmjfield').equals('LeadingProductNumber')){
-                        ctx.get('value');
-                        }
-                    </script>
+                    <compound-field delimiter=" ">
+                        <field-part>
+                            <script>
+                                if (ctx.get('cmjfield').equals('LeadingProductNumber')) {
+                                    ctx.get('value');
+                                }
+                            </script>
+                        </field-part>
+                        <field-part>
+                            <script>
+                                if (ctx.get('cmjfield').equals('LeadingProductSubject')) {
+                                    ctx.get('value');
+                                }
+                            </script>
+                        </field-part>
+                    </compound-field>
                 </indexed-field>
                 <indexed-field name="ProdType">
                     <script>

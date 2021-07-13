@@ -204,5 +204,30 @@
             <indexed-field name="Reference_B_A"/>
         </target-domain-object>
     </search-area>
+
+    <search-area name="Area_D">
+        <target-domain-object type="Type_A">
+            <indexed-field name="String_A" />
+            <linked-domain-object type="Type_B" nested="true" >
+                <indexed-field name="String_B">
+                    <compound-field delimiter=", ">
+                        <field-part>
+                            <script>
+                                "Area_D Type_A Linked Type_B String_B Field1"
+                            </script>
+                        </field-part>
+                        <field-part>
+                            <script>
+                                "Area_D Type_A Linked Type_B String_B Field2"
+                            </script>
+                        </field-part>
+                    </compound-field>
+                </indexed-field>
+                <parent-link>
+                    <doel>Reference_B_A</doel>
+                </parent-link>
+            </linked-domain-object>
+        </target-domain-object>
+    </search-area>
     
 </configuration>

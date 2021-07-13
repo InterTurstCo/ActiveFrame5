@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
+import ru.intertrust.cm.core.config.search.CompoundFieldConfig;
 import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
 import ru.intertrust.cm.core.config.search.IndexedContentConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
@@ -76,8 +79,7 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
     private Map<String, ArrayList<SearchAreaDetailsConfig>> effectiveConfigsMap =
             Collections.synchronizedMap(new HashMap<String, ArrayList<SearchAreaDetailsConfig>>());
 
-    private Map<Pair<IndexedFieldConfig, String>, Set<SearchFieldType>> fieldTypeMap =
-            Collections.synchronizedMap(new HashMap<Pair<IndexedFieldConfig, String>, Set<SearchFieldType>>());
+    private final Map<Trio<IndexedFieldConfig, CompoundFieldConfig, String>, Set<SearchFieldType>> fieldTypeMap = new ConcurrentHashMap<>();
 
     private Map<Pair<String, String>, String> attachmentParentLinkNameMap =
             Collections.synchronizedMap(new HashMap<Pair<String, String>, String>());
@@ -553,28 +555,33 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
 
     /**
      * Определяет тип данных индексируемого поля, определённого в конфигурации области поиска.
-     * 
-     * @param config конфигурация индексируемого поля
+     *
+     * @param config     конфигурация индексируемого поля
      * @param objectType имя типа объекта, содержащего поле
      * @return тип данных, хранимых в индексируемом поле
      * @throws IllegalArgumentException если конфигурация ссылается на несуществующее поле
      */
     public Set<SearchFieldType> getFieldTypes(IndexedFieldConfig config, String objectType) {
-        Pair<IndexedFieldConfig, String> key = new Pair<>(config, objectType);
+        return getFieldTypes(config, null, objectType);
+    }
 
-        Set<SearchFieldType> result = fieldTypeMap.get(new Pair<>(config, objectType));
+    public Set<SearchFieldType> getFieldTypes(IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig, String objectType) {
+        Trio<IndexedFieldConfig, CompoundFieldConfig, String> key = new Trio<>(config, compoundFieldConfig, objectType);
+
+        Set<SearchFieldType> result = fieldTypeMap.get(new Trio<>(config, compoundFieldConfig, objectType));
         if (result != null) {
             return result;
         }
 
         if (config.getSolrPrefix() != null) {
             result = Collections.<SearchFieldType>singleton(new CustomSearchFieldType(config.getSolrPrefix()));
-        } else if (config.getDoel() != null) {
-            DoelExpression expr = DoelExpression.parse(config.getDoel());
+        } else if (getDoel(config, compoundFieldConfig) != null) {
+            String doel = getDoel(config, compoundFieldConfig);
+            DoelExpression expr = DoelExpression.parse(doel);
             DoelValidator.DoelTypes analyzed = DoelValidator.validateTypes(expr, objectType);
             if (!analyzed.isCorrect()) {
                 logger.warn("DOEL expression for indexed field " + config.getName() + " in object " + objectType
-                        + " [" + config.getDoel() + "] is invalid");
+                        + " [" + doel + "] is invalid");
                 return null;
             }
             result = new HashSet<>(analyzed.getResultTypes().size() * 2);   // Considering default load factor (0.75)
@@ -587,24 +594,47 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                             config.getSearchBy()));
                 }
             }
-        } else if (config.getScriptConfig() != null) {
-            result = getScriptFieldType(config);
         } else {
-            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
-            if (fieldConfig == null) {
-                throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
-            }
-            SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(fieldConfig.getFieldType());
-            if (dataType != null) {
-                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(dataType, config.getMultiValued()));
+            Set<SearchFieldType> scriptType = getScriptType(config, compoundFieldConfig);
+            if (!scriptType.isEmpty()) {
+                result = scriptType;
             } else {
-                result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(config),
-                        config.getMultiValued(), config.getSearchBy()));
+                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType, config.getName());
+                if (fieldConfig == null) {
+                    throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
+                }
+                SimpleSearchFieldType.Type dataType = SimpleSearchFieldType.byFieldType(fieldConfig.getFieldType());
+                if (dataType != null) {
+                    result = Collections.singleton(new SimpleSearchFieldType(dataType, config.getMultiValued()));
+                } else {
+                    result = Collections.singleton(new TextSearchFieldType(getSupportedLanguages(config),
+                            config.getMultiValued(), config.getSearchBy()));
+                }
             }
         }
 
         fieldTypeMap.put(key, result);
         return result;
+    }
+
+    private Set<SearchFieldType> getScriptType(@Nonnull IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig) {
+        if (config.getScriptConfig() != null) {
+            return getScriptFieldType(config.getScriptConfig().getScriptReturnType(), config.getMultiValued(), config.getSearchBy());
+        } else if (compoundFieldConfig != null) {
+            return getScriptFieldType(compoundFieldConfig.getScriptConfig().getScriptReturnType(), false, config.getSearchBy());
+        }
+        return Collections.emptySet();
+    }
+
+    private String getDoel(IndexedFieldConfig config, CompoundFieldConfig compoundFieldConfig) {
+        String doel = config.getDoel();
+        if (doel != null) {
+            return doel;
+        }
+        if (compoundFieldConfig != null && compoundFieldConfig.getDoel() != null) {
+            return compoundFieldConfig.getDoel();
+        }
+        return null;
     }
 
     /**
@@ -881,26 +911,23 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
                 || AttachmentService.CONTENT_LENGTH.equals(fieldName);
     }
 
-    private Set<SearchFieldType> getScriptFieldType(IndexedFieldConfig config) {
-        Set<SearchFieldType> result = null;
-        if (config != null && config.getScriptConfig() != null) {
-            switch (config.getScriptConfig().getScriptReturnType()) {
-                case BOOLEAN:
-                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.BOOL, config.getMultiValued()));
-                    break;
-                case DATE:
-                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, config.getMultiValued()));
-                    break;
-                case LONG:
-                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, config.getMultiValued()));
-                    break;
-                case DECIMAL:
-                    result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DOUBLE, config.getMultiValued()));
-                    break;
-                default:
-                    result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), config.getMultiValued(),
-                            config.getSearchBy()));
-            }
+    private Set<SearchFieldType> getScriptFieldType(IndexedFieldScriptConfig.ScriptReturnType scriptReturnType, boolean multivalued, IndexedFieldConfig.SearchBy searchBy) {
+        Set<SearchFieldType> result;
+        switch (scriptReturnType) {
+            case BOOLEAN:
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.BOOL, multivalued));
+                break;
+            case DATE:
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DATE, multivalued));
+                break;
+            case LONG:
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.LONG, multivalued));
+                break;
+            case DECIMAL:
+                result = Collections.<SearchFieldType>singleton(new SimpleSearchFieldType(SimpleSearchFieldType.Type.DOUBLE, multivalued));
+                break;
+            default:
+                result = Collections.<SearchFieldType>singleton(new TextSearchFieldType(getSupportedLanguages(), multivalued, searchBy));
         }
         return result;
     }

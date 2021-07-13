@@ -1,5 +1,9 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.PostConstruct;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
@@ -7,6 +11,8 @@ import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.search.CompoundFieldConfig;
+import ru.intertrust.cm.core.config.search.CompoundFieldsConfig;
 import ru.intertrust.cm.core.config.search.IndexedContentConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -14,11 +20,6 @@ import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
-
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Компонент, осуществляющий индексацию доменных объектов при их изменении.
@@ -254,27 +255,71 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
     }
 
     private void addBusinessFields(DomainObject domainObject, SearchConfigHelper.SearchAreaDetailsConfig config, SolrInputDocument doc) {
+        addBusinessFields(domainObject, config, doc, null);
+    }
+
+    private void addBusinessFields(DomainObject domainObject, SearchConfigHelper.SearchAreaDetailsConfig config, SolrInputDocument doc, CompoundFieldCollector collector) {
         for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-            Double boostValue = fieldConfig.getIndexBoostValue();
-            Map<SearchFieldType, ?> values = calculateField(domainObject, fieldConfig);
-            for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
-                SearchFieldType type = entry.getKey();
-                for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
-                    if (boostValue != null) {
-                        doc.addField(fieldName, entry.getValue(), boostValue.floatValue());
-                    } else {
-                        doc.addField(fieldName, entry.getValue());
-                    }
+            CompoundFieldsConfig compoundFieldsConfig = fieldConfig.getCompoundFieldConfig();
+            if (compoundFieldsConfig != null && collector != null) {
+                List<CompoundFieldConfig> fields = compoundFieldsConfig.getFieldPart();
+                for (int index = 0; index < fields.size(); ++index) {
+                    addBusinessFieldsByConfig(domainObject, fieldConfig, collector,
+                            compoundFieldsConfig.getDelimiter(), index, fields.get(index));
+                }
+                return;
+            }
+
+            addBusinessFieldsByConfig(domainObject, doc, fieldConfig);
+        }
+    }
+
+    private void addBusinessFieldsByConfig(DomainObject domainObject, SolrInputDocument doc, IndexedFieldConfig fieldConfig) {
+        Double boostValue = fieldConfig.getIndexBoostValue();
+        Map<SearchFieldType, ?> values = calculateField(domainObject, fieldConfig);
+        for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
+            SearchFieldType type = entry.getKey();
+            for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
+                if (boostValue != null) {
+                    doc.addField(fieldName, entry.getValue(), boostValue.floatValue());
+                } else {
+                    doc.addField(fieldName, entry.getValue());
                 }
             }
         }
     }
 
+    private void addBusinessFieldsByConfig(DomainObject domainObject, IndexedFieldConfig fieldConfig,
+                                           CompoundFieldCollector collector, String delimiter, int index,
+                                           CompoundFieldConfig compoundFieldConfig) {
+        Double boostValue = fieldConfig.getIndexBoostValue();
+        Map<SearchFieldType, ?> values = calculateField(domainObject, fieldConfig, compoundFieldConfig);
+        for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
+            SearchFieldType type = entry.getKey();
+            for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
+                collector.addDelimiter(fieldName, delimiter);
+                collector.addBoost(fieldName, boostValue);
+                collector.add(fieldName, index, (String) entry.getValue());
+            }
+        }
+    }
+
     private void addFields(SolrInputDocument doc, DomainObject domainObject, List<SearchConfigHelper.SearchAreaDetailsConfig> configs) {
+        CompoundFieldCollector collector = new CompoundFieldCollector();
         for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configs) {
             for (DomainObject child : findChildren(domainObject.getId(), linkedConfig, true)) {
-                addBusinessFields(child, linkedConfig, doc);
+                addBusinessFields(child, linkedConfig, doc, collector);
             }
+        }
+        if (!collector.isEmpty()) {
+            collector.collect().forEach(it -> {
+                Double boost = it.getRight();
+                if (boost != null) {
+                    doc.addField(it.getLeft(), it.getMiddle(), boost.floatValue());
+                } else {
+                    doc.addField(it.getLeft(), it.getMiddle());
+                }
+            });
         }
     }
 
