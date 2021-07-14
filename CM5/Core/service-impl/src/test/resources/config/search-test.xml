@@ -80,6 +80,19 @@
         </attachment-types>
     </domain-object-type>
 
+    <domain-object-type name="Type_E">
+        <fields>
+            <string name="String_E" length="15"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Type_F">
+        <fields>
+            <string name="String_F" length="20"/>
+            <reference name="Reference_F_E" type="Type_E"/>
+        </fields>
+    </domain-object-type>
+
     <!-- Глобальные настройки -->
     <global-settings>
         <audit-log enable="false"/>
@@ -205,26 +218,26 @@
         </target-domain-object>
     </search-area>
 
-    <search-area name="Area_D">
-        <target-domain-object type="Type_A">
-            <indexed-field name="String_A" />
-            <linked-domain-object type="Type_B" nested="true" >
-                <indexed-field name="String_B">
+    <search-area name="Area_E">
+        <target-domain-object type="Type_E">
+            <indexed-field name="String_E" />
+            <linked-domain-object type="Type_F" nested="true" >
+                <indexed-field name="String_F">
                     <compound-field delimiter=", ">
                         <field-part>
                             <script>
-                                "Area_D Type_A Linked Type_B String_B Field1"
+                                "Area_E Type_E Linked Type_F String_F Field1"
                             </script>
                         </field-part>
                         <field-part>
                             <script>
-                                "Area_D Type_A Linked Type_B String_B Field2"
+                                "Area_E Type_E Linked Type_F String_F Field2"
                             </script>
                         </field-part>
                     </compound-field>
                 </indexed-field>
                 <parent-link>
-                    <doel>Reference_B_A</doel>
+                    <doel>Reference_F_E</doel>
                 </parent-link>
             </linked-domain-object>
         </target-domain-object>

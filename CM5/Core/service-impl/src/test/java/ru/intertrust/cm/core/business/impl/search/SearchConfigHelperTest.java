@@ -398,12 +398,12 @@ public class SearchConfigHelperTest {
 
     @Test
     public void getFieldTypesWithCompoundFieldsTest() {
-        List<IndexedFieldConfig> indexedFieldConfigs = testee.findIndexedFieldConfigs("String_B", "Area_D");
+        List<IndexedFieldConfig> indexedFieldConfigs = testee.findIndexedFieldConfigs("String_F", "Area_E");
         IndexedFieldConfig indexedFieldConfig = indexedFieldConfigs.get(0);
         CompoundFieldsConfig compoundFieldsConfig = indexedFieldConfig.getCompoundFieldConfig();
 
         List<CompoundFieldConfig> fieldPart = compoundFieldsConfig.getFieldPart();
-        Set<SearchFieldType> types = testee.getFieldTypes(indexedFieldConfig, fieldPart.get(0), "Type_B");
+        Set<SearchFieldType> types = testee.getFieldTypes(indexedFieldConfig, fieldPart.get(0), "Type_F");
 
         assertEquals(TextSearchFieldType.class, types.iterator().next().getClass());
     }
