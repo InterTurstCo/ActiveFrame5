@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class ReportParamSerializer extends JsonSerializer<GenerateReportParam> {
 
@@ -20,20 +21,14 @@ public class ReportParamSerializer extends JsonSerializer<GenerateReportParam> {
             for (String parameterName : value.getParams().keySet()) {
                 generator.writeStartObject();
                 generator.writeStringField(ReportParam.NAME, parameterName);
-                Object repartParaneterValue = value.getParams().get(parameterName);
-                ParamValue paramValue = getParamValue(repartParaneterValue);
+                Object repartParameterValue = value.getParams().get(parameterName);
+                ParamValue paramValue = getParamValue(repartParameterValue);
                 generator.writeStringField(ReportParam.TYPE, paramValue.getType().toString());
-                if (paramValue.getType() == ReportParam.ParamTypes.List){
-                    generator.writeArrayFieldStart(ReportParam.VALUE);
-                    for (Object item : (List)repartParaneterValue) {
-                        generator.writeStartObject();
-                        ParamValue paramItemValue = getParamValue(item);
-                        generator.writeStringField(ReportParam.TYPE, paramItemValue.getType().toString());
-                        generator.writeStringField(ReportParam.VALUE, paramItemValue.getValue());
-                        generator.writeEndObject();
-                    }
-                    generator.writeEndArray();
-                }else {
+                boolean isProcessed = serializeAsList(paramValue, repartParameterValue, generator);
+                if (!isProcessed) {
+                    isProcessed = serializeAsMap(paramValue, repartParameterValue, generator);
+                }
+                if (!isProcessed) {
                     generator.writeStringField(ReportParam.VALUE, paramValue.getValue());
                 }
                 generator.writeEndObject();
@@ -41,6 +36,53 @@ public class ReportParamSerializer extends JsonSerializer<GenerateReportParam> {
             generator.writeEndArray();
         }
         generator.writeEndObject();
+    }
+
+    private boolean serializeAsList(ParamValue paramValue, Object repartParameterValue, JsonGenerator generator) throws IOException {
+        boolean isList = paramValue.getType() == ReportParam.ParamTypes.List;
+        if (isList) {
+            generator.writeArrayFieldStart(ReportParam.VALUE);
+            for (Object repartParameterItemValue : (List) repartParameterValue) {
+                generator.writeStartObject();
+                ParamValue paramItemValue = getParamValue(repartParameterItemValue);
+                generator.writeStringField(ReportParam.TYPE, paramItemValue.getType().toString());
+                boolean isProcessed = serializeAsList(paramItemValue, repartParameterItemValue, generator);
+                if (!isProcessed) {
+                    isProcessed = serializeAsMap(paramItemValue, repartParameterItemValue, generator);
+                }
+                if (!isProcessed) {
+                    generator.writeStringField(ReportParam.VALUE, paramItemValue.getValue());
+                }
+                generator.writeEndObject();
+            }
+            generator.writeEndArray();
+        }
+        return isList;
+    }
+
+    private boolean serializeAsMap(ParamValue paramValue, Object repartParameterValue, JsonGenerator generator) throws IOException {
+        boolean isMap = paramValue.getType() == ReportParam.ParamTypes.Map;
+        if (isMap) {
+            generator.writeArrayFieldStart(ReportParam.VALUE);
+            Map valuesMap = (Map) repartParameterValue;
+            for (Object key : valuesMap.keySet()) {
+                generator.writeStartObject();
+                Object repartParameterItemValue = valuesMap.get(key);
+                ParamValue paramItemValue = getParamValue(repartParameterItemValue);
+                generator.writeStringField(ReportParam.TYPE, paramItemValue.getType().toString());
+                boolean isProcessed = serializeAsList(paramItemValue, repartParameterItemValue, generator);
+                if (!isProcessed) {
+                    isProcessed = serializeAsMap(paramItemValue, repartParameterItemValue, generator);
+                }
+                if (!isProcessed) {
+                    generator.writeStringField(ReportParam.MAPKEY, key.toString());
+                    generator.writeStringField(ReportParam.VALUE, paramItemValue.getValue());
+                }
+                generator.writeEndObject();
+            }
+            generator.writeEndArray();
+        }
+        return isMap;
     }
 
     private ParamValue getParamValue(Object paramValue) {
@@ -69,8 +111,14 @@ public class ReportParamSerializer extends JsonSerializer<GenerateReportParam> {
         }else if (paramValue instanceof List){
             result.setType(ReportParam.ParamTypes.List);
             // Элементы листа формируются в вызывающем методе
+        }else if (paramValue instanceof Map){
+            result.setType(ReportParam.ParamTypes.Map);
+            // Элементы карты формируются в вызывающем методе
         }else{
-            throw new UnsupportedOperationException("Unsupported parameter with type " + paramValue.getClass().getName());
+            // throw new UnsupportedOperationException("Unsupported parameter with type " + paramValue.getClass().getName());
+            // По умолчанию String
+            result.setType(ReportParam.ParamTypes.String);
+            result.setValue(paramValue != null ? paramValue.toString() : "");
         }
         return result;
     }

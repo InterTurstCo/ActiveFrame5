@@ -28,16 +28,13 @@ public class ReportParamDeserialize extends JsonDeserializer<GenerateReportParam
                 String type = ((TextNode)param.get(ReportParam.TYPE)).asText();
                 String name = ((TextNode)param.get(ReportParam.NAME)).asText();
                 ReportParam.ParamTypes reportParamType = ReportParam.ParamTypes.valueOf(type);
-                if (reportParamType == ReportParam.ParamTypes.List){
-                    List<Object> listValue = new ArrayList<>();
-                    for (Iterator<JsonNode> itItem = ((ArrayNode) param.get(ReportParam.VALUE)).iterator(); itItem.hasNext(); ) {
-                        TreeNode paramItem = itItem.next();
-                        String typeItem = ((TextNode)paramItem.get(ReportParam.TYPE)).asText();
-                        String valueItem = ((TextNode)paramItem.get(ReportParam.VALUE)).asText();
-                        listValue.add(getParamValue(typeItem, valueItem));
-                    }
+                List<Object> listValue = null;
+                Map<Object, Object> mapValue = null;
+                if ((listValue = deserializeAsList(reportParamType, param))!= null) {
                     reportParamMap.put(name, listValue);
-                }else{
+                } else if ((mapValue = deserializeAsMap(reportParamType, param)) != null) {
+                    reportParamMap.put(name, mapValue);
+                } else {
                     String value = ((TextNode)param.get(ReportParam.VALUE)).asText();
                     reportParamMap.put(name, getParamValue(type, value));
                 }
@@ -45,6 +42,53 @@ public class ReportParamDeserialize extends JsonDeserializer<GenerateReportParam
             result.setParams(reportParamMap);
         }
         return result;
+    }
+
+    private List<Object> deserializeAsList(ReportParam.ParamTypes reportParamType, TreeNode param) {
+        List<Object> listValue = null;
+        if (reportParamType == ReportParam.ParamTypes.List){
+            listValue = new ArrayList<>();
+            for (Iterator<JsonNode> itItem = ((ArrayNode) param.get(ReportParam.VALUE)).iterator(); itItem.hasNext();) {
+                TreeNode paramItem = itItem.next();
+                String typeItem = ((TextNode)paramItem.get(ReportParam.TYPE)).asText();
+                ReportParam.ParamTypes reportParamItemType = ReportParam.ParamTypes.valueOf(typeItem);
+                List<Object> listItemValue = null;
+                Map<Object, Object> mapItemValue = null;
+                if ((listItemValue = deserializeAsList(reportParamItemType, paramItem)) != null) {
+                    listValue.add(listItemValue);
+                } else if ((mapItemValue = deserializeAsMap(reportParamItemType, paramItem)) != null) {
+                    listValue.add(mapItemValue);
+                } else {
+                    String valueItem = ((TextNode)paramItem.get(ReportParam.VALUE)).asText();
+                    listValue.add(getParamValue(typeItem, valueItem));
+                }
+            }
+        }
+        return listValue;
+    }
+
+    private Map<Object, Object> deserializeAsMap(ReportParam.ParamTypes reportParamType, TreeNode param) {
+        Map<Object, Object> mapValue = null;
+        if (reportParamType == ReportParam.ParamTypes.Map){
+            mapValue = new LinkedHashMap<>();
+            for (Iterator<JsonNode> itItem = ((ArrayNode) param.get(ReportParam.VALUE)).iterator(); itItem.hasNext();) {
+                TreeNode paramItem = itItem.next();
+                String typeItem = ((TextNode)paramItem.get(ReportParam.TYPE)).asText();
+                String key = ((TextNode)paramItem.get(ReportParam.MAPKEY)).asText();
+                ReportParam.ParamTypes reportParamItemType = ReportParam.ParamTypes.valueOf(typeItem);
+                List<Object> listItemValue = null;
+                Map<Object, Object> mapItemValue = null;
+                if ((listItemValue = deserializeAsList(reportParamItemType, paramItem)) != null) {
+                    mapValue.put(key, listItemValue);
+                } else if ((mapItemValue = deserializeAsMap(reportParamItemType, paramItem)) != null) {
+                    mapValue.put(key, mapItemValue);
+                } else {
+                    String valueItem = ((TextNode)paramItem.get(ReportParam.VALUE)).asText();
+                    mapValue.put(key, getParamValue(typeItem, valueItem));
+                }
+            }
+        }
+        return mapValue;
     }
 
     private Object getParamValue(String type, String value){

@@ -6,6 +6,7 @@ public class ReportParam {
     public static final String NAME = "name";
     public static final String TYPE = "type";
     public static final String VALUE = "value";
+    public static final String MAPKEY = "mapkey";
     public static final String PARAMETERS = "parameters";
 
 
@@ -16,6 +17,7 @@ public class ReportParam {
         Double,
         Boolean,
         List,
+        Map,
         DateTime,
         Id
     }
