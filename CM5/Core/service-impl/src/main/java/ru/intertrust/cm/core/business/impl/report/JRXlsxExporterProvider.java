@@ -14,7 +14,7 @@ import java.io.FileOutputStream;
 @Service
 public class JRXlsxExporterProvider implements ExporterProvider {
     @Override
-    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter() {
+    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter(ExporterConfiguration configuration) {
         return (Exporter) new JRXlsxExporter();
     }
 

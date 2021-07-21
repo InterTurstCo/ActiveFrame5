@@ -16,7 +16,7 @@ import java.io.FileOutputStream;
 public class JRRtfExporterProvider implements ExporterProvider {
 
     @Override
-    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter() {
+    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter(ExporterConfiguration configuration) {
         return (Exporter) new JRRtfExporter();
     }
 

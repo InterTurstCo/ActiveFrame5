@@ -15,7 +15,7 @@ import java.io.FileOutputStream;
 public class JRDocxExporterProvider implements ExporterProvider {
 
     @Override
-    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter() {
+    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter(ExporterConfiguration configuration) {
         return (Exporter) new JRDocxExporter();
     }
 

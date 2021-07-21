@@ -15,7 +15,8 @@ import java.io.FileOutputStream;
 public class HtmlExporterProvider implements ExporterProvider {
 
     @Override
-    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter() {
+    public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter(ExporterConfiguration exporterConfiguration) {
+        // Configuration is not needed for this exporter
         return (Exporter) new HtmlExporter();
     }
 

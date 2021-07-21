@@ -132,8 +132,10 @@ public class ReportResultBuilder extends ReportServiceBase {
                 // Имя файла для записи в базу и веб-клиента
                 String reportName = getReportName(reportMetadata, exporterProvider.getExtension(), inParams);
 
+                ExporterConfiguration configuration = exporterProvider.getConfiguration(params);
                 Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                        = exporterProvider.getExporter();
+                        = exporterProvider.getExporter(configuration);
+
                 SimpleExporterInput simpleExporterInput = new SimpleExporterInput(print);
                 exporter.setExporterInput(simpleExporterInput);
 

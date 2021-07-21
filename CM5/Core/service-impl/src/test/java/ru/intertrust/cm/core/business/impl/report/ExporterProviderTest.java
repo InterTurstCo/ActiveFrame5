@@ -15,11 +15,13 @@ import static org.junit.Assert.*;
 
 public class ExporterProviderTest {
 
+    private final DummyExporterConfiguration configuration = new DummyExporterConfiguration();
+
     @Test
     public void htmlExporterProvider() {
         HtmlExporterProvider htmlExporterProvider = new HtmlExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = htmlExporterProvider.getExporter();
+                = htmlExporterProvider.getExporter(configuration);
 
         assertEquals(HtmlExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.HTML_FORMAT.getFormat(), htmlExporterProvider.getExtension());
@@ -30,7 +32,7 @@ public class ExporterProviderTest {
     public void jRDocxExporterProvider() {
         JRDocxExporterProvider provider = new JRDocxExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(JRDocxExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.DOCX_FORMAT.getFormat(), provider.getExtension());
@@ -41,7 +43,7 @@ public class ExporterProviderTest {
     public void jRPdfExporterProvider() {
         JRPdfExporterProvider provider = new JRPdfExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(JRPdfExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.PDF_FORMAT.getFormat(), provider.getExtension());
@@ -52,7 +54,7 @@ public class ExporterProviderTest {
     public void jRRtfExporterProvider() {
         JRRtfExporterProvider provider = new JRRtfExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(JRRtfExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.RTF_FORMAT.getFormat(), provider.getExtension());
@@ -63,7 +65,7 @@ public class ExporterProviderTest {
     public void jRXlsExporterProvider() {
         JRXlsExporterProvider provider = new JRXlsExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(JRXlsExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.XLS_FORMAT.getFormat(), provider.getExtension());
@@ -74,7 +76,7 @@ public class ExporterProviderTest {
     public void jRXlsxExporterProvider() {
         JRXlsxExporterProvider provider = new JRXlsxExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(JRXlsxExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.XLSX_FORMAT.getFormat(), provider.getExtension());
@@ -85,7 +87,7 @@ public class ExporterProviderTest {
     public void jRCsvExporterProvider() {
         JRCsvExporterProvider provider = new JRCsvExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(JRCsvExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.CSV_FORMAT.getFormat(), provider.getExtension());
@@ -96,7 +98,7 @@ public class ExporterProviderTest {
     public void sochiJRDocxExporterProvider() {
         SochiJRDocxExporterProvider provider = new SochiJRDocxExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter();
+                = provider.getExporter(configuration);
 
         assertEquals(SochiJRDocxExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.DOCX_FORMAT.getFormat(), provider.getExtension());
