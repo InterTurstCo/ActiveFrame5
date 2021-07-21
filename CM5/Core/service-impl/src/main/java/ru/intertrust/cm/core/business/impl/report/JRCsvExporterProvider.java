@@ -3,16 +3,22 @@ package ru.intertrust.cm.core.business.impl.report;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
 import net.sf.jasperreports.export.*;
 import org.springframework.stereotype.Service;
-import sun.nio.cs.StreamEncoder;
 
 import java.io.*;
 import java.nio.charset.Charset;
 
 @Service
 public class JRCsvExporterProvider implements ExporterProvider {
+    private static final String DEFAULT_DELIMETR = ";";
+
     @Override
     public Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> getExporter() {
-        return (Exporter) new JRCsvExporter();
+        SimpleCsvExporterConfiguration configuration = new SimpleCsvExporterConfiguration();
+        configuration.setFieldDelimiter(DEFAULT_DELIMETR);
+
+        JRCsvExporter exporter = new JRCsvExporter();
+        exporter.setConfiguration(configuration);
+        return (Exporter) exporter;
     }
 
     @Override
