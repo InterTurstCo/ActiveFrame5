@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 public class ExporterProviderTest {
 
     private final DummyExporterConfiguration configuration = new DummyExporterConfiguration();
+    private final DummyCsvExporterConfiguration csvConfiguration = new DummyCsvExporterConfiguration();
 
     @Test
     public void htmlExporterProvider() {
@@ -87,7 +88,7 @@ public class ExporterProviderTest {
     public void jRCsvExporterProvider() {
         JRCsvExporterProvider provider = new JRCsvExporterProvider();
         Exporter<ExporterInput, ReportExportConfiguration, ExporterConfiguration, ExporterOutput> exporter
-                = provider.getExporter(configuration);
+                = provider.getExporter(csvConfiguration);
 
         assertEquals(JRCsvExporter.class, exporter.getClass());
         assertEquals(ReportBuilderFormats.CSV_FORMAT.getFormat(), provider.getExtension());
