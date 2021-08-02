@@ -1076,6 +1076,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             if (solrServer == null) {
                 throw new Exception("Can't find SolrServer by key : " + (solrServerKey != null ? solrServerKey : "null"));
             }
+
+            if (log.isTraceEnabled()) {
+                log.trace("Attempting to execute solr query: {}", query.toString());
+            }
+
             QueryResponse response = solrServer.query(query);
             if (log.isDebugEnabled()) {
                 log.debug("Response: " + response);
