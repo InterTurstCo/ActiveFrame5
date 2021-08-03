@@ -11,11 +11,11 @@ import ru.intertrust.cm.core.business.api.workflow.GlobalListeners;
 public class GlobalCreateTaskListener extends GlobalListener implements TaskListener {
 
     @Autowired
-    private GlobalListeners globalListneres;
+    private GlobalListeners globalListeners;
 
     @Override
     public void notify(DelegateTask delegateTask) {
-        for (TaskListener taskListener : globalListneres.getCreateTaskListeners(getProcessTargetNamespace(delegateTask))) {
+        for (TaskListener taskListener : globalListeners.getCreateTaskListeners(getProcessTargetNamespace(delegateTask))) {
             taskListener.notify(delegateTask);
         }
     }

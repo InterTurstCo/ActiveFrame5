@@ -49,12 +49,7 @@ public class TestProcess extends ClientBase {
             // Создаем персону
             Id adminPerson = getPersonManagementService().getPersonId("admin");
             if (adminPerson == null) {
-                DomainObject person = getCrudService().createDomainObject("Person");
-                person.setString("Login", "admin");
-                person.setString("FirstName", "Администратор");
-                person.setString("LastName", "Администраторович");
-                person.setString("EMail", "admin@cm5.ru");
-                person = getCrudService().save(person);
+                createPerson();
             }
 
             final ProcessService.Remote processService = getProcessService("admin");
@@ -302,6 +297,15 @@ public class TestProcess extends ClientBase {
         } finally {
             writeLog();
         }
+    }
+
+    private void createPerson() throws NamingException {
+        DomainObject person = getCrudService().createDomainObject("Person");
+        person.setString("Login", "admin");
+        person.setString("FirstName", "Администратор");
+        person.setString("LastName", "Администраторович");
+        person.setString("EMail", "admin@cm5.ru");
+        person = getCrudService().save(person);
     }
 
     private DomainObject getEmployee(String employeeName) throws NamingException {

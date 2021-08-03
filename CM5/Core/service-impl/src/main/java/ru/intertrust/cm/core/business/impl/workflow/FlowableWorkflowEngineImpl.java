@@ -449,8 +449,8 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
             ByteArrayOutputStream pngOutStram = new ByteArrayOutputStream();
             StreamUtils.copy(pngStream, pngOutStram);
             return pngOutStram.toByteArray();
-        }catch(Exception ex){
-            throw new FatalException("Error create model diagramm");
+        } catch(Exception ex) {
+            throw new FatalException("Error create model diagram");
         }
     }
 
@@ -468,22 +468,24 @@ public class FlowableWorkflowEngineImpl extends AbstactWorkflowEngine {
 
                 ProcessDiagramGenerator generator = processEngine.
                         getProcessEngineConfiguration().getProcessDiagramGenerator();
-                List<String> highLightedActivities = null;
+
+                List<String> highLightedActivities;
                 if (processInstance.get(0).getEndTime() == null) {
                     highLightedActivities = runtimeService.getActiveActivityIds(processInstanceId);
-                }else{
+                } else {
                     highLightedActivities = Collections.emptyList();
                 }
+
                 InputStream pngStream = generator.generateDiagram(model, "jpg", highLightedActivities,
                         Collections.emptyList(), true);
-                ByteArrayOutputStream pngOutStram = new ByteArrayOutputStream();
-                StreamUtils.copy(pngStream, pngOutStram);
-                return pngOutStram.toByteArray();
+                ByteArrayOutputStream pngOutStream = new ByteArrayOutputStream();
+                StreamUtils.copy(pngStream, pngOutStream);
+                return pngOutStream.toByteArray();
             }else{
                 return null;
             }
         }catch(Exception ex){
-            throw new FatalException("Error create model diagramm", ex);
+            throw new FatalException("Error create model diagram", ex);
         }
 
     }
