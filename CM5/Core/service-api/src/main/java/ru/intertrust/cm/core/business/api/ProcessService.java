@@ -88,6 +88,19 @@ public interface ProcessService {
      */
     Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, boolean deploy);
 
+
+    /**
+     * Сохранение процесса в хранилище
+     * Метод необходим для RPC. При локальных вызовах, предпочтительнее использование метода
+     * {@link this#saveProcess(InputStreamProvider, String, boolean)}
+     *
+     * @param processDefinition описание процесса
+     * @param fileName имя сохраняемого файла
+     * @param deploy флаг необходимости устанавливать процесс в движок WF
+     * @return идентификатор сохраненного процесса
+     */
+    Id saveProcess(byte[] processDefinition, String fileName, boolean deploy);
+
     /**
      * Удаление шаблона процесса(каскадно или нет). При каскадном удалении
      * происходит удаление всех исполнений процессов от это шаблона, а так же

@@ -28,7 +28,7 @@ public class DeployProcess extends ClientBase {
         try {
             super.execute(args);
 
-            final ProcessService service = getProcessService("admin");
+            final ProcessService.Remote service = getProcessService("admin");
             Id defId = deployProcess(service,
                     "../../test-module/src/main/resources/workflow/InternalDocTest.bpmn",
                     "InternalDocTest.bpmn", true);
@@ -39,7 +39,7 @@ public class DeployProcess extends ClientBase {
         }
     }
 
-    private ProcessService getProcessService(String login) throws NamingException {
+    private ProcessService.Remote getProcessService(String login) throws NamingException {
         return getService("ProcessService", ProcessService.Remote.class, login, "admin");
     }
 

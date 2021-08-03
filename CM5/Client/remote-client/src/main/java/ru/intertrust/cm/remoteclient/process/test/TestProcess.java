@@ -57,7 +57,7 @@ public class TestProcess extends ClientBase {
                 person = getCrudService().save(person);
             }
 
-            final ProcessService processService = getProcessService("admin");
+            final ProcessService.Remote processService = getProcessService("admin");
             Id defId = deployProcess(processService, "Client/remote-client/templates/TestSimpleProcess.bpmn",
                     "SimpleProcess.bpmn", true);
 
@@ -323,11 +323,11 @@ public class TestProcess extends ClientBase {
         return getService("CrudServiceImpl", CrudService.Remote.class);
     }
 
-    private ActionService getActionService(String login) throws NamingException {
+    private ActionService.Remote getActionService(String login) throws NamingException {
         return getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
     }
 
-    private ProcessService getProcessService(String login) throws NamingException {
+    private ProcessService.Remote getProcessService(String login) throws NamingException {
         return getService("ProcessService", ProcessService.Remote.class, login, "admin");
     }
 

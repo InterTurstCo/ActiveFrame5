@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.business.api.workflow;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class ProcessInstanceInfo {
+public class ProcessInstanceInfo implements Serializable {
     private String id;
     private String definitionId;
     private String name;

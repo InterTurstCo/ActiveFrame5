@@ -67,7 +67,7 @@ public class TestRunaProcess extends ClientBase {
                 person = getCrudService().save(person);
             }
 
-            final ProcessService processService = getProcessService("admin");
+            final ProcessService.Remote processService = getProcessService("admin");
             // Установка процесса
             final Id defId = deployProcess(processService, "templates/runa/test-1.par", "test-1", true);
             assertTrue("Deploy process", defId != null);
@@ -345,15 +345,12 @@ public class TestRunaProcess extends ClientBase {
         return getService("CrudServiceImpl", CrudService.Remote.class);
     }
 
-    private ActionService getActionService(String login) throws NamingException {
-        ActionService actionService =
-                getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
-        return actionService;
+    private ActionService.Remote getActionService(String login) throws NamingException {
+        return getService("ActionServiceImpl", ActionService.Remote.class, login, "admin");
     }
 
-    private ProcessService getProcessService(String login) throws NamingException {
-        ProcessService service = getService("ProcessService", ProcessService.Remote.class, login, "admin");
-        return service;
+    private ProcessService.Remote getProcessService(String login) throws NamingException {
+        return getService("ProcessService", ProcessService.Remote.class, login, "admin");
     }
 
     private PersonManagementService.Remote getPersonManagementService() throws NamingException {

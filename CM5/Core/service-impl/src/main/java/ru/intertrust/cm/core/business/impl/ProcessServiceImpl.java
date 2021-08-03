@@ -108,6 +108,12 @@ public class ProcessServiceImpl implements ProcessService {
         return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, deploy);
     }
 
+    @Override
+    public Id saveProcess(byte[] processDefinition, String fileName, boolean deploy) {
+        ProcessDefinitionData processDefinitionData = getProcessDefinitionData(() -> new ByteArrayInputStream(processDefinition));
+        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, deploy);
+    }
+
     private Id saveProcessInner(byte[] processDefinition, String hash, String fileName, boolean deploy) {
 
         ProcessTemplateInfo info = workflowEngine.getProcessTemplateInfo(processDefinition);

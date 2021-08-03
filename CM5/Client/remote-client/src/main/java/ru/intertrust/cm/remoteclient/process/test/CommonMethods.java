@@ -3,10 +3,9 @@ package ru.intertrust.cm.remoteclient.process.test;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class CommonMethods {
 
@@ -19,18 +18,34 @@ public class CommonMethods {
     }
 
     public static Id deployProcess(ProcessService.Remote service, String processPath, String fileName, boolean deploy) throws IOException {
-        return service.saveProcess(() -> newFileInputStream(processPath), fileName, deploy);
+        return service.saveProcess(getProcessAsByteArray(processPath), fileName, deploy);
     }
 
-    public static Id deployProcess(ProcessService service, String processPath, String fileName, boolean deploy) throws IOException {
-        return service.saveProcess(() -> newFileInputStream(processPath), fileName, deploy);
+    public static void undeployProcess(ProcessService.Remote service, Id id) {
+        service.undeployProcess(id.toStringRepresentation(), true);
     }
 
-    private static InputStream newFileInputStream(String processPath) {
+    private static byte[] getProcessAsByteArray(String processPath) throws IOException {
+        FileInputStream stream = null;
+        ByteArrayOutputStream out = null;
         try {
-            return new FileInputStream(processPath);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            stream = new FileInputStream(processPath);
+            out = new ByteArrayOutputStream();
+
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = stream.read(buffer)) > 0) {
+                out.write(buffer, 0, read);
+            }
+
+            return out.toByteArray();
+        } finally {
+            if (stream != null) {
+                stream.close();
+            }
+            if (out != null) {
+                out.close();
+            }
         }
     }
 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://inttrust.ru/nbr">
+
+  <process id="one-step-process" name="One step process" isExecutable="true">
+    <startEvent id="startEvent" name="Start"></startEvent>
+
+    <sequenceFlow id="flow1" sourceRef="startEvent" targetRef="firstWaitStep"></sequenceFlow>
+
+    <userTask id="firstWaitStep" name="First Wait Step" activiti:assignee="PERSON:person5">
+		<extensionElements>
+			<activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
+		</extensionElements>
+    </userTask>
+
+    <sequenceFlow id="flow2" sourceRef="firstWaitStep" targetRef="end"></sequenceFlow>
+
+    <endEvent id="end" name="End"></endEvent>
+
+	<dataObject id="version" name="version" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>1.0.0.4</activiti:value>
+      </extensionElements>
+    </dataObject>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_one-step-process">
+    <bpmndi:BPMNPlane bpmnElement="one-step-process" id="BPMNPlane_one-step-process">
+      <bpmndi:BPMNShape bpmnElement="startEvent" id="BPMNShape_startEvent">
+        <omgdc:Bounds height="35.0" width="35.0" x="130.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="end" id="BPMNShape_end">
+        <omgdc:Bounds height="35.0" width="35.0" x="670.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="firstWaitStep" id="BPMNShape_firstWaitStep">
+        <omgdc:Bounds height="55.0" width="105.0" x="340.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="445.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="670.0" y="227.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="165.0" y="227.0"></omgdi:waypoint>
+        <omgdi:waypoint x="340.0" y="227.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
