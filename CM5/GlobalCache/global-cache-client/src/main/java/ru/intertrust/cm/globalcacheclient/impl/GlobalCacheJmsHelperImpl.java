@@ -384,7 +384,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                 }
 
                 // Проверяем что сообщения от нашего кластера
-                if (!clusterManagerDao.getClusterId().equals(senderClusterId)){
+                if (!senderClusterId.equals(clusterManagerDao.getClusterId())){
                     logger.debug("Message cluster id " + senderClusterId +" not equals current cluster id " + clusterManagerDao.getClusterId() + ". Ignoring it.");
                     return;
                 }
