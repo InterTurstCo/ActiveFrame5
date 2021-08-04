@@ -17,10 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Stateless(name = "ReportGeneratorService")
 @Local(ReportGeneratorService.class)
@@ -29,11 +26,26 @@ import java.util.Map;
 public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     private static final Logger logger = LoggerFactory.getLogger(ReportGeneratorServiceImpl.class);
 
+    private enum DataType {
+        BOOLEAN,
+        INTEGER,
+        LONG,
+        FLOAT,
+        DOUBLE,
+        BIGDECIMAL,
+        DATE,
+        CALENDAR,
+        OTHER
+    }
+
     @Override
     public InputStream generateXLS(String title, Map<String, String> columns, List<Map<String, Object>> data) throws Exception {
         logger.debug("generateXLS: start");
         try {
             Workbook workBook = new HSSFWorkbook();
+            WBStyleCache styleCache = new WBStyleCache(workBook);
+            DataFormat dataformat = workBook.createDataFormat();
+            short dateFormatIdx = dataformat != null ? dataformat.getFormat("dd-mmm-yyyy") : 15;
             CellStyle titleStyle = createTitleStyle(workBook);
             CellStyle headerStyle = createHeaderStyle(workBook);
             CellStyle rowStyle = createRowStyle(workBook);
@@ -42,7 +54,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             // Заголовок всей таблицы
             Sheet sheet = workBook.createSheet("Печать представления");
             Row row = sheet.createRow(rowIdx);
-            createCell(workBook, row, 0, title != null ? title : "", titleStyle, false);
+            createCell(styleCache, row, 0, title != null ? title : "", titleStyle, false, dateFormatIdx);
             int colCntx = columns != null ? columns.size() : 0;
 
             if (colCntx > 0) {
@@ -53,13 +65,13 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 int colIdx = 0;
                 row = sheet.createRow(++ rowIdx);
                 for (Map.Entry<String, String> colEntry : columns.entrySet()) {
-                    createCell(workBook, row, colIdx ++, colEntry.getValue(), headerStyle, false);
+                    createCell(styleCache, row, colIdx ++, colEntry.getValue(), headerStyle, false, dateFormatIdx);
                 }
                 // Таблица
                 if (data != null && !data.isEmpty()) {
                     logger.debug("generateXLS: generate data rows");
                     for (Map<String, Object> rowData : data) {
-                        createDataRow(++ rowIdx, workBook, sheet, columns, rowData, rowStyle);
+                        createDataRow(++ rowIdx, styleCache, sheet, columns, rowData, rowStyle, dateFormatIdx);
                     }
                 }
                 // Авторесайз
@@ -110,56 +122,92 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return rowStyle;
     }
 
-    private Row createDataRow(int rowIdx, Workbook workBook, Sheet sheet, Map<String, String> columns,
-                              Map<String, Object> rowData, CellStyle cellStyle) {
+    private Row createDataRow(int rowIdx, WBStyleCache styleCache, Sheet sheet, Map<String, String> columns,
+                              Map<String, Object> rowData, CellStyle cellStyle, short dateFormatIdx) {
         Row row = sheet.createRow(rowIdx);
         int colIdx = 0;
         for (String colId : columns.keySet()) {
-            createCell(workBook, row, colIdx ++, rowData != null ? rowData.get(colId) : "", cellStyle, true);
+            createCell(styleCache, row, colIdx ++, rowData != null ? rowData.get(colId) : "", cellStyle, true, dateFormatIdx);
         }
         return row;
     }
 
-    private Cell createCell(Workbook workBook, Row row, int column, Object value, CellStyle style, boolean formatByData){
-        short dateFormatIdx = 15;
-        CellStyle dataStyle = workBook.createCellStyle();
-        if (formatByData) {
-            DataFormat dataformat = workBook.createDataFormat();
-            dateFormatIdx = dataformat.getFormat("dd-mmm-yyyy");
-            dataStyle.cloneStyleFrom(style);
-        }
+    private Cell createCell(WBStyleCache styleCache, Row row, int column, Object value,
+                            CellStyle style, boolean formatByData, short dateFormatIdx){
+        CellStyle dataStyle = null;
         Cell cell = row.createCell(column);
         if (value instanceof Boolean) {
             cell.setCellValue(((Boolean)value).booleanValue());
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
+            dataStyle = getDataStyle(styleCache, DataType.BOOLEAN, style, formatByData, dateFormatIdx);
         } else if (value instanceof Integer) {
             cell.setCellValue(((Integer)value).intValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle = getDataStyle(styleCache, DataType.INTEGER, style, formatByData, dateFormatIdx);
         } else if (value instanceof Long) {
             cell.setCellValue(((Long)value).longValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle = getDataStyle(styleCache, DataType.LONG, style, formatByData, dateFormatIdx);
         } else if (value instanceof Float) {
             cell.setCellValue(((Float)value).doubleValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle = getDataStyle(styleCache, DataType.FLOAT, style, formatByData, dateFormatIdx);
         } else if (value instanceof Double) {
             cell.setCellValue(((Double)value).doubleValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle = getDataStyle(styleCache, DataType.DOUBLE, style, formatByData, dateFormatIdx);
         } else if (value instanceof BigDecimal) {
             cell.setCellValue(((BigDecimal)value).doubleValue());
-            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+            dataStyle = getDataStyle(styleCache, DataType.BIGDECIMAL, style, formatByData, dateFormatIdx);
         } else if (value instanceof Date) {
             cell.setCellValue(((Date)value));
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
-            dataStyle.setDataFormat(dateFormatIdx);
+            dataStyle = getDataStyle(styleCache, DataType.DATE, style, formatByData, dateFormatIdx);
         } else if (value instanceof Calendar) {
             cell.setCellValue(((Calendar) value));
-            dataStyle.setAlignment(HorizontalAlignment.CENTER);
-            dataStyle.setDataFormat(dateFormatIdx);
+            dataStyle = getDataStyle(styleCache, DataType.CALENDAR, style, formatByData, dateFormatIdx);
         } else {
             cell.setCellValue(value != null ? value.toString() : "");
+            dataStyle = getDataStyle(styleCache, DataType.OTHER, style, formatByData, dateFormatIdx);
         }
-        cell.setCellStyle(formatByData ? dataStyle : style);
+        cell.setCellStyle(dataStyle);
         return cell;
     }
 
+    private CellStyle getDataStyle(WBStyleCache styleCache, DataType dataType, CellStyle style, boolean formatByData, short dateFormatIdx) {
+        return styleCache.getCellStyle(dataType, style, formatByData, dateFormatIdx);
+    }
+
+    private static class WBStyleCache {
+        private final Workbook workBook;
+        private final Map<String, CellStyle> styleCache = new HashMap<>();
+
+        WBStyleCache(Workbook workBook) {
+            this.workBook = workBook;
+        }
+
+        private CellStyle getCellStyle(DataType dataType, CellStyle style, boolean formatByData, short dateFormatIdx) {
+            String key = dataType.name() + "_" + style.hashCode() + "_" + formatByData;
+            CellStyle dataStyle = styleCache.get(key);
+            if (dataStyle == null) {
+                dataStyle = workBook.createCellStyle();
+                dataStyle.cloneStyleFrom(style);
+                styleCache.put(key, dataStyle);
+                if (formatByData) {
+                    switch (dataType) {
+                        case INTEGER:
+                        case LONG:
+                        case FLOAT:
+                        case DOUBLE:
+                        case BIGDECIMAL:
+                            dataStyle.setAlignment(HorizontalAlignment.RIGHT);
+                            break;
+                        case DATE:
+                        case CALENDAR:
+                            dataStyle.setDataFormat(dateFormatIdx);
+                        case BOOLEAN:
+                            dataStyle.setAlignment(HorizontalAlignment.CENTER);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            return dataStyle;
+        }
+    }
 }
