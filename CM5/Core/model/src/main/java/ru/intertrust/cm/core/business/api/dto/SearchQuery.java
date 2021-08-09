@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Класс для хранения и передачи запросов на расширенный поиск.
@@ -14,9 +15,9 @@ public class SearchQuery implements Dto {
 
     public static final String RELEVANCE = "_relevance";
 
-    private ArrayList<String> areas = new ArrayList<String>();
-    private List<String> targetObjectTypes = new ArrayList<String>();
-    private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
+    private ArrayList<String> areas = new ArrayList<>();
+    private List<String> targetObjectTypes = new ArrayList<>();
+    private HashMap<String, SearchFilter> filters = new HashMap<>();
 
     public SearchQuery() {
     }
@@ -46,7 +47,9 @@ public class SearchQuery implements Dto {
      * @param area имя области поиска, заданное в конфигурации
      */
     public void addArea(String area) {
-        areas.add(area);
+        if (!areas.contains(area)) {
+            areas.add(area);
+        }
     }
 
     /**
@@ -65,7 +68,7 @@ public class SearchQuery implements Dto {
      * @param area имя области поиска, заданное в конфигурации
      */
     public void removeArea(SearchArea area) {
-        areas.remove(area);
+        areas.remove(area.getArea());
     }
 
     /**
@@ -110,7 +113,9 @@ public class SearchQuery implements Dto {
      * @param targetObjectType
      */
     public void addTargetObjectType(String targetObjectType) {
-        this.targetObjectTypes.add(targetObjectType);
+        if (!targetObjectTypes.contains(targetObjectType)) {
+            this.targetObjectTypes.add(targetObjectType);
+        }
     }
 
     /**
@@ -164,11 +169,9 @@ public class SearchQuery implements Dto {
 
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("Target type: ").append( targetObjectTypes.toString() );
-        result.append("; areas: ").append(areas.toString());
-        result.append("; filters: ").append(filters.toString());
-        return result.toString();
+        return "Target type: " + targetObjectTypes.toString() +
+                "; areas: " + areas.toString() +
+                "; filters: " + filters.toString();
     }
 
     public static class SearchArea {
@@ -193,8 +196,8 @@ public class SearchQuery implements Dto {
             boolean b = false;
             if (obj instanceof SearchArea) {
                 SearchArea that = (SearchArea)obj;
-                b = (area == null ? that.area == null : area.equals(that.area))
-                        && (solrServerUrl == null ? that.solrServerUrl == null : solrServerUrl.equals(that.solrServerUrl));
+                b = (Objects.equals(area, that.area))
+                        && (Objects.equals(solrServerUrl, that.solrServerUrl));
             }
             return b;
         }
