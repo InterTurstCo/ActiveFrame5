@@ -19,7 +19,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyString;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AccessMatrixLogicalValidatorTest {
@@ -193,9 +193,9 @@ public class AccessMatrixLogicalValidatorTest {
         assertEquals("status1", checkStatus1Config.getName());
         assertEquals(1, checkStatus1Config.getPermissions().size());
         assertTrue(checkStatus1Config.getPermissions().get(0) instanceof ReadConfig);
-        assertEquals(2, ((ReadConfig) checkStatus1Config.getPermissions().get(0)).getPermitConfigs().size());
-        assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().contains(new PermitGroup("group1")));
-        assertTrue(((ReadConfig)checkStatus1Config.getPermissions().get(0)).getPermitConfigs().contains(new PermitGroup("group2")));
+        assertEquals(2, checkStatus1Config.getPermissions().get(0).getPermitConfigs().size());
+        assertTrue(checkStatus1Config.getPermissions().get(0).getPermitConfigs().contains(new PermitGroup("group1")));
+        assertTrue(checkStatus1Config.getPermissions().get(0).getPermitConfigs().contains(new PermitGroup("group2")));
     }
 
     @Test

@@ -18,7 +18,7 @@
         <module>GlobalCache</module>
 		<module>nbr-base</module>		
         <module>test-module</module>
-        <module>deployment-tool</module>
+<!--        <module>deployment-tool</module>-->
         <module>crypto-pro-service</module>
         <module>bouncycastle-crypto-service</module>
         <module>pdf-cnv-loffice-impl</module>
@@ -36,11 +36,11 @@
         <spring.version>5.2.6.RELEASE</spring.version>
         <spring.integration.mail.version>4.1.3.RELEASE</spring.integration.mail.version>
         <flowable.version>6.5.0</flowable.version>
-        <gwt.version>2.7.0</gwt.version>
+        <gwt.version>2.9.0</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
         <openapi.generator.version>4.2.3</openapi.generator.version>
-        <jasper.version>6.16.0</jasper.version>
+        <jasper.version>6.17.0</jasper.version>
 
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
@@ -413,20 +413,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>1.6.4</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>1.6.4</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
                 <version>1.1.1.Final</version>
@@ -571,7 +557,7 @@
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
-                <version>3.0.3</version>
+                <version>5.1.0</version>
             </dependency>
 
             <dependency>
@@ -698,6 +684,11 @@
                 <version>11.0.2</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -841,9 +832,9 @@
                 </plugin>
 
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
+                    <groupId>com.nickwongdev</groupId>
                     <artifactId>aspectj-maven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>1.12.6</version>
                     <dependencies>
                         <!-- NB: You must use Maven 2.0.9 or above or these are ignored (see MNG-2972) -->
                         <dependency>

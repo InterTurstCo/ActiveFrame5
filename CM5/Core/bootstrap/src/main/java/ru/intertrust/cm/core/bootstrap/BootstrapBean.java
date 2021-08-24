@@ -1,3 +1,5 @@
+package ru.intertrust.cm.core.bootstrap;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.EJBContext;
@@ -23,7 +25,7 @@ import ru.intertrust.cm.core.util.SingletonBeanFactoryLocator;
 public class BootstrapBean {
     private static final int DEFAULT_DEPLOY_TRANSACTION_TIMEOUT = 1000;
     private static final String DEPLOY_TRANSACTION_TIMEOUT = "deploy.transaction.timeout";
-    private Logger logger = LoggerFactory.getLogger(BootstrapBean.class);
+    private static final Logger logger = LoggerFactory.getLogger(BootstrapBean.class);
     
     @Resource
     private EJBContext ejbContext;

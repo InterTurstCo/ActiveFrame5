@@ -185,13 +185,13 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
             return;
         }
 
-        Class clazz = bean.getClass();
+        Class<?> clazz = bean.getClass();
         validatePluginHandlerExtending(clazz, componentName, logicalErrors);
 
     }
 
-    private void validatePluginHandlerExtending(Class clazz, String componentName, LogicalErrors logicalErrors) {
-        Class  parentClass = clazz.getSuperclass();
+    private void validatePluginHandlerExtending(Class<?> clazz, String componentName, LogicalErrors logicalErrors) {
+        Class<?> parentClass = clazz.getSuperclass();
 
         if (parentClass == null) {
             String error = String.format("Could not find plugin handler for widget with name '%s'", componentName);
@@ -201,10 +201,14 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
         }
 
         String parentClassFullName = parentClass.getCanonicalName();
-        if (PlUGIN_HANDLER_FULL_QUALIFIED_NAME.equalsIgnoreCase(parentClassFullName)) {
+        if (getPluginHandlerName().equalsIgnoreCase(parentClassFullName)) {
             return;
         }
         validatePluginHandlerExtending(parentClass, componentName, logicalErrors);
 
+    }
+
+    protected String getPluginHandlerName() {
+        return PlUGIN_HANDLER_FULL_QUALIFIED_NAME;
     }
 }

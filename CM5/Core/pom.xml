@@ -61,13 +61,6 @@
             <artifactId>mockito-all</artifactId>
         </dependency>
 
-        <!--
-                <dependency>
-                    <groupId>org.activiti</groupId>
-                    <artifactId>activiti-engine</artifactId>
-                </dependency>
-        -->
-
     </dependencies>
 
 	<build>

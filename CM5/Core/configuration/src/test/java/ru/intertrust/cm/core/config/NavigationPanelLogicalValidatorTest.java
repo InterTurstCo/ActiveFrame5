@@ -1,33 +1,30 @@
 package ru.intertrust.cm.core.config;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
-import static org.powermock.api.support.membermodification.MemberModifier.suppress;
-import static ru.intertrust.cm.core.config.Constants.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
+import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH;
 
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 10/9/13
  *         Time: 12:05 PM
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(NavigationPanelLogicalValidator.class)
 public class NavigationPanelLogicalValidatorTest {
 
     private static final String NAVIGATION_PANEL_XML_PATH = "config/navigation-panel-test.xml";
@@ -36,23 +33,16 @@ public class NavigationPanelLogicalValidatorTest {
 
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
 
-    /**
-     * Вызов метода validatePluginHandlers исключается на время тестов
-     * Для корректной работы validatePluginHandlers требуется спринг контекст
-     *
-     * @throws Exception
-     */
-    @Before
-    public void setUp() throws Exception {
-        suppress(method(NavigationPanelLogicalValidator.class, "validatePluginHandlers"));
-
-    }
-
     @Test
     public void validateCorrectNavigationPanel() throws Exception {
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(NAVIGATION_PANEL_XML_PATH);
-        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer);
+        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer) {
+            @Override
+            protected String getPluginHandlerName() {
+                return "java.lang.Object";
+            }
+        };
         List<LogicalErrors> errors = panelValidator.validate();
         assertEquals(0, errors.size());
     }
@@ -66,7 +56,12 @@ public class NavigationPanelLogicalValidatorTest {
                 "Child link to open is not found for link with name 'Documents In Work'");
         ConfigurationExplorer configurationExplorer =
                 createConfigurationExplorer(NAVIGATION_PANEL_INVALID_CHILD_TO_OPEN_XML_PATH);
-        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator();
+        NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator() {
+            @Override
+            protected String getPluginHandlerName() {
+                return "java.lang.Object";
+            }
+        };
         panelValidator.setConfigurationExplorer(configurationExplorer);
 
         List<LogicalErrors> errors = panelValidator.validate();
@@ -84,12 +79,18 @@ public class NavigationPanelLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration,true);
+        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration, true);
+
+        ApplicationContext mock = mock(ApplicationContext.class);
+        Object obj = mock(NavigationPanelLogicalValidatorTest.class); // doesn't matter... Any class "extends Object"
+        when(mock.getBean(anyString())).thenReturn(obj);
+
+        result.setContext(mock);
         result.init();
         return result;
     }
 
-    private ModuleService createModuleService(String configPath) throws MalformedURLException {
+    private ModuleService createModuleService(String configPath) {
         ModuleServiceImpl result = new ModuleServiceImpl();
         ModuleConfiguration conf = new ModuleConfiguration();
         result.getModuleList().add(conf);

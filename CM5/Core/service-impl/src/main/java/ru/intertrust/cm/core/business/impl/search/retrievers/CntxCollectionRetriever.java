@@ -1,18 +1,25 @@
-package ru.intertrust.cm.core.business.impl.search;
+package ru.intertrust.cm.core.business.impl.search.retrievers;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import ru.intertrust.cm.core.business.impl.search.SolrFields;
+import ru.intertrust.cm.core.business.impl.search.SolrUtils;
+import ru.intertrust.cm.core.business.impl.search.TargetResultField;
 import ru.intertrust.cm.core.config.*;
 
 import java.math.BigDecimal;
 import java.util.*;
 
+@Service
+@Scope("prototype")
 public class CntxCollectionRetriever extends CollectionRetriever {
     private static final int MAX_IDS_PER_QUERY = 2000;
 
@@ -27,10 +34,16 @@ public class CntxCollectionRetriever extends CollectionRetriever {
 
     private Collection<TargetResultField> solrFields;
 
-    public CntxCollectionRetriever(String collectionName, String cntxFilterName, Collection<TargetResultField> solrFields) {
+    public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
-        this.solrFields = solrFields;
+    }
+
+    public void setCntxFilterName(String cntxFilterName) {
         this.cntxFilterName = cntxFilterName;
+    }
+
+    public void setSolrFields(Collection<TargetResultField> solrFields) {
+        this.solrFields = solrFields;
     }
 
     @Override

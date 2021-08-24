@@ -16,7 +16,9 @@
 
     <context:annotation-config/>
     
-    <context:component-scan base-package="ru.intertrust.cm.core ru.intertrust.cm.core.business.impl.report" />
+    <context:component-scan
+            base-package="ru.intertrust.cm.core ru.intertrust.cm.core.business.impl.report
+            ru.intertrust.cm.core.business.impl.search.retrievers" />
     
     <aop:aspectj-autoproxy/>
 

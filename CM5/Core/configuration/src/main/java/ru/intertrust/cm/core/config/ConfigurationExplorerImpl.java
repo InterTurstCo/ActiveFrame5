@@ -53,7 +53,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     private Configuration distributiveConfiguration;
 
-    @Autowired
     private ApplicationContext context;
 
     @Autowired
@@ -84,6 +83,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
         // Ненадо вызывать из конструктора так как вызывается из beans.xml спрингом
         //init();
+    }
+
+    @Autowired
+    public void setContext(ApplicationContext context) {
+        this.context = context;
     }
 
     public Set<ConfigChange> copyFrom(ConfigurationExplorerImpl another) {

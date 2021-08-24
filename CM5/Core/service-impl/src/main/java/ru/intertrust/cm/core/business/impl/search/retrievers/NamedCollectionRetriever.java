@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl.search;
+package ru.intertrust.cm.core.business.impl.search.retrievers;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -18,28 +20,28 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ru.intertrust.cm.core.business.impl.search.SolrFields;
 
-import javax.resource.NotSupportedException;
-
+@Service
+@Scope("prototype")
 public class NamedCollectionRetriever extends CollectionRetriever {
 
     public static final int MAX_IDS_PER_QUERY = 2000;
 
-    private static Logger log = LoggerFactory.getLogger(NamedCollectionRetriever.class);
+    private static final Logger log = LoggerFactory.getLogger(NamedCollectionRetriever.class);
 
-    @Autowired private CollectionsService collectionsService;
+    @Autowired
+    private CollectionsService collectionsService;
 
     private String collectionName;
     private List<? extends Filter> collectionFilters;
 
-    public NamedCollectionRetriever(String collectionName) {
+    public void setCollectionName(String collectionName) {
         this.collectionName = collectionName;
     }
 
-    public NamedCollectionRetriever(String collectionName, List<? extends Filter> filters) {
-        this.collectionName = collectionName;
-        this.collectionFilters = filters;
+    public void setCollectionFilters(List<? extends Filter> collectionFilters) {
+        this.collectionFilters = collectionFilters;
     }
 
     @Override

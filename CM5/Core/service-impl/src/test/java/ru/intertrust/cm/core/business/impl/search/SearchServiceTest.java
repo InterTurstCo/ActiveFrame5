@@ -6,10 +6,10 @@ import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -36,9 +36,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -52,26 +51,36 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetrieverFactory;
+import ru.intertrust.cm.core.business.impl.search.retrievers.NamedCollectionRetriever;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 
-@SuppressWarnings("unchecked")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SearchServiceImpl.class})
+@RunWith(MockitoJUnitRunner.class)
 public class SearchServiceTest {
 
-    @Mock private SolrServer solrServer;
-    @Mock private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
-    @Mock private SearchConfigHelper configHelper;
-    @Mock private NamedCollectionRetriever namedCollectionRetriever;
-    @Mock private QueryCollectionRetriever queryCollectionRetriever;
-    @Mock private SolrServerWrapperMap solrServerWrapperMap;
-    @Mock private SolrServerWrapper solrServerWrapper;
+    @Mock
+    private SolrServer solrServer;
+    @Mock
+    private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
+    @Mock
+    private SearchConfigHelper configHelper;
+    @Mock
+    private NamedCollectionRetriever namedCollectionRetriever;
+    @Mock
+    private SolrServerWrapperMap solrServerWrapperMap;
+    @Mock
+    private SolrServerWrapper solrServerWrapper;
+    @Mock
+    private CollectionRetrieverFactory collectionRetrieverFactory;
 
-    @InjectMocks private SearchServiceImpl service = new SearchServiceImpl();
+    @InjectMocks
+    private SearchServiceImpl service = new SearchServiceImpl();
 
-    @InjectMocks private NegativeFilterAdapter negAdapter = new NegativeFilterAdapter();
-    @InjectMocks private CombiningFilterAdapter combAdapter = new CombiningFilterAdapter();
+    @InjectMocks
+    private NegativeFilterAdapter negAdapter = new NegativeFilterAdapter();
+    @InjectMocks
+    private CombiningFilterAdapter combAdapter = new CombiningFilterAdapter();
 
     //@Captor private ArgumentCaptor<List<Filter>> filters;
 
@@ -99,7 +108,8 @@ public class SearchServiceTest {
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock, docMock));
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
@@ -130,7 +140,8 @@ public class SearchServiceTest {
         when(response.getResults()).thenReturn(docList);
         when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList("ru", "en", "de"));
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(docList, 10)).thenReturn(objects);
@@ -161,7 +172,8 @@ public class SearchServiceTest {
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock, docMock));
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
 
         IdentifiableObjectCollection partResult = mock(IdentifiableObjectCollection.class);
         when(partResult.size()).thenReturn(2);
@@ -227,7 +239,8 @@ public class SearchServiceTest {
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock));
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(4);
         when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
@@ -281,7 +294,7 @@ public class SearchServiceTest {
         Filter filterMock = mock(Filter.class);
         List<Filter> filters = Arrays.asList(filterMock, filterMock);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection", filters)
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection"), eq(filters)))
                 .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(4);
@@ -351,7 +364,8 @@ public class SearchServiceTest {
         when(bResponse.getResults()).thenReturn(bDocList);
         when(solrServer.query(any(SolrParams.class))).thenReturn(aResponse, bResponse);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(any(SolrDocumentList.class), eq(20))).thenReturn(objects);
@@ -459,7 +473,8 @@ public class SearchServiceTest {
         when(solrServer.query(any(SolrParams.class)))
                 .thenReturn(aPartialResponse, bPartialResponse, aFullResponse, bFullResponse);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(3);
         when(namedCollectionRetriever.queryCollection(any(SolrDocumentList.class), anyInt())).thenReturn(objects);
@@ -532,7 +547,8 @@ public class SearchServiceTest {
         SolrDocumentList docList = new SolrDocumentList();
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
 
         // Вызов проверяемого метода
         service.search(query, "TestCollection", 20);
@@ -593,7 +609,8 @@ public class SearchServiceTest {
 
         when(solrServer.query(any(SolrParams.class))).thenReturn(response);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(4);
         when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
@@ -645,7 +662,8 @@ public class SearchServiceTest {
         SolrDocumentList docList = new SolrDocumentList();
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
 
         // Вызов проверяемого метода
         service.search(query, "TestCollection", 20);
