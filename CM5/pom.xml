@@ -40,7 +40,7 @@
         <slf4j.version>1.7.2</slf4j.version>
         <solr.version>4.5.1</solr.version>
         <openapi.generator.version>4.2.3</openapi.generator.version>
-        <jasper.version>6.17.0</jasper.version>
+        <jasper.version>6.16.0</jasper.version>
 
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
