@@ -68,7 +68,8 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                 logger.debug("Roles: cm_user=" + (ejbContext.isCallerInRole("cm_user") ? "YES" : "no")
                         + "; system=" + (ejbContext.isCallerInRole("system") ? "YES" : "no"));
             }
-            if (Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
+            if (ejbContext.getContextData() != null
+                    && Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
             }
             String principalName = ejbContext.getCallerPrincipal().getName();
