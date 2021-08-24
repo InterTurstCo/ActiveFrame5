@@ -3,20 +3,16 @@ package ru.intertrust.cm.core.report;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Hashtable;
-
-import org.apache.commons.logging.Log;
 
 /**
  * Класс для расширения стандартного classLoader для загрузки классов
  * скриптлетов
  */
 public class ScriptletClassLoader extends ClassLoader {
-	private Hashtable<String, byte[]> m_classes;
-	private String scriptletFolderPath;
+	private final Hashtable<String, byte[]> m_classes;
+	private final String scriptletFolderPath;
 
 	/**
 	 * Конструктор принимает директорию где могут быть скриптлеты и загружает
@@ -31,39 +27,35 @@ public class ScriptletClassLoader extends ClassLoader {
 
 		this.scriptletFolderPath = scriptletFolderPath;
 
-		m_classes = new Hashtable<String, byte[]>();
+		m_classes = new Hashtable<>();
 		File scriptletFolder = new File(scriptletFolderPath);
-		File[] scriptletClasseFiles = scriptletFolder
-				.listFiles(new FilenameFilter() {
-					public boolean accept(File dir, String name) {
-						return name.endsWith("class");
-					}
-				});
+		File[] scriptletClassFiles = scriptletFolder.listFiles((dir, name) -> name.endsWith("class"));
 
-		for (int i = 0; i < scriptletClasseFiles.length; i++) {
-			String className = scriptletClasseFiles[i].getName().substring(0,
-					scriptletClasseFiles[i].getName().length() - 6);
-			m_classes.put(className, loadClassData(scriptletClasseFiles[i]));
+		if (scriptletClassFiles == null) {
+			return;
+		}
+
+		for (final File scriptletClassFile : scriptletClassFiles) {
+			String className = scriptletClassFile.getName().substring(0,
+					scriptletClassFile.getName().length() - 6);
+			m_classes.put(className, loadClassData(scriptletClassFile));
 		}
 	}
 
 	/**
 	 * Поиск класса. Сначала ищем класс в скриптлетах, и если его нет то ищем в
 	 * родительском classloader
-	 * 
-	 * @param name
-	 *            String
-	 * @return Class
-	 * @throws ClassNotFoundException
+	 *
+	 * @see ClassLoader#findClass(String) for more information
 	 */
 	@Override
-	protected Class findClass(String name) throws ClassNotFoundException {
+	protected Class<?> findClass(String name) throws ClassNotFoundException {
 
-		Class result = null;
-		if (!m_classes.keySet().contains(name)) {
+		Class<?> result;
+		if (!m_classes.containsKey(name)) {
 			result = super.findClass(name);
 		} else {
-			byte[] b = (byte[]) m_classes.get(name);
+			byte[] b = m_classes.get(name);
 			result = defineClass(name, b, 0, b.length);
 		}
 		return result;
@@ -74,8 +66,8 @@ public class ScriptletClassLoader extends ClassLoader {
 		try {
 
 			String className = name.substring(0, name.length() - 6);
-			URL result = null;
-			if (!m_classes.keySet().contains(className)) {
+			URL result;
+			if (!m_classes.containsKey(className)) {
 				result = super.findResource(name);
 			} else {
 				result = new URL("file:///" + scriptletFolderPath + "/" + name);
@@ -94,32 +86,15 @@ public class ScriptletClassLoader extends ClassLoader {
 	 * @return byte[]
 	 */
 	private byte[] loadClassData(File name) {
-		FileInputStream in = null;
-		ByteArrayOutputStream out = null;
-		try {
-			in = new FileInputStream(name);
-			out = new ByteArrayOutputStream();
+		try (FileInputStream in = new FileInputStream(name); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 			byte[] buf = new byte[256];
-			int size = 0;
+			int size;
 			while ((size = in.read(buf)) > 0) {
 				out.write(buf, 0, size);
 			}
 			return out.toByteArray();
 		} catch (Exception ex) {
 			throw new RuntimeException("Can not load class file", ex);
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-			} catch (Exception ignoreEx) {
-			}
-			try {
-				if (out != null) {
-					out.close();
-				}
-			} catch (Exception ignoreEx) {
-			}
 		}
 	}
 }
