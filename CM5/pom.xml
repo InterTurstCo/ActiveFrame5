@@ -273,14 +273,6 @@
                 <version>${jasper.version}</version>
                 <exclusions>
                     <exclusion>
-                        <groupId>org.eclipse.jdt</groupId>
-                        <artifactId>ecj</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <artifactId>jdtcore</artifactId>
-                        <groupId>eclipse</groupId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk14</artifactId>
                     </exclusion>
