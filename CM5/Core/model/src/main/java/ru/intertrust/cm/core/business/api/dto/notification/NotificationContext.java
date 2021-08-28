@@ -14,8 +14,11 @@ import ru.intertrust.cm.core.config.NotificationTypeConfig;
  * 
  */
 public class NotificationContext implements Dto{
+    
     private Map<String, Dto> contextObjects = new Hashtable<String, Dto>();
     private NotificationSettings notificationSettings;
+    private int addresseeIdx = -1;
+    
     /**
      * Добавление контекстного объекта
      * @param name
@@ -80,5 +83,12 @@ public class NotificationContext implements Dto{
         this.notificationSettings = notificationSettings;
     }
 
+    public int getAddresseeIdx () {
+        return this.addresseeIdx;
+    }
+    
+    public void setAddresseeIdx (final int value) {
+        this.addresseeIdx = value;
+    }
     
 }
