@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.io.IOException;
 import javax.annotation.PreDestroy;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -9,7 +10,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.slf4j.Logger;
@@ -57,7 +58,7 @@ public class SolrIndexingBean {
         }
     }
 
-    private void processUpdateQueue(SolrServer solrServer, SolrUpdateRequestQueue requestQueue, String serverKey) {
+    private void processUpdateQueue(SolrClient solrServer, SolrUpdateRequestQueue requestQueue, String serverKey) {
         long breakTime = System.currentTimeMillis() + WORKTIME_LIMIT;
 
         if (log.isTraceEnabled()) {
@@ -97,7 +98,11 @@ public class SolrIndexingBean {
     public void shutdown() {
         if (solrServerWrapperMap != null) {
             for (Map.Entry<String, SolrServerWrapper> entry : solrServerWrapperMap.getMap().entrySet()) {
-                entry.getValue().getSolrServer().shutdown();
+                try {
+                    entry.getValue().getSolrServer().close();
+                } catch (IOException e) {
+                    log.warn("Error during solr server closing", e);
+                }
             }
         }
     }

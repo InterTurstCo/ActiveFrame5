@@ -373,11 +373,11 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                         Map<String, Object> fieldModifier = new HashMap<>(1);
                         fieldModifier.put(action == IndexingAction.ADD && !fieldConfig.getMultiValued() ?
                                 IndexingAction.UPDATE.getText() : action.getText(), entry.getValue());
-                        if (boostValue != null) {
-                            solrDoc.addField(fieldName, fieldModifier, boostValue.floatValue());
-                        } else {
+//                        if (boostValue != null) {
+//                            solrDoc.addField(fieldName, fieldModifier, boostValue.floatValue());
+//                        } else {
                             solrDoc.addField(fieldName, fieldModifier);
-                        }
+//                        }
                     }
                 }
             }

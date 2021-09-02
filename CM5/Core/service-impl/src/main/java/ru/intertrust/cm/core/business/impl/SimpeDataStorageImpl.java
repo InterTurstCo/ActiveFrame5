@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
@@ -38,7 +38,7 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
     private static final Logger logger = LoggerFactory.getLogger(SimpeDataStorageImpl.class);
 
     @Autowired
-    private SolrServer solrServer;
+    private SolrClient solrServer;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
