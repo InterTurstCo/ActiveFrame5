@@ -69,19 +69,22 @@
        If a 'dir' option (with or without a regex) is used and nothing
        is found that matches, a warning will be logged.
 
-       The examples below can be used to load some solr-contribs along
+       The example below can be used to load a solr-contrib along
        with their external dependencies.
     -->
+  <!-- <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-ltr-\d.*\.jar" /> -->
   <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />
   <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-cell-\d.*\.jar" />
+
+  <lib dir="${solr.install.dir:../../../..}/contrib/clustering/lib/" regex=".*\.jar" />
+  <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-clustering-\d.*\.jar" />
 
   <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
   <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-langid-\d.*\.jar" />
 
   <lib dir="${solr.install.dir:../../../..}/contrib/velocity/lib" regex=".*\.jar" />
-  <!-- browse-resources must come before solr-velocity JAR in order to override localized resources -->
-  <lib path="${solr.install.dir:../../../..}/example/files/browse-resources"/>
   <lib dir="${solr.install.dir:../../../..}/dist/" regex="solr-velocity-\d.*\.jar" />
+
   <!-- an exact 'path' can be used instead of a 'dir' to specify a
        specific jar file.  This will cause a serious error to be logged
        if it can't be loaded.
@@ -124,6 +127,9 @@
        are experimental, so if you choose to customize the index format, it's a good
        idea to convert back to the official format e.g. via IndexWriter.addIndexes(IndexReader)
        before upgrading to a newer version to avoid unnecessary reindexing.
+       A "compressionMode" string element can be added to <codecFactory> to choose
+       between the existing compression modes in the default codec: "BEST_SPEED" (default)
+       or "BEST_COMPRESSION".
   -->
   <codecFactory class="solr.SchemaCodecFactory"/>
 
@@ -157,6 +163,15 @@
     <!-- <ramBufferSizeMB>100</ramBufferSizeMB> -->
     <!-- <maxBufferedDocs>1000</maxBufferedDocs> -->
 
+    <!-- Expert: ramPerThreadHardLimitMB sets the maximum amount of RAM that can be consumed
+         per thread before they are flushed. When limit is exceeded, this triggers a forced
+         flush even if ramBufferSizeMB has not been exceeded.
+         This is a safety limit to prevent Lucene's DocumentsWriterPerThread from address space
+         exhaustion due to its internal 32 bit signed integer based memory addressing.
+         The specified value should be greater than 0 and less than 2048MB. When not specified,
+         Solr uses Lucene's default value 1945. -->
+    <!-- <ramPerThreadHardLimitMB>1945</ramPerThreadHardLimitMB> -->
+
     <!-- Expert: Merge Policy
          The Merge Policy in Lucene controls how merging of segments is done.
          The default since Solr/Lucene 3.3 is TieredMergePolicy.
@@ -164,11 +179,12 @@
          Even older versions of Lucene used LogDocMergePolicy.
       -->
     <!--
-        <mergePolicyFactory class="solr.TieredMergePolicyFactory">
+        <mergePolicyFactory class="org.apache.solr.index.TieredMergePolicyFactory">
           <int name="maxMergeAtOnce">10</int>
           <int name="segmentsPerTier">10</int>
+          <double name="noCFSRatio">0.1</double>
         </mergePolicyFactory>
-     -->
+      -->
 
     <!-- Expert: Merge Scheduler
          The Merge Scheduler in Lucene controls how merges are
@@ -269,9 +285,17 @@
          uncommitted changes to the index, so use of a hard autoCommit
          is recommended (see below).
          "dir" - the target directory for transaction logs, defaults to the
-                solr data directory.  -->
+                solr data directory.
+         "numVersionBuckets" - sets the number of buckets used to keep
+                track of max version values when checking for re-ordered
+                updates; increase this value to reduce the cost of
+                synchronizing access to version buckets during high-volume
+                indexing, this requires 8 bytes (long) * numVersionBuckets
+                of heap space per Solr core.
+    -->
     <updateLog>
       <str name="dir">${solr.ulog.dir:}</str>
+      <int name="numVersionBuckets">${solr.ulog.numVersionBuckets:65536}</int>
     </updateLog>
 
     <!-- AutoCommit
@@ -296,7 +320,7 @@
          have some sort of hard autoCommit to limit the log size.
       -->
     <autoCommit>
-      <maxTime>15000</maxTime>
+      <maxTime>${solr.autoCommit.maxTime:15000}</maxTime>
       <openSearcher>false</openSearcher>
     </autoCommit>
 
@@ -305,11 +329,10 @@
          but does not ensure that data is synced to disk.  This is
          faster and more near-realtime friendly than a hard commit.
       -->
-    <!--
-      <autoSoftCommit>
-        <maxTime>1000</maxTime>
-      </autoSoftCommit>
-     -->
+
+    <autoSoftCommit>
+      <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
+    </autoSoftCommit>
 
     <!-- Update Related Event Listeners
 
@@ -354,21 +377,18 @@
        Query section - these settings control query time things like caches
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <query>
-    <!-- Max Boolean Clauses
 
-         Maximum number of clauses in each BooleanQuery,  an exception
-         is thrown if exceeded.
+    <!-- Maximum number of clauses allowed when parsing a boolean query string.
 
-         ** WARNING **
+         This limit only impacts boolean queries specified by a user as part of a query string,
+         and provides per-collection controls on how complex user specified boolean queries can
+         be.  Query strings that specify more clauses then this will result in an error.
 
-         This option actually modifies a global Lucene property that
-         will affect all SolrCores.  If multiple solrconfig.xml files
-         disagree on this property, the value at any given moment will
-         be based on the last SolrCore to be initialized.
-
+         If this per-collection limit is greater then the global `maxBooleanClauses` limit
+         specified in `solr.xml`, it will have no effect, as that setting also limits the size
+         of user specified boolean queries.
       -->
     <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
-
 
     <!-- Solr Internal Query Caches
 
@@ -383,6 +403,7 @@
          threaded operation and thus is generally faster than LRUCache
          when the hit ratio of the cache is high (> 75%), and may be
          faster under other scenarios on multi-cpu systems.
+         Starting with Solr 9.0 the default cache implementation used is CaffeineCache.
     -->
 
     <!-- Filter Cache
@@ -402,7 +423,10 @@
            initialSize - the initial capacity (number of entries) of
                the cache.  (see java.util.HashMap)
            autowarmCount - the number of entries to prepopulate from
-               and old cache.
+               an old cache.
+           maxRamMB - the maximum amount of RAM (in MB) that this cache is allowed
+                      to occupy. Note that when this option is specified, the size
+                      and initialSize parameters are ignored.
       -->
     <filterCache size="512"
                  initialSize="512"
@@ -429,6 +453,13 @@
     <documentCache size="512"
                    initialSize="512"
                    autowarmCount="0"/>
+
+    <!-- custom cache currently used by block join -->
+    <cache name="perSegFilter"
+           size="10"
+           initialSize="0"
+           autowarmCount="10"
+           regenerator="solr.NoOpRegenerator" />
 
     <!-- Field Value Cache
 
@@ -504,6 +535,23 @@
       -->
     <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
 
+    <!-- Use Filter For Sorted Query
+
+     A possible optimization that attempts to use a filter to
+     satisfy a search.  If the requested sort does not include
+     score, then the filterCache will be checked for a filter
+     matching the query. If found, the filter will be used as the
+     source of document ids, and then the sort will be applied to
+     that.
+
+     For most situations, this will not be useful unless you
+     frequently get the same search repeatedly with different sort
+     options, and none of them ever use "score"
+  -->
+    <!--
+       <useFilterForSortedQuery>true</useFilterForSortedQuery>
+      -->
+
     <!-- Query Related Event Listeners
 
          Various IndexSearcher related events can trigger Listeners to
@@ -556,63 +604,66 @@
      Circuit Breaker Section - This section consists of configurations for
      circuit breakers
      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <circuitBreaker class="solr.CircuitBreakerManager" enabled="true">
-    <!-- Enable Circuit Breakers
 
-    Circuit breakers are designed to allow stability and predictable query
-    execution. They prevent operations that can take down the node and cause
-    noisy neighbour issues.
+  <!-- Circuit Breakers
 
-    This flag is the uber control switch which controls the activation/deactivation of all circuit
-    breakers. At the moment, the only circuit breaker (max JVM circuit breaker) does not have its
-    own specific configuration. However, if a circuit breaker wishes to be independently configurable,
-    they are free to add their specific configuration but need to ensure that this flag is always
-    respected - this should have veto over all independent configuration flags.
+   Circuit breakers are designed to allow stability and predictable query
+   execution. They prevent operations that can take down the node and cause
+   noisy neighbour issues.
+
+   This flag is the uber control switch which controls the activation/deactivation of all circuit
+   breakers. If a circuit breaker wishes to be independently configurable,
+   they are free to add their specific configuration but need to ensure that this flag is always
+   respected - this should have veto over all independent configuration flags.
+  -->
+  <circuitBreakers enabled="true">
+
+    <!-- Memory Circuit Breaker Configuration
+
+     Specific configuration for max JVM heap usage circuit breaker. This configuration defines whether
+     the circuit breaker is enabled and the threshold percentage of maximum heap allocated beyond which queries will be rejected until the
+     current JVM usage goes below the threshold. The valid value range for this value is 50-95.
+
+     Consider a scenario where the max heap allocated is 4 GB and memoryCircuitBreakerThreshold is
+     defined as 75. Threshold JVM usage will be 4 * 0.75 = 3 GB. Its generally a good idea to keep this value between 75 - 80% of maximum heap
+     allocated.
+
+     If, at any point, the current JVM heap usage goes above 3 GB, queries will be rejected until the heap usage goes below 3 GB again.
+     If you see queries getting rejected with 503 error code, check for "Circuit Breakers tripped"
+     in logs and the corresponding error message should tell you what transpired (if the failure
+     was caused by tripped circuit breakers).
+
+     If, at any point, the current JVM heap usage goes above 3 GB, queries will be rejected until the heap usage goes below 3 GB again.
+     If you see queries getting rejected with 503 error code, check for "Circuit Breakers tripped"
+     in logs and the corresponding error message should tell you what transpired (if the failure
+     was caused by tripped circuit breakers).
+    -->
+    <!--
+   <memBreaker enabled="true" threshold="75"/>
     -->
 
-    <!-- Memory Circuit Breaker Control Flag
+    <!-- CPU Circuit Breaker Configuration
 
-    Use the following flag to control the behaviour of this circuit breaker
+   Specific configuration for CPU utilization based circuit breaker. This configuration defines whether the circuit breaker is enabled
+   and the average load over the last minute at which the circuit breaker should start rejecting queries.
+
+   Consider a scenario where the max heap allocated is 4 GB and memoryCircuitBreakerThreshold is
+   defined as 75. Threshold JVM usage will be 4 * 0.75 = 3 GB. Its generally a good idea to keep this value between 75 - 80% of maximum heap
+   allocated.
+  -->
+
+    <!--
+     <cpuBreaker enabled="true" threshold="75"/>
     -->
-    <str name="memEnabled">true</str>
 
-    <!-- Memory Circuit Breaker Threshold In Percentage
-
-    Specific configuration for max JVM heap usage circuit breaker. This configuration defines the
-    threshold percentage of maximum heap allocated beyond which queries will be rejected until the
-    current JVM usage goes below the threshold. The valid value range for this parameter is 50 - 95.
-
-    Consider a scenario where the max heap allocated is 4 GB and memoryCircuitBreakerThresholdPct is
-    defined as 75. Threshold JVM usage will be 4 * 0.75 = 3 GB. Its generally a good idea to keep this value between 75 - 80% of maximum heap
-    allocated.
-
-    If, at any point, the current JVM heap usage goes above 3 GB, queries will be rejected until the heap usage goes below 3 GB again.
-    If you see queries getting rejected with 503 error code, check for "Circuit Breakers tripped"
-    in logs and the corresponding error message should tell you what transpired (if the failure
-    was caused by tripped circuit breakers).
-    -->
-    <str name="memThreshold">75</str>
-
-    <!-- CPU Based Circuit Breaker Control Flag
-
-    Use the following flag to control the behaviour of this circuit breaker
-    -->
-    <str name="cpuEnabled">true</str>
-
-    <!-- CPU Based Circuit Breaker Triggering Threshold
-
-    The triggering threshold is defined in units of CPU utilization. The configuration to control this is as below:
-    -->
-    <str name="cpuThreshold">75</str>
-
-
-  </circuitBreaker>
+  </circuitBreakers>
 
 
   <!-- Request Dispatcher
 
        This section contains instructions for how the SolrDispatchFilter
        should behave when processing requests for this SolrCore.
+
     -->
   <requestDispatcher>
     <!-- Request Parsing
@@ -801,20 +852,9 @@
     </lst>
   </requestHandler>
 
-
-  <!--These useParams values are available in params.json-->
-  <requestHandler name="/browse" class="solr.SearchHandler" useParams="query,facets,velocity,browse"/>
-
-
-  <initParams path="/update/**,/query,/select,/tvrh,/elevate,/spell,/browse">
+  <initParams path="/update/**,/query,/select,/spell">
     <lst name="defaults">
       <str name="df">_text_</str>
-    </lst>
-  </initParams>
-
-  <initParams path="/update/**">
-    <lst name="defaults">
-      <str name="update.chain">files-update-processor</str>
     </lst>
   </initParams>
 
@@ -926,7 +966,7 @@
     <!-- a spellchecker built from a field of the main index -->
     <lst name="spellchecker">
       <str name="name">default</str>
-      <str name="field">text</str>
+      <str name="field">_text_</str>
       <str name="classname">solr.DirectSolrSpellChecker</str>
       <!-- the spellcheck distance measure used, the default is the internal levenshtein -->
       <str name="distanceMeasure">internal</str>
@@ -948,6 +988,7 @@
     </lst>
 
     <!-- a spellchecker that can break or combine words.  See "/spell" handler below for usage -->
+    <!--
     <lst name="spellchecker">
       <str name="name">wordbreak</str>
       <str name="classname">solr.WordBreakSolrSpellChecker</str>
@@ -956,44 +997,7 @@
       <str name="breakWords">true</str>
       <int name="maxChanges">10</int>
     </lst>
-
-    <!-- a spellchecker that uses a different distance measure -->
-    <!--
-       <lst name="spellchecker">
-         <str name="name">jarowinkler</str>
-         <str name="field">spell</str>
-         <str name="classname">solr.DirectSolrSpellChecker</str>
-         <str name="distanceMeasure">
-           org.apache.lucene.search.spell.JaroWinklerDistance
-         </str>
-       </lst>
-     -->
-
-    <!-- a spellchecker that use an alternate comparator
-
-         comparatorClass be one of:
-          1. score (default)
-          2. freq (Frequency first, then score)
-          3. A fully qualified class name
-      -->
-    <!--
-       <lst name="spellchecker">
-         <str name="name">freq</str>
-         <str name="field">lowerfilt</str>
-         <str name="classname">solr.DirectSolrSpellChecker</str>
-         <str name="comparatorClass">freq</str>
-      -->
-
-    <!-- A spellchecker that reads the list of words from a file -->
-    <!--
-       <lst name="spellchecker">
-         <str name="classname">solr.FileBasedSpellChecker</str>
-         <str name="name">file</str>
-         <str name="sourceLocation">spellings.txt</str>
-         <str name="characterEncoding">UTF-8</str>
-         <str name="spellcheckIndexDir">spellcheckerFile</str>
-       </lst>
-      -->
+    -->
   </searchComponent>
 
   <!-- A request handler for demonstrating the spellcheck component.
@@ -1016,7 +1020,6 @@
            collations (re-written queries) can include a combination of
            corrections from both spellcheckers -->
       <str name="spellcheck.dictionary">default</str>
-      <str name="spellcheck.dictionary">wordbreak</str>
       <str name="spellcheck">on</str>
       <str name="spellcheck.extendedResults">true</str>
       <str name="spellcheck.count">10</str>
@@ -1029,28 +1032,6 @@
     </lst>
     <arr name="last-components">
       <str>spellcheck</str>
-    </arr>
-  </requestHandler>
-
-  <!-- Term Vector Component
-
-       http://wiki.apache.org/solr/TermVectorComponent
-    -->
-  <searchComponent name="tvComponent" class="solr.TermVectorComponent"/>
-
-  <!-- A request handler for demonstrating the term vector component
-
-       This is purely as an example.
-
-       In reality you will likely want to add the component to your
-       already specified request handlers.
-    -->
-  <requestHandler name="/tvrh" class="solr.SearchHandler" startup="lazy">
-    <lst name="defaults">
-      <bool name="tv">true</bool>
-    </lst>
-    <arr name="last-components">
-      <str>tvComponent</str>
     </arr>
   </requestHandler>
 
@@ -1071,31 +1052,6 @@
     </lst>
     <arr name="components">
       <str>terms</str>
-    </arr>
-  </requestHandler>
-
-
-  <!-- Query Elevation Component
-
-       http://wiki.apache.org/solr/QueryElevationComponent
-
-       a search component that enables you to configure the top
-       results for a given query regardless of the normal lucene
-       scoring.
-    -->
-  <searchComponent name="elevator" class="solr.QueryElevationComponent" >
-    <!-- pick a fieldType to analyze queries -->
-    <str name="queryFieldType">string</str>
-    <str name="config-file">elevate.xml</str>
-  </searchComponent>
-
-  <!-- A request handler for demonstrating the elevator component -->
-  <requestHandler name="/elevate" class="solr.SearchHandler" startup="lazy">
-    <lst name="defaults">
-      <str name="echoParams">explicit</str>
-    </lst>
-    <arr name="last-components">
-      <str>elevator</str>
     </arr>
   </requestHandler>
 
@@ -1217,75 +1173,71 @@
 
   <!-- Add unknown fields to the schema
 
-       An example field type guessing update processor that will
+       Field type guessing update processors that will
        attempt to parse string-typed field values as Booleans, Longs,
        Doubles, or Dates, and then add schema fields with the guessed
-       field types.
+       field types. Text content will be indexed as "text_general" as
+       well as a copy to a plain string version in *_str.
 
-       This requires that the schema is both managed and mutable, by
+       These require that the schema is both managed and mutable, by
        declaring schemaFactory as ManagedIndexSchemaFactory, with
        mutable specified as true.
 
        See http://wiki.apache.org/solr/GuessingFieldTypes
     -->
-  <updateRequestProcessorChain name="files-update-processor">
-    <!-- UUIDUpdateProcessorFactory will generate an id if none is present in the incoming document -->
-    <processor class="solr.UUIDUpdateProcessorFactory" />
-    <processor class="solr.RemoveBlankFieldUpdateProcessorFactory"/>
-    <processor class="solr.FieldNameMutatingUpdateProcessorFactory">
-      <str name="pattern">[^\w-\.]</str>
-      <str name="replacement">_</str>
-    </processor>
-    <processor class="solr.ParseBooleanFieldUpdateProcessorFactory"/>
-    <processor class="solr.ParseLongFieldUpdateProcessorFactory"/>
-    <processor class="solr.ParseDoubleFieldUpdateProcessorFactory"/>
-    <processor class="solr.ParseDateFieldUpdateProcessorFactory">
-      <arr name="format">
-        <str>yyyy-MM-dd['T'[HH:mm[:ss[.SSS]][z</str>
-        <str>yyyy-MM-dd['T'[HH:mm[:ss[,SSS]][z</str>
-        <str>yyyy-MM-dd HH:mm[:ss[.SSS]][z</str>
-        <str>yyyy-MM-dd HH:mm[:ss[,SSS]][z</str>
-        <str>[EEE, ]dd MMM yyyy HH:mm[:ss] z</str>
-        <str>EEEE, dd-MMM-yy HH:mm:ss z</str>
-        <str>EEE MMM ppd HH:mm:ss [z ]yyyy</str>
-      </arr>
-    </processor>
-    <processor class="solr.AddSchemaFieldsUpdateProcessorFactory">
-      <str name="defaultFieldType">strings</str>
-      <lst name="typeMapping">
-        <str name="valueClass">java.lang.Boolean</str>
-        <str name="fieldType">booleans</str>
+  <updateProcessor class="solr.UUIDUpdateProcessorFactory" name="uuid"/>
+  <updateProcessor class="solr.RemoveBlankFieldUpdateProcessorFactory" name="remove-blank"/>
+  <updateProcessor class="solr.FieldNameMutatingUpdateProcessorFactory" name="field-name-mutating">
+    <str name="pattern">[^\w-\.]</str>
+    <str name="replacement">_</str>
+  </updateProcessor>
+  <updateProcessor class="solr.ParseBooleanFieldUpdateProcessorFactory" name="parse-boolean"/>
+  <updateProcessor class="solr.ParseLongFieldUpdateProcessorFactory" name="parse-long"/>
+  <updateProcessor class="solr.ParseDoubleFieldUpdateProcessorFactory" name="parse-double"/>
+  <updateProcessor class="solr.ParseDateFieldUpdateProcessorFactory" name="parse-date">
+    <arr name="format">
+      <str>yyyy-MM-dd['T'[HH:mm[:ss[.SSS]][z</str>
+      <str>yyyy-MM-dd['T'[HH:mm[:ss[,SSS]][z</str>
+      <str>yyyy-MM-dd HH:mm[:ss[.SSS]][z</str>
+      <str>yyyy-MM-dd HH:mm[:ss[,SSS]][z</str>
+      <str>[EEE, ]dd MMM yyyy HH:mm[:ss] z</str>
+      <str>EEEE, dd-MMM-yy HH:mm:ss z</str>
+      <str>EEE MMM ppd HH:mm:ss [z ]yyyy</str>
+    </arr>
+  </updateProcessor>
+  <updateProcessor class="solr.AddSchemaFieldsUpdateProcessorFactory" name="add-schema-fields">
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.String</str>
+      <str name="fieldType">text_general</str>
+      <lst name="copyField">
+        <str name="dest">*_str</str>
+        <int name="maxChars">256</int>
       </lst>
-      <lst name="typeMapping">
-        <str name="valueClass">java.util.Date</str>
-        <str name="fieldType">pdates</str>
-      </lst>
-      <lst name="typeMapping">
-        <str name="valueClass">java.lang.Long</str>
-        <str name="valueClass">java.lang.Integer</str>
-        <str name="fieldType">plongs</str>
-      </lst>
-      <lst name="typeMapping">
-        <str name="valueClass">java.lang.Number</str>
-        <str name="fieldType">pdoubles</str>
-      </lst>
-    </processor>
+      <!-- Use as default mapping instead of defaultFieldType -->
+      <bool name="default">true</bool>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.Boolean</str>
+      <str name="fieldType">booleans</str>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.util.Date</str>
+      <str name="fieldType">pdates</str>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.Long</str>
+      <str name="valueClass">java.lang.Integer</str>
+      <str name="fieldType">plongs</str>
+    </lst>
+    <lst name="typeMapping">
+      <str name="valueClass">java.lang.Number</str>
+      <str name="fieldType">pdoubles</str>
+    </lst>
+  </updateProcessor>
 
-
-    <processor class="org.apache.solr.update.processor.LangDetectLanguageIdentifierUpdateProcessorFactory">
-      <lst name="defaults">
-        <str name="langid.fl">content</str>
-        <str name="langid.langField">language</str>
-      </lst>
-    </processor>
-
-    <processor class="solr.StatelessScriptUpdateProcessorFactory">
-      <str name="script">update-script.js</str>
-      <!--<lst name="params">-->
-      <!--<str name="config_param">example config parameter</str>-->
-      <!--</lst>-->
-    </processor>
-
+  <!-- The update.autoCreateFields property can be turned to false to disable schemaless mode -->
+  <updateRequestProcessorChain name="add-unknown-fields-to-the-schema" default="${update.autoCreateFields:true}"
+                               processor="uuid,remove-blank,field-name-mutating,parse-boolean,parse-long,parse-double,parse-date,add-schema-fields">
     <processor class="solr.LogUpdateProcessorFactory"/>
     <processor class="solr.DistributedUpdateProcessorFactory"/>
     <processor class="solr.RunUpdateProcessorFactory"/>
@@ -1305,7 +1257,6 @@
        <processor class="solr.processor.SignatureUpdateProcessorFactory">
          <bool name="enabled">true</bool>
          <str name="signatureField">id</str>
-         <bool name="overwriteDupes">false</bool>
          <str name="fields">name,features,cat</str>
          <str name="signatureClass">solr.processor.Lookup3Signature</str>
        </processor>
@@ -1313,46 +1264,6 @@
        <processor class="solr.RunUpdateProcessorFactory" />
      </updateRequestProcessorChain>
     -->
-
-  <!-- Language identification
-
-       This example update chain identifies the language of the incoming
-       documents using the langid contrib. The detected language is
-       written to field language_s. No field name mapping is done.
-       The fields used for detection are text, title, subject and description,
-       making this example suitable for detecting languages form full-text
-       rich documents injected via ExtractingRequestHandler.
-       See more about langId at http://wiki.apache.org/solr/LanguageDetection
-    -->
-  <!--
-   <updateRequestProcessorChain name="langid">
-     <processor class="org.apache.solr.update.processor.TikaLanguageIdentifierUpdateProcessorFactory">
-       <str name="langid.fl">text,title,subject,description</str>
-       <str name="langid.langField">language_s</str>
-       <str name="langid.fallback">en</str>
-     </processor>
-     <processor class="solr.LogUpdateProcessorFactory" />
-     <processor class="solr.RunUpdateProcessorFactory" />
-   </updateRequestProcessorChain>
-  -->
-
-  <!-- Script update processor
-
-    This example hooks in an update processor implemented using JavaScript.
-
-    See more about the script update processor at http://wiki.apache.org/solr/ScriptUpdateProcessor
-  -->
-  <!--
-    <updateRequestProcessorChain name="script">
-      <processor class="solr.StatelessScriptUpdateProcessorFactory">
-        <str name="script">update-script.js</str>
-        <lst name="params">
-          <str name="config_param">example config parameter</str>
-        </lst>
-      </processor>
-      <processor class="solr.RunUpdateProcessorFactory" />
-    </updateRequestProcessorChain>
-  -->
 
   <!-- Response Writers
 
@@ -1387,21 +1298,6 @@
      If you expect a MIME type of "application/json" just remove this override.
     -->
     <str name="content-type">text/plain; charset=UTF-8</str>
-  </queryResponseWriter>
-
-  <!--
-     Custom response writers can be declared as needed...
-    -->
-  <queryResponseWriter name="velocity" class="solr.VelocityResponseWriter" startup="lazy">
-    <str name="template.base.dir">${velocity.template.base.dir:}</str>
-  </queryResponseWriter>
-
-  <!-- XSLT response writer transforms the XML output by any xslt file found
-       in Solr's conf/xslt directory.  Changes to xslt files are checked for
-       every xsltCacheLifetimeSeconds.
-    -->
-  <queryResponseWriter name="xslt" class="solr.XSLTResponseWriter">
-    <int name="xsltCacheLifetimeSeconds">5</int>
   </queryResponseWriter>
 
   <!-- Query Parsers
@@ -1454,5 +1350,4 @@
       EditorialMarkerFactory will do exactly that:
      <transformer name="qecBooster" class="org.apache.solr.response.transform.EditorialMarkerFactory" />
     -->
-
 </config>
