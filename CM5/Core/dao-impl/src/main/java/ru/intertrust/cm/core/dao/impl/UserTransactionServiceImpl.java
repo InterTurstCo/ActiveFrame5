@@ -179,7 +179,9 @@ public class UserTransactionServiceImpl implements UserTransactionService{
                 for (int i = 0; i < this.actionListeners.size(); i++) {
                     final ActionListener listener = this.actionListeners.get(i);
                     if (clazz.equals(listener.getClass())) {
+                    	log.debug("notifyListeners : Start listener = {} with operation = {}", listener, operation);
                         this.notifyListener(listener, operation);
+                        log.debug("notifyListeners : Listener = {} with operation = {} finished", listener, operation);
                     }
                 }
             }
