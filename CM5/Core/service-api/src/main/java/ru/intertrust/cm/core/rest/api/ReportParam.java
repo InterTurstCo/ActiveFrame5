@@ -19,6 +19,7 @@ public class ReportParam {
         List,
         Map,
         DateTime,
+        Calendar,
         Id
     }
 

@@ -105,6 +105,9 @@ public class ReportParamDeserialize extends JsonDeserializer<GenerateReportParam
                 result = Double.valueOf(value);
             } else if (reportType == ReportParam.ParamTypes.Boolean) {
                 result = Boolean.valueOf(value);
+            } else if (reportType == ReportParam.ParamTypes.Calendar) {
+                result = Calendar.getInstance();
+                ((Calendar)result).setTime(ReportParam.format.parse(value));
             } else if (reportType == ReportParam.ParamTypes.DateTime) {
                 result = ReportParam.format.parse(value);
             } else if (reportType == ReportParam.ParamTypes.Id) {

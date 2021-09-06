@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -102,6 +103,9 @@ public class ReportParamSerializer extends JsonSerializer<GenerateReportParam> {
         }else if (paramValue instanceof Boolean){
             result.setType(ReportParam.ParamTypes.Boolean);
             result.setValue(paramValue.toString());
+        }else if (paramValue instanceof Calendar){
+            result.setType(ReportParam.ParamTypes.Calendar);
+            result.setValue(ReportParam.format.format(((Calendar)paramValue).getTime()));
         }else if (paramValue instanceof Date){
             result.setType(ReportParam.ParamTypes.DateTime);
             result.setValue(ReportParam.format.format((Date)paramValue));
