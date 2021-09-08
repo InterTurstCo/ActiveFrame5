@@ -71,12 +71,12 @@ public class ReportParamSerializer extends JsonSerializer<GenerateReportParam> {
                 Object repartParameterItemValue = valuesMap.get(key);
                 ParamValue paramItemValue = getParamValue(repartParameterItemValue);
                 generator.writeStringField(ReportParam.TYPE, paramItemValue.getType().toString());
+                generator.writeStringField(ReportParam.MAPKEY, key.toString());
                 boolean isProcessed = serializeAsList(paramItemValue, repartParameterItemValue, generator);
                 if (!isProcessed) {
                     isProcessed = serializeAsMap(paramItemValue, repartParameterItemValue, generator);
                 }
                 if (!isProcessed) {
-                    generator.writeStringField(ReportParam.MAPKEY, key.toString());
                     generator.writeStringField(ReportParam.VALUE, paramItemValue.getValue());
                 }
                 generator.writeEndObject();

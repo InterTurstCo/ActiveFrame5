@@ -35,6 +35,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         BIGDECIMAL,
         DATE,
         CALENDAR,
+        LIST,
+        MAP,
         OTHER
     }
 
@@ -160,6 +162,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         } else if (value instanceof Calendar) {
             cell.setCellValue(((Calendar) value));
             dataStyle = getDataStyle(styleCache, DataType.CALENDAR, style, formatByData, dateFormatIdx);
+        } else if (value instanceof List) {
+            cell.setCellValue(getListData((List) value));
+            dataStyle = getDataStyle(styleCache, DataType.LIST, style, formatByData, dateFormatIdx);
+        } else if (value instanceof Map) {
+            cell.setCellValue(getMapData((Map) value));
+            dataStyle = getDataStyle(styleCache, DataType.MAP, style, formatByData, dateFormatIdx);
         } else {
             cell.setCellValue(value != null ? value.toString() : "");
             dataStyle = getDataStyle(styleCache, DataType.OTHER, style, formatByData, dateFormatIdx);
@@ -170,6 +178,26 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     private CellStyle getDataStyle(WBStyleCache styleCache, DataType dataType, CellStyle style, boolean formatByData, short dateFormatIdx) {
         return styleCache.getCellStyle(dataType, style, formatByData, dateFormatIdx);
+    }
+
+    private String getListData(List<?> value) {
+        String result = "";
+        for (Object item : value) {
+            if (item == null) {
+                continue;
+            }
+            result += (result.isEmpty() ? "" : ",\n") + item.toString();
+        }
+        return result;
+    }
+
+    private String getMapData(Map<?, ?> value) {
+        String result = "";
+        for (Map.Entry entry : value.entrySet()) {
+            result += (result.isEmpty() ? "" : ",\n") + (entry.getKey() != null ? entry.getKey().toString() : "null")
+                    + "=" + (entry.getValue() != null ? entry.getValue().toString() : "");
+        }
+        return result;
     }
 
     private static class WBStyleCache {
@@ -201,6 +229,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                             dataStyle.setDataFormat(dateFormatIdx);
                         case BOOLEAN:
                             dataStyle.setAlignment(HorizontalAlignment.CENTER);
+                            break;
+                        case LIST:
+                            dataStyle.setWrapText(true);
+                            break;
+                        case MAP:
+                            dataStyle.setWrapText(true);
                             break;
                         default:
                             break;
