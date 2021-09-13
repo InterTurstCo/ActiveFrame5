@@ -137,6 +137,13 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                     .orElseThrow(() -> new ReportServiceException("Can not find " + METADATA_FILE_MAME + " in report template deploy data"));
             logger.info("Deploy report {}", reportMetadata.getName());
 
+            String constructor = reportMetadata.getConstructor();
+            if (!("jasper". equalsIgnoreCase(constructor) || "docx".equalsIgnoreCase(constructor))) {
+                throw new Exception("Wrong report template constructor: "
+                        + (constructor != null ? constructor : "null") + ". Possible value is jasper or docx.");
+            }
+            boolean isDocx = "docx".equalsIgnoreCase(constructor);
+
             DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
             if (reportTemplateObject != null && Long.valueOf(reportHash).equals(reportTemplateObject.getLong("reportHash"))) {
                 return;
@@ -164,6 +171,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 reportTemplateObject.setString("name", reportMetadata.getName());
                 reportTemplateObject.setLong("reportHash", (long) reportHash);
                 reportTemplateObject.setString("constructor", reportMetadata.getConstructor());
+                reportTemplateObject.setString("type", isDocx ? "printform" : "table");
                 updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
             } else {
                 Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
@@ -201,11 +209,13 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         reportTemplateObject.setBoolean("lockUpdate", lockUpdate);
         reportTemplateObject = domainObjectDao.save(reportTemplateObject, accessToken);
 
+        String constructor = reportMetadata.getConstructor();
+        boolean isDocx = "docx".equalsIgnoreCase(constructor);
 
         for (File file : filelist) {
             DomainObject attachment =
                     attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(),
-                            "report_template_attach");
+                            isDocx && !METADATA_FILE_MAME.equals(file.getName()) ? "report_template_attach_dx" : "report_template_attach");
             attachment.setString("Name", file.getName());
             ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
             DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
