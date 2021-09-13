@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.editabletablebrowser;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.cellview.client.CellList;
@@ -13,6 +14,7 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import com.google.web.bindery.event.shared.ResettableEventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -54,8 +56,6 @@ import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.getLimit;
 @ComponentName("editable-table-browser")
 public class EditableTableBrowserWidget extends BaseWidget implements HierarchicalCollectionEventHandler {
 
-    private HandlerRegistration checkBoxRegistration;
-    private HandlerRegistration rowSelectedRegistration;
     private CollectionPlugin collectionPlugin;
     private String collectionName;
     private FlowPanel rootFlowPanel;
@@ -63,7 +63,6 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     private ConfiguredButton addButton;
     private ConfiguredButton addDefaultButton;
     private LazyLoadState lazyLoadState;
-    private HandlerRegistration expandHierarchyRegistration;
     private EventBus localEventBus = new SimpleEventBus();
     private ViewHolder viewHolder;
     private List<BreadCrumbItem> breadCrumbItems = new ArrayList<>();
@@ -71,6 +70,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
     protected CollectionDialogBox dialogBox;
     protected CollectionViewerConfig initialCollectionViewerConfig;
     protected EditableTableBrowserState currentState;
+    private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
 
     private ScrollPanel scrollPanel;
 
@@ -294,8 +294,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
             });
         }
 
-
-
+        onDetach(rootFlowPanel);
         return rootFlowPanel;
     }
 
@@ -304,6 +303,27 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
         currentState = (EditableTableBrowserState) state;
         textArea.setEnabled(false);
         return rootFlowPanel;
+    }
+
+    @Override
+    protected void onDetach(Widget widget) {
+        widget.addAttachHandler(new AttachEvent.Handler() {
+            @Override
+            public void onAttachOrDetach(AttachEvent attachEvent) {
+                if (!attachEvent.isAttached()) {
+                    clearHandlers();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void clearHandlers() {
+        for (HandlerRegistration registration : handlerRegistrations) {
+            registration.removeHandler();
+        }
+        handlerRegistrations.clear();
+        collectionPlugin.clearHandlers();
     }
 
     private void getDefaultValue() {
@@ -343,7 +363,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
 
     protected void addClickHandlersForMultiplyChoice(final CollectionDialogBox dialogBox) {
         addCommonClickHandlers(dialogBox);
-        checkBoxRegistration = localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
+        handlerRegistrations.add(localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
             @Override
             public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
                 Id id = event.getId();
@@ -354,26 +374,26 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                 }
 
             }
-        });
+        }));
 
     }
 
     protected void addClickHandlersForSingleChoice(final CollectionDialogBox dialogBox) {
         addCommonClickHandlers(dialogBox);
-        rowSelectedRegistration = localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
+        handlerRegistrations.add(localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
             public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
                 currentState.getTemporarySelectedIds().clear();
                 currentState.addToTemporaryState(event.getId());
 
             }
-        });
+        }));
     }
 
     private void addCommonClickHandlers(CollectionDialogBox dialogBox) {
         addCancelButtonClickHandler(dialogBox);
         addOkButtonClickHandler(dialogBox);
-        expandHierarchyRegistration = localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
+        handlerRegistrations.add(localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this));
     }
 
     @Override
@@ -387,7 +407,7 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
                 currentState.resetTemporaryState();
-                unregisterHandlers();
+                clearHandlers();
 
             }
         });
@@ -400,23 +420,10 @@ public class EditableTableBrowserWidget extends BaseWidget implements Hierarchic
                 currentState.applyChanges();
                 dialogBox.hide();
                 fetchTableBrowserItems();
-                unregisterHandlers();
+                clearHandlers();
 
             }
         });
-    }
-
-    private void unregisterHandlers() {
-        if (expandHierarchyRegistration != null) {
-            expandHierarchyRegistration.removeHandler();
-        }
-        if (checkBoxRegistration != null) {
-            checkBoxRegistration.removeHandler();
-        }
-        if (rowSelectedRegistration != null) {
-            rowSelectedRegistration.removeHandler();
-        }
-        collectionPlugin.clearHandlers();
     }
 
     private void fetchTableBrowserItems() {

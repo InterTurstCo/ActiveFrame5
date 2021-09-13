@@ -2,11 +2,20 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.business.api.dto.*;
+import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.config.gui.form.widget.RuleTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RulesTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
@@ -47,6 +56,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
   protected EventBus eventBus;
   protected Widget impl;
   protected WidgetsContainer container;
+  private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
 
   /**
    * Обработчик событий, связанных с правилами. Инициализируется в геттере {@link #getRuleEventWidgetManager()},
@@ -186,20 +196,41 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
 
   @Override
   public Widget asWidget() {
-
     if (getInitialData().isTranslateId()) {
       impl.getElement().setId(getDisplayConfig().getId());
     }
-    applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
-    impl.addDomHandler(new ChangeHandler() {
+    handlerRegistrations.add(applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this));
+    handlerRegistrations.add(impl.addDomHandler(new ChangeHandler() {
       @Override
       public void onChange(ChangeEvent changeEvent) {
         applicationEventBus.fireEvent(new WidgetBroadcastEvent(getContainer(),initialData.getWidgetId(),
             getContainer().hashCode()
             , getContainer().getPlugin().getView().getActionToolBar().hashCode()));
       }
-    }, ChangeEvent.getType());
+    }, ChangeEvent.getType()));
+    if (impl != null) {
+      onDetach(impl);
+    }
     return impl;
+  }
+
+  protected void clearHandlers() {
+    for (HandlerRegistration registration : handlerRegistrations) {
+      registration.removeHandler();
+    }
+    handlerRegistrations.clear();
+  }
+
+  protected void onDetach(Widget widget) {
+    widget.addAttachHandler(new AttachEvent.Handler() {
+      @Override
+      public void onAttachOrDetach(AttachEvent attachEvent) {
+        if (!attachEvent.isAttached()) {
+          clearHandlers();
+          messages.clear();
+        }
+      }
+    });
   }
 
   public void setState(WidgetState state) {

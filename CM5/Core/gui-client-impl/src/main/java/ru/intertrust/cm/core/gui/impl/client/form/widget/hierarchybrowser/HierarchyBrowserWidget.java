@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.user.client.Event;
@@ -65,6 +66,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private HierarchyBrowserMainPopup mainPopup;
     protected ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus());
     private HandlerRegistration handlerRegistration;
+    private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
     private Set<Id> initiallySelectedIds = new HashSet<>();
 
     @Override
@@ -123,6 +125,19 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     @Override
     public Object getValue() {
         return currentState.getChosenItems();
+    }
+
+    @Override
+    protected void clearHandlers() {
+        for (HandlerRegistration registration : handlerRegistrations) {
+            registration.removeHandler();
+        }
+        handlerRegistrations.clear();
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+            handlerRegistration = null;
+        }
+        localEventBus.removeHandlers();
     }
 
     private void setCurrentStateForEditableWidget() {
@@ -233,6 +248,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         SelectionStyleConfig selectionStyleConfig = hierarchyBrowserConfig.getSelectionStyleConfig();
         boolean displayAsHyperlinks = HierarchyBrowserUtil.isDisplayingHyperlinks(currentState);
         HierarchyBrowserView hierarchyBrowserView = new HierarchyBrowserView(selectionStyleConfig, localEventBus, displayAsHyperlinks);
+        onDetach(hierarchyBrowserView);
         return hierarchyBrowserView;
     }
 
@@ -241,12 +257,25 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         currentState = (HierarchyBrowserWidgetState) state;
         HierarchyBrowserConfig hierarchyBrowserConfig = currentState.getHierarchyBrowserConfig();
         SelectionStyleConfig selectionStyleConfig = hierarchyBrowserConfig.getSelectionStyleConfig();
-        return new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, localEventBus,
-                HierarchyBrowserUtil.isDisplayingHyperlinks(currentState));
-
+        HierarchyBrowserNoneEditablePanel hierarchyBrowserNoneEditablePanel = new HierarchyBrowserNoneEditablePanel(selectionStyleConfig, localEventBus,
+            HierarchyBrowserUtil.isDisplayingHyperlinks(currentState));
+        onDetach(hierarchyBrowserNoneEditablePanel);
+        return hierarchyBrowserNoneEditablePanel;
     }
 
-    protected void registerEventsHandling() {
+    @Override
+    protected void onDetach(Widget widget) {
+        widget.addAttachHandler(new AttachEvent.Handler() {
+            @Override
+            public void onAttachOrDetach(AttachEvent attachEvent) {
+                if (!attachEvent.isAttached()) {
+                    clearHandlers();
+                }
+            }
+        });
+    }
+
+    private void registerEventsHandling() {
         localEventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE, this);
         localEventBus.addHandler(HierarchyBrowserNodeClickEvent.TYPE, this);
         localEventBus.addHandler(HierarchyBrowserRefreshClickEvent.TYPE, this);

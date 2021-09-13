@@ -374,6 +374,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         for (HandlerRegistration registration : handlerRegistrations) {
             registration.removeHandler();
         }
+        handlerRegistrations.clear();
     }
 
     private class ColumnSelectorPopup extends PopupPanel {

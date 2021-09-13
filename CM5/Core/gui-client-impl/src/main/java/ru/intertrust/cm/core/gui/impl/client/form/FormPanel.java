@@ -1,17 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.form;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.ScriptInjector;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.*;
@@ -80,6 +75,17 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
 
   @Override
   public Widget asWidget() {
+    if (panel != null) {
+      panel.addAttachHandler(new AttachEvent.Handler() {
+        @Override
+        public void onAttachOrDetach(AttachEvent attachEvent) {
+          if (!attachEvent.isAttached()) {
+            widgets.clear();
+            bodyTabPanel.clear();
+          }
+        }
+      });
+    }
     return panel;
   }
 
@@ -149,7 +155,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     build();
   }
 
-  private FlowPanel build() {
+  private void build() {
 
 
     if (isExtraStyleRequired()) {
@@ -170,7 +176,6 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
 
     panel.add(bodyTabPanel);
     panel.add(footer);
-    return panel;
   }
 
   private IsWidget buildHeader(MarkupConfig markup) {
@@ -192,7 +197,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     BodyConfig body = markup.getBody();
     tabs = body.getTabs();
 
-    if (body.isDisplaySingleTab() == false && tabs.size() == 1) {
+    if (!body.isDisplaySingleTab() && tabs.size() == 1) {
       bodyTabPanel = new TabPanel();
       FlowPanel tabPanel = (FlowPanel) buildTabContent(tabs.get(0));
 

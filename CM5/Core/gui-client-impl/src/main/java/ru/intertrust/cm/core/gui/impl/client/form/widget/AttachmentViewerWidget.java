@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.ShowAttachmentEvent;
@@ -20,6 +22,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 public class AttachmentViewerWidget extends BaseWidget implements ShowAttachmentEventHandler {
     private AttachmentViewerState widgetState;
     private Panel panel;
+    private HandlerRegistration handlerRegistration;
 
     @Override
     public void setValue(Object value) {
@@ -49,8 +52,11 @@ public class AttachmentViewerWidget extends BaseWidget implements ShowAttachment
     @Override
     public void setCurrentState(WidgetState currentState) {
         widgetState = (AttachmentViewerState) currentState;
-        if (widgetState.isCommonUsage())
-            Application.getInstance().getEventBus().addHandler(ShowAttachmentEvent.TYPE, this);
+        if (widgetState.isCommonUsage()) {
+            clearHandlers();
+            handlerRegistration = Application.getInstance().getEventBus()
+                .addHandler(ShowAttachmentEvent.TYPE, this);
+        }
         Panel panel = (Panel) impl;
         if (widgetState.getUrl() != null)
             panel.add(new HTML("<embed src='" + com.google.gwt.core.client.GWT.getHostPageBaseURL()
@@ -77,7 +83,28 @@ public class AttachmentViewerWidget extends BaseWidget implements ShowAttachment
     protected Widget asEditableWidget(WidgetState state) {
         panel = new HorizontalPanel();
         panel.setStyleName("gwt-attachment-viewer-panel");
+        onDetach(panel);
         return panel;
+    }
+
+    @Override
+    protected void onDetach(Widget widget) {
+        widget.addAttachHandler(new AttachEvent.Handler() {
+            @Override
+            public void onAttachOrDetach(AttachEvent attachEvent) {
+                if (!attachEvent.isAttached()) {
+                    clearHandlers();
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void clearHandlers() {
+        if (handlerRegistration != null) {
+            handlerRegistration.removeHandler();
+            handlerRegistration = null;
+        }
     }
 
     @Override

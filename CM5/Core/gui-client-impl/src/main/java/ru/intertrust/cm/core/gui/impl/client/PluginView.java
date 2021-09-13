@@ -2,20 +2,13 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.MenuItemSeparator;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.UIObject;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
@@ -80,10 +73,11 @@ public abstract class PluginView implements IsWidget {
   protected Plugin plugin;
   protected static Logger log = Logger.getLogger("PluginView console logger");
 
-  private AbsolutePanel actionToolBar;
-  private AbsolutePanel infoBar;
-  private VerticalPanel viewWidget;
-  private MenuBarExt leftMenuBar;
+  private AbsolutePanel             actionToolBar;
+  private AbsolutePanel             infoBar;
+  private VerticalPanel             viewWidget;
+  private MenuBarExt                leftMenuBar;
+  private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
 
   /**
    * Основной конструктор
@@ -204,6 +198,7 @@ public abstract class PluginView implements IsWidget {
     if (!(plugin instanceof IsActive) || actionToolBar == null || !plugin.displayActionToolBar()) {
       return;
     }
+    clearHandlers();
     actionToolBar.clear();
     final ActivePluginData initialData = plugin.getInitialData();
     final ToolbarContext toolbarContext;
@@ -230,22 +225,39 @@ public abstract class PluginView implements IsWidget {
     }
     rightMenuBar.setFocusOnHoverEnabled(false);
     actionToolBar.add(rightMenuBar);
-    addHanler(this);
+    handlerRegistrations.add(RootPanel.get().addDomHandler(new KeyDownHandler() {
+      @Override
+      public void onKeyDown(KeyDownEvent event) {
+        if (event.isAltKeyDown() && event.getNativeKeyCode() == KeyCodes.KEY_S) {
+          event.preventDefault();
+          event.stopPropagation();
+          doSaveAction();
+        }
+      }
+    }, KeyDownEvent.getType()));
   }
 
-  public static native void addHanler(PluginView pObject)
-    /*-{
-        function doc_keyDown(e) {
-            if (e.altKey && e.keyCode == 83) {
-                e.preventDefault();
-                e.stopPropagation();
-                pObject.@ru.intertrust.cm.core.gui.impl.client.PluginView::doSaveAction()();
-                e.cancelBubble(e);
-            }
-        };
+  protected void clearHandlers() {
+    for (HandlerRegistration registration : handlerRegistrations) {
+      registration.removeHandler();
+    }
+    handlerRegistrations.clear();
+  }
 
-        $wnd.addEventListener('keydown', doc_keyDown, true);
-    }-*/;
+  protected void onDetach(Widget widget) {
+    widget.addAttachHandler(new AttachEvent.Handler() {
+      @Override
+      public void onAttachOrDetach(AttachEvent attachEvent) {
+        if (!attachEvent.isAttached()) {
+          clearHandlers();
+          actionToolBar.clear();
+          actionToolBar.removeFromParent();
+          infoBar.clear();
+          infoBar.removeFromParent();
+        }
+      }
+    });
+  }
 
   private void doSaveAction() {
     if (leftMenuBar.availableItems.containsKey("aSave") && plugin.isDirty()) {
@@ -286,6 +298,7 @@ public abstract class PluginView implements IsWidget {
 
     panel.add(getViewWidget());
     viewWidget = panel;
+    onDetach(viewWidget);
     addExtraStyleClassIfRequired();
     return viewWidget;
   }
@@ -477,37 +490,41 @@ public abstract class PluginView implements IsWidget {
 
     public ActiveMenuItem(SafeHtml html) {
       super(html);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
     }
 
     public ActiveMenuItem(SafeHtml html, Scheduler.ScheduledCommand cmd) {
       super(html, cmd);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
     }
 
     public ActiveMenuItem(SafeHtml html, MenuBar subMenu) {
       super(html, subMenu);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
     }
 
     public ActiveMenuItem(String text, boolean asHTML, Scheduler.ScheduledCommand cmd) {
       super(text, asHTML, cmd);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
     }
 
     public ActiveMenuItem(String text, boolean asHTML, MenuBar subMenu) {
       super(text, asHTML, subMenu);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
     }
 
     public ActiveMenuItem(String text, Scheduler.ScheduledCommand cmd) {
       super(text, cmd);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
     }
 
     public ActiveMenuItem(String text, MenuBar subMenu) {
       super(text, subMenu);
-      applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this);
+      addHandler();
+    }
+
+    private void addHandler() {
+      handlerRegistrations.add(applicationEventBus.addHandler(WidgetBroadcastEvent.TYPE, this));
     }
 
     /**
