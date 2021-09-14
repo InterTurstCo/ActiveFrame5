@@ -16,7 +16,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.ReportParameterResolver;
 import ru.intertrust.cm.core.business.impl.ReportResultBuilder;
-import ru.intertrust.cm.core.business.impl.report.HtmlExporterProvider;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 
@@ -26,7 +25,7 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestReportBuilder {

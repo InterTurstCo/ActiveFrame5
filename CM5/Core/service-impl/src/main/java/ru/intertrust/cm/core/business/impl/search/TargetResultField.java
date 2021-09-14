@@ -35,7 +35,7 @@ public class TargetResultField {
         return fieldType;
     }
 
-    Set<String> getSolrFieldNames() {
+    public Set<String> getSolrFieldNames() {
         return solrFieldNames;
     }
 

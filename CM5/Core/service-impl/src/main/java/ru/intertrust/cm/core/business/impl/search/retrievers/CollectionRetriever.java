@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl.search;
+package ru.intertrust.cm.core.business.impl.search.retrievers;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -9,16 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.impl.search.SolrFields;
+import ru.intertrust.cm.core.business.impl.search.SolrUtils;
 import ru.intertrust.cm.core.config.DecimalFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 public abstract class CollectionRetriever {
 
-    @Autowired protected IdService idService;
+    @Autowired
+    protected IdService idService;
 
-    /*private*/ static final FieldConfig RELEVANCE_FIELD = new DecimalFieldConfig();
-    /*private*/ static final SortOrder RELEVANCE_SORT = new SortOrder();
+    public static final FieldConfig RELEVANCE_FIELD = new DecimalFieldConfig();
+    public static final SortOrder RELEVANCE_SORT = new SortOrder();
     static {
         RELEVANCE_FIELD.setName(SearchQuery.RELEVANCE);
         RELEVANCE_SORT.add(new SortCriterion(SearchQuery.RELEVANCE, SortCriterion.Order.DESCENDING));
@@ -44,10 +47,6 @@ public abstract class CollectionRetriever {
                 }
             }
         }
-    }
-
-    protected CollectionRetriever() {
-        SpringApplicationContext.getContext().getAutowireCapableBeanFactory().autowireBean(this);
     }
 
     public abstract IdentifiableObjectCollection queryCollection(SolrDocumentList documents,

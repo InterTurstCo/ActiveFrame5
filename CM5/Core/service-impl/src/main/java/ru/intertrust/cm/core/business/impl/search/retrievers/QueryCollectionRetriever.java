@@ -1,7 +1,6 @@
-package ru.intertrust.cm.core.business.impl.search;
+package ru.intertrust.cm.core.business.impl.search.retrievers;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -9,23 +8,27 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import ru.intertrust.cm.core.business.impl.search.SolrFields;
 
+@Service
+@Scope("prototype")
 public class QueryCollectionRetriever extends CollectionRetriever {
 
-    @Autowired private CollectionsService collectionsService;
+    @Autowired
+    private CollectionsService collectionsService;
 
     private String sqlQuery;
     private List<? extends Value<?>> sqlParameters;
 
-    public QueryCollectionRetriever(String sqlQuery) {
+    public void setSqlQuery(String sqlQuery) {
         this.sqlQuery = sqlQuery;
     }
 
-    public QueryCollectionRetriever(String sqlQuery, List<? extends Value<?>> sqlParameters) {
-        this.sqlQuery = sqlQuery;
+    public void setSqlParameters(List<? extends Value<?>> sqlParameters) {
         this.sqlParameters = sqlParameters;
     }
 
@@ -56,21 +59,20 @@ public class QueryCollectionRetriever extends CollectionRetriever {
             modifiedParams.addAll(sqlParameters);
             index = sqlParameters.size();
         }
-        String listQuery = "(";
+        StringBuilder listQuery = new StringBuilder("(");
         boolean first = true;
 
         for (ReferenceValue refValue : ids) {
-            modifiedParams.add((Value)refValue);
-
-            if (first){
+            modifiedParams.add(refValue);
+            if (first) {
                 first = false;
-            }else{
-                listQuery += " or ";
+            } else {
+                listQuery.append(" or ");
             }
-            listQuery += "id={" + index + "}";
+            listQuery.append("id={").append(index).append("}");
             index++;
         }
-        listQuery += ")";
+        listQuery.append(")");
         String modifiedQuery = "select * from (" + sqlQuery + ") orig where " + listQuery;
 
         IdentifiableObjectCollection result = collectionsService.

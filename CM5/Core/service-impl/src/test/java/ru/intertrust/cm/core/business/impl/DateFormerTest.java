@@ -22,6 +22,9 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DateFormerTest {
     private final static boolean IS_JAVA_8 = System.getProperty("java.version").startsWith("1.8");
+    // Так себе решение... но тестируемый класс особо никому не нужен,
+    // заметил его использование в 1 месте, в import-notification_text.csv
+    private final static boolean IS_JAVA_11 = System.getProperty("java.version").startsWith("11");
 
     @InjectMocks
     private DateFormer former = new DateFormerImpl();
@@ -43,6 +46,8 @@ public class DateFormerTest {
         String result = former.format(testDate, new RdbmsId(1,1));
         if (IS_JAVA_8) {
             assertTrue(result.equals("28 февраля 2014 г. 18:36"));
+        } else if (IS_JAVA_11) {
+            assertTrue(result.equals("28 февраля 2014 г., 18:36"));
         } else {
             assertTrue(result.equals("28 Февраль 2014 г. 18:36"));
         }
@@ -52,7 +57,7 @@ public class DateFormerTest {
     public void testTimelessDate() throws ParseException{
         TimelessDate testDate = new TimelessDate(2014, 1, 28);
         String result = former.format(testDate, new RdbmsId(1,1));
-        if (IS_JAVA_8) {
+        if (IS_JAVA_8 || IS_JAVA_11) {
             assertTrue(result.equals("28 февраля 2014 г."));
         } else {
             assertTrue(result.equals("28 Февраль 2014 г."));
@@ -66,6 +71,8 @@ public class DateFormerTest {
         String result = former.format(testDate, new RdbmsId(1,1));
         if (IS_JAVA_8) {
             assertTrue(result.equals("28 февраля 2014 г. 18:36:41 GMT+05:00"));
+        } else if (IS_JAVA_11) {
+            assertTrue(result.equals("28 февраля 2014 г., 18:36:41 GMT+05:00"));
         } else {
             assertTrue(result.equals("28 Февраль 2014 г. 18:36:41 GMT+05:00"));
         }

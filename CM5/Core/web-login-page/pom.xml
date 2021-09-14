@@ -51,7 +51,7 @@
                             <modules>
                                 <module>ru.intertrust.cm.core.gui.impl.LoginPage</module>
                             </modules>
-                            <sourceLevel>1.7</sourceLevel>
+                            <sourceLevel>1.11</sourceLevel>
                             <!--<localWorkers>2</localWorkers>
                             <optimizationLevel>0</optimizationLevel>
                             <draftCompile>true</draftCompile>-->

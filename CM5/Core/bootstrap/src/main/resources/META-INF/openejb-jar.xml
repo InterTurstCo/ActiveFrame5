@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <openejb-jar>
     <ejb-deployment ejb-name="BootstrapBean">
-        <jndi name="module/BootstrapBean" interface="BootstrapBean"/>
+        <jndi name="module/BootstrapBean" interface="ru.intertrust.cm.core.bootstrap.BootstrapBean"/>
         <role-mapping>
             <role-name>system</role-name>
             <principal-name>admin</principal-name>

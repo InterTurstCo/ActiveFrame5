@@ -18,15 +18,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.doel.DoelExpression;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CntxCollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetrieverFactory;
+import ru.intertrust.cm.core.business.impl.search.retrievers.NamedCollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.QueryCollectionRetriever;
 import ru.intertrust.cm.core.config.search.*;
-import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SearchException;
-import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 @Stateless(name = "SearchService")
@@ -48,6 +49,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Autowired
     private SearchConfigHelper configHelper;
+
+    @Autowired
+    private CollectionRetrieverFactory collectionRetrieverFactory;
 
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
@@ -84,7 +88,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (fetchLimit <= 0) {
                     fetchLimit = response.getResults().size();
                 }
-                IdentifiableObjectCollection result = new NamedCollectionRetriever(targetCollectionName)
+                IdentifiableObjectCollection result = collectionRetrieverFactory.newNamedCollectionRetriever(targetCollectionName)
                         .queryCollection(response.getResults(), maxResults);
                 if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
                     // Увеличиваем размер выборки в Solr
@@ -107,18 +111,22 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName,
             List<? extends Filter> collectionFilters, int maxResults) {
-        return complexSearch(query, new NamedCollectionRetriever(targetCollectionName, collectionFilters), maxResults);
+        NamedCollectionRetriever cr = collectionRetrieverFactory
+                .newNamedCollectionRetriever(targetCollectionName, collectionFilters);
+        return complexSearch(query, cr, maxResults);
     }
 
     @Override
     public IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery, String sqlQuery, int maxResults) {
-        return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery), maxResults);
+        QueryCollectionRetriever collectionRetriever = collectionRetrieverFactory.newQueryCollectionRetriever(sqlQuery);
+        return complexSearch(searchQuery, collectionRetriever, maxResults);
     }
 
     @Override
     public IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery, String sqlQuery,
             List<? extends ru.intertrust.cm.core.business.api.dto.Value<?>> sqlParams, int maxResults) {
-        return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery, sqlParams), maxResults);
+        QueryCollectionRetriever collectionRetriever = collectionRetrieverFactory.newQueryCollectionRetriever(sqlQuery, sqlParams);
+        return complexSearch(searchQuery, collectionRetriever, maxResults);
     }
 
     @Override
@@ -135,7 +143,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (onlyContextSearch) {
                     continue;
                 }
-                collections.add(complexSearch(entry.getValue(), new NamedCollectionRetriever(targetCollectionName), maxResults));
+                NamedCollectionRetriever collectionRetriever = collectionRetrieverFactory.newNamedCollectionRetriever(targetCollectionName);
+                collections.add(complexSearch(entry.getValue(), collectionRetriever, maxResults));
             } else {
                 List<String> areas = entry.getValue().getAreas();
                 if (areas.size() == 1) {
@@ -163,7 +172,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 query.getTargetObjectTypes(), new ResultFieldsExtractor());
         SearchAreaConfig searchAreaConfig = configHelper.getSearchAreaDetailsConfig(area);
         String targetFilterName = searchAreaConfig != null ? searchAreaConfig.getTargetFilterName() : null;
-        return contextSearch(query, new CntxCollectionRetriever(targetCollectionName, targetFilterName, fieldsCollection),
+
+        CntxCollectionRetriever collectionRetriever = collectionRetrieverFactory
+                .newCntxCollectionRetriever(targetCollectionName, targetFilterName, fieldsCollection);
+        return contextSearch(query, collectionRetriever,
                 solrServerKey, solrFieldNames, hlFieldNames, maxResults);
     }
 

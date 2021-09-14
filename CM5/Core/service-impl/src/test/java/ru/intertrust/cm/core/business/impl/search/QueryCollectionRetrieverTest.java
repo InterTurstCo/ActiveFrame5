@@ -14,6 +14,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,27 +34,43 @@ import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.QueryCollectionRetriever;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QueryCollectionRetrieverTest {
 
-    @Mock private CollectionsService collectionsService;
-    @Mock private IdService idService;
+    @Mock
+    private CollectionsService collectionsService;
+    @Mock
+    private IdService idService;
 
-    @InjectMocks private QueryCollectionRetriever retriever = new QueryCollectionRetriever("Test SQL");
+    @InjectMocks
+    private QueryCollectionRetriever retriever = new QueryCollectionRetriever();
 
-    @Mock private Value<?> param1;
-    @Mock private Value<?> param2;
+    @Mock
+    private Value<?> param1;
+    @Mock
+    private Value<?> param2;
     private List<? extends Value<?>> parameters = Arrays.asList(param1, param2);
-    @InjectMocks private QueryCollectionRetriever parametrizedRetriever =
-            new QueryCollectionRetriever("Test SQL", parameters);
+    @InjectMocks
+    private QueryCollectionRetriever parametrizedRetriever =
+            new QueryCollectionRetriever();
 
     static {
         ApplicationContext appCtx = mock(ApplicationContext.class);
         when(appCtx.getAutowireCapableBeanFactory()).thenAnswer(RETURNS_MOCKS);
         new SpringApplicationContext().setApplicationContext(appCtx);
+    }
+
+    @Before
+    public void init() {
+        retriever.setSqlQuery("Test SQL");
+
+        parametrizedRetriever.setSqlParameters(parameters);
+        parametrizedRetriever.setSqlQuery("Test SQL");
     }
 
     @Test
