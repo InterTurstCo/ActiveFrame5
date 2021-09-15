@@ -260,7 +260,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
 
     private void addBusinessFields(DomainObject domainObject, SearchConfigHelper.SearchAreaDetailsConfig config, SolrInputDocument doc, CompoundFieldCollector collector) {
         for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-            CompoundFieldsConfig compoundFieldsConfig = fieldConfig.getCompoundFieldConfig();
+            CompoundFieldsConfig compoundFieldsConfig = fieldConfig.getCompoundFieldsConfig();
             if (compoundFieldsConfig != null && collector != null) {
                 List<CompoundFieldConfig> fields = compoundFieldsConfig.getFieldPart();
                 for (int index = 0; index < fields.size(); ++index) {

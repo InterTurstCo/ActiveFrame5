@@ -109,7 +109,7 @@ public class IndexedFieldConfig implements Serializable {
         return indexBoostValue;
     }
 
-    public CompoundFieldsConfig getCompoundFieldConfig() {
+    public CompoundFieldsConfig getCompoundFieldsConfig() {
         return compoundFieldConfig;
     }
 

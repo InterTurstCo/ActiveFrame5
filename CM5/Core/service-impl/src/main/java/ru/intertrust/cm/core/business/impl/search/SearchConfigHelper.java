@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.search.CompoundFieldConfig;
+import ru.intertrust.cm.core.config.search.CompoundFieldsConfig;
 import ru.intertrust.cm.core.config.search.DomainObjectFilterConfig;
 import ru.intertrust.cm.core.config.search.IndexedContentConfig;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
@@ -562,6 +564,14 @@ public class SearchConfigHelper implements ApplicationListener<ConfigurationUpda
      * @throws IllegalArgumentException если конфигурация ссылается на несуществующее поле
      */
     public Set<SearchFieldType> getFieldTypes(IndexedFieldConfig config, String objectType) {
+        final CompoundFieldsConfig compoundFieldsConfig = config.getCompoundFieldsConfig();
+        if (compoundFieldsConfig != null) {
+            // Для определения типа, нам достаточно взять одно поле
+            return compoundFieldsConfig.getFieldPart()
+                    .stream()
+                    .flatMap(it -> getFieldTypes(config, it, objectType).stream())
+                    .collect(Collectors.toSet());
+        }
         return getFieldTypes(config, null, objectType);
     }
 

@@ -262,7 +262,7 @@ public class DomainObjectIndexAgentTest {
         when(indexedField.getDoel()).thenReturn(doel);
         when(indexedField.getSolrPrefix()).thenReturn(solrPrefix);
         when(indexedField.getScriptConfig()).thenReturn(scriptConfig);
-        when(indexedField.getCompoundFieldConfig()).thenReturn(compoundFieldsConfig);
+        when(indexedField.getCompoundFieldsConfig()).thenReturn(compoundFieldsConfig);
         return indexedField;
     }
 

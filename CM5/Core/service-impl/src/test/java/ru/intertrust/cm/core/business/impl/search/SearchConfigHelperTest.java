@@ -13,7 +13,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -400,10 +399,20 @@ public class SearchConfigHelperTest {
     public void getFieldTypesWithCompoundFieldsTest() {
         List<IndexedFieldConfig> indexedFieldConfigs = testee.findIndexedFieldConfigs("String_F", "Area_E");
         IndexedFieldConfig indexedFieldConfig = indexedFieldConfigs.get(0);
-        CompoundFieldsConfig compoundFieldsConfig = indexedFieldConfig.getCompoundFieldConfig();
+        CompoundFieldsConfig compoundFieldsConfig = indexedFieldConfig.getCompoundFieldsConfig();
 
         List<CompoundFieldConfig> fieldPart = compoundFieldsConfig.getFieldPart();
         Set<SearchFieldType> types = testee.getFieldTypes(indexedFieldConfig, fieldPart.get(0), "Type_F");
+
+        assertEquals(TextSearchFieldType.class, types.iterator().next().getClass());
+    }
+
+    @Test
+    public void getFieldTypesWithCompoundFieldsFromConfigTest() {
+        List<IndexedFieldConfig> indexedFieldConfigs = testee.findIndexedFieldConfigs("String_F", "Area_E");
+        IndexedFieldConfig indexedFieldConfig = indexedFieldConfigs.get(0);
+
+        Set<SearchFieldType> types = testee.getFieldTypes(indexedFieldConfig, "Type_F");
 
         assertEquals(TextSearchFieldType.class, types.iterator().next().getClass());
     }
