@@ -1,15 +1,16 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrRequest;
-import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.SolrInputDocument;
-import org.apache.solr.common.params.SolrParams;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.After;
@@ -23,34 +24,29 @@ import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.SimpeDataStorage;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.simpledata.EqualSimpleDataSearchFilter;
 import ru.intertrust.cm.core.business.api.simpledata.SimpleData;
-import ru.intertrust.cm.core.business.impl.search.simple.DefaultSimpleSearchUtils;
-import ru.intertrust.cm.core.business.impl.search.simple.EqualsSimpleDataSearchFilterQueryService;
-import ru.intertrust.cm.core.business.impl.search.simple.LikeSimpleDataSearchFilterQueryService;
 import ru.intertrust.cm.core.business.impl.search.simple.SimpleDataSearchFilterQueryFactory;
-import ru.intertrust.cm.core.business.impl.search.simple.SimpleDataSearchFilterQueryFactoryImpl;
 import ru.intertrust.cm.core.business.impl.search.simple.SimpleSearchUtils;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.SimpleDataConfig;
 import ru.intertrust.cm.core.config.SimpleDataFieldConfig;
 import ru.intertrust.cm.core.config.SimpleDataFieldType;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyObject;
+import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SimpeDataStorageTest {
 
     @Mock
-    private SolrServer solrServer;
+    private SolrClient solrServer;
     @Mock
     private ConfigurationExplorer configurationExplorer;
     @Mock

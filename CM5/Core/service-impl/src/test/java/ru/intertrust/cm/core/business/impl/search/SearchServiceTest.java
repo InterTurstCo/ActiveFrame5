@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -60,7 +60,7 @@ import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 public class SearchServiceTest {
 
     @Mock
-    private SolrServer solrServer;
+    private SolrClient solrServer;
     @Mock
     private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
     @Mock

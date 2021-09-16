@@ -8,8 +8,8 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -1084,9 +1084,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private QueryResponse executeSolrQuery(SolrQuery query, String solrServerKey) {
         try {
-            SolrServer solrServer = solrServerWrapperMap.getSolrServerWrapper(solrServerKey).getSolrServer();
+            SolrClient solrServer = solrServerWrapperMap.getSolrServerWrapper(solrServerKey).getSolrServer();
             if (solrServer == null) {
-                throw new Exception("Can't find SolrServer by key : " + (solrServerKey != null ? solrServerKey : "null"));
+                throw new Exception("Can't find SolrClient by key : " + (solrServerKey != null ? solrServerKey : "null"));
             }
 
             if (log.isTraceEnabled()) {
@@ -1127,7 +1127,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     .setQuery("*:*")
                     .addField("*")
                     .setRows(1000000);
-            SolrServer solrServer = solrServerWrapperMap.getRegularSolrServerWrapper().getSolrServer();
+            SolrClient solrServer = solrServerWrapperMap.getRegularSolrServerWrapper().getSolrServer();
             QueryResponse all = solrServer.query(testQuery);
             out.println("Total " + all.getResults().getNumFound() + " document(s)");
             int i = 0;

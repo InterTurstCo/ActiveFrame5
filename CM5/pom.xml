@@ -37,7 +37,7 @@
         <flowable.version>6.5.0</flowable.version>
         <gwt.version>2.9.0</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
-        <solr.version>4.5.1</solr.version>
+        <solr.version>8.9.0</solr.version>
         <openapi.generator.version>4.2.3</openapi.generator.version>
         <jasper.version>6.16.0</jasper.version>
 
@@ -433,38 +433,6 @@
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-core</artifactId>
-                <version>${solr.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-cell</artifactId>
-                <version>${solr.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcmail-jdk15</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-langid</artifactId>
-                <version>${solr.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr</artifactId>
-                <version>${solr.version}</version>
-                <type>war</type>
             </dependency>
 
             <!-- Apache commons -->

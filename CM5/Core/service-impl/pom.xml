@@ -204,24 +204,6 @@
                 </property>
             </activation>
             <dependencies>
-                <dependency>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-core</artifactId>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>jdk.tools</groupId>
-                            <artifactId>jdk.tools</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-cell</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-langid</artifactId>
-                </dependency>
                 <!-- <dependency>
                     <groupId>jdk.tools</groupId>
                     <artifactId>jdk.tools</artifactId>

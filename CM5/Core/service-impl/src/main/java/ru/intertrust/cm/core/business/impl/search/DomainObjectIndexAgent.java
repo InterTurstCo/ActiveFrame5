@@ -280,11 +280,11 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
             SearchFieldType type = entry.getKey();
             for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
-                if (boostValue != null) {
-                    doc.addField(fieldName, entry.getValue(), boostValue.floatValue());
-                } else {
+//                if (boostValue != null) {
+//                    doc.addField(fieldName, entry.getValue(), boostValue.floatValue());
+//                } else {
                     doc.addField(fieldName, entry.getValue());
-                }
+//                }
             }
         }
     }
@@ -314,11 +314,11 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         if (!collector.isEmpty()) {
             collector.collect().forEach(it -> {
                 Double boost = it.getRight();
-                if (boost != null) {
-                    doc.addField(it.getLeft(), it.getMiddle(), boost.floatValue());
-                } else {
+//                if (boost != null) {
+//                    doc.addField(it.getLeft(), it.getMiddle(), boost.floatValue());
+//                } else {
                     doc.addField(it.getLeft(), it.getMiddle());
-                }
+//                }
             });
         }
     }

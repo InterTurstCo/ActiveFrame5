@@ -40,7 +40,7 @@ public class SolrCntxServerDescription {
     }
 
     public boolean isValid() {
-        return !(url.isEmpty() && (dataDir.isEmpty() || homeDir.isEmpty()));
+        return !(url.isEmpty() && (dataDir.isEmpty() || homeDir.isEmpty())) && !isEmbedded();
     }
 
     public boolean isEmbedded() {
