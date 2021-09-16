@@ -18,7 +18,6 @@
         <module>GlobalCache</module>
 		<module>nbr-base</module>		
         <module>test-module</module>
-<!--        <module>deployment-tool</module>-->
         <module>crypto-pro-service</module>
         <module>bouncycastle-crypto-service</module>
         <module>pdf-cnv-loffice-impl</module>
