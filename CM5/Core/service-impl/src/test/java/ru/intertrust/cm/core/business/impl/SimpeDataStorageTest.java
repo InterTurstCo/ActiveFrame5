@@ -18,6 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -125,7 +126,7 @@ public class SimpeDataStorageTest {
 
                 return result;
             }
-        }));
+        }), Matchers.isNull(String.class));
 
         verify(solrServer).commit();
     }
