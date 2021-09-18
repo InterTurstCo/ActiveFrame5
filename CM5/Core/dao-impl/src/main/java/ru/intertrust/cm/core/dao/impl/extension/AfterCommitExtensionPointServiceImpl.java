@@ -12,6 +12,8 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -34,6 +36,9 @@ import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.CONTAINER)
 public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensionPointService {
+
+	private static final Logger logger = LoggerFactory.getLogger(AfterCommitExtensionPointServiceImpl.class);
+
     @Autowired
     private AccessControlService accessControlService;
     @Autowired
@@ -62,29 +67,48 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void performAfterCommit(DomainObjectsModification domainObjectsModification) {
         AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
+        logger.debug("performAfterCommit: call AfterCreateAfterCommit ext points / begin");
         for (DomainObject domainObject : domainObjectsModification.getCreatedDomainObjects()) {
             if (domainObject != null) {
                 // Вызов точки расширения после создания после коммита
                 String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
                 for (String parentType : parentTypes) {
-                    extensionService.getExtensionPoint(AfterCreateAfterCommitExtentionHandler.class, parentType).onAfterCreate(domainObject);
-                }
-                extensionService.getExtensionPoint(AfterCreateAfterCommitExtentionHandler.class, "").onAfterCreate(domainObject);
+                	final AfterCreateAfterCommitExtentionHandler handler = extensionService.getExtensionPoint(AfterCreateAfterCommitExtentionHandler.class, parentType);
+                	logger.debug("performAfterCommit: Call AfterCreateAfterCommit ext point {} for parentType = {} / begin", handler, parentType);
+                    handler.onAfterCreate(domainObject);
+                    logger.debug("performAfterCommit: Call AfterCreateAfterCommit ext point {} for parentType = {} / end", handler, parentType);
+				}
+
+                final AfterCreateAfterCommitExtentionHandler handler = extensionService.getExtensionPoint(AfterCreateAfterCommitExtentionHandler.class, "");
+            	logger.debug("performAfterCommit: Call AfterCreateAfterCommit ext point {} (default) / begin", handler);
+            	handler.onAfterCreate(domainObject);
+                logger.debug("performAfterCommit: Call AfterCreateAfterCommit ext point {} (default) / end", handler);
             }
         }
+        logger.debug("performAfterCommit: call AfterCreateAfterCommit ext points / end");
 
+        logger.debug("performAfterCommit: call AfterChangeStatusAfterCommit ext points / begin");
         List<DomainObject> changeStatusDomainObjects = domainObjectDao.find(domainObjectsModification.getChangeStatusDomainObjectIds(), sysAccessTocken);
         for (DomainObject domainObject : changeStatusDomainObjects) {
             if (domainObject != null) {
                 // Вызов точки расширения после смены статуса после коммита
                 String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
                 for (String parentType : parentTypes) {
-                    extensionService.getExtensionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, parentType).onAfterChangeStatus(domainObject);
-                }
-                extensionService.getExtensionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, "").onAfterChangeStatus(domainObject);
+                	final AfterChangeStatusAfterCommitExtentionHandler handler = extensionService.getExtensionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, parentType);
+                	logger.debug("performAfterCommit: Call AfterChangeStatusAfterCommit ext point {} for parentType = {} / begin", handler, parentType);
+                    handler.onAfterChangeStatus(domainObject);
+                    logger.debug("performAfterCommit: Call AfterChangeStatusAfterCommit ext point {} for parentType = {} / end", handler, parentType);
+				}
+
+                final AfterChangeStatusAfterCommitExtentionHandler handler = extensionService.getExtensionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, "");
+                logger.debug("performAfterCommit: Call AfterChangeStatusAfterCommit ext point {} (default) / begin", handler);
+                handler.onAfterChangeStatus(domainObject);
+                logger.debug("performAfterCommit: Call AfterChangeStatusAfterCommit ext point {} (default) / begin", handler);
             }
         }
+        logger.debug("performAfterCommit: call AfterChangeStatusAfterCommit ext points / end");
 
+		logger.debug("performAfterCommit: call AfterSaveAfterCommit ext points / begin");
         for (DomainObject domainObject : domainObjectsModification.getSavedDomainObjects()) {
             if (domainObject != null) {
 
@@ -92,19 +116,36 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
                 final List<FieldModification> fieldModificationList = domainObjectsModification.getFieldModificationList(domainObject.getId());
                 for (String typeName : parentTypes) {
-                    extensionService.getExtensionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName).onAfterSave(domainObject, fieldModificationList);
-                }
-                extensionService.getExtensionPoint(AfterSaveAfterCommitExtensionHandler.class, "").onAfterSave(domainObject, fieldModificationList);
+                	final AfterSaveAfterCommitExtensionHandler handler = extensionService.getExtensionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
+                	logger.debug("performAfterCommit: Call AfterSaveAfterCommit ext point {} for parentType = {} / begin", handler, typeName);
+                    handler.onAfterSave(domainObject, fieldModificationList);
+                    logger.debug("performAfterCommit: Call AfterSaveAfterCommit ext point {} for parentType = {} / end", handler, typeName);
+				}
+
+                final AfterSaveAfterCommitExtensionHandler handler = extensionService.getExtensionPoint(AfterSaveAfterCommitExtensionHandler.class, "");
+                logger.debug("performAfterCommit: Call AfterSaveAfterCommit ext point {} (default) / begin", handler);
+                handler.onAfterSave(domainObject, fieldModificationList);
+                logger.debug("performAfterCommit: Call AfterSaveAfterCommit ext point {} (default) / begin", handler);
             }
         }
+        logger.debug("performAfterCommit: call AfterSaveAfterCommit ext points / end");
 
+        logger.debug("performAfterCommit: call AfterDeleteAfterCommit ext points / begin");
         for (DomainObject deletedDomainObject : domainObjectsModification.getDeletedDomainObjects()) {
             // Вызов точки расширения после удаления после коммита
             String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(deletedDomainObject.getTypeName());
             for (String typeName : parentTypes) {
-                extensionService.getExtensionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName).onAfterDelete(deletedDomainObject);
-            }
-            extensionService.getExtensionPoint(AfterDeleteAfterCommitExtensionHandler.class, "").onAfterDelete(deletedDomainObject);
+            	final AfterDeleteAfterCommitExtensionHandler handler = extensionService.getExtensionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName);
+            	logger.debug("performAfterCommit: Call AfterDeleteAfterCommit ext point {} for parentType = {} / begin", handler, typeName);
+            	handler.onAfterDelete(deletedDomainObject);
+            	logger.debug("performAfterCommit: Call AfterDeleteAfterCommit ext point {} for parentType = {} / end", handler, typeName);
+			}
+
+            final AfterDeleteAfterCommitExtensionHandler handler = extensionService.getExtensionPoint(AfterDeleteAfterCommitExtensionHandler.class, "");
+            logger.debug("performAfterCommit: Call AfterDeleteAfterCommit ext point {} (default) / begin", handler);
+            handler.onAfterDelete(deletedDomainObject);
+            logger.debug("performAfterCommit: Call AfterDeleteAfterCommit ext point {} (default) / begin", handler);
         }
+        logger.debug("performAfterCommit: call AfterDeleteAfterCommit ext points / end");
     }
 }
