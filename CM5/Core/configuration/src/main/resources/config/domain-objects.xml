@@ -187,7 +187,7 @@
             <string name="notification_part" length="256" not-null="true" />
             <reference name="locale" type="locale" not-null="true"/>
             <string name="channel" length="256" not-null="true" />
-            <string name="notification_text" length="4000" />
+            <text name="notification_text" />
         </fields>
     </domain-object-type>
 
