@@ -264,21 +264,25 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
     private Map<String, SearchQuery> splitQueryBySolrServer(SearchQuery query) {
+        //CMSEVEN-11017 (CONRSHB-3351)
+        if (configHelper == null) {
+            RuntimeException e = new RuntimeException("@Autowired private SearchConfigHelper configHelper == null!");
+            log.error("SearchServiceImpl error.", e);
+            throw e;
+        }
+        //CMSEVEN-11017 (CONRSHB-3351)
         Map<String, SearchQuery> queryMap = new HashMap<>();
         // разбиваем запрос на несколько - обычный и контекстные по областям поиска
         List<String> areas = query.getAreas();
         if (areas == null || areas.isEmpty()) {
             queryMap.put(SolrServerWrapper.REGULAR, query);
         } else if (areas.size() == 1) {
-            String area = areas.get(0);
-            String key = configHelper.getSearchAreaDetailsConfig(area).getSolrServerKey();
-            key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
+            final String key = getSolrKeyByArea(areas.get(0));
             queryMap.put(key, query);
         } else {
             // TODO подумать нужно ли делить еще и по типам объектов
-            for (String area : areas) {
-                String key = configHelper.getSearchAreaDetailsConfig(area).getSolrServerKey();
-                key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
+            for (final String area : areas) {
+                final String key = getSolrKeyByArea(area);
                 SearchQuery newQuery = queryMap.get(key);
                 if (newQuery == null) {
                     newQuery = new SearchQuery(query);
@@ -290,6 +294,22 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
         return queryMap;
     }
+
+    //CMSEVEN-11017 (CONRSHB-3351)
+    private String getSolrKeyByArea(String area) {
+        log.debug("getSolrKeyByArea:area=" + (area != null ? area : "null"));
+        SearchAreaConfig config = configHelper.getSearchAreaDetailsConfig(area);
+        if (config == null) {
+            RuntimeException e = new RuntimeException("configHelper.getSearchAreaDetailsConfig("
+                    + (area == null ? "null" : ("\"" + area + "\"")) +") returned null.");
+            log.error("SearchServiceImpl error.", e);
+            throw e;
+        }
+        String key = config.getSolrServerKey();
+        key = solrServerWrapperMap.isCntxSolrServer(key) ? key : SolrServerWrapper.REGULAR;
+        return key;
+    }
+    //CMSEVEN-11017 (CONRSHB-3351)
 
     interface QueryProcessor {
         QueryProcessor newNestedQuery();
