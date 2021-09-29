@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-
+import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
@@ -16,9 +16,11 @@ public class JdbcStatement implements Statement {
 
     private static final int COLLECTION_LIMIT = 5000;
     private int collectionPartition = 0;
+    private boolean hasNext = true;
     private boolean closed = false;
     private int maxRows;
     private JdbcResultSet resultSet;
+
     protected SochiClient client;
     protected String sql = null;
 
@@ -257,13 +259,22 @@ public class JdbcStatement implements Statement {
     }
 
     IdentifiableObjectCollection getCollectionPartition(@Nonnull List<Value<?>> params) throws Exception {
+        if (!hasNext) {
+            return new GenericIdentifiableObjectCollection();
+        }
 
         IdentifiableObjectCollection collection =
                 client.getCollectionService().findCollectionByQuery(
                         sql,
                         params,
                         collectionPartition * COLLECTION_LIMIT,
-                        COLLECTION_LIMIT);
+                        COLLECTION_LIMIT + 1);
+
+        hasNext = collection.size() == JdbcStatement.COLLECTION_LIMIT + 1;
+        if (hasNext) {
+            // надо удалить последнюю запись
+            collection.cut(0, collection.size() - 1);
+        }
         collectionPartition++;
         return collection;
     }

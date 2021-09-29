@@ -109,7 +109,7 @@ public class CntxCollectionRetriever extends CollectionRetriever {
             for (TargetResultField solrField : solrFields) {
                 FieldConfig fieldConfig = createFieldConfig(solrField);
                 if (fieldConfig != null) {
-                    ArrayList<FieldConfig> fields = collection.getFieldsConfiguration();
+                    List<FieldConfig> fields = collection.getFieldsConfiguration();
                     if (!fields.contains(fieldConfig)) {
                         fields.add(fieldConfig);
                         collection.setFieldsConfiguration(fields);

@@ -58,7 +58,7 @@ public class IdentifiableObjectConverter {
         domainObject.setId(identifiableObject.getId());
         domainObject.setTypeName(domainObjectTypeIdCache.getName(identifiableObject.getId()));
 
-        ArrayList<String> sourceFields = identifiableObject.getFields();
+        List<String> sourceFields = identifiableObject.getFields();
         for (String field : sourceFields) {
             domainObject.setValue(field, identifiableObject.getValue(field));
         }

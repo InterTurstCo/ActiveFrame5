@@ -1,14 +1,21 @@
 package ru.intertrust.cm.core.business.impl.search.retrievers;
 
 import java.math.BigDecimal;
-import java.util.*;
-
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.IdService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.impl.search.SolrFields;
 import ru.intertrust.cm.core.business.impl.search.SolrUtils;
 import ru.intertrust.cm.core.config.DecimalFieldConfig;
@@ -64,7 +71,7 @@ public abstract class CollectionRetriever {
             weights.put(id, weight);
         }
 
-        ArrayList<FieldConfig> fields = objects.getFieldsConfiguration();
+        List<FieldConfig> fields = objects.getFieldsConfiguration();
         fields.add(RELEVANCE_FIELD);
         objects.setFieldsConfiguration(fields);
         int relevanceIdx = objects.getFieldIndex(SearchQuery.RELEVANCE);

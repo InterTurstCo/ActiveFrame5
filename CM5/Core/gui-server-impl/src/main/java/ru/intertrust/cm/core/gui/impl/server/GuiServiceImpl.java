@@ -361,8 +361,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         cels.add(cellConfig);                        
     }
     
-    private List<String> getShowFields(ArrayList<String> fields) {
-        List<String> result = new ArrayList<String>();
+    private List<String> getShowFields(List<String> fields) {
+        List<String> result = new ArrayList<>();
         for (String field : fields) {
             if (!field.equalsIgnoreCase("operation")
                     && !field.equalsIgnoreCase("domain_object_id")) {

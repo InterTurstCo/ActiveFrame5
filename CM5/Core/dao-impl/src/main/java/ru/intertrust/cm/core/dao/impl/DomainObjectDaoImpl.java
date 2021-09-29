@@ -575,7 +575,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         // Для нового объекта все поля отличные от null попадают в список
         // измененных
         final String domainObjectTypeName = domainObject.getTypeName();
-        final ArrayList<String> fields = domainObject.getFields();
+        final List<String> fields = domainObject.getFields();
         DomainObjectModification result = new DomainObjectModification();
         if (domainObject.isNew()) {
             for (String fieldName : fields) {
@@ -645,7 +645,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         deleteMany(new Id[] {id }, accessToken, false, false);
     }
-    
+
     public int deleteQuickly(List<Id> ids, AccessToken accessToken) {
         return delete(ids, accessToken, true);
     }
@@ -659,10 +659,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             validateIdType(id);
             accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.DELETE);
         }
-        
+
         String[] parentTypes = null;
         List<DomainObject> deletedObjects = null;
-        
+
         if (!isQuickly) {
 
             final RdbmsId firstRdbmsId = (RdbmsId) ids[0];
@@ -676,7 +676,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             // пользователя.
             final AccessToken systemAccessToken = createSystemAccessToken();
             deletedObjects = new ArrayList<>(ids.length);
-            
+
             for (Id id : ids) {
                 DomainObject deletedObject = find(id, systemAccessToken);
                 // Проверка наличия доменного объекта
@@ -716,7 +716,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         
         if (!isQuickly) {
-            
+
             // Трассировка сохранения со стеком вызова. Нужна для поиска
             // ObjectNotFoundException
             if (logger.isTraceEnabled()) {
@@ -756,7 +756,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 }
                 extensionService.getExtensionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
             }
-            
+
         }
 
         return deleted;

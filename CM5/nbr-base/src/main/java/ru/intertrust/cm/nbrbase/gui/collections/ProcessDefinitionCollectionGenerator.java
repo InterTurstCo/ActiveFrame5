@@ -87,7 +87,7 @@ public class ProcessDefinitionCollectionGenerator implements CollectionDataGener
 
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, offset, limit);
 
-        ArrayList<FieldConfig> fieldConfigs = collection.getFieldsConfiguration();
+        List<FieldConfig> fieldConfigs = collection.getFieldsConfiguration();
         fieldConfigs.add(new BooleanFieldConfig("last", true, false));
         result.setFieldsConfiguration(fieldConfigs);
 
