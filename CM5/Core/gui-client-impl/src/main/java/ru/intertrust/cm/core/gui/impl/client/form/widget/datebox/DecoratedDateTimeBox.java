@@ -13,7 +13,6 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeEndConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeStartConfig;
@@ -25,7 +24,6 @@ import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,30 +34,20 @@ import java.util.List;
  */
 public class DecoratedDateTimeBox extends Composite {
 
-    private DecoratedDateBox    dateBox;
-    private DatePickerPopup     picker;
-    private AbsolutePanel       root;
-    private ListBox             timeZoneChooser;
-    private DateBoxWidget       parentWidget;
-    private boolean             isRangeStart;
-    private boolean             isRangeEnd;
-    private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
+    private DecoratedDateBox dateBox;
+    private DatePickerPopup picker;
+    private FocusPanel dateBtn;
+    private AbsolutePanel root;
+    private ListBox timeZoneChooser;
+    private DateBoxWidget parentWidget;
+    private EventBus eventBus;
+    private boolean isRangeStart;
+    private boolean isRangeEnd;
 
     public DecoratedDateTimeBox(DateBoxWidget parentWidget) {
         root = new AbsolutePanel();
         this.parentWidget = parentWidget;
         initWidget(root);
-    }
-
-    @Override
-    protected void onDetach() {
-        for (HandlerRegistration registration : handlerRegistrations) {
-            registration.removeHandler();
-        }
-        handlerRegistrations.clear();
-        root.clear();
-        dateBox = null;
-        picker = null;
     }
 
     public void setValue(final DateBoxState state) {
@@ -76,8 +64,9 @@ public class DecoratedDateTimeBox extends Composite {
     }
 
     public String getText() {
-        return dateBox.getValue() == null ? null
+        final String result = dateBox.getValue() == null ? null
                 : PlatformDateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).format(dateBox.getValue());
+        return result;
     }
 
     public String getSelectedTimeZoneId() {
@@ -85,6 +74,7 @@ public class DecoratedDateTimeBox extends Composite {
     }
 
     private void initRoot(final DateBoxState state) {
+
         root.setStyleName("wrap-date");
         root.getElement().getStyle().clearPosition();
         RangeStartConfig rangeStartConfig = state.getDateBoxConfig().getRangeStartConfig();
@@ -92,10 +82,10 @@ public class DecoratedDateTimeBox extends Composite {
         isRangeStart = rangeEndConfig != null;
         isRangeEnd = rangeStartConfig != null;
         boolean isSearchRangePopup = isRangeStart || isRangeEnd;
-        EventBus eventBus = isSearchRangePopup ? parentWidget.getEventBus() : new SimpleEventBus();
+        eventBus = isSearchRangePopup ? parentWidget.getEventBus() : new SimpleEventBus();
         final ClickHandler showDatePickerHandler = new ShowDatePickerHandler();
 
-        FocusPanel dateBtn = new FocusPanel();
+        dateBtn = new FocusPanel();
         dateBtn.setStyleName("date-box-button");
         final Date date = getDate(state.getDateTimeContext());
         String pattern = state.getPattern();
@@ -129,7 +119,7 @@ public class DecoratedDateTimeBox extends Composite {
             timeZoneChooser = getTimeZoneBox(state.getDateTimeContext().getTimeZoneId());
             root.add(timeZoneChooser);
         }
-        handlerRegistrations.add(eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
+        eventBus.addHandler(DateSelectedEvent.TYPE, new DateSelectedEventHandler() {
             @Override
             public void onDateSelected(DateSelectedEvent event) {
                 if(picker.equals(event.getSource())){
@@ -137,7 +127,7 @@ public class DecoratedDateTimeBox extends Composite {
                     dateBox.setValue(event.getDate());
                 }
             }
-        }));
+        });
     }
 
     private Date getDate(DateTimeContext context) {

@@ -7,7 +7,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
@@ -35,16 +34,15 @@ public class DomainObjectSurferPluginView extends PluginView {
     private FlowPanel sourthRootWidget = new FlowPanel();
     private SimplePanel northRootWidget = new SimplePanel();
     private DomainObjectSurferPlugin domainObjectSurferPlugin;
+    //локальная шина событий
     private SplitterEx dockLayoutPanel;
     private static Logger log = Logger.getLogger("DomainObjectSurfer");
     private AbsolutePanel rootSurferPanel;
     private SplitterSettingsTimeoutTimer timeoutTimer;
-    //локальная шина событий
     private EventBus eventBus;
-    private HandlerRegistration handlerRegistration;
 
 
-    DomainObjectSurferPluginView(Plugin plugin) {
+    public DomainObjectSurferPluginView(Plugin plugin) {
         super(plugin);
         domainObjectSurferPlugin = (DomainObjectSurferPlugin) plugin;
         surferWidth = plugin.getOwner().getVisibleWidth();
@@ -88,17 +86,13 @@ public class DomainObjectSurferPluginView extends PluginView {
         surferHeight = plugin.getOwner().getVisibleHeight() - (getActionToolBar().getOffsetHeight() + 11);
     }
 
-    private void splitterSetSize() {
+    protected void splitterSetSize() {
         dockLayoutPanel.setSize(surferWidth + "px", surferHeight + "px");
 
     }
 
     private void addSplitterWidgetResizeHandler() {
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-            handlerRegistration = null;
-        }
-        handlerRegistration = eventBus.addHandler(SplitterWidgetResizerEvent.EVENT_TYPE, new SplitterWidgetResizerEventHandler() {
+        eventBus.addHandler(SplitterWidgetResizerEvent.EVENT_TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
 
@@ -106,7 +100,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                         (event.getFirstWidgetHeight()!=0)?event.getFirstWidgetHeight():8,
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
-                storeSplitterSettings(event.isType(), size, !event.isArrowsPress());
+                storeSplitterSettings(event.isType(), size, event.isArrowsPress() ? false : true);
 
             }
         });
@@ -213,9 +207,9 @@ public class DomainObjectSurferPluginView extends PluginView {
             setParameters(vertical, size, customDrag);
         }
 
-        void setParameters(boolean vertical, int size, Boolean customDrag) {
+        public void setParameters(boolean vertical, int size, Boolean customDrag) {
             this.orientation = vertical ? Long.valueOf(1) : Long.valueOf(0);
-            this.size = (long) size;
+            this.size = Long.valueOf(size);
             this.customDrag = customDrag;
         }
 

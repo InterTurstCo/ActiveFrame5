@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
@@ -36,7 +34,6 @@ import java.util.List;
 @ComponentName("date-box")
 public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEventHandler {
     private DateBoxState dbState;
-    private HandlerRegistration handlerRegistration;
 
     @Override
     public Component createNew() {
@@ -127,8 +124,7 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         DecoratedDateTimeBox dateBoxDecorate = new DecoratedDateTimeBox(this);
-        handlerRegistration = eventBus.addHandler(FormRangeDateSelectedEvent.TYPE, this);
-        onDetach(dateBoxDecorate);
+        eventBus.addHandler(FormRangeDateSelectedEvent.TYPE, this);
         return dateBoxDecorate;
     }
 
@@ -136,28 +132,7 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
     protected Widget asNonEditableWidget(WidgetState state) {
         Label noneEditableWidget = new Label();
         noneEditableWidget.setStyleName("not-edit-date-text-label");
-        onDetach(noneEditableWidget);
         return noneEditableWidget;
-    }
-
-    @Override
-    protected void onDetach(Widget widget) {
-        widget.addAttachHandler(new AttachEvent.Handler() {
-            @Override
-            public void onAttachOrDetach(AttachEvent attachEvent) {
-                if (!attachEvent.isAttached()) {
-                    clearHandlers();
-                }
-            }
-        });
-    }
-
-    @Override
-    protected void clearHandlers() {
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-            handlerRegistration = null;
-        }
     }
 
     @Override

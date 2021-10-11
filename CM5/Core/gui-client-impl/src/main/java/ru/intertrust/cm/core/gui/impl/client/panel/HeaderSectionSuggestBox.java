@@ -2,12 +2,10 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -23,18 +21,18 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.headernotification.HeaderNo
  * To change this template use File | Settings | File Templates.
  */
 public class HeaderSectionSuggestBox implements IsWidget{
-    private AbsolutePanel            rootSuggestDiv;
-    private FocusPanel               firstImage;
-    private FocusPanel               popupClose;
-    private FocusPanel               secondImage;
-    private AbsolutePanel            decoratedListSuggestBox;
-    private AbsolutePanel            sectionSuggestBox;
+    private AbsolutePanel rootSuggestDiv;
+    private FocusPanel firstImage;
+    private FocusPanel popupClose;
+    private FocusPanel secondImage;
+    private AbsolutePanel decoratedListSuggestBox;
+    private AbsolutePanel sectionSuggestBox;
     private HeaderNotificationPlugin headerNotificationPlugin;
-    private PluginPanel              headerNotificationPanel;
-    private boolean                  pluginPopupShow;
-    private PopupPanel               pluginPopupPanel;
-    private int                      notificationRowCount;
-    private HandlerRegistration      handlerRegistration;
+    private PluginPanel headerNotificationPanel;
+    private boolean pluginPopupShow;
+    private PopupPanel pluginPopupPanel;
+    private EventBus eventBus = Application.getInstance().getEventBus();
+    private int notificationRowCount;
 
     public HeaderSectionSuggestBox() {
         rootSuggestDiv = new AbsolutePanel();
@@ -113,12 +111,13 @@ public class HeaderSectionSuggestBox implements IsWidget{
             }
         });
 
-        EventBus eventBus = Application.getInstance().getEventBus();
-        handlerRegistration = eventBus.addHandler(HeaderNotificationRemoveItemEvent.TYPE, new HeaderNotificationRemoveItemEventHandler() {
+        eventBus.addHandler(HeaderNotificationRemoveItemEvent.TYPE, new HeaderNotificationRemoveItemEventHandler() {
             @Override
             public void headerNotificationPopupStatus(HeaderNotificationRemoveItemEvent event) {
                 notificationRowCount = event.getPluginRowCount();
                 pluginPopupPanel.hide();
+
+
             }
         });
 
@@ -150,23 +149,8 @@ public class HeaderSectionSuggestBox implements IsWidget{
 
     @Override
     public Widget asWidget() {
-        if (rootSuggestDiv != null) {
-            rootSuggestDiv.addAttachHandler(new AttachEvent.Handler() {
-                @Override
-                public void onAttachOrDetach(AttachEvent attachEvent) {
-                    if (!attachEvent.isAttached()) {
-                        clearHandlers();
-                    }
-                }
-            });
-        }
         return rootSuggestDiv;
     }
 
-    protected void clearHandlers() {
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-            handlerRegistration = null;
-        }
-    }
+
 }

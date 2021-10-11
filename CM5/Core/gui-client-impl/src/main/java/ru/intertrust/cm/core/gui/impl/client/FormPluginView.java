@@ -2,11 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.ScriptInjector;
-import com.google.gwt.event.logical.shared.AttachEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.event.FormSavedEvent;
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.FormSavedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.TextBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.LinkedDomainObjectHyperlinkWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -21,7 +23,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,10 +34,10 @@ import java.util.Map;
  */
 public class FormPluginView extends PluginView implements FormSavedEventHandler {
 
+
+    private FormPanel formPanel;
     // локальная шина событий
-    protected EventBus                eventBus;
-    private FormPanel                 formPanel;
-    private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
+    protected EventBus eventBus;
 
 
     // установка локальной шины событий плагину
@@ -61,7 +62,7 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
         formPanel = new FormPanel(formDisplayData, pluginState, eventBus, plugin);
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
-        handlerRegistrations.add(eventBus.addHandler(FormSavedEvent.TYPE, this));
+        eventBus.addHandler(FormSavedEvent.TYPE, this);
 
 
         if (formDisplayData.getScriptFileConfig() != null) {
@@ -71,34 +72,11 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
     }
 
     @Override
-    protected void onDetach(Widget widget) {
-        widget.addAttachHandler(new AttachEvent.Handler() {
-            @Override
-            public void onAttachOrDetach(AttachEvent attachEvent) {
-                if (!attachEvent.isAttached()) {
-                    clearHandlers();
-                }
-            }
-        });
-    }
-
-    @Override
-    protected void clearHandlers() {
-        for (HandlerRegistration registration : handlerRegistrations) {
-            registration.removeHandler();
-        }
-        handlerRegistrations.clear();
-    }
-
-    @Override
     public IsWidget getViewWidget() {
         /*List<BaseWidget> widgets = formPanel.getWidgets();
         for (BaseWidget widget : widgets) {
             widget.asWidget().ensureDebugId("AF5Platform");
         } */
-        if (formPanel != null) {
-            onDetach(formPanel.asWidget());
-        }
         return formPanel;
     }
 

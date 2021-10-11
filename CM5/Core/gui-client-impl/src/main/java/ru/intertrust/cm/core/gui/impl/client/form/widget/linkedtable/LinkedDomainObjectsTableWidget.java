@@ -4,8 +4,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
-import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.client.Event;
@@ -43,7 +41,10 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.GUI_EXCEPTION_FILE_IS_UPLOADING_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES;
@@ -62,8 +63,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
   private Button addButton;
   private boolean hasRemovedItems;
   private HandlerRegistration addButtonHandlerRegistration;
-  private String substitutedFormName;
-  private List<HandlerRegistration> handlerRegistrations = new ArrayList<>();
+  private static String substitutedFormName;
 
   @Override
   public void setValue(Object value) {
@@ -182,46 +182,20 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
   @Override
   protected Widget asEditableWidget(WidgetState state) {
-    handlerRegistrations.add(localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this));
+    localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
     VerticalPanel hp = new VerticalPanel();
     addButton = createAddButton();
     addButton.removeStyleName("gwt-Button");
     addButton.addStyleName("lightButton ldotCreate");
     hp.add(addButton);
 
-    onDetach(hp);
     return hp;
   }
 
   @Override
   protected Widget asNonEditableWidget(WidgetState state) {
     VerticalPanel hp = new VerticalPanel();
-    onDetach(hp);
     return hp;
-  }
-
-  @Override
-  protected void onDetach(Widget widget) {
-    widget.addAttachHandler(new AttachEvent.Handler() {
-      @Override
-      public void onAttachOrDetach(AttachEvent attachEvent) {
-        if (!attachEvent.isAttached()) {
-          clearHandlers();
-        }
-      }
-    });
-  }
-
-  @Override
-  protected void clearHandlers() {
-    for (HandlerRegistration registration : handlerRegistrations) {
-      registration.removeHandler();
-    }
-    handlerRegistrations.clear();
-    if (addButtonHandlerRegistration != null) {
-      addButtonHandlerRegistration.removeHandler();
-      addButtonHandlerRegistration = null;
-    }
   }
 
   @Override
@@ -313,7 +287,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         menuItemContainer.add(new Label(createdObjectConfig.getText()));
         final String domainObjectType = createdObjectConfig.getDomainObjectType();
         final String linkedFormName = createdObjectConfig.getLinkedFormName();
-        handlerRegistrations.add(menuItemContainer.addDomHandler(new OpenFormClickHandler(domainObjectType, linkedFormName, this), ClickEvent.getType()));
+        menuItemContainer.addDomHandler(new OpenFormClickHandler(domainObjectType, linkedFormName, this), ClickEvent.getType());
         body.add(menuItemContainer);
       }
       container.add(header);

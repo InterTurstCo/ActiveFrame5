@@ -27,7 +27,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
-import ru.intertrust.cm.core.gui.api.client.*;
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
@@ -97,6 +100,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
   private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
   private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
   private boolean filteredByUser;
+  private final EventBus applicationEventBus = Application.getInstance().getEventBus();
 
   protected CollectionPluginView(CollectionPlugin plugin) {
     super(plugin);
@@ -109,8 +113,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
         new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
     tableBody.setColumnHeaderController(columnHeaderController);
 
-    EventBus applicationEventBus = Application.getInstance().getEventBus();
-    handlerRegistrations.add(applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE,this));
+    applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE,this);
   }
 
   private void updateSizes() {
@@ -369,7 +372,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
     }));
 
     final ScrollPanel scroll = tableBody.getScrollPanel();
-    handlerRegistrations.add(tableBody.addColumnSortHandler(new ColumnSortEvent.Handler() {
+    tableBody.addColumnSortHandler(new ColumnSortEvent.Handler() {
       @Override
       public void onColumnSort(ColumnSortEvent event) {
 
@@ -393,7 +396,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
         action.setInitialContext(context);
         action.perform();
       }
-    }));
+    });
 
     scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
     handlerRegistrations.add(eventBus.addHandler(SimpleSearchEvent.TYPE, new SimpleSearchEventHandler() {
@@ -430,7 +433,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
         boolean remote = event.isRemote();
         if (filterCanceled) {
           onKeyEscapePressed();
-        } else if (!remote) {
+        } else if (!filterCanceled && !remote) {
           onKeyEnterPressed();
         }
         //// при применении фильтра сбрасываем чекбокс "Выделить всё" (CMFIVE-29712) 
@@ -1288,11 +1291,10 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
 
   }
 
-  protected void clearHandlers() {
-    for (HandlerRegistration registration : handlerRegistrations) {
+  public void clearHandlers() {
+    for (com.google.web.bindery.event.shared.HandlerRegistration registration : handlerRegistrations) {
       registration.removeHandler();
     }
-    handlerRegistrations.clear();
     columnHeaderController.clearHandlers();
   }
 

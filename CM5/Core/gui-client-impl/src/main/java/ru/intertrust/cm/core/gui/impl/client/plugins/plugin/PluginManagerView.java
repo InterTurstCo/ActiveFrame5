@@ -7,7 +7,6 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.AttachEvent;
 import com.google.gwt.event.logical.shared.CloseEvent;
 import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -22,7 +21,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
@@ -52,7 +50,10 @@ import ru.intertrust.cm.core.gui.model.plugin.TerminatePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.UploadData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
@@ -72,7 +73,7 @@ public class PluginManagerView extends PluginView implements LeftPanelAttachedEv
     private TextBox filterValue;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<>();
     ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler;
-    private       HandlerRegistration handlerRegistration;
+    private final EventBus applicationEventBus = Application.getInstance().getEventBus();
 
     private PluginManagerParamDialogBox dialogBox;
 
@@ -168,26 +169,9 @@ public class PluginManagerView extends PluginView implements LeftPanelAttachedEv
         refreshPluginsModel();
 
         mainPanel.add(cellTable);
-        mainPanel.addAttachHandler(new AttachEvent.Handler() {
-            @Override
-            public void onAttachOrDetach(AttachEvent attachEvent) {
-                if (!attachEvent.isAttached()) {
-                    clearHandlers();
-                }
-            }
-        });
-        EventBus applicationEventBus = Application.getInstance().getEventBus();
-        handlerRegistration = applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE, this);
+        applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE,this);
 
         Application.getInstance().unlockScreen();
-    }
-
-    @Override
-    protected void clearHandlers() {
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-            handlerRegistration = null;
-        }
     }
 
     /**

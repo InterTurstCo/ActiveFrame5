@@ -160,7 +160,6 @@ public abstract class Plugin extends BaseComponent {
         for (HandlerRegistration registration : handlerRegistrations) {
             registration.removeHandler();
         }
-        handlerRegistrations.clear();
     }
 
     /**
