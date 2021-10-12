@@ -69,14 +69,13 @@ public class LinkUtil {
   }
 
   public static FormViewerConfig findHierarchyRootFormViewerConfig(NavigationConfig navigationConfig) {
-    LinkConfig parentLinkConfig = null;
     List<LinkConfig> linkConfigs = navigationConfig.getHierarchicalLinkList();
-    parentLinkConfig = linkConfigs.isEmpty() ? null : linkConfigs.get(0);
+    LinkConfig parentLinkConfig = linkConfigs.isEmpty() ? null : linkConfigs.get(0);
     parentLinkConfig = parentLinkConfig == null ? null : parentLinkConfig.getParentLinkConfig();
-    PluginConfig pluginConfig = parentLinkConfig == null ? null
-        : parentLinkConfig.getPluginDefinition().getPluginConfig();
-    DomainObjectSurferConfig domainObjectSurferConfig = pluginConfig == null || !(pluginConfig instanceof DomainObjectSurferConfig)
-        ? null : (DomainObjectSurferConfig) pluginConfig;
+    PluginConfig pluginConfig = parentLinkConfig == null || parentLinkConfig.getPluginDefinition() == null ?
+            null : parentLinkConfig.getPluginDefinition().getPluginConfig();
+    DomainObjectSurferConfig domainObjectSurferConfig = (pluginConfig instanceof DomainObjectSurferConfig) ?
+            (DomainObjectSurferConfig) pluginConfig : null;
     return domainObjectSurferConfig == null ? null : domainObjectSurferConfig.getFormViewerConfig();
   }
 
