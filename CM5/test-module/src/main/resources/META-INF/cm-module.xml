@@ -37,6 +37,7 @@
         <configuration-path>module-configuration/extendedsearch-int-docs.xml</configuration-path>
         <configuration-path>module-configuration/extendedsearch-countries.xml</configuration-path>
         <configuration-path>module-configuration/domain-objects-test.xml</configuration-path>
+        <configuration-path>module-configuration/attachment-test-conf.xml</configuration-path>
         <configuration-path>module-configuration/trigger-events.xml</configuration-path>
         <configuration-path>module-configuration/notifications.xml</configuration-path>
         <configuration-path>module-configuration/sochi-server-configs.xml</configuration-path>

@@ -51,18 +51,23 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     private static final String BEAN_DELETE_IMMED = "fileDeleteImmediate";
     private static final String BEAN_DELETE_DELAYED = "fileDeleteDelayed";
 
-    private String name;
-    private FolderStorageConfig storageConfig;
+    private final String name;
+    private final FolderStorageConfig storageConfig;
 
     private String rootFolder;
     private String pathMask;
     private FileDeleteStrategy deleteStrategy;
 
-    @Autowired private CurrentUserAccessor currentUserAccessor;
-    @Autowired private UserTransactionService txService;
-    @Autowired private FileTypeDetector contentDetector;
-    @Autowired private Environment env;
-    @Autowired private ApplicationContext appContext;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private UserTransactionService txService;
+    @Autowired
+    private FileTypeDetector contentDetector;
+    @Autowired
+    private Environment env;
+    @Autowired
+    private DeleteAttachmentStrategyFactory deleteStrategyFactory;
 
     @Value("${attachments.path.unixstyle:true}")
     private boolean pathUnixStyle;
@@ -96,7 +101,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             logger.info("Folders mask for storage " + name + " is not configured; use default");
             pathMask = DEFAULT_PATHMASK;
         }
-        this.deleteStrategy = createDeleteStrategy(storageConfig.getDeleteFileConfig());
+        this.deleteStrategy = deleteStrategyFactory.createDeleteStrategy(name, storageConfig.getDeleteFileConfig());
     }
 
     @Override
@@ -151,29 +156,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     public boolean hasContent(AttachmentInfo contentInfo) {
         Path filePath = Paths.get(rootFolder, contentInfo.getRelativePath());
         return Files.isRegularFile(filePath) && filePath.toFile().length() == contentInfo.getContentLength();
-    }
-
-    private FileDeleteStrategy createDeleteStrategy(DeleteFileConfig config) {
-        FileDeleteStrategy bean;
-        if (config == null) {
-            bean = appContext.getBean(BEAN_DELETE_NEVER, FileDeleteStrategy.class);
-        } else {
-            switch (config.getMode()) {
-            case NEVER:
-                bean = appContext.getBean(BEAN_DELETE_NEVER, FileDeleteStrategy.class);
-                break;
-            case IMMED:
-                bean = appContext.getBean(BEAN_DELETE_IMMED, FileDeleteStrategy.class);
-                break;
-            case DELAYED:
-                bean = appContext.getBean(BEAN_DELETE_DELAYED, FileDeleteStrategy.class);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown delete file strategy: " + config.getMode().name());
-            }
-        }
-        bean.setConfiguration(config);
-        return bean;
     }
 
     private String validatePathMask(String pathMask) {

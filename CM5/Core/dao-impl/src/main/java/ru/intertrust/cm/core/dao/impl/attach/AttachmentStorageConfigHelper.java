@@ -16,10 +16,11 @@ public class AttachmentStorageConfigHelper {
 
     public static final String DEFAULT_STORAGE = "default";
 
-    @Autowired private ConfigurationExplorer confExplorer;
+    @Autowired
+    private ConfigurationExplorer confExplorer;
     //@Autowired private DomainObjectTypeIdCache typeIdCache;
 
-    private HashMap<Pair<String, String>, String> cache = new HashMap<>();
+    private final HashMap<Pair<String, String>, String> cache = new HashMap<>();
     //private HashMap<String, String> parentTypeCache = new HashMap<>();
 
     public String getStorageForAttachment(String attachmentType, String documentType) {

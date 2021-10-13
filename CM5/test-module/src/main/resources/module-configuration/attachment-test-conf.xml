@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <attachment-storage name="Delayed-1">
+        <folder configurable="false">
+            <subfolder-mask>{doctype}/{year}</subfolder-mask>
+            <delete-file mode="delayed" delay="30"/>
+        </folder>
+    </attachment-storage>
+
+    <attachment-storage name="Delayed-2">
+        <folder configurable="false">
+            <subfolder-mask>{doctype}/{year}</subfolder-mask>
+            <delete-file mode="delayed" delay="5"/>
+        </folder>
+    </attachment-storage>
+
+
+    <domain-object-type name="attachment_container">
+        <attachment-types>
+            <attachment-type name="Delayed_1_AT" storage="Delayed-1"/>
+            <attachment-type name="Delayed_2_AT" storage="Delayed-2"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <access-matrix type="attachment_container" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons"/>
+        </create>
+        <status name="*">
+            <write>
+                <permit-role name="AllPersons"/>
+            </write>
+            <delete>
+                <permit-role name="AllPersons"/>
+            </delete>
+        </status>
+    </access-matrix>
+
+
+
+</configuration>
