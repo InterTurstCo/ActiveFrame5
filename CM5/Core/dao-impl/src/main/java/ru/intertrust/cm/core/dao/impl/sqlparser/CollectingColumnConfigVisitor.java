@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
@@ -34,9 +32,9 @@ public class CollectingColumnConfigVisitor extends BasicVisitor implements Expre
 
     protected String plainSelectQuery;
 
-    protected Map<String, FieldConfig> columnToConfigMapping = new CaseInsensitiveHashMap<FieldConfig>();
+    protected Map<String, List<FieldData>> columnToConfigMapping = new CaseInsensitiveHashMap<>();
 
-    public Map<String, FieldConfig> getColumnToConfigMapping() {
+    public Map<String, List<FieldData>> getColumnToConfigMapping() {
         return columnToConfigMapping;
     }
 
@@ -89,24 +87,28 @@ public class CollectingColumnConfigVisitor extends BasicVisitor implements Expre
     }
 
     private void collectColumnConfiguration(Column column) {
+        String doTypeName = SqlQueryModifier.getDOTypeName(plainSelect, column, false);
         FieldConfig fieldConfig =
-                configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(plainSelect, column, false),
-                        DaoUtils.unwrap(column.getColumnName()));
-        // если колонка не объявлена в основном запросе, выполняется поиск по
-        // подзапросам
+                configurationExplorer.getFieldConfig(doTypeName, DaoUtils.unwrap(column.getColumnName()));
+
+        // если колонка не объявлена в основном запросе, выполняется поиск по подзапросам
         if (fieldConfig == null) {
             for (PlainSelect innerSubSelect : innerSubSelects) {
+                doTypeName = SqlQueryModifier.getDOTypeName(innerSubSelect, column, false);
                 fieldConfig =
-                        configurationExplorer.getFieldConfig(SqlQueryModifier.getDOTypeName(innerSubSelect, column, false),
-                                DaoUtils.unwrap(column.getColumnName()));
+                        configurationExplorer.getFieldConfig(doTypeName, DaoUtils.unwrap(column.getColumnName()));
                 if (fieldConfig != null) {
                     break;
                 }
             }
-
         }
+
         if (fieldConfig != null) {
-            columnToConfigMapping.put(getColumnName(column), fieldConfig);
+            final String columnName = getColumnName(column);
+            final FieldData fieldData = new FieldData(fieldConfig, doTypeName);
+            fieldData.setColumnName(columnName);
+
+            FieldDataHelper.addFieldData(columnToConfigMapping, fieldData);
         }
     }
 

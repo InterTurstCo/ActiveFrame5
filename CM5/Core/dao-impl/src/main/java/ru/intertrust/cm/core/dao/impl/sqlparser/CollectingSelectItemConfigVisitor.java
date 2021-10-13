@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.Iterator;
+import java.util.List;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
@@ -48,11 +50,43 @@ public class CollectingSelectItemConfigVisitor extends CollectingColumnConfigVis
             Column column = (Column) selectExpressionItem.getExpression();
             String aliasName = DaoUtils.unwrap(Case.toLower(selectExpressionItem.getAlias().getName()));
             //Выполняем замену только если алиас отличается от имени колонки
-            if (!aliasName.equalsIgnoreCase(getColumnName(column))) {
-                columnToConfigMapping.put(aliasName, columnToConfigMapping.get(getColumnName(column)));
-                columnToConfigMapping.remove(getColumnName(column));
+            final String columnName = getColumnName(column);
+            if (!aliasName.equalsIgnoreCase(columnName)) {
+                final List<FieldData> fieldDataList = columnToConfigMapping.get(columnName);
+                if (fieldDataList == null) {
+                    return;
+                }
+
+                if (fieldDataList.isEmpty()) {
+                    changeKey(aliasName, columnName, fieldDataList);
+                } else if (fieldDataList.size() == 1) {
+                    fieldDataList.get(0).setColumnName(aliasName);
+                    changeKey(aliasName, columnName, fieldDataList);
+                } else {
+                    final String doTypeName = SqlQueryModifier.getDOTypeName(plainSelect, column, false);
+                    final Iterator<FieldData> iterator = fieldDataList.iterator();
+                    FieldData fieldDataExt = null;
+                    while (iterator.hasNext()) {
+                        FieldData fieldData = iterator.next();
+                        if (fieldData.getDoTypeName().equals(doTypeName)) {
+                            iterator.remove();
+                            fieldDataExt = fieldData;
+                            break;
+                        }
+                    }
+
+                    if (fieldDataExt != null) {
+                        fieldDataExt.setColumnName(aliasName);
+                        FieldDataHelper.addFieldData(columnToConfigMapping, fieldDataExt);
+                    }
+                }
             }
         }
+    }
+
+    private void changeKey(String aliasName, String columnName, List<FieldData> fieldDataList) {
+        columnToConfigMapping.put(aliasName, fieldDataList);
+        columnToConfigMapping.remove(columnName);
     }
 
 }

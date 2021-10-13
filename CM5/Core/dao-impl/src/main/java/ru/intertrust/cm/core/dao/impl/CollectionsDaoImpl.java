@@ -55,6 +55,7 @@ import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHan
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
 import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
+import ru.intertrust.cm.core.dao.impl.sqlparser.FieldData;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
@@ -264,12 +265,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             Select select = sqlParser.getSelectStatement();
 
             SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
-
-            Map<String, FieldConfig> columnToConfigMap =
-                    sqlQueryModifier.buildColumnToConfigMapForParameters(select);
             columnToConfigMapForSelectItems = createSqlQueryModifier().buildColumnToConfigMapForSelectItems(select);
-
-            columnToConfigMap.putAll(columnToConfigMapForSelectItems);
 
             collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, paramsWithPrompt.getSecond());
 

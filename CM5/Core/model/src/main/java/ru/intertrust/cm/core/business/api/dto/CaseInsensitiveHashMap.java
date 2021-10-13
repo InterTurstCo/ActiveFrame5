@@ -90,6 +90,11 @@ public class CaseInsensitiveHashMap<T> implements Map<String, T>, Dto {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return map.equals(obj);
+    }
+
+    @Override
     public String toString () {
         return map.toString();
     }
