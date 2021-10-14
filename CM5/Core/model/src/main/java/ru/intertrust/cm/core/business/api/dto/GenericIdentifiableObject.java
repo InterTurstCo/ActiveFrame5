@@ -14,6 +14,8 @@ import java.util.*;
  */
 public class GenericIdentifiableObject implements IdentifiableObject, Cloneable {
 
+    private static final long serialVersionUID = 6077155672001310679L;
+
     private Id id;
     protected LinkedHashMap<String, Value> fieldValues;
     protected LinkedHashSet<String> originalKeys = new LinkedHashSet<>();
