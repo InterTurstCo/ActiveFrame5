@@ -1,14 +1,11 @@
 package ru.intertrust.cm.core.dao.impl.attach;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -18,7 +15,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +23,7 @@ import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AttachmentStorageConfig;
@@ -44,21 +38,41 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class FileSystemAttachmentStorageImplTest {
 
-    @Spy private ConfigurationExplorer confExplorer = loadConfiguration("config/attachment-storages-test.xml");
+    @Spy
+    private ConfigurationExplorer confExplorer = loadConfiguration("config/attachment-storages-test.xml");
 
-    @Mock private CurrentUserAccessor currentUserAccessor;
-    @Mock private UserTransactionService txService;
-    @Mock private Environment env;
-    @Mock private ApplicationContext appContext;
-    @Mock private FileTypeDetector fileTypeDetector;
-    @Mock private FileDeleteStrategy fileDeleteStrategy;
-    @Mock private DomainObject domainObject;
+    @Mock
+    private CurrentUserAccessor currentUserAccessor;
+    @Mock
+    private Environment env;
+    @Mock
+    private UserTransactionService txService;
+    @Mock
+    private FileTypeDetector fileTypeDetector;
+    @Mock
+    private FileDeleteStrategy fileDeleteStrategy;
+    @Mock
+    private DomainObject domainObject;
+    @Mock
+    private DeleteAttachmentStrategyFactory strategyFactory;
 
-    private String tmpDir = Paths.get(System.getProperty("java.io.tmpdir"),
+    private final String tmpDir = Paths.get(System.getProperty("java.io.tmpdir"),
             System.getProperty("attachment.test.dir", "CM5_Test")).toString();
+
+    @Before
+    public void init() throws IOException {
+        Files.createDirectories(Paths.get(tmpDir));
+    }
 
     @Test(expected = ConfigurationException.class)
     public void testInitialize_notConfigured() {
@@ -78,7 +92,7 @@ public class FileSystemAttachmentStorageImplTest {
         try {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
-            assertTrue(content.length == info.getContentLength());
+            assertEquals(content.length, (long) info.getContentLength());
             assertEquals("text/ok", info.getMimeType());
             String requiredPath = new SimpleDateFormat("yyyy/MM/dd/").format(ctx.getCreationTime().getTime())
                     .replaceAll("\\/", "\\" + File.separator);
@@ -149,15 +163,10 @@ public class FileSystemAttachmentStorageImplTest {
         }
     }
 
-    @Before
-    public void init() throws IOException {
-        Files.createDirectories(Paths.get(tmpDir));
-    }
-
     private ConfigurationExplorer loadConfiguration(String path) {
         try {
             URI configUri = getClass().getClassLoader().getResource(path).toURI();
-            String conf = new String(Files.readAllBytes(Paths.get(configUri)), "UTF-8");
+            String conf = new String(Files.readAllBytes(Paths.get(configUri)), StandardCharsets.UTF_8);
             ConfigurationClassesCache.getInstance().build();
             ConfigurationSerializer serializer = new ConfigurationSerializer();
             Configuration configuration = serializer.deserializeLoadedConfiguration(conf);
@@ -173,7 +182,7 @@ public class FileSystemAttachmentStorageImplTest {
         AttachmentStorageConfig config = confExplorer.getConfig(AttachmentStorageConfig.class, name);
         FileSystemAttachmentStorageImpl testee = new FileSystemAttachmentStorageImpl(name,
                 (FolderStorageConfig) config.getStorageConfig());
-        when(appContext.getBean(anyString(), eq(FileDeleteStrategy.class))).thenReturn(fileDeleteStrategy);
+        when(strategyFactory.createDeleteStrategy(anyString(), any())).thenReturn(fileDeleteStrategy);
         injectMocks(testee);
         testee.initialize();
         return testee;
@@ -190,7 +199,7 @@ public class FileSystemAttachmentStorageImplTest {
                 }
 
                 @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attr) throws IOException {
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attr) {
                     return FileVisitResult.CONTINUE;
                 }
 
@@ -201,7 +210,7 @@ public class FileSystemAttachmentStorageImplTest {
                 }
 
                 @Override
-                public FileVisitResult visitFileFailed(Path file, IOException ex) throws IOException {
+                public FileVisitResult visitFileFailed(Path file, IOException ex) {
                     System.out.println("Failed to open file " + file);
                     return FileVisitResult.TERMINATE;
                 }
