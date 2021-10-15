@@ -370,7 +370,7 @@ public class QueryCollectionRetrieverTest {
         ReflectionTestUtils.setField(retriever, "sqlQuery", "select id from type");
         retriever.queryCollection(docList, 20);
         verify(collectionsService).findCollectionByQuery(
-                eq("select * from (select id from type) orig where (id={0} or id={1} or id={2})"),
+                eq("select * from (select id from type) orig where id in ({0}, {1}, {2})"),
                 eq(queryParams),
                 eq(0),
                 eq(20));
@@ -381,7 +381,7 @@ public class QueryCollectionRetrieverTest {
         retriever.queryCollection(docList, 20);
         queryParams.add(0, param);
         verify(collectionsService).findCollectionByQuery(
-                eq("select * from (select id from type where field = {0}) orig where (id={1} or id={2} or id={3})"),
+                eq("select * from (select id from type where field = {0}) orig where id in ({1}, {2}, {3})"),
                 eq(queryParams),
                 eq(0),
                 eq(20));

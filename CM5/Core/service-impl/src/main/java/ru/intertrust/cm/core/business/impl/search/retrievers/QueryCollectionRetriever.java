@@ -67,13 +67,13 @@ public class QueryCollectionRetriever extends CollectionRetriever {
             if (first) {
                 first = false;
             } else {
-                listQuery.append(" or ");
+                listQuery.append(", ");
             }
-            listQuery.append("id={").append(index).append("}");
+            listQuery.append("{").append(index).append("}");
             index++;
         }
         listQuery.append(")");
-        String modifiedQuery = "select * from (" + sqlQuery + ") orig where " + listQuery;
+        String modifiedQuery = "select * from (" + sqlQuery + ") orig" + (ids.isEmpty() ? "" : (" where id in " + listQuery.toString()));
 
         IdentifiableObjectCollection result = collectionsService.
                 findCollectionByQuery(modifiedQuery, modifiedParams, 0, Math.max(ids.size(), maxResults));
