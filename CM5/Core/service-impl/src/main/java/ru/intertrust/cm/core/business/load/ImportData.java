@@ -46,7 +46,7 @@ public class ImportData {
     public static final String PERSON_IMPORT_BEAN = "person-import-data";
     
     private static boolean isAllowRefresh (DomainObject domainObject) {
-        return !Boolean.FALSE.equals(domainObject.getBoolean("IsProhibitRefreshCsv"));
+        return !Boolean.TRUE.equals(domainObject.getBoolean("IsProhibitRefreshCsv"));
     }
 
     @Autowired
