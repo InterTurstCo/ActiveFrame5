@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class SimpleUploadController {
 
     @ResponseBody
     @RequestMapping(value = "simple-upload/{actionHandler}/execute", method = RequestMethod.POST)
-    public String upload(@RequestParam("fileselect[]") MultipartFile files[], @PathVariable String actionHandler)
+    public String upload(@RequestParam("fileselect[]") List<MultipartFile> files, @PathVariable String actionHandler)
             throws Exception {
 
         try {
