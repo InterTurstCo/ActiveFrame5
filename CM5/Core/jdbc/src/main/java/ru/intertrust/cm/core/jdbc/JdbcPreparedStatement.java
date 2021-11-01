@@ -70,14 +70,15 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     @SuppressWarnings("unchecked")
-    private List<Value<?>> getParams() {
+    private List<Value<?>> getParams() throws SQLException {
         List<Value<?>> result = new ArrayList<>();
 
         for (int index = 1; index <= parameters.size(); index++) {
             Value<?> parameter;
             Object value = parameters.get(index);
-            // на всякий случай оставил вариант value == null, хотя это больше похоже на ошибку
-            if (value == NULL || value == null) {
+            if (value == null) {
+                throw new SQLException("Unable to get parameter by index " + index + ". Null value is not supported");
+            } else if (value == NULL) {
                 parameter = getNullValue(index);
             } else if (value instanceof Integer) {
                 parameter = new LongValue((Integer) value);
