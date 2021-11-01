@@ -44,6 +44,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private final Map<Integer, Integer> nullParameterType = new HashMap<>();
     private final String query;
 
+    private static final Object NULL = new Object();
+
     JdbcPreparedStatement(SochiClient client, String query) {
         super(client);
         this.query = query;
@@ -74,7 +76,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
         for (int index = 1; index <= parameters.size(); index++) {
             Value<?> parameter;
             Object value = parameters.get(index);
-            if (value == null) {
+            // на всякий случай оставил вариант value == null, хотя это больше похоже на ошибку
+            if (value == NULL || value == null) {
                 parameter = getNullValue(index);
             } else if (value instanceof Integer) {
                 parameter = new LongValue((Integer) value);
@@ -131,7 +134,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        addParameter(parameterIndex, null);
+        addParameter(parameterIndex, NULL);
         nullParameterType.put(parameterIndex, sqlType);
     }
 
@@ -288,7 +291,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        addParameter(parameterIndex, null);
+        addParameter(parameterIndex, NULL);
         nullParameterType.put(parameterIndex, sqlType);
     }
 
