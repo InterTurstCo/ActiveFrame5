@@ -16,4 +16,17 @@ public interface DynamicGroupProcessor {
     Future<Void> calculateDynamicGroupAcync(Set<Id> groupIds);
 
     Future<Void> calculateGroupGroupAcync(Set<Id> groupIds);
+    
+    Future<Void> calculateDynamicGroupAcync(Set<Id> groupIds, Callback callback);
+
+    Future<Void> calculateGroupGroupAcync(Set<Id> groupIds, Callback callback);
+    
+    interface Callback {
+        
+        void onBeforeCalculate ();
+        
+        void onAfterCalculate ();
+        
+    }
+    
 }

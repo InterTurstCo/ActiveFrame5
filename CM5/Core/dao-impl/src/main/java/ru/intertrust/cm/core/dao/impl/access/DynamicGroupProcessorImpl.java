@@ -42,6 +42,19 @@ public class DynamicGroupProcessorImpl implements DynamicGroupProcessor {
     @Override
     @Asynchronous
     public Future<Void> calculateDynamicGroupAcync(Set<Id> groupIds) {
+        return this.pvCalculateDynamicGroupAcync(groupIds, null);
+    }
+    
+    @Override
+    @Asynchronous
+    public Future<Void> calculateDynamicGroupAcync(Set<Id> groupIds, Callback callback) {
+        return this.pvCalculateDynamicGroupAcync(groupIds, callback);
+    }
+    
+    private Future<Void> pvCalculateDynamicGroupAcync(Set<Id> groupIds, Callback callback) {
+        if (callback != null) {
+            callback.onBeforeCalculate();
+        }
         logger.info("Start recalculate dynamic group package size=" + groupIds.size());
         for (Id groupId : groupIds) {
             try {
@@ -57,12 +70,28 @@ public class DynamicGroupProcessorImpl implements DynamicGroupProcessor {
             }
         }
         logger.info("Finish recalculate dynamic group package");
+        if (callback != null) {
+            callback.onAfterCalculate();
+        }
         return new AsyncResult<Void>(null);
     }
 
     @Override
     @Asynchronous
     public Future<Void> calculateGroupGroupAcync(Set<Id> groupIds) {
+        return this.pvCalculateGroupGroupAcync(groupIds, null);
+    }
+
+    @Override
+    @Asynchronous
+    public Future<Void> calculateGroupGroupAcync(Set<Id> groupIds, Callback callback) {
+        return this.pvCalculateGroupGroupAcync(groupIds, callback);
+    }
+    
+    private Future<Void> pvCalculateGroupGroupAcync(Set<Id> groupIds, Callback callback) {
+        if (callback != null) {
+            callback.onBeforeCalculate();
+        }
         logger.info("Start recalculate hierarchy of group package size=" + groupIds.size());
         for (Id groupId : groupIds) {
             try {
@@ -78,6 +107,9 @@ public class DynamicGroupProcessorImpl implements DynamicGroupProcessor {
             }
         }
         logger.info("Finish recalculate hierarchy of group package");
+        if (callback != null) {
+            callback.onAfterCalculate();
+        }
         return new AsyncResult<Void>(null);
     }
 
