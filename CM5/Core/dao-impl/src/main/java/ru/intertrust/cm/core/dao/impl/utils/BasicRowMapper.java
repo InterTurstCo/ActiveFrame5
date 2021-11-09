@@ -92,7 +92,7 @@ public class BasicRowMapper extends ValueReader {
             return;
         }
 
-        Value value = readValue(rs, columns, columnIndex, fieldConfig);
+        Value<?> value = readValue(rs, columns, columnIndex, fieldConfig);
         valueModel.setValue(value);
 
         if (CREATED_DATE_COLUMN.equalsIgnoreCase(column.getName()) && value != null && value.get() != null) {

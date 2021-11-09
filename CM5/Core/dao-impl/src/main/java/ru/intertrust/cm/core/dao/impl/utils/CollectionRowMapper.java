@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
@@ -31,6 +33,8 @@ import java.util.Map;
 public class CollectionRowMapper extends BasicRowMapper implements
         ResultSetExtractor<IdentifiableObjectCollection> {
 
+    private static final Logger logger = LoggerFactory.getLogger(CollectionRowMapper.class);
+
     protected final String collectionName;
     protected final Map<String, FieldConfig> columnToConfigMap;
 
@@ -51,6 +55,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
     @Override
     public IdentifiableObjectCollection extractData(ResultSet rs) throws SQLException, DataAccessException {
+        logger.debug("Extract data method called");
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
         ColumnModel columnModel = buildColumnModel(rs);
@@ -65,7 +70,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
         addMissedFieldConfigs(columnModel, columnTypeMap);
         List<FieldConfig> collectionFieldConfigs = collectFieldConfigs(columnModel);
         collection.setFieldsConfiguration(collectionFieldConfigs);
-        
+
         int row = 0;
         String firstReferenceName = null;
         final long start = System.currentTimeMillis();
@@ -73,12 +78,15 @@ public class CollectionRowMapper extends BasicRowMapper implements
             ResultSetExtractionLogger.log("CollectionRowMapper.extractData", start, row + 1);
             int index = 0;
 
-            for (int i = 0; i < columnModel.getColumns().size(); i ++) {
+            for (int i = 0; i < columnModel.getColumns().size(); i++) {
                 Column column = columnModel.getColumns().get(i);
                 FieldValueModel valueModel = new FieldValueModel();
 
-                FieldConfig fieldConfig = columnToConfigMap.get(column.getName());
-                fillValueModel(rs, valueModel, columnModel.getColumns(),i, fieldConfig);
+                String name = column.getName();
+                logger.trace("Processing column {}, row {}", name, row);
+
+                FieldConfig fieldConfig = columnToConfigMap.get(name);
+                fillValueModel(rs, valueModel, columnModel.getColumns(), i, fieldConfig);
 
                 if (valueModel.getId() != null) {
                     collection.setId(row, valueModel.getId());
@@ -100,7 +108,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
                 if (firstReferenceName == null) {
                     for (FieldConfig fieldConfig : collection.getFieldsConfiguration()) {
                         if (fieldConfig instanceof ReferenceFieldConfig) {
-                            firstReferenceName = ((ReferenceFieldConfig) fieldConfig).getName();
+                            firstReferenceName = fieldConfig.getName();
                             break;
                         }
                     }
@@ -114,6 +122,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
             row++;
         }
 
+        logger.debug("Extract data method finished");
         return collection;
     }
 
