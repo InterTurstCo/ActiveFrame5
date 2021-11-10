@@ -267,7 +267,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
                     addBusinessFieldsByConfig(domainObject, fieldConfig, collector,
                             compoundFieldsConfig.getDelimiter(), index, fields.get(index));
                 }
-                return;
+                continue;
             }
 
             addBusinessFieldsByConfig(domainObject, doc, fieldConfig);
@@ -280,7 +280,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
             SearchFieldType type = entry.getKey();
             for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
-//                if (boostValue != null) {
+//                if (boostValue != null && entry.getValue() != null) {
 //                    doc.addField(fieldName, entry.getValue(), boostValue.floatValue());
 //                } else {
                     doc.addField(fieldName, entry.getValue());
@@ -295,11 +295,15 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         Double boostValue = fieldConfig.getIndexBoostValue();
         Map<SearchFieldType, ?> values = calculateField(domainObject, fieldConfig, compoundFieldConfig);
         for (Map.Entry<SearchFieldType, ?> entry : values.entrySet()) {
-            SearchFieldType type = entry.getKey();
-            for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
-                collector.addDelimiter(fieldName, delimiter);
-                collector.addBoost(fieldName, boostValue);
-                collector.add(fieldName, index, (String) entry.getValue());
+            // NULL значения отбрасываем, т.к. у нас выше идет цикл по разным ДО.
+            // Это значит, что одна формула может собрать значение только из 1 ДО из многих, а null значения объединять не надо
+            if (entry.getValue() != null) {
+                SearchFieldType type = entry.getKey();
+                for (String fieldName : type.getSolrFieldNames(fieldConfig.getName())) {
+                    collector.addDelimiter(fieldName, delimiter);
+                    collector.addBoost(fieldName, boostValue);
+                    collector.add(fieldName, index, (String) entry.getValue());
+                }
             }
         }
     }
@@ -314,7 +318,7 @@ public class DomainObjectIndexAgent extends DomainObjectIndexAgentBase
         if (!collector.isEmpty()) {
             collector.collect().forEach(it -> {
                 Double boost = it.getRight();
-//                if (boost != null) {
+//                if (boost != null && it.getMiddle() != null) {
 //                    doc.addField(it.getLeft(), it.getMiddle(), boost.floatValue());
 //                } else {
                     doc.addField(it.getLeft(), it.getMiddle());

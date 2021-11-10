@@ -52,8 +52,8 @@ public class CompoundFieldCollector {
             String field = entry.getKey();
             TreeMap<Integer, List<String>> fieldValues = compoundFields.get(field);
             StringJoiner calculatedValue = new StringJoiner(entry.getValue());
-            for (Map.Entry<Integer, List<String>> valueEntry : fieldValues.entrySet()) {
-                valueEntry.getValue().forEach(calculatedValue::add);;
+            for (List<String> values : fieldValues.values()) {
+                values.forEach(calculatedValue::add);;
             }
 
             result.add(ImmutableTriple.of(field, calculatedValue.toString(), fieldBoosts.get(field)));
