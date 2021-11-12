@@ -52,5 +52,4 @@ public class SolrFields {
      * Префиксы полей для точного поиска
      */
     public static final String EXACT_MATCH_FIELD = FIELD_PREFIX + "te";
-
 }

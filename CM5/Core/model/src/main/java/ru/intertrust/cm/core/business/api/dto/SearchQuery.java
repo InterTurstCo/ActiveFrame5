@@ -18,6 +18,20 @@ public class SearchQuery implements Dto {
     private ArrayList<String> areas = new ArrayList<>();
     private List<String> targetObjectTypes = new ArrayList<>();
     private HashMap<String, SearchFilter> filters = new HashMap<>();
+    // режим поиска
+    private CntxMode cntxMode = CntxMode.ALL;
+
+    public enum CntxMode {
+        /*
+        Только документы с вложениями.
+        При наличии ключа search.solr.cntx.mode = smart в server.properties
+        */
+        ATTACHMENTS,
+        /*
+        Документы и вложения. По умолчанию.
+        */
+        ALL
+    }
 
     public SearchQuery() {
     }
@@ -165,6 +179,14 @@ public class SearchQuery implements Dto {
      */
     public void clearFilters() {
         filters = new HashMap<String, SearchFilter>();
+    }
+
+    public CntxMode getCntxMode() {
+        return cntxMode != null ? cntxMode : CntxMode.ALL;
+    }
+
+    public void setCntxMode(CntxMode cntxMode) {
+        this.cntxMode = cntxMode;
     }
 
     @Override

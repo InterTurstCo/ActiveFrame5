@@ -53,6 +53,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Autowired
     private CollectionRetrieverFactory collectionRetrieverFactory;
 
+    @Autowired
+    private SolrSearchConfiguration solrSearchConfiguration;
+
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
@@ -535,6 +538,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             String queryString = composeQueryString(filters, query, CombiningFilter.Op.OR);
             String operation = this.combineOperation == CombiningFilter.AND ? " AND " : " OR ";
             this.queryString += (!this.queryString.isEmpty() ? operation : "") + queryString;
+            // добавляем условие на поиск только вложений, либо не добавляем вовсе
+            switch (getCntxMode(query)) {
+                case ATTACHMENTS:
+                    this.queryString += (!this.queryString.isEmpty() ? " AND " : "") + SolrUtils.ATTACH_FLAG_FIELD + ":(true)";
+                    break;
+                default:
+                    break;
+            }
         }
 
         @SuppressWarnings({"unchecked", "rawtypes"})
@@ -590,7 +601,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         .addField(SolrUtils.ID_FIELD)
                         .addField(SolrFields.OBJECT_ID)
                         .addField(SolrFields.MAIN_OBJECT_ID)
-                        .addField(SolrUtils.SCORE_FIELD);
+                        .addField(SolrUtils.SCORE_FIELD)
+                        .addField(SolrUtils.ATTACH_FLAG_FIELD);
                 if (areas.length() > 0) {
                     solrQuery.addFilterQuery(SolrFields.AREA + ":" + areas);
                 }
@@ -625,7 +637,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 response = executeSolrQuery(solrQuery, solrServerKey);
 				if (response.getResults() != null) {
 					clipped = clipped || rows > 0 && response.getResults().size() == rows;
-					compactQueryResults(response);
+					compactQueryResults(response, getCntxMode(query));
 					clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
 				}
             } while (clipped && response.getResults().size() < fetchLimit);
@@ -702,16 +714,30 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         }
 
-        private void compactQueryResults(QueryResponse response) {
+        private void compactQueryResults(QueryResponse response, SearchQuery.CntxMode cntxMode) {
             if (response == null || response.getResults() == null) {
                 return;
             }
             HashSet<String> ids = new HashSet<>(response.getResults().size());
+            // выбираем самые релевантные записи
+            // ATTACHMENTS - для одного документа самые релевантные вложения
+            // DOCUMENTS - документ
+            // ALL - документ или вложение
             for (Iterator<SolrDocument> itr = response.getResults().iterator(); itr.hasNext(); ) {
                 SolrDocument doc = itr.next();
+                Boolean isAttach = (Boolean) doc.getFieldValue(SolrUtils.ATTACH_FLAG_FIELD);
                 String mainId = (String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID);
                 String id = (String) doc.getFieldValue(SolrUtils.ID_FIELD);
-                if (ids.contains(mainId)) {
+                boolean bRemove = false;
+                switch (cntxMode) {
+                    case ATTACHMENTS:
+                        bRemove = (isAttach != null && !(isAttach.booleanValue())) || ids.contains(mainId);
+                        break;
+                    case ALL:
+                        bRemove = ids.contains(mainId);
+                        break;
+                }
+                if (bRemove) {
                     itr.remove();
                     if (response.getHighlighting() != null && response.getHighlighting().containsKey(id)) {
                         response.getHighlighting().remove(id);
@@ -722,6 +748,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         }
     }
+
+    private SearchQuery.CntxMode getCntxMode(SearchQuery searchQuery) {
+        return SolrUtils.CNTX_MODE_SMART.equalsIgnoreCase(solrSearchConfiguration.getSolrCntxMode()) ?
+                searchQuery.getCntxMode() : SearchQuery.CntxMode.ALL;
+    }
+
     // =================================================================================================================
 
     public <T> Set<T> getSolrFieldsMetaData(String area, String solrServerKey,

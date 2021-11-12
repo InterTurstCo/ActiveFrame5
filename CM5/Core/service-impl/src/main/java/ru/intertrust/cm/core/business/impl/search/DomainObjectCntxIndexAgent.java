@@ -27,6 +27,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
 
     private static final ObjectCache<String, CachedSolrDocs> cache = new ObjectCache<>();
 
+
     enum IndexingAction {
         ADD("add"),
         UPDATE("set"),
@@ -74,6 +75,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
         }
 
         Map<String, List<SolrInputDocument>> solrDocs = new HashMap<>();
+        Map<String, List<String>> solrIds = new HashMap<>();
         // Map<String, List<String>> toDelete = new HashMap<>();
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             if (!isCntxSolrServer(config.getSolrServerKey())) {
@@ -82,7 +84,17 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             }
             if (configHelper.isAttachmentObject(domainObject)) {
                 // Если это вложение, то формируем запрос
-                indexAttachment(solrDocs, domainObject, config, config.getSolrServerKey());
+                List<Id> mainIds = indexAttachment(solrDocs, domainObject, config, config.getSolrServerKey());
+                String cntxMode = solrSearchConfiguration.getSolrCntxMode();
+                if (SolrUtils.CNTX_MODE_SMART.equalsIgnoreCase(cntxMode)) {
+                    if (mainIds != null && !mainIds.isEmpty()) {
+                        for (Id mId : mainIds) {
+                            if (mId != null) {
+                                addSolrDocIdToDelete(solrIds, config.getSolrServerKey(), createUniqueId(mId.toStringRepresentation(), config));
+                            }
+                        }
+                    }
+                }
                 // continue;
             } else {
                 // если это сам объект, то ищем вложения и переиндексмируем
@@ -96,6 +108,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             }
         }
         putSolrDocsToQueue(solrDocs);
+        putSolrDocIdsToQueue(solrIds);
     }
 
     @Override
@@ -190,15 +203,16 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
         putSolrDocIdsToQueue(solrIds);
     }
 
-    private void indexAttachment(Map<String, List<SolrInputDocument>> solrDocs,
+    private List<Id> indexAttachment(Map<String, List<SolrInputDocument>> solrDocs,
                                  DomainObject attachmentObject,
                                  SearchConfigHelper.SearchAreaDetailsConfig attachmentConfig,
                                  String solrServerKey) {
+        List<Id> mainIds = null;
         // Проверка на то что данный тип вложения надо индексировать
         if (needIndex(attachmentObject)) {
             String linkName = configHelper.getAttachmentParentLinkName(attachmentObject.getTypeName(),
                     attachmentConfig.getObjectConfig().getType());
-            List<Id> mainIds = calculateMainObjects(attachmentObject.getReference(linkName), attachmentConfig.getObjectConfigChain());
+            mainIds = calculateMainObjects(attachmentObject.getReference(linkName), attachmentConfig.getObjectConfigChain());
             Map<String, ContentFieldConfig> contentFieldConfigs = new HashMap<>();
             Double boostValue = null;
             if (mainIds != null && !mainIds.isEmpty()) {
@@ -269,28 +283,37 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             if (log.isInfoEnabled()) {
                 log.info("Attachment queued for indexing");
             }
-        }else{
+        } else {
             log.debug("Indexing attachment " + attachmentObject.getString("name") + " is ignored by file extension");
         }
+        return mainIds;
     }
 
     private SolrInputDocument getSolrDocToIndex(DomainObject mainDomainObject,
                                                 DomainObject attachmentObject,
-                                                SearchConfigHelper.SearchAreaDetailsConfig attachmentConfig,
+                                                SearchConfigHelper.SearchAreaDetailsConfig objectConfig,
                                                 IndexingAction action) {
         SolrInputDocument solrDoc = null;
         if (mainDomainObject != null) {
             solrDoc = new SolrInputDocument();
-            solrDoc.addField("id", createUniqueId(attachmentObject, attachmentConfig));
+            solrDoc.addField(SolrUtils.ID_FIELD, createUniqueId(attachmentObject != null ? attachmentObject : mainDomainObject, objectConfig));
             solrDoc.addField(SolrFields.MODIFIED, ThreadSafeDateFormat.format(mainDomainObject.getModifiedDate(), DATE_PATTERN));
+            if (attachmentObject == null) {
+                solrDoc.addField(SolrFields.OBJECT_ID, mainDomainObject.getId().toStringRepresentation());
+                solrDoc.addField(SolrFields.AREA, objectConfig.getAreaName());
+                solrDoc.addField(SolrFields.TARGET_TYPE, objectConfig.getTargetObjectType());
+                solrDoc.addField(SolrFields.OBJECT_TYPE, objectConfig.getObjectConfig().getType());
+                solrDoc.addField(SolrFields.MAIN_OBJECT_ID, mainDomainObject.getId().toStringRepresentation());
+            }
+            solrDoc.addField(SolrUtils.ATTACH_FLAG_FIELD, attachmentObject != null);
             if (action != IndexingAction.DELETE) {
-                updateSolrDoc(solrDoc, mainDomainObject, attachmentConfig, IndexingAction.UPDATE);
+                updateSolrDoc(solrDoc, mainDomainObject, objectConfig, IndexingAction.UPDATE);
                 // перебор всех дочерних объектов и заполение полей solr-документа
-                for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configHelper.findChildConfigs(attachmentConfig)) {
+                for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configHelper.findChildConfigs(objectConfig)) {
                     for (DomainObject child : findChildren(mainDomainObject.getId(), linkedConfig)) {
                         List<SearchConfigHelper.SearchAreaDetailsConfig> configs = configHelper.findEffectiveConfigs(child.getTypeName());
                         for (SearchConfigHelper.SearchAreaDetailsConfig cfg : configs) {
-                            if (!attachmentConfig.getAreaName().equalsIgnoreCase(cfg.getAreaName())) {
+                            if (!objectConfig.getAreaName().equalsIgnoreCase(cfg.getAreaName())) {
                                 // другая область поиска, пропускаем
                                 continue;
                             }
@@ -317,7 +340,7 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
     }
 
     private Map<String, SolrInputDocument> collectSolrDocs(DomainObject object,
-                                                           SearchConfigHelper.SearchAreaDetailsConfig config,
+                                                           SearchConfigHelper.SearchAreaDetailsConfig objectConfig,
                                                            List<Id> mainIds,
                                                            IndexingAction action) {
         Map<String, SolrInputDocument> solrDocMap = new LinkedHashMap<>();
@@ -328,8 +351,12 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
             if (mainDomainObject == null) {
                 continue;
             }
+            SolrInputDocument solrDoc = null;
+
+            //  индексируем документ с каждым вложением
+            boolean isAttach = false;
             Set<IndexedContentConfig> contentConfigs = new LinkedHashSet<>();
-            IndexedDomainObjectConfig[] objectConfigs = config.getObjectConfigChain();
+            IndexedDomainObjectConfig[] objectConfigs = objectConfig.getObjectConfigChain();
             for (IndexedDomainObjectConfig cfg : objectConfigs) {
                 contentConfigs.addAll(cfg.getContentObjects());
             }
@@ -344,16 +371,28 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
                         List<SearchConfigHelper.SearchAreaDetailsConfig> attachmentConfigs =
                                 configHelper.findEffectiveConfigs(attachment.getTypeName());
                         for (SearchConfigHelper.SearchAreaDetailsConfig attachmentConfig : attachmentConfigs) {
-                            if (!config.getAreaName().equalsIgnoreCase(attachmentConfig.getAreaName())) {
+                            if (!objectConfig.getAreaName().equalsIgnoreCase(attachmentConfig.getAreaName())) {
                                 continue;
                             }
-                            SolrInputDocument solrDoc = getSolrDocToIndex(mainDomainObject, attachment, attachmentConfig, action);
+                            solrDoc = getSolrDocToIndex(mainDomainObject, attachment, objectConfig, action);
                             if (solrDoc != null && action == IndexingAction.DELETE) {
-                                updateSolrDoc(solrDoc, object, config, IndexingAction.DELETE);
+                                updateSolrDoc(solrDoc, object, objectConfig, IndexingAction.DELETE);
                             }
-                            solrDocMap.put(solrDoc.get("id").toString(), solrDoc);
+                            solrDocMap.put(solrDoc.get(SolrUtils.ID_FIELD).toString(), solrDoc);
+                            isAttach = true;
                         }
                     }
+                }
+            }
+            if (!isAttach) {
+                // индексируем документ без вложений
+                String cntxMode = solrSearchConfiguration.getSolrCntxMode();
+                if (SolrUtils.CNTX_MODE_SMART.equalsIgnoreCase(cntxMode)) {
+                    solrDoc = getSolrDocToIndex(mainDomainObject, null, objectConfig, action);
+                    if (solrDoc != null && action == IndexingAction.DELETE) {
+                        updateSolrDoc(solrDoc, object, objectConfig, IndexingAction.DELETE);
+                    }
+                    solrDocMap.put(solrDoc.get(SolrUtils.ID_FIELD).toString(), solrDoc);
                 }
             }
         }

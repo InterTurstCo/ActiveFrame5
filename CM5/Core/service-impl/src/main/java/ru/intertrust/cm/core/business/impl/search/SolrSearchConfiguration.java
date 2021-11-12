@@ -37,6 +37,9 @@ public class SolrSearchConfiguration {
     @Value("${search.solr.cntx.servers:}")
     private String solrCntxServers;
 
+    @Value("${search.solr.cntx.mode:legacy}")
+    private String solrCntxMode;
+
     private Map<String, SolrCntxServerDescription> solrCntxServerDescriptionMap = null;
 
     public String getSolrUrl() {
@@ -95,6 +98,14 @@ public class SolrSearchConfiguration {
         this.solrCntxServers = solrCntxServers;
     }
 
+    public String getSolrCntxMode() {
+        return solrCntxMode != null ? solrCntxMode.trim() : "legacy";
+    }
+
+    public void setSolrCntxMode(String solrCntxMode) {
+        this.solrCntxMode = solrCntxMode;
+    }
+
     public Map<String, SolrCntxServerDescription> getSolrCntxServerDescriptionMap() {
         if (solrCntxServerDescriptionMap == null) {
             solrCntxServerDescriptionMap = new HashMap<>();
@@ -110,4 +121,5 @@ public class SolrSearchConfiguration {
         }
         return solrCntxServerDescriptionMap;
     }
+
 }

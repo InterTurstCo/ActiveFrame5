@@ -11,6 +11,12 @@ public class SolrUtils {
     public static final String ID_FIELD = "id";
     public static final String SCORE_FIELD = "score";
     public static final String PARAM_FIELD_PREFIX = "literal.";
+    /**
+     * Имя поля с флагом вложения
+     */
+    public static final String ATTACH_FLAG_FIELD = "cm_b_attach_flag";
+    public static final String CNTX_MODE_LEGACY = "legacy";
+    public static final String CNTX_MODE_SMART = "smart";
     private static final Map<ESCAPE_TYPE, String> symbolsToEscape = new HashMap<>(3);
 
     private enum State {
