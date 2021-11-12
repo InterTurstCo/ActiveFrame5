@@ -1,15 +1,25 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.io.PrintStream;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -17,15 +27,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.impl.search.retrievers.CntxCollectionRetriever;
-import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetriever;
-import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetrieverFactory;
-import ru.intertrust.cm.core.business.impl.search.retrievers.NamedCollectionRetriever;
-import ru.intertrust.cm.core.business.impl.search.retrievers.QueryCollectionRetriever;
-import ru.intertrust.cm.core.config.search.*;
+import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.config.search.ContentFieldConfig;
+import ru.intertrust.cm.core.config.search.HighlightingConfig;
+import ru.intertrust.cm.core.config.search.HighlightingRawParam;
+import ru.intertrust.cm.core.config.search.IndexedContentConfig;
+import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.LinkedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 import ru.intertrust.cm.core.model.SearchException;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
@@ -36,7 +53,7 @@ import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
-    protected Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger logger = LoggerFactory.getLogger(SearchServiceImpl.class);
 
     @Value("${search.results.limit:5000}")
     private int RESULTS_LIMIT;
@@ -58,7 +75,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
-            int maxResults) {
+                                               int maxResults) {
         try {
             if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
                 maxResults = RESULTS_LIMIT;
@@ -75,9 +92,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     .setQuery(queryString.toString())
                     .addFilterQuery(SolrFields.AREA + ":\"" + areaName + "\"")
                     //.addFilterQuery(SolrFields.TARGET_TYPE + ":" + configHelper.getTargetObjectType(targetCollectionName))
-                .addField(SolrFields.MAIN_OBJECT_ID)
-                .addField(SolrUtils.SCORE_FIELD);
-            if (solrQuery.getSorts().isEmpty()){
+                    .addField(SolrFields.MAIN_OBJECT_ID)
+                    .addField(SolrUtils.SCORE_FIELD);
+            if (solrQuery.getSorts().isEmpty()) {
                 solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
                         .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
             }
@@ -113,7 +130,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName,
-            List<? extends Filter> collectionFilters, int maxResults) {
+                                               List<? extends Filter> collectionFilters, int maxResults) {
         NamedCollectionRetriever cr = collectionRetrieverFactory
                 .newNamedCollectionRetriever(targetCollectionName, collectionFilters);
         return complexSearch(query, cr, maxResults);
@@ -127,7 +144,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery, String sqlQuery,
-            List<? extends ru.intertrust.cm.core.business.api.dto.Value<?>> sqlParams, int maxResults) {
+                                                       List<? extends ru.intertrust.cm.core.business.api.dto.Value<?>> sqlParams, int maxResults) {
         QueryCollectionRetriever collectionRetriever = collectionRetrieverFactory.newQueryCollectionRetriever(sqlQuery, sqlParams);
         return complexSearch(searchQuery, collectionRetriever, maxResults);
     }
@@ -199,7 +216,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
     private IdentifiableObjectCollection complexSearch(SearchQuery query, CollectionRetriever collectionRetriever,
-            int maxResults) {
+                                                       int maxResults) {
         try {
             if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
                 maxResults = RESULTS_LIMIT;
@@ -208,7 +225,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             // Анализ запроса и разделение фильтров по типам объектов
             ComplexQuery solrMultiQuery = new ComplexQuery();
             solrMultiQuery.addFilters(query.getFilters(), query);
-    
+
             // Выполнение запросов в Solr и формирование коллекции найденных документов
             int fetchLimit = maxResults;
             while (true) {
@@ -260,7 +277,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     continue;
                 }
                 return result;
-            } while(true);
+            } while (true);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -316,8 +333,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     interface QueryProcessor {
         QueryProcessor newNestedQuery();
+
         void setCombineOperation(CombiningFilter.Op operation);
+
         void setNegativeResult(boolean negativeResault);
+
         void addFilters(Collection<SearchFilter> filters, SearchQuery query);
     }
 
@@ -343,11 +363,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             this.combineOperation = operation;
         }
 
-        public void setNegativeResult(boolean negativeResult){
+        public void setNegativeResult(boolean negativeResult) {
             this.negateResult = negativeResult;
         }
 
-        @SuppressWarnings({ "unchecked", "rawtypes" })
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
             for (SearchFilter filter : filters) {
@@ -366,13 +386,13 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(), query.getAreas(),
                         query.getTargetObjectTypes());
                 if (types.size() == 0) {
-                    log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
+                    logger.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
 
                 if (types.size() > 1) {
                     addFilterValue(SearchConfigHelper.ALL_TYPES, filterValue);
                 } else if (types.size() == 1) {
-                    addFilterValue((String)types.toArray()[0], filterValue);
+                    addFilterValue((String) types.toArray()[0], filterValue);
                 }
             }
         }
@@ -403,9 +423,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             StringBuilder areas = new StringBuilder();
             for (String areaName : query.getAreas()) {
                 areas.append(areas.length() == 0 ? "(" : " OR ")
-                     .append("\"")
-                     .append(areaName)
-                     .append("\"");
+                        .append("\"")
+                        .append(areaName)
+                        .append("\"");
             }
             areas.append(")");
 
@@ -424,11 +444,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             do {
                 clipped = false;
                 int rows = Math.round(fetchLimit / clippingFactor);
+                logger.trace("Attempting to get {} rows", rows);
+
                 ArrayList<SolrDocumentList> foundParts = new ArrayList<>(filterStrings.size());
                 for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+                    logger.trace("Prepare Solr Query, query {}, objectType {}", entry.getKey(), entry.getValue());
                     SolrDocumentList cached = foundCache.get(entry.getKey());
                     if (cached != null && (cached.size() >= cached.getNumFound() || cached.size() >= rows)) {
                         foundParts.add(cached);
+                        logger.trace("Result found in cache, skipping...");
                         continue;
                     }
 
@@ -449,17 +473,19 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     if (rows > 0) {
                         solrQuery.setRows(rows);
                     }
-					QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
-					if (response.getResults() != null) {
-						foundParts.add(response.getResults());
-						foundCache.put(entry.getKey(), response.getResults());
-						clipped = clipped || rows > 0 && response.getResults().size() == rows;
-					}
+                    QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
+                    if (response.getResults() != null) {
+                        foundParts.add(response.getResults());
+                        foundCache.put(entry.getKey(), response.getResults());
+                        clipped = clipped || rows > 0 && response.getResults().size() == rows;
+                    }
                 }
                 for (String filterString : multiTypeFilterStrings) {
+                    logger.trace("Prepare multiType query. Filter {}", filterString);
                     SolrDocumentList cached = foundCache.get(":" + filterString);
                     if (cached != null && (cached.size() >= cached.getNumFound() || cached.size() >= rows)) {
                         foundParts.add(cached);
+                        logger.trace("Result found in cache, skipping...");
                         continue;
                     }
 
@@ -469,7 +495,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             .addFilterQuery(SolrFields.TARGET_TYPE + ":" + targetTypes)
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
-                    if (solrQuery.getSorts().isEmpty()){
+                    if (solrQuery.getSorts().isEmpty()) {
                         solrQuery.addSort(SolrUtils.SCORE_FIELD, SolrQuery.ORDER.desc)
                                 .addSort(SolrFields.MAIN_OBJECT_ID, SolrQuery.ORDER.asc);
                     }
@@ -477,26 +503,30 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         solrQuery.setRows(rows);
                     }
                     QueryResponse response = executeSolrQuery(solrQuery, solrServerKey);
-					if (response.getResults() != null) {
-						foundParts.add(response.getResults());
-						foundCache.put(":" + filterString, response.getResults());
-						clipped = clipped || rows > 0 && response.getResults().size() == rows;
-					}
+                    if (response.getResults() != null) {
+                        foundParts.add(response.getResults());
+                        foundCache.put(":" + filterString, response.getResults());
+                        clipped = clipped || rows > 0 && response.getResults().size() == rows;
+                    }
                 }
                 for (ComplexQuery nested : nestedQueries) {
+                    logger.trace("Nested query will be executed...");
                     SolrDocumentList part = nested.execute(rows, query);
                     foundParts.add(part);
                     clipped = clipped || rows > 0 && part.size() >= rows;
                 }
                 if (foundParts.size() == 1) {
                     result = foundParts.get(0);
+                    logger.trace("Compact single result...");
                     compactList(result);
                 } else {
                     // TODO special processing for negateResult==true needed
+                    logger.trace("Attempt to combine results...");
                     result = combineResults(foundParts, combineOperation == CombiningFilter.AND
                             ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
                 }
                 clippingFactor *= Math.max(1f, 0.9f * result.size()) / rows;
+                logger.trace("New clippingFactor is {}", clippingFactor);
             } while (clipped && result.size() < fetchLimit);
             return result;
         }
@@ -513,7 +543,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
         CombiningFilter.Op combineOperation = CombiningFilter.AND;
         private String queryString = "";
-        private Set<String> objectTypeSet = new HashSet<>();
+        private final Set<String> objectTypeSet = new HashSet<>();
 
         CntxQuery() {
         }
@@ -555,7 +585,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             for (SearchFilter filter : filters) {
                 FilterAdapter adapter = searchFilterImplementorFactory.createImplementorFor(filter.getClass());
 
-                String filterValue = "";
+                String filterValue;
                 if (adapter.isCompositeFilter(filter) && filter instanceof CombiningFilter) {
                     filterValue = composeQueryString(((CombiningFilter) filter).getFilters(), query, ((CombiningFilter) filter).getOperation());
                     queryString.append((queryString.length() > 0) ? operation : "").append(filterValue);
@@ -570,7 +600,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(),
                         query.getAreas(), query.getTargetObjectTypes());
                 if (types.size() == 0) {
-                    log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
+                    logger.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 } else {
                     queryString.append((queryString.length() > 0) ? operation : "").append(filterValue);
                     if (types.size() == 1) {
@@ -592,7 +622,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
             float clippingFactor = 1f;
             boolean clipped;
-            QueryResponse response = null;
+            QueryResponse response;
             do {
                 clipped = false;
                 int rows = Math.round(fetchLimit / clippingFactor);
@@ -635,11 +665,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     solrQuery.setRows(rows);
                 }
                 response = executeSolrQuery(solrQuery, solrServerKey);
-				if (response.getResults() != null) {
-					clipped = clipped || rows > 0 && response.getResults().size() == rows;
-					compactQueryResults(response, getCntxMode(query));
-					clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
-				}
+                if (response.getResults() != null) {
+                    clipped = rows > 0 && response.getResults().size() == rows;
+                    compactQueryResults(response, getCntxMode(query));
+                    clippingFactor *= Math.max(1f, 0.9f * response.getResults().size()) / rows;
+                }
             } while (clipped && response.getResults().size() < fetchLimit);
             return response;
         }
@@ -739,7 +769,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 if (bRemove) {
                     itr.remove();
-                    if (response.getHighlighting() != null && response.getHighlighting().containsKey(id)) {
+                    if (response.getHighlighting() != null) {
                         response.getHighlighting().remove(id);
                     }
                 } else {
@@ -757,7 +787,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     // =================================================================================================================
 
     public <T> Set<T> getSolrFieldsMetaData(String area, String solrServerKey,
-                                            List<String> targetObjectTypes, ConfigDataExtractor extractor) {
+                                            List<String> targetObjectTypes, ConfigDataExtractor<T> extractor) {
         Set<T> solrFieldsMetaData = new LinkedHashSet<>();
         try {
             if (extractor != null && targetObjectTypes != null) {
@@ -774,7 +804,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         }
                         // получаем список полей
                         IndexedDomainObjectConfig objectConfig = searchAreaDetailsConfig.getObjectConfig();
-                        Collection<T> extractedValues = extractor != null ? extractor.getExtractedValues(type, objectConfig) : Collections.emptySet();
+                        Collection<T> extractedValues = extractor.getExtractedValues(type, objectConfig);
                         solrFieldsMetaData.addAll(extractedValues);
                     }
                 }
@@ -816,7 +846,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             case MIMETYPE:
                             case DESCRIPTION:
                                 addFieldMetaData(solrFields, new TextSearchFieldType(
-                                        configHelper.getSupportedLanguages()),
+                                                configHelper.getSupportedLanguages()),
                                         contentFieldConfig.getType().getSolrFieldName(),
                                         contentFieldConfig.getTypeString(), targetName, false);
                                 break;
@@ -853,7 +883,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                                       boolean isHighlighting) {
             Collection<String> fieldNameList = searchFieldType.getSolrFieldNames(solrFieldName);
             if (!fieldNameList.isEmpty()) {
-             TargetResultField trf = new TargetResultField(indexedFieldName,
+                TargetResultField trf = new TargetResultField(indexedFieldName,
                         targetName, searchFieldType.getDataFieldType(), isHighlighting);
                 trf.getSolrFieldNames().addAll(fieldNameList);
                 solrFields.put(targetName, trf);
@@ -963,7 +993,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     }
 
     interface ConfigDataExtractor<T> {
-        Collection<T> getExtractedValues (String type, IndexedDomainObjectConfig objectConfig);
+        Collection<T> getExtractedValues(String type, IndexedDomainObjectConfig objectConfig);
     }
 
     private interface Combiner {
@@ -972,14 +1002,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     private static class UnionCombiner implements Combiner {
 
-        private HashSet<String> ids = new HashSet<>();
+        private final Set<String> ids = new HashSet<>();
 
         @Override
         public boolean add(SolrDocument doc, SolrDocumentList list) {
             String id = (String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID);
             if (ids.contains(id)) {
                 return false;
-                }
+            }
+
             list.add(doc);
             ids.add(id);
             return true;
@@ -1001,8 +1032,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         }
 
-        private HashMap<String, FoundDoc> docMap = new HashMap<>();
-        private int threshold;
+        private final HashMap<String, FoundDoc> docMap = new HashMap<>();
+        private final int threshold;
 
         IntersectCombiner(int threshold) {
             this.threshold = threshold;
@@ -1033,33 +1064,29 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         // одинаковый рейтинг, используется список номеров.
         SortedMap<Float, LinkedList<Integer>> scores = new TreeMap<>();
 
+        logger.trace("Initialize system structures... Number of results is {}", results.size());
         // Инициализация служебных структур
-        int i = 0;
-        for (SolrDocumentList list : results) {
-            // Обрабатываем все непустые списки
-            if (list.size() > 0) {
-                compactList(list);
-                lists.put(i, list);
-                cursors.add(0);
-                float score = list.getMaxScore();
-                if (!scores.containsKey(score)) {
-                    scores.put(score, new LinkedList<Integer>());
-                }
-                scores.get(score).add(i);
-                ++i;
-            }
-        }
+        initSystemStructures(results, lists, cursors, scores);
 
+        logger.trace("Join lists...");
+        SolrDocumentList combined = joinLists(combiner, maxSize, lists, cursors, scores);
+
+        logger.trace("Results successfully combined to single SolrDocumentList...");
+        return combined;
+    }
+
+    private SolrDocumentList joinLists(Combiner combiner, int maxSize, HashMap<Integer, SolrDocumentList> lists, ArrayList<Integer> cursors, SortedMap<Float, LinkedList<Integer>> scores) {
         // Соединение списков
         SolrDocumentList combined = new SolrDocumentList();
         combined.ensureCapacity(maxSize);
         combined.setMaxScore(scores.size() > 0 ? scores.lastKey() : 0.0f);
+
         globalCycle:
         while (lists.size() > 0) {
             // Вытаскиваем список номеров списков, имеющих следующий элемент с наибольшим рейтингом
             Float maxScore = scores.lastKey();
             LinkedList<Integer> listNums = scores.get(maxScore);
-            while(listNums.size() > 0) {
+            while (listNums.size() > 0) {
                 // Берём первый из номеров списков
                 int listNum = listNums.remove();
                 int docNum = cursors.get(listNum);
@@ -1077,7 +1104,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     SolrDocument nextDoc = list.get(docNum);
                     float score = (Float) nextDoc.getFieldValue(SolrUtils.SCORE_FIELD);
                     if (!scores.containsKey(score)) {
-                        scores.put(score, new LinkedList<Integer>());
+                        scores.put(score, new LinkedList<>());
                     }
                     scores.get(score).add(listNum);
                 } else {
@@ -1092,6 +1119,28 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return combined;
     }
 
+    private void initSystemStructures(Collection<SolrDocumentList> results, HashMap<Integer, SolrDocumentList> lists, ArrayList<Integer> cursors, SortedMap<Float, LinkedList<Integer>> scores) {
+        int i = 0;
+        for (SolrDocumentList list : results) {
+            // Обрабатываем все непустые списки
+            if (list.size() > 0) {
+                logger.trace("Compact sublist...");
+                compactList(list);
+                lists.put(i, list);
+                cursors.add(0);
+                float score = list.getMaxScore();
+                if (!scores.containsKey(score)) {
+                    scores.put(score, new LinkedList<>());
+                }
+                scores.get(score).add(i);
+                ++i;
+            }
+        }
+    }
+
+    /**
+     * Оставляем в списке только записи с уникальным cm_main
+     */
     private void compactList(SolrDocumentList list) {
         HashSet<String> ids = new HashSet<>(list.size());
         for (Iterator<SolrDocument> itr = list.iterator(); itr.hasNext(); ) {
@@ -1104,15 +1153,16 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
         }
     }
-/*
-    public SolrDocumentList unionResults(Collection<SolrDocumentList> results) {
-        return combineResults(results, new UnionCombiner());
-    }
 
-    public SolrDocumentList intersectResults(Collection<SolrDocumentList> results) {
-        return combineResults(results, new IntersectCombiner(results.size()));
-    }
-*/
+    /*
+        public SolrDocumentList unionResults(Collection<SolrDocumentList> results) {
+            return combineResults(results, new UnionCombiner());
+        }
+
+        public SolrDocumentList intersectResults(Collection<SolrDocumentList> results) {
+            return combineResults(results, new IntersectCombiner(results.size()));
+        }
+    */
     private List<String> listCommonSolrFields() {
         List<String> langs = configHelper.getSupportedLanguages();
         if (langs.size() == 0) {
@@ -1120,16 +1170,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
         ArrayList<String> fields = new ArrayList<>(2 * langs.size());
         for (String langId : langs) {
-            StringBuilder everything = new StringBuilder()
-                    .append(SolrFields.EVERYTHING)
-                    .append(langId.isEmpty() ? "" : "_")
-                    .append(langId);
-            fields.add(everything.toString());
-            StringBuilder content = new StringBuilder()
-                    .append(SolrFields.CONTENT)
-                    .append(langId.isEmpty() ? "" : "_")
-                    .append(langId);
-            fields.add(content.toString());
+            final String everything = SolrFields.EVERYTHING +
+                    (langId.isEmpty() ? "" : "_") +
+                    langId;
+            fields.add(everything);
+            final String content = SolrFields.CONTENT +
+                    (langId.isEmpty() ? "" : "_") +
+                    langId;
+            fields.add(content);
         }
         return fields;
     }
@@ -1141,17 +1189,17 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 throw new Exception("Can't find SolrClient by key : " + (solrServerKey != null ? solrServerKey : "null"));
             }
 
-            if (log.isTraceEnabled()) {
-                log.trace("Attempting to execute solr query: {}", query.toString());
+            if (logger.isTraceEnabled()) {
+                logger.trace("Attempting to execute solr query: {}", query.toString());
             }
 
             QueryResponse response = solrServer.query(query);
-            if (log.isDebugEnabled()) {
-                log.debug("Response: " + response);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Response: " + response);
             }
             return response;
         } catch (Exception e) {
-            log.error("Search error", e);
+            logger.error("Search error", e);
             throw new SearchException("Search error: " + e.getMessage());
         }
     }
@@ -1172,9 +1220,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public void dumpAll() {
-        PrintStream out = null;
-        try {
-            out = new PrintStream(dumpFileName, dumpFileEncoding);
+        try (PrintStream out = new PrintStream(dumpFileName, dumpFileEncoding)) {
             SolrQuery testQuery = new SolrQuery()
                     .setQuery("*:*")
                     .addField("*")
@@ -1190,12 +1236,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-        } finally {
-            if (out != null) {
-                out.close();
-            }
+            logger.error(e.getMessage(), e);
         }
     }
 
