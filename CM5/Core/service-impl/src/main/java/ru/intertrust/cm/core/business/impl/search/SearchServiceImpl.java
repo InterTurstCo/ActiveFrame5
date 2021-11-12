@@ -525,8 +525,17 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     result = combineResults(foundParts, combineOperation == CombiningFilter.AND
                             ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
                 }
+                float prev = clippingFactor;
                 clippingFactor *= Math.max(1f, 0.9f * result.size()) / rows;
+                if (clippingFactor == prev) {
+                    // По фату, надо покрыть случай, когда у нас не найдено ни 1 записи, а пользователь ищет 1 строку,
+                    // тогда поток зависнет, потому что всегда clippingFactor будет = 1.0, а значит мы всегда будем продолжать искать
+                    // по одной строке. Но на вякий случай, я добавлю условие на одинаковость
+                    logger.trace("Previous clippingFactor is equals to new one. Divide by 100... Previous value was {}", clippingFactor);
+                    clippingFactor /= 100;
+                }
                 logger.trace("New clippingFactor is {}", clippingFactor);
+
             } while (clipped && result.size() < fetchLimit);
             return result;
         }
