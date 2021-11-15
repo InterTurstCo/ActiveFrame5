@@ -18,8 +18,8 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -35,6 +35,11 @@ import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollectio
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CntxCollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetrieverFactory;
+import ru.intertrust.cm.core.business.impl.search.retrievers.NamedCollectionRetriever;
+import ru.intertrust.cm.core.business.impl.search.retrievers.QueryCollectionRetriever;
 import ru.intertrust.cm.core.config.search.ContentFieldConfig;
 import ru.intertrust.cm.core.config.search.HighlightingConfig;
 import ru.intertrust.cm.core.config.search.HighlightingRawParam;
@@ -287,7 +292,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         //CMSEVEN-11017 (CONRSHB-3351)
         if (configHelper == null) {
             RuntimeException e = new RuntimeException("@Autowired private SearchConfigHelper configHelper == null!");
-            log.error("SearchServiceImpl error.", e);
+            logger.error("SearchServiceImpl error.", e);
             throw e;
         }
         //CMSEVEN-11017 (CONRSHB-3351)
@@ -317,12 +322,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     //CMSEVEN-11017 (CONRSHB-3351)
     private String getSolrKeyByArea(String area) {
-        log.debug("getSolrKeyByArea:area=" + (area != null ? area : "null"));
+        logger.debug("getSolrKeyByArea:area=" + (area != null ? area : "null"));
         SearchAreaConfig config = configHelper.getSearchAreaDetailsConfig(area);
         if (config == null) {
             RuntimeException e = new RuntimeException("configHelper.getSearchAreaDetailsConfig("
                     + (area == null ? "null" : ("\"" + area + "\"")) +") returned null.");
-            log.error("SearchServiceImpl error.", e);
+            logger.error("SearchServiceImpl error.", e);
             throw e;
         }
         String key = config.getSolrServerKey();
