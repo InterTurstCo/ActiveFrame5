@@ -297,14 +297,13 @@ public class DomainObjectCntxIndexAgent extends DomainObjectIndexAgentBase
         if (mainDomainObject != null) {
             solrDoc = new SolrInputDocument();
             solrDoc.addField(SolrUtils.ID_FIELD, createUniqueId(attachmentObject != null ? attachmentObject : mainDomainObject, objectConfig));
+            solrDoc.addField(SolrFields.OBJECT_ID, attachmentObject != null ?
+                    attachmentObject.getId().toStringRepresentation() : mainDomainObject.getId().toStringRepresentation());
+            solrDoc.addField(SolrFields.AREA, objectConfig.getAreaName());
+            solrDoc.addField(SolrFields.TARGET_TYPE, objectConfig.getTargetObjectType());
+            solrDoc.addField(SolrFields.OBJECT_TYPE, objectConfig.getObjectConfig().getType());
+            solrDoc.addField(SolrFields.MAIN_OBJECT_ID, mainDomainObject.getId().toStringRepresentation());
             solrDoc.addField(SolrFields.MODIFIED, ThreadSafeDateFormat.format(mainDomainObject.getModifiedDate(), DATE_PATTERN));
-            if (attachmentObject == null) {
-                solrDoc.addField(SolrFields.OBJECT_ID, mainDomainObject.getId().toStringRepresentation());
-                solrDoc.addField(SolrFields.AREA, objectConfig.getAreaName());
-                solrDoc.addField(SolrFields.TARGET_TYPE, objectConfig.getTargetObjectType());
-                solrDoc.addField(SolrFields.OBJECT_TYPE, objectConfig.getObjectConfig().getType());
-                solrDoc.addField(SolrFields.MAIN_OBJECT_ID, mainDomainObject.getId().toStringRepresentation());
-            }
             solrDoc.addField(SolrUtils.ATTACH_FLAG_FIELD, attachmentObject != null);
             if (action != IndexingAction.DELETE) {
                 updateSolrDoc(solrDoc, mainDomainObject, objectConfig, IndexingAction.UPDATE);
