@@ -209,7 +209,7 @@ public interface WorkflowEngine {
     Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit);
 
     /**
-     * Получение идентификатора крайней версии шаблона процесса с переданным ключем
+     * Получение идентификатора последней версии шаблона процесса с переданным ключем
      * @param processDefinitionKey
      * @return
      */

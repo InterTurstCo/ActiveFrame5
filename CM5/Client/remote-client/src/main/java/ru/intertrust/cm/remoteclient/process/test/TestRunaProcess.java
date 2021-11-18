@@ -69,11 +69,12 @@ public class TestRunaProcess extends ClientBase {
 
             final ProcessService.Remote processService = getProcessService("admin");
             // Установка процесса
-            final Id defId = deployProcess(processService, "templates/runa/test-1.par", "test-1", true);
+            final Id defId = deployProcess(processService, "templates/runa/test-1.par", "test-1",
+                    ProcessService.SaveType.ACTIVATE);
             assertTrue("Deploy process", defId != null);
 
             // Повторная установка процесса
-            Id defId2 = deployProcess(processService, "templates/runa/test-1.par", "test-1", true);
+            Id defId2 = deployProcess(processService, "templates/runa/test-1.par", "test-1", ProcessService.SaveType.ACTIVATE);
             assertTrue("Secondary deploy process", defId2 != null && !defId.equals(defId2));
 
 

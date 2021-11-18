@@ -10,15 +10,27 @@ import java.io.IOException;
 public class CommonMethods {
 
     public static void deployProcesses(ProcessService.Remote service) throws IOException {
-        deployProcess(service, "templates/testInternalDoc/InternalDoc.bpmn", "InternalDoc.bpmn", true);
-        deployProcess(service, "templates/testInternalDoc/Negotiation.bpmn", "Negotiation.bpmn", true);
-        deployProcess(service, "templates/testInternalDoc/Registration.bpmn", "Registration.bpmn", true);
-        deployProcess(service, "templates/testInternalDoc/DocExecution.bpmn", "DocExecution.bpmn", true);
-        deployProcess(service, "templates/testInternalDoc/CommissionExecution.bpmn", "CommissionExecution.bpmn", true);
+        deployProcess(service, "templates/testInternalDoc/InternalDoc.bpmn", "InternalDoc.bpmn",
+                ProcessService.SaveType.ACTIVATE);
+        deployProcess(service, "templates/testInternalDoc/Negotiation.bpmn", "Negotiation.bpmn",
+                ProcessService.SaveType.ACTIVATE);
+        deployProcess(service, "templates/testInternalDoc/Registration.bpmn", "Registration.bpmn",
+                ProcessService.SaveType.ACTIVATE);
+        deployProcess(service, "templates/testInternalDoc/DocExecution.bpmn", "DocExecution.bpmn",
+                ProcessService.SaveType.ACTIVATE);
+        deployProcess(service, "templates/testInternalDoc/CommissionExecution.bpmn", "CommissionExecution.bpmn",
+                ProcessService.SaveType.ACTIVATE);
     }
 
+    @Deprecated
     public static Id deployProcess(ProcessService.Remote service, String processPath, String fileName, boolean deploy) throws IOException {
-        return service.saveProcess(getProcessAsByteArray(processPath), fileName, deploy);
+        return service.saveProcess(getProcessAsByteArray(processPath), fileName,
+                deploy ? ProcessService.SaveType.ACTIVATE : ProcessService.SaveType.ONLY_SAVE);
+    }
+
+    public static Id deployProcess(ProcessService.Remote service, String processPath, String fileName, ProcessService.SaveType type)
+            throws IOException {
+        return service.saveProcess(getProcessAsByteArray(processPath), fileName, type);
     }
 
     public static void undeployProcess(ProcessService.Remote service, Id id) {

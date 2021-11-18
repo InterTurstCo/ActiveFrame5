@@ -54,7 +54,7 @@ public class TestProcess extends ClientBase {
 
             final ProcessService.Remote processService = getProcessService("admin");
             Id defId = deployProcess(processService, "Client/remote-client/templates/TestSimpleProcess.bpmn",
-                    "SimpleProcess.bpmn", true);
+                    "SimpleProcess.bpmn", ProcessService.SaveType.ACTIVATE);
 
             // Создание документа, который НЕ будет прикреплен к процессу
             DomainObject attachmentNotInProcess = getCrudService()

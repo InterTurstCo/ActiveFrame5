@@ -28,7 +28,7 @@ public class UploadProcessDefinition extends ActionHandler<UploadActionContext, 
         for (String fileName : context.getUploadedFiles().keySet()) {
             File processDefinitionFile = context.getUploadedFiles().get(fileName);
             try {
-                processService.saveProcess(() -> getInputStream(processDefinitionFile), fileName, false);
+                processService.saveProcess(() -> getInputStream(processDefinitionFile), fileName, ProcessService.SaveType.ONLY_SAVE);
             } catch (FatalException | GuiException ex) {
                 throw ex;
             } catch (Exception ex) {

@@ -51,7 +51,7 @@ public class OneStepProcessTest extends ClientBase {
 
         final ProcessService.Remote processService = getProcessService("admin");
         Id defId = deployProcess(processService, "Client/remote-client/templates/one-step-process.bpmn",
-                "one-step-process.bpmn", true);
+                "one-step-process.bpmn", ProcessService.SaveType.ACTIVATE);
 
         // Создание документа, который будет прикреплен к процессу
         DomainObject attachment = getCrudService()

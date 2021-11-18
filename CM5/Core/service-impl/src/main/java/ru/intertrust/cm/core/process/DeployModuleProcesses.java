@@ -39,7 +39,7 @@ public class DeployModuleProcesses {
                             }
 
                             InputStreamProvider provider = () -> getClass().getClassLoader().getResourceAsStream(processResource);
-                            Id deployId = processService.saveProcess(provider, processName, true);
+                            Id deployId = processService.saveProcess(provider, processName, ProcessService.SaveType.ACTIVATE);
                             logger.info("Process + " + processResource + " is deployed. Process name: " + processResource + "; Process ID: " + deployId);
                         } else {
                             logger.warn("Process " + processResource + " is not support by wf engene " + processService.getEngeneName());

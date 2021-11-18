@@ -31,7 +31,7 @@ public class DeployProcess extends ClientBase {
             final ProcessService.Remote service = getProcessService("admin");
             Id defId = deployProcess(service,
                     "../../test-module/src/main/resources/workflow/InternalDocTest.bpmn",
-                    "InternalDocTest.bpmn", true);
+                    "InternalDocTest.bpmn", ProcessService.SaveType.ACTIVATE);
 
             log("Test complete. defId: " + defId);
         } finally {

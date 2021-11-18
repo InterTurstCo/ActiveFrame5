@@ -29,7 +29,6 @@ import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowEngine;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
 import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
-import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
@@ -42,6 +41,7 @@ import javax.interceptor.Interceptors;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -104,17 +104,27 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, boolean deploy) {
+        return this.saveProcess(processDefinitionProvider, fileName, deploy ? SaveType.ACTIVATE : SaveType.ONLY_SAVE);
+    }
+
+    @Override
+    public Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, SaveType type) {
         ProcessDefinitionData processDefinitionData = getProcessDefinitionData(processDefinitionProvider);
-        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, deploy);
+        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, type);
     }
 
     @Override
     public Id saveProcess(byte[] processDefinition, String fileName, boolean deploy) {
-        ProcessDefinitionData processDefinitionData = getProcessDefinitionData(() -> new ByteArrayInputStream(processDefinition));
-        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, deploy);
+       return this.saveProcess(processDefinition, fileName, deploy ? SaveType.ACTIVATE : SaveType.ONLY_SAVE);
     }
 
-    private Id saveProcessInner(byte[] processDefinition, String hash, String fileName, boolean deploy) {
+    @Override
+    public Id saveProcess(byte[] processDefinition, String fileName, SaveType type) {
+        ProcessDefinitionData processDefinitionData = getProcessDefinitionData(() -> new ByteArrayInputStream(processDefinition));
+        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, type);
+    }
+
+    private Id saveProcessInner(byte[] processDefinition, String hash, String fileName, SaveType type) {
 
         ProcessTemplateInfo info = workflowEngine.getProcessTemplateInfo(processDefinition);
 
@@ -151,9 +161,15 @@ public class ProcessServiceImpl implements ProcessService {
             }
 
         } else {
-            // Ничего не найдено, создаем
+            final Id lastId = type == SaveType.DEPLOY ? null : this.getLastProcessDefinitionId(info.getId());
+            String lastUploadVersion = getLastUploadVersion(info.getId(), info.getVersion());
+            if(lastUploadVersion != null) {
+                String newVersion = info.getVersion();
+                if (getPatchFromVersion(lastUploadVersion) >= getPatchFromVersion(newVersion)) {
+                    throw new FatalException("Already upload version = " + lastUploadVersion);
+                }
+            }
             processDefinitionObject = crudService.createDomainObject("process_definition");
-
             processDefinitionObject.setString("file_name", fileName);
             processDefinitionObject.setString("process_id", info.getId());
             processDefinitionObject.setString("process_name", info.getName());
@@ -171,8 +187,11 @@ public class ProcessServiceImpl implements ProcessService {
                     new DirectRemoteInputStream(new ByteArrayInputStream(processDefinition), false);
             attachmentService.saveAttachment(directRemoteInputStream, attachment);
 
-            if (deploy) {
+            if (type == SaveType.ACTIVATE || type == SaveType.DEPLOY) {
                 deployProcess(processDefinitionObject.getId());
+                if (lastId != null) {
+                    deployProcess(lastId);
+                }
             }
         }
 
@@ -423,6 +442,25 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public byte[] getProcessInstanceModel(String processInstanceId) {
         return workflowEngine.getProcessInstanceModel(processInstanceId);
+    }
+
+    private int getPatchFromVersion(String version) {
+        // предполагаем, что версия корректная, иначе нельзя загружать
+        return Integer.parseInt(version.substring(version.lastIndexOf(".") + 1 ));
+    }
+
+    private String getMainVersion(String version) {
+        return version.substring(0, version.lastIndexOf("."));
+    }
+
+    private String getLastUploadVersion(final String schemaName, final String version) {
+
+        IdentifiableObjectCollection coll = collectionsService.
+                findCollectionByQuery("select version from process_definition " +
+                                "where process_id = {0} and version like {1} order by created_date desc",
+                        Arrays.asList(new StringValue(schemaName),
+                                new StringValue(getMainVersion(version) + "%")), 0, 1);
+        return coll.size() == 0 ? null : coll.get(0).getString("version");
     }
 
     private ProcessDefinitionData getProcessDefinitionData(InputStreamProvider processDefinitionProvider) {

@@ -45,7 +45,7 @@ public class ExceptionBeforeFirstStepTest extends ClientBase {
 
         final ProcessService.Remote processService = getProcessService("admin");
         Id defId = deployProcess(processService, "Client/remote-client/templates/exception-before-first-step.bpmn",
-                "exception-before-first-step.bpmn", true);
+                "exception-before-first-step.bpmn", ProcessService.SaveType.ACTIVATE);
 
         // Создание документа, который будет прикреплен к процессу
         DomainObject attachment = getCrudService()

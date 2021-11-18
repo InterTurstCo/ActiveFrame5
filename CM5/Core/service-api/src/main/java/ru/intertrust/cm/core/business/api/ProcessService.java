@@ -81,25 +81,55 @@ public interface ProcessService {
 
     /**
      * Сохранение процесса в хранилище
+     * Метод устарел, необходимо использовать
+     * {@link this#saveProcess(InputStreamProvider, String, SaveType)}
      * @param processDefinitionProvider provider, передающий описание процесса
      * @param fileName имя сохраняемого файла
      * @param deploy флаг необходимости устанавливать процесс в движок WF
      * @return идентификатор сохраненного процесса
      */
+    @Deprecated
     Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, boolean deploy);
+
+    /**
+     * Сохранение процесса в хранилище
+     *
+     * @param processDefinitionProvider provider, передающий описание процесса
+     * @param fileName имя сохраняемого файла
+     * @param type какие действия необходимо произвести с сохраняемым процессом
+     * @see SaveType
+     * @return идентификатор сохраненного процесса
+     */
+    Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, SaveType type);
 
 
     /**
      * Сохранение процесса в хранилище
      * Метод необходим для RPC. При локальных вызовах, предпочтительнее использование метода
-     * {@link this#saveProcess(InputStreamProvider, String, boolean)}
+     * {@link this#saveProcess(InputStreamProvider, String, deploy)}
+     * Метод устарел, необходимо использовать
+     *{@link this#saveProcess(byte[], String, SaveType)}
      *
      * @param processDefinition описание процесса
      * @param fileName имя сохраняемого файла
      * @param deploy флаг необходимости устанавливать процесс в движок WF
      * @return идентификатор сохраненного процесса
      */
+    @Deprecated
     Id saveProcess(byte[] processDefinition, String fileName, boolean deploy);
+
+    /**
+     * Сохранение процесса в хранилище
+     * Метод необходим для RPC. При локальных вызовах, предпочтительнее использование метода
+     * {@link this#saveProcess(InputStreamProvider, String, SaveType)}
+     *
+     * @param processDefinition описание процесса
+     * @param fileName имя сохраняемого файла
+     * @param type какие действия необходимо произвести с сохраняемым процессом
+     * @see SaveType
+     * @return идентификатор сохраненного процесса
+     */
+    Id saveProcess(byte[] processDefinition, String fileName, SaveType type);
 
     /**
      * Удаление шаблона процесса(каскадно или нет). При каскадном удалении
@@ -271,4 +301,26 @@ public interface ProcessService {
      * @param processInstanceId
      * @return
      */
-    byte[] getProcessInstanceModel(String processInstanceId);}
+    byte[] getProcessInstanceModel(String processInstanceId);
+
+    /**
+     *
+     */
+    enum SaveType {
+        /**
+         * Только сохранить
+         */
+        ONLY_SAVE,
+        /**
+         * Задеплоить, но не активировать
+         */
+        DEPLOY,
+        /**
+         * Задеплоить и активировать
+         */
+        ACTIVATE
+    }
+
+}
+
+

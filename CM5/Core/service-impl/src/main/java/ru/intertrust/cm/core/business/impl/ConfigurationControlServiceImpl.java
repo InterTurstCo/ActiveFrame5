@@ -305,7 +305,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     private void processWorkflowUpdate(String processDataString, String fileName) {
         byte[] process = Base64.decodeBase64(processDataString);
         if (processService.isSupportTemplate(fileName)) {
-            processService.saveProcess(() -> new ByteArrayInputStream(process), fileName, true);
+            processService.saveProcess(() -> new ByteArrayInputStream(process), fileName, ProcessService.SaveType.DEPLOY);
         } else {
             throw new FatalException("Process template " + fileName + " is not support by workflow engine");
         }
