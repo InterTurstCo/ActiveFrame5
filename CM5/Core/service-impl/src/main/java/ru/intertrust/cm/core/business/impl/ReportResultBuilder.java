@@ -267,8 +267,8 @@ public class ReportResultBuilder extends ReportServiceBase {
         private File reportFile;
 
         public ReportFile(String reportFileName, File reportFile) {
-            this.reportFileName = reportFileName;
-            this.reportFile = reportFile;
+            setReportFileName(reportFileName);
+            setReportFile(reportFile);
         }
 
         public String getReportFileName() {
@@ -276,7 +276,7 @@ public class ReportResultBuilder extends ReportServiceBase {
         }
 
         public void setReportFileName(String reportFileName) {
-            this.reportFileName = reportFileName;
+            this.reportFileName = correctFileName(reportFileName);
         }
 
         public File getReportFile() {
@@ -285,6 +285,15 @@ public class ReportResultBuilder extends ReportServiceBase {
 
         public void setReportFile(File reportFile) {
             this.reportFile = reportFile;
+        }
+
+        private String correctFileName(String fileName) {
+            // Замена недопустимых символов в имени файла
+            // NUL, \, /, :, *, ", <, >, |
+            String outFileName = fileName != null ?
+                    fileName.replaceAll("[\\\\/\\:\\*\\\"\\<\\>\\|\\n\\r\\t]+", "-") :
+                    "rpt-file";
+            return "NUL".equals(outFileName) ? "rpt-file" : outFileName;
         }
     }
 }
