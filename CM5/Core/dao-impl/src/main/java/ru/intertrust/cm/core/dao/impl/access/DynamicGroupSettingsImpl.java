@@ -6,13 +6,11 @@ public class DynamicGroupSettingsImpl implements DynamicGroupSettings{
     /**
      * Флаг выключения расчета динамических групп
      */
-    @org.springframework.beans.factory.annotation.Value("${disable.group.calculation:false}")
     private boolean disableGroupCalculation;
     
     /**
      * Флаг выключения расчета плоской структуры состава группы
      */
-    @org.springframework.beans.factory.annotation.Value("${disable.group.uncover:false}")
     private boolean disableGroupUncover;
     
     @Override
