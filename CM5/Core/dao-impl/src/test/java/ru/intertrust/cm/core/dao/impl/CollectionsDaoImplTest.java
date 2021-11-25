@@ -103,14 +103,23 @@ public class CollectionsDaoImplTest {
                     "FROM person e INNER JOIN department AS d ON e.department = d.id";
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
-            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+            "WITH cur_user_groups AS (" +
+                    "SELECT DISTINCT gg.\"parent_group_id\" " +
+                    "FROM \"group_member\" gm " +
                     "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "WHERE gm.\"person_id\" = :user_id" +
+                    ") " +
                     "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
-                    "e.\"updated_date\", 'employee' \"test_constant\" FROM (SELECT person.* FROM \"person\" person " +
-                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
-                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
-                    "r.\"object_id\" = person.\"access_object_id\")) e INNER JOIN (SELECT department.* " +
+                    "e.\"updated_date\", 'employee' \"test_constant\" " +
+                    "" +
+                    "FROM (" +
+                    "SELECT person.* FROM \"person\" person " +
+                    "WHERE 1 = 1 AND EXISTS (" +
+                    "SELECT 1 FROM \"person_read\" r " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") " +
+                    "AND " +
+                    "r.\"object_id\" = person.\"access_object_id\")) e " +
+                    "INNER JOIN (SELECT department.* " +
                     "FROM \"department\" department WHERE 1 = 1 AND " +
                     "EXISTS (SELECT 1 FROM \"department_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +

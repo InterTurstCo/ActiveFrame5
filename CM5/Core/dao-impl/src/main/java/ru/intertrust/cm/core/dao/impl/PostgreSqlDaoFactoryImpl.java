@@ -5,9 +5,17 @@ import ru.intertrust.cm.core.dao.api.IdGenerator;
 
 /**
  * PostgreSql-специфичная имплементация {@link DaoFactory}
+ *
  * @author vmatsukevich
  */
 public class PostgreSqlDaoFactoryImpl extends AbstractDaoFactory {
+
+    private final boolean useOptimizedHelper;
+
+    public PostgreSqlDaoFactoryImpl(boolean useOptimizedHelper) {
+        this.useOptimizedHelper = useOptimizedHelper;
+    }
+
     @Override
     public DataStructureDao createDataStructureDao() {
         return new PostgreSqlDataStructureDaoImpl();
@@ -20,6 +28,6 @@ public class PostgreSqlDaoFactoryImpl extends AbstractDaoFactory {
 
     @Override
     public DomainObjectQueryHelper createQueryHelper() {
-        return new PostgreSqlDomainObjectQueryHelper();
+        return useOptimizedHelper ? new PGSqlDomainObjectQueryHelperOptimized() : new PostgreSqlDomainObjectQueryHelper();
     }
 }

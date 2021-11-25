@@ -199,7 +199,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 return fromCache;
             }
         }
-
         if (collectionConfig.getGenerator() != null) { // generated collections
                                                        // aren't supported by
                                                        // global cache yet

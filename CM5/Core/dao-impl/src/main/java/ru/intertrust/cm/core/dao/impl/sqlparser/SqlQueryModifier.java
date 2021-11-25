@@ -314,7 +314,8 @@ public class SqlQueryModifier {
     }
 
     public void addAclQuery(Select select) {
-        select.accept(new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper));
+        final AddAclVisitor visitor = domainObjectQueryHelper.createVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
+        select.accept(visitor);
     }
 
     public void checkDuplicatedColumns(Select select) {
