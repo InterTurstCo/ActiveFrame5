@@ -161,7 +161,7 @@ public class ProcessServiceImpl implements ProcessService {
             }
 
         } else {
-            final Id lastId = type == SaveType.DEPLOY ? null : this.getLastProcessDefinitionId(info.getId());
+            final Id lastId = type == SaveType.DEPLOY ? this.getLastProcessDefinitionId(info.getId()) : null;
             String lastUploadVersion = getLastUploadVersion(info.getId(), info.getVersion());
             if(lastUploadVersion != null) {
                 String newVersion = info.getVersion();
