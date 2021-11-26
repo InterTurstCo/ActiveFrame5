@@ -5,6 +5,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPointHandler;
 import ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl;
 
@@ -16,6 +18,9 @@ import ru.intertrust.cm.core.dao.impl.ExtensionServiceImpl;
  * 
  */
 public class ExtensionInvocationHandler implements InvocationHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ExtensionInvocationHandler.class);
+
     private final ExtensionServiceImpl extensionService;
     private final String filter;
 
@@ -36,11 +41,18 @@ public class ExtensionInvocationHandler implements InvocationHandler {
             List<ExtensionPointHandler> interfaceClass = extensionService.getExtensionPointList(
                     (Class<? extends ExtensionPointHandler>) proxy.getClass().getInterfaces()[0], filter);
 
-            for (ExtensionPointHandler extentionPointBase : interfaceClass) {
-                method.invoke(extentionPointBase, args);
+            logger.trace("{} handlers found. Attempting to execute them", interfaceClass.size());
+            for (ExtensionPointHandler extensionPointHandler : interfaceClass) {
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Handler {} will be invoked", extensionPointHandler.getClass().getName());
+                }
+                method.invoke(extensionPointHandler, args);
             }
+
+            logger.trace("All handlers successfully executed");
             return null;
         } catch (InvocationTargetException e) {
+            logger.error(e.getMessage(), e);
             throw e.getCause();
         }
     }
