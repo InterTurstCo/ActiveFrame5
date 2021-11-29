@@ -17,4 +17,8 @@ public class NeverFileDeleteStrategy implements FileDeleteStrategy {
         }
     }
 
+    @Override
+    public String toString() {
+        return "NeverFileDeleteStrategy";
+    }
 }

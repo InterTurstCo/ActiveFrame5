@@ -38,7 +38,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, DOCTYPE, CREATOR, EXT
     }
 
-    public static final String PROP_PREFIX = "attachments.storage.";
     public static final String PROP_LOCATION = "dir";
     public static final String PROP_PATHMASK = "folders";
     public static final String PROP_LEGACY = "attachment.storage";
@@ -46,10 +45,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     public static final String DEFAULT_PATHMASK = "{year}/{month}/{day}";
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentStorageImpl.class);
-
-    private static final String BEAN_DELETE_NEVER = "fileDeleteNever";
-    private static final String BEAN_DELETE_IMMED = "fileDeleteImmediate";
-    private static final String BEAN_DELETE_DELAYED = "fileDeleteDelayed";
 
     private final String name;
     private final FolderStorageConfig storageConfig;
@@ -65,7 +60,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     @Autowired
     private FileTypeDetector contentDetector;
     @Autowired
-    private Environment env;
+    private FileSystemAttachmentStorageHelper helper;
     @Autowired
     private DeleteAttachmentStrategyFactory deleteStrategyFactory;
 
@@ -79,10 +74,10 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
     @PostConstruct
     public void initialize() {
-        logger.info("Attachment storage " + name + " initialization");
+        logger.info("Attachment storage {} initialization", name);
         rootFolder = getProperty(PROP_LOCATION);
         if (rootFolder == null) {
-            rootFolder = env.getProperty(PROP_LEGACY);
+            rootFolder = helper.getPureProperty(PROP_LEGACY);
             if (rootFolder == null) {
                 throw new ConfigurationException("Directory for storage " + name + " is not defined!");
             }
@@ -98,7 +93,7 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             }
         }
         if (pathMask == null || pathMask.isEmpty()) {
-            logger.info("Folders mask for storage " + name + " is not configured; use default");
+            logger.info("Folders mask for storage {} is not configured; use default", name);
             pathMask = DEFAULT_PATHMASK;
         }
         this.deleteStrategy = deleteStrategyFactory.createDeleteStrategy(name, storageConfig.getDeleteFileConfig());
@@ -146,8 +141,10 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     public boolean deleteContent(String localPath) {
         Path filePath = Paths.get(rootFolder, localPath);
         if (!Files.exists(filePath)) {
+            logger.trace("File '{}' doesn't exist...", filePath);
             return false;
         }
+        logger.trace("File '{}' will be deleted by strategy {}", filePath, deleteStrategy);
         deleteStrategy.deleteFile(filePath.toString());
         return true;
     }
@@ -250,12 +247,11 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     }
 
     private String getProperty(String propName) {
-        String value = env.getProperty(PROP_PREFIX + name + "." + propName);
-        return value != null ? value : env.getProperty(PROP_PREFIX + propName);
+        return helper.getProperty(propName, name);
     }
 
     private String generateFileName(Context context) {
-        return new StringBuilder(UUID.randomUUID().toString()).append(findExtension(context.getFileName())).toString();
+        return UUID.randomUUID() + findExtension(context.getFileName());
     }
 
     private String findExtension(String fileName) {

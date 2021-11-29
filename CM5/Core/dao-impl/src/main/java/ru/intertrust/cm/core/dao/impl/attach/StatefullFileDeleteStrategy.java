@@ -6,8 +6,4 @@ public interface StatefullFileDeleteStrategy extends FileDeleteStrategy {
 
     void setConfiguration(DeleteFileConfig config);
 
-    void setName(String name);
-
-    void init();
-
 }

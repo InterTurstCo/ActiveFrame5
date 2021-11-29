@@ -35,4 +35,9 @@ public class ImmediateFileDeleteStrategy implements FileDeleteStrategy {
             }
         });
     }
+
+    @Override
+    public String toString() {
+        return "ImmediateFileDeleteStrategy";
+    }
 }

@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.dao.impl.attach;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.DeleteFileConfig;
@@ -16,10 +15,8 @@ import java.util.Date;
 @Component("delayedFileDeleteStrategy")
 @Scope("prototype")
 public class DelayedFileDeleteStrategy implements StatefullFileDeleteStrategy {
-    
+
     private DeleteFileConfig config;
-    private String name;
-    private int delayFromProps = -1;
 
     @Autowired
     private DomainObjectDao domainObjectDao;
@@ -27,28 +24,9 @@ public class DelayedFileDeleteStrategy implements StatefullFileDeleteStrategy {
     @Autowired
     private AccessControlService accessControlService;
 
-    @Autowired
-    private Environment environment;
-    
     @Override
     public void setConfiguration(DeleteFileConfig config) {
         this.config = config;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void init() {
-        final String delay = environment.getProperty(FileSystemAttachmentStorageImpl.PROP_PREFIX + name + ".delay");
-        if (delay != null) {
-            this.delayFromProps = Integer.parseInt(delay);
-            if (delayFromProps < 1) {
-                throw new NumberFormatException("Delay attribute must be more then 1");
-            }
-        }
     }
 
     @Override
@@ -68,10 +46,15 @@ public class DelayedFileDeleteStrategy implements StatefullFileDeleteStrategy {
     }
 
     private int getDelay() {
-        // Приоритет у настроек server.properties
-        if (delayFromProps != -1) {
-            return delayFromProps;
-        }
-        return config.getDelay() == null ? 1 : config.getDelay();
+        // Настройки захардкожены, проблем с NPE не будет (по идее это перестраховка, конфиг должен приходить заполненным)
+        final int defaultValue = (int) DeleteFileConfig.Mode.DELAYED.getProperties().get(0).getDefault();
+        return config.getDelay() == null ? defaultValue : config.getDelay();
+    }
+
+    @Override
+    public String toString() {
+        return "DelayedFileDeleteStrategy{" +
+                "config=" + config +
+                '}';
     }
 }
