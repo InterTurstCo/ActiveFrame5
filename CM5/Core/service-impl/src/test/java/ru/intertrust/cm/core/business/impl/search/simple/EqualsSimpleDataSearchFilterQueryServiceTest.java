@@ -60,6 +60,13 @@ public class EqualsSimpleDataSearchFilterQueryServiceTest {
     }
 
     @Test
+    public void prepareQuery_LongValue_negative() {
+        String string = service
+                .prepareQuery(mock(SimpleDataConfig.class), new EqualSimpleDataSearchFilter(FIELD_NAME, new LongValue(-1L)));
+        assertEquals(PREFIX + FIELD_NAME + ": \\-1", string);
+    }
+
+    @Test
     public void prepareQuery_BooleanValue() {
         String string = service
                 .prepareQuery(mock(SimpleDataConfig.class), new EqualSimpleDataSearchFilter(FIELD_NAME, new BooleanValue(true)));

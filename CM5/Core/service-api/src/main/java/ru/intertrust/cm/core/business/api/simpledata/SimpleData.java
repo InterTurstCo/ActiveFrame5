@@ -7,9 +7,9 @@ import java.util.*;
 public class SimpleData implements Dto{
     private String type;
     private String id = UUID.randomUUID().toString();
-    private Map<String, List<Value>> values = new HashMap<>();
+    private final Map<String, List<Value<?>>> values = new HashMap<>();
 
-    public SimpleData(){
+    public SimpleData() {
     }
 
     public SimpleData(String type){
@@ -26,11 +26,9 @@ public class SimpleData implements Dto{
 
     /**
      * Замена старых значений новыми
-     * @param name
-     * @param values
      */
-    public void setValues(String name, Value ... values){
-        List fieldValues = this.values.get(name.toLowerCase());
+    public void setValues(String name, Value<?> ... values){
+        List<?> fieldValues = this.values.get(name.toLowerCase());
         if (fieldValues != null){
             fieldValues.clear();
         }
@@ -39,28 +37,20 @@ public class SimpleData implements Dto{
 
     /**
      * Добавление значение поля
-     * @param name
-     * @param values
      */
-    public void addValues(String name, Value ... values){
-        List fieldValues = this.values.get(name.toLowerCase());
-        if (fieldValues == null){
-            fieldValues = new ArrayList();
-            this.values.put(name.toLowerCase(), fieldValues);
-        }
+    public void addValues(String name, Value<?> ... values){
+        List<Value<?>> fieldValues = this.values.computeIfAbsent(name.toLowerCase(), k -> new ArrayList<>());
         if (values != null) {
-            for (Value value : values) {
-                fieldValues.add(value);
-            }
+            Collections.addAll(fieldValues, values);
         }
     }
 
     public void deleteValues(String name){
-        List fieldValues = this.values.get(name.toLowerCase());
+        List<?> fieldValues = this.values.get(name.toLowerCase());
         fieldValues.clear();
     }
 
-    public List<Value> getValues(String name){
+    public List<Value<?>> getValues(String name){
         return this.values.get(name.toLowerCase());
     }
 
@@ -107,24 +97,26 @@ public class SimpleData implements Dto{
     public List<TimelessDate> getTimelessDate(String name){
         return fromValues(getValues(name), TimelessDate.class);
     }
-    private <T> List<T> fromValues(List<Value> values, Class<T> listType) {
+
+    private <T> List<T> fromValues(List<Value<?>> values, Class<T> listType) {
         List<T> result = new ArrayList<>(values.size());
-        for (Value value: values) {
-            result.add((T) value.get());
+        for (Value<?> value : values) {
+            final T val = listType.cast(value.get());
+            result.add(val);
         }
         return result;
     }
 
-    private Value[] toValues(Object[] values, Class<? extends Value> clazz){
-        Value[] result = new Value[values.length];
+    private Value<?>[] toValues(Object[] values, Class<? extends Value<?>> clazz){
+        Value<?>[] result = new Value[values.length];
         for (int i=0; i<values.length; i++) {
             result[i] = toValue(values[i], clazz);
         }
         return result;
     }
 
-    private Value toValue(Object value, Class<? extends Value> clazz){
-        Value result = null;
+    private Value<?> toValue(Object value, Class<? extends Value<?>> clazz){
+        Value<?> result;
             if (clazz.equals(StringValue.class)){
                 result = new StringValue(value.toString());
             }else if(clazz.equals(LongValue.class)){
@@ -142,7 +134,7 @@ public class SimpleData implements Dto{
             }else if(clazz.equals(TimelessDateValue.class)) {
                 result = new TimelessDateValue((TimelessDate)value);
             }else{
-                throw new UnsupportedOperationException("Not support field with type " + clazz.toString());
+                throw new UnsupportedOperationException("Not support field with type " + clazz);
             }
         return result;
     }

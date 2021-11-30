@@ -41,7 +41,8 @@ public class EqualsSimpleDataSearchFilterQueryService implements SimpleDataSearc
             result = solrFieldName + ": \"" + (value.get() != null ?
                     SolrUtils.escapeString(value.get().toString(), SolrUtils.ESCAPE_TYPE.SIMPLE_SEARCH_EQUALS) : "") + "\"";
         } else if (value instanceof LongValue) {
-            result = solrFieldName + ": " + value.get() + "";
+            // Нужно заэндкодить отрицательные значения. Минус есть в SIMPLE_SEARCH_LIKE, в SIMPLE_SEARCH_EQUALS типе нету
+            result = solrFieldName + ": " + SolrUtils.escapeString(value.get() + "", SolrUtils.ESCAPE_TYPE.SIMPLE_SEARCH_LIKE)  + "";
         } else if (value instanceof BooleanValue) {
             result = solrFieldName + ": " + value.get() + "";
         } else if (value instanceof DateTimeValue) {

@@ -34,15 +34,15 @@ public class InSimpleDataSearchFilterQueryService implements SimpleDataSearchFil
         String solrFieldName = utils.getSolrFieldName(config, searchFilter.getFieldName());
         List<String> values = new ArrayList<>();
         collectValues(values, searchFilter.getFieldValue());
-        String result = "";
+        StringBuilder result = new StringBuilder();
         if (!values.isEmpty()) {
             for (String value : values) {
                 if (value != null && !value.isEmpty()) {
-                    result += (result.isEmpty() ? "" : " OR ") + value;
+                    result.append((result.length() == 0) ? "" : " OR ").append(value);
                 }
             }
         } else {
-            result += "\"\"";
+            result.append("\"\"");
         }
         return solrFieldName + ":(" + result + ")";
     }
@@ -60,10 +60,10 @@ public class InSimpleDataSearchFilterQueryService implements SimpleDataSearchFil
                 SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 values.add("\"" + dateTimeFormat.format(tmp) + "\"");
             } else if (value instanceof TimelessDateValue) {
-                values.add("\"" + tmp.toString() + "\"");
+                values.add("\"" + tmp + "\"");
             } else if (value instanceof ListValue) {
                 List<Value<?>> valueList = ((ListValue)value).getUnmodifiableValuesList();
-                for (Value v : valueList) {
+                for (Value<?> v : valueList) {
                     collectValues(values, v);
                 }
             }

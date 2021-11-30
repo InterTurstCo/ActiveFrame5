@@ -108,12 +108,12 @@ public class SimpeDataStorageImpl implements SimpeDataStorage {
             }
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Execute query: " + query.toString());
+                logger.debug("Execute query: {}", query);
             }
             QueryResponse response = solrServer.query(query);
             SolrDocumentList documentList = response.getResults();
             if (logger.isDebugEnabled()) {
-                logger.debug("Execute query result size: " + documentList.size());
+                logger.debug("Execute query result size: {}", documentList.size());
             }
             List<SimpleData> result = new ArrayList<>();
             for (SolrDocument document : documentList) {
