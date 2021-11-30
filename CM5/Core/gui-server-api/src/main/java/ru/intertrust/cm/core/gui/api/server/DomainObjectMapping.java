@@ -4,7 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
- * Сервис для возможности работать из GUI с произволтными структурами данных как с доменными объектами
+ * Сервис для возможности работать из GUI с произвольными структурами данных как с доменными объектами
  */
 public interface DomainObjectMapping {
 
