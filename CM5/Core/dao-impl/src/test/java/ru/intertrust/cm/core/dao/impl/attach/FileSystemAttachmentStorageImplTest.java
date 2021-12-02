@@ -94,7 +94,9 @@ public class FileSystemAttachmentStorageImplTest {
     public void testSaveContent_legacyLocationProperty() {
         when(helper.getPureProperty(FileSystemAttachmentStorageImpl.PROP_LEGACY)).thenReturn(tmpDir);
         FileSystemAttachmentStorageImpl testee = createFileSystemAttachmentStorageImpl("default");
-        ReflectionTestUtils.setField(testee, "pathUnixStyle", false);
+        final boolean isUnixStyle = false;
+        ReflectionTestUtils.setField(testee, "pathUnixStyle", isUnixStyle);
+        final String pathDelimeter = isUnixStyle ? "/" : "\\";
         AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("MainAtt").parentObject(domainObject).fileName("test.txt").creationTime();
         when(fileTypeDetector.detectMimeType(anyString())).thenReturn("text/ok");
@@ -103,8 +105,8 @@ public class FileSystemAttachmentStorageImplTest {
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
             assertEquals(content.length, (long) info.getContentLength());
             assertEquals("text/ok", info.getMimeType());
-            String requiredPath = new SimpleDateFormat("yyyy/MM/dd/").format(ctx.getCreationTime().getTime())
-                    .replaceAll("\\/", "\\" + File.separator);
+            String requiredPath = new SimpleDateFormat("yyyy" + pathDelimeter + "MM" + pathDelimeter + "dd" + pathDelimeter)
+                    .format(ctx.getCreationTime().getTime());
             assertTrue(info.getRelativePath().startsWith(requiredPath));
             assertTrue(info.getRelativePath().endsWith(".txt"));
         } finally {
@@ -118,7 +120,9 @@ public class FileSystemAttachmentStorageImplTest {
         when(helper.getProperty("folders", "default")).thenReturn("{doctype}/{year}-{month}/{ext}/{creator}");
 
         FileSystemAttachmentStorageImpl testee = createFileSystemAttachmentStorageImpl("default");
-        ReflectionTestUtils.setField(testee, "pathUnixStyle", false);
+        final boolean isUnixStyle = false;
+        ReflectionTestUtils.setField(testee, "pathUnixStyle", isUnixStyle);
+        final String pathDelimeter = isUnixStyle ? "/" : "\\";
         AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("MainAtt").parentObject(domainObject).fileName("test.txt").creationTime();
         when(domainObject.getTypeName()).thenReturn("RootObject");
@@ -126,8 +130,9 @@ public class FileSystemAttachmentStorageImplTest {
         try {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
-            assertTrue(info.getRelativePath().startsWith("RootObject/"
-                    + new SimpleDateFormat("yyyy-MM").format(ctx.getCreationTime().getTime()) + "/txt/101/"));
+            assertTrue(info.getRelativePath().startsWith("RootObject" + pathDelimeter
+                    + new SimpleDateFormat("yyyy-MM").format(ctx.getCreationTime().getTime())
+                    + pathDelimeter + "txt" + pathDelimeter + "101" + pathDelimeter));
         } finally {
             clearTestDir();
         }
@@ -138,7 +143,9 @@ public class FileSystemAttachmentStorageImplTest {
         when(helper.getProperty("dir", "Special")).thenReturn(tmpDir);
         when(helper.getProperty("folders", "Special")).thenReturn("{Year}/{Month}/{DocType}");
         FileSystemAttachmentStorageImpl testee = createFileSystemAttachmentStorageImpl("Special");
-        ReflectionTestUtils.setField(testee, "pathUnixStyle", false);
+        final boolean isUnixStyle = false;
+        ReflectionTestUtils.setField(testee, "pathUnixStyle", isUnixStyle);
+        final String pathDelimeter = isUnixStyle ? "/" : "\\";
         AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("SpecAtt").parentObject(domainObject).fileName("original name.ext").creationTime();
         when(domainObject.getTypeName()).thenReturn("RootObject");
@@ -146,7 +153,8 @@ public class FileSystemAttachmentStorageImplTest {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
             assertTrue(info.getRelativePath().startsWith(
-                    new SimpleDateFormat("yyyy/MM").format(ctx.getCreationTime().getTime()) + "/RootObject/"));
+                    new SimpleDateFormat("yyyy" + pathDelimeter + "MM").format(ctx.getCreationTime().getTime()) +
+                            pathDelimeter + "RootObject" + pathDelimeter));
             assertFalse(info.getRelativePath().contains("original name"));
         } finally {
             clearTestDir();
@@ -158,7 +166,9 @@ public class FileSystemAttachmentStorageImplTest {
         when(helper.getProperty("dir", "alternate")).thenReturn(tmpDir);
         when(helper.getProperty("folders", "alternate")).thenReturn("{doctype}/{creator}");    //This must be ignored
         FileSystemAttachmentStorageImpl testee = createFileSystemAttachmentStorageImpl("alternate");
-        ReflectionTestUtils.setField(testee, "pathUnixStyle", false);
+        final boolean isUnixStyle = false;
+        ReflectionTestUtils.setField(testee, "pathUnixStyle", isUnixStyle);
+        final String pathDelimeter = isUnixStyle ? "/" : "\\";
         AttachmentStorage.Context ctx = new AttachmentStorage.StaticContext()
                 .attachmentType("AltAtt").parentObject(domainObject).fileName("test.txt").creationTime();
         when(domainObject.getTypeName()).thenReturn("RootObject");
@@ -166,7 +176,8 @@ public class FileSystemAttachmentStorageImplTest {
             byte[] content = "Test content".getBytes();
             AttachmentInfo info = testee.saveContent(new ByteArrayInputStream(content), ctx);
             assertTrue(info.getRelativePath().startsWith(
-                    new SimpleDateFormat("yyyy").format(ctx.getCreationTime().getTime()) + "/RootObject/"));
+                    new SimpleDateFormat("yyyy").format(ctx.getCreationTime().getTime())
+                            + pathDelimeter + "RootObject" + pathDelimeter));
                     // actual format is taken from configuration
         } finally {
             clearTestDir();
