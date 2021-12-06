@@ -324,4 +324,6 @@
         </attachment-types>
     </domain-object-type>
 
+    <access-matrix type="process_definition" read-everybody="true" />
+
 </configuration>
