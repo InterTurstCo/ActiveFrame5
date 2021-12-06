@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://inttrust.ru/nbr">
   <signal id="START_BY_SIGNAL_5" name="START_BY_SIGNAL_5"></signal>
   <message id="START_BY_SIGNAL" name="START_BY_SIGNAL"></message>
   <message id="START_BY_SIGNAL_2" name="START_BY_SIGNAL_2"></message>
@@ -23,7 +23,7 @@
     <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="usertask2"></sequenceFlow>
     <sequenceFlow id="flow3" sourceRef="usertask2" targetRef="usertask6"></sequenceFlow>
     <scriptTask id="scripttask1" name="Проверка получения аттачмента в скрипте и его изменения, а так же возможности создания нового доменного обьекта внутри скрипта" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Изменен в скрипте.";
 MAIN_ATTACHMENT.set("test_text", test);
 MAIN_ATTACHMENT.set("test_long", 20);
@@ -36,7 +36,7 @@ newObject.set("test_text", "Создан в скрипте");
 newObject.set("test_long", 30);
 newObject.set("test_decimal", 30);
 newObject.set("test_date", MAIN_ATTACHMENT.get("test_date"));
-newObject.save();</script>
+newObject.save();]]></script>
     </scriptTask>
     <sequenceFlow id="flow4" sourceRef="scripttask1" targetRef="usertask3"></sequenceFlow>
     <userTask id="usertask3" name="Проверка возможности маршрутизации с помошью акшенов" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
@@ -52,18 +52,18 @@ newObject.save();</script>
     <sequenceFlow id="flow5" sourceRef="usertask3" targetRef="scripttask4"></sequenceFlow>
     <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
     <scriptTask id="scripttask2" name="Установка данных по действию НЕТ" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Результат маршрутизации НЕТ.";
 MAIN_ATTACHMENT.set("test_text", test);
 MAIN_ATTACHMENT.save();
-</script>
+]]></script>
     </scriptTask>
     <scriptTask id="scripttask3" name="Установка данных по действию ДА" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Результат маршрутизации ДА.";
 MAIN_ATTACHMENT.set("test_text", test);
 MAIN_ATTACHMENT.save();
-</script>
+]]></script>
     </scriptTask>
     <sequenceFlow id="flow-yes" sourceRef="exclusivegateway1" targetRef="scripttask3">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${RESULT.equals("YES")}]]></conditionExpression>
@@ -76,10 +76,10 @@ MAIN_ATTACHMENT.save();
     <sequenceFlow id="flow9" sourceRef="scripttask2" targetRef="exclusivegateway2"></sequenceFlow>
     <sequenceFlow id="flow10" sourceRef="scripttask5" targetRef="subprocess1"></sequenceFlow>
     <scriptTask id="scripttask4" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Результат задачи=" + RESULT;
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <sequenceFlow id="flow11" sourceRef="scripttask4" targetRef="exclusivegateway1"></sequenceFlow>
     <subProcess id="subprocess1" name="Sub Process">
@@ -98,10 +98,10 @@ MAIN_ATTACHMENT.save();</script>
     </subProcess>
     <sequenceFlow id="flow14" sourceRef="subprocess1" targetRef="exclusivegateway3"></sequenceFlow>
     <scriptTask id="scripttask5" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var col = new java.util.ArrayList();
+      <script><![CDATA[var col = new java.util.ArrayList();
 col.add("FIRST");
 col.add("SECOND");
-execution.setVariable("col", col);</script>
+execution.setVariable("col", col);]]></script>
     </scriptTask>
     <sequenceFlow id="flow15" sourceRef="exclusivegateway2" targetRef="scripttask5"></sequenceFlow>
     <userTask id="usertask5" name="Прверка когда выходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
@@ -144,21 +144,21 @@ execution.setVariable("col", col);</script>
     </userTask>
     <sequenceFlow id="flow20" sourceRef="usertask6" targetRef="scripttask1"></sequenceFlow>
     <scriptTask id="scripttask6" name="Установка статуса в работе" scriptFormat="javascript" activiti:autoStoreVariables="true">
-      <script>MAIN_ATTACHMENT.setStatus("Run");</script>
+      <script><![CDATA[MAIN_ATTACHMENT.setStatus("Run");]]></script>
     </scriptTask>
     <sequenceFlow id="flow21" sourceRef="scripttask6" targetRef="usertask1"></sequenceFlow>
     <scriptTask id="scripttask7" name="Получили уведомление" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Получили уведомление.";
 MAIN_ATTACHMENT.set("test_text", test);
 MAIN_ATTACHMENT.save();
-</script>
+]]></script>
     </scriptTask>
     <scriptTask id="scripttask9" name="Получили уведомление 2" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Получили уведомление 2.";
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <sequenceFlow id="flow27" sourceRef="scripttask9" targetRef="eventgateway1"></sequenceFlow>
     <userTask id="usertask7" name="Тест прикрепленного сигнала" activiti:assignee="PERSON:person5">
@@ -171,16 +171,16 @@ MAIN_ATTACHMENT.save();</script>
     <sequenceFlow id="flow30" sourceRef="boundarymessage1" targetRef="scripttask9"></sequenceFlow>
     <eventBasedGateway id="eventgateway1" name="Event Gateway"></eventBasedGateway>
     <scriptTask id="scripttask10" name="Получили уведомление 3" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Получили уведомление 3.";
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <scriptTask id="scripttask11" name="Получили уведомление 4" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Получили уведомление 4.";
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
     <sequenceFlow id="flow33" sourceRef="scripttask10" targetRef="exclusivegateway4"></sequenceFlow>
@@ -208,10 +208,10 @@ MAIN_ATTACHMENT.save();</script>
       <signalEventDefinition signalRef="START_BY_SIGNAL_5"></signalEventDefinition>
     </intermediateCatchEvent>
     <scriptTask id="scripttask12" name="Получили уведомление 5" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Получили уведомление 5.";
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <sequenceFlow id="flow42" sourceRef="signalintermediatecatchevent1" targetRef="scripttask12"></sequenceFlow>
     <sequenceFlow id="flow43" sourceRef="scripttask12" targetRef="usertask8"></sequenceFlow>
@@ -221,10 +221,10 @@ MAIN_ATTACHMENT.save();</script>
       </extensionElements>
     </userTask>
     <scriptTask id="checkTimet" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Сработал таймер.";
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <boundaryEvent id="boundarytimer1" name="Timer" attachedToRef="usertask8" cancelActivity="true">
       <timerEventDefinition>
@@ -248,14 +248,19 @@ MAIN_ATTACHMENT.save();</script>
     </intermediateCatchEvent>
     <sequenceFlow id="flow49" sourceRef="usertask9" targetRef="timerintermediatecatchevent1"></sequenceFlow>
     <scriptTask id="scripttask13" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>var test =MAIN_ATTACHMENT.get("test_text");
+      <script><![CDATA[var test =MAIN_ATTACHMENT.get("test_text");
 test += " Сработал таймер 2.";
 MAIN_ATTACHMENT.set("test_text", test);
-MAIN_ATTACHMENT.save();</script>
+MAIN_ATTACHMENT.save();]]></script>
     </scriptTask>
     <sequenceFlow id="flow50" sourceRef="timerintermediatecatchevent1" targetRef="scripttask13"></sequenceFlow>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow52" sourceRef="scripttask13" targetRef="endevent1"></sequenceFlow>
+    <dataObject id="version" name="version" itemSubjectRef="xsd:string">
+      <extensionElements>
+        <activiti:value>1.0.0.2</activiti:value>
+      </extensionElements>
+    </dataObject>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_testSimpleProcess">
     <bpmndi:BPMNPlane bpmnElement="testSimpleProcess" id="BPMNPlane_testSimpleProcess">

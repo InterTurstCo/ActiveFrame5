@@ -30,6 +30,7 @@ public class AttachmentStorageConfigHelperTest {
             ConfigurationSerializer serializer = new ConfigurationSerializer();
             Configuration configuration = serializer.deserializeLoadedConfiguration(config);
             ConfigurationExplorerImpl confExplorer = new ConfigurationExplorerImpl(configuration);
+            confExplorer.init();
 
             AttachmentStorageConfigHelper helper = new AttachmentStorageConfigHelper();
             Field field = AttachmentStorageConfigHelper.class.getDeclaredField("confExplorer");

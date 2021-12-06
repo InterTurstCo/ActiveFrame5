@@ -63,6 +63,11 @@ public class LogicalErrors {
         errorCount++;
     }
 
+    public void addErrors(List<String> errors){
+        errorsInConfiguration.addAll(errors);
+        errorCount += errors.size();
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder("Configuration of ");

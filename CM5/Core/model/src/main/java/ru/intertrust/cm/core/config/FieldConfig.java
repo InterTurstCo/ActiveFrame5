@@ -40,6 +40,13 @@ public abstract class FieldConfig implements Serializable {
     protected FieldConfig() {
     }
 
+    protected FieldConfig(String name, boolean notNull, boolean immutable) {
+        this.name = name;
+        this.notNull = notNull;
+        this.immutable = immutable;
+    }
+
+
     public String getName() {
         return name;
     }

@@ -1,5 +1,9 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.Collections;
+import java.util.Optional;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.WithItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Case;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -10,7 +14,9 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+import ru.intertrust.cm.core.dao.impl.sqlparser.AddAclVisitor;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -42,6 +48,9 @@ public class DomainObjectQueryHelper {
     
     @Autowired
     protected UserGroupGlobalCache userGroupCache;
+
+    @Autowired
+    protected SecurityStamp securityStamp;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -230,6 +239,28 @@ public class DomainObjectQueryHelper {
         String baseTypeName = getRelevantType(typeName);
 
         //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
+        String childAclReadTable = calcChildAclReadTable(baseTypeName);
+        String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, baseTypeName);
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(topLevelParentType);
+
+        appendAccessControlLogic(query, typeName, originalLinkedTypeOrAlias, baseTypeName, childAclReadTable, topLevelParentType, domainObjectBaseTable);
+    }
+
+    protected void appendAccessControlLogic(StringBuilder query, String typeName, String originalLinkedTypeOrAlias, String baseTypeName, String childAclReadTable, String topLevelParentType, String domainObjectBaseTable) {
+        appendWithPart(query, typeName);
+        appendQueryPart(query, typeName, originalLinkedTypeOrAlias, baseTypeName, childAclReadTable, topLevelParentType, domainObjectBaseTable);
+    }
+
+    protected void appendQueryPart(StringBuilder query, String typeName, String originalLinkedTypeOrAlias, String baseTypeName, String childAclReadTable, String topLevelParentType, String domainObjectBaseTable) {
+        if (topLevelParentType.equalsIgnoreCase(baseTypeName)) {
+            appendBaseTypeSubQuery(query, originalLinkedTypeOrAlias, childAclReadTable, typeName);
+        } else {
+            final boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
+            appendInheritedTypeSubQuery(query, isAuditLog, originalLinkedTypeOrAlias, childAclReadTable, topLevelParentType, domainObjectBaseTable, typeName);
+        }
+    }
+
+    private String calcChildAclReadTable(String baseTypeName) {
         String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(baseTypeName);
         String childAclReadTable;
         if (matrixReferenceTypeName != null){
@@ -237,45 +268,92 @@ public class DomainObjectQueryHelper {
         } else{
             childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, baseTypeName);
         }
-        String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, baseTypeName);
-        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(topLevelParentType);
-
-        appendWithPart(query);
-        if (topLevelParentType.equalsIgnoreCase(baseTypeName)) {
-            appendBaseTypeSubQuery(query, originalLinkedTypeOrAlias, childAclReadTable);
-        } else {
-            final boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
-            appendInheritedTypeSubQuery(query, isAuditLog, originalLinkedTypeOrAlias, childAclReadTable, topLevelParentType, domainObjectBaseTable);
-        }
+        return childAclReadTable;
     }
 
-    protected void appendInheritedTypeSubQuery(StringBuilder query, boolean isAuditLog, String originalLinkedTypeOrAlias, String aclReadTable, String topLevelParentType, String domainObjectBaseTable) {
+    protected void appendInheritedTypeSubQuery(StringBuilder query, boolean isAuditLog, String originalLinkedTypeOrAlias, String aclReadTable, String topLevelParentType, String domainObjectBaseTable, String typeName) {
+        appendInheritedSecurityStampPartIfNeeded(query, topLevelParentType, domainObjectBaseTable, typeName);
+        appendInheritedAccessControlPart(query, isAuditLog, originalLinkedTypeOrAlias, aclReadTable, topLevelParentType, domainObjectBaseTable);
+    }
+
+    private void appendInheritedAccessControlPart(StringBuilder query, boolean isAuditLog, String originalLinkedTypeOrAlias, String aclReadTable, String topLevelParentType, String domainObjectBaseTable) {
+        if (appendInheritedAuditPartIfNeeded(query, isAuditLog, originalLinkedTypeOrAlias, aclReadTable, topLevelParentType)) {
+            return;
+        }
+
+        appendInheritedAccessPart(query, originalLinkedTypeOrAlias, aclReadTable, domainObjectBaseTable);
+    }
+
+    protected void appendInheritedAccessPart(StringBuilder query, String originalLinkedTypeOrAlias, String aclReadTable, String domainObjectBaseTable) {
         query.append(" and exists (select 1 from ").append(wrap(aclReadTable)).append(" r");
-
-        if (isAuditLog) {
-            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
-            query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal ")
-                    .append("on r.").append(OBJECT_ID_COL).append(" = pal.").append(ACCESS_OBJECT_ID_COL);
-        } else {
-            query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" rt " )
-                    .append("on r.").append(OBJECT_ID_COL).append(" = rt.").append(ACCESS_OBJECT_ID_COL);
-        }
-
+        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" rt " )
+                .append("on r.").append(OBJECT_ID_COL).append(" = rt.").append(ACCESS_OBJECT_ID_COL);
         query.append(" where r.").append(GROUP_ID_COL).append(" in (select ").append(PARENT_GROUP_ID_COL).append(" from cur_user_groups)");
-        if (isAuditLog) {
-            query.append(" and ").append(originalLinkedTypeOrAlias).append(".").append(ID_COL).append(" = pal.").append(ID_COL);
-        } else {
-            query.append(" and rt.").append(ID_COL).append(" = ").append(originalLinkedTypeOrAlias).append(".").append(ID_COL);
-        }
+        query.append(" and rt.").append(ID_COL).append(" = ").append(originalLinkedTypeOrAlias).append(".").append(ID_COL);
         query.append(")");
     }
 
-    protected void appendBaseTypeSubQuery(StringBuilder query, String originalLinkedTypeOrAlias, String childAclReadTable) {
-        query.append(" and exists (select 1 from ").append(wrap(childAclReadTable)).append(" r");
+    private boolean appendInheritedAuditPartIfNeeded(StringBuilder query, boolean isAuditLog, String originalLinkedTypeOrAlias, String aclReadTable, String topLevelParentType) {
+        if (!isAuditLog) {
+            return false;
+        }
 
+        String topLevelAuditTable = getALTableSqlName(topLevelParentType);
+        query.append(" and exists (select 1 from ").append(wrap(aclReadTable)).append(" r");
+        query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal ")
+                .append("on r.").append(OBJECT_ID_COL).append(" = pal.").append(ACCESS_OBJECT_ID_COL);
+        query.append(" where r.").append(GROUP_ID_COL).append(" in (select ").append(PARENT_GROUP_ID_COL).append(" from cur_user_groups)");
+        query.append(" and ").append(originalLinkedTypeOrAlias).append(".").append(ID_COL).append(" = pal.").append(ID_COL);
+        query.append(")");
+        return true;
+    }
+
+    private void appendInheritedSecurityStampPartIfNeeded(StringBuilder query, String topLevelParentType, String domainObjectBaseTable, String typeName) {
+        if (securityStamp.isSupportSecurityStamp(typeName)) {
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            if (matrixReferenceTypeName == null) {
+                query.append(" AND exists (select 1 from ").append(topLevelParentType).
+                        append(" root_type where root_type.id = ").append(typeName).append(".id ").
+                        append(" and  (root_type.security_stamp IS NULL").
+                        append(" OR root_type.security_stamp IN (SELECT stamp from person_stamp_values)))");
+            } else {
+                String baseTypePermissionsFrom = configurationExplorer.getDomainObjectRootType(matrixReferenceTypeName);
+                query.append(" AND EXISTS (SELECT 1 FROM ").append(baseTypePermissionsFrom).append(" ptf ").
+                        append("INNER JOIN ").append(domainObjectBaseTable).append(" rt ON ptf.id = rt.access_object_id ").
+                        append("WHERE rt.id = ").append(typeName).append(".id and ptf.id = ").
+                        append("rt.access_object_id ").
+                        append("AND (ptf.security_stamp is null or ptf.security_stamp IN (SELECT stamp FROM person_stamp_values)))");
+            }
+        }
+    }
+
+    protected void appendBaseTypeSubQuery(StringBuilder query, String originalLinkedTypeOrAlias, String childAclReadTable, String typeName) {
+        appendSecurityStampPartIfNeeded(query, typeName);
+        appendAccessControlPart(query, originalLinkedTypeOrAlias, childAclReadTable);
+    }
+
+    protected void appendAccessControlPart(StringBuilder query, String originalLinkedTypeOrAlias, String childAclReadTable) {
+        query.append(" and exists (select 1 from ").append(wrap(childAclReadTable)).append(" r");
         query.append(" where r.").append(GROUP_ID_COL).append(" in (select ").append(PARENT_GROUP_ID_COL).append(" from cur_user_groups) and ");
         query.append("r.").append(OBJECT_ID_COL).append(" = ").append(originalLinkedTypeOrAlias).append(".").append(ACCESS_OBJECT_ID_COL);
         query.append(")");
+    }
+
+    private void appendSecurityStampPartIfNeeded(StringBuilder query, String typeName) {
+        if (securityStamp.isSupportSecurityStamp(typeName)) {
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
+            if (matrixReferenceTypeName == null){
+                query.append(" AND (").append(typeName).append(".security_stamp IS NULL ").
+                        append(" OR ").append(typeName).append(".security_stamp IN (").
+                        append("SELECT stamp ").
+                        append("FROM person_stamp_values))");
+            } else {
+                String baseTypePermissionsFrom = configurationExplorer.getDomainObjectRootType(matrixReferenceTypeName);
+                query.append(" AND EXISTS (SELECT 1 FROM ").append(baseTypePermissionsFrom).append(" ptf ").
+                        append("WHERE ptf.id = ").append(typeName).append(".access_object_id ").
+                        append("AND (ptf.security_stamp is null or ptf.security_stamp IN (SELECT stamp FROM person_stamp_values)))");
+            }
+        }
     }
 
     protected boolean accessRightsCheckIsNeeded(String typeName) {
@@ -286,11 +364,7 @@ public class DomainObjectQueryHelper {
         boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, typeName);
 
         //Добавляем учет ReadPermittedToEverybody
-        if (!(configurationExplorer.isReadPermittedToEverybody(typeName) || isAdministratorWithAllPermissions)) {
-            return true;
-        } else {
-            return false;
-        }
+        return !configurationExplorer.isReadPermittedToEverybody(typeName) && !isAdministratorWithAllPermissions;
     }
 
     protected void appendAccessRightsPart(String typeName, AccessToken accessToken, String tableAlias, StringBuilder query, boolean isSingleDomainObject) {
@@ -316,9 +390,7 @@ public class DomainObjectQueryHelper {
 
             //Получаем матрицу для permissionType
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
-            if (!isReadEveryBody(permissionType) && !isAdministratorWithAllPermissions) {
-                return true;
-            }
+            return !isReadEveryBody(permissionType) && !isAdministratorWithAllPermissions;
         }
 
         return false;
@@ -356,12 +428,10 @@ public class DomainObjectQueryHelper {
         return query.toString();
     }
 
-    protected void appendWithPart(StringBuilder query) {
+    protected void appendWithPart(StringBuilder query, String typeName) {
         StringBuilder withSubQuery = new StringBuilder();
 
-        String subString = query.substring(0, 3);
-        boolean hasWithKeyword = subString.equalsIgnoreCase("with");
-
+        boolean hasWithKeyword = isHasWithKeyword(query);
         if (!hasWithKeyword) {
             withSubQuery.append("with ");
         }
@@ -373,6 +443,8 @@ public class DomainObjectQueryHelper {
                 append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup")).
                 append(" where gm.").append(wrap("person_id")).append(" = :user_id)");
 
+        appendWithPartForSecurityStampIfNeeded(typeName, withSubQuery);
+
         if (hasWithKeyword) {
             withSubQuery.append(", ");
             query.insert(5, withSubQuery);
@@ -380,6 +452,19 @@ public class DomainObjectQueryHelper {
             withSubQuery.append(" ");
             query.insert(0, withSubQuery);
         }
+    }
+
+    protected void appendWithPartForSecurityStampIfNeeded(String typeName, StringBuilder withSubQuery) {
+        if (securityStamp.isSupportSecurityStamp(typeName)){
+            withSubQuery.append(", person_stamp_values as (").
+                    append("SELECT stamp FROM person_stamp ").
+                    append("WHERE person = :user_id)");
+        }
+    }
+
+    protected boolean isHasWithKeyword(StringBuilder query) {
+        String subString = query.substring(0, 4);
+        return subString.equalsIgnoreCase("with");
     }
 
     protected boolean isReadEveryBody(String domainObjectType) {
@@ -461,6 +546,8 @@ public class DomainObjectQueryHelper {
         query.append(", ").append(tableAlias).append(".").append(wrap(UPDATED_BY_TYPE_COLUMN));
         query.append(", ").append(tableAlias).append(".").append(wrap(STATUS_FIELD_NAME));
         query.append(", ").append(tableAlias).append(".").append(wrap(STATUS_TYPE_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(SECURITY_STAMP_COLUMN));
+        query.append(", ").append(tableAlias).append(".").append(wrap(SECURITY_STAMP_TYPE_COLUMN));
         query.append(", ").append(tableAlias).append(".").append(wrap(ACCESS_OBJECT_ID));
     }
     
@@ -481,13 +568,29 @@ public class DomainObjectQueryHelper {
             }
         }
     }
-    
+
     /**
-     * Проверяет наследуется ли данный тип от другого
+     * Проверяет, наследуется ли данный тип от другого
      * @param domainObjectTypeConfig
      * @return true если наследуется, false если это корнево тип
      */
     private boolean isDerived(DomainObjectTypeConfig domainObjectTypeConfig) {
         return domainObjectTypeConfig.getExtendsAttribute() != null;
+    }
+
+    public WithItem getAclWithItem(Select aclSelect) {
+        return aclSelect.getWithItemsList().get(0);
+    }
+
+    public Optional<WithItem> getStampWithItem(Select aclSelect) {
+        final List<WithItem> withItemsList = aclSelect.getWithItemsList();
+        if (withItemsList.size() > 1) {
+            return Optional.of(withItemsList.get(1));
+        }
+        return Optional.empty();
+    }
+
+    public AddAclVisitor createVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
+        return new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor, this);
     }
 }

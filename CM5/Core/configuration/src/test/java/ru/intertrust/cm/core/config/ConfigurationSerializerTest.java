@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.util.StreamUtils;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
@@ -10,10 +11,7 @@ import ru.intertrust.cm.core.config.impl.ModuleServiceImpl;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
@@ -103,7 +101,7 @@ public class ConfigurationSerializerTest {
 
         List configurationList = configuration.getConfigurationList();
         assertNotNull(configurationList);
-        assertEquals(35, configurationList.size());
+        assertEquals(37, configurationList.size());
 
         List<String> configurationNames = new ArrayList<>();
         configurationNames.addAll(Arrays.asList("Employees", "Employees_2", "Outgoing_Document", "Person",
@@ -111,7 +109,7 @@ public class ConfigurationSerializerTest {
                 "Authentication_Info", "User_Group", "Group_Member", "Group_Admin", "Delegation", "Organization",
                 "A1", "B1", "C1", "D1", "Test_DO_1", "Test_DO_2", "Test_DO_3", "Test_DO_4", "Test_DO_5",
                 "Ref_DO_3_1", "Ref_DO_3_2", "Ref_DO_1", "Ref_DO_2", "Ref_DO_3", "Test_type_1", "Test_type_2",
-                "Test_type_3", "Test_type_4", "Test_type_5"));
+                "Test_type_3", "Test_type_4", "Test_type_5", "Outgoing_Document_ext1", "Outgoing_Document_ext2"));
 
         for (Object configurationItem : configurationList) {
             if (configurationItem.getClass().equals(GlobalSettingsConfig.class)) {
@@ -203,5 +201,41 @@ public class ConfigurationSerializerTest {
         fin.close();
 
         return Charset.forName("UTF-8").decode(ByteBuffer.wrap(buffer)).toString();
+    }
+
+    @Test
+    public void testDeserializeSimpleData() throws Exception {
+        String serializedConfiguration = readTextFile("modules-configuration/test-module/simple-data.xml");
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/simple-data.xml");
+        Configuration conf = configurationSerializer.deserializeLoadedConfiguration(serializedConfiguration);
+        assertNotNull(conf);
+    }
+
+    @Test
+    public void testDeserializeSearchArea() throws Exception {
+        // десериализация xml
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/search-area.xml");
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
+
+        // Обратная сериализация в xml
+        String serializedConfiguration = ConfigurationSerializer.serializeConfiguration(configuration);
+
+        //повторная десериализация сгенеренного xml
+        Configuration newConfiguration = configurationSerializer.deserializeConfiguration(serializedConfiguration);
+        assertEquals(configuration, newConfiguration);
+    }
+
+    @Test
+    public void testDeserializeSearchAreaWithParentLinkAttr() throws Exception {
+        // десериализация xml
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer("modules-configuration/test-module/search-area-linked-objects.xml");
+        Configuration configuration = configurationSerializer.deserializeConfiguration();
+
+        // Обратная сериализация в xml
+        String serializedConfiguration = ConfigurationSerializer.serializeConfiguration(configuration);
+
+        //повторная десериализация сгенеренного xml
+        Configuration newConfiguration = configurationSerializer.deserializeConfiguration(serializedConfiguration);
+        assertEquals(configuration, newConfiguration);
     }
 }

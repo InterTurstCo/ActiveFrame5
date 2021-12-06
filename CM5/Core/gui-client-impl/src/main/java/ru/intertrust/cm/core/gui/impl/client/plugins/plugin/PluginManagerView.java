@@ -32,12 +32,15 @@ import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
+import ru.intertrust.cm.core.gui.impl.client.event.LeftPanelAttachedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.LeftPanelAttachedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.AttachmentBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.InfoMessageDialog;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.MessageDialog;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.DownloadAttachmentActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
@@ -47,7 +50,6 @@ import ru.intertrust.cm.core.gui.model.plugin.TerminatePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.UploadData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -56,10 +58,10 @@ import java.util.List;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
 
-public class PluginManagerView extends PluginView {
+public class PluginManagerView extends PluginView implements LeftPanelAttachedEventHandler {
 
     public static final String DATE_TIME_PATTERN = "dd-MM-yyyy HH:mm:ss";
-    private Panel mainPanel = new VerticalPanel();
+    private Panel mainPanel = new AbsolutePanel();
     private AttachmentBoxWidget attachmentBox;
     private CellTable<PluginInfo> cellTable;
     private Panel toolbarPanel = new HorizontalPanel();
@@ -68,8 +70,10 @@ public class PluginManagerView extends PluginView {
     private Button executeButton;
     private Button terminateButton;
     private Button updateButton;
+    private TextBox filterValue;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<>();
     ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler;
+    private final EventBus applicationEventBus = Application.getInstance().getEventBus();
 
     private PluginManagerParamDialogBox dialogBox;
 
@@ -121,9 +125,34 @@ public class PluginManagerView extends PluginView {
         initTableToolbar();
         mainPanel.add(toolbarPanel);
 
+        HorizontalPanel filterPanel = new HorizontalPanel();
+        Label filterLabel = new Label("Фильтр:");
+        filterValue = new TextBox();
+        Button applyFilterButton = new Button("Применить");
+        applyFilterButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                refreshPluginsModel();
+            }
+        });
+        Button clearfilterButton = new Button("Очистить");
+        clearfilterButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                filterValue.setValue("");
+                refreshPluginsModel();
+            }
+        });
+
+        filterPanel.add(filterLabel);
+        filterPanel.add(filterValue);
+        filterPanel.add(applyFilterButton);
+        filterPanel.add(clearfilterButton);
+        mainPanel.add(filterPanel);
+
         cellTable = new CellTable<PluginInfo>(50);
-        //cellTable.setWidth("100%", true);
-        cellTable.addStyleName("cellTable");
+        final boolean isNavigationTreePanelExpanded = Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded();
+        setCellTableStyle(isNavigationTreePanelExpanded);
 
         // Do not refresh the headers and footers every time the data is updated.
         cellTable.setAutoHeaderRefreshDisabled(true);
@@ -140,8 +169,28 @@ public class PluginManagerView extends PluginView {
         refreshPluginsModel();
 
         mainPanel.add(cellTable);
+        applicationEventBus.addHandler(LeftPanelAttachedEvent.TYPE,this);
 
         Application.getInstance().unlockScreen();
+    }
+
+    /**
+     * Устанавливает стиль таблицы, в зависимости от того развернута ли левая панель навигации и является ли браузер интернет-эксплорером
+     * (у него свои особые стили в силу наличия некоторых ограничений)
+     *
+     * @param isLeftPanelExpanded развернута ли панель навигации слева
+     */
+    private void setCellTableStyle(boolean isLeftPanelExpanded) {
+        final boolean isIE = GuiUtil.isIE();
+        if (isIE) {
+            if (isLeftPanelExpanded) {
+                cellTable.setStyleName("cellTable-IE-left-panel-expanded");
+            } else {
+                cellTable.setStyleName("cellTable-IE-left-panel-collapsed");
+            }
+        } else {
+            cellTable.setStyleName("cellTable");
+        }
     }
 
     private void deployPlugins() {
@@ -257,7 +306,17 @@ public class PluginManagerView extends PluginView {
             public void onSuccess(Dto result) {
                 PluginInfoData data = (PluginInfoData)result;
                 dataProvider.getList().clear();
-                dataProvider.getList().addAll(data.getPluginInfos());
+                if (filterValue.getValue().isEmpty()) {
+                    dataProvider.getList().addAll(data.getPluginInfos());
+                }else{
+                    for (PluginInfo pluginInfo : data.getPluginInfos()) {
+                        if (pluginInfo.getName().toLowerCase().contains(filterValue.getValue().toLowerCase()) ||
+                                pluginInfo.getClassName().toLowerCase().contains(filterValue.getValue().toLowerCase()) ||
+                                pluginInfo.getDescription().toLowerCase().contains(filterValue.getValue().toLowerCase())){
+                            dataProvider.getList().add(pluginInfo);
+                        }
+                    }
+                }
                 Column currentSortColumn = cellTable.getColumnSortList().get(0).getColumn();
                 if(cellTable.getColumnSortList().get(0).isAscending()) {
                     Collections.sort(dataProvider.getList(), columnSortHandler.getComparator(currentSortColumn));
@@ -360,6 +419,7 @@ public class PluginManagerView extends PluginView {
             }
         };
         startPluginTimeColumn.setSortable(true);
+        startPluginTimeColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         cellTable.addColumn(startPluginTimeColumn, "start plugin time");
         cellTable.setColumnWidth(startPluginTimeColumn, 100, Unit.PCT);
         startPluginTimeColumn.setCellStyleNames("start-time");
@@ -372,6 +432,7 @@ public class PluginManagerView extends PluginView {
             }
         };
         finishPluginTimeColumn.setSortable(true);
+        finishPluginTimeColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         cellTable.addColumn(finishPluginTimeColumn, "finish plugin time");
         cellTable.setColumnWidth(finishPluginTimeColumn, 100, Unit.PCT);
         finishPluginTimeColumn.setCellStyleNames("finish-time");
@@ -384,6 +445,7 @@ public class PluginManagerView extends PluginView {
             }
         };
         pluginStatusColumn.setSortable(true);
+        pluginStatusColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         cellTable.addColumn(pluginStatusColumn, "plugin status");
         cellTable.setColumnWidth(pluginStatusColumn, 100, Unit.PCT);
 
@@ -405,7 +467,7 @@ public class PluginManagerView extends PluginView {
                 action.perform();
             }
         };
-
+        downloadLogColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
         cellTable.addColumn(downloadLogColumn, "last log");
         cellTable.setColumnWidth(downloadLogColumn, 100, Unit.PCT);
         downloadLogColumn.setCellStyleNames("download-log");
@@ -420,6 +482,11 @@ public class PluginManagerView extends PluginView {
         cellTable.getColumnSortList().push(nameColumn);
     }
 
+    @Override
+    public void onLeftPanelAttachedEvent(LeftPanelAttachedEvent event) {
+        final Boolean isLeftPanelAttached = event.getAttached();
+        setCellTableStyle(isLeftPanelAttached);
+    }
 
     private class PluginIdComparator implements Comparator<PluginInfo> {
         public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {
@@ -573,5 +640,4 @@ public class PluginManagerView extends PluginView {
         return selected;
 
     }
-
 }

@@ -6,10 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchySurferConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginState;
@@ -33,22 +30,20 @@ public class HierarchySurferHandler extends ActivePluginHandler {
         final HierarchyPluginHandler hierarchyPluginHandler =
                 (HierarchyPluginHandler) applicationContext.getBean("hierarchy.plugin");
         final HierarchyPluginData hierarchyPluginData = hierarchyPluginHandler.initialize(config.getHierarchyPluginConfig());
-        final FormPluginConfig formPluginConfig;
-        formPluginConfig = new FormPluginConfig("hierarchy_empty_type");
+        final EmptyFormPluginConfig formPluginConfig = new EmptyFormPluginConfig();
 
         final FormPluginState fpState = new FormPluginState();
         formPluginConfig.setPluginState(fpState);
         formPluginConfig.setFormViewerConfig(config.getFormViewerConfig());
         fpState.setToggleEdit(false);
         fpState.setEditable(false);
-        final FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
+        final EmptyFormPluginHandler formPluginHandler = (EmptyFormPluginHandler) applicationContext.getBean("empty.form.plugin");
         final FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
         HierarchySurferPluginData result = new HierarchySurferPluginData();
         result.setFormPluginData(formPluginData);
         result.setHierarchyPluginData(hierarchyPluginData);
         HierarchySurferPluginState pluginState = new HierarchySurferPluginState();
         result.setPluginState(pluginState);
-
         return result;
     }
 }

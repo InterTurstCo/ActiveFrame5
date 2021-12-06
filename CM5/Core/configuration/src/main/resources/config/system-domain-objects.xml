@@ -24,7 +24,7 @@
     <attachment-storage name="default">
         <folder configurable="true">
             <subfolder-mask>{year}/{month}/{day}/{hour}</subfolder-mask>
-            <delete-file mode="never"/>
+            <delete-file mode="delayed" delay="1"/>
         </folder>
     </attachment-storage>
 
@@ -35,6 +35,7 @@
             <string name="MimeType" length="128"/>
             <string name="Description" length="128"/>
             <long name="ContentLength"/>
+            <string name="FieldName" length="256"/>
         </fields>
         <indices>
             <index>
@@ -221,12 +222,12 @@
             <string name="name" length="256" not-null="true" />
             <string name="task_class" length="256" not-null="true" />
             <long name="task_type" not-null="true" />
-            <string name="year" length="8" not-null="true" />
-            <string name="month" length="8" not-null="true" />
-            <string name="day_of_month" length="8" not-null="true" />
-            <string name="day_of_week" length="8" not-null="true" />
-            <string name="hour" length="8" not-null="true" />
-            <string name="minute" length="8" not-null="true" />
+            <string name="year" length="64" not-null="true" />
+            <string name="month" length="64" not-null="true" />
+            <string name="day_of_month" length="64" not-null="true" />
+            <string name="day_of_week" length="64" not-null="true" />
+            <string name="hour" length="64" not-null="true" />
+            <string name="minute" length="64" not-null="true" />
             <long name="timeout" not-null="true" />
             <long name="priority" not-null="true" />
             <text name="parameters" not-null="false" />
@@ -280,5 +281,49 @@
         	<field name="alter_uid" />
         	<field name="alter_uid_type" />
         </uniqueKey>
-    </domain-object-type>	
+    </domain-object-type>
+
+    <!-- Журнал удаления неиспользующихся вложений в случае использования стратегии delayed -->
+    <domain-object-type name="delete_attachment_journal">
+        <fields>
+            <!-- Путь к файлу относительно корневой конфигурации вложений -->
+            <string name="path" length="512" not-null="true" />
+            <!-- Дата, до наступления которой файл удалять нельзя -->
+            <date-time name="delete_after" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <!-- Реестр установленных процессов   -->
+    <domain-object-type name="process_definition" initial-status="Draft">
+        <fields>
+            <string name="file_name" length="256" not-null="true"/>
+            <string name="process_id" length="256" not-null="true"/>
+            <string name="process_name" length="256" not-null="true"/>
+            <text name="description" />
+            <string name="version" length="64" not-null="true"/>
+            <string name="definition_id" length="64"/>
+            <string name="category" length="128" not-null="true"/>
+            <string name="hash" length="128" not-null="true"/>
+        </fields>
+
+        <uniqueKey>
+            <field name="process_id"/>
+            <field name="version"/>
+        </uniqueKey>
+
+        <uniqueKey>
+            <field name="hash"/>
+        </uniqueKey>
+
+        <uniqueKey>
+            <field name="definition_id"/>
+        </uniqueKey>
+
+        <attachment-types>
+            <attachment-type name="process_definition_model" />
+        </attachment-types>
+    </domain-object-type>
+
+    <access-matrix type="process_definition" read-everybody="true" />
+
 </configuration>

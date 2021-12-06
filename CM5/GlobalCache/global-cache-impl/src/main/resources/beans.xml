@@ -9,7 +9,8 @@
     <bean id="globalCache" class="ru.intertrust.cm.globalcache.impl.localjvm.GlobalCacheImpl"/>
     <bean id="blockingGlobalCache" class="ru.intertrust.cm.globalcache.impl.localjvm.SynchronizedGlobalCacheImpl"/>
     <bean id="strictlyBlockingGlobalCache" class="ru.intertrust.cm.globalcache.impl.localjvm.StrictlySynchronizedGlobalCacheImpl"/>
-    <bean id="lockManager" class="ru.intertrust.cm.globalcache.impl.localjvm.LockManager"/>
+    <bean id="reentrantReadWriteLockManager" class="ru.intertrust.cm.globalcache.impl.localjvm.ReentrantReadWriteLockManager"/>
+    <bean id="stampedLockManager" class="ru.intertrust.cm.globalcache.impl.localjvm.StampedLockManager"/>
     <bean id="optimisticStamped" class="ru.intertrust.cm.globalcache.impl.localjvm.OptimisticStampedSynchronizedGlobalCacheImpl"/>
     <bean id="synchronized" class="ru.intertrust.cm.globalcache.impl.localjvm.SimpleSynchronizedGlobalCacheImpl"/>
     <bean id="stamped" class="ru.intertrust.cm.globalcache.impl.localjvm.StampedSynchronizedGlobalCacheImpl"/>

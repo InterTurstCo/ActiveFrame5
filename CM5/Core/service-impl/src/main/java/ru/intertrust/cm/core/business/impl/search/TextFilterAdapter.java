@@ -1,14 +1,14 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 
 public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
 
@@ -21,14 +21,22 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         }
         String fieldName = filter.getFieldName();
         Set<SearchFieldType> types;
-        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+        if (SearchFilter.EVERYWHERE.equals(fieldName) || SearchFilter.CONTENT.equals(fieldName)) {
+            Set<IndexedFieldConfig.SearchBy> searchBySet = new HashSet<>(1);
+            List<String> areas = query.getAreas();
+            if (areas != null && !areas.isEmpty()) {
+                for (String area : areas) {
+                    SearchAreaConfig searchAreaConfig = configHelper.getSearchAreaDetailsConfig(area);
+                    searchBySet.add(searchAreaConfig != null ? searchAreaConfig.getContentSearchBy() :
+                            IndexedFieldConfig.SearchBy.SUBSTRING);
+                }
+            }
             types = Collections.<SearchFieldType>singleton(
-                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
-        } else if (SearchFilter.CONTENT.equals(fieldName)) {
-            types = Collections.<SearchFieldType>singleton(
-                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages(),
+                            searchBySet.contains(IndexedFieldConfig.SearchBy.WORDS) ?
+                                    IndexedFieldConfig.SearchBy.WORDS : IndexedFieldConfig.SearchBy.SUBSTRING));
         } else {
-            types = configHelper.getFieldTypes(fieldName, query.getAreas());
+            types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getTargetObjectTypes());
             if (types.size() == 0) {
                 return null;
             }
@@ -37,22 +45,21 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         for (SearchFieldType type : types) {
             if (type.supportsFilter(filter)) {
                 String searchString = filter.getText();
-                if (type instanceof TextSearchFieldType) {
-                    ((TextSearchFieldType) type).addLanguage("");
-                }
-                if (type instanceof SpecialTextSearchFieldType || (type instanceof TextSearchFieldType && ((TextSearchFieldType) type).isSearchBySubstring())) {
+                if (type.isQuote()) {
                     if (searchString.length() >=2 && searchString.startsWith("\"") && searchString.endsWith("\"")) {
                         searchString = searchString.substring(1, searchString.length() - 1);
                     }
                     searchString = new StringBuilder()
                             .append("\"")
-                            .append(SolrUtils.protectSearchString(searchString, true))
+                            //.append(SolrUtils.protectSearchString(searchString, true))
+                            .append(SolrUtils.escapeString(searchString, SolrUtils.ESCAPE_TYPE.REG_CNTX_SEARCH))
                             .append("\"")
                             .toString();
                 } else {
-                    searchString = SolrUtils.protectSearchString(searchString);
+                    // searchString = SolrUtils.protectSearchString(searchString);
+                    searchString = SolrUtils.escapeString(searchString, SolrUtils.ESCAPE_TYPE.REG_CNTX_SEARCH);
                 }
-                for (String field : type.getSolrFieldNames(fieldName, false)) {
+                for (String field : type.getSolrFieldNames(fieldName)) {
                     fields.add(new StringBuilder()
                             .append(field)
                             .append(":(")
@@ -68,6 +75,31 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
     @Override
     public boolean isCompositeFilter(TextSearchFilter filter) {
         return false;
+    }
+
+    @Override
+    public List<String> getFieldNames(TextSearchFilter filter, SearchQuery query) {
+        String fieldName = filter.getFieldName();
+        Set<SearchFieldType> types;
+        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+            types = Collections.<SearchFieldType>singleton(
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+        } else if (SearchFilter.CONTENT.equals(fieldName)) {
+            types = Collections.<SearchFieldType>singleton(
+                    new SpecialTextSearchFieldType(configHelper.getSupportedLanguages()));
+        } else {
+            types = configHelper.getFieldTypes(fieldName, query.getAreas(), query.getAreas());
+        }
+        ArrayList<String> names = new ArrayList<>(types.size());
+        for (SearchFieldType type : types) {
+            if (type.supportsFilter(filter)) {
+                // String searchString = filter.getText();
+                for (String field : type.getSolrFieldNames(fieldName)) {
+                    names.add(field);
+                }
+            }
+        }
+        return names;
     }
 
 }

@@ -18,12 +18,12 @@ public class ResultSetExtractionLogger {
             return;
         }
         if (rowCount == MIN_ROWS_TO_LOG) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(codeId + " retrieved " + rowCount + " Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms at", new Throwable());
+            if (logger.isDebugEnabled()) {
+                logger.debug(codeId + " retrieved " + rowCount + " Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms at", new Throwable());
             }
         } else if (rowCount % EACH_ROWS_TO_LOG_AFTER == 0) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(codeId + " retrieved " + rowCount + " Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms");
+            if (logger.isDebugEnabled()) {
+                logger.debug(codeId + " retrieved " + rowCount + " Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms");
             }
         }
     }

@@ -3,8 +3,9 @@ package ru.intertrust.cm.core.dao.impl.attach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.intertrust.cm.core.config.DeleteFileConfig;
+import org.springframework.stereotype.Component;
 
+@Component ("neverFileDeleteStrategy")
 public class NeverFileDeleteStrategy implements FileDeleteStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(NeverFileDeleteStrategy.class);
@@ -17,8 +18,7 @@ public class NeverFileDeleteStrategy implements FileDeleteStrategy {
     }
 
     @Override
-    public void setConfiguration(DeleteFileConfig config) {
-        // Nothing to do
+    public String toString() {
+        return "NeverFileDeleteStrategy";
     }
-
 }

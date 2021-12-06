@@ -88,4 +88,15 @@ public class CaseInsensitiveHashMap<T> implements Map<String, T>, Dto {
     public Set<Entry<String, T>> entrySet() {
         return map.entrySet();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return map.equals(obj);
+    }
+
+    @Override
+    public String toString () {
+        return map.toString();
+    }
+
 }

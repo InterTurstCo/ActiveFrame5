@@ -11,6 +11,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.DomainObjectLogicalValidator;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
@@ -22,13 +23,15 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 public class ConfigurationLoaderTest {
 
     @InjectMocks
-    private ConfigurationLoader configurationLoader;
+    private ConfigurationLoaderImpl configurationLoader;
     @Mock
     private ConfigurationLoadService configurationLoadService;
     @Mock
     private DomainObjectLogicalValidator logicalValidator;
     @Mock
-    private SpringApplicationContext applicationContext;    
+    private SpringApplicationContext applicationContext;
+    @Mock
+    private UserTransactionService userTransactionService;
 
     @Before
     public void init() {

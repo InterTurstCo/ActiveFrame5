@@ -1,15 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.plugin;
 
+import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
 @ComponentName("plugin.manager.plugin")
-public class PluginManager extends Plugin implements IsActive{
+public class PluginManager extends Plugin implements IsActive {
 
     @Override
     public Component createNew() {
@@ -34,6 +36,10 @@ public class PluginManager extends Plugin implements IsActive{
     public void setInitialData(PluginData initialData) {
         super.setInitialData(initialData);
         setDisplayActionToolBar(true);
-    }    
+    }
 
+    @Override
+    protected GwtEvent.Type[] getEventTypesToHandle() {
+        return new GwtEvent.Type[]{PluginPanelSizeChangedEvent.TYPE};
+    }
 }

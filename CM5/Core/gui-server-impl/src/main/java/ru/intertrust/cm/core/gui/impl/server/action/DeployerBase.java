@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -19,18 +20,20 @@ public abstract class DeployerBase implements ConfigurationDeployer {
     @Override
     public void deploy(String name, File file) {
         try {
-            String configAsString = readFileAsString(file.getPath(), getEncoding());
+            String configAsString = readFileAsString(file);
             configurationControlService.updateConfiguration(configAsString, name);
         } catch (IOException ex) {
             throw new FatalException("Error deploy", ex);
         }
     }
 
-    protected abstract Charset getEncoding();
+    protected Charset getEncoding(){
+        return StandardCharsets.UTF_8;
+    }
 
-    private String readFileAsString(String path, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return new String(encoded, encoding);
+    protected String readFileAsString(File file) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(file.getPath()));
+        return new String(encoded, getEncoding());
     }
 
 }

@@ -5,11 +5,16 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.config.ConfigurationException;
 
@@ -29,38 +34,45 @@ import java.util.List;
 @Controller
 public class UploadConfiguration {
 
-    private static final String DEFAULT_ENCODING = "UTF-8";
+    private static final Logger logger = LoggerFactory.getLogger(UploadConfiguration.class);
 
     @Autowired
     protected ConfigurationControlService configurationControlService;
 
     @ResponseBody
     @RequestMapping(value = "upload-configuration", method = RequestMethod.POST)
-    public void upload(HttpServletRequest request, HttpServletResponse response)
+    public String upload(@RequestParam("fileselect[]") MultipartFile files[])
             throws Exception {
-        OutputStream resOut = response.getOutputStream();
-        OutputStream buffer = new BufferedOutputStream(resOut);
-        OutputStreamWriter writer = new OutputStreamWriter(buffer, Charset.forName(DEFAULT_ENCODING));
-        DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
-        ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
-        List<FileItem> fileItems = upload.parseRequest(request);
+        logger.debug("Upload config files");
+
         List<File> uploadedFiles = new ArrayList<>();
-        Iterator iterator = fileItems.iterator();
-        while (iterator.hasNext()) {
-            File fT = File.createTempFile("uploaded_","tmp");
-            FileItem item = (FileItem) iterator.next();
-            item.write(fT);
-            uploadedFiles.add(fT);
+        // Копируем во временный каталог
+        for (MultipartFile multipartFile : files) {
+            File tempFile = File.createTempFile("uploaded_","tmp");
+            try(FileOutputStream fileOutStream = new FileOutputStream(tempFile)) {
+                logger.debug("Prepare file " + multipartFile.getOriginalFilename());
+                StreamUtils.copy(multipartFile.getInputStream(), fileOutStream);
+                uploadedFiles.add(tempFile);
+            }
         }
+
+        // Активируем
         try {
             if (uploadedFiles.size() > 0) {
+                logger.debug("Activate upload configs");
                 configurationControlService.activateFromFiles(uploadedFiles);
-                writer.append("Success");
-                writer.close();
+                return "Success";
+            }else{
+                return "No config files uploaded";
             }
-        } catch(ConfigurationException e){
-            writer.append(e.getMessage());
-            writer.close();
+        } catch(ConfigurationException ex){
+            logger.error("Error install config", ex);
+            return ex.getMessage();
+        } finally{
+            // Удаляем файлы
+            for (File tempFile : uploadedFiles) {
+                tempFile.deleteOnExit();
+            }
         }
     }
 }

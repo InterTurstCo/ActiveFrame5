@@ -195,7 +195,7 @@ public class ProfileServiceImpl implements ProfileService {
             profileId = profileDomainObject.getId();
 
             // save attributes
-            ArrayList<String> attributeNames = profile.getFields();
+            List<String> attributeNames = profile.getFields();
             if (attributeNames != null) {
                 for (String attributeName : attributeNames) {
                     saveProfileAttribute(profile, profileId, attributeName);
@@ -297,7 +297,7 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             // save only overridden attributes
-            ArrayList<String> attributeNames = profile.getFields();
+            List<String> attributeNames = profile.getFields();
             HashSet<String> parentProfileAttributeNames = new HashSet<>(parentProfile.getFields());
             if (attributeNames != null) {
                 for (String attributeName : attributeNames) {
@@ -424,7 +424,7 @@ public class ProfileServiceImpl implements ProfileService {
         fillProfileAttributes(parentProfileObject, getProfileValues(parentProfileDo.getId()));
 
         HashSet<String> personFields = new HashSet<>(result.getFields());
-        ArrayList<String> parentFields = parentProfileObject.getFields();
+        List<String> parentFields = parentProfileObject.getFields();
 
         if (parentFields != null) {
             for (String parentField : parentFields) {

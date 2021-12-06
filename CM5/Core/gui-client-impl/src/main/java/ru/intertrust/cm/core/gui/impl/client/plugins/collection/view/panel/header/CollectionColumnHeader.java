@@ -437,6 +437,8 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 inputFilter.setValue(EMPTY_VALUE);
                 widget.setFilterValuesRepresentation(EMPTY_VALUE);
                 inputFilter.focus();
+                eventBus.fireEvent(new FilterEvent(false));
+                
             } else if ((widgetId + HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART).equalsIgnoreCase(clickedElement.getId())) {
                 if (widget instanceof DateFilterHeaderWidget) {
                     DateFilterHeaderWidget dateFilterHeaderWidget = (DateFilterHeaderWidget) widget;

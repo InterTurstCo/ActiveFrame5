@@ -185,22 +185,51 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
                 return Collections.emptyList();
             }
-            ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
-            for (DomainObject groupGroupSetting : groupGroupSettings) {
-                final Id childGroupId = groupGroupSetting.getReference("child_group_id");
-                if (childGroupId != null) {
-                    childGroupIds.add(childGroupId);
+            // CMSEVEN-2643 При очень большом количестве записей можем упасть в методе domainObjectDao.find(List<Id>),
+            // поэтому, если записей более 1000, всегда выполняем запрос к базе
+            if (groupGroupSettings.size() > 1000){
+                return getChildGroupsUsingQuery(parent, accessToken);
+            }else {
+                ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
+                for (DomainObject groupGroupSetting : groupGroupSettings) {
+                    final Id childGroupId = groupGroupSetting.getReference("child_group_id");
+                    if (childGroupId != null) {
+                        childGroupIds.add(childGroupId);
+                    }
                 }
+                return domainObjectDao.find(childGroupIds, accessToken);
             }
-            return domainObjectDao.find(childGroupIds, accessToken);
         } else {
-            Filter filter = new Filter();
-            filter.setFilter("byParent");
-            filter.addCriterion(0, new ReferenceValue(parent));
-
-            return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
-                    Collections.singletonList(filter), null, 0, 0, accessToken));
+            return getChildGroupsUsingQuery(parent, accessToken);
         }
+    }
+
+    private List<DomainObject> getChildGroupsUsingQuery(Id parent, AccessToken accessToken) {
+        Filter filter = new Filter();
+        filter.setFilter("byParent");
+        filter.addCriterion(0, new ReferenceValue(parent));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
+    }
+
+    @Override
+    public List<DomainObject> getParentGroups(Id childGroup) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+
+        final List<DomainObject> groupGroupSettings =
+                domainObjectDao.findLinkedDomainObjects(childGroup, "group_group_settings", "child_group_id", accessToken);
+        if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
+            return Collections.emptyList();
+        }
+        ArrayList<Id> parentGroupIds = new ArrayList<>(groupGroupSettings.size());
+        for (DomainObject groupGroupSetting : groupGroupSettings) {
+            final Id parentGroupId = groupGroupSetting.getReference("parent_group_id");
+            if (parentGroupId != null) {
+                parentGroupIds.add(parentGroupId);
+            }
+        }
+        return domainObjectDao.find(parentGroupIds, accessToken);
     }
 
     @Override
@@ -600,8 +629,27 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             // Добавляем в результат для родительской группы пустую коллекцию, что не словить NPE
             groupsMembers.put(parent, new HashSet<>());
         }
+        // В результате у нас в key группа, в value дочки этой группы, теперь разворачиваем всю иерархию
+        HashMap<Id, Set<Id>> result = new HashMap<>();
+        for (Id groupId : groupsMembers.keySet()) {
+            // Для каждой группы рекурсивно получаем состав
+            Set<Id> members = new HashSet<Id>();
+            result.put(groupId, members);
+            members.addAll(getChildGroupInMap(groupsMembers, groupId));
+        }
 
-        return groupsMembers;
+        return result;
+    }
+
+    private Set<Id> getChildGroupInMap(HashMap<Id, Set<Id>> groupsMembers, Id groupId) {
+        Set<Id> result = new HashSet<Id>();
+        if (groupsMembers.containsKey(groupId)) {
+            for (Id childId : groupsMembers.get(groupId)) {
+                result.add(childId);
+                result.addAll(getChildGroupInMap(groupsMembers, childId));
+            }
+        }
+        return result;
     }
 
     /**

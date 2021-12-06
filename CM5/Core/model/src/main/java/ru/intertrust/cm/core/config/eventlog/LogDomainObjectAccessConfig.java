@@ -19,7 +19,7 @@ public class LogDomainObjectAccessConfig  implements Dto {
     @Attribute
     private String accessWasGranted;
 
-    @ElementList(inline = true, entry ="domain-object-type", required = true)
+    @ElementList(inline = true, entry ="domain-object-type")
     private List<DomainObjectTypeConfig> domainObjectTypeConfigList;
 
     public boolean isEnable() {
@@ -78,5 +78,15 @@ public class LogDomainObjectAccessConfig  implements Dto {
         result = 31 * result + (accessWasGranted != null ? accessWasGranted.hashCode() : 0);
         result = 31 * result + (domainObjectTypeConfigList != null ? domainObjectTypeConfigList.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "LogDomainObjectAccessConfig{" +
+                "enable=" + enable +
+                ", accessType='" + accessType + '\'' +
+                ", accessWasGranted='" + accessWasGranted + '\'' +
+                ", domainObjectTypeConfigList=" + domainObjectTypeConfigList +
+                '}';
     }
 }

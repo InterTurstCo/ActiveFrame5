@@ -8,11 +8,12 @@
 	<parent>
 		<groupId>ru.intertrust.cm-sochi</groupId>
 		<artifactId>cm-sochi</artifactId>
-		<version>1.0.0-2-SNAPSHOT</version>
+		<version>1.2.3</version>
 	</parent>
 
 	<modules>
 		<module>remote-client</module>
-	</modules>
+        <module>rest-client</module>
+    </modules>
 
 </project>

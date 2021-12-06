@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>core</artifactId>
-        <version>1.0.0-2-SNAPSHOT</version>
+        <version>1.2.3</version>
     </parent>
 
     <properties>
@@ -59,6 +59,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
         </dependency>
 
         <dependency>
@@ -68,37 +69,57 @@
         </dependency>
 
         <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-engine</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-spring</artifactId>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
         </dependency>
 
         <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable5-compatibility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable5-spring-compatibility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable5-spring</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.runa.wfe</groupId>
+            <artifactId>wfe-webservice-client</artifactId>
+        </dependency>
+
+        <!--dependency>
             <groupId>commons-javaflow</groupId>
             <artifactId>commons-javaflow</artifactId>
             <version>1.0.0</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
-            <groupId>org.eclipse.jdt.core.compiler</groupId>
-            <artifactId>ecj</artifactId>
-            <version>4.4</version>
+            <groupId>net.tascalate.javaflow</groupId>
+            <artifactId>net.tascalate.javaflow.api</artifactId>
+            <version>2.6.0</version>
+            <!--scope>compile</scope>
+            <optional>true</optional-->
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.jdt.core.compiler</groupId>-->
+<!--            <artifactId>ecj</artifactId>-->
+<!--            <version>4.4</version>-->
+<!--        </dependency>-->
 
         <!-- Added for Unit tests-->
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -112,7 +133,7 @@
             <artifactId>dao-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-        </dependency>        
+        </dependency>
 
         <dependency>
             <groupId>org.apache.solr</groupId>
@@ -154,7 +175,24 @@
 		    <groupId>org.docx4j</groupId>
 		    <artifactId>docx4j</artifactId>
 		</dependency>
-		
+
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+
+        <!-- Poi for JasperReports -->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency>
+
     </dependencies>
 
     <profiles>
@@ -166,24 +204,6 @@
                 </property>
             </activation>
             <dependencies>
-                <dependency>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-core</artifactId>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>jdk.tools</groupId>
-                            <artifactId>jdk.tools</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-cell</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.solr</groupId>
-                    <artifactId>solr-langid</artifactId>
-                </dependency>
                 <!-- <dependency>
                     <groupId>jdk.tools</groupId>
                     <artifactId>jdk.tools</artifactId>

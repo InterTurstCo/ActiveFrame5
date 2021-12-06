@@ -41,6 +41,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin.HierarchySu
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.plugin.PluginManager;
 import ru.intertrust.cm.core.gui.impl.client.plugins.report.ReportPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportPackageImportPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportUploadPlugin;
 import ru.intertrust.cm.core.gui.impl.client.rules.ExpressionException;
 import ru.intertrust.cm.core.gui.impl.client.rules.ExpressionHelper;
@@ -291,7 +292,9 @@ public abstract class PluginView implements IsWidget {
 
   private void addExtraStyleClassIfRequired() {
     if (plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin
-        || plugin instanceof CalendarPlugin || plugin instanceof ReportPlugin || plugin instanceof ReportUploadPlugin || plugin instanceof PluginManager || plugin instanceof HierarchySurferPlugin) {
+            || plugin instanceof CalendarPlugin || plugin instanceof ReportPlugin
+            || plugin instanceof ReportUploadPlugin || plugin instanceof PluginManager
+            || plugin instanceof HierarchySurferPlugin || plugin instanceof ReportPackageImportPlugin) {
       Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
       node.getFirstChild().getParentElement().addClassName("pluginExtraClass");
     }

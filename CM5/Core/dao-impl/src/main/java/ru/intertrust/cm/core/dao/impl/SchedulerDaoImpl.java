@@ -109,11 +109,12 @@ public class SchedulerDaoImpl implements SchedulerDao {
     }
     
     @Override
-    public void createTaskExecution(Id taskId){
+    public void createTaskExecution(Id taskId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DomainObject task = domainObjectDao.find(taskId, accessToken);
         //Формируем записи задач или всем нодам или только одной случайной в зависимости от фланга AllNodes
-        if (task.getBoolean(ScheduleService.SCHEDULE_ALL_NODES) != null && task.getBoolean(ScheduleService.SCHEDULE_ALL_NODES)) {
+        Boolean scheduleAllNodes = task.getBoolean(ScheduleService.SCHEDULE_ALL_NODES);
+        if (scheduleAllNodes != null && scheduleAllNodes) {
             Set<String> nodes = clusterManager.getNodesWithRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME);
             for (String node : nodes) {
                 createNodeTaskExecution(task.getId(), node);
@@ -136,7 +137,8 @@ public class SchedulerDaoImpl implements SchedulerDao {
     /**
      * Производится проверка нет ли у этой ноды работающего задания с этим id, и
      * если нет то создается новое задание на исполнение
-     * @param string
+     * @param taskId
+     * @param nodeId
      */
     private Id createNodeTaskExecution(Id taskId, String nodeId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Тестовый объект цвета -->
+    <domain-object-type name="color" initial-status="Active">
+        <fields>
+            <!-- Имя -->
+            <string name="name" length="250"/>
+            <!-- Цвет (хранится в формате HEX-кода без начального #) -->
+            <string name="hex_code" length="6"/>
+        </fields>
+    </domain-object-type>
+
+</configuration>

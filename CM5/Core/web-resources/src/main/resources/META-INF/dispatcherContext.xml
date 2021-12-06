@@ -12,9 +12,7 @@
     
     <mvc:annotation-driven>
          <mvc:message-converters register-defaults="true">
-            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-                 <constructor-arg ref="customObjectMapper"/>
-            </bean>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
         </mvc:message-converters>
     </mvc:annotation-driven>
     
@@ -23,6 +21,7 @@
     <context:component-scan base-package="ru.intertrust.cm.core.gui.impl.server.cmd" />
     <context:component-scan base-package="ru.intertrust.cm.globalcacheclient.ping" />
     <context:component-scan base-package="ru.intertrust.cm.core.gui.impl.server.access" />    
-    <context:component-scan base-package="ru.intertrust.cm.core.business.diagnostic" />    
-    
+    <context:component-scan base-package="ru.intertrust.cm.core.business.diagnostic" />
+    <context:component-scan base-package="ru.intertrust.cm.core.wsserver.impl" />
+
 </beans>

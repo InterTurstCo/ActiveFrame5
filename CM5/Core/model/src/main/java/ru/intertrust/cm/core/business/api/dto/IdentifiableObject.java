@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api.dto;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,7 +51,7 @@ public interface IdentifiableObject extends Dto {
      *
      * @return поля объекта в их натуральном порядке
      */
-    ArrayList<String> getFields();
+    List<String> getFields();
 
     /**
      * Устанавливает значения поля c типом {@link java.lang.String}

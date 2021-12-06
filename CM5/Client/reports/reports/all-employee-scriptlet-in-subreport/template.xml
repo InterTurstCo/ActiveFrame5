@@ -1,0 +1,7 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<ReportMetadataConfig name="all-employee-scriptlet-in-subreport"
+	description="Все сотрудники (со скриптлетом в подотчете)" mainTemplate="all-employee-scriptlet-in-subreport">
+	<formats>
+		<format>PDF</format>
+	</formats>
+</ReportMetadataConfig>

@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>core</artifactId>
-        <version>1.0.0-2-SNAPSHOT</version>
+        <version>1.2.3</version>
     </parent>
 
     <properties>
@@ -39,9 +39,13 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
-        <dependency>    
+        <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-javaflow</artifactId>
-        </dependency>        
+        </dependency>
+        <dependency>
+            <groupId>org.flowable</groupId>
+            <artifactId>flowable-engine</artifactId>
+        </dependency>
     </dependencies>
 </project>

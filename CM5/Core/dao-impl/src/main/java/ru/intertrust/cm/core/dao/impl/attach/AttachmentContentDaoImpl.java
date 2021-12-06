@@ -33,12 +33,17 @@ public class AttachmentContentDaoImpl implements AttachmentContentDao {
 
     private static final Logger logger = LoggerFactory.getLogger(AttachmentContentDaoImpl.class);
 
-    @Autowired private ConfigurationExplorer confExplorer;
-    @Autowired private AttachmentStorageConfigHelper confHelper;
-    @Autowired private DomainObjectTypeIdCache typeCache;
-    @Autowired private EventLogService eventLogService;
+    @Autowired
+    private ConfigurationExplorer confExplorer;
+    @Autowired
+    private AttachmentStorageConfigHelper confHelper;
+    @Autowired
+    private DomainObjectTypeIdCache typeCache;
+    @Autowired
+    private EventLogService eventLogService;
 
-    @Autowired private ApplicationContext appContext;
+    @Autowired
+    private ApplicationContext appContext;
 
     @Value("${attachments.alternate.storage:none}")
     private String findStorage;

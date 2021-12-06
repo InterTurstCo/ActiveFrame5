@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Map;
 
 /**
- * Точ
+ * Точка расширения, вызываемая после генерации отчета
  * @author larin
  *
  */

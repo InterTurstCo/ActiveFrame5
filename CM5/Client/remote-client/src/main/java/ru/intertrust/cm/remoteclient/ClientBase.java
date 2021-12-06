@@ -1,32 +1,29 @@
 package ru.intertrust.cm.remoteclient;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.resource.NotSupportedException;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.jboss.ejb.client.ContextSelector;
-import org.jboss.ejb.client.EJBClientConfiguration;
-import org.jboss.ejb.client.EJBClientContext;
-import org.jboss.ejb.client.PropertiesBasedEJBClientConfiguration;
-import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.resource.NotSupportedException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * Базовый класс для удаленного клиента. Содержит методы для парсинга командной строки, получения удаленных сервисов и вывода в лог. Для использования
@@ -35,7 +32,7 @@ import java.util.Properties;
  * 
  */
 public abstract class ClientBase {
-    private static final Logger logger = LoggerFactory.getLogger(ClientBase.class);
+    protected static final Logger logger = LoggerFactory.getLogger(ClientBase.class);
     public static final String APP_NAME = "appName";
     public static final String MODULE_NAME = "moduleName";
     public static final String CLIENT = "client";
@@ -105,6 +102,12 @@ public abstract class ClientBase {
         log.append("\n");
     }
 
+    protected void logError(String message, Throwable ex) {
+        logger.error(message, ex);
+        log.append(message + ex.getMessage());
+        log.append("\n");
+    }
+
     /**
      * Метод вызывается из метода main наследников. Производит парсинг командной строки
      * @param args
@@ -129,6 +132,7 @@ public abstract class ClientBase {
         optionNamesList.add("log");
         optionNamesList.add(APP_NAME);
         optionNamesList.add(MODULE_NAME);
+        optionNamesList.add(CLIENT);
         if (optionNames != null) {
             for (int i = 0; i < optionNames.length; i++) {
                 optionNamesList.add(optionNames[i]);
@@ -140,6 +144,10 @@ public abstract class ClientBase {
         File propFile = new File("client.properties");
         if (propFile.exists()) {
             properties.load(new FileInputStream(propFile));
+        } else {
+            try (final InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("client.properties")) {
+                properties.load(resourceAsStream);
+            }
         }
 
         address = properties.getProperty("address") != null ? properties.getProperty("address") : commandLine.getOptionValue("address");
@@ -198,21 +206,16 @@ public abstract class ClientBase {
     	Properties jndiProps = new Properties();
     	String client = getParamerer(CLIENT);
     	if (CLIENT_JBOSS_NAMING.equals(client)){    		
-            Properties clientProperties = new Properties();
-            clientProperties.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
-            clientProperties.put("remote.connections", "default");
-            clientProperties.put("remote.connection.default.port", address.split(":")[1]);
-            clientProperties.put("remote.connection.default.host", address.split(":")[0]);
-            clientProperties.put("remote.connection.default.username", login);
-            clientProperties.put("remote.connection.default.password", password);
-            clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
-            clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
-
-            EJBClientConfiguration ejbClientConfiguration = new PropertiesBasedEJBClientConfiguration(clientProperties);
-            ContextSelector<EJBClientContext> contextSelector = new ConfigBasedEJBClientContextSelector(ejbClientConfiguration);
-            EJBClientContext.setSelector(contextSelector);
-
+    	    jndiProps.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
+    	    jndiProps.put("remote.connections", "af5");
+    	    jndiProps.put("remote.connection.af5.port", address.split(":")[1]);
+    	    jndiProps.put("remote.connection.af5.host", address.split(":")[0]);
+    	    jndiProps.put("remote.connection.af5.username", login);
+    	    jndiProps.put("remote.connection.af5.password", password);
+    	    jndiProps.put("remote.connection.af5.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
+    	    jndiProps.put("remote.connection.af5.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
             jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+            jndiProps.put("org.jboss.ejb.client.scoped.context", true);
     	}else if (CLIENT_JBOSS_REMOTE.equals(client)){
             jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
 		    jndiProps.put(Context.PROVIDER_URL, "remote://" + address);

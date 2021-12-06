@@ -3,20 +3,31 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
      http://www.springframework.org/schema/beans/spring-beans.xsd
      http://www.springframework.org/schema/context
      http://www.springframework.org/schema/context/spring-context.xsd
-     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <context:annotation-config/>
     
-    <context:component-scan base-package="ru.intertrust.cm.core" />
+    <context:component-scan
+            base-package="ru.intertrust.cm.core ru.intertrust.cm.core.business.impl.report
+            ru.intertrust.cm.core.business.impl.search.retrievers" />
     
     <aop:aspectj-autoproxy/>
 
-    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
+    <task:executor id="mainTaskExecutor" pool-size="${cm.tasks.executor.pool.size:5-15}"
+                   queue-capacity="100" rejection-policy="DISCARD" />
+
+    <tx:annotation-driven transaction-manager="transactionManager" mode="aspectj" />
+
+    <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoaderImpl"
           depends-on="springApplicationContext"/>
 
     <bean id="configurationExtensionProcessor" class="ru.intertrust.cm.core.business.impl.ConfigurationExtensionProcessor"
@@ -156,6 +167,18 @@
                     jndi-name="java:module/ClusteredLockService!ru.intertrust.cm.core.business.api.ClusteredLockService"
                     business-interface="ru.intertrust.cm.core.business.api.ClusteredLockService"/>
 
+    <jee:local-slsb id="SimpeDataStorage"
+                    jndi-name="java:module/SimpeDataStorage!ru.intertrust.cm.core.business.api.SimpeDataStorage"
+                    business-interface="ru.intertrust.cm.core.business.api.SimpeDataStorage"/>
+
+    <jee:local-slsb id="reportGeneratorService"
+                    jndi-name="java:module/ReportGeneratorService!ru.intertrust.cm.core.business.api.ReportGeneratorService"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportGeneratorService"/>
+
+    <jee:local-slsb id="reportMergeService"
+                    jndi-name="java:module/ReportMergeService!ru.intertrust.cm.core.business.api.ReportMergeService"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportMergeService"/>
+
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
 
@@ -178,21 +201,27 @@
     </bean>-->
 
 
-    <!-- Интеграция с Activiti -->
-    <bean id="processEngineConfiguration" class="org.activiti.spring.SpringProcessEngineConfiguration">
-        <property name="dataSource" ref="dataSource"/>
+    <!-- Интеграция с Flowable -->
+    <bean id="processEngineConfiguration" class="org.flowable.spring.SpringProcessEngineConfiguration">
+        <property name="dataSource" ref="wfDataSource"/>
         <property name="transactionManager" ref="transactionManager"/>
         <property name="databaseSchemaUpdate" value="true"/>
-        <property name="jobExecutorActivate" value="${activiti.job.executor.activate:false}"/>
+        <property name="asyncExecutorActivate" value="${wf.job.executor.activate:false}"/>
         <property name="history" value="full"/>
+        <property name="disableEventRegistry" value="true"/>
         <property name="customDefaultBpmnParseHandlers">
             <list>
                 <bean class="ru.intertrust.cm.core.process.CustomUserTaskParseHandler"/>
+                <bean class="ru.intertrust.cm.core.process.CustomProcessParseHandler"/>
             </list>
         </property>
+        <property name="flowable5CompatibilityEnabled" value="true" />
+        <property name="flowable5CompatibilityHandlerFactory" ref="flowable5CompabilityFactory" />
     </bean>
 
-    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+    <bean id="flowable5CompabilityFactory" class="org.activiti.compatibility.spring.SpringFlowable5CompatibilityHandlerFactory" />
+
+    <bean id="processEngine" class="org.flowable.spring.ProcessEngineFactoryBean">
         <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
     </bean>
 
@@ -203,15 +232,25 @@
     <bean id="managementService" factory-bean="processEngine" factory-method="getManagementService"/>
     <bean id="formService" factory-bean="processEngine" factory-method="getFormService"/>
     <bean id="moduleProcessDeployer"  class="ru.intertrust.cm.core.process.DeployModuleProcesses"/>
-    <!-- Интеграция с Activiti -->
+    <bean id="globalListners"  class="ru.intertrust.cm.core.process.GlobalListnersImpl"/>
+    <bean id="platformCreateTaskListener"  class="ru.intertrust.cm.core.process.PlatformCreateTaskListener"/>
+    <bean id="platformDeleteTaskListener"  class="ru.intertrust.cm.core.process.PlatformDeleteTaskListener"/>
+    <bean id="platformStartProcessListener"  class="ru.intertrust.cm.core.process.PlatformStartProcessListener"/>
+    <bean id="platformEndProcessListener"  class="ru.intertrust.cm.core.process.PlatformEndProcessListener"/>
+
+    <!-- Интеграция с Flowable -->
 
     <!--<bean id="searchService" class="ru.intertrust.cm.core.business.impl.search.SearchServiceImpl"/>-->
 
     <bean id="solrServer"
           class="ru.intertrust.cm.core.business.impl.search.SolrServerFactory"/>
     <!-- factory-method="getSolrServer"/> -->
+    <bean id="solServerMap"
+          class="ru.intertrust.cm.core.business.impl.search.SolrServerMapFactory"/>
 
-    <bean id="solrUpdateQueue" class="ru.intertrust.cm.core.business.impl.search.SolrUpdateRequestQueue"/>
+    <bean id="solrUpdateQueue" class="ru.intertrust.cm.core.business.impl.search.SolrUpdateRequestQueue" scope="prototype"/>
+
+    <bean id="solrServerWrapper" class="ru.intertrust.cm.core.business.impl.search.SolrServerWrapper" scope="prototype"/>
 
     <bean id="searchConfigHelper" class="ru.intertrust.cm.core.business.impl.search.SearchConfigHelper"/>
 
@@ -317,9 +356,7 @@
         </property>
     </bean>
     
-    <bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-        <constructor-arg ref="customObjectMapper"/>
-    </bean>
+    <bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
 
     <bean id="customObjectMapper" class="ru.intertrust.cm.core.tools.CustomObjectMapper"/>    
     <bean id="repPostProcPagination" class="ru.intertrust.cm.core.business.impl.reportpostprocessors.PaginationReportPostProcessor"/>
@@ -336,6 +373,10 @@
     </bean>
 
     <bean id="fileSystemAttachmentCleaner" class="ru.intertrust.cm.core.business.impl.FileSystemAttachmentCleanerImpl"/>
+    <bean id="workflowEngeneFactory" class="ru.intertrust.cm.core.business.impl.workflow.WorkflowEngeneFactory"/>
+    <bean id="workflowEngine" factory-bean="workflowEngeneFactory" factory-method="getObject"/>
+    <bean id="keycloakIdpServiceImpl" class="ru.intertrust.cm.core.business.impl.access.KeycloakIdpAdminServiceImpl"/>
+    <bean id="reportParameterResolver" class="ru.intertrust.cm.core.business.impl.ReportParameterResolverImpl"/>
 
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCacheImpl"/>

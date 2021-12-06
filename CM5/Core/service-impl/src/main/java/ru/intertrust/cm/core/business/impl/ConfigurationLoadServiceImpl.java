@@ -8,13 +8,12 @@ import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -41,7 +40,6 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 @Local(ConfigurationLoadService.class)
 @Remote(ConfigurationLoadService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, ConfigurationLoadService.Remote {
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationLoadServiceImpl.class);
@@ -60,6 +58,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     private ConfigurationDbValidator configurationDbValidator;
     @Autowired
     private DataStructureDao dataStructureDao;
+    @Autowired
+    private ApplicationContext applicationContext;
     @EJB
     private StatisticsGatherer statisticsGatherer;
 
@@ -95,24 +95,11 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Override
     public void updateConfiguration() throws ConfigurationException {
         try {
-            String oldConfigurationString = configurationDao.readLastSavedConfiguration();
-            if (oldConfigurationString == null) {
-                throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
-                        "loaded but wasn't saved");
-            }
+            Configuration oldConfiguration = getLastSavedConfiguration();
 
-            Configuration oldConfiguration;
-            try {
-                oldConfiguration = configurationSerializer.deserializeLoadedConfiguration(oldConfigurationString);
-                if (oldConfiguration == null) {
-                    throw new ConfigurationException("Failed to deserialize last successfully loaded configuration");
-                }
-            } catch (ConfigurationException e) {
-                throw new ConfigurationException("Configuration loading aborted: failed to deserialize last loaded " +
-                        "configuration. This may mean that configuration structure has changed since last configuration load", e);
-            }
+            ConfigurationExplorerImpl oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, applicationContext, true);
+            oldConfigurationExplorer.init();
 
-            ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
             boolean schemaUpdatedByAutoMigration = false;
@@ -140,6 +127,31 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
+    }
+
+    private Configuration getLastSavedConfiguration() {
+        String oldConfigurationString = configurationDao.readLastSavedConfiguration();
+        if (oldConfigurationString == null) {
+            throw new ConfigurationException("Configuration loading aborted: configuration was previously " +
+                    "loaded but wasn't saved");
+        }
+
+        Configuration oldConfiguration = deserializeConfiguration(oldConfigurationString);
+        return oldConfiguration;
+    }
+
+    private Configuration deserializeConfiguration(String oldConfigurationString) {
+        Configuration oldConfiguration;
+        try {
+            oldConfiguration = configurationSerializer.deserializeLoadedConfiguration(oldConfigurationString);
+            if (oldConfiguration == null) {
+                throw new ConfigurationException("Failed to deserialize last successfully loaded configuration");
+            }
+        } catch (ConfigurationException e) {
+            throw new ConfigurationException("Configuration loading aborted: failed to deserialize last loaded " +
+                    "configuration. This may mean that configuration structure has changed since last configuration load", e);
+        }
+        return oldConfiguration;
     }
 
     private boolean sameDomainObjectTypes(ConfigurationExplorer explorer1, ConfigurationExplorer explorer2) {

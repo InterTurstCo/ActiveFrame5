@@ -14,6 +14,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.impl.ReportResultBuilder;
+import ru.intertrust.cm.core.business.impl.report.ReportBuilderFormats;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.service.api.ReportGenerator;
@@ -30,8 +31,6 @@ public abstract class XmlToHtmlWithXsltReportGenerator implements ReportGenerato
             Source xslt = new StreamSource(new File(templateFolder, (String)parameters.get(XSLT_TEMPLATE)));
 
             TransformerFactory factory = TransformerFactory.newInstance();
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
             Transformer transformer = factory.newTransformer(xslt);
@@ -53,7 +52,7 @@ public abstract class XmlToHtmlWithXsltReportGenerator implements ReportGenerato
     
     @Override
     public String getFormat(){
-        return ReportResultBuilder.HTML_FORMAT;
+        return ReportBuilderFormats.HTML_FORMAT.getFormat();
     }
 
 }

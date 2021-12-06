@@ -9,12 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -42,10 +36,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DynamicGroupCollector;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.DynamicGroupSettings;
+import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.BaseActionListener;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
-import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.PermissionException;
 import ru.intertrust.cm.core.model.RemoteSuitableException;
 
@@ -64,9 +60,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     @Autowired
     private DynamicGroupSettings dynamicGroupSettings;
-    
-    @Resource
-    private TransactionSynchronizationRegistry txReg;
+    @Autowired
+    private UserTransactionService userTransactionService;
 
     private Hashtable<String, List<DynamicGroupRegisterItem>> collectorsByTrackingType =
             new Hashtable<String, List<DynamicGroupRegisterItem>>();
@@ -114,7 +109,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     /**
      * Пересчет состава динамической группы
-     * @param domainObject
      * @param groupId
      */
     @Override
@@ -378,7 +372,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 .createSystemAccessToken(this.getClass().getName());
 
         String query = "select t.id from user_group t where object_id = {0}";
-        List<Value> params = new ArrayList<>();
+        List<Value<?>> params = new ArrayList<>();
         params.add(new ReferenceValue(domainObjectId));
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, 0, 0, accessToken);
 
@@ -654,83 +648,59 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         return invalidGroups;
     }
 
-    private void regDeleteContextGroups(DomainObject domainObject) {
-        if (getTxReg().getTransactionKey() == null) {
-            return;
-        }
-        RecalcGroupSynchronization recalcGroupSynchronization =
-                (RecalcGroupSynchronization) getTxReg().getResource(RecalcGroupSynchronization.class);
-        if (recalcGroupSynchronization == null) {
-            recalcGroupSynchronization = new RecalcGroupSynchronization();
-            getTxReg().putResource(RecalcGroupSynchronization.class, recalcGroupSynchronization);
-            getTxReg().registerInterposedSynchronization(recalcGroupSynchronization);
-        }
-        recalcGroupSynchronization.addDeleteContextGroups(domainObject.getId());
+    private void regDeleteContextGroups (final DomainObject domainObject) {
+        this.getRecalcGroupSynchronization().addDeleteContextGroups(domainObject.getId());
     }
 
-    private void regRecalcInvalidGroups(Set<Id> invalidGroups) {
-        //не обрабатываем вне транзакции
-        if (getTxReg().getTransactionKey() == null) {
-            return;
-        }
-        RecalcGroupSynchronization recalcGroupSynchronization =
-                (RecalcGroupSynchronization) getTxReg().getResource(RecalcGroupSynchronization.class);
-        if (recalcGroupSynchronization == null) {
-            recalcGroupSynchronization = new RecalcGroupSynchronization();
-            getTxReg().putResource(RecalcGroupSynchronization.class, recalcGroupSynchronization);
-            getTxReg().registerInterposedSynchronization(recalcGroupSynchronization);
-        }
-        recalcGroupSynchronization.addGroups(invalidGroups);
+    private void regRecalcInvalidGroups (final Set<Id> invalidGroups) {
+        this.getRecalcGroupSynchronization().addGroups(invalidGroups);
     }
 
-    private TransactionSynchronizationRegistry getTxReg() {
-        if (txReg == null) {
-            try {
-                txReg =
-                        (TransactionSynchronizationRegistry) new InitialContext()
-                                .lookup("java:comp/TransactionSynchronizationRegistry");
-            } catch (NamingException e) {
-                throw new DaoException(e);
-            }
+    private RecalcGroupSynchronization getRecalcGroupSynchronization () {
+        
+        RecalcGroupSynchronization rg = this.userTransactionService.getListener(RecalcGroupSynchronization.class);
+        
+        if (rg == null) {
+            this.userTransactionService.addListener(rg = new RecalcGroupSynchronization());
         }
-        return txReg;
+        
+        return rg;
+        
     }
 
-    private class RecalcGroupSynchronization implements Synchronization {
-        private Set<Id> groupIds = new HashSet<Id>();
-        private List<Id> contextsForDelete = new ArrayList<Id>();
+    public class RecalcGroupSynchronization extends BaseActionListener {
+        
+        private final Set<Id> groupIds = new HashSet<>();
+        private final List<Id> contextsForDelete = new ArrayList<>();
+        private final Set<Id> contextsForDeleteCheck = new HashSet<>();
 
-        public RecalcGroupSynchronization() {
+        private RecalcGroupSynchronization () {
         }
 
-        public void addDeleteContextGroups(Id contextId) {
-            if (!contextsForDelete.contains(contextId)) {
-                contextsForDelete.add(contextId);
+        private void addDeleteContextGroups (final Id contextId) {
+            if (this.contextsForDeleteCheck.add(contextId)) {
+                this.contextsForDelete.add(contextId);
             }
         }
 
-        public void addGroups(Set<Id> invalidGroups) {
-            addAllWithoutDuplicate(groupIds, invalidGroups);
+        private void addGroups (final Set<Id> invalidGroups) {
+            this.groupIds.addAll(invalidGroups);
         }
 
         @Override
-        public void beforeCompletion() {
+        public void onBeforeCommit () {
             try {
-                for (Id groupId : groupIds) {
+                for (final Id groupId : this.groupIds) {
                     recalcGroup(groupId);
                 }
-
-                for (int i = contextsForDelete.size() - 1; i > -1; i--) {
-                    deleteContextGroups(contextsForDelete.get(i));
+                for (int i = this.contextsForDelete.size() - 1; i >= 0; i--) {
+                    deleteContextGroups(this.contextsForDelete.get(i));
                 }
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 throw RemoteSuitableException.convert(ex);
             }
         }
-
-        @Override
-        public void afterCompletion(int status) {
-        }
+        
     }
 
     @Override

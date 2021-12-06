@@ -188,6 +188,8 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
 
     @PreDestroy
     public void deinit() {
+        logger.info("Pre Destroy GlobalCacheJmsHelperImpl");
+
         // Отключаемся от MOM в том потоке где подключены для потока отправки
         sendExecutor.execute(() -> {
             sendContext.close();
@@ -358,14 +360,12 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                     onMessage(consumer.receive());
                 }
 
-                receiveContext.close();
             } catch (Exception ex) {
-                if (Thread.currentThread().isInterrupted()) {
-                    receiveContext.close();
-                    logger.info("Receive JMS is shutdown");
-                } else {
-                    logger.error("Error in receive message thread", ex);
-                }
+                logger.error("Error in receive message thread", ex);
+            } finally {
+                consumer.close();
+                receiveContext.close();
+                logger.info("Receive JMS is shutdown");
             }
         }
 
@@ -384,7 +384,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                 }
 
                 // Проверяем что сообщения от нашего кластера
-                if (!clusterManagerDao.getClusterId().equals(senderClusterId)){
+                if (!senderClusterId.equals(clusterManagerDao.getClusterId())){
                     logger.debug("Message cluster id " + senderClusterId +" not equals current cluster id " + clusterManagerDao.getClusterId() + ". Ignoring it.");
                     return;
                 }
@@ -432,6 +432,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             // Формируем результат
                             PingNodeInfo nodeInfo = new PingNodeInfo();
                             nodeInfo.setNodeName(pingData.getResponse().getNodeName());
+                            nodeInfo.setNodeId(pingData.getResponse().getNodeId());
                             nodeInfo.setTime(pingData.getResponse().getResponseTime() - pingData.getRequest().getSendTime());
 
                             // Сохраняем результат
@@ -444,6 +445,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                             pingData.getResponse().setResponseTime(System.currentTimeMillis());
                             String nodeName = clusterManagerDao.getNodeName();
                             pingData.getResponse().setNodeName(nodeName == null ? "not_configured" : nodeName);
+                            pingData.getResponse().setNodeId(clusterManagerDao.getNodeId());
 
                             //Отправляем ответ
                             GlobalCacheJmsHelperImpl.this.sendClusterNotification(invalidation);
@@ -455,7 +457,7 @@ public class GlobalCacheJmsHelperImpl implements GlobalCacheJmsHelper {
                         // запускаем в отдельном потоке чтоб освободить очередь для сообщений об инвалидации
                         ExecutorService executor = Executors.newSingleThreadExecutor();
                         executor.execute(() -> {
-                            OnReceiveDiagnosticMessage extensionPoint = extensionService.getExtentionPoint(OnReceiveDiagnosticMessage.class, null);
+                            OnReceiveDiagnosticMessage extensionPoint = extensionService.getExtensionPoint(OnReceiveDiagnosticMessage.class, null);
                             extensionPoint.onMessage(invalidation.getDiagnosticData());
                         });
                         executor.shutdown();

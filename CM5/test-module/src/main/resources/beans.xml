@@ -14,6 +14,6 @@
     <bean id="testSignatureDataService" class="ru.intertrust.cm.test.crypto.TestSignatureDataService" />
     <bean id="testReportParamResolver" class="ru.intertrust.cm.test.report.TestReportParamResolver" />
 
-    
+    <bean id="testKeycloakAdmin" class="ru.intertrust.cm.test.acess.TestKeycloakAdmin"/>
 
 </beans>

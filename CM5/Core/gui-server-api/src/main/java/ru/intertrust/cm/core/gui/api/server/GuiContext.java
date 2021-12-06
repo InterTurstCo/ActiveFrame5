@@ -54,6 +54,6 @@ public class GuiContext {
 
     public static String getUserLocale() {
         UserInfo userInfo = get().getUserInfo();
-        return userInfo == null ? null : userInfo.getLocale();
+        return userInfo == null ? "en" : userInfo.getLocale();
     }
 }

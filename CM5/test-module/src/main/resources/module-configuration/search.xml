@@ -118,4 +118,14 @@
             <target-collection name="Countries"/>
         </target-domain-object>
     </search-area>
+
+    <search-area name="persons">
+        <target-domain-object type="person">
+            <indexed-field name="login"/>
+            <indexed-field name="email"/>
+            <indexed-field name="firstname"/>
+            <indexed-field name="lastname"/>
+            <indexed-content type="person_attachment"/>
+        </target-domain-object>
+    </search-area>
 </configuration>

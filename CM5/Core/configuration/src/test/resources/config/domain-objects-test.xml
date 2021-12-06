@@ -34,6 +34,18 @@
         </attachment-types>        
     </domain-object-type>
 
+    <domain-object-type name="Outgoing_Document_ext1" extends="Outgoing_Document">
+        <fields>
+            <string name="NameExt1" length="256" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Outgoing_Document_ext2" extends="Outgoing_Document_ext1">
+        <fields>
+            <string name="NameExt2" length="512" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Assignment"> <!-- ASSIGNMENT table -->
         <fields>
             <reference name="Outgoing_Document" type="Employee" not-null="true"/>

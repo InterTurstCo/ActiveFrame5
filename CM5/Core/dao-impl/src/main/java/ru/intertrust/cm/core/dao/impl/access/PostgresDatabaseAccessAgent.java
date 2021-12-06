@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Autowired
     private DomainObjectQueryHelper domainObjectQueryHelper;
 
+    @Autowired
+    private AccessControlConverter accessControlConverter;
+
+    @Autowired
+    private PermissionServiceDao permissionServiceDao;
+
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     private CaseInsensitiveMap<AccessMatrixConfig> accessMatrixConfigMap = new CaseInsensitiveMap<>();
@@ -94,6 +101,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public boolean checkDomainObjectAccess(int userId, Id objectId, AccessType type) {
+
         RdbmsId id = (RdbmsId) objectId;
         String doType = domainObjectTypeIdCache.getName(objectId);
         //В случае наличия заимствования прав меняется проверяемый тип доступа
@@ -101,10 +109,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         List<String> opCode = new ArrayList<String>();
         boolean opRead = false;
+        boolean opReadAttach = false;
         for (AccessType accessType : checkAccessType) {
             //Особым образом обрабатываем READ, так как права на чтение хранятся в другой таблице
             if (accessType.equals(DomainObjectAccessType.READ)) {
                 opRead = true;
+            } else if (DomainObjectAccessType.READ_ATTACH.equals(type)) {
+                opReadAttach = true;
             } else {
                 opCode.add(makeAccessTypeCode(accessType));
             }
@@ -116,6 +127,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             if (!result) {
                 result = checkDomainObjectReadAccess(userId, objectId);
             }
+        } else if (opReadAttach) {
+            result = checkAttachReadContentAccess(userId, objectId);
         } else {
             if (opCode.size() > 0) {
                 String query = getQueryForCheckDomainObjectAccess(id);
@@ -128,6 +141,40 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             }
         }
         return result;
+    }
+
+    /**
+     * Проверка прав на чтение содержимого
+     *
+     * @param userId id пользователя
+     * @param attachId id вложения
+     * @return true, если есть права
+     */
+    private boolean checkAttachReadContentAccess(int userId, Id attachId) {
+
+        RdbmsId rdbmsAttachId = (RdbmsId) attachId;
+        String objectType = domainObjectTypeIdCache.getName(rdbmsAttachId.getTypeId());
+        if (!configurationExplorer.isAttachmentType(objectType)) {
+            throw new IllegalArgumentException();
+        }
+
+        if (!permissionServiceDao.checkIfContentReadRestricted(attachId)) {
+            return true;
+        }
+
+        String domainObjectAclTable = getAclTableName(rdbmsAttachId);
+        String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectTypeIdCache.getName(rdbmsAttachId.getTypeId())));
+
+        String query = getQueryForCheckAccessInAclTable(domainObjectAclTable, domainObjectBaseTable);
+
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("user_id", userId);
+        parameters.put("object_id", rdbmsAttachId.getId());
+        parameters.put("operation", AccessControlConverter.OP_READ_ATTACH);
+        Integer count = jdbcTemplate.queryForObject(query, parameters, Integer.class);
+
+        return count > 0;
     }
 
     @Override
@@ -145,12 +192,18 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     /**
      * Метод получает права, которые необходимо проверить с учетом мапинга прав
      * в случае заимствования прав
-     * @param type
+     * @param typeName
      *            права которые проверяются
      * @return права которые необходимо проверить на данных у типа, права
      *         которого заимствуются
      */
-    private List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType) {
+    @Override
+    public List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType) {
+
+        if (DomainObjectAccessType.READ_ATTACH.equals(accessType)) {
+            return Collections.singletonList(accessType);
+        }
+
         List<AccessType> result = new ArrayList<AccessType>();
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
@@ -163,10 +216,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         //Маппинг производится только тогда когда есть заимснвование прав и эаимствование не комбинированное
         if (martixRef != null && !combinateAccessReference) {
             //Получаем маппинг прав
-            AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
-            if (martix.getMatrixReferenceMappingConfig() != null) {
+            AccessMatrixConfig matrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
+            if (matrix.getMatrixReferenceMappingConfig() != null) {
                 //Берем мапинг из матрицы
-                MatrixReferenceMappingConfig mapping = martix.getMatrixReferenceMappingConfig();
+                MatrixReferenceMappingConfig mapping = matrix.getMatrixReferenceMappingConfig();
                 if (mapping != null) {
                     for (MatrixReferenceMappingPermissionConfig mappingPermissions : mapping.getPermission()) {
                         if (isMappingToAccessType(mappingPermissions, accessType)) {
@@ -190,7 +243,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private List<AccessType> getAccessTypeFromMapping(String typeName, MatrixReferenceMappingPermissionConfig mappingPermissions) {
         List<AccessType> result = new ArrayList<AccessType>();
-        ;
+
         if (mappingPermissions.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.READ)) {
             result.add(DomainObjectAccessType.READ);
         } else if (mappingPermissions.getMapFrom().equals(MatrixReferenceMappingPermissionConfig.WRITE)) {
@@ -356,8 +409,27 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return query.toString();
     }
 
+    @Nonnull
+    private String getQueryForCheckAccessInAclTable(String aclTable, String objectBaseTable) {
+
+        StringBuilder query = new StringBuilder();
+        query.append("select count(*) from ").append(wrap(aclTable)).append(" a ");
+        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
+        query.append(" inner join ").append(wrap(objectBaseTable)).append(" o on o.");
+        query.append(wrap("id"));
+        query.append(" = a.").append(wrap("object_id"));
+        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and o.")
+                .append(wrap("id")).append(" = :object_id and a.")
+                .append(wrap("operation")).append(" in (:operation)");
+
+        return query.toString();
+    }
+
     /**
-     * Получение аудируемого иденетификатора
+     * Получение аудируемого идентификатора
      * @param id
      * @return
      */
@@ -385,12 +457,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Override
     public Id[] checkMultiDomainObjectAccess(int userId, Id[] objectIds, AccessType type) {
 
-        RdbmsId[] ids = Arrays.copyOf(objectIds, objectIds.length, RdbmsId[].class);
-
-        String opCode = makeAccessTypeCode(type);
         if (objectIds == null || objectIds.length == 0) {
             return new RdbmsId[0];
         }
+
+        RdbmsId[] ids = Arrays.copyOf(objectIds, objectIds.length, RdbmsId[].class);
+
+        String opCode = makeAccessTypeCode(type);
 
         List<Id> idsWithAllowedAccess = new ArrayList<Id>();
         IdSorterByType idSorterByType = new IdSorterByType(ids);
@@ -406,9 +479,17 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 continue;
             }
 
+            /* Для проверки доступа на чтение вложений - собственный механизм */
+            String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectTypeId);
+            if (DomainObjectAccessType.READ_ATTACH.equals(type)) {
+                List<Id> idsWithAllowedAttachReadAccess = getIdsWithAllowedAttachReadAccess(userId, idsOfOneType, domainObjectTypeId);
+                idsWithAllowedAccess.addAll(idsWithAllowedAttachReadAccess);
+                continue;
+            }
+
             // В случае непосредственных прав вызываем метод для всех идентификаторов, в случае с косвенными правами
             // получаем по каждому идентификатору результат отдельно
-            String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjectTypeIdCache.getName(domainObjectTypeId));
+            String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjectTypeName);
             if (matrixRefType == null) {
                 List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
                 idsWithAllowedAccess.addAll(checkedIds);
@@ -446,28 +527,57 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      *            тип доменного объекта
      * @return
      */
-    private List<Id> getIdsWithAllowedAccessByType(int userId, String opCode, IdSorterByType sorterByType,
-            final Integer domainObjectType) {
+    @Nonnull
+    private List<Id> getIdsWithAllowedAccessByType(int userId, String opCode, IdSorterByType sorterByType, final Integer domainObjectType) {
+
         String query = getQueryForCheckMultiDomainObjectAccess(domainObjectTypeIdCache.getName(domainObjectType));
+        return getIdsWithAllowedAccessByType(
+                query, userId, opCode, sorterByType.getIdsOfType(domainObjectType), domainObjectType);
+    }
 
-        List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(sorterByType.getIdsOfType(domainObjectType));
+    @Nonnull
+    private List<Id> getIdsWithAllowedAttachReadAccess(int userId, @Nonnull List<Id> ids, @Nonnull final Integer domainObjectTypeId) {
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectTypeId);
+        boolean isAttach = configurationExplorer.isAttachmentType(domainObjectTypeName);
+        if (!isAttach) {
+            /* для не-вложений такой тип доступа не используется */
+            return Collections.emptyList();
+        }
+
+        List<Id> idsWithAllowedAccess = new LinkedList<>();
+
+        Set<Id> sCheckedIds = permissionServiceDao.checkIfContentReadAllowedForAll(ids, domainObjectTypeName);
+        idsWithAllowedAccess.addAll(sCheckedIds);
+
+        Set<Id> nonCheckedIds = new HashSet<>(ids);
+        nonCheckedIds.removeAll(sCheckedIds);
+
+        String query = getQueryForCheckMultiAttachReadAccess(domainObjectTypeName);
+        List<Id> lCheckedIds = getIdsWithAllowedAccessByType(
+                query, userId, AccessControlConverter.OP_READ_ATTACH, new ArrayList<>(nonCheckedIds), domainObjectTypeId);
+        idsWithAllowedAccess.addAll(lCheckedIds);
+
+        return idsWithAllowedAccess;
+    }
+
+    @Nonnull
+    private List<Id> getIdsWithAllowedAccessByType(@Nonnull String query, int userId, @Nonnull String opCode, @Nonnull List<Id> ids,
+            @Nonnull final Integer domainObjectType) {
+
+        List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(new ArrayList<>(ids));
+
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("user_id", userId);
         parameters.put("object_ids", listIds);
         parameters.put("operation", opCode);
 
-        List<Id> checkedIds = jdbcTemplate.query(query, parameters, new RowMapper<Id>() {
+        RowMapper<Id> extractor = (rs, rowNum) -> {
+            long objectId = rs.getLong("object_id");
+            return new RdbmsId(domainObjectType, objectId);
+        };
 
-            @Override
-            public Id mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Long objectId = rs.getLong("object_id");
-                RdbmsId id = new RdbmsId(domainObjectType, objectId);
-                return id;
-            }
-
-        });
-        return checkedIds;
+        return jdbcTemplate.query(query, parameters, extractor);
     }
 
     private String getQueryForCheckMultiDomainObjectAccess(String domainObjectType) {
@@ -492,19 +602,40 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return query.toString();
     }
 
+    @Nonnull
+    private String getQueryForCheckMultiAttachReadAccess(@Nonnull String domainObjectType) {
+
+        String domainObjectAclTable = AccessControlUtility.getAclTableNameFor(domainObjectType);
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("select a.").append(wrap("object_id")).append(" object_id from ")
+                .append(wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
+                .append(" = gm.").append(wrap("usergroup"));
+        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and a.").append(wrap("object_id"))
+                .append(" in (:object_ids)")
+                .append(" and a.").append(wrap("operation")).append(" = :operation");
+
+        return query.toString();
+    }
+
     @Override
     public AccessType[] checkDomainObjectMultiAccess(int userId, Id objectId, AccessType[] types) {
         RdbmsId id = (RdbmsId) objectId;
         String[] opCodes = makeAccessTypeCodes(types);
+        List<String> lOpCodes = Arrays.asList(opCodes);
 
         String query = getQueryForCheckDomainObjectMultiAccess(id);
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("user_id", userId);
         parameters.put("object_id", id.getId());
-        parameters.put("operations", Arrays.asList(opCodes));
+        parameters.put("operations", lOpCodes);
 
-        return jdbcTemplate.query(query, parameters, new RowMapper<AccessType>() {
+        List<AccessType> res = jdbcTemplate.query(query, parameters, new RowMapper<AccessType>() {
             private long start = System.currentTimeMillis();
 
             @Override
@@ -513,7 +644,21 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 String code = rs.getString("operation");
                 return decodeAccessType(code);
             }
-        }).toArray(new AccessType[0]);
+        });
+
+        /* Для прав на чтение вложений обработка не такая, как для остальных */
+        String objTypeName;
+        if (lOpCodes.contains(AccessControlConverter.OP_READ_ATTACH) && !res.contains(DomainObjectAccessType.READ_ATTACH)
+                && configurationExplorer.isAttachmentType(objTypeName = domainObjectTypeIdCache.getName(id))) {
+            AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectType(objTypeName);
+            boolean aclInheritanceInUse = accessMatrix == null || accessMatrix.getMatrixReference() != null;
+            if (aclInheritanceInUse && checkAttachReadContentAccess(userId, id)) {
+                res = new ArrayList<>(res);
+                res.add(DomainObjectAccessType.READ_ATTACH);
+            }
+        }
+
+        return res.toArray(new AccessType[0]);
     }
 
     private String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
@@ -604,30 +749,21 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return domainObjectTypeIdCache.getName(typeId);
     }
 
-    public static String makeAccessTypeCode(AccessType type) {
-        // Разрешения на чтение хранятся в отдельной таблице, поэтому код "R" не используется
-        /*if (DomainObjectAccessType.READ.equals(type)) {
-            return "R";
-        }*/
-        if (DomainObjectAccessType.WRITE.equals(type)) {
-            return "W";
-        }
-        if (DomainObjectAccessType.DELETE.equals(type)) {
-            return "D";
-        }
-        if (CreateChildAccessType.class.equals(type.getClass())) {
-            CreateChildAccessType ccType = (CreateChildAccessType) type;
-            return new StringBuilder("C_").append(ccType.getChildType()).toString();
-        }
-        if (ExecuteActionAccessType.class.equals(type.getClass())) {
-            ExecuteActionAccessType executeActionType = (ExecuteActionAccessType) type;
-            return new StringBuilder("E_").append(executeActionType.getActionName()).toString();
+    public String makeAccessTypeCode(AccessType type) {
+
+        if (type == null || type.equals(DomainObjectAccessType.READ)) {
+            throw new IllegalArgumentException("Unsupported access type: " + type);
         }
 
-        throw new IllegalArgumentException("Unknown access type: " + type);
+        String code = accessControlConverter.accessTypeToCode(type);
+        if (code == null) {
+            throw new IllegalArgumentException("Unknown access type: " + type);
+        }
+
+        return code;
     }
 
-    private static String[] makeAccessTypeCodes(AccessType[] types) {
+    private String[] makeAccessTypeCodes(AccessType[] types) {
         String[] codes = new String[types.length];
         for (int i = 0; i < types.length; i++) {
             codes[i] = makeAccessTypeCode(types[i]);
@@ -635,42 +771,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return codes;
     }
 
-    private static AccessType decodeAccessType(String code) {
-        String[] codeParts = code.split("_", 2);
-        if ("W".equals(codeParts[0])) {
-            return DomainObjectAccessType.WRITE;
+    private AccessType decodeAccessType(String code) {
+        AccessType accessType = accessControlConverter.codeToAccessType(code);
+        if (accessType == null) {
+            throw new IllegalArgumentException("Unknown access type: " + code);
         }
-        if ("D".equals(codeParts[0])) {
-            return DomainObjectAccessType.DELETE;
-        }
-        if ("C".equals(codeParts[0])) {
-            return new CreateChildAccessType(codeParts[1]);
-        }
-        throw new IllegalArgumentException("Unknown access type: " + code);
-    }
-
-    @Override
-    public boolean checkUserGroup(int userId, String groupName) {
-        String query = getQueryForCheckUserGroup();
-
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("user_id", userId);
-        parameters.put("group_name", groupName);
-        Integer result = jdbcTemplate.queryForObject(query, parameters, Integer.class);
-        return result > 0;
-    }
-
-    private String getQueryForCheckUserGroup() {
-        StringBuilder query = new StringBuilder();
-
-        query.append("select count(*) from ").append(wrap("user_group")).append(" ug ");
-        query.append("inner join ").append(wrap("group_group")).append(" gg on ug.").append(wrap("id"))
-                .append(" = gg.").append(wrap("parent_group_id"));
-        query.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
-                .append(" = gm.").append(wrap("usergroup"));
-        query.append("where gm.").append(wrap("person_id")).append(" = :user_id and ug.").append(wrap("group_name"))
-                .append(" = :group_name");
-        return query.toString();
+        return accessType;
     }
 
     @Override
@@ -710,6 +816,22 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         logger.trace("Check type is {}", checkType);
 
         return isAllowedToCreateObjectType(userId, checkType);
+    }
+
+    @Override
+    public String getStatus(Id objectId) {
+        String typeName = domainObjectTypeIdCache.getName(objectId);
+        String rootType = configurationExplorer.getDomainObjectRootType(typeName);
+
+        String query = "select s.name from status s join " + rootType + " t on t.status = s.id where t.id = :id";
+        List<String> queryResult = jdbcTemplate.queryForList(query,
+                Collections.singletonMap("id", ((RdbmsId)objectId).getId()),
+                String.class);
+        if (queryResult.size() > 0){
+            return queryResult.get(0);
+        }else{
+            return null;
+        }
     }
 
     /**

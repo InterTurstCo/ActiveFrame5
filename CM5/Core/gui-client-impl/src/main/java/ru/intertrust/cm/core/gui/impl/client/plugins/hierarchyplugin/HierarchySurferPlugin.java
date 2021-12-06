@@ -13,10 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
-import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.*;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
@@ -97,7 +94,7 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
         hierarchyPlugin.setEventBus(eventBus);
 
         if (this.formPlugin == null) {
-            this.formPlugin = ComponentRegistry.instance.get("form.plugin");
+            this.formPlugin = ComponentRegistry.instance.get("empty.form.plugin");
             this.formPlugin.setDisplayActionToolBar(false);
         }
         this.formPlugin.setInitialData(initialData.getFormPluginData());
@@ -140,7 +137,8 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
     @Override
     public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
         final FormPluginState state = new FormPluginState();
-        if (this.formPlugin.getFormPluginState().isEditable()) {
+       if (this.formPlugin != null && this.formPlugin.getFormPluginState() != null &&
+               this.formPlugin.getFormPluginState().isEditable()) {
             state.setEditable(true);
             state.setToggleEdit(true);
         } else {

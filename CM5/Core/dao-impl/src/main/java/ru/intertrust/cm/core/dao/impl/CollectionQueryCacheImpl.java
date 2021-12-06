@@ -23,16 +23,20 @@ import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
+import ru.intertrust.cm.core.dao.api.extension.AfterClearGlobalCacheExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.NamedCollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.QueryCollectionTypesKey;
+import ru.intertrust.cm.core.dao.impl.sqlparser.AddAclVisitor;
 
 /**
  * 
  * @author atsvetkov
  * 
  */
-public class CollectionQueryCacheImpl implements CollectionQueryCache, ApplicationListener<ConfigurationUpdateEvent> {
+@ExtensionPoint
+public class CollectionQueryCacheImpl implements CollectionQueryCache, ApplicationListener<ConfigurationUpdateEvent>, AfterClearGlobalCacheExtentionHandler {
 
     public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new ConcurrentHashMap<>();
     private static Map<CollectionTypesKey, Set<String>> collectionDomainObjectTypes = new LruLimitedSynchronizedMap<>(10000);
@@ -52,6 +56,12 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache, Applicati
         if (event.configTypeChanged(CollectionConfig.class)) {
             clearCollectionQueryCache();
         }
+    }
+
+    @Override
+    public void onClearGlobalCache() {
+        clearCollectionQueryCache();
+        AddAclVisitor.clearCache();
     }
 
     public static class CollectionQueryLogTimer {

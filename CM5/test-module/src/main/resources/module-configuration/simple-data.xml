@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <simple-data name="test-simple-data">
+        <fields>
+            <field name="test-string-single" type="String" index="true" storage="true"/>
+            <field name="test-string" type="String" index="true" storage="true" multivalue="true"/>
+            <field name="test-boolean" type="Bollean" index="true" storage="true" multivalue="true"/>
+            <field name="test-date" type="Date" index="true" storage="true" multivalue="true"/>
+            <field name="test-date-time" type="DateTime" index="true" storage="true" multivalue="true"/>
+            <field name="test-long" type="Long" index="true" storage="true" multivalue="true"/>
+        </fields>
+    </simple-data>
+</configuration>

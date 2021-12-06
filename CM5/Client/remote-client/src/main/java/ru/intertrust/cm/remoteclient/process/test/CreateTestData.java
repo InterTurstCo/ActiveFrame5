@@ -1,7 +1,5 @@
 package ru.intertrust.cm.remoteclient.process.test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -10,6 +8,8 @@ import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.remoteclient.ClientBase;
+
+import static ru.intertrust.cm.remoteclient.process.test.CommonMethods.deployProcesses;
 
 public class CreateTestData
         extends ClientBase {
@@ -29,7 +29,7 @@ public class CreateTestData
         try {
             super.execute(args);
 
-            crudService = (CrudService.Remote) getService(
+            crudService = getService(
                     "CrudServiceImpl", CrudService.Remote.class);
 
             collectionService = (CollectionsService.Remote) getService(
@@ -58,26 +58,7 @@ public class CreateTestData
                 createEmployee("Employee-" + i, "user" + i, department);
             }
 
-            
-            byte[] processDef = getProcessAsByteArray("templates/testInternalDoc/InternalDoc.bpmn");
-            String defId = processService.deployProcess(processDef,
-                    "InternalDoc.bpmn");
-
-            processDef = getProcessAsByteArray("templates/testInternalDoc/Negotiation.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "Negotiation.bpmn");
-            
-            processDef = getProcessAsByteArray("templates/testInternalDoc/Registration.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "Registration.bpmn");
-            
-            processDef = getProcessAsByteArray("templates/testInternalDoc/DocExecution.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "DocExecution.bpmn");
-            
-            processDef = getProcessAsByteArray("templates/testInternalDoc/CommissionExecution.bpmn");
-            defId = processService.deployProcess(processDef,
-                    "CommissionExecution.bpmn");            
+            deployProcesses(processService);
         } finally {
             writeLog();
         }
@@ -184,28 +165,5 @@ public class CreateTestData
         }
         return organization;
     }
-    
-    private byte[] getProcessAsByteArray(String processPath) throws IOException {
-        FileInputStream stream = null;
-        ByteArrayOutputStream out = null;
-        try {
-            stream = new FileInputStream(processPath);
-            out = new ByteArrayOutputStream();
 
-            int read = 0;
-            byte[] buffer = new byte[1024];
-            while ((read = stream.read(buffer)) > 0) {
-                out.write(buffer, 0, read);
-            }
-
-            return out.toByteArray();
-        } finally {
-            if (stream != null) {
-                stream.close();
-            }
-            if (out != null) {
-                out.close();
-            }
-        }
-    }    
 }

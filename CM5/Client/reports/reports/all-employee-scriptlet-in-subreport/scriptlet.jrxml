@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.15.0.final using JasperReports Library version 6.15.0-dd49bfb94918336b8321d5507193f0169ead4e95  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="scriptlet" pageWidth="170" pageHeight="842" columnWidth="170" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="TestScriptlet" uuid="361bc0cc-6d65-4a3b-9d15-ce75a84c973a">
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<textField>
+				<reportElement x="0" y="0" width="170" height="20" uuid="f34249d0-7aa9-4b34-8218-6689884c5aaf">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textFieldExpression><![CDATA[$P{REPORT_SCRIPTLET}.getRndString()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

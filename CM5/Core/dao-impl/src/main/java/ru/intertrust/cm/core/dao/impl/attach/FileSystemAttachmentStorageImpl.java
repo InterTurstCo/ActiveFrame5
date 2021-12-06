@@ -26,11 +26,11 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.DeleteFileConfig;
 import ru.intertrust.cm.core.config.FolderStorageConfig;
+import ru.intertrust.cm.core.dao.api.BaseActionListener;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.dao.impl.BaseActionListener;
 
 public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
@@ -38,7 +38,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
         YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, DOCTYPE, CREATOR, EXT
     }
 
-    public static final String PROP_PREFIX = "attachments.storage.";
     public static final String PROP_LOCATION = "dir";
     public static final String PROP_PATHMASK = "folders";
     public static final String PROP_LEGACY = "attachment.storage";
@@ -47,22 +46,23 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentStorageImpl.class);
 
-    private static final String BEAN_DELETE_NEVER = "fileDeleteNever";
-    private static final String BEAN_DELETE_IMMED = "fileDeleteImmediate";
-    private static final String BEAN_DELETE_DELAYED = "fileDeleteDelayed";
-
-    private String name;
-    private FolderStorageConfig storageConfig;
+    private final String name;
+    private final FolderStorageConfig storageConfig;
 
     private String rootFolder;
     private String pathMask;
     private FileDeleteStrategy deleteStrategy;
 
-    @Autowired private CurrentUserAccessor currentUserAccessor;
-    @Autowired private UserTransactionService txService;
-    @Autowired private FileTypeDetector contentDetector;
-    @Autowired private Environment env;
-    @Autowired private ApplicationContext appContext;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private UserTransactionService txService;
+    @Autowired
+    private FileTypeDetector contentDetector;
+    @Autowired
+    private FileSystemAttachmentStorageHelper helper;
+    @Autowired
+    private DeleteAttachmentStrategyFactory deleteStrategyFactory;
 
     @Value("${attachments.path.unixstyle:true}")
     private boolean pathUnixStyle;
@@ -74,10 +74,10 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
 
     @PostConstruct
     public void initialize() {
-        logger.info("Attachment storage " + name + " initialization");
+        logger.info("Attachment storage {} initialization", name);
         rootFolder = getProperty(PROP_LOCATION);
         if (rootFolder == null) {
-            rootFolder = env.getProperty(PROP_LEGACY);
+            rootFolder = helper.getPureProperty(PROP_LEGACY);
             if (rootFolder == null) {
                 throw new ConfigurationException("Directory for storage " + name + " is not defined!");
             }
@@ -93,10 +93,10 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
             }
         }
         if (pathMask == null || pathMask.isEmpty()) {
-            logger.info("Folders mask for storage " + name + " is not configured; use default");
+            logger.info("Folders mask for storage {} is not configured; use default", name);
             pathMask = DEFAULT_PATHMASK;
         }
-        this.deleteStrategy = createDeleteStrategy(storageConfig.getDeleteFileConfig());
+        this.deleteStrategy = deleteStrategyFactory.createDeleteStrategy(name, storageConfig.getDeleteFileConfig());
     }
 
     @Override
@@ -141,8 +141,10 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     public boolean deleteContent(String localPath) {
         Path filePath = Paths.get(rootFolder, localPath);
         if (!Files.exists(filePath)) {
+            logger.trace("File '{}' doesn't exist...", filePath);
             return false;
         }
+        logger.trace("File '{}' will be deleted by strategy {}", filePath, deleteStrategy);
         deleteStrategy.deleteFile(filePath.toString());
         return true;
     }
@@ -151,29 +153,6 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     public boolean hasContent(AttachmentInfo contentInfo) {
         Path filePath = Paths.get(rootFolder, contentInfo.getRelativePath());
         return Files.isRegularFile(filePath) && filePath.toFile().length() == contentInfo.getContentLength();
-    }
-
-    private FileDeleteStrategy createDeleteStrategy(DeleteFileConfig config) {
-        FileDeleteStrategy bean;
-        if (config == null) {
-            bean = appContext.getBean(BEAN_DELETE_NEVER, FileDeleteStrategy.class);
-        } else {
-            switch (config.getMode()) {
-            case NEVER:
-                bean = appContext.getBean(BEAN_DELETE_NEVER, FileDeleteStrategy.class);
-                break;
-            case IMMED:
-                bean = appContext.getBean(BEAN_DELETE_IMMED, FileDeleteStrategy.class);
-                break;
-            case DELAYED:
-                bean = appContext.getBean(BEAN_DELETE_DELAYED, FileDeleteStrategy.class);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown delete file strategy: " + config.getMode().name());
-            }
-        }
-        bean.setConfiguration(config);
-        return bean;
     }
 
     private String validatePathMask(String pathMask) {
@@ -268,12 +247,11 @@ public class FileSystemAttachmentStorageImpl implements AttachmentStorage {
     }
 
     private String getProperty(String propName) {
-        String value = env.getProperty(PROP_PREFIX + name + "." + propName);
-        return value != null ? value : env.getProperty(PROP_PREFIX + propName);
+        return helper.getProperty(propName, name);
     }
 
     private String generateFileName(Context context) {
-        return new StringBuilder(UUID.randomUUID().toString()).append(findExtension(context.getFileName())).toString();
+        return UUID.randomUUID() + findExtension(context.getFileName());
     }
 
     private String findExtension(String fileName) {

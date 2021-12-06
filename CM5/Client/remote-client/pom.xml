@@ -14,7 +14,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>client</artifactId>
-        <version>1.0.0-2-SNAPSHOT</version>
+        <version>1.2.3</version>
     </parent>
 
     <dependencies>
@@ -54,6 +54,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>rest-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>compile</scope>
@@ -75,7 +80,7 @@
         <dependency>
             <groupId>org.wildfly</groupId>
             <artifactId>wildfly-ejb-client-bom</artifactId>
-            <version>9.0.2.Final</version>
+            <version>24.0.1.Final</version>
              <type>pom</type>
         </dependency>
 
@@ -87,12 +92,19 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+            <version>3.1</version>
+        </dependency>
+
+        <!--dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-        </dependency>
+        </dependency-->
     </dependencies>
     
     <build>

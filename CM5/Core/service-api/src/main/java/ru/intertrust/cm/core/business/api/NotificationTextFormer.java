@@ -70,4 +70,13 @@ public interface NotificationTextFormer {
      * @return
      */
     boolean contains(String notificationType, String notificationPart, Id locale, String channel);
+
+    /**
+     * Форматирование сообщения с помощью переданного шаблона в виде строки
+     * @param notificationTextTemplate
+     * @param addressee
+     * @param context
+     * @return
+     */
+    String formatTemplate(String notificationTextTemplate, Id addressee, NotificationContext context);
 }

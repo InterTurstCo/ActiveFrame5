@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Класс для хранения и передачи запросов на расширенный поиск.
@@ -14,9 +15,34 @@ public class SearchQuery implements Dto {
 
     public static final String RELEVANCE = "_relevance";
 
-    private ArrayList<String> areas = new ArrayList<String>();
-    private String targetObjectType;
-    private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
+    private ArrayList<String> areas = new ArrayList<>();
+    private List<String> targetObjectTypes = new ArrayList<>();
+    private HashMap<String, SearchFilter> filters = new HashMap<>();
+    // режим поиска
+    private CntxMode cntxMode = CntxMode.ALL;
+
+    public enum CntxMode {
+        /*
+        Только документы с вложениями.
+        При наличии ключа search.solr.cntx.mode = smart в server.properties
+        */
+        ATTACHMENTS,
+        /*
+        Документы и вложения. По умолчанию.
+        */
+        ALL
+    }
+
+    public SearchQuery() {
+    }
+
+    public SearchQuery(SearchQuery copyFrom) {
+        if (copyFrom != null) {
+            this.setTargetObjectTypes(copyFrom.getTargetObjectTypes());
+            this.addAreas(copyFrom.getAreas());
+            this.addFilters(copyFrom.getFilters());
+        }
+    }
 
     /**
      * Возвращает список имён добавленных областей поиска.
@@ -35,7 +61,9 @@ public class SearchQuery implements Dto {
      * @param area имя области поиска, заданное в конфигурации
      */
     public void addArea(String area) {
-        areas.add(area);
+        if (!areas.contains(area)) {
+            areas.add(area);
+        }
     }
 
     /**
@@ -53,8 +81,8 @@ public class SearchQuery implements Dto {
      * 
      * @param area имя области поиска, заданное в конфигурации
      */
-    public void removeArea(String area) {
-        areas.remove(area);
+    public void removeArea(SearchArea area) {
+        areas.remove(area.getArea());
     }
 
     /**
@@ -70,8 +98,8 @@ public class SearchQuery implements Dto {
      * 
      * @return имя типа доменных объектов
      */
-    public String getTargetObjectType() {
-        return targetObjectType;
+    public List<String> getTargetObjectTypes() {
+        return targetObjectTypes;
     }
 
     /**
@@ -81,7 +109,27 @@ public class SearchQuery implements Dto {
      * @param targetObjectType имя типа доменных объектов, определённое в конфигурации
      */
     public void setTargetObjectType(String targetObjectType) {
-        this.targetObjectType = targetObjectType;
+        this.targetObjectTypes = new ArrayList<>();
+        this.targetObjectTypes.add(targetObjectType);
+    }
+
+    /**
+     * Устанавливает типы искомых объектов
+     * @param targetObjectTypes
+     */
+    public void setTargetObjectTypes(List<String> targetObjectTypes) {
+        this.targetObjectTypes = new ArrayList<>();
+        this.targetObjectTypes.addAll(targetObjectTypes);
+    }
+
+    /**
+     * Добавляет искомый тип
+     * @param targetObjectType
+     */
+    public void addTargetObjectType(String targetObjectType) {
+        if (!targetObjectTypes.contains(targetObjectType)) {
+            this.targetObjectTypes.add(targetObjectType);
+        }
     }
 
     /**
@@ -133,12 +181,47 @@ public class SearchQuery implements Dto {
         filters = new HashMap<String, SearchFilter>();
     }
 
+    public CntxMode getCntxMode() {
+        return cntxMode != null ? cntxMode : CntxMode.ALL;
+    }
+
+    public void setCntxMode(CntxMode cntxMode) {
+        this.cntxMode = cntxMode;
+    }
+
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("Target type: ").append(targetObjectType);
-        result.append("; areas: ").append(areas.toString());
-        result.append("; filters: ").append(filters.toString());
-        return result.toString();
+        return "Target type: " + targetObjectTypes.toString() +
+                "; areas: " + areas.toString() +
+                "; filters: " + filters.toString();
+    }
+
+    public static class SearchArea {
+        private final String area;
+        private final String solrServerUrl;
+
+        public SearchArea (String area, String solrServerUrl) {
+            this.area = area;
+            this.solrServerUrl = solrServerUrl;
+        }
+
+        public String getArea() {
+            return area;
+        }
+
+        public String getSolrServerUrl() {
+            return solrServerUrl;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            boolean b = false;
+            if (obj instanceof SearchArea) {
+                SearchArea that = (SearchArea)obj;
+                b = (Objects.equals(area, that.area))
+                        && (Objects.equals(solrServerUrl, that.solrServerUrl));
+            }
+            return b;
+        }
     }
 }

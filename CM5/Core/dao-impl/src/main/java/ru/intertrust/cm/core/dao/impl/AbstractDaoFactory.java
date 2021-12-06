@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.dao.api.*;
 
 /**
@@ -7,6 +13,9 @@ import ru.intertrust.cm.core.dao.api.*;
  * @author vmatsukevich
  */
 public abstract class AbstractDaoFactory implements DaoFactory {
+    
+    @Autowired private DataSource dataSource;
+    
     @Override
     public AuditLogServiceDao createAuditLogServiceDao() {
         return new AuditLogServiceDaoImpl();
@@ -61,4 +70,16 @@ public abstract class AbstractDaoFactory implements DaoFactory {
     public DomainObjectQueryHelper createQueryHelper() {
         return new DomainObjectQueryHelper();
     }
+
+    @Override
+    public boolean isDdlTransactionsSupports() {
+        try {
+            return this.dataSource.getConnection()
+                    .getMetaData()
+                    .supportsDataDefinitionAndDataManipulationTransactions();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

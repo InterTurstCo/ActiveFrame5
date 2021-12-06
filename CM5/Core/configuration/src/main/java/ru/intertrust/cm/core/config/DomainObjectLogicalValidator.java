@@ -79,14 +79,14 @@ public class DomainObjectLogicalValidator implements ConfigurationValidator {
 
     private void validateDomainObjectConfigContainsField(DomainObjectTypeConfig domainObjectTypeConfig,
                                                          String fieldName, LogicalErrors logicalErrors) {
-        for(FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if(fieldName.equalsIgnoreCase(fieldConfig.getName())) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldName.equalsIgnoreCase(fieldConfig.getName())) {
                 return;
             }
         }
 
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
-            if(fieldName.equalsIgnoreCase(fieldConfig.getName())) {
+            if (fieldName.equalsIgnoreCase(fieldConfig.getName())) {
                 return;
             }
         }
@@ -103,8 +103,8 @@ public class DomainObjectLogicalValidator implements ConfigurationValidator {
                     continue;
                 }
 
-                for(FieldConfig fieldConfig : fieldGroupConfig.getFieldConfigs()) {
-                    if(fieldName.equalsIgnoreCase(fieldConfig.getName())) {
+                for (FieldConfig fieldConfig : fieldGroupConfig.getFieldConfigs()) {
+                    if (fieldName.equalsIgnoreCase(fieldConfig.getName())) {
                         return;
                     }
                 }

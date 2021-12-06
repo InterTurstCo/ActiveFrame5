@@ -34,6 +34,7 @@ public class RecursiveConfigurationLoaderTest {
 
         Configuration configuration = createConfiguration();
         configExplorer = new ConfigurationExplorerImpl(configuration);
+        configExplorer.init();
     }
 
     @Test

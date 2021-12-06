@@ -27,6 +27,7 @@
         </constructor-arg>
     </bean>
 
+    <bean id="moduleService" class="ru.intertrust.cm.core.config.impl.ModuleServiceImpl"/>
     <bean id="suggestBoxLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.SuggestBoxWidgetLogicalValidator"/>
     <bean id="checkBoxLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.CheckBoxWidgetLogicalValidator"/>
     <bean id="tableBrowserLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.TableBrowserLogicalValidator"/>

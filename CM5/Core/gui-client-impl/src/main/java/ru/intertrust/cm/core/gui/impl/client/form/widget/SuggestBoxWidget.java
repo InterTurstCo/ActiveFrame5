@@ -1008,4 +1008,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         return true;
     }
 
+    protected SuggestBox getSuggestBox() {
+        return suggestBox;
+    }
 }

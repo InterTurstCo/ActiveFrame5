@@ -156,9 +156,11 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
       panel.setStyleName("frm-pnl-top");
     }
     panel.getElement().addClassName("modalFormWrapper");
-    widgets = new ArrayList<>(formDisplayData.getFormState().getFullWidgetsState().size());
+    FormState fState = formDisplayData.getFormState();
+    int wSize = fState != null && fState.getFullWidgetsState() != null ? fState.getFullWidgetsState().size() : 0;
+    widgets = new ArrayList<>(wSize);
     MarkupConfig markup = formDisplayData.getMarkup();
-    if (markup.getHeader().getTableLayout() != null) {
+    if (markup != null && markup.getHeader() != null && markup.getHeader().getTableLayout() != null) {
       IsWidget headerTable = buildHeader(markup);
       panel.add(headerTable);
     }
@@ -189,6 +191,10 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
   }
 
   private void buildTabs(MarkupConfig markup) {
+    if (markup == null) {
+      bodyTabPanel = new TabPanel();
+      return;
+    }
     BodyConfig body = markup.getBody();
     tabs = body.getTabs();
 

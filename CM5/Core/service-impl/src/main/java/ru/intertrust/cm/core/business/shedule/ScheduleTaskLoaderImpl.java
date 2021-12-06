@@ -305,7 +305,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     public String getNextNodeId() {
         String result = null;
         Set<String> nodeIds = clusterManager.getNodesWithRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME);
-        if (nodeIds.size() > 0) {
+        if (!nodeIds.isEmpty()) {
             int nextIndex = lastNodeIndex + 1 > nodeIds.size() - 1 ? 0 : lastNodeIndex + 1;
             lastNodeIndex = nextIndex;
             result = nodeIds.toArray(new String[nodeIds.size()])[nextIndex];

@@ -43,7 +43,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.business.impl.search.retrievers.NamedCollectionRetriever;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -83,7 +83,8 @@ public class NamedCollectionRetrieverTest {
         when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
                 .thenReturn(new GenericIdentifiableObjectCollection());
 
-        NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection");
+        NamedCollectionRetriever retriever = new NamedCollectionRetriever();
+        retriever.setCollectionName("TestCollection");
         initRetriever(retriever);
         retriever.queryCollection(docList, 20);
         // Не сохраняем и не проверяем результат, т.к. возвращается только то, что было получено от collectionsService
@@ -108,8 +109,9 @@ public class NamedCollectionRetrieverTest {
                 .thenReturn(new GenericIdentifiableObjectCollection());
 
         Filter filterMock = mock(Filter.class);
-        NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection",
-                Arrays.asList(filterMock, filterMock));
+        NamedCollectionRetriever retriever = new NamedCollectionRetriever();
+        retriever.setCollectionName("TestCollection");
+        retriever.setCollectionFilters(Arrays.asList(filterMock, filterMock));
         initRetriever(retriever);
         retriever.queryCollection(docList, 20);
         // Не сохраняем и не проверяем результат, т.к. возвращается только то, что было получено от collectionsService
@@ -151,9 +153,11 @@ public class NamedCollectionRetrieverTest {
         Filter filterMock = mock(Filter.class);
         IdsIncludedFilter idsFilter = new IdsIncludedFilter(
                 new ReferenceValue(id2), new ReferenceValue(id3), new ReferenceValue(id4));
-        NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection",
-                Arrays.asList(filterMock, idsFilter));
+        NamedCollectionRetriever retriever = new NamedCollectionRetriever();
+        retriever.setCollectionName("TestCollection");
+        retriever.setCollectionFilters(Arrays.asList(filterMock, idsFilter));
         initRetriever(retriever);
+
         retriever.queryCollection(docList, 20);
         // Не сохраняем и не проверяем результат, т.к. возвращается только то, что было получено от collectionsService
 
@@ -207,33 +211,29 @@ public class NamedCollectionRetrieverTest {
             docList.add(doc);
         }
 
-        when(idService.createId(anyString())).thenAnswer(new Answer<Id>() {
-            @Override
-            public Id answer(InvocationOnMock invocation) throws Throwable {
-                String id = invocation.getArgumentAt(0, String.class);
-                return new RdbmsId(55, Integer.valueOf(id));
-            }
+        when(idService.createId(anyString())).thenAnswer((Answer<Id>) invocation -> {
+            String id = invocation.getArgumentAt(0, String.class);
+            return new RdbmsId(55, Integer.parseInt(id));
         });
 
-        int expectedResults = idCount / 2;
+        int expectedResults = idCount;
         if (maxResults > 0 && maxResults < expectedResults) {
             expectedResults = maxResults;
         }
-        final int expectedCalls = expectedResults + NamedCollectionRetriever.MAX_IDS_PER_QUERY - 1
+
+        final int expectedCalls = (idCount + NamedCollectionRetriever.MAX_IDS_PER_QUERY - 1)
                 / NamedCollectionRetriever.MAX_IDS_PER_QUERY;
         final int[] expectedFilterSize = new int[expectedCalls];
-        final int[] expectedMaxResults = new int[expectedCalls];
         for (int i = 0; i < expectedCalls; ++i) {
             expectedFilterSize[i] = Math.min(NamedCollectionRetriever.MAX_IDS_PER_QUERY,
                     idCount - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY);
-            expectedMaxResults[i] = maxResults == 0 ? 0 : maxResults - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY / 2;
         }
 
         when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
                 .thenAnswer(new Answer<IdentifiableObjectCollection>() {
                     int callNum = 0;
                     @Override
-                    public IdentifiableObjectCollection answer(InvocationOnMock invocation) throws Throwable {
+                    public IdentifiableObjectCollection answer(InvocationOnMock invocation) {
                         List<?> filters = invocation.getArgumentAt(2, List.class);
                         assertEquals(1, filters.size());
                         assertEquals(filters.get(0).getClass(), IdsIncludedFilter.class);
@@ -242,21 +242,18 @@ public class NamedCollectionRetrieverTest {
 
                         assertThat(callNum, Matchers.lessThan(expectedCalls));
                         assertEquals(expectedFilterSize[callNum], filter.getCriterionKeys().size());
-                        assertEquals(expectedMaxResults[callNum], maxResults);
                         ++callNum;
 
                         IdentifiableObjectCollection coll = new GenericIdentifiableObjectCollection();
                         ReferenceFieldConfig idConfig = new ReferenceFieldConfig();
                         idConfig.setName("id");
-                        coll.setFieldsConfiguration(Arrays.<FieldConfig>asList(idConfig));
+                        coll.setFieldsConfiguration(Arrays.asList(idConfig));
                         for (int i = 0; i < filter.getCriterionKeys().size(); ++i) {
                             try {
                                 RdbmsId id = (RdbmsId) filter.getCriterion(i).get();
-                                if (id.getId() % 2 == 0) {
-                                    coll.setId(coll.size(), id);
-                                    if (coll.size() == maxResults) {
-                                        break;
-                                    }
+                                coll.setId(coll.size(), id);
+                                if (coll.size() == maxResults) {
+                                    break;
                                 }
                             } catch (Exception e) {
                                 System.err.println("Error processing iteration #" + i);
@@ -267,7 +264,8 @@ public class NamedCollectionRetrieverTest {
                     }
                 });
 
-        NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection");
+        NamedCollectionRetriever retriever = new NamedCollectionRetriever();
+        retriever.setCollectionName("TestCollection");
         initRetriever(retriever);
         IdentifiableObjectCollection result = retriever.queryCollection(docList, maxResults);
 

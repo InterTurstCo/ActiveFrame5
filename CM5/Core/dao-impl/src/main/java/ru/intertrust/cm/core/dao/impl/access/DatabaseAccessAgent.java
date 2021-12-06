@@ -4,6 +4,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessType;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * Интерфейс, через который реализация службы контроля доступа {@link AccessControlServiceImpl}
  * осуществляет собственно проверки прав доступа.
@@ -52,15 +55,6 @@ public interface DatabaseAccessAgent {
     AccessType[] checkDomainObjectMultiAccess(int userId, Id objectId, AccessType[] types);
 
     /**
-     * Проверяет включение пользователя в заданную статическую группу.
-     * 
-     * @param userId Идентификатор группы
-     * @param groupName Название группы
-     * @return true если пользователь входит в группу
-     */
-    boolean checkUserGroup(int userId, String groupName);
-    
-    /**
      * Разрешена ли опрерация создания доменных объектов данного типа для пользователей из статических и безконтекстных
      * динамических групп.
      * @param userId идентификатор пользователя
@@ -70,4 +64,21 @@ public interface DatabaseAccessAgent {
     boolean isAllowedToCreateByStaticGroups(Id userId, String objectType);
 
     boolean isAllowedToCreateByStaticGroups(Id userId, DomainObject domainObject);
+
+    /**
+     * Получение статуса доменного объекта
+     * @param objectId
+     * @return
+     */
+    String getStatus(Id objectId);
+
+    /**
+     * Метод получает права, которые необходимо проверить с учетом мапинга прав
+     * в случае заимствования прав
+     * @param typeName
+     *            права которые проверяются
+     * @return права которые необходимо проверить на данных у типа, права
+     *         которого заимствуются
+     */
+    List<AccessType> getMatrixReferencePermission(String typeName, AccessType accessType);
 }

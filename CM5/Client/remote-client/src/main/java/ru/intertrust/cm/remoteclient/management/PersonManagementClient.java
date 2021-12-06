@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.remoteclient.ClientBase;
@@ -32,6 +34,9 @@ public class PersonManagementClient extends ClientBase {
 
         CrudService.Remote service = (CrudService.Remote) getService(
                 "CrudServiceImpl", CrudService.Remote.class);
+
+        PersonManagementService.Remote personManagementService = (PersonManagementService.Remote) getService(
+                "PersonManagementService", PersonManagementService.Remote.class);
 
         String command = getParamerer("command");
 
@@ -76,26 +81,27 @@ public class PersonManagementClient extends ClientBase {
                     
                     System.out.println("Create person success. Person id = " + person.getId() + ".");
                 } else if (command.equals("set-passsword")) {
-
+                    // TODO
                 } else if (command.equals("remove-person")) {
                     Map<String, Value> key = new HashMap<String, Value>();
                     key.put("login", new StringValue(arguments[0]));
                     DomainObject person = service.findByUniqueKey("person", key);
                     service.delete(person.getId());
                     System.out.println("Delete person success.");
-
                 } else if (command.equals("create-group")) {
-
+                    // TODO
                 } else if (command.equals("add-person-to-group")) {
-                    DomainObject person = service.createDomainObject("group_member");
-                    //TODO
-                    person = service.save(person);
+                    Id personId = personManagementService.getPersonId(arguments[0]);
+                    Id groupId = personManagementService.getGroupId(arguments[1]);
+                    personManagementService.addPersonToGroup(groupId, personId);
                 } else if (command.equals("remove-person-from-group")) {
-
+                    Id personId = personManagementService.getPersonId(arguments[0]);
+                    Id groupId = personManagementService.getGroupId(arguments[1]);
+                    personManagementService.remotePersonFromGroup(groupId, personId);
                 } else if (command.equals("person-list")) {
-
+                    // TODO
                 } else if (command.equals("group-list")) {
-
+                    // TODO
                 } else if (command.equals("exit")) {
                     exit = true;
                 } else {

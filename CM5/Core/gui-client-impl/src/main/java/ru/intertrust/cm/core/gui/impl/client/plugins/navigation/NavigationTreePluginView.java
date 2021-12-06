@@ -6,6 +6,8 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
@@ -13,7 +15,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -21,12 +22,13 @@ import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
-
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.LeftPanelAttachedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
+import ru.intertrust.cm.core.gui.impl.client.model.util.session.SessionTimeoutRequestDto;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.themes.light.LightThemeBundle;
@@ -36,18 +38,17 @@ import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
+import ru.intertrust.cm.core.gui.model.session.SessionTimeoutResponseDto;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-
 import java.util.*;
-
+import java.util.logging.Logger;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 
 public class NavigationTreePluginView extends PluginView {
-
 
     private static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
     private static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
@@ -59,11 +60,11 @@ public class NavigationTreePluginView extends PluginView {
     private int DURATION = 500;
     private static final int DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH = 220;
     private static final int TOP_MARGIN = 80;
-    public static final long SESSION_TIMEOUT = 1800;
+    private static Logger logger = Logger.getLogger(NavigationTreePluginView.class.getName());
     private int START_WIDGET_WIDTH = 0;
     private boolean pinButtonPressed = false;
     private TreeItem currentSelectedItem;
-    private FocusPanel navigationTreesPanel = new FocusPanel();
+    private FocusPanel navigationTreesPanel;
     private SidebarView sideBarView;
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
     private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
@@ -112,6 +113,7 @@ public class NavigationTreePluginView extends PluginView {
         compactModeState.setLevelsIntersection(levelsIntersection);
         endWidgetWidthInPx = secondLevelNavigationPanelWidth + "px";
         pinButton = new HTML();
+        navigationTreesPanel = new FocusPanel();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
         if (minimalMargin) {
@@ -151,7 +153,30 @@ public class NavigationTreePluginView extends PluginView {
 
 
         if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
-            activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
+            Command command = new Command();
+
+            command.setComponentName("session.utils.component");
+            command.setName("getSessionTimeout");
+            command.setParameter(new SessionTimeoutRequestDto());
+
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onSuccess(Dto result) {
+                    SessionTimeoutResponseDto resultDto = (SessionTimeoutResponseDto) result;
+                    final Integer sessionTimeout = resultDto.getSessionTimeout();
+
+                    if ((sessionTimeout != null) && (sessionTimeout > 0)) {
+                        final int collectionCountersUpdatePeriod = Application.getInstance().getCollectionCountersUpdatePeriod();
+                        activateCollectionCountersUpdateTimer(collectionCountersUpdatePeriod, sessionTimeout);
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining session data");
+                    caught.printStackTrace();
+                }
+            });
         }
         if (navigationTreePluginData.isPinned()) {
             changeState();
@@ -278,7 +303,7 @@ public class NavigationTreePluginView extends PluginView {
         }
     }-*/;
 
-    private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis) {
+    private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis, final Integer sessionTimeout) {
         final Command collectionsCountersCommand = new Command();
         collectionsCountersCommand.setName("getCounters");
         collectionsCountersCommand.setComponentName("collection_counters_handler");
@@ -289,7 +314,7 @@ public class NavigationTreePluginView extends PluginView {
             @Override
             public void run() {
                 Date now = new Date();
-                if (getLastActivity()==0  || ((now.getTime() - getLastActivity())/1000 < SESSION_TIMEOUT)) {
+                if (getLastActivity() == 0 || ((now.getTime() - getLastActivity()) / TimeUtil.MILLIS_IN_SEC < (sessionTimeout * TimeUtil.SECONDS_IN_MINUTE))) {
                     collectionCountersRequest.setCounterKeys(counterKeys);
                     collectionCountersRequest.setLastUpdatedTime(lastCountersUpdateTime);
                     BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(collectionsCountersCommand, new AsyncCallback<Dto>() {
@@ -318,16 +343,28 @@ public class NavigationTreePluginView extends PluginView {
                         }
                     });
                 } else {
-                    String context = GWT.getHostPageBaseURL().split("/")[3];
-                    StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL().substring(0,
-                            GWT.getHostPageBaseURL().indexOf(context)+context.length()+1))
-                            .append("Login.html");
-                    Window.Location.replace(loginPathBuilder.toString());
+                    String loginPath = getLoginPath(GWT.getHostPageBaseURL());
+                    Window.Location.replace(loginPath);
                 }
             }
         };
         timer.scheduleRepeating(collectionCountersUpdatePeriodMillis);
 
+    }
+
+    private String getLoginPath(String hostPageBaseURL){
+        RegExp regExp = RegExp.compile("(http[s]?://[^/]*/[^/]*)", "i");
+        MatchResult execResult = regExp.exec(hostPageBaseURL);
+        String result = null;
+        if (execResult != null) {
+            result = execResult.getGroup(1) + "/Login.html";
+        }else{
+            // Не смогли распарсить адрес, чтоб не падал клиент просто оставляем исходный адрес
+            result = hostPageBaseURL;
+            logger.fine("Can not parsing url " + hostPageBaseURL);
+        }
+
+        return result;
     }
 
     private void updateCounterKeys() {
@@ -533,7 +570,7 @@ public class NavigationTreePluginView extends PluginView {
 
             final RootNodeButton nodeButton = new RootNodeButton(linkConfig, baseAutoCut);
             if (linkConfig.getChildToOpen() != null) {
-                CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(nodeButton);
+                CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(nodeButton, linkConfig.isDisplayCounter());
                 String collectionToBeOpened = findCollectionForOpen(linkConfig);
                 CounterKey counterKey = new CounterKey(linkConfig.getName(), collectionToBeOpened);
                 counterRootNodeDecorator.setCounterKey(counterKey);

@@ -8,10 +8,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import ru.intertrust.cm.core.config.DeleteFileConfig;
+import org.springframework.stereotype.Component;
+import ru.intertrust.cm.core.dao.api.BaseActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.core.dao.impl.BaseActionListener;
 
+
+@Component ("immediateFileDeleteStrategy")
 public class ImmediateFileDeleteStrategy implements FileDeleteStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(ImmediateFileDeleteStrategy.class);
@@ -35,8 +37,7 @@ public class ImmediateFileDeleteStrategy implements FileDeleteStrategy {
     }
 
     @Override
-    public void setConfiguration(DeleteFileConfig config) {
-        // Nothing to do
+    public String toString() {
+        return "ImmediateFileDeleteStrategy";
     }
-
 }

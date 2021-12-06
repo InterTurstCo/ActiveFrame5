@@ -2,12 +2,22 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Attribute;
 
+import java.util.List;
+
 /**
  * Конфигурация разрешений на чтение объекта.
  * @author atsvetkov
  *
  */
 public class ReadConfig extends BaseOperationPermitConfig {
+
+    public ReadConfig(){
+    }
+
+    public ReadConfig(List<BasePermit> permitConfigs, Boolean permitEverybody){
+        super(permitConfigs);
+        this.permitEverybody = permitEverybody;
+    }
 
     /**
      * Разрешает операцию чтения для всех персон.

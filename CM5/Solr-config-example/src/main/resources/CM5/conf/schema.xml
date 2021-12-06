@@ -114,12 +114,12 @@
     <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <field name="_version_" type="long" indexed="true" stored="true"/>
 
-    <field name="cm_id" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_main" type="string" indexed="true" stored="true" required="true" multiValued="false"/>
-    <field name="cm_area" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
+    <field name="cm_id" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="cm_main" type="string" indexed="true" stored="true" multiValued="false"/>
+    <field name="cm_area" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
     <field name="cm_type" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
-    <field name="cm_item" type="string" indexed="true" stored="true" docValues="true" required="true" multiValued="false"/>
-    <field name="cm_modified" type="date" indexed="true" stored="true" required="true" multiValued="false"/>
+    <field name="cm_item" type="string" indexed="true" stored="true" docValues="true" multiValued="false"/>
+    <field name="cm_modified" type="date" indexed="true" stored="true" multiValued="false"/>
 
     <field name="cm_text" type="text_general" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_content" type="text_general" indexed="true" stored="false" multiValued="true"/>
@@ -128,6 +128,9 @@
     <field name="cm_content_ru" type="text_ru" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_text_en" type="text_en" indexed="true" stored="false" multiValued="true"/>
     <field name="cm_content_en" type="text_en" indexed="true" stored="false" multiValued="true"/>
+
+    <dynamicField name="cm_te_*" type="text_exact" indexed="true" stored="true"/>
+    <dynamicField name="cm_tes_*" type="text_exact" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="cm_t_*" type="text_general" indexed="true" stored="true"/>
     <dynamicField name="cm_ts_*" type="text_general" indexed="true" stored="true" multiValued="true"/>
@@ -148,6 +151,9 @@
     <dynamicField name="cm_ens_*" type="text_en" indexed="true" stored="true" multiValued="true"/>
 
     <dynamicField name="cm_c_*" type="ignored" multiValued="true"/>
+
+    <dynamicField name="cm_s_*" type="lowercase" indexed="true" stored="true"/>
+    <dynamicField name="cm_ss_*" type="lowercase" indexed="true" stored="true" multiValued="true"/>
 
     <!-- Dynamic field definitions allow using convention over configuration
        for fields via the specification of patterns to match field names. 
@@ -247,6 +253,13 @@
   <copyField source="cm_content" dest="cm_content_en"/>
   <copyField source="cm_content" dest="cm_content_ru"/>
 
+  <copyField source="cm_te__*" dest="cm_text"/>
+  <copyField source="cm_tes__*" dest="cm_text"/>
+  <copyField source="cm_te_en_*" dest="cm_text_en"/>
+  <copyField source="cm_tes_en_*" dest="cm_text_en"/>
+  <copyField source="cm_te_ru_*" dest="cm_text_ru"/>
+  <copyField source="cm_tes_ru_*" dest="cm_text_ru"/>
+ 
   <!-- copyField source="cm_content" dest="cm_text"/ -->
 
   <!-- Copy the price into a currency enabled field (default USD)
@@ -1067,6 +1080,8 @@
         <filter class="solr.LowerCaseFilterFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ru.txt" format="snowball" />
         <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
+        <filter class="solr.SnowballPorterFilterFactory" language="Russian"/>
         <!-- less aggressive: <filter class="solr.RussianLightStemFilterFactory"/> -->
       </analyzer>
     </fieldType>
@@ -1099,6 +1114,13 @@
         <filter class="solr.TurkishLowerCaseFilterFactory"/>
         <filter class="solr.StopFilterFactory" ignoreCase="false" words="lang/stopwords_tr.txt" />
         <filter class="solr.SnowballPorterFilterFactory" language="Turkish"/>
+      </analyzer>
+    </fieldType>
+
+    <fieldType name="text_exact" class="solr.TextField" positionIncrementGap="100">
+      <analyzer> 
+        <tokenizer class="solr.KeywordTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
 

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.module;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
@@ -15,6 +16,18 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Namespace(reference = "https://cm5.intertrust.ru/config/module")
 public class ModuleConfiguration implements Dto {
     private static final long serialVersionUID = 5237710895366672078L;
+
+    public ModuleConfiguration(){
+    }
+
+    public ModuleConfiguration(String name){
+        this.name = name;
+    }
+
+    public ModuleConfiguration(String name, String ... depends){
+        this(name);
+        this.depends = Arrays.asList(depends);
+    }
 
     @Attribute(required = false)
     private String schemaLocation;
@@ -166,5 +179,26 @@ public class ModuleConfiguration implements Dto {
 
     public LocalizationFilesConfiguration getLocalisationFiles() {
         return localisationFiles;
+    }
+
+    @Override
+    public String toString() {
+        return "ModuleConfiguration{" +
+                "schemaLocation='" + schemaLocation + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", depends=" + depends +
+                ", extensionPointsPackages=" + extensionPointsPackages +
+                ", configurationElementsPackages=" + configurationElementsPackages +
+                ", guiComponentsPackages=" + guiComponentsPackages +
+                ", serverComponentsPackages=" + serverComponentsPackages +
+                ", importFiles=" + importFiles +
+                ", configurationSchemaPath='" + configurationSchemaPath + '\'' +
+                ", configurationPaths=" + configurationPaths +
+                ", importReports=" + importReports +
+                ", deployProcesses=" + deployProcesses +
+                ", localisationFiles=" + localisationFiles +
+                ", moduleUrl=" + moduleUrl +
+                '}';
     }
 }

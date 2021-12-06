@@ -6,6 +6,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
@@ -70,8 +71,24 @@ public class TestCrudService extends ClientBase {
         }catch(Exception ex){
             System.out.println("Correct error " + ex.getMessage());
         }
-        
-        System.out.println("Test complete");
+
+        // Проверяем исключение при поиске несуществующего типа
+        try{
+            crudService.find(new RdbmsId(9999, 111));
+        }catch(ObjectNotFoundException ignoreEx){
+            objectNotFound = true;
+            System.out.println("Find incorrect type OK");
+        }
+
+        if (!objectNotFound){
+            throw new Exception("Need throw ObjectNotFound");
+        }
+
+        if (hasError) {
+            System.out.println("Test ERROR");
+        }else {
+            System.out.println("Test complete");
+        }
     }
 
 

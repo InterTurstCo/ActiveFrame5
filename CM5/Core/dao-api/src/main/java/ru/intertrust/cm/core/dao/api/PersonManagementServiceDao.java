@@ -54,17 +54,24 @@ public interface PersonManagementServiceDao {
 
     /**
      * Получение всех родительских групп для группы, с учетом вхождения группы в группу
-     * @param parent
+     * @param child
      * @return
      */
     List<DomainObject> getAllParentGroup(Id child);
 
     /**
      * Получение групп, непосредственно входящие в группу
-     * @param parent
+     * @param parentGroup
      * @return
      */
-    List<DomainObject> getChildGroups(Id parent);
+    List<DomainObject> getChildGroups(Id parentGroup);
+
+    /**
+     * Получение групп, в которые непосредственно входит переданная группа
+     * @param childGroup
+     * @return
+     */
+    List<DomainObject> getParentGroups(Id childGroup);
 
     /**
      * Получение групп входящих в группу с учетом вхождения группы в группу
@@ -134,7 +141,7 @@ public interface PersonManagementServiceDao {
 
     /**
      * Очистка состава группы. Удаляет как персоны члены группы так и группы члены группы
-     * @param groupName
+     * @param groupId
      */
     void removeGroupMembers(Id groupId);
 

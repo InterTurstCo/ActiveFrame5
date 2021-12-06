@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Author: Denis Mitavskiy
@@ -54,7 +55,15 @@ public interface IdentifiableObjectCollection extends Iterable<IdentifiableObjec
 
     int getFieldIndex(String field);
 
-    ArrayList<FieldConfig> getFieldsConfiguration();
+    List<FieldConfig> getFieldsConfiguration();
 
     int size();
+    
+    Stream<IdentifiableObject> stream();
+
+    /**
+     * Truncates the collection. At the result, we will have the collection only between indexes from and to.
+     */
+    void cut(int fromIndex, int toIndex);
+
 }

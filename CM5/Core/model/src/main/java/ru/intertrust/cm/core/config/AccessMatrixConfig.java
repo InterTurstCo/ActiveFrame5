@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Конфигурация матрицы доступа.
@@ -38,14 +39,29 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Element(name = "matrix-reference-mapping", required = false)
     private MatrixReferenceMappingConfig matrixReferenceMappingConfig;
 
-    
+    @Attribute(name= "support-security-stamp", required = false)
+    private Boolean supportSecurityStamp;
+
+    @Attribute(name= "extendable", required = false)
+    private Boolean extendable;
+
+    @Attribute(name= "extend-type", required = false)
+    private AccessMatrixExtendType extendType;
+
+    private String moduleName;
+
     public static enum BorrowPermissisonsMode{
         none,
         read,
         readWriteDelete,
         all
     }
-    
+
+    public static enum AccessMatrixExtendType{
+        extend,
+        replace
+    }
+
     public String getType() {
         return type;
     }
@@ -81,47 +97,29 @@ public class AccessMatrixConfig implements TopLevelConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         AccessMatrixConfig that = (AccessMatrixConfig) o;
-
-        if (readEverybody != null ? !readEverybody.equals(that.readEverybody) : that.readEverybody != null) {
-            return false;
-        }
-        if (status != null ? !status.equals(that.status) : that.status != null) {
-            return false;
-        }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-        if (borrowPermissisons != null ? !borrowPermissisons.equals(that.borrowPermissisons) : that.borrowPermissisons != null) {
-            return false;
-        }
-
-        if (accessMatrixCreateConfig != null ? !accessMatrixCreateConfig.equals(that.accessMatrixCreateConfig)
-                : that.accessMatrixCreateConfig != null) {
-            return false;
-        }
-        return true;
+        return Objects.equals(type, that.type) &&
+                Objects.equals(readEverybody, that.readEverybody) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(matrixReference, that.matrixReference) &&
+                borrowPermissisons == that.borrowPermissisons &&
+                Objects.equals(accessMatrixCreateConfig, that.accessMatrixCreateConfig) &&
+                Objects.equals(matrixReferenceMappingConfig, that.matrixReferenceMappingConfig) &&
+                Objects.equals(supportSecurityStamp, that.supportSecurityStamp) &&
+                Objects.equals(extendable, that.extendable) &&
+                extendType == that.extendType;
     }
 
     @Override
     public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (readEverybody != null ? readEverybody.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (borrowPermissisons != null ? borrowPermissisons.hashCode() : 0);        
-        return result;
+        return Objects.hash(type, readEverybody, status, matrixReference, borrowPermissisons, accessMatrixCreateConfig, matrixReferenceMappingConfig, supportSecurityStamp, extendable, extendType);
     }
 
     @Override
     public String getName() {
-        return type;
+        return moduleName + ":" + type;
     }
 
     @Override
@@ -158,10 +156,53 @@ public class AccessMatrixConfig implements TopLevelConfig {
         this.borrowPermissisons = borrowPermissisons;
     }
 
+
+    public Boolean isSupportSecurityStamp() {
+        return supportSecurityStamp;
+    }
+
+    public void setSupportSecurityStamp(Boolean supportSecurityStamp) {
+        this.supportSecurityStamp = supportSecurityStamp;
+    }
+
+    public Boolean getExtendable() {
+        return extendable;
+    }
+
+    public void setExtendable(Boolean extendable) {
+        this.extendable = extendable;
+    }
+
+    public AccessMatrixExtendType getExtendType() {
+        return extendType;
+    }
+
+    public void setExtendType(AccessMatrixExtendType extendType) {
+        this.extendType = extendType;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
     @Override
     public String toString() {
-        return "AccessMatrixConfig [type=" + type + ", readEverybody=" + readEverybody + ", status=" + status + ", matrixReference=" + matrixReference
-                + ", borrowPermissisons=" + borrowPermissisons + ", accessMatrixCreateConfig=" + accessMatrixCreateConfig + ", matrixReferenceMappingConfig="
-                + matrixReferenceMappingConfig + "]";
+        return "AccessMatrixConfig{" +
+                "type='" + type + '\'' +
+                ", readEverybody=" + readEverybody +
+                ", status=" + status +
+                ", matrixReference='" + matrixReference + '\'' +
+                ", borrowPermissisons=" + borrowPermissisons +
+                ", accessMatrixCreateConfig=" + accessMatrixCreateConfig +
+                ", matrixReferenceMappingConfig=" + matrixReferenceMappingConfig +
+                ", supportSecurityStamp=" + supportSecurityStamp +
+                ", extendable=" + extendable +
+                ", extendType=" + extendType +
+                ", moduleName=" + moduleName +
+                '}';
     }
 }

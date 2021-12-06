@@ -30,9 +30,9 @@ public class VersionUtil {
             return null;
         }
         jarAlias = jarAlias.substring(0, endIndex);
-        Enumeration resEnum;
+
         try {
-            resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
+            Enumeration<?> resEnum = Thread.currentThread().getContextClassLoader().getResources(JarFile.MANIFEST_NAME);
 
             while (resEnum.hasMoreElements()) {
                 URL url = (URL) resEnum.nextElement();
@@ -40,26 +40,25 @@ public class VersionUtil {
                 if (!isCoreVersionJar) {
                     continue;
                 }
-                InputStream is = url.openStream();
-                try {
+                try (InputStream is = url.openStream()) {
                     if (is != null) {
-                        Manifest manifest = new Manifest(is);
-                        Attributes mainAttribs = manifest.getMainAttributes();
-                        return mainAttribs.getValue("Implementation-Version");
+                        return getVersionFromManifest(is);
                     }
                 } catch (Throwable e) {
                     throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys
                             .GUI_EXCEPTION_VERSION_ERROR, "Ошибка получения версии: ", locale), e);
-                } finally {
-                    if (is != null) {
-                        is.close();
-                    }
                 }
             }
         } catch (IOException ioE) {
             ioE.printStackTrace();
         }
         return null;
+    }
+
+    public String getVersionFromManifest(InputStream is) throws IOException {
+        Manifest manifest = new Manifest(is);
+        Attributes mainAttribs = manifest.getMainAttributes();
+        return mainAttribs.getValue(Attributes.Name.IMPLEMENTATION_VERSION);
     }
 
     // При запуске из Idea в проекте платформы это работать не будет, потому что не собираются JAR-ы библиотек, а лишь компилируются

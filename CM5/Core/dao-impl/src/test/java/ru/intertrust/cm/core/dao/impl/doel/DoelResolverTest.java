@@ -37,6 +37,7 @@ import ru.intertrust.cm.core.dao.doel.DoelFunctionRegistry;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.SqlStatementMatcher;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
+import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,7 +59,7 @@ public class DoelResolverTest {
     @Mock
     private ApplicationContext context;
 
-    private AccessControlService accessControlService = new AccessControlServiceImpl();
+    private final AccessControlService accessControlService = new AccessControlServiceImpl();
 
     RdbmsId docId = new RdbmsId(1, 105L);
     RdbmsId comm1Id = new RdbmsId(2, 11L);
@@ -70,6 +71,145 @@ public class DoelResolverTest {
         if (doelResolver.getAccessControlService() == null) {
             doelResolver.setAccessControlService(accessControlService);
         }
+    }
+
+    @Before
+    public void prepareConfiguration() {
+        new SpringApplicationContext().setApplicationContext(context);
+        when(context.getBean(ConfigurationExplorer.class)).thenReturn(configurationExplorer);
+        when(context.getBean(DoelFunctionRegistry.class)).thenReturn(doelFunctionRegistry);
+
+        when(domainObjectTypeIdCache.getName(docId)).thenReturn("Document");
+        when(domainObjectTypeIdCache.getName(comm1Id)).thenReturn("Commission");
+        when(domainObjectTypeIdCache.getName(comm2Id)).thenReturn("Commission");
+        when(domainObjectTypeIdCache.getName(linkId)).thenReturn("UniversalLink");
+        when(domainObjectCacheService.getAll(any(Id.class), any(AccessToken.class), Matchers.<String>anyVararg())).thenReturn(null);
+
+        // Объекты ====================
+        DomainObjectTypeConfig documentConfig = new DomainObjectTypeConfig();
+        documentConfig.setName("Document");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Document")).thenReturn(documentConfig);
+        when(configurationExplorer.getDomainObjectRootType("Document")).thenReturn("Document");
+        when(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType("Document")).thenReturn(new String[] {"document"});
+
+        DomainObjectTypeConfig incomingDocConfig = new DomainObjectTypeConfig();
+        incomingDocConfig.setName("IncomingDocument");
+        incomingDocConfig.setExtendsAttribute("Document");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "IncomingDocument")).thenReturn(incomingDocConfig);
+        when(configurationExplorer.getDomainObjectRootType("IncomingDocument")).thenReturn("Document");
+        when(configurationExplorer.findChildDomainObjectTypes("Document", false)).thenReturn(Arrays.asList(incomingDocConfig));
+
+        DomainObjectTypeConfig commissionConfig = new DomainObjectTypeConfig();
+        commissionConfig.setName("Commission");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Commission")).thenReturn(commissionConfig);
+        when(configurationExplorer.getDomainObjectRootType("Commission")).thenReturn("Commission");
+        when(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType("Commission")).thenReturn(new String[] {"commission"});
+
+        DomainObjectTypeConfig jobConfig = new DomainObjectTypeConfig();
+        jobConfig.setName("Job");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Job")).thenReturn(jobConfig);
+        when(configurationExplorer.getDomainObjectRootType("Job")).thenReturn("Job");
+
+        DomainObjectTypeConfig personConfig = new DomainObjectTypeConfig();
+        personConfig.setName("Person");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person")).thenReturn(personConfig);
+        when(configurationExplorer.getDomainObjectRootType("Person")).thenReturn("Person");
+
+        DomainObjectTypeConfig unitConfig = new DomainObjectTypeConfig();
+        unitConfig.setName("Unit");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Unit")).thenReturn(unitConfig);
+        when(configurationExplorer.getDomainObjectRootType("Unit")).thenReturn("Unit");
+
+        DomainObjectTypeConfig departmentConfig = new DomainObjectTypeConfig();
+        departmentConfig.setName("Department");
+        departmentConfig.setExtendsAttribute("Unit");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Department")).thenReturn(departmentConfig);
+        when(configurationExplorer.getDomainObjectRootType("Department")).thenReturn("Unit");
+        when(configurationExplorer.findChildDomainObjectTypes("Unit", false)).thenReturn(Arrays.asList(departmentConfig));
+
+        DomainObjectTypeConfig universalLinkConfig = new DomainObjectTypeConfig();
+        universalLinkConfig.setName("UniversalLink");
+        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "UniversalLink")).thenReturn(universalLinkConfig);
+        when(configurationExplorer.getDomainObjectRootType("UniversalLink")).thenReturn("UniversalLink");
+
+        when(configurationExplorer.getConfigs(DomainObjectTypeConfig.class)).thenReturn(Arrays.asList(
+                documentConfig, incomingDocConfig, commissionConfig, jobConfig,
+                personConfig, unitConfig, departmentConfig, universalLinkConfig));
+
+        // Поля =======================
+        ReferenceFieldConfig documentAddresseeConfig = new ReferenceFieldConfig();
+        documentAddresseeConfig.setName("Addressee");
+        documentAddresseeConfig.setType("Person");
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee")).thenReturn(documentAddresseeConfig);
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee", false)).thenReturn(documentAddresseeConfig);
+
+        ReferenceFieldConfig commissionParentConfig = new ReferenceFieldConfig();
+        commissionParentConfig.setName("parent");
+        commissionParentConfig.setType("Document");
+        when(configurationExplorer.getFieldConfig("Commission", "parent")).thenReturn(commissionParentConfig);
+        when(configurationExplorer.getFieldConfig("Commission", "parent", false)).thenReturn(commissionParentConfig);
+
+        ReferenceFieldConfig jobParentConfig = new ReferenceFieldConfig();
+        jobParentConfig.setName("parent");
+        jobParentConfig.setType("Commission");
+        when(configurationExplorer.getFieldConfig("Job", "parent")).thenReturn(jobParentConfig);
+        when(configurationExplorer.getFieldConfig("Job", "parent", false)).thenReturn(jobParentConfig);
+
+        ReferenceFieldConfig jobAssigneeConfig = new ReferenceFieldConfig();
+        jobAssigneeConfig.setName("Assignee");
+        jobAssigneeConfig.setType("Person");
+        when(configurationExplorer.getFieldConfig("Job", "Assignee")).thenReturn(jobAssigneeConfig);
+        when(configurationExplorer.getFieldConfig("Job", "Assignee", false)).thenReturn(jobAssigneeConfig);
+
+        ReferenceFieldConfig personDepartmentConfig = new ReferenceFieldConfig();
+        personDepartmentConfig.setName("Department");
+        personDepartmentConfig.setType("Department");
+        when(configurationExplorer.getFieldConfig("Person", "Department")).thenReturn(personDepartmentConfig);
+        when(configurationExplorer.getFieldConfig("Person", "Department", false)).thenReturn(personDepartmentConfig);
+
+        ReferenceFieldConfig linkFromConfig = new ReferenceFieldConfig();
+        linkFromConfig.setName("from");
+        linkFromConfig.setType("*");
+        when(configurationExplorer.getFieldConfig("UniversalLink", "from")).thenReturn(linkFromConfig);
+        when(configurationExplorer.getFieldConfig("UniversalLink", "from", false)).thenReturn(linkFromConfig);
+
+        ReferenceFieldConfig linkToConfig = new ReferenceFieldConfig();
+        linkToConfig.setName("to");
+        linkToConfig.setType("*");
+        when(configurationExplorer.getFieldConfig("UniversalLink", "to")).thenReturn(linkToConfig);
+        when(configurationExplorer.getFieldConfig("UniversalLink", "to", false)).thenReturn(linkToConfig);
+
+        StringFieldConfig nameFieldConfig = new StringFieldConfig();
+        nameFieldConfig.setName("Name");
+        when(configurationExplorer.getFieldConfig("Document", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Document", "Name", false)).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("IncomingDocument", "Name", false)).thenReturn(null);
+        when(configurationExplorer.getFieldConfig("Person", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Person", "Name", false)).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Unit", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Unit", "Name", false)).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Department", "Name")).thenReturn(nameFieldConfig);
+        when(configurationExplorer.getFieldConfig("Department", "Name", false)).thenReturn(null);
+        ReferenceFieldConfig idFieldConfig = new ReferenceFieldConfig();
+        idFieldConfig.setName("id");
+        when(configurationExplorer.getFieldConfig(//not("*"),
+                or(eq("Document"), or(eq("IncomingDocument"), or(eq("Commission"), or(eq("Job"),
+                        or(eq("Person"), or(eq("Unit"), or(eq("Department"), eq("UniversalLink")))))))),
+                eq("id"))).thenReturn(idFieldConfig);
+
+
+        ReferenceFieldConfig refFieldConfig1 = new ReferenceFieldConfig();
+        refFieldConfig1.setName("Owner");
+        refFieldConfig1.setType("*");
+        ReferenceFieldConfig refFieldConfig2 = new ReferenceFieldConfig();
+        refFieldConfig1.setName("SomeParent");
+        refFieldConfig1.setType("*");
+
+        when(configurationExplorer.getFieldConfig("TestTable", "Owner")).thenReturn(refFieldConfig1);
+        when(configurationExplorer.getFieldConfig("TestTable2", "SomeParent")).thenReturn(refFieldConfig2);
+        when(configurationExplorer.getFieldConfig(eq("*"), any())).thenThrow(new DoelException(""));
+
     }
 
     @Test
@@ -285,129 +425,32 @@ public class DoelResolverTest {
         assertEquals(DoelExpression.parse("parent.parent"), exprBack);
     }
 
-    @Before
-    public void prepareConfiguration() {
-        new SpringApplicationContext().setApplicationContext(context);
-        when(context.getBean(ConfigurationExplorer.class)).thenReturn(configurationExplorer);
-        when(context.getBean(DoelFunctionRegistry.class)).thenReturn(doelFunctionRegistry);
-
-        when(domainObjectTypeIdCache.getName(docId)).thenReturn("Document");
-        when(domainObjectTypeIdCache.getName(comm1Id)).thenReturn("Commission");
-        when(domainObjectTypeIdCache.getName(comm2Id)).thenReturn("Commission");
-        when(domainObjectTypeIdCache.getName(linkId)).thenReturn("UniversalLink");
-        when(domainObjectCacheService.getAll(any(Id.class), any(AccessToken.class), Matchers.<String>anyVararg())).thenReturn(null);
-
-        // Объекты ====================
-        DomainObjectTypeConfig documentConfig = new DomainObjectTypeConfig();
-        documentConfig.setName("Document");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Document")).thenReturn(documentConfig);
-        when(configurationExplorer.getDomainObjectRootType("Document")).thenReturn("Document");
-        when(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType("Document")).thenReturn(new String[] {"document"});
-
-        DomainObjectTypeConfig incomingDocConfig = new DomainObjectTypeConfig();
-        incomingDocConfig.setName("IncomingDocument");
-        incomingDocConfig.setExtendsAttribute("Document");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "IncomingDocument")).thenReturn(incomingDocConfig);
-        when(configurationExplorer.getDomainObjectRootType("IncomingDocument")).thenReturn("Document");
-        when(configurationExplorer.findChildDomainObjectTypes("Document", false)).thenReturn(Arrays.asList(incomingDocConfig));
-
-        DomainObjectTypeConfig commissionConfig = new DomainObjectTypeConfig();
-        commissionConfig.setName("Commission");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Commission")).thenReturn(commissionConfig);
-        when(configurationExplorer.getDomainObjectRootType("Commission")).thenReturn("Commission");
-        when(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType("Commission")).thenReturn(new String[] {"commission"});
-
-        DomainObjectTypeConfig jobConfig = new DomainObjectTypeConfig();
-        jobConfig.setName("Job");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Job")).thenReturn(jobConfig);
-        when(configurationExplorer.getDomainObjectRootType("Job")).thenReturn("Job");
-
-        DomainObjectTypeConfig personConfig = new DomainObjectTypeConfig();
-        personConfig.setName("Person");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person")).thenReturn(personConfig);
-        when(configurationExplorer.getDomainObjectRootType("Person")).thenReturn("Person");
-
-        DomainObjectTypeConfig unitConfig = new DomainObjectTypeConfig();
-        unitConfig.setName("Unit");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Unit")).thenReturn(unitConfig);
-        when(configurationExplorer.getDomainObjectRootType("Unit")).thenReturn("Unit");
-
-        DomainObjectTypeConfig departmentConfig = new DomainObjectTypeConfig();
-        departmentConfig.setName("Department");
-        departmentConfig.setExtendsAttribute("Unit");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Department")).thenReturn(departmentConfig);
-        when(configurationExplorer.getDomainObjectRootType("Department")).thenReturn("Unit");
-        when(configurationExplorer.findChildDomainObjectTypes("Unit", false)).thenReturn(Arrays.asList(departmentConfig));
-
-        DomainObjectTypeConfig universalLinkConfig = new DomainObjectTypeConfig();
-        universalLinkConfig.setName("UniversalLink");
-        when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "UniversalLink")).thenReturn(universalLinkConfig);
-        when(configurationExplorer.getDomainObjectRootType("UniversalLink")).thenReturn("UniversalLink");
-
-        when(configurationExplorer.getConfigs(DomainObjectTypeConfig.class)).thenReturn(Arrays.asList(
-                documentConfig, incomingDocConfig, commissionConfig, jobConfig,
-                personConfig, unitConfig, departmentConfig, universalLinkConfig));
-
-        // Поля =======================
-        ReferenceFieldConfig documentAddresseeConfig = new ReferenceFieldConfig();
-        documentAddresseeConfig.setName("Addressee");
-        documentAddresseeConfig.setType("Person");
-        when(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee")).thenReturn(documentAddresseeConfig);
-        when(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee", false)).thenReturn(documentAddresseeConfig);
-
-        ReferenceFieldConfig commissionParentConfig = new ReferenceFieldConfig();
-        commissionParentConfig.setName("parent");
-        commissionParentConfig.setType("Document");
-        when(configurationExplorer.getFieldConfig("Commission", "parent")).thenReturn(commissionParentConfig);
-        when(configurationExplorer.getFieldConfig("Commission", "parent", false)).thenReturn(commissionParentConfig);
-
-        ReferenceFieldConfig jobParentConfig = new ReferenceFieldConfig();
-        jobParentConfig.setName("parent");
-        jobParentConfig.setType("Commission");
-        when(configurationExplorer.getFieldConfig("Job", "parent")).thenReturn(jobParentConfig);
-        when(configurationExplorer.getFieldConfig("Job", "parent", false)).thenReturn(jobParentConfig);
-
-        ReferenceFieldConfig jobAssigneeConfig = new ReferenceFieldConfig();
-        jobAssigneeConfig.setName("Assignee");
-        jobAssigneeConfig.setType("Person");
-        when(configurationExplorer.getFieldConfig("Job", "Assignee")).thenReturn(jobAssigneeConfig);
-        when(configurationExplorer.getFieldConfig("Job", "Assignee", false)).thenReturn(jobAssigneeConfig);
-
-        ReferenceFieldConfig personDepartmentConfig = new ReferenceFieldConfig();
-        personDepartmentConfig.setName("Department");
-        personDepartmentConfig.setType("Department");
-        when(configurationExplorer.getFieldConfig("Person", "Department")).thenReturn(personDepartmentConfig);
-        when(configurationExplorer.getFieldConfig("Person", "Department", false)).thenReturn(personDepartmentConfig);
-
-        ReferenceFieldConfig linkFromConfig = new ReferenceFieldConfig();
-        linkFromConfig.setName("from");
-        linkFromConfig.setType("*");
-        when(configurationExplorer.getFieldConfig("UniversalLink", "from")).thenReturn(linkFromConfig);
-        when(configurationExplorer.getFieldConfig("UniversalLink", "from", false)).thenReturn(linkFromConfig);
-
-        ReferenceFieldConfig linkToConfig = new ReferenceFieldConfig();
-        linkToConfig.setName("to");
-        linkToConfig.setType("*");
-        when(configurationExplorer.getFieldConfig("UniversalLink", "to")).thenReturn(linkToConfig);
-        when(configurationExplorer.getFieldConfig("UniversalLink", "to", false)).thenReturn(linkToConfig);
-
-        StringFieldConfig nameFieldConfig = new StringFieldConfig();
-        nameFieldConfig.setName("Name");
-        when(configurationExplorer.getFieldConfig("Document", "Name")).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("Document", "Name", false)).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("IncomingDocument", "Name")).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("IncomingDocument", "Name", false)).thenReturn(null);
-        when(configurationExplorer.getFieldConfig("Person", "Name")).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("Person", "Name", false)).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("Unit", "Name")).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("Unit", "Name", false)).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("Department", "Name")).thenReturn(nameFieldConfig);
-        when(configurationExplorer.getFieldConfig("Department", "Name", false)).thenReturn(null);
-        ReferenceFieldConfig idFieldConfig = new ReferenceFieldConfig();
-        idFieldConfig.setName("id");
-        when(configurationExplorer.getFieldConfig(//not("*"),
-                or(eq("Document"), or(eq("IncomingDocument"), or(eq("Commission"), or(eq("Job"),
-                or(eq("Person"), or(eq("Unit"), or(eq("Department"), eq("UniversalLink")))))))),
-                eq("id"))).thenReturn(idFieldConfig);
+    @Test (expected = DoelException.class)
+    public void testReverseExpressionWithSingleAnyType_not_allowed() {
+        DoelExpression expr = DoelExpression.parse("Owner");
+        DoelExpression exprBack = doelResolver.createReverseExpression(expr, "TestTable");
+        // any type is not allowed
     }
+
+    @Test
+    public void testReverseExpressionWithSingleAnyType() {
+        DoelExpression expr = DoelExpression.parse("Owner");
+        DoelExpression exprBack = doelResolver.createReverseExpression(expr, "TestTable", true);
+        assertEquals(DoelExpression.parse("TestTable^Owner"), exprBack);
+    }
+
+    @Test (expected = DoelException.class)
+    public void testReverseExpressionWithPluralAnyType_without_list() {
+        DoelExpression expr = DoelExpression.parse("Owner.SomeParent");
+        DoelExpression exprBack = doelResolver.createReverseExpression(expr, "TestTable", true);
+    }
+
+    @Test
+    public void testReverseExpressionWithPluralAnyType() {
+        DoelExpression expr = DoelExpression.parse("Owner.SomeParent");
+        DoelExpression exprBack = doelResolver.createReverseExpression(expr, "TestTable",
+                true, new String[] {"TestTable2"});
+        assertEquals(DoelExpression.parse("TestTable2^SomeParent.TestTable^Owner"), exprBack);
+    }
+
 }

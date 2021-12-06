@@ -1,12 +1,16 @@
 package ru.intertrust.cm.core.dao.access;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 
 /**
  * Сервис обновления списков доступа.
@@ -16,7 +20,7 @@ public interface PermissionServiceDao {
 
     /**
      * Пересчет динамических групп при удалении доменного объекта.
-     * @param objectId
+     * @param domainObject
      *            доменный объект
      */
     void notifyDomainObjectDeleted(DomainObject domainObject);
@@ -27,7 +31,7 @@ public interface PermissionServiceDao {
      * (Доменный объект входит в список отслеживаемых объектов
      * <track-domain-objects> и измененные поля входят в Doel выражение внутри
      * <track-domain-objects>)
-     * @param objectId
+     * @param domainObject
      *            изменяемый доменный объект
      * @param modifiedFieldNames
      *            список измененных полей доменного объекта.
@@ -39,7 +43,7 @@ public interface PermissionServiceDao {
      * Выполняет пересчет дмнамических групп, на состав которых влияет
      * отслеживаемый объект. (Доменный объект входит в список отслеживаемых
      * объектов)
-     * @param objectId
+     * @param domainObject
      *            создаваемый доменный объект
      */
     void notifyDomainObjectCreated(DomainObject domainObject);
@@ -93,7 +97,7 @@ public interface PermissionServiceDao {
     /**
      * Дать временные права на вновь созданные доменные объекты. Необходимо выполнить сразу после создания не дожидаясь
      * окончания транзакции, чтобы можно юыло уже получать объект запросом в течение текущей транзакции
-     * @param domainObject
+     * @param domainObjectIds
      */
     void grantNewObjectPermissions(List<Id> domainObjectIds);
 
@@ -121,4 +125,84 @@ public interface PermissionServiceDao {
      * @param invalidContextIds
      */
     void refreshAclIfMarked(Set<Id> invalidContextIds);
+
+    /**
+     * Проверка, ограничен ли доступ к вложению на операцию чтения содержимого
+     *
+     * @param attachId id вложения - по нему будем искать ограничения в таблице с правами
+     * @return true, если доступ ограничен
+     */
+    boolean checkIfContentReadRestricted(Id attachId);
+
+    /**
+     * Вычисление вложений, к которым доступ не ограничен. Не проверяет соответствие типа вложений соответствующему параметру.
+     *
+     * @param objectIds список id проверяемых объектов
+     * @param objType тип вложений
+     * @return множество id объектов, доступ к которым не был ограничен
+     */
+    @Nonnull
+    Set<Id> checkIfContentReadAllowedForAll(List<Id> objectIds, String objType);
+
+    /**
+     * Вычисление вложений, доступ к которым ограничен. Не проверяет соответствие типа вложений соответствующему параметру.
+     *
+     * @param objectIds список id проверяемых объектов
+     * @param objType тип вложений
+     * @return множество id объектов, доступ к которым был ограничен
+     */
+    @Nonnull
+    Set<Id> checkIfContentReadRestricted(List<Id> objectIds, String objType);
+
+    /**
+     * Проверка на то что конфигурация прав не зависит от контекста
+     * @param matrixStatusConfig
+     * @param accessType
+     * @return
+     */
+    boolean isWithoutContextPermissionConfig(AccessMatrixStatusConfig matrixStatusConfig, AccessType accessType);
+
+    /**
+     * Проверка соответствия настройки прав в матрице проверяемому типу доступа
+     * @param permitConfig
+     * @param accessType
+     * @return
+     */
+    boolean checkAccessType(BaseOperationPermitConfig permitConfig, AccessType accessType);
+
+    /**
+     * Проверка входит ли пользователь в группу
+     * @param userId
+     * @param groupName
+     * @return
+     */
+    boolean checkUserGroup(Id userId, String groupName);
+
+    /**
+     * Проверка входит ли пользователь хотя бы в одну группу из набора
+     * @param userId
+     * @param groupNames
+     * @return
+     */
+    boolean checkUserGroups(Id userId, Set<String> groupNames);
+
+    /**
+     * Проверка имеет ли пользователь права на тип
+     * @param personId
+     * @param accessType
+     * @param matrixStatusConfig
+     * @return
+     */
+    boolean hasUserTypePermission(Id personId, AccessType accessType, AccessMatrixStatusConfig matrixStatusConfig);
+
+    /**
+     * Получение имени типа, у которго заимствует права конкретный доменный объект
+     * (очень не хватает access_object_id_type для этого :(((, было бы гораздо проще)
+     * Путем анализа матриц невозможно получить однозначнго имя типа, у которого мы заимствуем права, так как
+     * матрицы могут быть и у дочерних доменных объектов.
+     * @param refTypeName имя типа, у которого заимствуем права полученное путем анализа матриц доступа.
+     * @param objectId ид доменного объекта
+     * @return
+     */
+    String getRealMatrixReferenceTypeName(String refTypeName, Id objectId);
 }

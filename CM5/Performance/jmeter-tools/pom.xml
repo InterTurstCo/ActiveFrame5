@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>ru.intertrust.cm-sochi</groupId>
 		<artifactId>performance</artifactId>
-		<version>1.0.0-2-SNAPSHOT</version>
+		<version>1.2.3</version>
 	</parent>
 
 	<build>
@@ -16,8 +16,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

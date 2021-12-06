@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -100,8 +101,10 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         final List<Id> validIds = new ArrayList<>(idsFromHistory.size());
         for (Id id : idsFromHistory) {
             try {
-                crudService.find(id);
-                validIds.add(id);
+                if (id instanceof RdbmsId) {
+                    crudService.find(id);
+                    validIds.add(id);
+                }
             } catch (ObjectNotFoundException | AccessException e) {
                 // ignoring ids of non-existent or non-accessible DOs
             }

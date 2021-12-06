@@ -5,5 +5,11 @@ package ru.intertrust.cm.core.config;
  * @author atsvetkov
  */
 public class PermitRole extends BasePermit {
+    public PermitRole(){
+    }
+
+    public PermitRole(String name){
+        super(name);
+    }
 
 }

@@ -62,7 +62,7 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void notifyUpdate(DomainObject obj, AccessToken accessToken) {
+    public void notifyUpdate(DomainObject obj, AccessToken accessToken, boolean stampChanged) {
     }
 
     @Override

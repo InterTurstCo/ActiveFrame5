@@ -140,12 +140,11 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                 logger.debug("Start wait actual data {}", resourceId);
                 semaphore.acquire();
                 logger.debug("End wait actual data {}", resourceId);
-                if (futureActualisationCache != null) {
-                    futureActualisationCache.cancel(true);
-                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new RuntimeException("Thread is Interrupted", e);
+            } finally {
+                futureActualisationCache.cancel(true);
             }
         }
     }
@@ -324,8 +323,8 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         ScheduledFutureEx future = heldLocks.get(resourceId);
         if (future != null) {
             future.cancel(true);
-            getInterserverLockingDao().unlock(resourceId, getClusterTransactionStampService().getInvalidationCacheInfo().encode());
             heldLocks.remove(resourceId);
+            getInterserverLockingDao().unlock(resourceId, getClusterTransactionStampService().getInvalidationCacheInfo().encode());
             logger.trace("End unlock {}", resourceId);
         } else {
             throw new RuntimeException("Only locker can unlock resource.");

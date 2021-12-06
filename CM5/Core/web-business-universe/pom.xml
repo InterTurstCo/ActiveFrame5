@@ -7,7 +7,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>1.0.0-2-SNAPSHOT</version>
+        <version>1.2.3</version>
     </parent>
 
     <dependencies>
@@ -51,7 +51,7 @@
                             <modules>
                                 <module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
                             </modules>
-                            <sourceLevel>1.7</sourceLevel>
+                            <sourceLevel>1.11</sourceLevel>
                             <!--<localWorkers>2</localWorkers>
                             <optimizationLevel>0</optimizationLevel>
                             <draftCompile>true</draftCompile>-->

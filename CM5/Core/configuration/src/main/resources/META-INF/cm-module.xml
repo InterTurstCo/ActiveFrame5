@@ -12,7 +12,7 @@
         <extension-points-package>ru.intertrust.cm.core.config.doel</extension-points-package>
     </extension-points-packages>
     <configuration-elements-packages>
-        <configuration-elements-package>ru/intertrust/cm/core</configuration-elements-package>
+        <configuration-elements-package>ru.intertrust.cm.core</configuration-elements-package>
     </configuration-elements-packages>
     <gui-components-packages>
         <gui-components-package>ru.intertrust.cm.core.gui.impl.client</gui-components-package>

@@ -18,9 +18,12 @@ public class SpringClient {
      * @throws SpringClient
      */
     public SpringClient() {
+        initAutowire(this);
+    }
 
+    public static void initAutowire(Object obj){
         ApplicationContext ctx = SpringApplicationContext.getContext();
-        ctx.getAutowireCapableBeanFactory().autowireBeanProperties(this, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+        ctx.getAutowireCapableBeanFactory().autowireBeanProperties(obj, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
                 false);
 
     }

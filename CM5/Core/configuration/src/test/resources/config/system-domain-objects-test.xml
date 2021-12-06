@@ -2,7 +2,7 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
     <attachment-storage name="default">
-        <folder>
+        <folder configurable="true">
             <subfolder-mask>{year}/{month}/{day}</subfolder-mask>
             <delete-file mode="never"/>
         </folder>

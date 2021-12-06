@@ -177,4 +177,13 @@ public class PersonManagementServiceImpl implements PersonManagementService {
             throw RemoteSuitableException.convert(ex);
         }
     }
+
+    @Override
+    public List<DomainObject> getParentGroups(Id childGroup) {
+        try {
+            return personManagementServiceDao.getParentGroups(childGroup);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
 }

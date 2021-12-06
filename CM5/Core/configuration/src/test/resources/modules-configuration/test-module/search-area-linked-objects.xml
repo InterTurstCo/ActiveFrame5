@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <search-area name="ProductRegistry">
+
+        <!-- Исполнение -->
+        <target-domain-object type="F_DP_Report">
+            <!-- Модуль -->
+            <indexed-field name="Module">
+                <doel>Module</doel>
+            </indexed-field>
+            <!-- Дата регистрации -->
+            <indexed-field name="regDate">
+                <doel>HierRoot.regDate</doel>
+            </indexed-field>
+            <!-- Автор отчета -->
+            <indexed-field name="Author" search-by="substring" language="">
+                <doel>Author.orig_shortname</doel>
+            </indexed-field>
+            <!-- Дата исполнения -->
+            <indexed-field name="reportDate">
+                <doel>ExecDate</doel>
+            </indexed-field>
+            <!-- Текст отчета -->
+            <indexed-field name="reportText">
+                <doel>Text</doel>
+            </indexed-field>
+
+            <target-collection name="F_DP_Report_(search)"/>
+
+            <filter>
+                <conditions-script>session.find(ctx.get('HierRoot')).getDomainObject().getTypeName() == 'F_DP_IntRkk'
+                </conditions-script>
+            </filter>
+        </target-domain-object>
+
+        <!-- Резолюция -->
+        <target-domain-object type="F_DP_Resolution">
+            <!-- Модуль -->
+            <indexed-field name="Module">
+                <doel>Module</doel>
+            </indexed-field>
+            <!-- Контрольный -->
+            <indexed-field name="isControl">
+                <doel>CtrlIsControlled</doel>
+            </indexed-field>
+            <!-- Исполнен -->
+            <indexed-field name="isExecuted">
+                <doel>CtrlDateExecution</doel>
+            </indexed-field>
+            <!-- Дата регистрации -->
+            <indexed-field name="regDate">
+                <doel>HierRoot.regDate</doel>
+            </indexed-field>
+            <!-- Автор резолюции -->
+            <indexed-field name="Superior" search-by="substring" language="">
+                <doel>Author.orig_shortname</doel>
+            </indexed-field>
+            <!-- Дата резолюции -->
+            <indexed-field name="resDate">
+                <doel>Date</doel>
+            </indexed-field>
+            <!-- Срок резолюции -->
+            <indexed-field name="resExDate">
+                <doel>CtrlDeadline</doel>
+            </indexed-field>
+            <!-- Рег. номер документа -->
+            <indexed-field name="docNumber" search-by="substring">
+                <script>var rn = ctx.get('regnumcnt'); if (rn == null) rn; else {
+                    var prist = ctx.get('regnumprist'); if (prist == null) prist = '';
+                    var fin = ctx.get('regnumfin'); if (fin == null) fin = '';
+                    prist + rn + fin + ' ' + rn }
+                </script>
+            </indexed-field>
+            <!-- Текст резолюции -->
+            <indexed-field name="resText">
+                <doel>Resolution</doel>
+            </indexed-field>
+            <!-- Исполнитель резолюции -->
+            <linked-domain-object type="F_DP_ResltnBase_ExecCurr">
+                <indexed-field name="Executor" search-by="substring" language="">
+                    <doel>ExecutorCurr.orig_shortname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+            <linked-domain-object type="F_DP_ResltnBase_ExecExt">
+                <indexed-field name="execpeoples" search-by="substring" language="">
+                    <doel>ExecutorExt.orig_shortname</doel>
+                </indexed-field>
+                <indexed-field name="ORGANISATIONNAME" search-by="substring" language="">
+                    <doel>ExecutorExt.OrgName</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <!-- Контролер резолюции -->
+            <linked-domain-object type="F_DP_ResltnBase_Cntrller">
+                <indexed-field name="ControlPeopleRes" search-by="substring" language="">
+                    <doel>Controller.orig_shortname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <target-collection name="F_DP_Resolution_(search)"/>
+
+            <filter>
+                <!-- <conditions-script>session.find(ctx.get('HierRoot')).getDomainObject().getTypeName() == 'F_DP_IntRkk'</conditions-script> -->
+                <conditions-script>
+                    <![CDATA[
+                    var result = false;
+                    var typeName = session.find(ctx.get('HierRoot')).getDomainObject().getTypeName();
+                    var qqz=ctx.get('Module.Type.Alias');
+                    if (!qqz.equals('TempStorage') && typeName.equals('F_DP_IntRkk')){
+                        result=true;
+                    }
+                    ctx.setResult(result);
+                    ]]>
+                </conditions-script>
+            </filter>
+        </target-domain-object>
+
+        <target-domain-object type="F_DP_IntRkk">
+            <!-- Модуль -->
+            <indexed-field name="Module">
+                <doel>Module</doel>
+            </indexed-field>
+            <indexed-field name="createReg">
+                <doel>RegDate</doel>
+            </indexed-field>
+
+            <!--Содержание-->
+            <indexed-content type="F_ContentRichText_Rkk"/>
+            <indexed-content type="F_ContentFiles_Rkk"/>
+
+            <linked-domain-object type="Tn_Field_String" nested="true">
+
+                <indexed-field name="Number" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('number')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="IntroducedDoc" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('IntroducedDocSubject') ||
+                        ctx.get('cmjfield').equals('IntroducedDocNumber')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="CanceledDoc" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('CanceledDocSubject') ||
+                        ctx.get('cmjfield').equals('CanceledDocNumber')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="LeadingProduct" search-by="exactmatch">
+                    <compound-field delimiter=" ">
+                        <field-part>
+                            <script>
+                                if (ctx.get('cmjfield').equals('LeadingProductNumber')) {
+                                    ctx.get('value');
+                                }
+                            </script>
+                        </field-part>
+                        <field-part>
+                            <script>
+                                if (ctx.get('cmjfield').equals('LeadingProductSubject')) {
+                                    ctx.get('value');
+                                }
+                            </script>
+                        </field-part>
+                    </compound-field>
+                </indexed-field>
+                <indexed-field name="ProdType">
+                    <script>
+                        if (ctx.get('cmjfield').equals('type')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Status">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Status')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Section" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Section_Value')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Class" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Class_Value')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Category" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Category_Value')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Segment" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Segment_Value')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ProductType" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('ProdType_Value')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ProductOwner" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('ProductOwner')){
+                        ctx.get('value').split('%')[0];
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ProductDeveloper" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('ProductDeveloper')){
+                        ctx.get('value').split('%')[0];
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="SalesChannels" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('SalesChannels')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="SalesChannelsProvision" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('SalesChannelsProvision')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ServiceChannel" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('ServiceChannel')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="SpecialMarks" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('specialMarks')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ProgramsAndProjects" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('ProgramsAndProjects')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ProductAndServices" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Tn$_ProdTable.Subject') ||
+                        ctx.get('cmjfield').equals('Tn$_ProdTable.PackageNum')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Packages" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Tn$_PackagesTable.Subject') ||
+                        ctx.get('cmjfield').equals('Tn$_PackagesTable.PackageNum')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Processes" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Tn$_ProcessTable.Subject') ||
+                        ctx.get('cmjfield').equals('Tn$_ProcessTable.ProcessNum')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <!-- ======================== -->
+
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <linked-domain-object type="Tn_Field_String" nested="true">
+                <indexed-field name="Productsummary" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Productsummary_Description')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Methodology" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Methodology_Description')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="ReferenceInformation" search-by="exactmatch">
+                    <script>
+                        if (ctx.get('cmjfield').equals('ReferenceInformation_Description')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <parent-link types="EmbeddedCollSubObject,F_DP_RkkBase">
+                    <doel>Owner.HierRoot</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <linked-domain-object type="Tn_Field_Dateonly" nested="true">
+
+                <indexed-field name="Introduced" solr-prefix="cm_dt">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Introduced')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <indexed-field name="Canceled" solr-prefix="cm_dt">
+                    <script>
+                        if (ctx.get('cmjfield').equals('Canceled')){
+                        ctx.get('value');
+                        }
+                    </script>
+                </indexed-field>
+                <!-- ============================== -->
+
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <indexed-field name="Comments"/>
+
+            <!-- Заголовок -->
+            <indexed-field name="Subject"/>
+            <indexed-field name="ProductSubject">
+                <doel>Subject</doel>
+            </indexed-field>
+            <!-- Контрольный -->
+
+            <indexed-field name="isControl">
+                <doel>CtrlDeadline</doel>
+            </indexed-field>
+
+            <!-- Исполнен -->
+            <indexed-field name="isExecuted">
+                <doel>CtrlDateExecution</doel>
+            </indexed-field>
+            <!-- Дата регистрации -->
+            <indexed-field name="regDate"/>
+
+            <!-- Дата документа -->
+            <indexed-field name="docDate">
+                <doel>RegDate</doel>
+            </indexed-field>
+
+            <!-- Дата документа -->
+            <indexed-field name="docDateSimple">
+                <doel>RegDate</doel>
+            </indexed-field>
+
+            <!-- Регистрационный номер -->
+            <indexed-field name="regFullNumber" search-by="substring" language="">
+                <script>var rn = ctx.get('regnumcnt'); if (rn == null) rn; else {
+                    var prist = ctx.get('regnumprist'); if (prist == null) prist = '';
+                    var fin = ctx.get('regnumfin'); if (fin == null) fin = '';
+                    prist + rn + fin + ' ' + rn }
+                </script>
+            </indexed-field>
+            <!-- Вид документа -->
+            <indexed-field name="reqType" search-by="substring">
+                <doel>Type</doel>
+            </indexed-field>
+            <!-- Зарегистрирован -->
+            <!-- <indexed-field name="isRegistered">
+                <doel>RegNumCnt</doel>
+            </indexed-field> -->
+
+            <!-- Срок исполнения -->
+            <indexed-field name="extControlDate">
+                <doel>CtrlDeadline</doel>
+            </indexed-field>
+            <!-- Место регистрации -->
+            <indexed-field name="Registration" search-by="substring" language="">
+                <doel>RegCode.orig_shortname</doel>
+            </indexed-field>
+            <!-- Исполнение контролируют -->
+            <linked-domain-object type="F_DP_RkkBase_Controller">
+                <indexed-field name="ControlPeople" search-by="substring" language="">
+                    <doel>Controller.orig_shortname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+            <!-- Тематика -->
+            <linked-domain-object type="F_DP_RkkBase_Theme">
+                <indexed-field name="Theme" search-by="substring"/>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+            <!-- Подпись -->
+            <indexed-field name="UserFrom" search-by="substring" language="">
+                <doel>SignSigner.orig_shortname</doel>
+            </indexed-field>
+            <!-- Исполнитель -->
+            <linked-domain-object type="F_DP_IntRkk_Executor">
+                <indexed-field name="Mast">
+                    <doel>Executor.orig_shortname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+            <!-- Адресат -->
+            <linked-domain-object type="F_DP_IntRkk_SendToCurr">
+                <indexed-field name="SendList" search-by="substring" language="">
+                    <doel>SendToCurr.orig_shortname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+            <linked-domain-object type="F_DP_IntRkk_SendToExt">
+                <indexed-field name="execpeoples" search-by="substring" language="">
+                    <doel>SendToExt.orig_shortname</doel>
+                </indexed-field>
+                <indexed-field name="organisationname" search-by="substring" language="">
+                    <doel>SendToExt.orgname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <!-- linkedDoc -->
+            <linked-domain-object type="F_DP_RkkWORegAndCtrl_ULnk">
+                <indexed-field name="linkedDocs">
+                    <script>ctx.get('docname') + ' ' + ctx.get('docsubjects')</script>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <!-- SpecMark -->
+            <linked-domain-object type="F_DP_RkkWORegAndCtrl_SMrk">
+                <indexed-field name="specMark" search-by="substring">
+                    <doel>specmark</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <!-- PublishDocOrgs -->
+            <linked-domain-object type="F_DP_IntRkk_pubDocOrgs">
+                <indexed-field name="publishOrgs" search-by="substring" language="">
+                    <doel>PublishDocOrgs.orig_shortname</doel>
+                </indexed-field>
+                <parent-link>
+                    <doel>Owner</doel>
+                </parent-link>
+            </linked-domain-object>
+
+            <target-collection name="(search)"/>
+        </target-domain-object>
+    </search-area>
+</configuration>

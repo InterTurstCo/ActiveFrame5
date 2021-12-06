@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import ru.intertrust.cm.core.model.SearchException;
 
@@ -9,11 +11,39 @@ public class SolrUtils {
     public static final String ID_FIELD = "id";
     public static final String SCORE_FIELD = "score";
     public static final String PARAM_FIELD_PREFIX = "literal.";
+    /**
+     * Имя поля с флагом вложения
+     */
+    public static final String ATTACH_FLAG_FIELD = "cm_b_attach_flag";
+    public static final String CNTX_MODE_LEGACY = "legacy";
+    public static final String CNTX_MODE_SMART = "smart";
+    private static final Map<ESCAPE_TYPE, String> symbolsToEscape = new HashMap<>(3);
 
     private enum State {
         PLAIN,
         QUOTED,
         SCREENED
+    }
+
+    public enum ESCAPE_TYPE {
+        REG_CNTX_SEARCH,
+        SIMPLE_SEARCH_EQUALS,
+        SIMPLE_SEARCH_LIKE
+    }
+
+    static {
+        symbolsToEscape.put(ESCAPE_TYPE.REG_CNTX_SEARCH,
+                "(?<!\\\\)\\+|(?<!\\\\)\\-|(?<!\\\\)\\&|(?<!\\\\)\\||(?<!\\\\)\\!" +
+                        "|(?<!\\\\)\\(|(?<!\\\\)\\)|(?<!\\\\)\\{|(?<!\\\\)\\}|(?<!\\\\)\\[|(?<!\\\\)\\]" +
+                        "|(?<!\\\\)\\^|(?<!\\\\)\"|(?<!\\\\)\\~|(?<!\\\\)\\:" +
+                        "|(?<!\\\\)\\/|(?<!\\\\)\\\\$" +
+                        "|(?<!\\\\)\\\\[_0-9A-Za-zА-Яа-я]");
+        symbolsToEscape.put(ESCAPE_TYPE.SIMPLE_SEARCH_EQUALS, "(?<!\\\\)\"|(?<!\\\\)\\\\$");
+        symbolsToEscape.put(ESCAPE_TYPE.SIMPLE_SEARCH_LIKE,
+                "(?<!\\\\)\\ |(?<!\\\\)\\+|(?<!\\\\)\\-|(?<!\\\\)\\&|(?<!\\\\)\\||(?<!\\\\)\\!" +
+                        "|(?<!\\\\)\\(|(?<!\\\\)\\)|(?<!\\\\)\\{|(?<!\\\\)\\}|(?<!\\\\)\\[|(?<!\\\\)\\]" +
+                        "|(?<!\\\\)\\^|(?<!\\\\)\"|(?<!\\\\)\\~|(?<!\\\\)\\*|(?<!\\\\)\\?|(?<!\\\\)\\:" +
+                        "|(?<!\\\\)\\/|(?<!\\\\)\\\\$");
     }
 
     public static String protectSearchString(String text) {
@@ -86,5 +116,13 @@ public class SolrUtils {
             result.insert(0, "(").append(")");
         }
         return result.toString();
+    }
+
+    public static String escapeString(String srcString, ESCAPE_TYPE escapeType) {
+        String resultString = srcString;
+        if (resultString != null) {
+            resultString = resultString.replaceAll(symbolsToEscape.get(escapeType), "\\\\$0");
+        }
+        return resultString;
     }
 }

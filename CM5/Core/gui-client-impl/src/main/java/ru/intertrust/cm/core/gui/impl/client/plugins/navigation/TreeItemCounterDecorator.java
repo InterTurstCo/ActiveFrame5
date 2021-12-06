@@ -15,35 +15,37 @@ public class TreeItemCounterDecorator implements CounterDecorator {
 
     private TreeItem treeItem;
     private CounterKey counterKey;
+    private boolean isDisplayCounter;
 
-    public TreeItemCounterDecorator(TreeItem treeItem) {
+
+    public TreeItemCounterDecorator(TreeItem treeItem, boolean isDisplayCounter) {
         this.treeItem = treeItem;
+        this.isDisplayCounter = isDisplayCounter;
     }
 
     @Override
     public void decorate(Long counterValue) {
-
-        Label label = new Label();
-        label.removeStyleName("gwt-Label");
-        Map userObjects = (Map) treeItem.getUserObject();
-        Object originalText = userObjects.get("originalText");
-        Panel container = new AbsolutePanel();
-        container.setStyleName("tree-label");
-        container.addStyleName("treeItemSelectionDecorator");
-        container.getElement().getStyle().clearOverflow();
-        String text = originalText.toString();
-        label.setText(text);
-        label.setStyleName("treeItemTitle");
-        container.add(label);
-		Label counterLabel = new Label("");
-		counterLabel.setStyleName("treeItemCounter");
-		container.add(counterLabel);
-        if (counterValue != null && counterValue != 0) {
-            counterLabel.setText(counterValue.toString());
-        
+        if (isDisplayCounter()) {
+            Label label = new Label();
+            label.removeStyleName("gwt-Label");
+            Map userObjects = (Map) treeItem.getUserObject();
+            Object originalText = userObjects.get("originalText");
+            Panel container = new AbsolutePanel();
+            container.setStyleName("tree-label");
+            container.addStyleName("treeItemSelectionDecorator");
+            container.getElement().getStyle().clearOverflow();
+            String text = originalText.toString();
+            label.setText(text);
+            label.setStyleName("treeItemTitle");
+            container.add(label);
+            Label counterLabel = new Label("");
+            counterLabel.setStyleName("treeItemCounter");
+            container.add(counterLabel);
+            if (counterValue != null && counterValue != 0) {
+                counterLabel.setText(counterValue.toString());
+            }
+            treeItem.setWidget(container);
         }
-
-        treeItem.setWidget(container);
     }
 
     public void setCounterKey(CounterKey counterKey) {
@@ -52,5 +54,9 @@ public class TreeItemCounterDecorator implements CounterDecorator {
 
     public CounterKey getCounterKey() {
         return counterKey;
+    }
+
+    private boolean isDisplayCounter() {
+        return isDisplayCounter;
     }
 }

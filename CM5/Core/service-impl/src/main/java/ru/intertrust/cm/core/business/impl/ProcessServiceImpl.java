@@ -1,178 +1,236 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
+import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.IOHelpService;
+import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.InputStreamProvider;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.workflow.ProcessInstanceInfo;
+import ru.intertrust.cm.core.business.api.workflow.ProcessTemplateInfo;
+import ru.intertrust.cm.core.business.api.workflow.TaskInfo;
+import ru.intertrust.cm.core.business.api.workflow.WorkflowEngine;
+import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskAddressee;
+import ru.intertrust.cm.core.business.api.workflow.WorkflowTaskData;
+import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.ProcessException;
+import ru.intertrust.cm.core.model.RemoteSuitableException;
+import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-
-import org.activiti.engine.FormService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.repository.DeploymentBuilder;
-import org.activiti.engine.runtime.Execution;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.model.ProcessException;
-import ru.intertrust.cm.core.model.RemoteSuitableException;
-import ru.intertrust.cm.core.model.SystemException;
-import ru.intertrust.cm.core.tools.DomainObjectAccessor;
-import ru.intertrust.cm.core.tools.Session;
-import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Stateless(name = "ProcessService")
 @Local(ProcessService.class)
 @Remote(ProcessService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ProcessServiceImpl implements ProcessService {
-
     private static final Logger logger = LoggerFactory.getLogger(ProcessServiceImpl.class);
 
     @Autowired
-    private RepositoryService repositoryService;
+    private WorkflowEngine workflowEngine;
 
     @Autowired
-    private RuntimeService runtimeService;
+    private CrudService crudService;
 
     @Autowired
-    private AccessControlService accessControlService;
+    private CollectionsService collectionsService;
 
     @Autowired
-    private DomainObjectDao domainObjectDao;
+    private IdService idService;
 
     @Autowired
-    private PersonServiceDao personService;
+    private PersonManagementService personManagementService;
 
     @Autowired
-    private CollectionsDao collectionsDao;
+    private AttachmentService attachmentService;
 
     @Autowired
-    FormService formService;
+    private IOHelpService ioHelpService;
 
-    @Autowired
-    private StatusDao statusDao;
-    
-    @Autowired
-    private CurrentUserAccessor currentUserAccessor;    
+    @org.springframework.beans.factory.annotation.Value("${workflow.use.check.sum.to.upload:true}")
+    private boolean useCheckSum;
 
-    /*
-     * @PostConstruct public void init() throws JAXBException, SAXException,
-     * IOException { // TODO Эти строчки можно будет удалить после того, как
-     * будет реализован // autowire для удаленных ejb.
-     * AutowiredAnnotationBeanPostProcessor bpp = new
-     * AutowiredAnnotationBeanPostProcessor();
-     * bpp.setBeanFactory(SpringApplicationContext.getContext()
-     * .getAutowireCapableBeanFactory()); bpp.processInjection(this); }
-     */
+    public void setUseCheckSum(boolean useCheckSum) {
+        this.useCheckSum = useCheckSum;
+    }
 
     @Override
     public String startProcess(String processName, Id attachedObjectId,
             List<ProcessVariable> variables) {
         try {
-            String idProcess = null;
-            HashMap<String, Object> variablesHM = createProcessVariables(variables);
-
-            if (attachedObjectId != null) {
-                variablesHM.put(ProcessService.MAIN_ATTACHMENT_ID,
-                        attachedObjectId.toStringRepresentation());
-                variablesHM.put(ProcessService.CTX_ID,
-                        attachedObjectId.toStringRepresentation());
-                variablesHM.put(ProcessService.MAIN_ATTACHMENT,
-                        new DomainObjectAccessor(attachedObjectId));
-                variablesHM.put(ProcessService.CTX,
-                        new DomainObjectAccessor(attachedObjectId));
-            }
-
-            variablesHM.put(ProcessService.SESSION, new Session());
-
-            idProcess = runtimeService.startProcessInstanceByKey(processName,
-                    variablesHM).getId();
-            return idProcess;
+            return workflowEngine.startProcess(processName, attachedObjectId, variables);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
-    }
-
-    /**
-     * Формирование Map для передачи его процессу
-     * 
-     * @param variables
-     * @return
-     */
-    private HashMap<String, Object> createProcessVariables(
-            List<ProcessVariable> variables) {
-
-        HashMap<String, Object> newHashMap = new HashMap<String, Object>();
-        if (variables != null) {
-            for (ProcessVariable parameter : variables) {
-                newHashMap.put(parameter.getName(), parameter.getValue());
-            }
-        }
-
-        return newHashMap;
     }
 
     @Override
     public void terminateProcess(String processId) {
         try {
-            runtimeService.deleteProcessInstance(processId, null);
+            workflowEngine.terminateProcess(processId);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
     }
 
     @Override
-    public String deployProcess(byte[] processDefinition, String processName) {
+    public Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, boolean deploy) {
+        return this.saveProcess(processDefinitionProvider, fileName, deploy ? SaveType.ACTIVATE : SaveType.ONLY_SAVE);
+    }
+
+    @Override
+    public Id saveProcess(InputStreamProvider processDefinitionProvider, String fileName, SaveType type) {
+        ProcessDefinitionData processDefinitionData = getProcessDefinitionData(processDefinitionProvider);
+        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, type);
+    }
+
+    @Override
+    public Id saveProcess(byte[] processDefinition, String fileName, boolean deploy) {
+       return this.saveProcess(processDefinition, fileName, deploy ? SaveType.ACTIVATE : SaveType.ONLY_SAVE);
+    }
+
+    @Override
+    public Id saveProcess(byte[] processDefinition, String fileName, SaveType type) {
+        ProcessDefinitionData processDefinitionData = getProcessDefinitionData(() -> new ByteArrayInputStream(processDefinition));
+        return saveProcessInner(processDefinitionData.getProcessDefinition(), processDefinitionData.getMd5sum(), fileName, type);
+    }
+
+    private Id saveProcessInner(byte[] processDefinition, String hash, String fileName, SaveType type) {
+
+        ProcessTemplateInfo info = workflowEngine.getProcessTemplateInfo(processDefinition);
+
+        // Проверяем что версия не пустая
+        if (info.getVersion() == null) {
+            throw new FatalException("Version is not defined in process definition " + fileName);
+        }
+
+        if (!info.getVersion().matches("\\d+\\.\\d+.\\d+.\\d+")) {
+            throw new FatalException("Version has incorrect format in process definition " + fileName + ". Need #.#.#.# format.");
+        }
+
+        // Поиск процесса по имени и версии
+        Map<String, Value> key = new HashMap<>();
+        key.put("process_id", new StringValue(info.getId()));
+        key.put("version", new StringValue(info.getVersion()));
+        DomainObject processDefinitionObject = crudService.findByUniqueKey("process_definition", key);
+
+        // Если найдено проверяем соответствие хэша шаблона
+        if (processDefinitionObject != null) {
+            // Проверяем соответствие хэшей, при необходимости
+            if (useCheckSum) {
+                if (hash == null) {
+                    throw new FatalException("MD5 sum must not be null when workflow.use.check.sum.to.upload enabled!" +
+                            " ProcessDefinition name is " + fileName);
+                }
+                final String storedHash = processDefinitionObject.getString("hash");
+                // Если изначально использование проверки hash было выключено, а потом включили, то ошибки не будет
+                if (!StringUtils.isEmpty(storedHash) && !hash.equals(storedHash)){
+                    // Попытка сохранить другой шаблон с повторяющимися именем и версией
+                    throw new FatalException("Process definition with name " + fileName +
+                            " and version " + info.getVersion() + " already exists.");
+                }
+            }
+
+        } else {
+            final Id lastId = type == SaveType.DEPLOY ? this.getLastProcessDefinitionId(info.getId()) : null;
+            String lastUploadVersion = getLastUploadVersion(info.getId(), info.getVersion());
+            if(lastUploadVersion != null) {
+                String newVersion = info.getVersion();
+                if (getPatchFromVersion(lastUploadVersion) >= getPatchFromVersion(newVersion)) {
+                    throw new FatalException("Already upload version = " + lastUploadVersion);
+                }
+            }
+            processDefinitionObject = crudService.createDomainObject("process_definition");
+            processDefinitionObject.setString("file_name", fileName);
+            processDefinitionObject.setString("process_id", info.getId());
+            processDefinitionObject.setString("process_name", info.getName());
+            processDefinitionObject.setString("version", info.getVersion());
+            processDefinitionObject.setString("category", info.getCategory());
+            processDefinitionObject.setString("description", info.getDescription());
+            processDefinitionObject.setString("hash", hash);
+
+            processDefinitionObject = crudService.save(processDefinitionObject);
+
+            DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(processDefinitionObject.getId(), "process_definition_model");
+            attachment.setString("Name", fileName);
+
+            DirectRemoteInputStream directRemoteInputStream =
+                    new DirectRemoteInputStream(new ByteArrayInputStream(processDefinition), false);
+            attachmentService.saveAttachment(directRemoteInputStream, attachment);
+
+            if (type == SaveType.ACTIVATE || type == SaveType.DEPLOY) {
+                deployProcess(processDefinitionObject.getId());
+                if (lastId != null) {
+                    deployProcess(lastId);
+                }
+            }
+        }
+
+        return processDefinitionObject.getId();
+    }
+
+    @Override
+    public String deployProcess(Id processDefinitionId) {
         try {
-            ProcessEngine processEngine = ProcessEngines.getDefaultProcessEngine();
-            RepositoryService repositoryService = processEngine.getRepositoryService();
-            DeploymentBuilder db = repositoryService.createDeployment();
-            db.enableDuplicateFiltering();
-            final String text = new String(processDefinition, Charset.forName("UTF-8"));
-            db.addString(processName, text);
-            db.name(processName);
-            Deployment depl = db.deploy();
-            return depl.getId();
-        } catch (SystemException ex) {
-            throw ex;            
+
+            DomainObject processDefinition = crudService.find(processDefinitionId);
+            List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(processDefinitionId);
+
+            // Ожидаем что только одно вложение привязано к доменному объекту
+            if (attachments.size() != 1){
+                throw new FatalException("Only one attachment need in process_definition objects");
+            }
+
+            try (final InputStream stream = RemoteInputStreamClient.wrap(attachmentService.loadAttachment(attachments.get(0).getId()))) {
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                StreamUtils.copy(stream, outStream);
+
+                String deployId = workflowEngine.deployProcess(outStream.toByteArray(), processDefinition.getString("file_name"));
+
+                processDefinition.setString("definition_id", deployId);
+                crudService.save(processDefinition);
+
+                crudService.setStatus(processDefinitionId, "Active");
+                return deployId;
+            }
         } catch (Exception ex) {
-            logger.error("Unexpected exception caught in deployProcess", ex);
-            throw new ProcessException("Error on deploy process", ex);
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
     @Override
     public void undeployProcess(String processDefinitionId, boolean cascade) {
         try {
-            repositoryService.deleteDeployment(processDefinitionId, cascade);
+            workflowEngine.undeployProcess(processDefinitionId, cascade);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -181,28 +239,16 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public List<DomainObject> getUserTasks() {
         try {
-            List<DomainObject> result = new ArrayList<DomainObject>();
-            String personLogin = currentUserAccessor.getCurrentUser();
-            Id personId = personService.findPersonByLogin(personLogin).getId();
-            result = getUserTasks(personId);
-            return result;
+            return workflowEngine.getUserTasks();
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
-
     }
 
     @Override
     public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId) {
         try {
-            List<DomainObject> result = new ArrayList<DomainObject>();
-            String personLogin = currentUserAccessor.getCurrentUser();
-            DomainObject personByLogin = personService.findPersonByLogin(personLogin);
-            Id personId = personByLogin.getId();
-            if (personId != null) {
-                result = getUserDomainObjectTasks(attachedObjectId, personId);
-            }
-            return result;
+            return workflowEngine.getUserDomainObjectTasks(attachedObjectId);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -211,47 +257,8 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public void completeTask(Id taskDomainObjectId,
             List<ProcessVariable> variables, String action) {
-
         try {
-            String personLogin = currentUserAccessor.getCurrentUser();
-            Id personId = personService.findPersonByLogin(personLogin).getId();
-
-            //Проверка на то что задача дейцствительно есть у текущего пользователя
-            if (!hasUserTask(personId, taskDomainObjectId)) {
-                throw new ProcessException("Person " + personLogin + " does not have task with id=" + taskDomainObjectId.toStringRepresentation());
-            }
-
-            /**
-             * AccessToken accessToken = accessControlService.createAccessToken(
-             * personIdAsInt, taskDomainObjectId, DomainObjectAccessType.READ);
-             */
-            // TODO Переделать правила доступа после реализации прав
-            AccessToken accessToken = accessControlService
-                    .createSystemAccessToken("ProcessService");
-
-            DomainObject taskDomainObject = domainObjectDao.find(
-                    taskDomainObjectId, accessToken);
-            //taskDomainObject.setLong("State", ProcessService.TASK_STATE_COMPLETE);
-            //domainObjectDao.save(taskDomainObject, accessToken);
-            taskDomainObject = domainObjectDao.setStatus(taskDomainObject.getId(),
-                    statusDao.getStatusIdByName(ProcessService.TASK_STATE_COMPLETE), accessToken);
-
-            String taskId = taskDomainObject.getString("TaskId");
-
-            Map<String, String> params = new Hashtable<String, String>();
-            if (variables != null) {
-                for (ProcessVariable processVariable : variables) {
-                    params.put(processVariable.getName(), processVariable
-                            .getValue().toString());
-                }
-            }
-            if (action != null) {
-                params.put("ACTIONS", action);
-            }
-
-            formService.submitTaskFormData(taskId, params);
-
-            // taskService.complete(taskId, createHashMap(variables));
+            workflowEngine.completeTask(taskDomainObjectId, variables, action);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -260,18 +267,7 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public List<DeployedProcess> getDeployedProcesses() {
         try {
-            List<Deployment> deployList = repositoryService.createDeploymentQuery()
-                    .list();
-            List<DeployedProcess> result = new ArrayList<DeployedProcess>();
-            for (Deployment deployment : deployList) {
-                DeployedProcess resItem = new DeployedProcess();
-                resItem.setCategory(deployment.getCategory());
-                resItem.setDeployedTime(deployment.getDeploymentTime());
-                resItem.setId(deployment.getId());
-                resItem.setName(deployment.getName());
-                result.add(resItem);
-            }
-            return result;
+            return workflowEngine.getDeployedProcesses();
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -279,42 +275,8 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Override
     public List<DomainObject> getUserTasks(Id personId) {
-        // поиск задач отправленных пользователю, или любой группе в которую
-        // входит пользователь
         try {
-            Filter filter = new Filter();
-            filter.setFilter("byPerson");
-            ReferenceValue rv = new ReferenceValue(personId);
-            filter.addCriterion(0, rv);
-            List<Filter> filters = new ArrayList<>();
-            filters.add(filter);
-
-            /*
-             * AccessToken accessToken = accessControlService
-             * .createCollectionAccessToken(personIdAsint);
-             */
-            // TODO пока права не работают работаю от имени админа
-            AccessToken accessToken = accessControlService
-                    .createSystemAccessToken("ProcessService");
-
-            IdentifiableObjectCollection collection1 = collectionsDao
-                    .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-            IdentifiableObjectCollection collection2 = collectionsDao
-                    .findCollection("PersonGroupTask", filters, null, 0, 0,
-                            accessToken);
-
-            List<DomainObject> result = new ArrayList<DomainObject>();
-            for (IdentifiableObject item : collection1) {
-                DomainObject task = domainObjectDao
-                        .find(item.getId(), accessToken);
-                result.add(task);
-            }
-            for (IdentifiableObject item : collection2) {
-                DomainObject task = domainObjectDao
-                        .find(item.getId(), accessToken);
-                result.add(task);
-            }
-            return result;
+            return workflowEngine.getUserTasks(personId);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
@@ -323,127 +285,212 @@ public class ProcessServiceImpl implements ProcessService {
     @Override
     public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId,
             Id personId) {
-        // поиск задач отправленных пользователю, или любой группе в которую
-        // входит пользователь
-
         try {
-            Filter filter = new Filter();
-            filter.setFilter("byPerson");
-            Value rv = new ReferenceValue(personId);
-            filter.addCriterion(0, rv);
-            List<Filter> filters = new ArrayList<>();
-            filters.add(filter);
-            filter = new Filter();
-            filter.setFilter("byAttachment");
-            rv = new ReferenceValue(attachedObjectId);
-            filter.addCriterion(0, rv);
-            filters.add(filter);
-
-            /*
-             * AccessToken accessToken = accessControlService
-             * .createCollectionAccessToken(personIdAsint);
-             */
-            // TODO пока права не работают работаю от имени процесса
-            AccessToken accessToken = accessControlService
-                    .createSystemAccessToken("ProcessService");
-
-            IdentifiableObjectCollection collection1 = collectionsDao
-                    .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-            IdentifiableObjectCollection collection2 = collectionsDao
-                    .findCollection("PersonGroupTask", filters, null, 0, 0,
-                            accessToken);
-
-            List<DomainObject> result = new ArrayList<DomainObject>();
-            List<Id> taskIds = new ArrayList<Id>();
-            for (IdentifiableObject item : collection1) {
-                //Добавляем только уникальные записи
-                if (!taskIds.contains(item.getId())){
-                    DomainObject task = domainObjectDao
-                            .find(item.getId(), accessToken);
-                    result.add(task);
-                    taskIds.add(item.getId());
-                }
-            }
-            for (IdentifiableObject item : collection2) {
-                //Добавляем только уникальные записи
-                if (!taskIds.contains(item.getId())){
-                    DomainObject task = domainObjectDao
-                            .find(item.getId(), accessToken);
-                    result.add(task);
-                    taskIds.add(item.getId());
-                }
-            }
-            return result;
+            return workflowEngine.getUserDomainObjectTasks(attachedObjectId, personId);
         } catch (Exception ex) {
             throw RemoteSuitableException.convert(ex);
         }
     }
 
-    private boolean hasUserTask(Id personId, Id taskId) {
-        // поиск задач отправленных пользователю, или любой группе в которую
-        // входит пользователь
-
-        Filter filter = new Filter();
-        filter.setFilter("byPerson");
-        Value rv = new ReferenceValue(personId);
-        filter.addCriterion(0, rv);
-        List<Filter> filters = new ArrayList<>();
-        filters.add(filter);
-        filter = new Filter();
-        filter.setFilter("byTask");
-        rv = new ReferenceValue(taskId);
-        filter.addCriterion(0, rv);
-        filters.add(filter);
-
-        /*
-         * AccessToken accessToken = accessControlService
-         * .createCollectionAccessToken(personIdAsint);
-         */
-        // TODO пока права не работают работаю от имени процесса
-        AccessToken accessToken = accessControlService
-                .createSystemAccessToken("ProcessService");
-
-        IdentifiableObjectCollection collection1 = collectionsDao
-                .findCollection("PersonTask", filters, null, 0, 0, accessToken);
-        IdentifiableObjectCollection collection2 = collectionsDao
-                .findCollection("PersonGroupTask", filters, null, 0, 0,
-                        accessToken);
-
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        for (IdentifiableObject item : collection1) {
-            DomainObject task = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(task);
-        }
-        for (IdentifiableObject item : collection2) {
-            DomainObject task = domainObjectDao
-                    .find(item.getId(), accessToken);
-            result.add(task);
-        }
-        return result.size() > 0;
-    }
-
     @Override
     public void sendProcessMessage(String processName, Id contextId, String message, List<ProcessVariable> variables) {
-        //Находим нужный нам процесс
-        List<Execution> executions =
-                runtimeService.createExecutionQuery().
-                        processDefinitionKey(processName).
-                        processVariableValueEquals(CTX_ID, contextId.toStringRepresentation()).
-                        messageEventSubscriptionName(message).
-                        list();
-
-        HashMap<String, Object> variablesHM = createProcessVariables(variables);
-        
-        //По идее должен быть только один процесс, но на всякий случай проходим в цикле
-        for (Execution execution : executions) {
-            runtimeService.messageEventReceived(message, execution.getId(), variablesHM);
+        try {
+            workflowEngine.sendProcessMessage(processName, contextId, message, variables);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
         }
     }
 
     @Override
     public void sendProcessSignal(String signal) {
-        runtimeService.signalEventReceived(signal);        
+        try {
+            workflowEngine.sendProcessSignal(signal);
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
     }
 
+    @Override
+    public Id assignTask(WorkflowTaskData task) {
+        synchronized (ProcessServiceImpl.class) {
+            DomainObject taskDomainObject = crudService.findByUniqueKey(
+                    "Person_Task", Collections.singletonMap("TaskId", new StringValue(task.getTaskId())));
+            if (taskDomainObject == null) {
+                taskDomainObject = crudService.createDomainObject("Person_Task");
+                taskDomainObject.setString("TaskId", task.getTaskId());
+                taskDomainObject.setString("ActivityId", task.getActivityId());
+                taskDomainObject.setString("ProcessId", task.getProcessId());
+                taskDomainObject.setString("Name", task.getName());
+                taskDomainObject.setString("Description", task.getDescription());
+                taskDomainObject.setLong("Priority", 0L);
+                taskDomainObject.setString("ExecutionId", task.getExecutionId());
+                if (task.getContext() != null) {
+                    taskDomainObject.setReference("MainAttachment", idService.createId(task.getContext()));
+                } else {
+                    throw new ProcessException("Task with id " + task.getTaskId() + " is incorrect. Context ID is null.");
+                }
+                taskDomainObject.setString("Actions", task.getActions());
+                taskDomainObject = crudService.save(taskDomainObject);
+
+                for (WorkflowTaskAddressee wfTaskAddressee : task.getAddressee()) {
+                    DomainObject assignee;
+                    if (wfTaskAddressee.isGroup()) {
+                        assignee = crudService.createDomainObject("Assignee_Group");
+                        assignee.setReference("UserGroup", personManagementService.getGroupId(wfTaskAddressee.getName()));
+                    } else {
+                        assignee = crudService.createDomainObject("Assignee_Person");
+                        assignee.setReference("Person", personManagementService.getPersonId(wfTaskAddressee.getName()));
+                    }
+                    assignee.setReference("PersonTask", taskDomainObject.getId());
+                    crudService.save(assignee);
+                }
+            }
+            return taskDomainObject.getId();
+        }
+    }
+
+    @Override
+    public boolean isSupportTemplate(String processName) {
+        return workflowEngine.isSupportTemplate(processName);
+    }
+
+    @Override
+    public String getEngeneName() {
+        return workflowEngine.getEngeneName();
+    }
+
+    @Override
+    public ProcessInstanceInfo getProcessInstanceInfo(String processInstanceId) {
+        return workflowEngine.getProcessInstanceInfo(processInstanceId);
+    }
+
+    @Override
+    public List<ProcessInstanceInfo> getProcessInstanceInfos(
+            int offset, int limit, String name,
+            Date startDateBegin, Date startDateEnd,
+            Date finishDateBegin, Date finishDateEnd,
+            SortOrder sortOrder){
+        return workflowEngine.getProcessInstanceInfos(offset, limit, name, startDateBegin, startDateEnd,
+                finishDateBegin, finishDateEnd, sortOrder);
+    }
+
+    @Override
+    public List<TaskInfo> getProcessInstanceTasks(String processInstanceId, int offset, int limit) {
+        return workflowEngine.getProcessInstanceTasks(processInstanceId, offset, limit);
+    }
+
+    @Override
+    public Map<String, Object> getProcessInstanceVariables(String processInstanceId, int offset, int limit) {
+        return workflowEngine.getProcessInstanceVariables(processInstanceId, offset, limit);
+    }
+
+    @Override
+    public Id getLastProcessDefinitionId(String processDefinitionKey) {
+        Id result = null;
+
+        String processDefinitionId = workflowEngine.getLastProcessDefinitionId(processDefinitionKey);
+
+        if (processDefinitionId != null) {
+            IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
+                    "select id from process_definition where definition_id = {0}",
+                    Collections.singletonList(new StringValue(processDefinitionId)));
+
+            if (collection.size() > 0){
+                result = collection.get(0).getId();
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public void suspendProcessInstance(String processInstanceId) {
+        workflowEngine.suspendProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public void activateProcessInstance(String processInstanceId) {
+        workflowEngine.activateProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public void deleteProcessInstance(String processInstanceId) {
+        workflowEngine.deleteProcessInstance(processInstanceId);
+    }
+
+    @Override
+    public byte[] getProcessTemplateModel(Id processDefinitionId) {
+        try {
+            List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(processDefinitionId);
+
+            // Ожидаем что только одно вложение привязано к доменному объекту
+            if (attachments.size() != 1){
+                throw new FatalException("Only one attachment need in process_definition objects");
+            }
+
+            try (final InputStream stream = RemoteInputStreamClient.wrap(attachmentService.loadAttachment(attachments.get(0).getId()))) {
+                ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+                StreamUtils.copy(stream, outStream);
+
+                return workflowEngine.getProcessTemplateModel(outStream.toByteArray());
+            }
+        } catch (Exception ex) {
+            throw RemoteSuitableException.convert(ex);
+        }
+    }
+
+    @Override
+    public byte[] getProcessInstanceModel(String processInstanceId) {
+        return workflowEngine.getProcessInstanceModel(processInstanceId);
+    }
+
+    private int getPatchFromVersion(String version) {
+        // предполагаем, что версия корректная, иначе нельзя загружать
+        return Integer.parseInt(version.substring(version.lastIndexOf(".") + 1 ));
+    }
+
+    private String getMainVersion(String version) {
+        return version.substring(0, version.lastIndexOf("."));
+    }
+
+    private String getLastUploadVersion(final String schemaName, final String version) {
+
+        IdentifiableObjectCollection coll = collectionsService.
+                findCollectionByQuery("select version from process_definition " +
+                                "where process_id = {0} and version like {1} order by created_date desc",
+                        Arrays.asList(new StringValue(schemaName),
+                                new StringValue(getMainVersion(version) + "%")), 0, 1);
+        return coll.size() == 0 ? null : coll.get(0).getString("version");
+    }
+
+    private ProcessDefinitionData getProcessDefinitionData(InputStreamProvider processDefinitionProvider) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        String hash = null;
+        if (useCheckSum) {
+            hash = ioHelpService.copyWithEolControlAndMd5(processDefinitionProvider, os);
+        } else {
+            ioHelpService.copyWithEolControl(processDefinitionProvider, os);
+        }
+        return new ProcessDefinitionData(os.toByteArray(), hash);
+    }
+
+    private static class ProcessDefinitionData {
+        private final byte[] processDefinition;
+        private final String md5sum;
+
+        private ProcessDefinitionData(byte[] processDefinition, String md5sum) {
+
+            this.processDefinition = processDefinition;
+            this.md5sum = md5sum;
+        }
+
+        private byte[] getProcessDefinition() {
+            return processDefinition;
+        }
+
+        private String getMd5sum() {
+            return md5sum;
+        }
+    }
 }
+

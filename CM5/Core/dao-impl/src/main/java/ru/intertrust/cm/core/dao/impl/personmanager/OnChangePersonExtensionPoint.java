@@ -49,6 +49,10 @@ public class OnChangePersonExtensionPoint implements AfterSaveExtensionHandler, 
         if (login != null) {
             personServiceDao.personUpdated(login);
         }
+        String email = person.getString("email");
+        if (email != null) {
+            personServiceDao.personUpdated(email);
+        }
     }
 }
 

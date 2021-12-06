@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpSessionListener;
  * Слушатель окончания сессии
  */
 public class LogOutListener implements HttpSessionListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(LogOutListener.class);
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
@@ -32,6 +36,8 @@ public class LogOutListener implements HttpSessionListener {
             String login = userUidWithPassword.getUserUid();
             ApplicationContext ctx = SpringApplicationContext.getContext();
             EventLogService eventLogService = ctx.getBean(EventLogService.class);
+
+            logger.trace("Rise Logout event...");
             eventLogService.logLogOutEvent(login, logoutIp);
         }
 

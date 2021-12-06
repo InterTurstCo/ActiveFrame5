@@ -249,7 +249,7 @@ public class BaseDynamicGroupServiceImpl {
     protected List<FieldModification> getNewObjectModificationList(
             DomainObject domainObject) {
 
-        final ArrayList<String> fields = domainObject.getFields();
+        final List<String> fields = domainObject.getFields();
         List<FieldModification> result = new ArrayList<>(fields.size());
         for (String fieldName : fields) {
             result.add(new FieldModificationImpl(fieldName, null, domainObject
@@ -261,7 +261,7 @@ public class BaseDynamicGroupServiceImpl {
 
     protected List<FieldModification> getDeletedModificationList(
             DomainObject domainObject) {
-        final ArrayList<String> fields = domainObject.getFields();
+        final List<String> fields = domainObject.getFields();
         List<FieldModification> result = new ArrayList<>(fields.size());
         for (String fieldName : fields) {
             result.add(new FieldModificationImpl(fieldName, domainObject

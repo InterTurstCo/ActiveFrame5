@@ -12,12 +12,13 @@ import javax.ejb.Singleton;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-
+import javax.transaction.Status;
+import javax.transaction.UserTransaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
@@ -28,12 +29,15 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.config.server.ServerStatus;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
 import ru.intertrust.cm.core.dao.api.clusterlock.ClusteredLockDao;
 import ru.intertrust.cm.core.dao.api.extension.NotManagerDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
+import ru.intertrust.cm.core.dao.impl.DatabaseDaoFactory;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.process.DeployModuleProcesses;
 import ru.intertrust.cm.core.util.SpringBeanAutowiringInterceptor;
@@ -70,6 +74,11 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private InterserverLockingService interserverLockingService;
     @Autowired private DeployModuleProcesses deployModuleProcesses;
     @Autowired private ClusteredLockDao clusteredLockDao;
+    @Autowired private DatabaseDaoFactory dbDaoFactory;
+    @Autowired private EventLogService eventLogService;
+    @Autowired private DomainObjectTypeIdDao domainObjectTypeIdDao;
+    @Value("${scheme.transaction.timeout:60}") private int schemeTransactionTimeout = 60; // minutes
+    @Value("${scheme.transaction.disable:false}") private boolean isSchemeTransactionDisable = false;
 
     @Resource private EJBContext ejbContext;
     @EJB private StatisticsGatherer statisticsGatherer;
@@ -96,28 +105,63 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Override
     public void finish() throws Exception {
         logger.info("on Finish");
-        if(isMainServer){
+        if (isMainServer) {
             interserverLockingService.unlock(LOCK_KEY);
         }
     }
 
     private void init() throws Exception {
-       logger.info("Run init");
+        logger.info("Run init");
         configurationExplorer.validate();
+        domainObjectTypeIdDao.init();
         // Проверяем является ли сервер мастером. Только мастеру разрешено производить создание и обновление структуры базы.
         if(isMainServer){
             logger.info("server is main");
-            // если нет конфигукации предполагаем что необходимо создать все структуру базы.
-            if(!configurationLoader.isConfigurationTableExist()){
-                logger.info("no database-> create database structure");
-                configurationLoader.load();
-                executeInitialLoadingTasks();
-                statisticsGatherer.gatherStatistics();
-            }else{
-                logger.info("database exist-> update database structure");
-                domainObjectTypeIdCache.build();
-                configurationLoader.update();
-                executeInitialLoadingTasks();
+            UserTransaction tx = null;
+            if (!this.isSchemeTransactionDisable && this.dbDaoFactory.isDdlTransactionsSupports()) {
+                logger.info("DDL transactions supports");
+                tx = this.ejbContext.getUserTransaction();
+                tx.setTransactionTimeout(this.schemeTransactionTimeout * 60);
+                tx.begin();
+            }
+            try {
+                // если нет конфигукации предполагаем что необходимо создать все структуру базы.
+                if (!configurationLoader.isConfigurationTableExist()) {
+                    logger.info("no database-> create database structure");
+                    configurationLoader.load();
+                    executeInitialLoadingTasks();
+                    statisticsGatherer.gatherStatistics();
+                } else {
+                    logger.info("database exist-> update database structure");
+                    domainObjectTypeIdCache.build();
+                    configurationLoader.update();
+                    executeInitialLoadingTasks();
+                }
+            } catch (final Throwable e) {
+                if (tx != null) {
+                    try {
+                        tx.rollback();
+                    } catch (final Throwable e2) {
+                        e.addSuppressed(e2);
+                    }
+                }
+                throw e;
+            }
+            if (tx != null) {
+                if (tx.getStatus() == Status.STATUS_MARKED_ROLLBACK) {
+                    tx.rollback();
+                } else {
+                    try {
+                        tx.commit();
+                    } catch (final Throwable e) {
+                        try {
+                            tx.rollback();
+                        } catch (final Throwable e2) {
+                            e.addSuppressed(e2);
+                        }
+                        throw e;
+                    }
+                }
             }
         }else{
             // заполняем только кэши
@@ -125,7 +169,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
             domainObjectTypeIdCache.build();
             configurationLoader.onLoadComplete();
-            extensionService.getExtentionPoint(NotManagerDataLoadApplicationInitializer.class, null).notManagerinitialize();
+            extensionService.getExtensionPoint(NotManagerDataLoadApplicationInitializer.class, null).notManagerinitialize();
             //++
             scheduleTaskLoader.load();
             configurationLoader.applyConfigurationExtensionCleaningOutInvalid();
@@ -136,7 +180,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);
 
         }
-
+        eventLogService.setEnable(true);
         logger.info("Finish init");
     }
 
@@ -151,10 +195,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         domainObjectTypeIdCache.build();
 
         initialDataLoader.load();
-        extensionService.getExtentionPoint(PreDataLoadApplicationInitializer.class, null).initialize();
+        extensionService.getExtensionPoint(PreDataLoadApplicationInitializer.class, null).initialize();
         importSystemData.load();
         importReportsData.load();
-        extensionService.getExtentionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
+        extensionService.getExtensionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
 
         scheduleTaskLoader.load();
         configurationLoader.applyConfigurationExtensionCleaningOutInvalid();

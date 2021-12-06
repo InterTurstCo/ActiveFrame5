@@ -47,6 +47,8 @@ public interface DomainObjectDao {
     String UPDATED_BY_TYPE_COLUMN = UPDATED_BY + REFERENCE_TYPE_POSTFIX;
     
     String ACCESS_OBJECT_ID = "access_object_id";
+    String SECURITY_STAMP_COLUMN = "security_stamp";
+    String SECURITY_STAMP_TYPE_COLUMN = SECURITY_STAMP_COLUMN + REFERENCE_TYPE_POSTFIX;
     String STATUS_TYPE_COLUMN = GenericDomainObject.STATUS_FIELD_NAME + REFERENCE_TYPE_POSTFIX;
     String OPERATION_COLUMN = "operation";
 
@@ -107,6 +109,19 @@ public interface DomainObjectDao {
      * @return количество удаленных объектов
      */
     int delete(List<Id> ids, AccessToken accessToken);
+
+    /**
+     * Удаляет доменные объекты по их уникальным идентификаторам. Не осуществляет никаких действий, если
+     * какой-либо объект не существует.
+     *
+     * <p><b>Отличается от обычного {@link #delete(List, AccessToken)} тем, что происходит только удаление из БД и из кэша:
+     * без аудит-логов, БЕЗ вызова точек расширения и пересчета групп доступа!
+     * Введен для удаления очень больших объемов данных там, где все это не нужно, например, в ИРШК.</b>
+     * 
+     * @param ids идентификаторы доменных объектов для удаления
+     * @return количество удаленных объектов
+     */
+    int deleteQuickly(List<Id> ids, AccessToken accessToken);
 
     /**
      * Проверяет существует ли доменный объект с переданным уникальным идентификатором. Проверка выполняется без учета

@@ -13,6 +13,13 @@ import java.util.List;
  */
 public class DateTimeFieldConfig extends FieldConfig {
 
+    public DateTimeFieldConfig(){
+    }
+
+    public DateTimeFieldConfig( String name, boolean notNull, boolean immutable) {
+        super(name, notNull, immutable);
+    }
+
     @Override
     public FieldType getFieldType() {
         return FieldType.DATETIME;

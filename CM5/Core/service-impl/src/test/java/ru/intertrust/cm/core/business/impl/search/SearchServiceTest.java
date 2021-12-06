@@ -6,9 +6,10 @@ import static org.hamcrest.Matchers.hasItemInArray;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.*;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -18,9 +19,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -35,9 +35,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -51,23 +50,36 @@ import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
+import ru.intertrust.cm.core.business.impl.search.retrievers.CollectionRetrieverFactory;
+import ru.intertrust.cm.core.business.impl.search.retrievers.NamedCollectionRetriever;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 
-@SuppressWarnings("unchecked")
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SearchServiceImpl.class})
+@RunWith(MockitoJUnitRunner.class)
 public class SearchServiceTest {
 
-    @Mock private SolrServer solrServer;
-    @Mock private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
-    @Mock private SearchConfigHelper configHelper;
-    @Mock private NamedCollectionRetriever namedCollectionRetriever;
-    @Mock private QueryCollectionRetriever queryCollectionRetriever;
+    @Mock
+    private SolrClient solrServer;
+    @Mock
+    private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
+    @Mock
+    private SearchConfigHelper configHelper;
+    @Mock
+    private NamedCollectionRetriever namedCollectionRetriever;
+    @Mock
+    private SolrServerWrapperMap solrServerWrapperMap;
+    @Mock
+    private SolrServerWrapper solrServerWrapper;
+    @Mock
+    private CollectionRetrieverFactory collectionRetrieverFactory;
 
-    @InjectMocks private SearchServiceImpl service = new SearchServiceImpl();
+    @InjectMocks
+    private SearchServiceImpl service = new SearchServiceImpl();
 
-    @InjectMocks private NegativeFilterAdapter negAdapter = new NegativeFilterAdapter();
-    @InjectMocks private CombiningFilterAdapter combAdapter = new CombiningFilterAdapter();
+    @InjectMocks
+    private NegativeFilterAdapter negAdapter = new NegativeFilterAdapter();
+    @InjectMocks
+    private CombiningFilterAdapter combAdapter = new CombiningFilterAdapter();
 
     //@Captor private ArgumentCaptor<List<Filter>> filters;
 
@@ -76,6 +88,13 @@ public class SearchServiceTest {
         Field resultsLimit = SearchServiceImpl.class.getDeclaredField("RESULTS_LIMIT");
         resultsLimit.setAccessible(true);
         resultsLimit.set(service, 5000);
+        when(solrServerWrapperMap.getRegularSolrServerWrapper()).thenReturn(solrServerWrapper);
+        when(solrServerWrapperMap.getSolrServerWrapper(SolrServerWrapper.REGULAR)).thenReturn(solrServerWrapper);
+        when(solrServerWrapper.getSolrServer()).thenReturn(solrServer);
+        SearchAreaConfig areaConfig = mock(SearchAreaConfig.class);
+        when(areaConfig.getSolrServerKey()).thenReturn(SolrServerWrapper.REGULAR);
+        when(solrServerWrapperMap.isCntxSolrServer(SolrServerWrapper.REGULAR)).thenReturn(false);
+        when(configHelper.getSearchAreaDetailsConfig(anyString())).thenReturn(areaConfig);
     }
 
     @Test
@@ -88,7 +107,8 @@ public class SearchServiceTest {
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock, docMock));
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
@@ -119,7 +139,8 @@ public class SearchServiceTest {
         when(response.getResults()).thenReturn(docList);
         when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList("ru", "en", "de"));
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(docList, 10)).thenReturn(objects);
@@ -150,7 +171,8 @@ public class SearchServiceTest {
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock, docMock));
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
 
         IdentifiableObjectCollection partResult = mock(IdentifiableObjectCollection.class);
         when(partResult.size()).thenReturn(2);
@@ -180,7 +202,7 @@ public class SearchServiceTest {
         // Подготовка данных
         SearchQuery query = new SearchQuery();
         query.addAreas(Arrays.asList("Area1", "Area2", "Area3"));
-        query.setTargetObjectType("TargetType");
+        query.setTargetObjectTypes(Arrays.asList("TargetType1", "TargetType2"));
         query.addFilter(new TextSearchFilter("StringField", "text search"));
         ReferenceValue refMock = mock(ReferenceValue.class);
         query.addFilter(new OneOfListFilter("ReferenceField", Arrays.asList(refMock, refMock)));
@@ -200,13 +222,13 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("LongField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("LongField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("DateField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("DateField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType1", "TargetType2"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         QueryResponse response = mock(QueryResponse.class);
@@ -216,7 +238,8 @@ public class SearchServiceTest {
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock));
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(4);
         when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
@@ -235,7 +258,7 @@ public class SearchServiceTest {
         assertEquals("<> AND <> AND <> AND <>", params.getValue().getQuery().replaceAll("<[^>]+>", "<>"));
         assertThat(params.getValue().getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area1\" OR \"Area2\" OR \"Area3\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType1\" OR \"TargetType2\")"),
                 hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", params.getValue().getFields());
@@ -257,7 +280,7 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         QueryResponse response = mock(QueryResponse.class);
@@ -270,7 +293,7 @@ public class SearchServiceTest {
         Filter filterMock = mock(Filter.class);
         List<Filter> filters = Arrays.asList(filterMock, filterMock);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection", filters)
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection"), eq(filters)))
                 .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(4);
@@ -286,7 +309,7 @@ public class SearchServiceTest {
         assertEquals("<text filter>", params.getValue().getQuery());
         assertThat(params.getValue().getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area1\" OR \"Area2\" OR \"Area3\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType\")"),
                 hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", params.getValue().getFields());
@@ -313,9 +336,9 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
 
-        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("LinkedType"));
-        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         SolrDocument a1Doc = docMock("doc1", 1f);
@@ -340,7 +363,8 @@ public class SearchServiceTest {
         when(bResponse.getResults()).thenReturn(bDocList);
         when(solrServer.query(any(SolrParams.class))).thenReturn(aResponse, bResponse);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(any(SolrDocumentList.class), eq(20))).thenReturn(objects);
@@ -355,7 +379,7 @@ public class SearchServiceTest {
         assertEquals("<text filter>", solrQuery1.getQuery());
         assertThat(solrQuery1.getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType\")"),
                 hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", solrQuery1.getFields());
@@ -364,7 +388,7 @@ public class SearchServiceTest {
         assertEquals("<text filter>", solrQuery2.getQuery());
         assertThat(solrQuery2.getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area\")"),
-                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_type:(\"TargetType\")"),
                 hasItemInArray("cm_item:\"LinkedType\"")
                 ));
         assertEquals("cm_main,score", solrQuery2.getFields());
@@ -403,9 +427,9 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
 
-        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("LinkedType"));
-        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
+        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         SolrDocument a1Doc = docMock("doc1", 10f);
@@ -448,7 +472,8 @@ public class SearchServiceTest {
         when(solrServer.query(any(SolrParams.class)))
                 .thenReturn(aPartialResponse, bPartialResponse, aFullResponse, bFullResponse);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(3);
         when(namedCollectionRetriever.queryCollection(any(SolrDocumentList.class), anyInt())).thenReturn(objects);
@@ -508,11 +533,11 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("DateField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("DateField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
-        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         // Возвращаются пустые наборы документов, т.к. нужно проверить только правильность запросов к Solr
@@ -521,7 +546,8 @@ public class SearchServiceTest {
         SolrDocumentList docList = new SolrDocumentList();
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
 
         // Вызов проверяемого метода
         service.search(query, "TestCollection", 20);
@@ -539,7 +565,7 @@ public class SearchServiceTest {
             }
             assertThat(q.getFilterQueries(), allOf(
                     hasItemInArray("cm_area:(\"TestArea\")"),
-                    hasItemInArray("cm_type:\"TargetType\""),
+                    hasItemInArray("cm_type:(\"TargetType\")"),
                     hasItemInArray("cm_item:\"TargetType\"")
                     ));
             assertEquals("cm_main,score", q.getFields());
@@ -566,7 +592,7 @@ public class SearchServiceTest {
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
 
-        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), "TargetType")).
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("TestArea"), Arrays.asList("TargetType"))).
                 thenReturn(Arrays.asList("TargetType"));
 
         SolrDocument doc1 = docMock("doc1", 1f);
@@ -582,7 +608,8 @@ public class SearchServiceTest {
 
         when(solrServer.query(any(SolrParams.class))).thenReturn(response);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(4);
         when(namedCollectionRetriever.queryCollection(docList, 20)).thenReturn(objects);
@@ -618,7 +645,7 @@ public class SearchServiceTest {
                         return "<" + filter.getText() + ">";
                     }
                 });
-        when(configHelper.findApplicableTypes(eq(SearchFilter.EVERYWHERE), any(List.class), eq("TargetType")))
+        when(configHelper.findApplicableTypes(eq(SearchFilter.EVERYWHERE), any(List.class), eq(Arrays.asList("TargetType"))))
                 .thenReturn(Collections.singleton(SearchConfigHelper.ALL_TYPES));
         // Поскольку адаптеры композитных фильтров работают в тесном взаимодействии с классом SearchServiceImpl,
         // для этих фильтров используются реальные адаптеры
@@ -634,7 +661,8 @@ public class SearchServiceTest {
         SolrDocumentList docList = new SolrDocumentList();
         when(response.getResults()).thenReturn(docList);
 
-        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        when(collectionRetrieverFactory.newNamedCollectionRetriever(eq("TestCollection")))
+                .thenReturn(namedCollectionRetriever);
 
         // Вызов проверяемого метода
         service.search(query, "TestCollection", 20);
@@ -646,7 +674,7 @@ public class SearchServiceTest {
         for (SolrQuery q : params.getAllValues()) {
             assertThat(q.getFilterQueries(), allOf(
                     hasItemInArray("cm_area:(\"TestArea\")"),
-                    hasItemInArray("cm_type:\"TargetType\"")
+                    hasItemInArray("cm_type:(\"TargetType\")")
                     ));
             assertEquals("cm_main,score", q.getFields());
             assertEquals(20, q.getRows().intValue());

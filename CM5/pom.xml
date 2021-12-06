@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>1.0.0-2-SNAPSHOT</version>
+    <version>1.2.3</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -18,7 +18,6 @@
         <module>GlobalCache</module>
 		<module>nbr-base</module>		
         <module>test-module</module>
-        <module>deployment-tool</module>
         <module>crypto-pro-service</module>
         <module>bouncycastle-crypto-service</module>
         <module>pdf-cnv-loffice-impl</module>
@@ -31,13 +30,16 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <aspectj.version>1.9.2</aspectj.version>
 
-        <spring.version>5.1.5.RELEASE</spring.version>
+        <spring.version>5.2.6.RELEASE</spring.version>
         <spring.integration.mail.version>4.1.3.RELEASE</spring.integration.mail.version>
-        <activiti.version>5.19.0.1</activiti.version>
-        <gwt.version>2.7.0</gwt.version>
+        <flowable.version>6.5.0</flowable.version>
+        <gwt.version>2.9.0</gwt.version>
         <slf4j.version>1.7.2</slf4j.version>
-        <solr.version>4.5.1</solr.version>
+        <solr.version>8.9.0</solr.version>
+        <openapi.generator.version>4.2.3</openapi.generator.version>
+        <jasper.version>6.16.0</jasper.version>
 
         <sonar.jdbc.url>jdbc:postgresql://169.254.0.55:5432/sonar</sonar.jdbc.url>
         <sonar.host.url>http://sonar.inttrust.ru</sonar.host.url>
@@ -82,7 +84,7 @@
         <url>https://git.inttrust.ru/git/?p=CM5SRC.git</url>
         <connection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</connection>
         <developerConnection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</developerConnection>
-        <tag>HEAD</tag>
+        <tag>1.2.3</tag>
     </scm>
 
     <ciManagement>
@@ -162,6 +164,12 @@
 
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>
                 <scope>test</scope>
@@ -179,38 +187,91 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-indexer</artifactId>
+                <version>${spring.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aspects</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+
             <!-- AspectJ -->
             <dependency>
                 <groupId>org.aspectj</groupId>
                 <artifactId>aspectjrt</artifactId>
-                <version>1.8.5</version>
+                <version>${aspectj.version}</version>
             </dependency>
 
-            <!-- Activiti (BPM) -->
-
+            <!-- Flowable BPM -->
             <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-engine</artifactId>
-                <version>${activiti.version}</version>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-engine</artifactId>
+                <version>${flowable.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.activiti</groupId>
-                <artifactId>activiti-spring</artifactId>
-                <version>${activiti.version}</version>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-spring</artifactId>
+                <version>${flowable.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable5-compatibility</artifactId>
+                <version>${flowable.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable5-spring-compatibility</artifactId>
+                <version>${flowable.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable5-spring</artifactId>
+                <version>${flowable.version}</version>
             </dependency>
 
-            <!-- JasperReports -->
 
+
+            <!-- Runa WFE -->
+            <dependency>
+                <groupId>ru.runa.wfe</groupId>
+                <artifactId>wfe-webservice-client</artifactId>
+                <version>4.4.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jboss.ws.native</groupId>
+                        <artifactId>jbossws-native-client</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss</groupId>
+                        <artifactId>jbossxb</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-runtime</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.glassfish.gmbal</groupId>
+                        <artifactId>gmbal-api-only</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- JasperReports javaflow 6.16.0-->
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports-javaflow</artifactId>
-                <version>5.5.1</version>
+                <version>${jasper.version}</version>
                 <exclusions>
                     <exclusion>
-                        <artifactId>jdtcore</artifactId>
-                        <groupId>eclipse</groupId>
-                    </exclusion>
-                    <exclusion>
                         <groupId>org.bouncycastle</groupId>
                         <artifactId>bcprov-jdk14</artifactId>
                     </exclusion>
@@ -227,8 +288,8 @@
                         <artifactId>bcmail-jdk14</artifactId>
                     </exclusion>
                     <exclusion>
-                    	<groupId>org.bouncycastle</groupId>
-                       	<artifactId>bctsp-jdk14</artifactId>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bctsp-jdk14</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>com.fasterxml.jackson.core</groupId>
@@ -244,9 +305,53 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            
-            <!-- Logging -->
 
+            <!-- JasperReports 6.16.0-->
+            <!--dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports</artifactId>
+                <version>${jasper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.jdt</groupId>
+                        <artifactId>ecj</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency-->
+
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-functions</artifactId>
+                <version>${jasper.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.jdt</groupId>
+                        <artifactId>ecj</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.jasperreports</groupId>
+                <artifactId>jasperreports-fonts</artifactId>
+                <version>${jasper.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi</artifactId>
+                <version>4.1.1</version>
+            </dependency>
+
+            <!-- Logging -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -269,16 +374,14 @@
             </dependency>
 
             <!-- Database driver -->
-
             <dependency>
-                <groupId>postgresql</groupId>
+                <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.2-1002.jdbc4</version>
+                <version>42.2.6</version>
                 <scope>provided</scope>
             </dependency>
 
             <!-- Testing -->
-
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -297,20 +400,6 @@
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest-library</artifactId>
                 <version>1.3</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>1.6.4</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito</artifactId>
-                <version>1.6.4</version>
                 <scope>test</scope>
             </dependency>
 
@@ -345,51 +434,19 @@
                 <artifactId>solr-solrj</artifactId>
                 <version>${solr.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-core</artifactId>
-                <version>${solr.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-cell</artifactId>
-                <version>${solr.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcmail-jdk15</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr-langid</artifactId>
-                <version>${solr.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.solr</groupId>
-                <artifactId>solr</artifactId>
-                <version>${solr.version}</version>
-                <type>war</type>
-            </dependency>
 
             <!-- Apache commons -->
 
             <dependency>
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
-                <version>1.2</version>
+                <version>1.4</version>
             </dependency>
 
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.4</version>
+                <version>2.8.0</version>
             </dependency>
 
             <dependency>
@@ -410,6 +467,11 @@
                 <version>2.6</version>
             </dependency>
 
+            <dependency>
+                <groupId>commons-cli</groupId>
+                <artifactId>commons-cli</artifactId>
+                <version>1.2</version>
+            </dependency>
 
             <!-- Google Web Toolkit -->
 
@@ -448,13 +510,13 @@
             <dependency>
                 <groupId>com.github.jsqlparser</groupId>
                 <artifactId>jsqlparser</artifactId>
-                <version>0.9.5</version>
+                <version>4.1-RC2</version>
             </dependency>
 
             <dependency>
                 <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
-                <version>3.0.3</version>
+                <version>5.1.0</version>
             </dependency>
 
             <dependency>
@@ -512,12 +574,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcmail-jdk15on</artifactId>
-                <version>1.58</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bctsp-jdk15on</artifactId>
-                <version>1.46</version>
+                <version>1.68</version>
             </dependency>
             
             <!-- Библиотеки CryptoPro -->
@@ -525,6 +582,20 @@
                 <groupId>ru.cryptopro</groupId>
                 <artifactId>cades</artifactId>
                 <version>2.0.37985</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcmail-jdk16</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk16</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bctsp-jdk16</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             
             <dependency>
@@ -552,7 +623,31 @@
 				<artifactId>docx4j</artifactId>
 				<version>3.2.1</version>
 		    </dependency>
-            
+
+            <!-- Keycloak integration -->
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-servlet-filter-adapter</artifactId>
+                <version>11.0.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15on</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-admin-client</artifactId>
+                <version>11.0.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -695,6 +790,45 @@
                     </configuration>
                 </plugin>
 
+                <plugin>
+                    <groupId>com.nickwongdev</groupId>
+                    <artifactId>aspectj-maven-plugin</artifactId>
+                    <version>1.12.6</version>
+                    <dependencies>
+                        <!-- NB: You must use Maven 2.0.9 or above or these are ignored (see MNG-2972) -->
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjrt</artifactId>
+                            <version>${aspectj.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.aspectj</groupId>
+                            <artifactId>aspectjtools</artifactId>
+                            <version>${aspectj.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>compile</goal>
+                                <goal>test-compile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <outxml>true</outxml>
+                        <aspectLibraries>
+                            <aspectLibrary>
+                                <groupId>org.springframework</groupId>
+                                <artifactId>spring-aspects</artifactId>
+                            </aspectLibrary>
+                        </aspectLibraries>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                        <complianceLevel>${maven.compiler.target}</complianceLevel>
+                    </configuration>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -703,7 +837,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -791,7 +929,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
@@ -870,7 +1007,6 @@
                     </reportSet>
                 </reportSets>
             </plugin>
-
         </plugins>
     </reporting>
 
@@ -879,7 +1015,7 @@
         <!-- External repositories -->
 
         <repository>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
             <id>central</id>
             <name>Central Repository</name>
         </repository>
@@ -909,7 +1045,7 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <url>http://repo1.maven.org/maven2</url>
+            <url>https://repo1.maven.org/maven2</url>
             <id>central</id>
             <name>Central Repository</name>
         </pluginRepository>

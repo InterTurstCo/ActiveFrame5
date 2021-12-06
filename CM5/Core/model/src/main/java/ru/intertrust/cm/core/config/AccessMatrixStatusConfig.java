@@ -23,6 +23,7 @@ public class AccessMatrixStatusConfig implements Dto {
             @ElementList(entry = "read", type = ReadConfig.class, inline = true),
             @ElementList(entry = "write", type = WriteConfig.class, inline = true),
             @ElementList(entry = "delete", type = DeleteConfig.class, inline = true),
+            @ElementList(entry = "read-attachment", type = ReadAttachmentConfig.class, inline = true),
             @ElementList(entry = "create-child", type = CreateChildConfig.class, inline = true),
             @ElementList(entry = "execute-action", type = ExecuteActionConfig.class, inline = true),
     })

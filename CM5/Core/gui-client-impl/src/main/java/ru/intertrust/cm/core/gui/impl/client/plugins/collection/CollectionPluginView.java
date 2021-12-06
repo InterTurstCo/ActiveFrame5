@@ -449,7 +449,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
 
 
     // экспорт в csv
-    handlerRegistrations.add(eventBus.addHandler(SaveToCsvEvent.TYPE, createExportToCSVActionHahdler()));
+    handlerRegistrations.add(eventBus.addHandler(SaveToCsvEvent.TYPE, createExportToCSVActionHandler()));
 
     handlerRegistrations.add(eventBus.addHandler(CollectionChangeSelectionEvent.TYPE, new
         CollectionChangeSelectionEventHandler() {
@@ -481,7 +481,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
 
   }
 
-  public SaveToCsvEventHandler createExportToCSVActionHahdler() {
+  public SaveToCsvEventHandler createExportToCSVActionHandler() {
     return new SaveToCsvEventHandler() {
       @Override
       public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
@@ -497,6 +497,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
         JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
         JsonUtil.prepareJsonHierarchicalFiltersConfig(requestObj, hierarchicalFiltersConfig,
             "jsonHierarchicalFilters");
+        JsonUtil.prepareJsonSelectedIdsFilter(requestObj, saveToCsvEvent.getSelectedIds(), "jsonSelectedIdsFilter");
         csvController.doPostRequest(requestObj.toString());
 
       }
@@ -883,7 +884,7 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
     columnHeaderController.setColumnHeaderBlocks(columnHeaderBlocks);
 
     String panelStatus = getPanelState();
-    if (panelStatus.equalsIgnoreCase(OPEN)) {
+    if (panelStatus.equalsIgnoreCase(FILTER_PANEL_STATE_OPEN)) {
       columnHeaderController.changeFiltersInputsVisibility(true);
       filterButton.setValue(true);
     }
@@ -891,19 +892,30 @@ public class CollectionPluginView extends PluginView implements LeftPanelAttache
 
   }
 
+  /**
+   * Возвращает состояние панели фильтров в коллекции : открыта или свернута.<br>
+   * Сначала проверятся настройка ('panel-state') внутри самой секции 'collection-viewer', возвращается при наличии.<br>
+   * Иначе ищется аналогичная настройка внутри 'initial-filters', но уже в виде аттрибута этой секции.<br>
+   * И так же возвращается при ее наличии.<br>
+   * Если ни в одном месте настройка не найдена - возвращается значение, соответствующее открытому состоянию панели фильтров.
+   *
+   * @return {@link ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants#FILTER_PANEL_STATE_OPEN} или
+   * {@link ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants#FILTER_PANEL_STATE_CLOSED}
+   */
   private String getPanelState() {
     final InitialFiltersConfig initialFiltersConfig =
-        ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
+            ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
     FilterPanelConfig filterPanelConfig = getPluginData().getFilterPanelConfig();
-    if (filterPanelConfig == null && initialFiltersConfig == null) {
-      return CLOSED;
-    } else if (filterPanelConfig == null && initialFiltersConfig != null) {
-      String rawPanelState = initialFiltersConfig.getPanelState();
-      String panelState = rawPanelState == null ? CLOSED : rawPanelState;
-      return panelState;
+    if (filterPanelConfig == null) {
+
+      if (initialFiltersConfig == null) {
+        return FILTER_PANEL_STATE_OPEN;
+      } else {
+        String rawPanelState = initialFiltersConfig.getPanelState();
+        return (rawPanelState == null) ? FILTER_PANEL_STATE_OPEN : rawPanelState;
+      }
     }
     return filterPanelConfig.getPanelState();
-
   }
 
   public void insertRows(List<CollectionRowItem> list) {

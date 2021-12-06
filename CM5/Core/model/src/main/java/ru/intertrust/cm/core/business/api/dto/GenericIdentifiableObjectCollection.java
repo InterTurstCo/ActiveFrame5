@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Коллекция объектов, наделённых идентификатором
@@ -17,9 +18,9 @@ import java.util.*;
  */
 public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection, Cloneable {
 
-    private ArrayList<FastIdentifiableObjectImpl> list = new ArrayList<>();
+    private List<FastIdentifiableObjectImpl> list = new ArrayList<>();
     private CaseInsensitiveMap<Integer> fieldIndexes = new CaseInsensitiveMap<>();
-    private ArrayList<FieldConfig> fieldConfigs;
+    private List<FieldConfig> fieldConfigs;
 
     public GenericIdentifiableObjectCollection() {
     }
@@ -100,9 +101,11 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         if (collection == null || collection.size() == 0) {
             return;
         }
-        ArrayList<FieldConfig> fieldConfigs = this.fieldConfigs == null ? new ArrayList<FieldConfig>() : this.fieldConfigs;
-        ArrayList<FieldConfig> newFieldConfiguration = new ArrayList<>(fieldConfigs);
-        final ArrayList<FieldConfig> collectionFields = collection.getFieldsConfiguration();
+
+        List<FieldConfig> fieldConfigs = this.fieldConfigs == null ? new ArrayList<FieldConfig>() : this.fieldConfigs;
+
+        List<FieldConfig> newFieldConfiguration = new ArrayList<>(fieldConfigs);
+        final List<FieldConfig> collectionFields = collection.getFieldsConfiguration();
         int[] addedCollectionFieldIndexesInThisCollection = new int[collectionFields.size()];
         for (int i = 0; i < collectionFields.size(); i++) {
             FieldConfig fieldConfig = collectionFields.get(i);
@@ -137,13 +140,23 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     }
 
     @Override
-    public ArrayList<FieldConfig> getFieldsConfiguration() {
-        return fieldConfigs == null ? new ArrayList<FieldConfig>(0) : new ArrayList<>(fieldConfigs);
+    public List<FieldConfig> getFieldsConfiguration() {
+        return fieldConfigs == null ? new ArrayList<FieldConfig>(0) : new ArrayList<FieldConfig>(fieldConfigs);
     }
 
     @Override
     public int size() {
         return list.size();
+    }
+    
+    @Override
+    public Stream<IdentifiableObject> stream() {
+        return ((List<IdentifiableObject>)(List<?>)this.list).stream();
+    }
+
+    @Override
+    public void cut(int fromIndex, int toIndex) {
+        list = list.subList(fromIndex, toIndex);
     }
 
     @Override
@@ -207,19 +220,14 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     }
 
     /**
-     * Имплементация, позволяющая получить быстрый доступ к значениям полей по индексу
+     * Реализация, позволяющая получить быстрый доступ к значениям полей по индексу
      */
-    /*static*/ class FastIdentifiableObjectImpl implements IdentifiableObject, Cloneable {
+    class FastIdentifiableObjectImpl implements IdentifiableObject, Cloneable {
         private Id id;
         private ArrayList<Value> fieldValues;
-        //private IdentifiableObjectCollection collection;
         private boolean dirty = false;
 
-        /*FastIdentifiableObjectImpl() {
-        }*/
-
-        private FastIdentifiableObjectImpl(/*IdentifiableObjectCollection collection*/) {
-            //this.collection = collection;
+        private FastIdentifiableObjectImpl() {
             final List<FieldConfig> fieldsConfiguration = /*collection.*/getFieldsConfiguration();
             int fieldsSize = fieldsConfiguration.size();
             fieldValues = new ArrayList<>(fieldsSize);
@@ -244,7 +252,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             // todo: это было сделано для того, чтобы в коллекцию можно было добавить новые поля. Надо расширить интерфейс
             // IdentifiableObjectCollection для того, чтобы можно было добавлять новые поля (см. CMFIVE-386)
             // Identifiable Objects, возвращаемые из коллекции должны стать IMMUTABLE!
-            final int fieldIndex = /*collection.*/getFieldIndex(field);
+            final int fieldIndex = getFieldIndex(field);
             if (fieldIndex < 0) {
                 throw new IllegalArgumentException("Field " + field + " is not presented in collection");
             }
@@ -256,7 +264,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         private void addEmptyValuesIfNeeded(int size) {
             if (fieldValues.size() < size){
                 fieldValues.ensureCapacity(size);
-                for (int i = 0; i < size - fieldValues.size(); ++i) {
+                int cnt = size - fieldValues.size();
+                for (int i = 0; i < cnt; ++i) {
                     fieldValues.add(null);
                 }
             }
@@ -265,7 +274,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public <T extends Value> T getValue(String field) {
             // Behavior should be such (for now), that non-existing field should give null-result
-            final int fieldIndex = /*collection.*/getFieldIndex(field);
+            final int fieldIndex = getFieldIndex(field);
             return fieldIndex != -1 && fieldIndex < fieldValues.size() ? (T) fieldValues.get(fieldIndex) : null;
         }
 
@@ -281,7 +290,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             if (index < fieldValues.size()) { // this condition also provides throwing exception when index < 0
                 return (T) fieldValues.get(index);
             }
-            final int fieldsSize = /*collection.*/getFieldsConfiguration().size();
+            final int fieldsSize = getFieldsConfiguration().size();
             if (index < fieldsSize) { // field exists in collection, but not in this array
                 return null;
             }
@@ -467,8 +476,8 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
 
         @Override
-        public ArrayList<String> getFields() {
-            final ArrayList<FieldConfig> fieldsConfiguration = /*collection.*/getFieldsConfiguration();
+        public List<String> getFields() {
+            final List<FieldConfig> fieldsConfiguration = /*collection.*/getFieldsConfiguration();
             final ArrayList<String> result = new ArrayList<>(fieldsConfiguration.size());
             for (FieldConfig config : fieldsConfiguration) {
                 result.add(config.getName());
@@ -520,7 +529,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
                 return false;
             }
             final FastIdentifiableObjectImpl fio = (FastIdentifiableObjectImpl) obj;
-            final ArrayList<String> fields = getFields();
+            final List<String> fields = getFields();
             if (!Objects.equals(id, fio.id) || !fields.equals(fio.getFields())) {
                  return false;
             }
@@ -538,10 +547,10 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
     }
 
-    /*static*/ class FastIdentifiableObjectComparator implements Comparator<FastIdentifiableObjectImpl> {
+    class FastIdentifiableObjectComparator implements Comparator<FastIdentifiableObjectImpl> {
         private ArrayList<SortCriterionComparator> comparators;
 
-        FastIdentifiableObjectComparator(/*GenericIdentifiableObjectCollection collection,*/ SortOrder sortOrder) {
+        FastIdentifiableObjectComparator(SortOrder sortOrder) {
             comparators = new ArrayList<>(sortOrder.size());
             for (SortCriterion criterion : sortOrder) {
                 final boolean asc = criterion.getOrder() == SortCriterion.Order.ASCENDING;

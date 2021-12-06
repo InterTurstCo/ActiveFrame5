@@ -71,7 +71,7 @@ public class EnumBoxHandler extends ValueEditingWidgetHandler {
     }
 
     private Value stringToValue(String string, FieldType fieldType, boolean isNull) {
-        if (isNull || (string.isEmpty() && fieldType != FieldType.STRING)) {
+        if (isNull || ((string == null || string.isEmpty()) && fieldType != FieldType.STRING)) {
             string = null;
         }
         if(fieldType == null){

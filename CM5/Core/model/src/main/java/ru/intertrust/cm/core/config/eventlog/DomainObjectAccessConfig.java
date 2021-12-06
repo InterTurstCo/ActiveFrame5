@@ -38,4 +38,11 @@ public class DomainObjectAccessConfig extends SimpleConfig {
         result = 31 * result + (logs != null ? logs.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "DomainObjectAccessConfig{" +
+                "logs=" + logs +
+                '}';
+    }
 }

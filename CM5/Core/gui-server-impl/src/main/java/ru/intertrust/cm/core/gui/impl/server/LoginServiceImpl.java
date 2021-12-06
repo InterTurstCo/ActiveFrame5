@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
 
 
@@ -50,8 +51,11 @@ public class LoginServiceImpl implements LoginService {
     public void logout(HttpServletRequest request) {
         try {
             request.getSession().setAttribute(LOGOUT_IP_SESSION_ATTRIBUTE, request.getRemoteAddr());
-            request.getSession().invalidate();
             request.logout();
+            HttpSession session = request.getSession(false);
+            if (session != null){
+                session.invalidate();
+            }
         } catch (ServletException e) {
             e.printStackTrace();
         }

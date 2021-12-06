@@ -15,6 +15,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.AbstractMultipartHttpServletRequest;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 
 import javax.annotation.PostConstruct;
@@ -65,7 +67,18 @@ public class AttachmentUploaderServlet {
         //clean percentage of uploaded file
         zeroizePreviousUploadProgress(session);
         req.setCharacterEncoding("UTF-8");
-        String savedFilename = null;
+        ResponseEntity<String> responseEntity = (req instanceof AbstractMultipartHttpServletRequest) ?
+            // Способ загрузки файлов посредством AbstractMultipartHttpServletRequest был добавлен mlarin по запросу CMFIVE-38550.
+            uploadMulti((AbstractMultipartHttpServletRequest) req, session) :
+            // Обычный способ загрудки файлов
+            uploadCommon(req, session);
+        return responseEntity;
+    }
+
+    // Обычный способ загрудки файлов
+    private ResponseEntity<String> uploadCommon(HttpServletRequest req, HttpSession session)
+            throws IOException, ServletException, FileUploadException {
+        String savedFileName = null;
         String savedFileNames = "";
         DiskFileItemFactory diskFileItemFactory = new DiskFileItemFactory();
         ServletFileUpload upload = new ServletFileUpload(diskFileItemFactory);
@@ -78,29 +91,65 @@ public class AttachmentUploaderServlet {
         // Process the uploaded file items
         Iterator iterator = fileItems.iterator();
         while (iterator.hasNext()) {
-            FileItem item = (FileItem) iterator.next();
+            final FileItem item = (FileItem) iterator.next();
             if (!item.isFormField()) {
-
-                log.info("Got an uploaded file: " + item.getFieldName() +
-                        ", name = " + item.getName());
-
-                String filename = FilenameUtils.getName(item.getName());
-                long time = System.nanoTime();
-                final long fileSize = item.getSize();
-
-                savedFilename = time + FILE_NAME_PARAMS_DELIMITER + filename + FILE_NAME_PARAMS_DELIMITER + fileSize;
-                File fileToSave = new File(pathForTempFilesStore, savedFilename);
-                try (
-                        InputStream inputStream = item.getInputStream();
-                        OutputStream outputStream = new FileOutputStream(fileToSave)) {
-                    stream(inputStream, outputStream);
-                }
-                savedFileNames = savedFileNames + savedFilename + "*";
+                // String filename = FilenameUtils.getName(item.getName());
+                savedFileName = uploadFile(item.getFieldName(), item.getName(), item.getSize(), new InputStreamHolder() {
+                    @Override
+                    public InputStream getInputStream() throws IOException {
+                        return item.getInputStream();
+                    }
+                });
+                savedFileNames = savedFileNames + savedFileName + "*";
             }
         }
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "text/html; charset=utf-8");
         return new ResponseEntity<String>(savedFileNames, headers, HttpStatus.OK);
+    }
+
+    // Способ загрузки файлов посредством AbstractMultipartHttpServletRequest был добавлен mlarin по запросу CMFIVE-38550.
+    // @TODO найти, как использовать
+    private ResponseEntity<String> uploadMulti(AbstractMultipartHttpServletRequest multipartRequest, HttpSession session)
+            throws IOException, ServletException, FileUploadException {
+        String savedFileName = null;
+        String savedFileNames = "";
+        Iterator<String> fileNameIterator = multipartRequest.getFileNames();
+        while (fileNameIterator.hasNext()){
+            String name = fileNameIterator.next();
+            List<MultipartFile> files = multipartRequest.getFiles(name);
+            //upload.setProgressListener(new AttachmentUploadProgressListener(uploadProgress));
+            for (final MultipartFile item : files) {
+                // String filename = FilenameUtils.getName(item.getOriginalFilename());
+                savedFileName = uploadFile(item.getName(), item.getOriginalFilename(), item.getSize(), new InputStreamHolder() {
+                    @Override
+                    public InputStream getInputStream() throws IOException {
+                        return item.getInputStream();
+                    }
+                });
+                savedFileNames = savedFileNames + savedFileName + "*";
+            }
+        }
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "text/html; charset=utf-8");
+        return new ResponseEntity<String>(savedFileNames, headers, HttpStatus.OK);
+    }
+
+    // Загрузка обного файла
+    private String uploadFile(String title, String origFileName, long fileSize, InputStreamHolder inputStreamHolder)
+            throws IOException, FileUploadException  {
+        log.info("Got an uploaded file: " + title +
+                ", name = " + origFileName);
+        String fileName = FilenameUtils.getName(origFileName);
+        long time = System.nanoTime();
+
+        String savedFileName = time + FILE_NAME_PARAMS_DELIMITER + fileName + FILE_NAME_PARAMS_DELIMITER + fileSize;
+        File fileToSave = new File(pathForTempFilesStore, savedFileName);
+        try (InputStream inputStream = inputStreamHolder.getInputStream();
+             OutputStream outputStream = new FileOutputStream(fileToSave)) {
+            stream(inputStream, outputStream);
+        }
+        return savedFileName;
     }
 
     private void stream(InputStream input, OutputStream output)
@@ -133,4 +182,7 @@ public class AttachmentUploaderServlet {
 
     }
 
+    private interface InputStreamHolder {
+        InputStream getInputStream() throws IOException;
+    }
 }

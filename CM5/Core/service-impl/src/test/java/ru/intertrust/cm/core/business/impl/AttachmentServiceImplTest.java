@@ -21,14 +21,17 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -52,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Vlad
@@ -132,10 +136,16 @@ public class AttachmentServiceImplTest {
         private CurrentUserAccessor currentUserAccessor;
 
         @Mock
+        private UserGroupGlobalCache userGroupCache;
+
+        @Mock
         AccessToken accessToken;
 
         @Mock
         private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+        @Mock
+        private PermissionService permissionService;
 
         private WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator;
 
@@ -176,6 +186,19 @@ public class AttachmentServiceImplTest {
         @Bean
         public CurrentUserAccessor getCurrentUserAccessor() {
             return currentUserAccessor;
+        }
+
+        @Bean
+        public UserGroupGlobalCache getUserGroupCache() {
+
+            doAnswer(new Answer() {
+                @Override
+                public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    return true;
+                }
+            }).when(userGroupCache).isPersonSuperUser(any(Id.class));
+
+            return userGroupCache;
         }
 
         public PlainFormBuilder plainFormBuilder(){
@@ -243,6 +266,23 @@ public class AttachmentServiceImplTest {
             return domainObjectDao;
         }
 
+        @Bean
+        public PermissionService permissionService() {
+            doAnswer(new Answer() {
+                @Override
+                public DomainObjectPermission answer(InvocationOnMock invocationOnMock) throws Throwable {
+                    return new DomainObjectPermission() {
+                        @Override
+                        public List<Permission> getPermission() {
+                            return Collections.singletonList(Permission.ReadAttachment);
+                        }
+                    };
+                }
+            }).when(permissionService).getObjectPermission(any(Id.class), any(Id.class));
+
+            return permissionService;
+        }
+
         public FormLogicalValidator formLogicalValidator() {
             return new FormLogicalValidator(configurationExplorer());
         }
@@ -250,6 +290,12 @@ public class AttachmentServiceImplTest {
         public NavigationPanelLogicalValidator navigationPanelLogicalValidator() {
             return new NavigationPanelLogicalValidator(configurationExplorer());
         }
+
+        @Bean
+        public ModuleService moduleService() {
+            return mock(ModuleService.class);
+        }
+
     }
 
     @BeforeClass
@@ -455,7 +501,8 @@ public class AttachmentServiceImplTest {
         configuration.getConfigurationList().add(dot);
         configuration.getConfigurationList().add(globalSettings);
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration, context);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration, context);
+        configurationExplorer.init();
 
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
         Assert.assertNotNull(dot);

@@ -68,8 +68,8 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void notifyUpdate(DomainObject obj, AccessToken accessToken) {
-        impl.notifyUpdate(obj, accessToken);
+    public void notifyUpdate(DomainObject obj, AccessToken accessToken, boolean stampChanged) {
+        impl.notifyUpdate(obj, accessToken, stampChanged);
     }
 
     @Override

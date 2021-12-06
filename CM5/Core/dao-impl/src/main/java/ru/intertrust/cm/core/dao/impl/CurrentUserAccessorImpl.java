@@ -1,36 +1,39 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import java.security.Principal;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.dao.api.TicketService;
-import ru.intertrust.cm.core.util.SpringApplicationContext;
-
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import java.util.UUID;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.access.IdpAdminService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.RequestInfo;
+import ru.intertrust.cm.core.dao.api.TicketService;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * Реализация доступа к текущему пользователю, вошедшему в систему.
- * @author atsvetkov
  *
+ * @author atsvetkov
  */
 public class CurrentUserAccessorImpl implements CurrentUserAccessor {
 
-    final static Logger logger = LoggerFactory.getLogger(CurrentUserAccessorImpl.class);
+    private final static Logger logger = LoggerFactory.getLogger(CurrentUserAccessorImpl.class);
 
     private EJBContext ejbContext;
-    
-    private ThreadLocal<String> ticketPerson = new ThreadLocal<String>();
-    
+
+    private final ThreadLocal<String> ticketPerson = new ThreadLocal<>();
+
+    private ThreadLocal<RequestInfo> requestInfo = new ThreadLocal<RequestInfo>();
+
     @Autowired
     private TicketService ticketService;
 
@@ -45,21 +48,15 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
         }
 
         return ejbContext;
-    }    
+    }
 
     /**
-     * Возвращает логин текущего пользователя. Если пользователя нет в EJB контексте и в случае возникновения исключений
-     * выозвращает null.
-     * @return логин текущего пользователя
+     * @return логин текущего пользователя или <code>null</code>, если пользователя нет в EJB контексте или при возникновения исключения
      */
+    @Override
     public String getCurrentUser() {
         String result = null;
         try {
-            // В случае если вызов идет изнутри представившись как system то подставляем пользователя admin,
-            // возможно понадобится иметь иного системного пользователя
-            // TODO разобратся почему не устанавливается роль
-
-            // Workaround for JBoss7 bug in @RunAs
             EJBContext ejbContext = getEjbContext();
 
             if (logger.isDebugEnabled()) {
@@ -71,77 +68,84 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                 logger.debug("Roles: cm_user=" + (ejbContext.isCallerInRole("cm_user") ? "YES" : "no")
                         + "; system=" + (ejbContext.isCallerInRole("system") ? "YES" : "no"));
             }
-
-            if (Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
+            if (ejbContext.getContextData() != null
+                    && Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
-            } else {            	
-                String principalName = ejbContext.getCallerPrincipal().getName();
-                if (!(principalName.equals("guest") || principalName.equals("anonymous") || principalName.equals("system"))){
-                	result = principalName;
-                }
-                //if (principalName == null) {
-                else if (ejbContext.isCallerInRole("system")) {
-                    result = "admin";
-                }
-                else if (principalName.equals("system")){
-                	result = "admin";
-                }
-                /*} else if (principalName.equals("anonymous")
-                        || principalName.equals("guest")) {
-                    // и JBoss 7, JBoss 6.x возвращают anonymous для @RunAs("system"); Apache TomEE возвращает guest.
-                    // Даже если делать проверку на isCallerInRole("system") перед этим, то мы всё равно сюда попадём, если это не так.
-                    // Вопрос, может ли кто-то со стороны ещё оказаться здесь как anonymous? Вряд ли.
-                    result = "admin"; // TODO возможно стоит подумать над иным пользователем, например system
-                }*/ else if (ejbContext.isCallerInRole("cm_user")) {
-                    result = ejbContext.getCallerPrincipal().getName(); //principalName;
+            }
+            String principalName = ejbContext.getCallerPrincipal().getName();
+            if (!principalName.equals("guest") && !principalName.equals("anonymous") && !principalName.equals("system")) {
+                result = principalName;
+            } else if (ejbContext.isCallerInRole("system") || principalName.equals("system")) {
+                result = "admin";
+            } else if (ejbContext.isCallerInRole("cm_user")) {
+                result = ejbContext.getCallerPrincipal().getName();
+            }
+            // Вычисление пользователя по UNID
+            if (result != null && isUuid(result)) {
+                // Получаем персону по UUID
+                DomainObject person = getPersonServiceDao().findPersonByAltUid(result, IdpAdminService.IDP_ALTER_UID_TYPE);
+                if (person == null) {
+                    result = null;
+                } else {
+                    result = person.getString("Login");
                 }
             }
         } catch (Exception e) {
-            result = null;
-            //if (logger.isDebugEnabled()) {
-                logger.debug("Error getting current user", e);
-            //}
+            logger.error("Error getting current user", e);
         }
+        return result != null ? result : ticketPerson.get();
+    }
 
-        if (result == null && ticketPerson.get() != null){
-            result = ticketPerson.get();
+    private boolean isUuid(String uuid) {
+        try {
+            UUID.fromString(uuid);
+            return true;
+        } catch (Exception ex) {
+            return false;
         }
-        
-        return result;
     }
 
     /**
      * Возвращает идентификатор текущего пользователя. Возвращает null, если невозможно получить пользователя из EJB
      * контекста.
+     *
      * @return идентификатор текущего пользователя.
      */
+    @Override
     public Id getCurrentUserId() {
         String login = getCurrentUser();
-        if (login != null) {
-            try {
-                return getPersonServiceDao().findPersonByLogin(login).getId();
-            } catch (Exception e) {
-                logger.info("Error getting current user", e);
-                return null;
-            }
-        } else {
+        if (login == null) {
             return null;
         }
+        try {
+            return getPersonServiceDao().findPersonByLogin(login).getId();
+        } catch (Exception e) {
+            logger.info("Error getting current user", e);
+        }
+        return null;
     }
 
     private PersonServiceDao getPersonServiceDao() {
-        ApplicationContext ctx = SpringApplicationContext.getContext();
-        return ctx.getBean(PersonServiceDao.class);
+        return SpringApplicationContext.getContext().getBean(PersonServiceDao.class);
     }
 
     @Override
     public void setTicket(String ticket) {
-        String person = ticketService.checkTicket(ticket);
-        ticketPerson.set(person);        
+        ticketPerson.set(ticketService.checkTicket(ticket));
     }
 
     @Override
     public void cleanTicket() {
-        ticketPerson.remove();        
+        ticketPerson.remove();
+    }
+
+    @Override
+    public RequestInfo getRequestInfo() {
+        return requestInfo.get();
+    }
+
+    @Override
+    public void setRequestInfo(RequestInfo requestInfo) {
+        this.requestInfo.set(requestInfo);
     }
 }

@@ -20,31 +20,42 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.AnnotationScanCallback;
 import ru.intertrust.cm.core.util.AnnotationScanner;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 
 import static ru.intertrust.cm.core.config.NullValues.isNull;
 
 public class ConfigurationStorageBuilder {
-    private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
 
     private static final String ALL_STATUSES_SIGN = "*";
     private final static String GLOBAL_SETTINGS_CLASS_NAME = "ru.intertrust.cm.core.config.GlobalSettingsConfig";
 
-    private ConfigurationExplorer configurationExplorer;
-    private ConfigurationStorage configurationStorage;
-    private Lock writeLock;
+    private final ConfigurationExplorer configurationExplorer;
+    private final ConfigurationStorage configurationStorage;
+    private final ModuleService moduleService;
+    private final Lock writeLock;
 
-    public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage) {
+    public ConfigurationStorageBuilder(ConfigurationExplorer configurationExplorer, ConfigurationStorage configurationStorage, ModuleService moduleService) {
         this.configurationExplorer = configurationExplorer;
         this.configurationStorage = configurationStorage;
+        this.moduleService = moduleService;
         this.writeLock = configurationExplorer.getReadWriteLock().writeLock();
     }
 
@@ -93,14 +104,14 @@ public class ConfigurationStorageBuilder {
         lock();
 
         try {
-            Pair<String, Class<?>> key = new Pair<String, Class<?>>(locale, config.getClass());
+            Pair<String, Class<?>> key = new Pair<>(locale, config.getClass());
             CaseInsensitiveMap<LocalizableConfig> typeMap = configurationStorage.localizedConfigMap.get(key);
             if (typeMap == null) {
                 typeMap = new CaseInsensitiveMap<>();
                 configurationStorage.localizedConfigMap.put(key, typeMap);
             }
 
-            LocalizableConfig clonedConfig = ObjectCloner.getInstance().cloneObject(config, config.getClass());
+            LocalizableConfig clonedConfig = ObjectCloner.getInstance().cloneObject(config);
             localize(locale, clonedConfig);
             typeMap.put(config.getName(), clonedConfig);
         } finally {
@@ -112,14 +123,11 @@ public class ConfigurationStorageBuilder {
         lock();
 
         try {
-            AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
-                @Override
-                public void onAnnotationFound(Object object, Field field) throws IllegalAccessException {
-                    if (field.get(object) != null) {
-                        String originalValue = (String) field.get(object);
-                        String localizedValue = MessageResourceProvider.getMessage(originalValue, locale);
-                        field.set(object, localizedValue);
-                    }
+            AnnotationScanner.scanAnnotation(config, Localizable.class, (object, field) -> {
+                if (field.get(object) != null) {
+                    String originalValue = (String) field.get(object);
+                    String localizedValue = MessageResourceProvider.getMessage(originalValue, locale);
+                    field.set(object, localizedValue);
                 }
             });
         } catch (IllegalAccessException e) {
@@ -135,6 +143,11 @@ public class ConfigurationStorageBuilder {
         try {
             if (GLOBAL_SETTINGS_CLASS_NAME.equalsIgnoreCase(config.getClass().getCanonicalName())) {
                 configurationStorage.globalSettings = (GlobalSettingsConfig) config;
+
+                if (log.isTraceEnabled()) {
+                    log.trace("Global settings initialized:\n\tEvent logs configuration:\n\t\t" +
+                            configurationStorage.globalSettings.getEventLogsConfig().toString());
+                }
             }
         } finally {
             unlock();
@@ -220,7 +233,7 @@ public class ConfigurationStorageBuilder {
                 configurationStorage.localizedToolbarConfigMap.put(locale, toolbarMap);
             }
             if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
-                ToolBarConfig clonedConfig = ObjectCloner.getInstance().cloneObject(toolBarConfig, toolBarConfig.getClass());
+                ToolBarConfig clonedConfig = ObjectCloner.getInstance().cloneObject(toolBarConfig);
                 localize(locale, clonedConfig);
                 toolbarMap.put(clonedConfig.getPlugin(), clonedConfig);
             }
@@ -296,7 +309,7 @@ public class ConfigurationStorageBuilder {
             AccessMatrixStatusConfig result = null;
 
             //Получение конфигурации матрицы
-            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
+            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
             if (accessMatrixConfig == null) {
                 //Если матрица не найдена то ищем матрицу для родительского типа
                 DomainObjectTypeConfig doConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
@@ -310,7 +323,7 @@ public class ConfigurationStorageBuilder {
                     if (accessStatusConfig.getName().equals("*")) {
                         result = accessStatusConfig;
                         break;
-                    } else if (status != null && status.equalsIgnoreCase(accessStatusConfig.getName())) {
+                    } else if (status.equalsIgnoreCase(accessStatusConfig.getName())) {
                         result = accessStatusConfig;
                         break;
                     }
@@ -333,7 +346,6 @@ public class ConfigurationStorageBuilder {
 
         try {
             //Получаем матрицу и смотрим атрибут matrix_reference_field
-            AccessMatrixConfig matrixConfig = null;
             DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
             if (childDomainObjectTypeConfig == null) {
                 return null; // todo: throw exception
@@ -342,6 +354,7 @@ public class ConfigurationStorageBuilder {
             String result = null;
 
             //Ищим матрицу для типа с учетом иерархии типов
+            AccessMatrixConfig matrixConfig;
             while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
                     && childDomainObjectTypeConfig.getExtendsAttribute() != null) {
                 childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
@@ -435,12 +448,14 @@ public class ConfigurationStorageBuilder {
             buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
 
             List<String> typesInAscendingOrder = new ArrayList<>(typesHierarchy.size() + 1);
-            typesInAscendingOrder.add(typeName);
+            // Так как регистр параметра typeName может быть не такой как в конфигурации, запрашиваем оригинальный конфиг
+            DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig)configurationStorage.topLevelConfigMap.get(DomainObjectTypeConfig.class).get(typeName);
+            typesInAscendingOrder.add(typeConfig.getName());
             typesInAscendingOrder.addAll(typesHierarchy);
-            configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[typesInAscendingOrder.size()]));
+            configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[0]));
 
             Collections.reverse(typesHierarchy);
-            String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
+            String[] types = typesHierarchy.toArray(new String[0]);
             configurationStorage.domainObjectTypesHierarchy.put(typeName, types);
             return types;
         } finally {
@@ -498,9 +513,7 @@ public class ConfigurationStorageBuilder {
             }
 
             fillConfigurationMapsOfAttachmentDomainObjectType(newConfig);
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new ConfigurationException(e);
         } finally {
             unlock();
@@ -535,7 +548,7 @@ public class ConfigurationStorageBuilder {
                 domainObjectType = getParentTypeOfAuditLog(domainObjectType);
             }
 
-            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
+            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
 
             if (accessMatrixConfig == null) {
                 DomainObjectTypeConfig domainObjectTypeConfig =
@@ -563,7 +576,7 @@ public class ConfigurationStorageBuilder {
         try {
             String[] hierarchy = configurationExplorer.getDomainObjectTypesHierarchy(domainObjectTypeConfigName);
 
-            List<String> allTypeNames = hierarchy == null ? new ArrayList<String>(1) : new ArrayList<String>(hierarchy.length + 1);
+            List<String> allTypeNames = hierarchy == null ? new ArrayList<>(1) : new ArrayList<>(hierarchy.length + 1);
             allTypeNames.add(domainObjectTypeConfigName);
             if (hierarchy != null) {
                 allTypeNames.addAll(Arrays.asList(hierarchy));
@@ -674,7 +687,7 @@ public class ConfigurationStorageBuilder {
 
             FormConfig formConfig = configurationExplorer.getPlainFormConfig(name);
             ObjectCloner cloner = ObjectCloner.getInstance();
-            FormConfig clonedConfig = cloner.cloneObject(formConfig, FormConfig.class);
+            FormConfig clonedConfig = cloner.cloneObject(formConfig);
             localize(currentLocale, clonedConfig);
 
             if (clonedConfig == null) {
@@ -848,9 +861,6 @@ public class ConfigurationStorageBuilder {
             fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
             fillAuditLogConfigMap(domainObjectTypeConfig);
 
-            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-
-            }
         }
 
         // fill inherited fields for audit types as well (they are already in top level configs)
@@ -860,7 +870,8 @@ public class ConfigurationStorageBuilder {
             fillFieldNamesConfigMap(domainObjectTypeConfig);
         }
 
-        //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
+        // Заполнение таблицы read-everybody. Вынесено сюда, потому что не для всех типов
+        // существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
         fillReadPermittedToEverybodyMap();
 
         fillEventLogDomainObjectAccessConfig();
@@ -979,7 +990,7 @@ public class ConfigurationStorageBuilder {
         }
 
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            final FieldConfig clonedConfig = ObjectCloner.getInstance().cloneObject(fieldConfig, fieldConfig.getClass());
+            final FieldConfig clonedConfig = ObjectCloner.getInstance().cloneObject(fieldConfig);
             clonedConfig.setNotNull(false);
             auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
 
@@ -1012,9 +1023,7 @@ public class ConfigurationStorageBuilder {
                 fillAuditLogConfigMap(attachmentDomainObjectTypeConfig);
 
             }
-        } catch (IOException e) {
-            throw new ConfigurationException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             throw new ConfigurationException(e);
         }
 
@@ -1037,7 +1046,7 @@ public class ConfigurationStorageBuilder {
     private void fillReadPermittedToEverybodyMap() {
         for (DomainObjectTypeConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
             String domainObjectType = config.getName();
-            Boolean readEverybody = isReadEverybodyForType(domainObjectType, new HashSet<String>());
+            Boolean readEverybody = isReadEverybodyForType(domainObjectType, new HashSet<>());
 
             if (readEverybody == null) {
                 readEverybody = false;
@@ -1144,8 +1153,6 @@ public class ConfigurationStorageBuilder {
 
     }
 
-
-
     @Deprecated
     private void fillReadPermittedToEverybodyMapFromStatus(AccessMatrixConfig accessMatrixConfig) {
         for (AccessMatrixStatusConfig accessMatrixStatus : accessMatrixConfig.getStatus()) {
@@ -1170,11 +1177,320 @@ public class ConfigurationStorageBuilder {
         writeLock.unlock();
     }
 
-    private class TypesDelegatingAccessCheckToBuilderData {
-        private Set<String> hierarchicalDelegates = new HashSet<>();
-        private Set<String> hierarchicalDelegatesInLowerCase = new HashSet<>();
-        private Set<String> matrixDelegates = new HashSet<>();
-        private Set<String> matrixDelegatesInLowerCase = new HashSet<>();
+    public AccessMatrixConfig fillAccessMatrixByObjectType(String domainObjectType) {
+        Collection<AccessMatrixConfig> allAccessMatrixList = configurationExplorer.getConfigs(AccessMatrixConfig.class);
+
+        // Получаем все матрицы для типа
+        List<AccessMatrixConfig> accessMatrixForType = new ArrayList<>();
+        for (AccessMatrixConfig accessMatrix : allAccessMatrixList) {
+            if (accessMatrix.getType().equalsIgnoreCase(domainObjectType)){
+                accessMatrixForType.add(accessMatrix);
+            }
+        }
+
+        // если матриц несколько получаем итоговую, исходя из алгоритма наследования или замещения
+        AccessMatrixConfig result;
+        if (accessMatrixForType.size() > 1){
+            result = getActualAccessMatrix(accessMatrixForType);
+        }
+        // Если матрица одна возвращаем ee
+        else if (accessMatrixForType.size() == 1){
+            result = accessMatrixForType.get(0);
+        }
+        // Если матриц нет ни одной, сохраняем NULL матрицуЮ, чтоб более не производить вычислений для этого типа
+        else{
+            result = NullValues.ACCESS_MATRIX_CONFIG;
+        }
+
+        configurationStorage.accessMatrixByObjectType.put(domainObjectType, result);
+        return result;
+    }
+
+    /**
+     * Получение актуальной матрицы доступа.
+     * Метод работает исходя из того, что валидация была ранее уже пройдена,
+     * и не будет каких либо зацикливаний или неоднозначностей в вычислении матрицы
+     * @param accessMatricesForType
+     * @return
+     */
+    private AccessMatrixConfig getActualAccessMatrix(List<AccessMatrixConfig> accessMatricesForType) {
+        AccessMatrixConfig result = null;
+        // Выстраиваем цепочку матриц с учетом зависимостей
+        List<AccessMatrixConfig> orderedAccessMatrix = new ArrayList<>();
+        // цикл по модулям с учетом зависимостей
+        for (ModuleConfiguration moduleConfig : moduleService.getModuleList()){
+            // цикл по матрицам для типа
+            for (AccessMatrixConfig accessMatrix : accessMatricesForType) {
+                // Если найдена матрица для модуля добавляем в результат
+                if (accessMatrix.getModuleName().equals(moduleConfig.getName())){
+                    orderedAccessMatrix.add(accessMatrix);
+                    break;
+                }
+            }
+        }
+
+        // Цикл по матрицам с учетом их зависимостей
+        for (AccessMatrixConfig accessMatrix : orderedAccessMatrix) {
+            // делаем самую первую матрицу актуальной
+            if (result == null){
+                result = accessMatrix;
+            }else{
+                // Если не первая матрица "Замещающая" то в результирующую переменную записываем ее
+                if (accessMatrix.getExtendType() == AccessMatrixConfig.AccessMatrixExtendType.replace){
+                    result = accessMatrix;
+                }
+                // Если не первая матрица объединяется, то вычисляем результат объединения
+                else{
+                    result = getMergedAccessMatrix(result, accessMatrix);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Объединение матриц
+     * @param parent
+     * @param child
+     * @return
+     */
+    private AccessMatrixConfig getMergedAccessMatrix(AccessMatrixConfig parent, AccessMatrixConfig child) {
+        AccessMatrixConfig result = new AccessMatrixConfig();
+        result.setType(parent.getType());
+        result.setModuleName(parent.getModuleName());
+        result.setReadEverybody(parent.isReadEverybody() != null && parent.isReadEverybody() ||
+                child.isReadEverybody() != null && child.isReadEverybody());
+        result.setBorrowPermissisons(getMaxBorrowPermissions(parent.getBorrowPermissisons(), child.getBorrowPermissisons()));
+        result.setCreateConfig(getMergedCreateConfig(parent.getCreateConfig(), child.getCreateConfig()));
+        result.setStatus(getMergedAccessMatrixStatusesConfig(parent.getStatus(), child.getStatus()));
+        return result;
+    }
+
+    /**
+     * Получение объединения конфигурации прав для статусов доменных объектов
+     * @param parentStatusConfig
+     * @param childStatusConfig
+     * @return
+     */
+    private List<AccessMatrixStatusConfig> getMergedAccessMatrixStatusesConfig(
+            List<AccessMatrixStatusConfig> parentStatusConfig, List<AccessMatrixStatusConfig> childStatusConfig) {
+        Map<String, AccessMatrixStatusConfig> result = new HashMap<>();
+
+        for (AccessMatrixStatusConfig statusConfig : parentStatusConfig){
+            result.put(statusConfig.getName(), statusConfig);
+        }
+
+        for (AccessMatrixStatusConfig statusConfig : childStatusConfig){
+            if (result.containsKey(statusConfig.getName())){
+                result.put(statusConfig.getName(),
+                        getMergedAccessMatrixStatusConfig(result.get(statusConfig.getName()), statusConfig));
+            }else{
+                result.put(statusConfig.getName(), statusConfig);
+            }
+        }
+
+        return new ArrayList<>(result.values());
+    }
+
+    /**
+     * Слияние прав на один статус
+     * @param parentAccessMatrixStatusConfig
+     * @param childAccessMatrixStatusConfig
+     * @return
+     */
+    private AccessMatrixStatusConfig getMergedAccessMatrixStatusConfig(AccessMatrixStatusConfig parentAccessMatrixStatusConfig,
+                                                                       AccessMatrixStatusConfig childAccessMatrixStatusConfig) {
+        AccessMatrixStatusConfig result = new AccessMatrixStatusConfig();
+        result.setName(parentAccessMatrixStatusConfig.getName());
+        List<BaseOperationPermitConfig> resultPermissions = new ArrayList<>();
+        result.setPermissions(resultPermissions);
+
+        // типы в настройке прав createChild которые встречались в parent
+        Set<String> createChildTypes = new HashSet<>();
+        // имена действий в настройке прав executeAction которые встречались в parent
+        Set<String> executeActionNames = new HashSet<>();
+        // флаг наличия настройки прав чтения в parent
+        boolean read = false;
+        // флаг наличия настройки прав записи в parent
+        boolean write = false;
+        // флаг наличия настройки прав удаления в parent
+        boolean delete = false;
+        // флаг наличия настройки прав чтения вложения в parent
+        boolean readAttachment = false;
+
+        // цикл по правам родительской настройки
+        for (BaseOperationPermitConfig parentPermitConfig : parentAccessMatrixStatusConfig.getPermissions()){
+            // Форируем итоговые права на read
+            if (parentPermitConfig instanceof ReadConfig) {
+                ReadConfig resultPermitConfig = new ReadConfig();
+                resultPermitConfig.setPermitEverybody(((ReadConfig) parentPermitConfig).isPermitEverybody());
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                read = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof ReadConfig) {
+                        resultPermitConfig.setPermitEverybody(resultPermitConfig.isPermitEverybody() ||
+                                ((ReadConfig)childPermitConfig).isPermitEverybody());
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            } else if (parentPermitConfig instanceof WriteConfig){
+                // Форируем итоговые права на write
+                WriteConfig resultPermitConfig = new WriteConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                write = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof WriteConfig) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            } else if (parentPermitConfig instanceof DeleteConfig){
+                // Форируем итоговые права на delete
+                DeleteConfig resultPermitConfig = new DeleteConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                delete = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof DeleteConfig) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            } else if (parentPermitConfig instanceof CreateChildConfig){
+                // Форируем итоговые права на создание связи, учитываем имя связываемого
+                CreateChildConfig resultPermitConfig = new CreateChildConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+                resultPermitConfig.setType(((CreateChildConfig) parentPermitConfig).getType());
+
+                resultPermissions.add(resultPermitConfig);
+                createChildTypes.add(resultPermitConfig.getType().toLowerCase());
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof CreateChildConfig &&
+                            ((CreateChildConfig)childPermitConfig).getType().equalsIgnoreCase(
+                                    ((CreateChildConfig) parentPermitConfig).getType())) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            } else if (parentPermitConfig instanceof ExecuteActionConfig){
+                // Форируем итоговые права на выполнение действия, учитываем имя действия
+                ExecuteActionConfig resultPermitConfig = new ExecuteActionConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+                resultPermitConfig.setName(((ExecuteActionConfig) parentPermitConfig).getName());
+
+                resultPermissions.add(resultPermitConfig);
+                executeActionNames.add(resultPermitConfig.getName().toLowerCase());
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof ExecuteActionConfig &&
+                            ((ExecuteActionConfig)childPermitConfig).getName().equalsIgnoreCase(
+                                    ((ExecuteActionConfig) parentPermitConfig).getName())) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            } else if (parentPermitConfig instanceof ReadAttachmentConfig){
+                // Форируем итоговые права на чтение вложений
+                ReadAttachmentConfig resultPermitConfig = new ReadAttachmentConfig();
+                resultPermitConfig.getPermitConfigs().addAll(parentPermitConfig.getPermitConfigs());
+
+                resultPermissions.add(resultPermitConfig);
+                readAttachment = true;
+
+                for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+                    if (childPermitConfig instanceof ReadAttachmentConfig) {
+                        resultPermitConfig.getPermitConfigs().addAll(childPermitConfig.getPermitConfigs());
+                    }
+                }
+            }
+        }
+
+        // цикл по правам дочерней настройки статуса, ищем те настройки, которые не встречались в родителе
+        for (BaseOperationPermitConfig childPermitConfig : childAccessMatrixStatusConfig.getPermissions()){
+           if (childPermitConfig instanceof ReadConfig && !read) {
+               resultPermissions.add(childPermitConfig);
+           } else if (childPermitConfig instanceof WriteConfig && !write) {
+               resultPermissions.add(childPermitConfig);
+           } else if (childPermitConfig instanceof DeleteConfig && !delete) {
+               resultPermissions.add(childPermitConfig);
+           } else if (childPermitConfig instanceof ReadAttachmentConfig && !readAttachment) {
+               resultPermissions.add(childPermitConfig);
+           } else if (childPermitConfig instanceof CreateChildConfig &&
+                   !createChildTypes.contains(((CreateChildConfig) childPermitConfig).getType())) {
+               resultPermissions.add(childPermitConfig);
+           } else if (childPermitConfig instanceof ExecuteActionConfig &&
+                   !executeActionNames.contains(((ExecuteActionConfig) childPermitConfig).getName())) {
+               resultPermissions.add(childPermitConfig);
+           }
+        }
+
+        return result;
+    }
+
+    /**
+     * Получение объеденения прав на создание
+     * @param parentCreateConfig
+     * @param childCreateConfig
+     * @return
+     */
+    private AccessMatrixCreateConfig getMergedCreateConfig(AccessMatrixCreateConfig parentCreateConfig,
+                                                           AccessMatrixCreateConfig childCreateConfig) {
+        AccessMatrixCreateConfig result = new AccessMatrixCreateConfig();
+        if (parentCreateConfig != null) {
+            result.getPermitGroups().addAll(parentCreateConfig.getPermitGroups());
+        }
+        if (childCreateConfig != null){
+            result.getPermitGroups().addAll(childCreateConfig.getPermitGroups());
+        }
+        return result;
+    }
+
+    /**
+     * Получение максимального значения типа заимствования
+     * @param parentBorrowPermissions
+     * @param childBorrowPermissions
+     * @return
+     */
+    private AccessMatrixConfig.BorrowPermissisonsMode getMaxBorrowPermissions(
+            AccessMatrixConfig.BorrowPermissisonsMode parentBorrowPermissions,
+            AccessMatrixConfig.BorrowPermissisonsMode childBorrowPermissions) {
+
+        AccessMatrixConfig.BorrowPermissisonsMode result;
+        if (parentBorrowPermissions == null && childBorrowPermissions == null) {
+            result = null;
+        } else if (parentBorrowPermissions != null && childBorrowPermissions == null) {
+            result = parentBorrowPermissions;
+        } else if (parentBorrowPermissions == null) { // && childBorrowPermissisons != null) {
+            result = childBorrowPermissions;
+        } else if (parentBorrowPermissions == childBorrowPermissions){
+            result = parentBorrowPermissions;
+        } else {
+            Map<AccessMatrixConfig.BorrowPermissisonsMode, Integer> borrowPermissionsModeWeight = new HashMap<>();
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.none, 0);
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.read, 1);
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.readWriteDelete, 2);
+            borrowPermissionsModeWeight.put(AccessMatrixConfig.BorrowPermissisonsMode.all, 3);
+
+            if (borrowPermissionsModeWeight.get(parentBorrowPermissions) >
+                    borrowPermissionsModeWeight.get(childBorrowPermissions)){
+                result = parentBorrowPermissions;
+            }else{
+                result = childBorrowPermissions;
+            }
+        }
+        return result;
+    }
+
+    private static class TypesDelegatingAccessCheckToBuilderData {
+        private final Set<String> hierarchicalDelegates = new HashSet<>();
+        private final Set<String> hierarchicalDelegatesInLowerCase = new HashSet<>();
+        private final Set<String> matrixDelegates = new HashSet<>();
+        private final Set<String> matrixDelegatesInLowerCase = new HashSet<>();
 
         public Set<String> getHierarchicalDelegates() {
             return hierarchicalDelegates;

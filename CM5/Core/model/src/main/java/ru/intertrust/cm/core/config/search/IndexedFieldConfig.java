@@ -9,7 +9,8 @@ public class IndexedFieldConfig implements Serializable {
 
     public enum SearchBy {
         WORDS("words"),
-        SUBSTRING("substring");
+        SUBSTRING("substring"),
+        EXACTMATCH("exactmatch");
 
         public final String xmlValue;
         private SearchBy(String xmlValue) {
@@ -37,11 +38,30 @@ public class IndexedFieldConfig implements Serializable {
     @Attribute(name = "solr-prefix", required = false)
     private String solrPrefix;
 
+    @Element(name = "compound-field", required = false)
+    private CompoundFieldsConfig compoundFieldConfig;
+
     @Element(required = false)
     private String doel;
 
-    @Element(required = false)
-    private String script;
+    @Element(name = "script", required = false)
+    private IndexedFieldScriptConfig scriptConfig;
+
+    @Attribute(name = "show-in-results", required = false)
+    private Boolean showInResults;
+
+    @Attribute(name = "multi-valued", required = false)
+    private Boolean multiValued;
+
+    @Attribute(name = "target-field-name", required = false)
+    private String targetFieldName;
+
+    @Attribute(name = "index-boost-value", required = false)
+    private Double indexBoostValue;
+
+    public String getTargetFieldName() {
+        return targetFieldName != null && !targetFieldName.isEmpty() ?  targetFieldName : name;
+    }
 
     public String getName() {
         return name;
@@ -55,8 +75,8 @@ public class IndexedFieldConfig implements Serializable {
         return doel;
     }
     
-    public String getScript() {
-        return script;
+    public IndexedFieldScriptConfig getScriptConfig() {
+        return scriptConfig;
     }
 
     @Attribute(name = "search-by", required = false)
@@ -77,13 +97,35 @@ public class IndexedFieldConfig implements Serializable {
         return solrPrefix;
     }
 
+    public boolean getShowInResults() {
+        return showInResults != null ? showInResults.booleanValue() : false;
+    }
+
+    public boolean getMultiValued() {
+        return multiValued != null ? multiValued.booleanValue() : false;
+    }
+
+    public Double getIndexBoostValue() {
+        return indexBoostValue;
+    }
+
+    public CompoundFieldsConfig getCompoundFieldsConfig() {
+        return compoundFieldConfig;
+    }
+
     @Override
     public int hashCode() {
         int hash = name.hashCode();
         hash = hash * 31 ^ (language != null ? language.hashCode() : 0);
         hash = hash * 31 ^ (doel != null ? doel.hashCode() : 0);
-        hash = hash * 31 ^ (script != null ? script.hashCode() : 0);
+        hash = hash * 31 ^ (scriptConfig != null ? scriptConfig.hashCode() : 0);
         hash = hash * 31 ^ (solrPrefix != null ? solrPrefix.hashCode() : 0);
+        hash = hash * 31 ^ (showInResults != null ? showInResults.hashCode() : 0);
+        hash = hash * 31 ^ (multiValued != null ? multiValued.hashCode() : 0);
+        hash = hash * 31 ^ (targetFieldName != null ? targetFieldName.hashCode() : 0);
+        hash = hash * 31 ^ (searchBy != null ? searchBy.hashCode() : 0);
+        hash = hash * 31 ^ (indexBoostValue != null ? indexBoostValue.hashCode() : 0);
+        hash = hash * 31 ^ (compoundFieldConfig != null ? compoundFieldConfig.hashCode() : 0);
         return hash;
     }
 
@@ -99,7 +141,13 @@ public class IndexedFieldConfig implements Serializable {
         return name.equals(other.name)
                 && (language == null ? other.language == null : language.equals(other.language))
                 && (doel == null ? other.doel == null : doel.equals(other.doel))
-                && (script == null ? other.script == null : script.equals(other.script))
-                && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix));
+                && (scriptConfig == null ? other.scriptConfig == null : scriptConfig.equals(other.scriptConfig))
+                && (solrPrefix == null ? other.solrPrefix == null : solrPrefix.equals(other.solrPrefix))
+                && (showInResults == null ? other.showInResults == null : showInResults.equals(other.showInResults))
+                && (targetFieldName == null ? other.targetFieldName == null : targetFieldName.equals(other.targetFieldName))
+                && (multiValued == null ? other.multiValued == null : multiValued.equals(other.multiValued))
+                && (searchBy == null ? other.searchBy == null : searchBy.equals(other.searchBy))
+                && (indexBoostValue == null ? other.indexBoostValue == null : indexBoostValue.equals(other.indexBoostValue))
+                && (compoundFieldConfig == null ? other.compoundFieldConfig == null : compoundFieldConfig.equals(other.compoundFieldConfig));
     }
 }

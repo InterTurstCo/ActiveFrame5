@@ -35,6 +35,7 @@
     <aop:aspectj-autoproxy/>
 
     <context:annotation-config />
+    <context:component-scan base-package="ru.intertrust.cm.core.dao.impl.attach"/>
 
     <jee:jndi-lookup id="transactionSynchronizationRegistry"
                      jndi-name="java:comp/TransactionSynchronizationRegistry"
@@ -50,10 +51,16 @@
           depends-on="currentDataSourceJndiContext"/>
 
     <jee:jndi-lookup id="dataSource" jndi-name="${datasource.master:java:jboss/datasources/CM5}"/>
-          <!-- lookup-on-startup="false"/> -->
+
+    <jee:jndi-lookup id="wfDataSource" jndi-name="${wf.datasource:java:jboss/datasources/CM5}"/>
 
     <bean id="transactionManager"
-          class="org.springframework.transaction.jta.JtaTransactionManager" />
+          class="org.springframework.transaction.jta.JtaTransactionManager">
+        <property name="transactionManagerName" value="java:jboss/TransactionManager"/>
+        <!-- Отключение синхронизации транзакции из за проблемы https://conf.inttrust.ru:8443/pages/viewpage.action?pageId=117440875 -->
+        <property name="transactionSynchronization" value="2"/>
+        <property name="autodetectUserTransaction" value="false"/>
+    </bean>
 
     <bean id="sqlLogger"
           class="ru.intertrust.cm.core.dao.impl.SqlLogger" />
@@ -201,6 +208,8 @@
         </constructor-arg>
     </bean>
 
+    <bean id="securityStampImpl"  class="ru.intertrust.cm.core.dao.impl.access.SecurityStampImpl"/>
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
@@ -233,9 +242,6 @@
 
         <bean id="attachmentStorageConfigHelper" class="ru.intertrust.cm.core.dao.impl.attach.AttachmentStorageConfigHelper"/>
         <bean id="fileTypeDetector" class="ru.intertrust.cm.core.dao.impl.attach.TikaFileTypeDetector"/>
-        <bean id="fileDeleteNever" class="ru.intertrust.cm.core.dao.impl.attach.NeverFileDeleteStrategy"/>
-        <bean id="fileDeleteImmediate" class="ru.intertrust.cm.core.dao.impl.attach.ImmediateFileDeleteStrategy"/>
-        <bean id="fileDeleteDelayed" class="ru.intertrust.cm.core.dao.impl.attach.NeverFileDeleteStrategy"/>
     </beans>
 
 </beans>

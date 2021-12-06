@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>ru.inttrust.workflow.runawfe.designer</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0.3</version>
+	</parent>
+
+    <artifactId>extension</artifactId>
+    <packaging>jar</packaging>
+     
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+                        <archive>
+							<manifestEntries>
+								<Require-Bundle>ru.runa.gpd;bundle-version="4.4.0"</Require-Bundle>
+								<Bundle-SymbolicName>ru.inttrust.workflow.runawfe.extension; singleton:=true</Bundle-SymbolicName>
+								<Bundle-Name>Runa WFE Developer Studio extension</Bundle-Name>
+								<Bundle-Version>${project.version}</Bundle-Version>
+								<Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+								<Bundle-Vendor>Intertrust</Bundle-Vendor>
+								<Bundle-Localization>plugin</Bundle-Localization>
+							</manifestEntries>
+						</archive>
+                    </configuration>				
+            </plugin>
+        </plugins>
+    </build>	
+	 
+</project>

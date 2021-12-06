@@ -232,8 +232,10 @@ public class NotificationServiceImpl implements NotificationService {
                 logger.debug("Send notification " + notificationType + " " + addresseeList);
                 //Получаем список адресатов
                 List<Id> persons = getAddressee(addresseeList);
+                int addresseeIdx = 0;
 
                 for (Id personId : persons) {
+                    context.setAddresseeIdx(addresseeIdx++);
                     context.addContextObject("addressee", new DomainObjectAccessor(personId));
                     //Получаем список каналов для персоны
                     List<String> channelNames =
@@ -290,8 +292,10 @@ public class NotificationServiceImpl implements NotificationService {
                 logger.debug("Send notification " + notificationType + " " + addresseeList);
                 //Получаем список адресатов
                 List<Id> persons = getAddressee(addresseeList);
+                int addresseeIdx = 0;
 
                 for (Id personId : persons) {
+                    context.setAddresseeIdx(addresseeIdx++);
                     context.addContextObject("addressee", new DomainObjectAccessor(personId));
                     //Получаем список каналов для персоны
                     List<String> channelNames =

@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.business.api;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
+import javax.annotation.Nonnull;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.List;
@@ -19,6 +21,7 @@ public interface BaseAttachmentService {
     String MIME_TYPE = "MimeType";
     String DESCRIPTION = "Description";
     String CONTENT_LENGTH = "ContentLength";
+    String FIELD_NAME = "FieldName";
 
     /**
      * Создает доменный объект (ДО) Вложение на основе его типа, не сохраняя его в СУБД.
@@ -66,6 +69,15 @@ public interface BaseAttachmentService {
      * @return список ДО Вложений
      */
     List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType);
+
+    /**
+     * Получает доменный объект вложения определённого типа с указанным названием
+     * @param domainObjectId ID ДО, для которого находятся вложения
+     * @param attachmentType типа вложения
+     * @param attachmentName название вложения
+     * @return ДО вложения или <code>null</code>
+     */
+    DomainObject findAttachmentDomainObjectFor(@Nonnull Id domainObjectId, @Nonnull String attachmentType, @Nonnull String attachmentName);
 
     /**
      * Копирует вложение по идентификатору
@@ -117,4 +129,23 @@ public interface BaseAttachmentService {
      */
     List<DomainObject> copyAllAttachmentsFrom(Id sourceDomainObjectId, Id destinationDomainObjectId,
                                               Map<String, String> attachmentTypeMap);
+
+    /**
+     * Проверяет указанный тип доступа к вложению для текущего пользователя
+     *
+     * @param attachId вложение
+     * @param permission тип доступа
+     * @return признак того, что у пользователя есть доступ этого типа
+     */
+    boolean checkAccess(Id attachId, DomainObjectPermission.Permission permission);
+
+    /**
+     * Проверяет указанный тип доступа к вложению
+     *
+     * @param attachId вложение
+     * @param userId пользователь
+     * @param permission тип доступа
+     * @return признак того, что у пользователя есть доступ этого типа
+     */
+    boolean checkAccess(Id attachId, Id userId, DomainObjectPermission.Permission permission);
 }

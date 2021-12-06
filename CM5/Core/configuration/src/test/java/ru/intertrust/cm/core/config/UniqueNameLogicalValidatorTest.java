@@ -51,7 +51,8 @@ public class UniqueNameLogicalValidatorTest {
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
 
-        ConfigurationExplorer result = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration);
+        result.init();
         result.validate();
         return result;
     }

@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,6 +42,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.globalcache.api.AccessChanges;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
+import ru.intertrust.cm.globalcache.impl.localjvm.StampedLockManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { StampedSynchronizedGlobalCacheImplTest.Config.class })
@@ -59,9 +61,15 @@ public class StampedSynchronizedGlobalCacheImplTest {
         }
 
         @Bean
+        public StampedLockManager stampedLockManager() {
+            return new StampedLockManager();
+        }
+
+        @Bean
         public ConfigurationExplorer configurationExplorer() {
             ConfigurationExplorer result = mock(ConfigurationExplorer.class);
             when(result.getConfigs(any())).thenReturn(Collections.emptyList());
+            when(result.getReadWriteLock()).thenReturn(new ReentrantReadWriteLock());
             return result;
         }
 
@@ -181,6 +189,7 @@ public class StampedSynchronizedGlobalCacheImplTest {
 
             // not delete, need for sonarQube
             assertNotNull(method);
+
             method.invoke(globalCache, getParams(method, method.getParameterTypes()));
         }
     }

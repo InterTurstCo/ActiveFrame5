@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.DefaultArraySerializers;
+import com.esotericsoftware.kryo.util.DefaultInstantiatorStrategy;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -30,13 +31,17 @@ public class ObjectCloner {
         }
     };
 
-    private Kryo kryo;
+    private final Kryo kryo;
 
     private ObjectCloner() {
         kryo = new Kryo();
-        ((Kryo.DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy()).setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
+        ((DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy()).setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
         kryo.register(Arrays.asList("").getClass(), new ArraysAsListSerializer(kryo));
         kryo.register(RdbmsId.class, new RdbmsIdSerializer());
+
+        // true by default since 5.0.0-RC1
+        kryo.setRegistrationRequired(false);
+
         ImmutableValueSerializer immutableValueSerializer = new ImmutableValueSerializer();
         for (Class<Value> valueClass : IMMUTABLE_VALUE_CLASSES) {
             kryo.register(valueClass, immutableValueSerializer);
@@ -134,7 +139,7 @@ public class ObjectCloner {
         }
 
         @Override
-        public List<?> read(Kryo kryo, Input input, Class<List<?>> type) {
+        public List<?> read(Kryo kryo, Input input, Class<? extends List<?>> type) {
             final Object[] array = arraySerializer.read(kryo, input, Object[].class);
             return Arrays.asList(array);
         }
@@ -156,7 +161,7 @@ public class ObjectCloner {
         }
 
         @Override
-        public Value<?> read(Kryo kryo, Input input, Class<Value<?>> type) {
+        public Value<?> read(Kryo kryo, Input input, Class<? extends Value<?>> type) {
             return (Value<?>) kryo.getDefaultSerializer(type).read(kryo, input, type);
         }
     }
@@ -172,7 +177,7 @@ public class ObjectCloner {
         }
 
         @Override
-        public RdbmsId read(Kryo kryo, Input input, Class<RdbmsId> type) {
+        public RdbmsId read(Kryo kryo, Input input, Class<? extends RdbmsId> type) {
             return (RdbmsId) kryo.getDefaultSerializer(type).read(kryo, input, type);
         }
     }

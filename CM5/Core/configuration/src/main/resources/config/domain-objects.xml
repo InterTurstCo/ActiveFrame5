@@ -20,29 +20,24 @@
 
     <domain-object-type name="Person" initial-status="Active">
         <fields>
-            <string name="Login" length="128" />
+            <string name="Login" length="256" />
             <string name="FirstName" length="128" />
             <string name="LastName" length="128" />
             <string name="EMail" length="128" />
             <reference name="profile" type="person_profile"/>
-            <!--timelessDate name="test_date"/-->
         </fields>
-        <uniqueKey> <!-- This key means automatic key + index creation-->
+        <uniqueKey>
             <field name="Login"/>
         </uniqueKey>
-        <!--<uniqueKey> &lt;!&ndash; This key means automatic key + index creation&ndash;&gt;
-            <field name="EMail"/>
-        </uniqueKey>-->
         <attachment-types>
             <attachment-type name="Person_Attachment"></attachment-type>
         </attachment-types>
-
     </domain-object-type>
 
     <!-- Системный объект, должен определяться в системной конфигурации -->
     <domain-object-type name="Authentication_Info" initial-status="Active4">
         <fields>
-            <string name="User_Uid" length="64" not-null="true" />
+            <string name="User_Uid" length="256" not-null="true" />
             <string name="Password" length="128" encrypted="true" />
         </fields>
        <uniqueKey> <!-- This key means automatic key + index creation-->
@@ -139,12 +134,15 @@
             <boolean name="forceMaster"/>
             <boolean name="lockUpdate"/>
             <long name="reportHash"/>
+            <string name="constructor" length="32" not-null="true" default-value="jasper"/>
+            <string name="type" length="32" not-null="false" />
         </fields>
         <uniqueKey>
             <field name="name" />
         </uniqueKey>
         <attachment-types>
             <attachment-type name="report_template_attach"/>
+            <attachment-type name="report_template_attach_dx"/>
         </attachment-types>
         
     </domain-object-type>
@@ -189,7 +187,7 @@
             <string name="notification_part" length="256" not-null="true" />
             <reference name="locale" type="locale" not-null="true"/>
             <string name="channel" length="256" not-null="true" />
-            <string name="notification_text" length="4000" />
+            <text name="notification_text" />
         </fields>
     </domain-object-type>
 
@@ -389,6 +387,7 @@
         </fields>
 
     </domain-object-type>
+
     <!-- Логический параметр -->
     <domain-object-type name="boolean_settings" initial-status="Active" extends="global_server_settings">
         <fields>
@@ -396,6 +395,7 @@
         </fields>
 
     </domain-object-type>
+
     <!-- Числовой параметр -->
     <domain-object-type name="long_settings" initial-status="Active" extends="global_server_settings">
         <fields>
@@ -404,6 +404,22 @@
 
     </domain-object-type>
 
+    <!-- Грифы доступа -->
+    <domain-object-type name="security_stamp">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <string name="description" length="512"/>
+        </fields>
+    </domain-object-type>
+
+    <!-- Связка между грифом и пользователем -->
+    <domain-object-type name="person_stamp">
+        <fields>
+            <reference name="person" type="person" not-null="true"/>
+            <reference name="stamp" type="security_stamp" not-null="true"/>
+        </fields>
+    </domain-object-type>
+    
     <migration-script sequence-number="0">
         <before-auto-migration>
             <rename-field type="sel_subj_user">

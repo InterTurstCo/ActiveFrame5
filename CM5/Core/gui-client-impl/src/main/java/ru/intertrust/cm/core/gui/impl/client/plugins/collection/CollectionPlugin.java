@@ -382,6 +382,13 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
                 Window.alert("Component "+cfg.getCurrentRowChangeConfig().getComponent()+" not found.");
             }
         }
+        // выделяем элемент и производим скролл до него, если это необходимо
+        final boolean scrollToSelectedRow = event.isScrollToSelectedRow();
+        if (scrollToSelectedRow) {
+            final Id selectedRowId = event.getId();
+            final CollectionPluginView view = (CollectionPluginView) getView();
+            view.setSelectedRow(selectedRowId);
+        }
     }
 
     private interface CommandCallBack {

@@ -7,18 +7,18 @@
         <depend>core</depend>
     </depends>
     <extension-points-packages>
-        <extension-points-package>ru/intertrust/cm/test</extension-points-package>
-        <extension-points-package>ru/intertrust/testmodule/extensions</extension-points-package>
+        <extension-points-package>ru.intertrust.cm.test</extension-points-package>
+        <extension-points-package>ru.intertrust.testmodule.extensions</extension-points-package>
     </extension-points-packages>
     <configuration-elements-packages>
-        <configuration-elements-package>ru/intertrust/cm/test</configuration-elements-package>
+        <configuration-elements-package>ru.intertrust.cm.test</configuration-elements-package>
     </configuration-elements-packages>
     <gui-components-packages>
         <gui-components-package>ru.intertrust.cm.core.gui.impl.action</gui-components-package>
         <gui-components-package>ru.intertrust.cm.core.gui.impl.server</gui-components-package>
     </gui-components-packages>
     <server-components-packages>
-        <server-components-package>ru/intertrust/cm</server-components-package>
+        <server-components-package>ru.intertrust.cm</server-components-package>
     </server-components-packages>    
     <configuration-schema-path>module-configuration/custom-configuration.xsd</configuration-schema-path>
     <configuration-paths>
@@ -37,6 +37,7 @@
         <configuration-path>module-configuration/extendedsearch-int-docs.xml</configuration-path>
         <configuration-path>module-configuration/extendedsearch-countries.xml</configuration-path>
         <configuration-path>module-configuration/domain-objects-test.xml</configuration-path>
+        <configuration-path>module-configuration/attachment-test-conf.xml</configuration-path>
         <configuration-path>module-configuration/trigger-events.xml</configuration-path>
         <configuration-path>module-configuration/notifications.xml</configuration-path>
         <configuration-path>module-configuration/sochi-server-configs.xml</configuration-path>
@@ -117,11 +118,19 @@
         <configuration-path>contacts-module/configuration/form/nbr_test_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/nbr_test_collection.xml</configuration-path>
 
+        <!-- Объекты для тестирования виджета выбора цвета (colorpicker)-->
+        <configuration-path>contacts-module/configuration/data/color_domain_objects.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/form/color_form.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/color_collection.xml</configuration-path>
+
         <!-- Плагин SingleRow -->
         <configuration-path>module-configuration/single-row-plugin.xml</configuration-path>
 
         <!-- Панель NbrBase -->
         <configuration-path>module-configuration/nbr-base-navigation.xml</configuration-path>
+
+        <!-- SimpleDataStorage -->
+        <configuration-path>module-configuration/simple-data.xml</configuration-path>
 
     </configuration-paths>
     
@@ -187,6 +196,7 @@
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-pos-appointments.csv</import-file>
 
         <import-file>importdata/nbr_schema.csv</import-file>
+        <import-file>importdata/import-color.csv</import-file>
     </import-files>
 
     <import-reports>
@@ -237,6 +247,7 @@
     <deploy-processes>
         <process-definition>workflow/SimpleProcess.bpmn</process-definition>
         <process-definition>workflow/InternalDocTest.bpmn</process-definition>
+        <process-definition>workflow/runa/test-2.par</process-definition>
     </deploy-processes>
 
     <localization-files>

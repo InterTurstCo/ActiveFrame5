@@ -52,6 +52,7 @@ public class ConfigurationExplorerImplTest {
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config,true);
+        configExplorer.init();
     }
 
     @Test
@@ -81,6 +82,7 @@ public class ConfigurationExplorerImplTest {
                 createConfigurationSerializer(DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH);
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config,true);
+        configExplorer.init();
 
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs =
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
@@ -206,6 +208,7 @@ public class ConfigurationExplorerImplTest {
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config,true);
+        configExplorer.init();
 
         String parent = configExplorer.getDomainObjectParentType("Employee");
         assertEquals("Person", parent);
@@ -242,6 +245,7 @@ public class ConfigurationExplorerImplTest {
         expectedException.expectMessage("Loop in the hierarchy, typeName: A2");
 
         configExplorer = new ConfigurationExplorerImpl(config);
+        configExplorer.init();
     }
 
     @Test
@@ -277,6 +281,37 @@ public class ConfigurationExplorerImplTest {
         assertTrue(result4.contains("test_do_4"));
         assertTrue(result4.contains("test_do_5"));
         assertTrue(result4.contains("ref_do_3_2"));
+    }
+
+    @Test
+    public void testGetAttacmentTypeConfig() {
+        String domainObjectType = "Outgoing_Document";
+        String domainObjectTypeExt1 = "Outgoing_Document_ext1";
+        String domainObjectTypeExt2 = "Outgoing_Document_ext2";
+        DomainObjectTypeConfig domainObjectTypeConfig = configExplorer.getDomainObjectTypeConfig(domainObjectType);
+        assertNotNull(domainObjectTypeConfig);
+        AttachmentTypesConfig attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectType);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+
+        domainObjectTypeConfig = configExplorer.getDomainObjectTypeConfig(domainObjectTypeExt1);
+        assertNotNull(domainObjectTypeConfig);
+        attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
+        assertNull(attachmentTypeConfig);
+        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectTypeExt1);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
+
+        domainObjectTypeConfig = configExplorer.getDomainObjectTypeConfig(domainObjectTypeExt2);
+        assertNotNull(domainObjectTypeConfig);
+        attachmentTypeConfig = domainObjectTypeConfig.getAttachmentTypesConfig();
+        assertNull(attachmentTypeConfig);
+        attachmentTypeConfig = configExplorer.getAttachmentTypesConfigWithInherit(domainObjectTypeConfig);
+        assertNotNull(attachmentTypeConfig);
+        assertEquals(attachmentTypeConfig.getAttachmentTypeConfigs().size(), 1);
     }
 
     private ConfigurationSerializer createConfigurationSerializer(String ... configPaths) throws Exception {

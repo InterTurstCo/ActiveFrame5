@@ -1,15 +1,19 @@
 package ru.intertrust.cm.core.config.event;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationStorage;
 import ru.intertrust.cm.core.config.ConfigurationStorageBuilder;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.module.ModuleService;
 
 /**
  * Обработчик изменения конфигурации {@link ru.intertrust.cm.core.config.DomainObjectTypeConfig}
  */
 public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHandler<DomainObjectTypeConfig> {
+    @Autowired
+    private ModuleService moduleService;
 
     @Override
     public void doUpdate(ConfigurationUpdateEvent configurationUpdateEvent) {
@@ -19,7 +23,7 @@ public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHand
         DomainObjectTypeConfig newConfig = (DomainObjectTypeConfig) configurationUpdateEvent.getNewConfig();
         DomainObjectTypeConfig oldConfig = (DomainObjectTypeConfig) configurationUpdateEvent.getOldConfig();
 
-        ConfigurationStorageBuilder configurationStorageBuilder = new ConfigurationStorageBuilder(configurationExplorer, configStorage);
+        ConfigurationStorageBuilder configurationStorageBuilder = new ConfigurationStorageBuilder(configurationExplorer, configStorage, moduleService);
 
         configurationStorageBuilder.updateDomainObjectFieldConfig(oldConfig, newConfig);
         configurationStorageBuilder.updateConfigurationMapsOfAttachmentDomainObjectType(oldConfig, newConfig);

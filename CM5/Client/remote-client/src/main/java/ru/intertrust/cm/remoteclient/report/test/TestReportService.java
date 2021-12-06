@@ -55,7 +55,7 @@ public class TestReportService extends ClientBase {
             initServices();
 
             //Установка отчетов
-            deployReport("../reports/reports/all-employee");
+            deployReport("Client/reports/reports/all-employee");
             ReportResult result = null;
             //Генерация отчета
             Map params = new HashMap();
@@ -71,20 +71,38 @@ public class TestReportService extends ClientBase {
             result = generateReport("all-employee", params, "first");
             //и еще раз генерим тот же отчет
             result = generateReport("all-employee", null, "second");
+
+            // Отчет в формате XLSX
+            params.clear();
+            params.put("FORMAT", "XLSX");
+            result = generateReport("all-employee", params, "second");
+
+            // Отчет в формате XLS
+            params.put("FORMAT", "XLS");
+            result = generateReport("all-employee", params, "second");
+
+            // Отчет в формате HTML
+            params.put("FORMAT", "HTML");
+            result = generateReport("all-employee", params, "second");
+
             //Проверка точки расширения
+            params.clear();
             params.put("REPLACE_RESULT", Boolean.TRUE);
             result = generateReport("all-employee", params, "theard");
 
-            deployReport("../reports/reports/employee-groups");
+            deployReport("Client/reports/reports/employee-groups");
             result = generateReport("employee-groups", null);
 
-            deployReport("../reports/reports/all-employee-scriptlet");
+            deployReport("Client/reports/reports/all-employee-scriptlet");
             result = generateReport("all-employee-scriptlet", null);
 
-            deployReport("../reports/reports/all-employee-ds");
+            deployReport("Client/reports/reports/all-employee-scriptlet-in-subreport");
+            result = generateReport("all-employee-scriptlet-in-subreport", null);
+
+            deployReport("Client/reports/reports/all-employee-ds");
             result = generateReport("all-employee-ds", null);
 
-            deployReport("../reports/reports/test-resource-service");
+            deployReport("Client/reports/reports/test-resource-service");
             result = generateReport("test-resource-service", null);
 
             params.clear();
@@ -100,7 +118,7 @@ public class TestReportService extends ClientBase {
             }
             writeToFile(acyncResult.get().getReport(), new File(acyncResult.get().getFileName()));*/
 
-            deployReport("../reports/reports/test-xml-to-html");
+            deployReport("Client/reports/reports/test-xml-to-html");
             result = generateReport("test-xml-to-html", null);
 
             log("Test complete at " + (System.currentTimeMillis() - start));
@@ -126,6 +144,8 @@ public class TestReportService extends ClientBase {
         File reportResultFile = new File("report-result", fileName);
 
         StreamUtils.copy(reportStream, new FileOutputStream(reportResultFile));
+
+        log("Report generated on " + reportResultFile);
         return result;
     }
 

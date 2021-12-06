@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>global-cache</artifactId>
-        <version>1.0.0-2-SNAPSHOT</version>
+        <version>1.2.3</version>
     </parent>
 
     <properties>
@@ -39,6 +39,12 @@
             <groupId>org.jboss.spec</groupId>
             <artifactId>jboss-javaee-8.0</artifactId>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-indexer</artifactId>
+            <version>${spring.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

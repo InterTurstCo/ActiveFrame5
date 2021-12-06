@@ -203,7 +203,6 @@ public class DataStructureNamingHelper {
                 return fieldConfig;
             }
         }
-
         return  null;
     }
 

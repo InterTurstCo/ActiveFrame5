@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.process;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.IdService;
@@ -31,7 +31,7 @@ public class SendNotification extends SpringClient implements JavaDelegate {
     private IdService idService;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
         NotificationAddresseeConverter converter = (NotificationAddresseeConverter) addressee.getValue(execution);
         NotificationContext notificationContext = new NotificationContext();
         notificationContext.addContextObject("document", idService.createId((String)context.getValue(execution)));

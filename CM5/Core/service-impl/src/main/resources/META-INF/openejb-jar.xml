@@ -202,4 +202,18 @@
         <jndi name="module/ScheduleTaskLoaderImpl!ru.intertrust.cm.core.business.api.ScheduleTaskLoader$Remote"
               interface="ru.intertrust.cm.core.business.api.ScheduleTaskLoader.Remote"/>
     </ejb-deployment>
+
+    <ejb-deployment ejb-name="ReportGeneratorService">
+        <jndi name="module/ReportGeneratorService!ru.intertrust.cm.core.business.api.ReportGeneratorService"
+              interface="ru.intertrust.cm.core.business.api.ReportGeneratorService"/>
+        <jndi name="module/ReportGeneratorService!ru.intertrust.cm.core.business.api.ReportGeneratorService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ReportGeneratorService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ReportMergeService">
+        <jndi name="module/ReportMergeService!ru.intertrust.cm.core.business.api.ReportMergeService"
+              interface="ru.intertrust.cm.core.business.api.ReportMergeService"/>
+        <jndi name="module/ReportMergeService!ru.intertrust.cm.core.business.api.ReportMergeService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ReportMergeService.Remote"/>
+    </ejb-deployment>
 </openejb-jar>

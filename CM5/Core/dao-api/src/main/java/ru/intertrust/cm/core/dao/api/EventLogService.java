@@ -57,4 +57,10 @@ public interface EventLogService {
      */
     void clearEventLogs() throws Exception;
 
+    /**
+     * Активация сервиса. выполняется после создания таблиц и загрузки конфтигурации.
+     * @param enable
+     */
+    void setEnable(boolean enable);
+
 }

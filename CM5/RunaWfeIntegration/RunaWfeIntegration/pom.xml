@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>ru.intertrust.wf.runawfe</groupId>
+	<artifactId>af5-client</artifactId>
+	<name>af5-client</name>
+	<version>1.0.0-1-SNAPSHOT</version>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<runa.wfe.version>4.4.0</runa.wfe.version>
+		<af5.version>1.0.0-2-SNAPSHOT</af5.version>
+	</properties>
+
+	<repositories>
+
+		<repository>
+			<url>http://repo1.maven.org/maven2</url>
+			<id>central</id>
+			<name>Central Repository</name>
+		</repository>
+
+		<repository>
+			<id>intertrust.releases</id>
+			<url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
+		</repository>
+
+	</repositories>
+
+
+	<dependencies>
+
+		<dependency>
+			<groupId>ru.runa.wfe</groupId>
+			<artifactId>wfe-core</artifactId>
+			<version>${runa.wfe.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-ejb-client-bom</artifactId>
+			<version>10.0.0.Final</version>
+			<type>pom</type>
+			<scope>provided</scope>
+		</dependency>
+
+		<!--dependency>
+            <groupId>ru.runa.wfe</groupId>
+            <artifactId>wfe-service</artifactId>
+            <version>${runa.wfe.version}</version>
+        </dependency-->
+
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>rest-client</artifactId>
+			<version>${af5.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.1.1</version>
+				<executions>
+					<execution>
+						<id>copy</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+							<includeScope>runtime</includeScope>
+                        </configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

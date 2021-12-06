@@ -4,7 +4,7 @@ import org.apache.tika.Tika;
 
 public class TikaFileTypeDetector implements FileTypeDetector {
 
-    private Tika engine = new Tika();
+    private final Tika engine = new Tika();
 
     @Override
     public String detectMimeType(String path) {

@@ -54,10 +54,10 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
-    private ConfigurationExplorer configurationExplorer;
-    private UserGroupGlobalCache userGroupCache;
-    private CurrentUserAccessor currentUserAccessor;
-    private DomainObjectQueryHelper domainObjectQueryHelper;
+    private final ConfigurationExplorer configurationExplorer;
+    private final UserGroupGlobalCache userGroupCache;
+    private final CurrentUserAccessor currentUserAccessor;
+    private final DomainObjectQueryHelper domainObjectQueryHelper;
 
     public CollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
             CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
@@ -431,7 +431,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      */
     private class ReferencePlaceHolderCollector {
 
-        private Map<String, String> placeholdersMap = new HashMap<>();
+        private final Map<String, String> placeholdersMap = new HashMap<>();
 
         public void addPlaceholderValue(String placeholder, String value) {
             String placeholderValue = placeholdersMap.get(placeholder);
@@ -463,7 +463,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      */
     private class CriteriaPlaceHolderCollector {
 
-        private Map<String, String> placeholdersMap = new HashMap<>();
+        private final Map<String, String> placeholdersMap = new HashMap<>();
 
         public void addPlaceholderValue(String placeholder, String value) {
             String placeholderValue = placeholdersMap.get(placeholder);

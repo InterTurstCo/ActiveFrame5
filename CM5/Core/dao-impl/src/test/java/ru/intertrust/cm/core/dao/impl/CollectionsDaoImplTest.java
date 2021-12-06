@@ -33,6 +33,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -69,6 +70,7 @@ import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.dao.api.SecurityStamp;
 import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
@@ -101,14 +103,23 @@ public class CollectionsDaoImplTest {
                     "FROM person e INNER JOIN department AS d ON e.department = d.id";
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
-            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+            "WITH cur_user_groups AS (" +
+                    "SELECT DISTINCT gg.\"parent_group_id\" " +
+                    "FROM \"group_member\" gm " +
                     "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "WHERE gm.\"person_id\" = :user_id" +
+                    ") " +
                     "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
-                    "e.\"updated_date\", 'employee' \"test_constant\" FROM (SELECT person.* FROM \"person\" person " +
-                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
-                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
-                    "r.\"object_id\" = person.\"access_object_id\")) e INNER JOIN (SELECT department.* " +
+                    "e.\"updated_date\", 'employee' \"test_constant\" " +
+                    "" +
+                    "FROM (" +
+                    "SELECT person.* FROM \"person\" person " +
+                    "WHERE 1 = 1 AND EXISTS (" +
+                    "SELECT 1 FROM \"person_read\" r " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") " +
+                    "AND " +
+                    "r.\"object_id\" = person.\"access_object_id\")) e " +
+                    "INNER JOIN (SELECT department.* " +
                     "FROM \"department\" department WHERE 1 = 1 AND " +
                     "EXISTS (SELECT 1 FROM \"department_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
@@ -211,6 +222,9 @@ public class CollectionsDaoImplTest {
     private GlobalCacheManager globalCacheManager;
 
     @Mock
+    private SecurityStamp securityStamp;
+
+    @Mock
     private ServerComponentService serverComponentService;
 
     private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
@@ -248,6 +262,7 @@ public class CollectionsDaoImplTest {
         domainObjectQueryHelper.setUserGroupCache(userGroupCache);
         domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
         domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
+        ReflectionTestUtils.setField(domainObjectQueryHelper, "securityStamp", securityStamp);
         collectionsDaoImpl.setDomainObjectQueryHelper(domainObjectQueryHelper);
     }
 
@@ -333,6 +348,7 @@ public class CollectionsDaoImplTest {
         configuration.getConfigurationList().add(globalSettingsConfig);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
         collectionQueryCache.setConfigurationExplorer(configurationExplorer);
 

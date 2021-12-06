@@ -26,8 +26,10 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannel;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.AttachmentTypesConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.MailNotificationException;
 import ru.intertrust.cm.core.model.ReportServiceException;
 
@@ -60,13 +62,13 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
     @Override
     public void send(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
             NotificationContext context) {
-        MimeMessage message = null;
+        MimeMessage message;
         String resipients = null;
         try {
             // В случае если в конфигурации не указан host то канал отключаем
             if (mailSenderWrapper.getHost() != null) {
-                message = createMailMesssage(notificationType, senderId, addresseeId, context);
-                // Почтовое сообщение могло быть не сформировано, например из за
+                message = createMailMessage(notificationType, senderId, addresseeId, context);
+                // Почтовое сообщение могло быть не сформировано, например из-за
                 // отсутствия адресата
                 if (message != null) {
                     //Адресаты для более понятной ошибки
@@ -86,9 +88,85 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         }
     }
 
-    private MimeMessage createMailMesssage(String notificationType, Id senderId, Id addresseeId,
-            NotificationContext context) throws MessagingException, UnsupportedEncodingException {
+    private MimeMessage createMailMessage(String notificationType, Id senderId, Id addresseeId,
+                                          NotificationContext context) throws MessagingException, UnsupportedEncodingException {
         AccessToken systemAccessToken = accessControlService.createSystemAccessToken(MAIL_NOTIFICATION_CHANNEL);
+        InternetAddress sender = getInternetAddress(senderId, systemAccessToken);
+
+        mailSenderWrapper.getHost();
+        String addresseeMail = getAddresseeMail(addresseeId, systemAccessToken);
+
+        // Проверка на то что у адресата есть email. если нет то не формируем
+        // сообщения
+        if (addresseeMail == null || addresseeMail.isEmpty()) {
+            logger.warn("Notification for addressee " + addresseeId + " not send. Person email field is empty.");
+            return null;
+        }
+
+        Id locale = findLocaleIdByName(getPersonLocale(addresseeId));
+        boolean html = notificationTextFormer.contains(notificationType, BODY_HTML_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL);
+
+        String subject = notificationTextFormer.format(notificationType, SUBJECT_MAIL_PART, addresseeId, locale,
+                MAIL_NOTIFICATION_CHANNEL, context);
+        String body = notificationTextFormer.format(notificationType, html ? BODY_HTML_MAIL_PART : BODY_MAIL_PART, addresseeId, locale,
+                MAIL_NOTIFICATION_CHANNEL, context);
+
+        MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();
+
+        MimeMessageHelper message;
+        // Проверяем наличие конфигурации вложения
+        if (notificationTextFormer.contains(notificationType, ATTACHMENT_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL)) {
+            message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            // Получаем вложение
+            String attachment =
+                    notificationTextFormer.format(notificationType, ATTACHMENT_MAIL_PART, addresseeId, locale,
+                            MAIL_NOTIFICATION_CHANNEL, context);
+
+            // В attachment должна находиться строка в формате
+            // имя_фйла;идентификатор_объекта_с_вложением;имя_вложения
+            String[] attachmentInfo = attachment.split(";");
+            // Получаем объект к которому приаттачено вложение
+            Id documentWithAttachmentId = idService.createId(attachmentInfo[1]);
+            DomainObject documentWithAttachment = domainObjectDao.find(documentWithAttachmentId, systemAccessToken);
+            DomainObjectTypeConfig documentWithAttachmentTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
+                    documentWithAttachment.getTypeName());
+
+            // Получаем тип вложения к данному типу документа
+            List<AttachmentTypeConfig> attachmentTypeConfigs =
+                    configurationExplorer.getAttachmentTypesConfigWithInherit(documentWithAttachmentTypeConfig).getAttachmentTypeConfigs();
+            for (AttachmentTypeConfig attachmentTypeConfig : attachmentTypeConfigs) {
+                String linkedFieldName = getLinkedFieldName(attachmentTypeConfig, documentWithAttachmentTypeConfig);
+                List<DomainObject> linkedAttachments = domainObjectDao.findLinkedDomainObjects(documentWithAttachmentId, attachmentTypeConfig.getName(),
+                        linkedFieldName, systemAccessToken);
+                for (DomainObject attachmentObject : linkedAttachments) {
+                    if (attachmentObject.getString("name").matches(attachmentInfo[2])) {
+                        ByteArrayResource streamSource = new ByteArrayResource(getAttachmentContent(attachmentObject));
+                        String attachName = attachmentInfo[0];
+                        if (attachmentInfo[0].equals(ATTACH_NAME)) {
+                            attachName = attachmentObject.getString("name");
+                        }
+                        message.addAttachment(attachName, streamSource);
+                    }
+                }
+            }
+        } else {
+            message = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+        }
+
+        message.setTo(addresseeMail);
+        message.setFrom(sender);
+        message.setSubject(subject);
+        message.setText(body, html);
+
+        return mimeMessage;
+    }
+
+    private String getAddresseeMail(Id addresseeId, AccessToken systemAccessToken) {
+        GenericDomainObject addresseeDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
+        return addresseeDO.getString(EMAIL_FIELD);
+    }
+
+    private InternetAddress getInternetAddress(Id senderId, AccessToken systemAccessToken) throws UnsupportedEncodingException {
         InternetAddress sender = new InternetAddress();
         if (senderId != null && !mailSenderWrapper.isAlwaysUseDefaultSender()) {
             GenericDomainObject senderDO = (GenericDomainObject) domainObjectDao.find(senderId, systemAccessToken);
@@ -116,71 +194,27 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                 sender.setPersonal(mailSenderWrapper.getDefaultSenderName());
             }
         }
+        return sender;
+    }
 
-        mailSenderWrapper.getHost();
-        GenericDomainObject addresseDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
-        String addresseMail = addresseDO.getString(EMAIL_FIELD);
-
-        // Проверка на то что у адресата есть email. если нет то не формируем
-        // сообщения
-        if (addresseMail == null || addresseMail.isEmpty()) {
-            logger.warn("Notification for addressee " + addresseeId + " not send. Person email field is empty.");
-            return null;
-        }
-
-        Id locale = findLocaleIdByName(getPersonLocale(addresseeId));
-        boolean html = notificationTextFormer.contains(notificationType, BODY_HTML_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL);
-
-        String subject = notificationTextFormer.format(notificationType, SUBJECT_MAIL_PART, addresseeId, locale,
-                MAIL_NOTIFICATION_CHANNEL, context);
-        String body = notificationTextFormer.format(notificationType, html ? BODY_HTML_MAIL_PART : BODY_MAIL_PART, addresseeId, locale,
-                MAIL_NOTIFICATION_CHANNEL, context);
-
-        MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();
-        MimeMessageHelper message = null;
-
-        // Проверяем наличие конфигурации вложения
-        if (notificationTextFormer.contains(notificationType, ATTACHMENT_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL)) {
-            message = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            // Получаем вложение
-            String attachment =
-                    notificationTextFormer.format(notificationType, ATTACHMENT_MAIL_PART, addresseeId, locale,
-                            MAIL_NOTIFICATION_CHANNEL, context);
-
-            // В attachment должна находиться строка в формате
-            // имя_фйла;идентификатор_объекта_с_вложением;имя_вложения
-            String[] attachmentInfo = attachment.split(";");
-            // Получаем объект к которому приаттачено вложение
-            Id documentWithAttachmentId = idService.createId(attachmentInfo[1]);
-            DomainObject documentWithAttachment = domainObjectDao.find(documentWithAttachmentId, systemAccessToken);
-            DomainObjectTypeConfig documentWithAttachmentTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class,
-                    documentWithAttachment.getTypeName());
-
-            // Получаем тип вложения к данному типу документа
-            for (AttachmentTypeConfig attachmentTypeConfig : documentWithAttachmentTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
-                List<DomainObject> linkedAttachments = domainObjectDao.findLinkedDomainObjects(documentWithAttachmentId, attachmentTypeConfig.getName(),
-                        documentWithAttachment.getTypeName(), systemAccessToken);
-                for (DomainObject attachmentObject : linkedAttachments) {
-                    if (attachmentObject.getString("name").matches(attachmentInfo[2])) {
-                        ByteArrayResource streamSource = new ByteArrayResource(getAttachmentContent(attachmentObject));
-                        String attachName = attachmentInfo[0];
-                        if (attachmentInfo[0].equals(ATTACH_NAME)) {
-                            attachName = attachmentObject.getString("name");
-                        }
-                        message.addAttachment(attachName, streamSource);
-                    }
-                }
+    // Ищем наименование поля для текушего конфига с учетом иерархии наследования
+    private String getLinkedFieldName(AttachmentTypeConfig attachmentTypeConfig, DomainObjectTypeConfig config) {
+        final AttachmentTypesConfig attachmentTypesConfig = config.getAttachmentTypesConfig();
+        if (attachmentTypesConfig != null) {
+            if (attachmentTypesConfig.getAttachmentTypeConfigs().contains(attachmentTypeConfig)) {
+                return config.getName();
             }
-        } else {
-            message = new MimeMessageHelper(mimeMessage, false, "UTF-8");
         }
 
-        message.setTo(addresseMail);
-        message.setFrom(sender);
-        message.setSubject(subject);
-        message.setText(body, html);
+        // Если null или не найден, то ищем у родителя
+        final String extendsAttribute = config.getExtendsAttribute();
+        if (extendsAttribute != null) {
+            final DomainObjectTypeConfig parentConfig = configurationExplorer.getDomainObjectTypeConfig(extendsAttribute);
+            return getLinkedFieldName(attachmentTypeConfig, parentConfig);
+        }
 
-        return mimeMessage;
+        throw new FatalException("Unable to get linked field name by config " + config.getName()
+                + " and attachmentTypeConfig " + attachmentTypeConfig);
     }
 
     private byte[] getAttachmentContent(DomainObject attachment) {
@@ -191,7 +225,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
 
-            int read = 0;
+            int read;
             byte[] buffer = new byte[1024];
             while ((read = contentStream.read(buffer)) > 0) {
                 attachmentBytes.write(buffer, 0, read);

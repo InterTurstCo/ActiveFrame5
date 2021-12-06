@@ -3,16 +3,10 @@ package ru.intertrust.cm.remoteclient.stres;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
-import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-
-import org.jboss.ejb.client.ContextSelector;
-import org.jboss.ejb.client.EJBClientConfiguration;
-import org.jboss.ejb.client.EJBClientContext;
-import org.jboss.ejb.client.PropertiesBasedEJBClientConfiguration;
-import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -41,19 +35,22 @@ public class TestManyThreadsSaveLock extends ClientBase {
             List<Thread> threads = new ArrayList<Thread>();
             List<RunnableThread> runnable = new ArrayList<RunnableThread>();
 
+            CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
             for (int i = 0; i < THREAD_COUNT; i++) {
-                RunnableThread runnableThread = new RunnableThread(String.valueOf(i));
+                RunnableThread runnableThread = new RunnableThread(countDownLatch, String.valueOf(i));
                                 
                 Thread thread = new Thread(runnableThread);
                 thread.start();
                 threads.add(thread);
                 runnable.add(runnableThread);
             }
-            
+
+            countDownLatch.await();
+
             for (RunnableThread runnableThread : runnable) {
                 if (runnableThread.isError()){
                     errorThreads ++;
-                }else{
+                } else {
                     okThreads ++ ;
                 }
             }
@@ -68,10 +65,12 @@ public class TestManyThreadsSaveLock extends ClientBase {
     private class RunnableThread implements Runnable {
         private String treadName;
         private InitialContext ctx;
-        private boolean error;
+        private volatile boolean error;
+        private CountDownLatch countDownLatch;
 
-        public RunnableThread(String treadName) {
+        public RunnableThread(CountDownLatch countDownLatch, String treadName) {
             this.treadName = treadName;
+            this.countDownLatch = countDownLatch;
         }
 
         public boolean isError(){
@@ -79,6 +78,7 @@ public class TestManyThreadsSaveLock extends ClientBase {
         }
         
         public void run() {
+
             try {
                 CrudService.Remote crudService = (CrudService.Remote) getServiceLocal(
                         "CrudServiceImpl", CrudService.Remote.class, "person8", "admin");
@@ -95,37 +95,20 @@ public class TestManyThreadsSaveLock extends ClientBase {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 error = true;
-            }
-            try{
-                ctx.close();
-            }catch(Exception ex){
-                
+            } finally {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    e.printStackTrace();
+                }
+                countDownLatch.countDown();
             }
         }
 
         private Object getServiceLocal(String serviceName, Class remoteInterfaceClass, String login, String psswd) throws NamingException {
             if (ctx == null) {
-                Properties jndiProps = new Properties();
-
-                
-                Properties clientProperties = new Properties();
-                clientProperties.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
-                clientProperties.put("remote.connections", "default");
-                clientProperties.put("remote.connection.default.port", address.split(":")[1]);
-                clientProperties.put("remote.connection.default.host", address.split(":")[0]);
-                clientProperties.put("remote.connection.default.username", login == null ? user : login);
-                clientProperties.put("remote.connection.default.password", psswd == null ? password : psswd);
-                clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
-                clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
-
-                EJBClientConfiguration ejbClientConfiguration = new PropertiesBasedEJBClientConfiguration(clientProperties);
-                ContextSelector<EJBClientContext> contextSelector = new ConfigBasedEJBClientContextSelector(ejbClientConfiguration);
-                EJBClientContext.setSelector(contextSelector);
-
-                jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-                
-                
-                ctx = new InitialContext(jndiProps);
+                Properties jndiProperties = getJndiProperties(login, password);
+                ctx = new InitialContext(jndiProperties);
             }
 
             Object service = ctx.lookup("ejb:" + getAppName() + "/" + getModuleName() + "//" + serviceName + "!" + remoteInterfaceClass.getName());

@@ -56,8 +56,10 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -112,13 +114,16 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Autowired
     private AuditService auditService;
 
+    @Autowired
+    private DomainObjectMapping domainObjectMapping;
+
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
     @Override
     public NavigationConfig getNavigationConfiguration() {
         NavigationTreeResolver navigationTreeResolver = (NavigationTreeResolver)
                 applicationContext.getBean("navigationTreeResolver");
-        return navigationTreeResolver.getNavigationPanel(sessionContext.getCallerPrincipal().getName());
+        return navigationTreeResolver.getNavigationPanel(currentUserAccessor.getCurrentUser());
     }
 
     /**
@@ -177,13 +182,25 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @Override
     public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
                                    FormViewerConfig formViewerConfig) {
-        String typeName = domainObjectTypeIdCache.getName(domainObjectId);
-        
+
+        String typeName = getTypeName(domainObjectId);
+
         if (configurationExplorer.isAuditLogType(typeName)) {
             return getAuditForm(domainObjectId);
         }else {
             return getFormRetriever(userInfo).getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
         }
+    }
+
+    private String getTypeName(Id domainObjectId){
+        String typeName = null;
+        if (domainObjectId != null) {
+            typeName = domainObjectMapping.getTypeName(domainObjectId);
+            if (typeName == null) {
+                typeName = domainObjectTypeIdCache.getName(domainObjectId);
+            }
+        }
+        return typeName;
     }
 
     private FormDisplayData getAuditForm(Id versionId) {
@@ -344,8 +361,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         cels.add(cellConfig);                        
     }
     
-    private List<String> getShowFields(ArrayList<String> fields) {
-        List<String> result = new ArrayList<String>();
+    private List<String> getShowFields(List<String> fields) {
+        List<String> result = new ArrayList<>();
         for (String field : fields) {
             if (!field.equalsIgnoreCase("operation")
                     && !field.equalsIgnoreCase("domain_object_id")) {
@@ -399,6 +416,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         }catch(GuiException ex){
             throw ex;
         }catch(Exception ex){
+            log.error("Error save form", ex);
             throw new GuiException("Error save form " + ex.getMessage());
     }
     }
@@ -524,7 +542,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Override
     public String getUserUid() {
-        return sessionContext.getCallerPrincipal().getName();
+        return currentUserAccessor.getCurrentUser();
     }
 
     @Override

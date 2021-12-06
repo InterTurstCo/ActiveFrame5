@@ -485,26 +485,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void updateCollection(UpdateCollectionEvent event) {
-        if (config.isRefreshAllOnAction()) {
-
-            // TODO: найти способ узнать происходит ли обновление когда корневой объект сохранен, добавлены новые дочерные в виджет, но еще не сохранены. В этом случае не делать обновление.
-            IdentifiableObject identifiableObject = event.getIdentifiableObject();
-            if (identifiableObject != null) {
-                Date createdDate = identifiableObject.getTimestamp("created_date");
-                Date updatedDate = identifiableObject.getTimestamp("updated_date");
-
-                String createdDateStr = createdDate.toString();
-                String updatedDateStr = updatedDate.toString();
-
-                boolean isNewObject = createdDateStr.equals(updatedDateStr);
-                // если добавляется новый объект, то обновлять остальные нет надобности
-                if (!isNewObject) {
-                    refresh();
-                }
-            } else {
-                refresh();
-            }
-        }
+        refresh();
         refreshSelection();
     }
 

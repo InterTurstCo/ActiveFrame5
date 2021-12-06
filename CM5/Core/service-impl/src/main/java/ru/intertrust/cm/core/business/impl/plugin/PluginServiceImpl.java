@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import javax.annotation.security.RunAs;
 import javax.ejb.Asynchronous;
 import javax.ejb.Local;
 import javax.ejb.Schedule;
@@ -135,7 +134,7 @@ public class PluginServiceImpl implements PluginService {
                         Future future = futures.get(identifiableObject.getString("plugin_id"));
                         if (future != null) {
                             future.cancel(true);
-                            logger.info("Send cancal event for plugin {} execution process", identifiableObject.getString("plugin_id"));
+                            logger.info("Send cancel event for plugin {} execution process", identifiableObject.getString("plugin_id"));
                             futures.remove(identifiableObject.getString("plugin_id"));
                         }
                     }

@@ -1,0 +1,14 @@
+.colorPickerDialog {
+    width: 520px;
+    height: 415px;
+    padding-left: 30px;
+}
+
+.hex-button-label {
+    text-decoration: none;
+    padding: 12px 4px 8px 0 !important;
+}
+
+.colorPickerDialogButtonsPanel {
+    padding-top: 15px;
+}

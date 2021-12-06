@@ -206,4 +206,11 @@ public interface DataStructureDao {
      * Выполняет сбор статистики базы данных
      */
     void gatherStatistics();
+
+    /**
+     * Добавление колонок в таблицу
+     * @param type
+     * @param fields
+     */
+    void addColumns(DomainObjectTypeConfig type, List<FieldConfig> fields);
 }

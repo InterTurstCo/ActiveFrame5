@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.process;
 
-import org.activiti.bpmn.model.ActivitiListener;
-import org.activiti.bpmn.model.UserTask;
-import org.activiti.engine.delegate.ExecutionListener;
-import org.activiti.engine.delegate.TaskListener;
-import org.activiti.engine.impl.bpmn.parser.BpmnParse;
-import org.activiti.engine.impl.bpmn.parser.handler.UserTaskParseHandler;
+import org.flowable.bpmn.model.FlowableListener;
+import org.flowable.bpmn.model.UserTask;
+import org.flowable.engine.delegate.TaskListener;
+import org.flowable.engine.impl.bpmn.parser.BpmnParse;
+import org.flowable.engine.impl.bpmn.parser.handler.UserTaskParseHandler;
 
 /**
  * Обработчик фазы создания пользовательской задачи. Переопределен для того
@@ -23,17 +22,17 @@ public class CustomUserTaskParseHandler extends UserTaskParseHandler {
      */
     @Override
     protected void executeParse(BpmnParse bpmnParse, UserTask userTask) {
-        ActivitiListener globalCreateListener = new ActivitiListener();
+        FlowableListener globalCreateListener = new FlowableListener();
         globalCreateListener.setEvent(TaskListener.EVENTNAME_CREATE);
         globalCreateListener.setImplementation(GlobalCreateTaskListener.class.getName());
         globalCreateListener.setImplementationType("class");
         userTask.getTaskListeners().add(globalCreateListener);
 
-        ActivitiListener globalEndListener = new ActivitiListener();
-        globalEndListener.setEvent(ExecutionListener.EVENTNAME_END);
-        globalEndListener.setImplementation(GlobalCreateTaskListener.class.getName());
+        FlowableListener globalEndListener = new FlowableListener();
+        globalEndListener.setEvent(TaskListener.EVENTNAME_DELETE);
+        globalEndListener.setImplementation(GlobalDeleteTaskListener.class.getName());
         globalEndListener.setImplementationType("class");
-        userTask.getExecutionListeners().add(globalEndListener);
+        userTask.getTaskListeners().add(globalEndListener);
 
         super.executeParse(bpmnParse, userTask);
     }

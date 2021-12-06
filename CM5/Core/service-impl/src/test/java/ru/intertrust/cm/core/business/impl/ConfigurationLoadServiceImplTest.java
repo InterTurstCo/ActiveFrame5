@@ -72,7 +72,10 @@ public class ConfigurationLoadServiceImplTest {
         ConfigurationClassesCache.getInstance().build();
 
         configuration = createConfiguration();
-        configurationService.setConfigurationExplorer(new ConfigurationExplorerImpl(configuration));
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
+        configurationService.setConfigurationExplorer(configurationExplorer);
+
         when(ejbContext.getUserTransaction()).thenReturn(new MockUserTransaction());
     }
 
@@ -84,6 +87,7 @@ public class ConfigurationLoadServiceImplTest {
 
         Configuration updatedConfiguration = createConfiguration();
         ConfigurationExplorerImpl configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
+        configExplorer.init();
 
         // Вносим изменения в конфигурацию
         DomainObjectTypeConfig domainObjectTypeConfig =
@@ -109,6 +113,7 @@ public class ConfigurationLoadServiceImplTest {
 
         // Пересобираем configExplorer
         configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
+        configExplorer.init();
         configurationService.setConfigurationExplorer(configExplorer);
 
         when(context.getBean("recursiveConfigurationLoader")).thenReturn(recursiveConfigurationLoader);

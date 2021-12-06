@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.access.DynamicGroupServiceImpl;
 
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
@@ -13,16 +16,20 @@ import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Vlad Simonenko
  * Реализация сервиса для работы с пользовательскими транзакциями.
  * Сервис регистрирует слушателя, который должен быть выполнен по завершению транзакции.
- * Если действия выполняются вне контеста контейнерной транзакции,
- * регистрация слушателей будет проигнорированна.
- */
+ * Если действия выполняются вне контеста контейнерной транзакции, регистрация слушателей будет проигнорирована.
+ * @author Vlad Simonenko, Gleb Nozdrachev
+*/
 public class UserTransactionServiceImpl implements UserTransactionService{
+
+    private static final Logger log = LoggerFactory.getLogger(UserTransactionServiceImpl.class);
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
@@ -30,157 +37,172 @@ public class UserTransactionServiceImpl implements UserTransactionService{
     @Autowired
     private CurrentDataSourceContext currentDataSourceContext;
 
-    private TransactionSynchronizationRegistry getTxReg() {
-        if (txReg == null) {
-            try {
-                txReg = (TransactionSynchronizationRegistry) new InitialContext().lookup("java:comp/TransactionSynchronizationRegistry");
-            } catch (NamingException e) {
-                throw new DaoException(e);
-            }
-        }
-        return txReg;
-    }
-
     /**
      * Регистрируем событие для фиксации или отката "пользовательской" транзакции.
      * @param actionListener - событие, необходимо переопределить методы onCommit и onRollback.
      */
     @Override
-    public void addListener(ActionListener actionListener) {
-        //не обрабатываем вне транзакции
-        if (getTxReg().getTransactionKey() == null) {
+    public void addListener (final ActionListener actionListener) {
+        
+        if (this.getTransactionId() == null) {
             return;
         }
-        List actionListeners = (List) getTxReg().getResource(ListenerBasedSynchronization.class);
-        if (actionListeners == null) {
-            actionListeners = new ArrayList();
-            getTxReg().putResource(ListenerBasedSynchronization.class, actionListeners);
-            getTxReg().registerInterposedSynchronization(new ListenerBasedSynchronization(actionListeners, currentDataSourceContext));
+        
+        ListenerBasedSynchronization mainListener = (ListenerBasedSynchronization)this.getTxReg().getResource(ListenerBasedSynchronization.class);
+        
+        if (mainListener == null) {
+            this.getTxReg().putResource(ListenerBasedSynchronization.class, mainListener = new ListenerBasedSynchronization(this.currentDataSourceContext));
+            this.getTxReg().registerInterposedSynchronization(mainListener);
         }
-        actionListeners.add(actionListener);
+        
+        if (mainListener.actionListenersCheck.add(actionListener)) {
+            mainListener.actionListeners.add(actionListener);
+            log.debug("UserTransactionServiceImpl / addListener: actionListener = {}", actionListener);
+        }
+        
     }
 
     @Override
-    public String getTransactionId() {
-        Object transactionKey = getTxReg().getTransactionKey();
-        return transactionKey == null ? null : transactionKey.toString();
-    }
-
-    @Override
-    public <T> T getListener(Class<T> tClass){
-        //не обрабатываем вне транзакции
-        if (getTxReg().getTransactionKey() == null) {
+    public <T> T getListener (final Class<T> clazz){
+        
+        if (this.getTransactionId() == null) {
             return null;
         }
 
-        List actionListeners = (List) getTxReg().getResource(ListenerBasedSynchronization.class);
-
-        if (actionListeners == null) {
-            return null;
-        }
-
-        for (Object l : actionListeners) {
-            if (tClass.equals(l.getClass())){
-                return (T) l;
+        final ListenerBasedSynchronization mainListener = (ListenerBasedSynchronization)this.getTxReg().getResource(ListenerBasedSynchronization.class);
+        T result = null;
+        
+        if (mainListener != null) {
+            for (final Object actionListener : mainListener.actionListeners) {
+                if (clazz.equals(actionListener.getClass())) {
+                    if (result == null) {
+                        result = clazz.cast(actionListener);
+                    } else {
+                        throw new RuntimeException("More than 1 action-listeners registered for '" + clazz + "'");
+                    }
+                }
             }
         }
-
-        return null;
+        
+        return result;
+        
     }
 
     /**
      * А.П. - Реализация перенесена в {@link FileSystemAttachmentContentDaoImpl}.
      */
     @Override
-    public void addListenerForSaveFile(final String filePath) {
-        /*addListener(new ActionListener() {
-            @Override
-            public void onBeforeCommit() {
-            }
-
-            @Override
-            public void onRollback() {
-                File f = new File(filePath);
-                if (f.exists()) {
-                    try {
-                        f.delete();
-                    } catch (RuntimeException ex) {
-                    }
-                }
-            }
-
-            @Override
-            public void onAfterCommit() {
-                // Ничего не делаем                
-            }
-        });*/
+    public void addListenerForSaveFile (final String filePath) {
     }
 
-    static private class ListenerBasedSynchronization implements Synchronization {
+    @Override
+    public String getTransactionId () {
+        final Object transactionKey = this.getTxReg().getTransactionKey();
+        return transactionKey == null ? null : transactionKey.toString();
+    }
+
+    private TransactionSynchronizationRegistry getTxReg () {
+        
+        if (this.txReg == null) {
+            try {
+                this.txReg = (TransactionSynchronizationRegistry)(new InitialContext()).lookup("java:comp/TransactionSynchronizationRegistry");
+            } catch (final NamingException e) {
+                throw new DaoException(e);
+            }
+        }
+        
+        return this.txReg;
+        
+    }
+
+    private static class ListenerBasedSynchronization implements Synchronization {
+        
         private enum Operation {
             BeforeCommit, AfterCommit, Rollback
         }
-        List<ActionListener> actionListeners;
 
-        private CurrentDataSourceContext currentDataSourceContext;
+        private static final Class<?>[] listenersFirst = new Class<?>[] {DomainObjectDaoImpl.CacheCommitNotifier.class};
+        private static final Class<?>[] listenersLast  = new Class<?>[] {DynamicGroupServiceImpl.RecalcGroupSynchronization.class};
+        
+        private static final Set<Class<?>> listenersFirstAndLast = new HashSet<Class<?>>() {
+            {
+                this.addAll(Arrays.asList(listenersFirst));
+                this.addAll(Arrays.asList(listenersLast));
+            }
+        };
+        
+        private final List<ActionListener> actionListeners = new ArrayList<>();
+        private final Set<ActionListener> actionListenersCheck = new HashSet<>();
+        private final CurrentDataSourceContext currentDataSourceContext;
 
-        public ListenerBasedSynchronization(List list, CurrentDataSourceContext currentDataSourceContext) {
-            this.actionListeners = list;
+        public ListenerBasedSynchronization (final CurrentDataSourceContext currentDataSourceContext) {
             this.currentDataSourceContext = currentDataSourceContext;
         }
 
         @Override
-        public void beforeCompletion() {
-            currentDataSourceContext.reset(); // устанавливаем источник данных в МАСТЕР
-            //Идем с конца спсика, чтобы не получить ошибку модификации списка в итераторе
-            notifyListeners(Operation.BeforeCommit);
+        public void beforeCompletion () {
+            this.currentDataSourceContext.reset();
+            this.notifyListeners(Operation.BeforeCommit);
         }
 
         @Override
-        public void afterCompletion(int status) {
+        public void afterCompletion (final int status) {
             try {
-                if (Status.STATUS_ROLLEDBACK == status) {
-                    notifyListeners(Operation.Rollback);
-                } else if (Status.STATUS_COMMITTED == status) {
-                    notifyListeners(Operation.AfterCommit);
+                if (status == Status.STATUS_ROLLEDBACK) {
+                    this.notifyListeners(Operation.Rollback);
+                } else if (status == Status.STATUS_COMMITTED) {
+                    this.notifyListeners(Operation.AfterCommit);
                 }
             } finally {
-                actionListeners = null;
+                this.actionListeners.clear();
+                this.actionListenersCheck.clear();
             }
         }
+        
+        private void notifyListeners (final Operation operation) {
 
-        private void notifyListeners(Operation operation) {
-            //В 1ю очередь необходимо вызвать слушатель, модифицирующий кэш
-            for (int i = actionListeners.size() - 1; i >= 0; i--) {
-                final ActionListener listener = actionListeners.get(i);
-                if (listener.getClass().equals(DomainObjectDaoImpl.CacheCommitNotifier.class)) {
-                    switch (operation) {
-                        case BeforeCommit:
-                            listener.onBeforeCommit();
-                            break;
-                        case AfterCommit:
-                            listener.onAfterCommit();
-                            break;
-                        case Rollback:
-                            listener.onRollback();
-                    }
+            this.notifyListeners(listenersFirst, operation);
+
+            for (int i = 0; i < this.actionListeners.size(); i++) {
+                final ActionListener listener = this.actionListeners.get(i);
+                if (!listenersFirstAndLast.contains(listener.getClass())) {
+                    this.notifyListener(listener, operation);
                 }
             }
-            for (int i = actionListeners.size() - 1; i >= 0; i--) {
-                final ActionListener listener = actionListeners.get(i);
-                if (!listener.getClass().equals(DomainObjectDaoImpl.CacheCommitNotifier.class)) {
-                    switch (operation) {
-                        case BeforeCommit:
-                            listener.onBeforeCommit();
-                            break;
-                        case AfterCommit:
-                            listener.onAfterCommit();
-                            break;
-                        case Rollback:
-                            listener.onRollback();
+
+            this.notifyListeners(listenersLast, operation);
+
+        }
+        
+        private void notifyListeners (final Class<?>[] listeners, final Operation operation) {
+            for (final Class<?> clazz : listeners) {
+                for (int i = 0; i < this.actionListeners.size(); i++) {
+                    final ActionListener listener = this.actionListeners.get(i);
+                    if (clazz.equals(listener.getClass())) {
+                    	log.debug("notifyListeners : Start listener = {} with operation = {}", listener, operation);
+                        this.notifyListener(listener, operation);
+                        log.debug("notifyListeners : Listener = {} with operation = {} finished", listener, operation);
                     }
                 }
             }
         }
+        
+        private void notifyListener (final ActionListener listener, final Operation operation) {
+            switch (operation) {
+                case BeforeCommit:
+                    listener.onBeforeCommit();
+                    break;
+                case AfterCommit:
+                    listener.onAfterCommit();
+                    break;
+                case Rollback:
+                    listener.onRollback();
+                    break;
+                default:
+                    throw new RuntimeException("Unknown operation " + operation);
+            }
+        }
+        
     }
+    
 }

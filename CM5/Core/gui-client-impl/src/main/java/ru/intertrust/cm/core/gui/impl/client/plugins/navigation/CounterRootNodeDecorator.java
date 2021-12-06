@@ -10,9 +10,11 @@ public class CounterRootNodeDecorator implements CounterDecorator {
     private String name;
     private String collectionName;
     private CounterKey counterKey;
+    private boolean isDisplayCounter;
 
-    public CounterRootNodeDecorator(RootNodeButton rootButton) {
+    public CounterRootNodeDecorator(RootNodeButton rootButton, boolean isDisplayCounter) {
         this.rootNodeButton = rootButton;
+        this.isDisplayCounter = isDisplayCounter;
     }
 
     public void setCollectionName(String collectionName) {
@@ -25,7 +27,9 @@ public class CounterRootNodeDecorator implements CounterDecorator {
 
     @Override
     public void decorate(Long counterValue) {
-        rootNodeButton.updateCollectionCount(counterValue);
+        if (isDisplayCounter()) {
+            rootNodeButton.updateCollectionCount(counterValue);
+        }
     }
 
     public String getName() {
@@ -43,5 +47,9 @@ public class CounterRootNodeDecorator implements CounterDecorator {
 
     public CounterKey getCounterKey() {
         return counterKey;
+    }
+
+    private boolean isDisplayCounter() {
+        return isDisplayCounter;
     }
 }

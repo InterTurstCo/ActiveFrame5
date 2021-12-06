@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.business.impl.search;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 
+import java.util.List;
+
 /**
  * Интерфейс предназначен для реализации классами (адаптерами), выполняющими преобразование
  * фильтров расширенного поиска ({@link SearchFilter}) в части запроса к Solr.
@@ -42,4 +44,13 @@ public interface FilterAdapter<F extends SearchFilter> {
      * @return true, если фильтр включает несколько полей
      */
     boolean isCompositeFilter(F filter);
+
+    /**
+     * Получение списка имен полей, которые использует данный фильтр
+     * @param filter
+     * @param query
+     * @return
+     */
+    List<String> getFieldNames(F filter, SearchQuery query);
+
 }

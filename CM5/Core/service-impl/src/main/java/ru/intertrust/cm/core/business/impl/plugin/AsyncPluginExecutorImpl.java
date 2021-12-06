@@ -14,6 +14,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
+import javax.transaction.Status;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
                 }
             } catch (Throwable ex) {
                 logger.error("Error execute plugin ", ex);
-                if (pluginInfo.isTransactional()) {
+                if (pluginInfo.isTransactional() && ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
                     ejbContext.getUserTransaction().rollback();
                 }
                 result = ExceptionUtils.getStackTrace(ex);

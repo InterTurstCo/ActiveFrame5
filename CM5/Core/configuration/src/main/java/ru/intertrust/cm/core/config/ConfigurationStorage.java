@@ -72,6 +72,8 @@ public class ConfigurationStorage {
 
     public CaseInsensitiveHashMap<AccessMatrixConfig> accessMatrixByObjectTypeUsingExtensionMap = new CaseInsensitiveHashMap<>();
 
+    public CaseInsensitiveHashMap<AccessMatrixConfig> accessMatrixByObjectType = new CaseInsensitiveHashMap<>();
+
     public CaseInsensitiveHashMap<List<String>> allowedToCreateUserGroupsMap = new CaseInsensitiveHashMap<>();
 
 }

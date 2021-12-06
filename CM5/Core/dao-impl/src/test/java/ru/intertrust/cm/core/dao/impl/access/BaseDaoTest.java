@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.test.util.ReflectionTestUtils;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -22,9 +23,11 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.impl.*;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 
@@ -106,6 +109,8 @@ public abstract class BaseDaoTest {
         configurationSerializer.setModulesConfigurationFolder(MODULES_CONFIG_FOLDER);
         configurationSerializer.setModulesConfigurationPath(MODULES_CONFIG_PATH);
         configurationSerializer.setModulesConfigurationSchemaPath(MODULES_CONFIG_SCHEMA_PATH);*/
+        ModuleService moduleService = Mockito.mock(ModuleService.class);
+        ReflectionTestUtils.setField(configurationSerializer, "moduleService", moduleService);
         return configurationSerializer;
     }
 
@@ -113,7 +118,8 @@ public abstract class BaseDaoTest {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         Configuration configuration = configurationSerializer.deserializeConfiguration();
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorerImpl configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        configurationExplorer.init();
         return configurationExplorer;
     }
 
@@ -346,8 +352,11 @@ public abstract class BaseDaoTest {
   }
 
   private static DomainObjectTypeIdCacheImpl createDomainObjectTypeIdCache(DriverManagerDataSource dataSource) {
+      DataStructureDao dataStructureDao = Mockito.mock(DataStructureDao.class);
+
       DomainObjectTypeIdDaoImpl domainObjectTypeIdDao = new DomainObjectTypeIdDaoImpl();
       domainObjectTypeIdDao.setJdbcTemplate(jdbcOperations);
+      ReflectionTestUtils.setField(domainObjectTypeIdDao, "dataStructureDao", dataStructureDao);
 
       DomainObjectTypeIdCacheImpl domainObjectTypeIdCache = new DomainObjectTypeIdCacheImpl();
       domainObjectTypeIdCache.setDomainObjectTypeIdDao(domainObjectTypeIdDao);

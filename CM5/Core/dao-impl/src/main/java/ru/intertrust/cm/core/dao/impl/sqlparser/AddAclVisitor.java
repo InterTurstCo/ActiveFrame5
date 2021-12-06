@@ -1,12 +1,15 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
+import java.util.concurrent.atomic.AtomicReference;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
@@ -15,6 +18,8 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.WithItem;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -34,33 +39,45 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  */
 public class AddAclVisitor extends BasicVisitor {
 
-    private static Map<String, SelectBody> aclSelectBodyCache = new ConcurrentHashMap<>();
+    private static final Map<String, SelectBody> aclSelectBodyCache = new ConcurrentHashMap<>();
+    private static final AtomicReference<WithItem> aclWithItemGroups = new AtomicReference<>();
+    protected static final AtomicReference<WithItem> aclWithItemStamps = new AtomicReference<>();
 
-    private static WithItem aclWithItem = null;
-
-    /**
-     * Метод для тестов, используется для "стерилизации" контекста.
-     */
-    protected static void clearStaticFields() {
-        aclSelectBodyCache = new ConcurrentHashMap<>();
-        aclWithItem = null;
+    protected static final WithItem DUMMY = new DummyWithItem();
+    static {
+        DUMMY.setName("DUMMY");
     }
 
-    private ConfigurationExplorer configurationExplorer;
-    private UserGroupGlobalCache userGroupCache;
+    /**
+     * Очистка кэша
+     */
+    public static void clearCache() {
+        aclSelectBodyCache.clear();
+        aclWithItemGroups.set(null);
+        aclWithItemStamps.set(null);
+    }
 
-    private CurrentUserAccessor currentUserAccessor;
-    private DomainObjectQueryHelper domainObjectQueryHelper;
+    private final ConfigurationExplorer configurationExplorer;
+    private final UserGroupGlobalCache userGroupCache;
 
-    private Select select = null;
+    private final CurrentUserAccessor currentUserAccessor;
+    protected final DomainObjectQueryHelper domainObjectQueryHelper;
+
+    protected Select select = null;
 
     private boolean aclWithItemAdded = false;
+    private boolean stampWithItemAdded = false;
 
-    private HashMap<PlainSelect, List<List<FromItemAccessor>>> tableGroups = new HashMap<PlainSelect, List<List<FromItemAccessor>>>();
+    private final HashMap<PlainSelect, List<List<FromItemAccessor>>> tableGroups = new HashMap<PlainSelect, List<List<FromItemAccessor>>>();
 
-    private Stack<PlainSelect> selectStack = new Stack<>();
+    private final Stack<PlainSelect> selectStack = new Stack<>();
 
-    private SharedPermissionsChecker sharedPermissionsChecker;
+    private final SharedPermissionsChecker sharedPermissionsChecker;
+
+    // При чтении данных из кэша, сохраняем полученные значения в локальные переменные
+    protected SelectBody selectBodyLocalCache;
+    protected WithItem aclWithItemLocalCache;
+    protected WithItem stampWithItemLocalCache;
 
     public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
             CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
@@ -81,24 +98,61 @@ public class AddAclVisitor extends BasicVisitor {
             aclSubSelect.setAlias(table.getAlias());
         }
 
-        if (!aclWithItemAdded) {
-            List<WithItem> list = select.getWithItemsList();
-            list.add(0, aclWithItem);
-            if (list.size() > 1 && list.get(1).isRecursive()) {
-                list.get(0).setRecursive(true);
-                list.get(1).setRecursive(false);
-            }
-            aclWithItemAdded = true;
-        }
+        addAclWithItem();
+
+        addStampWithItem();
 
         return aclSubSelect;
+    }
+
+    protected void addStampWithItem() {
+        // stampWithItemLocalCache не должен быть NULL, он будет DUMMY
+        if (!stampWithItemAdded && stampWithItemLocalCache != DUMMY){
+            addWithItem(stampWithItemLocalCache);
+            stampWithItemAdded = true;
+        }
+    }
+
+    /**
+     * Этот метод изменяет withItem, который сюда передан.
+     * Важно, чтобы withItem не был взят из кэша. В этом случае необходимо сделать его копию!
+     */
+    protected void addWithItem(WithItem withItem) {
+        List<WithItem> list = select.getWithItemsList();
+        list.add(0, withItem);
+        if (list.size() > 1 && list.get(1).isRecursive()) {
+            list.get(0).setRecursive(true);
+            list.get(1).setRecursive(false);
+        }
+    }
+
+    protected void addAclWithItem() {
+        if (!aclWithItemAdded) {
+            addWithItem(aclWithItemLocalCache);
+            aclWithItemAdded = true;
+        }
+    }
+
+    protected WithItem copyWithItem(WithItem withItem) {
+        if (withItem == null) {
+            return null;
+        }
+
+        WithItem tmp = new WithItem();
+        tmp.setSelectBody(withItem.getSelectBody());
+        tmp.setWithItemList(withItem.getWithItemList());
+        tmp.setName(withItem.getName());
+        tmp.setRecursive(withItem.isRecursive());
+        return tmp;
     }
 
     private SelectBody getAclSelectBody(Table table) {
         String tableName = DaoUtils.unwrap(table.getName());
 
-        if (aclSelectBodyCache.get(tableName) != null) {
-            return aclSelectBodyCache.get(tableName);
+        readCacheToLocal(tableName);
+
+        if (isCacheFilled()) {
+            return getSelectBodyFromCache();
         } else {
             StringBuilder aclQuery = new StringBuilder();
             aclQuery.append("select ").append(tableName).append(".* from ").
@@ -110,13 +164,53 @@ public class AddAclVisitor extends BasicVisitor {
             SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
             Select aclSelect = aclSqlParser.getSelectStatement();
 
-            if (aclWithItem == null) {
-                aclWithItem = aclSelect.getWithItemsList().get(0);
-            }
-
-            aclSelectBodyCache.put(tableName, aclSelect.getSelectBody());
+            cacheAclSelect(tableName, aclSelect);
 
             return aclSelect.getSelectBody();
+        }
+    }
+
+    protected SelectBody getSelectBodyFromCache() {
+        return selectBodyLocalCache;
+    }
+
+    protected boolean isCacheFilled() {
+        return selectBodyLocalCache != null && aclWithItemLocalCache != null && stampWithItemLocalCache != null;
+    }
+
+    protected void readCacheToLocal(String tableName) {
+        // Тут копия, судя по всему, не нужна
+        selectBodyLocalCache = aclSelectBodyCache.get(tableName);
+
+        aclWithItemLocalCache = copyWithItem(aclWithItemGroups.get());
+
+        stampWithItemLocalCache = AddAclVisitor.aclWithItemStamps.get();
+        if (stampWithItemLocalCache != null) {
+            // DUMMY нельзя копировать, он должен всегда оставаться тем же объектом
+            if (stampWithItemLocalCache != DUMMY) {
+                stampWithItemLocalCache = copyWithItem(stampWithItemLocalCache);
+            }
+        }
+    }
+
+    protected void cacheAclSelect(String tableName, Select aclSelect) {
+        aclWithItemLocalCache = domainObjectQueryHelper.getAclWithItem(aclSelect);
+        aclWithItemGroups.compareAndSet(null, copyWithItem(aclWithItemLocalCache));
+
+        selectBodyLocalCache = aclSelect.getSelectBody();
+        aclSelectBodyCache.putIfAbsent(tableName, selectBodyLocalCache);
+
+        addStampCache(aclSelect);
+    }
+
+    protected void addStampCache(Select aclSelect) {
+        final Optional<WithItem> stampsWithItem = domainObjectQueryHelper.getStampWithItem(aclSelect);
+        stampWithItemLocalCache = stampsWithItem.map(this::copyWithItem).orElse(DUMMY);
+
+        if (stampWithItemLocalCache != null && stampWithItemLocalCache != DUMMY) {
+            // Перезапись из нескольких потоков не приведет к проблемам, т.к. в этой реализации
+            // будет всегда одно и то же значение. Чтобы не делать какую-то логику на 2 CAS
+            AddAclVisitor.aclWithItemStamps.set(stampWithItemLocalCache);
         }
     }
 
@@ -152,7 +246,6 @@ public class AddAclVisitor extends BasicVisitor {
             // добавляем подзапрос на права в случае если не стоит флаг
             // read-everybody
             if (needToAddAclSubQuery(table)) {
-                // plainSelect.setFromItem(createAclSubSelect(table));
                 addTableToTableGroup(new FromItemAccessor(plainSelect), plainSelect);
             }
         } else {
@@ -171,7 +264,6 @@ public class AddAclVisitor extends BasicVisitor {
                     // добавляем подзапрос на права в случае если не стоит флаг
                     // read-everybody
                     if (needToAddAclSubQuery(table)) {
-                        // join.setRightItem(createAclSubSelect(table));
                         addTableToTableGroup(new FromItemAccessor(join), plainSelect);
                     }
                 } else {
@@ -194,7 +286,7 @@ public class AddAclVisitor extends BasicVisitor {
             }
         }
         List<List<FromItemAccessor>> contextTableGroups = tableGroups.get(plainSelect);
-        List<FromItemAccessor> newGroup = new ArrayList<FromItemAccessor>();
+        List<FromItemAccessor> newGroup = new ArrayList<>();
         newGroup.add(accessor);
         contextTableGroups.add(newGroup);
     }
@@ -217,7 +309,7 @@ public class AddAclVisitor extends BasicVisitor {
     @Override
     public void visit(PlainSelect plainSelect) {
         if (!tableGroups.containsKey(plainSelect)) {
-            tableGroups.put(plainSelect, new ArrayList<List<FromItemAccessor>>());
+            tableGroups.put(plainSelect, new ArrayList<>());
         }
 
         processFromItem(plainSelect);
@@ -247,7 +339,7 @@ public class AddAclVisitor extends BasicVisitor {
         this.select = select;
 
         if (select.getWithItemsList() == null) {
-            select.setWithItemsList(new ArrayList<WithItem>());
+            select.setWithItemsList(new ArrayList<>());
         }
 
         if (select.getSelectBody() != null) {
@@ -260,5 +352,92 @@ public class AddAclVisitor extends BasicVisitor {
 
         substituteTablesWithAclSubQueries();
         tableGroups.clear();
+    }
+
+    private static class DummyWithItem extends WithItem {
+        @Override
+        public String getName() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setName(String name) {
+            if ("DUMMY".equals(name)) {
+                super.setName(name);
+                return;
+            }
+
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isRecursive() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setRecursive(boolean recursive) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public SelectBody getSelectBody() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setSelectBody(SelectBody selectBody) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public List<SelectItem> getWithItemList() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setWithItemList(List<SelectItem> withItemList) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void accept(SelectVisitor visitor) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WithItem withName(String name) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WithItem withWithItemList(List<SelectItem> withItemList) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WithItem withSelectBody(SelectBody selectBody) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WithItem withRecursive(boolean recursive) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WithItem addWithItemList(SelectItem... withItemList) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public WithItem addWithItemList(Collection<? extends SelectItem> withItemList) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <E extends SelectBody> E getSelectBody(Class<E> type) {
+            throw new UnsupportedOperationException();
+        }
     }
 }

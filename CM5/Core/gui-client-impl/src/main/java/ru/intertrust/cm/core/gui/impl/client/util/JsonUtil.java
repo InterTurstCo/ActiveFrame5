@@ -131,6 +131,23 @@ public class JsonUtil {
 
     }
 
+    public static void prepareJsonSelectedIdsFilter(JSONObject requestObj, List<Id> selectedIds, String filterAttributeName) {
+        if (selectedIds == null || selectedIds.isEmpty()) {
+            return;
+        }
+        JSONObject jsonFilterObject = new JSONObject();
+        JSONArray jsonIdsArr = new JSONArray();
+        int index = 0;
+        for (Id id : selectedIds) {
+            if (id != null) {
+                jsonIdsArr.set(index, new JSONString(id.toStringRepresentation()));
+                index++;
+            }
+        }
+        jsonFilterObject.put("selectedIds", jsonIdsArr);
+        requestObj.put(filterAttributeName, jsonFilterObject);
+    }
+
     public static void prepareJsonHierarchicalFiltersConfig(JSONObject requestObj, CollectionExtraFiltersConfig extraFiltersConfig,
                                                             String filterAttributeName) {
         if (extraFiltersConfig == null) {
@@ -143,11 +160,11 @@ public class JsonUtil {
 
 
     public static void prepareJsonExtendedSearchParams(JSONObject requestObj, SearchQuery searchQuery, String propertyName){
-        if(searchQuery == null){
+        if (searchQuery == null) {
             return;
         }
 
-        requestObj.put(propertyName, searchQueryToJson(searchQuery) );
+        requestObj.put(propertyName, searchQueryToJson(searchQuery));
     }
 
     private static void prepareFiltersConfigs(JSONObject filtersObj,
@@ -202,7 +219,7 @@ public class JsonUtil {
 
     public static JSONObject searchQueryToJson(SearchQuery searchQuery) {
         JSONObject result = new JSONObject();
-        result.put("targetObjectType", new JSONString(searchQuery.getTargetObjectType()));
+        result.put("targetObjectType", new JSONString(searchQuery.getTargetObjectTypes().get(0)));
 
         JSONArray areasValue = new JSONArray();
 

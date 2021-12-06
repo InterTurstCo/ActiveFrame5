@@ -127,7 +127,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     public void clearCurrentNode() {
         globalCache.clear();
         AfterClearGlobalCacheExtentionHandler handler = 
-                extensionService.getExtentionPoint(AfterClearGlobalCacheExtentionHandler.class, null);
+                extensionService.getExtensionPoint(AfterClearGlobalCacheExtentionHandler.class, null);
         handler.onClearGlobalCache();
     }
 
@@ -142,8 +142,11 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements Ap
     }
 
     @Override
-    public void notifyUpdate(DomainObject obj, AccessToken accessToken) {
+    public void notifyUpdate(DomainObject obj, AccessToken accessToken, boolean stampChanged) {
         addObjectChanged(obj.getId(), obj.getTypeName());
+        if (stampChanged) {
+            getAccessChanges().markForFullAccessClearing();
+        }
     }
 
     @Override

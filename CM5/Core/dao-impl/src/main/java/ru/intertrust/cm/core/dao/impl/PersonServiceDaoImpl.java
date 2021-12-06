@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -42,9 +44,17 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
         List<Value> params = new ArrayList<Value>();
+        // Регистронезависимость сохраняем, но сначала проверяем с учетм регистра, и только затем - без
+        params.add(new StringValue(login));
         params.add(new StringValue(login.toLowerCase()));
 
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(login) = {0}", params, 0, 0, accessToken);
+        String sqlQuery = "select id, 0 as orderfield from person where login = {0} " +
+                "union " +
+                "select id, 1 as orderfield from person where lower(login) = {1} " +
+                "order by orderfield";
+
+        // TODO убрал limit 1, т.к. он ставится перед order by и запрос падает, а тикет срочный, нужно поправить!
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(sqlQuery, params, 0, 0, accessToken);
         if (collection.size() == 0) {
             throw new IllegalArgumentException("Person not found: " + login);
         }
@@ -54,8 +64,8 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
     }
 
     @Override
-    @CacheEvict(value = "persons", key = "#login")
-    public void personUpdated(String login) {
+    @CacheEvict(value = "persons", key = "#key")
+    public void personUpdated(String key) {
         // метод пустой, т.к. удаление объекта из кеша происходит в Spring
     }
 
@@ -135,5 +145,22 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
         }
 
         return result;
+    }
+
+    @Override
+    @Cacheable(value="persons", key = "#email")
+    public List<DomainObject> findPersonsByEmail(String email) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id from person where lower(email) = {0}",
+                Collections.singletonList(new StringValue(email.toLowerCase())), 0, 0, accessToken);
+        if (collection.size() == 0) {
+            return Collections.emptyList();
+        }
+        final List<DomainObject> persons = new ArrayList<>(collection.size());
+        for(IdentifiableObject id : collection) {
+            persons.add(domainObjectDao.find(id.getId(), accessToken));
+        }
+        return persons;
     }
 }

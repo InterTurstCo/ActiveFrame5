@@ -10,11 +10,11 @@ public interface SearchFilter extends Dto {
     /**
      * Специальное имя поля, используемое для поиска в любых полях документа
      */
-    static final String EVERYWHERE = "*";
+    String EVERYWHERE = "*";
     /**
      * Специальное имя поля, используемое для поиска в содержимом вложений
      */
-    static final String CONTENT = "%content";
+    String CONTENT = "%content";
 
     /**
      * Возвращает имя поля, по которому осуществляется фильтрация

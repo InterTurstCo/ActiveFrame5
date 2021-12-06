@@ -17,6 +17,7 @@ public class JsonCsvRequest {
     private JsonSortCriteria sortCriteria;
     private JsonInitialFilters jsonInitialFilters;
     private JsonInitialFilters jsonHierarchicalFilters;
+    private JsonSelectedIdsFilter jsonSelectedIdsFilter;
 
     public JsonCsvRequest() {
     }
@@ -91,5 +92,13 @@ public class JsonCsvRequest {
 
     public void setJsonHierarchicalFilters(JsonInitialFilters jsonHierarchicalFilters) {
         this.jsonHierarchicalFilters = jsonHierarchicalFilters;
+    }
+
+    public JsonSelectedIdsFilter getJsonSelectedIdsFilter() {
+        return jsonSelectedIdsFilter;
+    }
+
+    public void setJsonSelectedIdsFilter(JsonSelectedIdsFilter jsonSelectedIdsFilter) {
+        this.jsonSelectedIdsFilter = jsonSelectedIdsFilter;
     }
 }

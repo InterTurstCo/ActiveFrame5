@@ -61,6 +61,7 @@ public class ConfigurationControlServiceImplTest extends TestCase {
     public void testRestartRequiredForFullUpdate() throws Exception {
         Configuration configuration = createConfiguration();
         ConfigurationExplorerImpl configurationExplorerImpl = new ConfigurationExplorerImpl(configuration);
+        configurationExplorerImpl.init();
 
         Configuration newConfiguration = createConfiguration();
 

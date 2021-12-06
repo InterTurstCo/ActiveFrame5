@@ -27,7 +27,7 @@ public class PermissionAfterCommitImpl implements PermissionAfterCommit{
     @Override
     public void onAfterCommit(Map<Id, AclData> aclDatas) {
         OnCalculateContextRoleExtensionHandler handler =
-                extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
+                extensionService.getExtensionPoint(OnCalculateContextRoleExtensionHandler.class, null);
 
         for (Id id : aclDatas.keySet()) {
             handler.onCalculate(aclDatas.get(id), id);

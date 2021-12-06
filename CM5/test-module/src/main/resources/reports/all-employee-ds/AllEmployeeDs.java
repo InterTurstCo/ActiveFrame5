@@ -13,9 +13,8 @@ import ru.intertrust.cm.core.service.api.ReportDS;
 
 public class AllEmployeeDs implements ReportDS {
 
-    public JRDataSource getJRDataSource(Connection connection,
-            Map params) throws Exception {
-        List<Person> result = new ArrayList<Person>();
+    public JRDataSource getJRDataSource(Connection connection, Map<String, Object> params) throws Exception {
+        List<Person> result = new ArrayList<>();
 
         PreparedStatement statement = connection.prepareStatement("select t.login from person t");
         ResultSet resultSet = statement.executeQuery();
@@ -48,7 +47,5 @@ public class AllEmployeeDs implements ReportDS {
         public void setHash(int hash) {
             this.hash = hash;
         }
-
     }
-
 }

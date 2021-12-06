@@ -44,6 +44,10 @@ public class ImportData {
     public static final String SYSTEM_IMPORT_BEAN = "system-import-data";
     //Имя спринг бина для работы под пользовательскими правами
     public static final String PERSON_IMPORT_BEAN = "person-import-data";
+    
+    private static boolean isAllowRefresh (DomainObject domainObject) {
+        return !Boolean.TRUE.equals(domainObject.getBoolean("IsProhibitRefreshCsv"));
+    }
 
     @Autowired
     private CollectionsDao collectionsDao;
@@ -196,6 +200,7 @@ public class ImportData {
             }
             commitTransaction(transaction);
             deleteOther(transaction);
+            commitTransaction(transaction);
             return new ArrayList<>(importedIds);
         } catch (Exception ex) {
             try {
@@ -280,7 +285,9 @@ public class ImportData {
                 List<Value> domainObjectsToDelete = doelEvaluator.evaluate(expression, importedId, getSelectAccessToken());
                 for (Value id : domainObjectsToDelete) {
                     Id deleteId = (Id) id.get();
-                    domainObjectDao.delete(deleteId, getDeleteAccessToken(deleteId));
+                    if (isAllowRefresh(domainObjectDao.find(deleteId, getReadAccessToken(deleteId)))) {
+                        domainObjectDao.delete(deleteId, getDeleteAccessToken(deleteId));
+                    }
                 }
             }
         }
@@ -315,11 +322,15 @@ public class ImportData {
                 int rows = 0;
                 for (Id id : toDeleteIds) {
                     beginTransactionIfNeed(transaction, rows);
-                    domainObjectDao.delete(id, getDeleteAccessToken(id));
+                    if (isAllowRefresh(domainObjectDao.find(id, getReadAccessToken(id)))) {
+                        domainObjectDao.delete(id, getDeleteAccessToken(id));
+                    }
                     commitTransactionIfNeed(transaction, rows);
                     rows++;
                 }
             }
+
+            commitTransaction(transaction);
         }
     }
 
@@ -384,11 +395,11 @@ public class ImportData {
 	            domainObject = createDomainObject(typeName);
 	        }
 	
-	        //Выполяем действия перед импортом
-	        doBeforeImportRow(domainObject.getId());
-	
 	        //Если доменный объект новый или стоит флаг перезаписывать атрибуты то устанавливаем атрибуты
-	        if (rewrite || domainObject.isNew()) {
+	        if ((rewrite && isAllowRefresh(domainObject)) || domainObject.isNew()) {
+	            
+	            //Выполяем действия перед импортом
+	            doBeforeImportRow(domainObject.getId());
 	
 	            String attachments = null;
 	            //Установка полей

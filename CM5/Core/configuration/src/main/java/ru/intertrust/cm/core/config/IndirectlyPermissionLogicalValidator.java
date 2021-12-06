@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +61,12 @@ public class IndirectlyPermissionLogicalValidator implements ConfigurationValida
                 
                 //Проверка допустимых комбинаций matrix-reference-field и borrow-permissisons и status
                 if (accessMatrixConfig.getBorrowPermissisons() == null || accessMatrixConfig.getBorrowPermissisons() == BorrowPermissisonsMode.all){
-                    if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().size() > 0){
-                        logicalErrors.addError("Access Matrix tor type " + accessMatrixConfig.getType() +
-                                " can not has status config when it has matrix-reference-field=" + accessMatrixConfig.getMatrixReference() +
-                                " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
+                    if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().size() > 0
+                            && !isAllowedStatusesForMatrixRef(accessMatrixConfig)){
+                        /* Права на чтение вложений не наследуются, поэтому указание статусов для них разрешено */
+                        logicalErrors.addError("Access Matrix tor type " + accessMatrixConfig.getType()
+                                + " can not has status config when it has matrix-reference-field=" + accessMatrixConfig.getMatrixReference()
+                                + " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
                     }
                     if (accessMatrixConfig.getCreateConfig() != null 
                             && accessMatrixConfig.getCreateConfig().getPermitGroups() != null 
@@ -73,7 +76,8 @@ public class IndirectlyPermissionLogicalValidator implements ConfigurationValida
                                 " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
                     }
                 }else if(accessMatrixConfig.getBorrowPermissisons() == BorrowPermissisonsMode.readWriteDelete){
-                    if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().size() > 0){
+                    if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().size() > 0
+                            && !isAllowedStatusesForMatrixRef(accessMatrixConfig)){
                         logicalErrors.addError("Access Matrix tor type " + accessMatrixConfig.getType() +
                                 " can not has status config when it has matrix-reference-field=" + accessMatrixConfig.getMatrixReference() +
                                 " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
@@ -132,6 +136,16 @@ public class IndirectlyPermissionLogicalValidator implements ConfigurationValida
         }
 
         return logicalErrorsList;
+    }
+
+    private boolean isAllowedStatusesForMatrixRef(@Nonnull AccessMatrixConfig accessMatrixConfig) {
+        if (accessMatrixConfig.getStatus() == null) {
+            return true;
+        }
+        return accessMatrixConfig.getStatus().stream()
+                .map(AccessMatrixStatusConfig::getPermissions)
+                .flatMap(List::stream)
+                .allMatch(conf -> conf instanceof ReadAttachmentConfig);
     }
 
     /**

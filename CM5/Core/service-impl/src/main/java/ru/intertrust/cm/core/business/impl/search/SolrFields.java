@@ -48,4 +48,8 @@ public class SolrFields {
      * Поле, хранящее содержимое файлов (вложений)
      */
     public static final String CONTENT = "cm_content";
+    /**
+     * Префиксы полей для точного поиска
+     */
+    public static final String EXACT_MATCH_FIELD = FIELD_PREFIX + "te";
 }

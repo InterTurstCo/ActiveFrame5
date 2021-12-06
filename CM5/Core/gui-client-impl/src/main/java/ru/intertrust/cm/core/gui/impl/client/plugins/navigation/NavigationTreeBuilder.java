@@ -61,7 +61,7 @@ class NavigationTreeBuilder {
     private void collectCounterDecorators(LinkConfig linkConfig, TreeItem treeItem) {
         if (linkConfig.getPluginDefinition() != null) {
             if (linkConfig.getPluginDefinition().getPluginConfig() instanceof DomainObjectSurferConfig) {
-                TreeItemCounterDecorator treeItemCounterDecorator = new TreeItemCounterDecorator(treeItem);
+                TreeItemCounterDecorator treeItemCounterDecorator = new TreeItemCounterDecorator(treeItem, linkConfig.isDisplayCounter());
                 CounterKey counterKey = new CounterKey(linkConfig.getName(), ((DomainObjectSurferConfig) linkConfig.getPluginDefinition()
                         .getPluginConfig()).getCollectionViewerConfig().getCollectionRefConfig().getName());
                 treeItemCounterDecorator.setCounterKey(counterKey);

@@ -113,7 +113,7 @@ public class ConfigurationSerializer {
             schemaValidator.validate();
             return createSerializerInstance().read(Configuration.class, configurationString);
         } catch (Exception e) {
-            throw new ConfigurationException("Failed to deserialize configuration");
+            throw new ConfigurationException("Failed to deserialize configuration", e);
         }
     }
 
@@ -248,9 +248,10 @@ public class ConfigurationSerializer {
             final List<TopLevelConfig> destinationTopLevelConfigs = destination.getConfigurationList();
             final List<TopLevelConfig> sourceTopLevelConfigs = source.getConfigurationList();
             for (TopLevelConfig sourceTopLevelConfig : sourceTopLevelConfigs) {
-                final boolean isMigrationScript = sourceTopLevelConfig instanceof MigrationScriptConfig;
-                if (isMigrationScript) {
+                if (sourceTopLevelConfig instanceof MigrationScriptConfig) {
                     ((MigrationScriptConfig) sourceTopLevelConfig).setModuleName(source.getModuleName());
+                }else if (sourceTopLevelConfig instanceof AccessMatrixConfig){
+                    ((AccessMatrixConfig) sourceTopLevelConfig).setModuleName(source.getModuleName());
                 }
                 destinationTopLevelConfigs.add(sourceTopLevelConfig);
             }

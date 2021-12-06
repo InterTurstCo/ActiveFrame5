@@ -13,8 +13,6 @@ public interface AttachmentService extends BaseAttachmentService {
      *
      * @author atsvetkov
      */
-    public interface Remote extends BaseAttachmentService {
+    interface Remote extends BaseAttachmentService {
     }
-
-
 }

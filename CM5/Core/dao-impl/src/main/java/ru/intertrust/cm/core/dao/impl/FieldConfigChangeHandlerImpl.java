@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,9 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
 
     @Autowired
     protected DataStructureDao dataStructureDao;
+
+    @Autowired
+    private UserTransactionService userTransactionService;
 
     /**
      * Обрабатывает изменение конфигурации поля типа доменного объекта
@@ -44,6 +48,8 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof DateTimeWithTimeZoneFieldConfig && oldFieldConfig instanceof DateTimeFieldConfig) {
             handle((DateTimeWithTimeZoneFieldConfig) newFieldConfig, (DateTimeFieldConfig) oldFieldConfig, domainObjectTypeConfig);
+        } else if (newFieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof LongFieldConfig) {
+            handle((StringFieldConfig) newFieldConfig, (LongFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
     }
 
@@ -58,6 +64,10 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
     }
 
     private void handle(TextFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+        dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
+    }
+
+    private void handle(StringFieldConfig newFieldConfig, LongFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
         dataStructureDao.updateColumnType(domainObjectTypeConfig, oldFieldConfig, newFieldConfig);
     }
 
@@ -148,7 +158,9 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         if (!newFieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
                 !columnInfo.getDataType().startsWith(dataStructureDao.getSqlType(newFieldConfig)) &&
                 !(TextFieldConfig.class.equals(newFieldConfig.getClass()) &&
-                        StringFieldConfig.class.equals(oldFieldConfig.getClass()))) {
+                        StringFieldConfig.class.equals(oldFieldConfig.getClass()) ||
+                StringFieldConfig.class.equals(newFieldConfig.getClass()) &&
+                        LongFieldConfig.class.equals(oldFieldConfig.getClass()))) {
             throw new ConfigurationException("Configuration loading aborted: cannot change field type of " +
                     domainObjectTypeConfig.getName() + " from " +
                     oldFieldConfig.getClass().getName() + " to " + newFieldConfig.getClass().getName());
@@ -159,8 +171,13 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
                 if (!newFieldConfig.isNotNull()) {
                     dataStructureDao.setColumnNotNull(domainObjectTypeConfig, newFieldConfig, false);
                 } else {
-                    throw new ConfigurationException("Configuration loading aborted: cannot set not-null on " +
-                            domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                    // Так как эта операция не безопасна, выполняем ее только в транзакции. Если транзакции нет выбрасываем исключение
+                    if (userTransactionService.getTransactionId() == null) {
+                        throw new ConfigurationException("Configuration loading aborted: cannot set not-null on " +
+                                domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                    }else {
+                        dataStructureDao.setColumnNotNull(domainObjectTypeConfig, newFieldConfig, true);
+                    }
                 }
             }
         }

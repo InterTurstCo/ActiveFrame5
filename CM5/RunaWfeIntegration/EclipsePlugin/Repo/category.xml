@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+    <category-def name="ru.inttrust" label="Intertrust Eclipse Plugins"/>
+    <iu>
+        <category name="ru.inttrust"/>
+        <query>
+            <expression type="match">id ~= /ru.inttrust.*/</expression>
+        </query>
+    </iu>
+</site>

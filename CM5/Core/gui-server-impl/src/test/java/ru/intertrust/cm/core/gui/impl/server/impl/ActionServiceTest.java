@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
+import ru.intertrust.cm.core.gui.api.server.DomainObjectMapping;
 import ru.intertrust.cm.core.gui.impl.server.ActionServiceImpl;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
@@ -40,6 +41,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -213,8 +215,22 @@ public class ActionServiceTest {
 
             configurationSerializer.setModuleService(moduleSerevice);
             Configuration configuration = configurationSerializer.deserializeConfiguration();
-            return new ConfigurationExplorerImpl(configuration);
+            ConfigurationExplorerImpl result = new ConfigurationExplorerImpl(configuration);
+            result.init();
+            return result;
         }
+
+        @Bean
+        public DomainObjectMapping domainObjectMapping(){
+            DomainObjectMapping result = Mockito.mock(DomainObjectMapping.class);
+            return result;
+        }
+
+        @Bean
+        public ModuleService moduleService() {
+            return mock(ModuleService.class);
+        }
+
     }
     
 }

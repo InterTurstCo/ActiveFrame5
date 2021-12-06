@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Коллекция для отображения списка цветов -->
+    <collection name="color_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                    c.id AS id,
+                    c.name AS name,
+                    CASE
+                        WHEN coalesce(c.hex_code, '') = ''
+                            THEN ''
+                        ELSE '#' || c.hex_code
+                        END AS color_code
+                FROM color c
+                WHERE 1 = 1
+                    ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            SELECT
+            COUNT(*)
+            FROM color c
+            WHERE 1 = 1
+                ::where-clause
+        </counting-prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    LOWER(c.name) LIKE LOWER('%' || {0} || '%')
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byHexCode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    LOWER(c.hex_code) LIKE LOWER('%' || {0} || '%')
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="color_collection_view" collection="color_collection" is-default="true">
+        <display>
+            <column field="name" name="Название" type="string" resizable="true" sortable="true" search-filter="byName"/>
+            <column field="color_code" name="HEX-код цвета" type="string" resizable="true" sortable="true" search-filter="byHexCode"/>
+        </display>
+    </collection-view>
+
+</configuration>

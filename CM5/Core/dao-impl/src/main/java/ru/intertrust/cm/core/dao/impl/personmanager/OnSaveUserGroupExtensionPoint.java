@@ -77,12 +77,31 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
         clearCollectionCache();
 
         //удаляем всех участников группы
-
         deleteGroupMembers(deletedDomainObject);
 
+        // Удаляем все вхождения в дочерние группы
+        deleteChildGroupMembers(deletedDomainObject);
+
+        // Удаляем все вхождения в родительские группы
+        deleteFromParentGroups(deletedDomainObject);
+        
         Id groupGroupId = getGroupGroupId(deletedDomainObject.getId(), deletedDomainObject.getId());
         AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
         domainObjectDao.delete(groupGroupId, accessToken);
+    }
+
+    private void deleteFromParentGroups(DomainObject deletedDomainObject) {
+        List<DomainObject> parents = personManagementService.getParentGroups(deletedDomainObject.getId());
+        for (DomainObject parent : parents) {
+            personManagementService.remoteGroupFromGroup(parent.getId(), deletedDomainObject.getId());
+        }
+    }
+
+    private void deleteChildGroupMembers(DomainObject deletedDomainObject) {
+        List<DomainObject> childs = personManagementService.getChildGroups(deletedDomainObject.getId());
+        for (DomainObject child : childs) {
+            personManagementService.remoteGroupFromGroup(deletedDomainObject.getId(), child.getId());
+        }
     }
 
     private int deleteGroupMembers(DomainObject deletedDomainObject) {

@@ -22,6 +22,7 @@ public class LocalizationKeys {
     public static final String TASK_COMPLETE_MESSAGE_KEY = "TaskComplete";
     public static final String ROW_IS_DELETED_MESSAGE_KEY = "RowDeleted";
     public static final String REPORT_IS_UPLOADED_MESSAGE_KEY = "ReportUploaded";
+    public static final String REPORTS_ARE_UPLOADED_MESSAGE_KEY = "ReportsUploaded";
     public static final String CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY = "CorrectValidationErrors";
     public static final String SAVED_MESSAGE_KEY = "Saved";
     public static final String EVENT_IS_SENT_MESSAGE_KEY = "MessageSent";
@@ -76,6 +77,7 @@ public class LocalizationKeys {
     public static final String SELECT_CONFIG_TYPE_KEY = "SelectConfigType";
     public static final String CONFIG_FILES_TYPE_KEY = "ConfigFilesType";
     public static final String ADD_REPORT_FILES_KEY = "AddReportFiles";
+    public static final String ADD_REPORTS_PACKAGE_KEY = "AddReportsPackage";
 
     public static final String MONTH_SWITCH_BUTTON_KEY = "MonthSwitchButton";
     public static final String WEEK_SWITCH_BUTTON_KEY = "WeekSwitchButton";

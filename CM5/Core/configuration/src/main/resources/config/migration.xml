@@ -17,4 +17,80 @@
         </before-auto-migration>
     </migration-script>
 
+    <migration-script sequence-number="200">
+        <before-auto-migration>
+            <native-command>
+                <![CDATA[
+                CREATE TABLE IF NOT EXISTS "security_stamp" (
+                    "id" BIGINT NOT NULL
+                    ,"id_type" INTEGER
+                    ,"created_date" TIMESTAMP NOT NULL
+                    ,"updated_date" TIMESTAMP NOT NULL
+                    ,"created_by" BIGINT
+                    ,"created_by_type" INTEGER
+                    ,"updated_by" BIGINT
+                    ,"updated_by_type" INTEGER
+                    ,"status" BIGINT
+                    ,"status_type" INTEGER
+                    ,"security_stamp" BIGINT
+                    ,"security_stamp_type" INTEGER
+                    ,"access_object_id" BIGINT
+                    ,"name" VARCHAR(256) NOT NULL
+                    ,"description" VARCHAR(512)
+                    ,CONSTRAINT "pk_security_stamp" PRIMARY KEY ("id")
+                    ,CONSTRAINT "u_security_stamp" UNIQUE (
+                        "id"
+                        ,"id_type"
+                        )
+                    )
+                ]]>
+            </native-command>
+        </before-auto-migration>
+    </migration-script>
+
+    <migration-script sequence-number="300">
+        <before-auto-migration>
+            <execute component-name="addSecurityStampField"/>
+        </before-auto-migration>
+    </migration-script>
+
+    <migration-script sequence-number="400">
+        <before-auto-migration>
+            <native-command>
+                <![CDATA[
+                    DO $$
+                    BEGIN
+                        BEGIN
+                            ALTER TABLE IF EXISTS report_template ADD COLUMN constructor character varying(32) not null default 'jasper';
+                        EXCEPTION
+                            WHEN duplicate_column THEN RAISE NOTICE 'The column constructor already exists in report_template.';
+							WHEN others THEN RAISE NOTICE '%; SQLSTATE: %', SQLERRM, SQLSTATE;
+                        END;
+                    END;
+                    $$
+                ]]>
+            </native-command>
+        </before-auto-migration>
+    </migration-script>
+
+    <migration-script sequence-number="500">
+        <before-auto-migration>
+            <native-command>
+                <![CDATA[
+                    DO $$
+                    DECLARE
+                        type_id varchar;
+                    BEGIN
+                        select id into type_id from domain_object_type_id where name = 'process_definition';
+                        if type_id is not null then
+                            execute 'ALTER TABLE IF EXISTS process_definition DROP CONSTRAINT IF EXISTS u_' || type_id || '_1';
+                            execute 'ALTER TABLE IF EXISTS process_definition DROP CONSTRAINT IF EXISTS u_' || type_id || '_2';
+                            execute 'ALTER TABLE IF EXISTS process_definition DROP CONSTRAINT IF EXISTS u_' || type_id || '_3';
+                        end if;
+                    END;
+                    $$
+                ]]>
+            </native-command>
+        </before-auto-migration>
+    </migration-script>
 </configuration>
